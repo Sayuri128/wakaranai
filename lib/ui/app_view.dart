@@ -14,6 +14,7 @@ class AppView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData.dark(),
       debugShowCheckedModeBanner: false,
       navigatorKey: MyApp.navigatorKey,
       localizationsDelegates: const [
@@ -25,7 +26,7 @@ class AppView extends StatelessWidget {
       supportedLocales: S.delegate.supportedLocales,
       routes: {
         Routes.splashScreen: (context) => const SplashScreen(),
-        Routes.home: (context) => const HomeView()
+        Routes.home: (context) => HomeView()
       },
       builder: (context, child) => BlocListener<AuthenticationCubit, AuthenticationState>(
           listener: (context, state) {

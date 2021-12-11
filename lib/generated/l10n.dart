@@ -59,6 +59,26 @@ class S {
       args: [],
     );
   }
+
+  /// `Reader`
+  String get bottom_navigation_reader_menu_title {
+    return Intl.message(
+      'Reader',
+      name: 'bottom_navigation_reader_menu_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Settings`
+  String get bottom_navigation_settings_menu_title {
+    return Intl.message(
+      'Settings',
+      name: 'bottom_navigation_settings_menu_title',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
