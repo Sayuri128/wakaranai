@@ -22,3 +22,7 @@ class Images {
     required this.thumbnail,
   });
 }
+
+enum ImageType {
+  p, j
+}

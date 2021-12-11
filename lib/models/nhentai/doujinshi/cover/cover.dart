@@ -1,3 +1,4 @@
+import 'package:h_reader/models/nhentai/doujinshi/images/images.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'cover.g.dart';
@@ -9,7 +10,7 @@ class Cover {
 	Map<String, dynamic> toJson() => _$CoverToJson(this);
 
 
-  final String t;
+  final ImageType t;
   final int w;
   final int h;
 
