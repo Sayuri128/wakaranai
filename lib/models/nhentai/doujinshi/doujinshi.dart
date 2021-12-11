@@ -14,13 +14,17 @@ class Doujinshi {
 
 
   final dynamic id;
-  final String? mediaId;
+
+  @JsonKey(name: 'media_id')
+  final String mediaId;
   final Title title;
   final Images images;
   final String scanlator;
   final int? uploadDate;
   final List<TagsItem> tags;
-  final int? numPages;
+  @JsonKey(name: 'num_pages')
+  final int numPages;
+  @JsonKey(name: 'num_favorites')
   final int? numFavorites;
 
   const Doujinshi({
