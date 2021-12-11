@@ -60,11 +60,11 @@ class S {
     );
   }
 
-  /// `Reader`
-  String get bottom_navigation_reader_menu_title {
+  /// `Gallery`
+  String get bottom_navigation_gallery_menu_title {
     return Intl.message(
-      'Reader',
-      name: 'bottom_navigation_reader_menu_title',
+      'Gallery',
+      name: 'bottom_navigation_gallery_menu_title',
       desc: '',
       args: [],
     );

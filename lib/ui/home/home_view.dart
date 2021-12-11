@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:h_reader/blocs/nhentai/galleries/nhentai_galleries_cubit.dart';
 import 'package:h_reader/generated/l10n.dart';
 import 'package:h_reader/ui/widgets/bottom_navigation.dart';
 import 'package:h_reader/utils/app_colors.dart';
+import 'package:provider/src/provider.dart';
 
 class HomeView extends StatefulWidget {
   HomeView({Key? key}) : super(key: key);
@@ -16,30 +19,55 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     List<Widget> widgets = [
-      Center(
-        child: Text('reader'),
-      ),
+      Builder(builder: (context) {
+        return Center(
+          child: Column(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  context.read<NHentaiGalleriesCubit>().requestGallery(1);
+                },
+                child: Text('Load doujinshi'),
+              ),
+              BlocBuilder<NHentaiGalleriesCubit, NHentaiGalleriesState>(builder: (context, state) {
+                if (state is NHentaiGalleriesReceived) {
+                  return ListView(
+                    physics: const BouncingScrollPhysics(),
+                    shrinkWrap: true,
+                    children: state.doujishis.map((e) => Text(e.title.pretty ?? '')).toList(),
+                  );
+                } else {
+                  return const SizedBox();
+                }
+              })
+            ],
+          ),
+        );
+      }),
       Center(
         child: Text('settings'),
       )
     ];
 
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 50,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0))),
-        backgroundColor: AppColors.accentGreen,
-        centerTitle: true,
-        title: Text(S.current.app_name),
+    return MultiBlocProvider(
+      providers: [BlocProvider<NHentaiGalleriesCubit>(create: (_) => NHentaiGalleriesCubit())],
+      child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 50,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0))),
+          backgroundColor: AppColors.accentGreen,
+          centerTitle: true,
+          title: Text(S.current.app_name),
+        ),
+        body: widgets.elementAt(_currentPage),
+        bottomNavigationBar: BottomNavigation(onTap: (index) {
+          setState(() {
+            _currentPage = index;
+          });
+        }),
       ),
-      body: widgets.elementAt(_currentPage),
-      bottomNavigationBar: BottomNavigation(onTap: (index) {
-        setState(() {
-          _currentPage = index;
-        });
-      }),
     );
   }
 }
