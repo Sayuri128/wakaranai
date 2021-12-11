@@ -10,13 +10,17 @@ class NHentaiGalleriesInitial extends NHentaiGalleriesState {
 }
 
 class NHentaiGalleriesReceived extends NHentaiGalleriesState {
-
-  final List<Doujinshi> doujishis;
+  final List<Doujinshi> doujinshis;
 
   @override
-  List<Object?> get props => [doujishis];
+  List<Object?> get props => [doujinshis];
 
   const NHentaiGalleriesReceived({
-    required this.doujishis,
+    required this.doujinshis,
   });
+}
+
+class NHentaiGalleriesLoading extends NHentaiGalleriesState {
+  @override
+  List<Object?> get props => [];
 }

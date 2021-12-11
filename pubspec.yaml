@@ -21,6 +21,7 @@ dependencies:
   retrofit: 3.0.0
   dio: 4.0.4
   json_annotation: 4.4.0
+  transparent_image: 2.0.0
 
 flutter_intl:
   enabled: true
