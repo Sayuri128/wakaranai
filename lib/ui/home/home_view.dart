@@ -1,12 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:h_reader/generated/l10n.dart';
+import 'package:h_reader/ui/widgets/bottom_navigation.dart';
 import 'package:h_reader/utils/app_colors.dart';
 
-class HomeView extends StatelessWidget {
-  const HomeView({Key? key}) : super(key: key);
+class HomeView extends StatefulWidget {
+  HomeView({Key? key}) : super(key: key);
+
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  var _currentPage = 0;
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> widgets = [
+      Center(
+        child: Text('reader'),
+      ),
+      Center(
+        child: Text('settings'),
+      )
+    ];
+
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 50,
@@ -17,7 +34,12 @@ class HomeView extends StatelessWidget {
         centerTitle: true,
         title: Text(S.current.app_name),
       ),
-      body: const SizedBox(),
+      body: widgets.elementAt(_currentPage),
+      bottomNavigationBar: BottomNavigation(onTap: (index) {
+        setState(() {
+          _currentPage = index;
+        });
+      }),
     );
   }
 }
