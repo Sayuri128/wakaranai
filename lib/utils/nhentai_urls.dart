@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:h_reader/models/nhentai/doujinshi/images/images.dart';
 
 class NHentaiUrls {
@@ -12,4 +13,9 @@ class NHentaiUrls {
         return 'jpg';
     }
   }
+}
+
+extension StringX on String {
+  String get overflow =>
+      Characters(this).replaceAll(Characters(''), Characters('\u{200B}')).toString();
 }
