@@ -99,6 +99,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Copied to clipboard!`
+  String get copied_to_clipboard_message {
+    return Intl.message(
+      'Copied to clipboard!',
+      name: 'copied_to_clipboard_message',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

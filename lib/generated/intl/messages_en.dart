@@ -27,6 +27,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Gallery"),
         "bottom_navigation_settings_menu_title":
             MessageLookupByLibrary.simpleMessage("Settings"),
+        "copied_to_clipboard_message":
+            MessageLookupByLibrary.simpleMessage("Copied to clipboard!"),
         "doujinshi_pages_count": MessageLookupByLibrary.simpleMessage("Pages:"),
         "doujinshi_uploaded": MessageLookupByLibrary.simpleMessage("Uploaded:")
       };
