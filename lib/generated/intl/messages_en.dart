@@ -26,6 +26,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "bottom_navigation_gallery_menu_title":
             MessageLookupByLibrary.simpleMessage("Gallery"),
         "bottom_navigation_settings_menu_title":
-            MessageLookupByLibrary.simpleMessage("Settings")
+            MessageLookupByLibrary.simpleMessage("Settings"),
+        "doujinshi_pages_count": MessageLookupByLibrary.simpleMessage("Pages:"),
+        "doujinshi_uploaded": MessageLookupByLibrary.simpleMessage("Uploaded:")
       };
 }
