@@ -9,11 +9,11 @@ import 'package:h_reader/models/nhentai/doujinshi/tags_item/tags_item.dart';
 import 'package:h_reader/ui/home/doujinshi_view/doujinshi_page_view.dart';
 import 'package:h_reader/ui/home/doujinshi_view/tag_item.dart';
 import 'package:h_reader/ui/widgets/appbar.dart';
+import 'package:h_reader/ui/widgets/cached_image.dart';
 import 'package:h_reader/utils/app_colors.dart';
 import 'package:h_reader/utils/nhentai_urls.dart';
 import 'package:h_reader/utils/text_styles.dart';
 import 'package:intl/intl.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:collection/collection.dart';
 
 class DoujinshiView extends StatefulWidget {
@@ -146,15 +146,13 @@ class _DoujinshiViewState extends State<DoujinshiView> {
     return ClipRRect(
       borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
-      child: FadeInImage(
-          placeholder: Image.memory(kTransparentImage).image,
-          width: min(MediaQuery.of(context).size.width, widget.doujinshi.images.cover.w.toDouble()),
-          height: max(
-              MediaQuery.of(context).size.height * 0.4, widget.doujinshi.images.cover.h.toDouble()),
-          fit: BoxFit.fill,
-          image: Image.network(
-                  NHentaiUrls.coverUrl(widget.doujinshi.mediaId, widget.doujinshi.images.cover.t))
-              .image),
+      child: CachedImage(
+        width: min(MediaQuery.of(context).size.width, widget.doujinshi.images.cover.w.toDouble()),
+        height: max(
+            MediaQuery.of(context).size.height * 0.4, widget.doujinshi.images.cover.h.toDouble()),
+        fit: BoxFit.fill,
+        url: NHentaiUrls.coverUrl(widget.doujinshi.mediaId, widget.doujinshi.images.cover.t),
+      ),
     );
   }
 }

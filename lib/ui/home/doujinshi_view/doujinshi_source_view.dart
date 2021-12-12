@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:h_reader/models/nhentai/doujinshi/pages_item/pages_item.dart';
 import 'package:h_reader/utils/nhentai_urls.dart';
@@ -43,7 +44,7 @@ class _DoujinshiSourceViewState extends State<DoujinshiSourceView> {
 
   Widget _buildPageItem(PagesItem item) {
     return PhotoView(
-      minScale: 0.3,
+        minScale: 0.3,
         loadingBuilder: (context, event) => Center(
               child: CircularProgressIndicator(
                 value: event == null
@@ -51,8 +52,7 @@ class _DoujinshiSourceViewState extends State<DoujinshiSourceView> {
                     : event.cumulativeBytesLoaded / (event.expectedTotalBytes ?? 0),
               ),
             ),
-        imageProvider: Image.network(NHentaiUrls.pageItemSource(
-                widget.data.mediaId, item.t, widget.data.pages.indexOf(item) + 1))
-            .image);
+        imageProvider: CachedNetworkImageProvider(NHentaiUrls.pageItemSource(
+            widget.data.mediaId, item.t, widget.data.pages.indexOf(item) + 1)));
   }
 }
