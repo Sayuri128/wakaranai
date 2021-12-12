@@ -148,10 +148,10 @@ class _DoujinshiViewState extends State<DoujinshiView> {
           bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
       child: FadeInImage(
           placeholder: Image.memory(kTransparentImage).image,
-          width: MediaQuery.of(context).size.width,
+          width: min(MediaQuery.of(context).size.width, widget.doujinshi.images.cover.w.toDouble()),
           height: max(
-              MediaQuery.of(context).size.height * 0.6, widget.doujinshi.images.cover.h.toDouble()),
-          fit: BoxFit.cover,
+              MediaQuery.of(context).size.height * 0.4, widget.doujinshi.images.cover.h.toDouble()),
+          fit: BoxFit.fill,
           image: Image.network(
                   NHentaiUrls.coverUrl(widget.doujinshi.mediaId, widget.doujinshi.images.cover.t))
               .image),

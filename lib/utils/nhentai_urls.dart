@@ -11,6 +11,9 @@ class NHentaiUrls {
   static String pageItem(String mediaId, ImageType type, int page) =>
       'https://t5.nhentai.net/galleries/$mediaId/${page}t.${_imageType(type)}';
 
+  static String pageItemSource(String mediaId, ImageType type, int page) =>
+      'https://i.nhentai.net/galleries/$mediaId/$page.${_imageType(type)}';
+
   static String _imageType(ImageType type) {
     switch (type) {
       case ImageType.p:

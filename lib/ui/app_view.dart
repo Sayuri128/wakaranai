@@ -5,6 +5,7 @@ import 'package:h_reader/blocs/auth/authentication_cubit.dart';
 import 'package:h_reader/generated/l10n.dart';
 import 'package:h_reader/main.dart';
 import 'package:h_reader/models/nhentai/doujinshi/doujinshi.dart';
+import 'package:h_reader/ui/home/doujinshi_view/doujinshi_source_view.dart';
 import 'package:h_reader/ui/home/doujinshi_view/doujinshi_view.dart';
 import 'package:h_reader/ui/home/home_view.dart';
 import 'package:h_reader/ui/routes.dart';
@@ -28,12 +29,15 @@ class AppView extends StatelessWidget {
       supportedLocales: S.delegate.supportedLocales,
       routes: {
         Routes.splashScreen: (context) => const SplashScreen(),
-        Routes.home: (context) => HomeView()
+        Routes.home: (context) => const HomeView()
       },
       onGenerateRoute: (settings) {
         final routes = <String, WidgetBuilder>{
           Routes.doujinshiView: (BuildContext context) =>
               DoujinshiView(doujinshi: settings.arguments as Doujinshi),
+          Routes.doujinshiSourceView: (BuildContext context) => DoujinshiSourceView(
+                data: settings.arguments as DoujinshiSourceViewData,
+              ),
         };
 
         return MaterialPageRoute(builder: routes[settings.name]!);
