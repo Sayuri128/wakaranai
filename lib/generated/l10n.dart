@@ -79,6 +79,26 @@ class S {
       args: [],
     );
   }
+
+  /// `Pages:`
+  String get doujinshi_pages_count {
+    return Intl.message(
+      'Pages:',
+      name: 'doujinshi_pages_count',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Uploaded:`
+  String get doujinshi_uploaded {
+    return Intl.message(
+      'Uploaded:',
+      name: 'doujinshi_uploaded',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -20,7 +20,9 @@ class Doujinshi {
   final Title title;
   final Images images;
   final String scanlator;
-  final int? uploadDate;
+
+  @JsonKey(name: 'upload_date')
+  final int uploadDate;
   final List<TagsItem> tags;
   @JsonKey(name: 'num_pages')
   final int numPages;

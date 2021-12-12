@@ -3,7 +3,10 @@ import 'package:h_reader/models/nhentai/doujinshi/images/images.dart';
 
 class NHentaiUrls {
   static String thumbnailUrl(String mediaId, ImageType type) =>
-      'https://t5.nhentai.net/galleries/${mediaId}/thumb.${_imageType(type)}';
+      'https://t5.nhentai.net/galleries/$mediaId/thumb.${_imageType(type)}';
+
+  static String coverUrl(String mediaId, ImageType type) =>
+      'https://t5.nhentai.net/galleries/$mediaId/cover.${_imageType(type)}';
 
   static String _imageType(ImageType type) {
     switch (type) {
