@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:h_reader/generated/l10n.dart';
 import 'package:h_reader/models/nhentai/doujinshi/doujinshi.dart';
 import 'package:h_reader/models/nhentai/doujinshi/tags_item/tags_item.dart';
+import 'package:h_reader/ui/home/doujinshi_view/doujinshi_page_view.dart';
 import 'package:h_reader/ui/home/doujinshi_view/tag_item.dart';
 import 'package:h_reader/ui/widgets/appbar.dart';
 import 'package:h_reader/utils/app_colors.dart';
@@ -31,76 +32,94 @@ class _DoujinshiViewState extends State<DoujinshiView> {
       appBar: buildAppBar(title: widget.doujinshi.title.pretty ?? ''),
       body: Transform.translate(
         offset: const Offset(0, -5),
-        child: ListView(
-          shrinkWrap: true,
+        child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          children: [
-            _buildCover(context),
-            if (widget.doujinshi.title.english != null) ...[
+          child: Column(
+            children: [
+              _buildCover(context),
+              if (widget.doujinshi.title.english != null) ...[
+                const SizedBox(
+                  height: 16.0,
+                ),
+                _buildTitle(title: widget.doujinshi.title.english!)
+              ],
+              if (widget.doujinshi.title.japanese != null) ...[
+                const SizedBox(
+                  height: 16.0,
+                ),
+                _buildTitle(title: widget.doujinshi.title.japanese!)
+              ],
               const SizedBox(
-                height: 16.0,
+                height: 8.0,
               ),
-              _buildTitle(title: widget.doujinshi.title.english!)
-            ],
-            if (widget.doujinshi.title.japanese != null) ...[
+              _buildTags(),
               const SizedBox(
-                height: 16.0,
+                height: 8.0,
               ),
-              _buildTitle(title: widget.doujinshi.title.japanese!)
+              _buildPagesCount(),
+              _buildUploadedDate(),
+              const SizedBox(
+                height: 8.0,
+              ),
+              DoujinshiPageView(
+                  mediaId: widget.doujinshi.mediaId, pages: widget.doujinshi.images.pages)
             ],
-            const SizedBox(
-              height: 8.0,
-            ),
-            Wrap(
-              children: widget.doujinshi.tags
-                  .sorted((TagsItem m, TagsItem o) => -m.count.compareTo(o.count))
-                  .map((e) => TagItem(
-                        item: e,
-                      ))
-                  .toList(),
-            ),
-            const SizedBox(
-              height: 8.0,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Text(
-                    S.current.doujinshi_pages_count,
-                    style: medium(),
-                  ),
-                  const SizedBox(
-                    width: 4,
-                  ),
-                  Text(
-                    widget.doujinshi.numPages.toString(),
-                    style: medium(color: AppColors.green),
-                  )
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Text(
-                    S.current.doujinshi_uploaded,
-                    style: medium(),
-                  ),
-                  const SizedBox(
-                    width: 4,
-                  ),
-                  Text(
-                    DateFormat('yyyy-MM-dd HH:mm').format(DateTime.fromMillisecondsSinceEpoch(
-                        int.parse('${widget.doujinshi.uploadDate.toString()}000'))),
-                    style: medium(color: AppColors.green),
-                  )
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Wrap _buildTags() {
+    return Wrap(
+      children: widget.doujinshi.tags
+          .sorted((TagsItem m, TagsItem o) => -m.count.compareTo(o.count))
+          .map((e) => TagItem(
+                item: e,
+              ))
+          .toList(),
+    );
+  }
+
+  Padding _buildPagesCount() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Text(
+            S.current.doujinshi_pages_count,
+            style: medium(),
+          ),
+          const SizedBox(
+            width: 4,
+          ),
+          Text(
+            widget.doujinshi.numPages.toString(),
+            style: medium(color: AppColors.green),
+          )
+        ],
+      ),
+    );
+  }
+
+  Padding _buildUploadedDate() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Text(
+            S.current.doujinshi_uploaded,
+            style: medium(),
+          ),
+          const SizedBox(
+            width: 4,
+          ),
+          Text(
+            DateFormat('yyyy-MM-dd HH:mm').format(DateTime.fromMillisecondsSinceEpoch(
+                int.parse('${widget.doujinshi.uploadDate.toString()}000'))),
+            style: medium(color: AppColors.green),
+          )
+        ],
       ),
     );
   }
