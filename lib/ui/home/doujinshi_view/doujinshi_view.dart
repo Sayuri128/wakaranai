@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:h_reader/generated/l10n.dart';
 import 'package:h_reader/models/nhentai/doujinshi/doujinshi.dart';
 import 'package:h_reader/models/nhentai/doujinshi/tags_item/tags_item.dart';
@@ -13,15 +15,20 @@ import 'package:intl/intl.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:collection/collection.dart';
 
-class DoujinshiView extends StatelessWidget {
+class DoujinshiView extends StatefulWidget {
   const DoujinshiView({Key? key, required this.doujinshi}) : super(key: key);
 
   final Doujinshi doujinshi;
 
   @override
+  State<DoujinshiView> createState() => _DoujinshiViewState();
+}
+
+class _DoujinshiViewState extends State<DoujinshiView> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(title: doujinshi.title.pretty ?? ''),
+      appBar: buildAppBar(title: widget.doujinshi.title.pretty ?? ''),
       body: Transform.translate(
         offset: const Offset(0, -5),
         child: ListView(
@@ -29,11 +36,23 @@ class DoujinshiView extends StatelessWidget {
           physics: const BouncingScrollPhysics(),
           children: [
             _buildCover(context),
+            if (widget.doujinshi.title.english != null) ...[
+              const SizedBox(
+                height: 16.0,
+              ),
+              _buildTitle(title: widget.doujinshi.title.english!)
+            ],
+            if (widget.doujinshi.title.japanese != null) ...[
+              const SizedBox(
+                height: 16.0,
+              ),
+              _buildTitle(title: widget.doujinshi.title.japanese!)
+            ],
             const SizedBox(
               height: 8.0,
             ),
             Wrap(
-              children: doujinshi.tags
+              children: widget.doujinshi.tags
                   .sorted((TagsItem m, TagsItem o) => -m.count.compareTo(o.count))
                   .map((e) => TagItem(
                         item: e,
@@ -55,7 +74,7 @@ class DoujinshiView extends StatelessWidget {
                     width: 4,
                   ),
                   Text(
-                    doujinshi.numPages.toString(),
+                    widget.doujinshi.numPages.toString(),
                     style: medium(color: AppColors.green),
                   )
                 ],
@@ -74,13 +93,31 @@ class DoujinshiView extends StatelessWidget {
                   ),
                   Text(
                     DateFormat('yyyy-MM-dd HH:mm').format(DateTime.fromMillisecondsSinceEpoch(
-                        int.parse('${doujinshi.uploadDate.toString()}000'))),
+                        int.parse('${widget.doujinshi.uploadDate.toString()}000'))),
                     style: medium(color: AppColors.green),
                   )
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Padding _buildTitle({required String title}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: GestureDetector(
+        onLongPress: () {
+          Clipboard.setData(ClipboardData(text: title));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(S.current.copied_to_clipboard_message)));
+        },
+        child: Text(
+          title,
+          style: medium(color: AppColors.green, size: 16),
+          textAlign: TextAlign.center,
         ),
       ),
     );
@@ -93,10 +130,11 @@ class DoujinshiView extends StatelessWidget {
       child: FadeInImage(
           placeholder: Image.memory(kTransparentImage).image,
           width: MediaQuery.of(context).size.width,
-          height:
-              max(MediaQuery.of(context).size.height * 0.6, doujinshi.images.cover.h.toDouble()),
+          height: max(
+              MediaQuery.of(context).size.height * 0.6, widget.doujinshi.images.cover.h.toDouble()),
           fit: BoxFit.cover,
-          image: Image.network(NHentaiUrls.coverUrl(doujinshi.mediaId, doujinshi.images.cover.t))
+          image: Image.network(
+                  NHentaiUrls.coverUrl(widget.doujinshi.mediaId, widget.doujinshi.images.cover.t))
               .image),
     );
   }
