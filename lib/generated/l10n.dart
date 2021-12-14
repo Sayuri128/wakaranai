@@ -109,6 +109,106 @@ class S {
       args: [],
     );
   }
+
+  /// `Settings`
+  String get settings_title {
+    return Intl.message(
+      'Settings',
+      name: 'settings_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cache`
+  String get settings_caching_section_title {
+    return Intl.message(
+      'Cache',
+      name: 'settings_caching_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Image caching`
+  String get settings_caching_images_title {
+    return Intl.message(
+      'Image caching',
+      name: 'settings_caching_images_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Caching period`
+  String get settings_caching_period_dialog_title {
+    return Intl.message(
+      'Caching period',
+      name: 'settings_caching_period_dialog_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Day`
+  String get settings_caching_period_one_day {
+    return Intl.message(
+      'Day',
+      name: 'settings_caching_period_one_day',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Week`
+  String get settings_caching_period_one_week {
+    return Intl.message(
+      'Week',
+      name: 'settings_caching_period_one_week',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Month`
+  String get settings_caching_period_one_month {
+    return Intl.message(
+      'Month',
+      name: 'settings_caching_period_one_month',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Forever`
+  String get settings_caching_period_forever {
+    return Intl.message(
+      'Forever',
+      name: 'settings_caching_period_forever',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear image cache`
+  String get settings_cache_clear_title {
+    return Intl.message(
+      'Clear image cache',
+      name: 'settings_cache_clear_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are your sure want to clear image cache?`
+  String get settings_cache_clear_dialog_title {
+    return Intl.message(
+      'Are your sure want to clear image cache?',
+      name: 'settings_cache_clear_dialog_title',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

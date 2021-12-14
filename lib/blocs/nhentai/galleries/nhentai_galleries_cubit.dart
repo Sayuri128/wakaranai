@@ -12,7 +12,7 @@ class NHentaiGalleriesCubit extends Cubit<NHentaiGalleriesState> {
 
   void requestGallery(int page) async {
     emit(NHentaiGalleriesLoading());
-    Future.delayed(Duration(milliseconds: 100), () async {
+    Future.delayed(const Duration(milliseconds: 100), () async {
       emit(
           NHentaiGalleriesReceived(doujinshis: (await _nHentaiRepository.getGallery(page)).result));
     });
