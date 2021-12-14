@@ -30,6 +30,26 @@ class MessageLookup extends MessageLookupByLibrary {
         "copied_to_clipboard_message":
             MessageLookupByLibrary.simpleMessage("Copied to clipboard!"),
         "doujinshi_pages_count": MessageLookupByLibrary.simpleMessage("Pages:"),
-        "doujinshi_uploaded": MessageLookupByLibrary.simpleMessage("Uploaded:")
+        "doujinshi_uploaded": MessageLookupByLibrary.simpleMessage("Uploaded:"),
+        "settings_cache_clear_dialog_title":
+            MessageLookupByLibrary.simpleMessage(
+                "Are your sure want to clear image cache?"),
+        "settings_cache_clear_title":
+            MessageLookupByLibrary.simpleMessage("Clear image cache"),
+        "settings_caching_images_title":
+            MessageLookupByLibrary.simpleMessage("Image caching"),
+        "settings_caching_period_dialog_title":
+            MessageLookupByLibrary.simpleMessage("Caching period"),
+        "settings_caching_period_forever":
+            MessageLookupByLibrary.simpleMessage("Forever"),
+        "settings_caching_period_one_day":
+            MessageLookupByLibrary.simpleMessage("Day"),
+        "settings_caching_period_one_month":
+            MessageLookupByLibrary.simpleMessage("Month"),
+        "settings_caching_period_one_week":
+            MessageLookupByLibrary.simpleMessage("Week"),
+        "settings_caching_section_title":
+            MessageLookupByLibrary.simpleMessage("Cache"),
+        "settings_title": MessageLookupByLibrary.simpleMessage("Settings")
       };
 }
