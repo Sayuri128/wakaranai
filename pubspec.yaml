@@ -17,7 +17,7 @@ dependencies:
   cupertino_icons: 1.0.4
   flutter_bloc: 8.0.0
   equatable: 2.0.3
-  json_serializable: 6.1.1
+  json_serializable: 6.1.2
   retrofit: 3.0.0
   dio: 4.0.4
   json_annotation: 4.4.0
@@ -29,6 +29,7 @@ dependencies:
   shared_preferences: 2.0.11
   flutter_settings_ui: 2.0.1
   adaptive_dialog: 1.2.0
+  sqflite: 2.0.1
 
 flutter_intl:
   enabled: true

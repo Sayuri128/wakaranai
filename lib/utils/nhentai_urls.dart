@@ -20,6 +20,8 @@ class NHentaiUrls {
         return 'png';
       case ImageType.j:
         return 'jpg';
+      case ImageType.g:
+        return 'gif';
     }
   }
 }
