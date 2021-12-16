@@ -1,16 +1,14 @@
 
 import 'package:dio/dio.dart';
 import 'package:h_reader/models/nhentai/gallery/gallery.dart';
-import 'package:retrofit/http.dart';
+import 'package:h_reader/repositories/nhentai/nhentai_repository.dart';
 
-part 'nhentai_service.g.dart';
+class NHentaiService {
 
-@RestApi(baseUrl: 'https://nhentai.net/api/')
-abstract class NHentaiService {
+  final NHentaiRepository nHentaiRepository = NHentaiRepository(Dio());
 
-  factory NHentaiService(Dio dio) = _NHentaiService;
-
-  @GET('/galleries/all')
-  Future<Gallery> getGallery(@Query('page') int page);
+  Future<Gallery> getGallery(int page) async {
+    return await nHentaiRepository.getGallery(page);
+  }
 
 }

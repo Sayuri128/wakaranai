@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:h_reader/blocs/auth/authentication_cubit.dart';
+import 'package:h_reader/blocs/image_cache/image_cache_cubit.dart';
 import 'package:h_reader/ui/app_view.dart';
-
-import 'blocs/nhentai/caching_image/caching_image_cubit.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,7 +21,17 @@ class MyApp extends StatelessWidget {
       BlocProvider(
           lazy: false,
           create: (context) => AuthenticationCubit()..authorize('armatura@gmail.com', '1234')),
-      BlocProvider<CachingImageCubit>(create: (context) => CachingImageCubit()),
-    ], child: const AppView());
+      BlocProvider(create: (context) => ImageCacheCubit())
+    ], child: MultiBlocListener(
+        listeners: [
+          BlocListener<ImageCacheCubit, ImageCacheState>(listener: (context, state) {
+            if(state is ImageCacheReceivedAll) {
+              for(var image in state.data) {
+                print(image);
+              }
+            }
+          })
+        ],
+        child: const AppView()));
   }
 }

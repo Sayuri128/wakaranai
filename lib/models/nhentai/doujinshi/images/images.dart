@@ -24,5 +24,5 @@ class Images {
 }
 
 enum ImageType {
-  p, j
+  p, j, g
 }
