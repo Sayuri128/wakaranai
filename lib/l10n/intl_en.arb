@@ -13,6 +13,6 @@
   "settings_caching_period_one_week": "Week",
   "settings_caching_period_one_month": "Month",
   "settings_caching_period_forever": "Forever",
-  "settings_cache_clear_title": "Clear image cache",
+  "settings_cache_clear_title": "Clear {count} images cache.",
   "settings_cache_clear_dialog_title": "Are your sure want to clear image cache?"
 }

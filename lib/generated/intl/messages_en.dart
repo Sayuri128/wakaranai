@@ -20,6 +20,8 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
+  static String m0(count) => "Clear ${count} images cache.";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "app_name": MessageLookupByLibrary.simpleMessage("HReader"),
@@ -34,8 +36,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "settings_cache_clear_dialog_title":
             MessageLookupByLibrary.simpleMessage(
                 "Are your sure want to clear image cache?"),
-        "settings_cache_clear_title":
-            MessageLookupByLibrary.simpleMessage("Clear image cache"),
+        "settings_cache_clear_title": m0,
         "settings_caching_images_title":
             MessageLookupByLibrary.simpleMessage("Image caching"),
         "settings_caching_period_dialog_title":

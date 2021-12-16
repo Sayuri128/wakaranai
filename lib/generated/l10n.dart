@@ -190,13 +190,13 @@ class S {
     );
   }
 
-  /// `Clear image cache`
-  String get settings_cache_clear_title {
+  /// `Clear {count} images cache.`
+  String settings_cache_clear_title(Object count) {
     return Intl.message(
-      'Clear image cache',
+      'Clear $count images cache.',
       name: 'settings_cache_clear_title',
       desc: '',
-      args: [],
+      args: [count],
     );
   }
 
