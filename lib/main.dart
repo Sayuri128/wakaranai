@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:h_reader/blocs/auth/authentication_cubit.dart';
+import 'package:h_reader/blocs/image_cache/image_cache_cubit.dart';
 import 'package:h_reader/ui/app_view.dart';
 
 void main() {
@@ -9,7 +10,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
 
   static final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -20,7 +20,18 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(providers: [
       BlocProvider(
           lazy: false,
-          create: (context) => AuthenticationCubit()..authorize('armatura@gmail.com', '1234'))
-    ], child: const AppView());
+          create: (context) => AuthenticationCubit()..authorize('armatura@gmail.com', '1234')),
+      BlocProvider(create: (context) => ImageCacheCubit())
+    ], child: MultiBlocListener(
+        listeners: [
+          BlocListener<ImageCacheCubit, ImageCacheState>(listener: (context, state) {
+            if(state is ImageCacheReceivedAll) {
+              for(var image in state.data) {
+                print(image);
+              }
+            }
+          })
+        ],
+        child: const AppView()));
   }
 }
