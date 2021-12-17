@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:h_reader/models/sqlite/cached_image_data.dart';
 import 'package:h_reader/services/sqlite/image_cache/image_cache_service.dart';
 import 'package:meta/meta.dart';
@@ -9,6 +10,11 @@ class ImageCacheCubit extends Cubit<ImageCacheState> {
   ImageCacheCubit() : super(ImageCacheInitial());
 
   final ImageCacheService _imageCacheService = ImageCacheService();
+
+  void preloadAndSaveToCache({required String url}) async {
+    await DefaultCacheManager().downloadFile(url, key: url);
+    saveCacheIfNotExist(cacheKey: url);
+  }
 
   void saveCacheIfNotExist({required String cacheKey}) async {
     await _imageCacheService.saveImage(cacheKey: cacheKey);
