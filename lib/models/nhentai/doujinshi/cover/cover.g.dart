@@ -21,4 +21,5 @@ Map<String, dynamic> _$CoverToJson(Cover instance) => <String, dynamic>{
 const _$ImageTypeEnumMap = {
   ImageType.p: 'p',
   ImageType.j: 'j',
+  ImageType.g: 'g',
 };

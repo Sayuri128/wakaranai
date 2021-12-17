@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'nhentai_service.dart';
+part of 'nhentai_repository.dart';
 
 // **************************************************************************
 // RetrofitGenerator
 // **************************************************************************
 
-class _NHentaiService implements NHentaiService {
-  _NHentaiService(this._dio, {this.baseUrl}) {
+class _NHentaiRepository implements NHentaiRepository {
+  _NHentaiRepository(this._dio, {this.baseUrl}) {
     baseUrl ??= 'https://nhentai.net/api/';
   }
 

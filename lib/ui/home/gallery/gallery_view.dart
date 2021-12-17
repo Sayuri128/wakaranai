@@ -49,7 +49,10 @@ class _GalleryViewState extends State<GalleryView> {
           }
         },
         child: Stack(
-          children: [_buildGalleryListView(), _buildLoadingIndicator()],
+          children: [
+            _buildGalleryListView(),
+            _buildLoadingIndicator(),
+          ],
         ),
       ),
     );
