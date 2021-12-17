@@ -32,39 +32,37 @@ class _DoujinshiViewState extends State<DoujinshiView> {
       appBar: buildAppBar(title: widget.doujinshi.title.pretty ?? ''),
       body: Transform.translate(
         offset: const Offset(0, -5),
-        child: SingleChildScrollView(
+        child: ListView(
           physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              _buildCover(context),
-              if (widget.doujinshi.title.english != null) ...[
-                const SizedBox(
-                  height: 16.0,
-                ),
-                _buildTitle(title: widget.doujinshi.title.english!)
-              ],
-              if (widget.doujinshi.title.japanese != null) ...[
-                const SizedBox(
-                  height: 16.0,
-                ),
-                _buildTitle(title: widget.doujinshi.title.japanese!)
-              ],
+          children: [
+            _buildCover(context),
+            if (widget.doujinshi.title.english != null) ...[
               const SizedBox(
-                height: 8.0,
+                height: 16.0,
               ),
-              _buildTags(),
-              const SizedBox(
-                height: 8.0,
-              ),
-              _buildPagesCount(),
-              _buildUploadedDate(),
-              const SizedBox(
-                height: 8.0,
-              ),
-              DoujinshiPageView(
-                  mediaId: widget.doujinshi.mediaId, pages: widget.doujinshi.images.pages)
+              _buildTitle(title: widget.doujinshi.title.english!)
             ],
-          ),
+            if (widget.doujinshi.title.japanese != null) ...[
+              const SizedBox(
+                height: 16.0,
+              ),
+              _buildTitle(title: widget.doujinshi.title.japanese!)
+            ],
+            const SizedBox(
+              height: 8.0,
+            ),
+            _buildTags(),
+            const SizedBox(
+              height: 8.0,
+            ),
+            _buildPagesCount(),
+            _buildUploadedDate(),
+            const SizedBox(
+              height: 8.0,
+            ),
+            DoujinshiPageView(
+                mediaId: widget.doujinshi.mediaId, pages: widget.doujinshi.images.pages)
+          ],
         ),
       ),
     );
