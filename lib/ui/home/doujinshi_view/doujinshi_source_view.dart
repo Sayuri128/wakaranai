@@ -72,24 +72,35 @@ class _DoujinshiSourceViewState extends State<DoujinshiSourceView> {
             child: AnimatedOpacity(
               opacity: state.controlsVisible ? 1 : 0,
               duration: const Duration(seconds: 1),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Row(
-                    children: [
-                      const Spacer(),
-                      Container(
-                        width: 70,
-                        height: 30,
-                        margin: const EdgeInsets.all(8.0),
-                        child: Center(child: Text('${state.currentPage}/${state.totalPages}')),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16.0),
-                            color: AppColors.accentGreen),
-                      )
-                    ],
-                  )
-                ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
+                          child: const Icon(Icons.arrow_back),
+                          onTap: () {
+                            if (Navigator.of(context).canPop()) {
+                              Navigator.of(context).pop();
+                            }
+                          },
+                        ),
+                        Container(
+                          width: 70,
+                          height: 30,
+                          child: Center(child: Text('${state.currentPage}/${state.totalPages}')),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16.0),
+                              color: AppColors.accentGreen),
+                        )
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           );
