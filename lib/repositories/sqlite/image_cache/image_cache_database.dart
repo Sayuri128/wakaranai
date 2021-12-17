@@ -40,6 +40,11 @@ class ImageCacheDataBase {
     return result.map((e) => CachedImageData.fromJson(e)).toList();
   }
 
+  Future<void> clear() async {
+    await _initialization;
+    await database!.transaction((txn) => txn.rawQuery('DELETE FROM $_tableName'));
+  }
+
   Future<void> close() async {
     assert(_isInitialized);
     await database!.close();
