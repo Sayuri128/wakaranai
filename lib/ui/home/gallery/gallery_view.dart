@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:h_reader/blocs/image_cache/image_cache_cubit.dart';
 import 'package:h_reader/blocs/nhentai/galleries/nhentai_galleries_cubit.dart';
 import 'package:h_reader/models/nhentai/doujinshi/doujinshi.dart';
 import 'package:provider/provider.dart';
@@ -53,15 +52,6 @@ class _GalleryViewState extends State<GalleryView> {
           children: [
             _buildGalleryListView(),
             _buildLoadingIndicator(),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: ElevatedButton(
-                onPressed: () {
-                  context.read<ImageCacheCubit>().getAll();
-                },
-                child: Text('Load all cached images'),
-              ),
-            )
           ],
         ),
       ),

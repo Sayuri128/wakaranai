@@ -5,23 +5,16 @@ import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:h_reader/blocs/image_cache/image_cache_cubit.dart';
 import 'package:h_reader/blocs/settings/settings_cubit.dart';
 import 'package:h_reader/generated/l10n.dart';
-import 'package:h_reader/repositories/settings/settings_repository.dart';
 import 'package:h_reader/utils/app_colors.dart';
 
 class SettingsView extends StatefulWidget {
-  SettingsView({Key? key}) : super(key: key);
+  const SettingsView({Key? key}) : super(key: key);
 
   @override
   State<SettingsView> createState() => _SettingsViewState();
 }
 
 class _SettingsViewState extends State<SettingsView> {
-  final keys = <KeepCachedImageDay, GlobalKey>{
-    KeepCachedImageDay.ONE: GlobalKey(),
-    KeepCachedImageDay.WEEK: GlobalKey(),
-    KeepCachedImageDay.MONTH: GlobalKey(),
-    KeepCachedImageDay.FOREVER: GlobalKey(),
-  };
 
   @override
   void initState() {
@@ -50,7 +43,6 @@ class _SettingsViewState extends State<SettingsView> {
                     SettingsSection(
                       title: S.current.settings_caching_section_title,
                       tiles: [
-                        _buildCachingPeriodSettingsTile(settingsState),
                         _buildClearCacheTile(imageCacheState)
                       ],
                     ),
@@ -88,35 +80,4 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
-  SettingsTile _buildCachingPeriodSettingsTile(SettingsLoaded state) {
-    return SettingsTile(
-      trailing: const Icon(Icons.chevron_left),
-      title: S.current.settings_caching_images_title,
-      onPressed: (context) {
-        showConfirmationDialog(
-            context: context,
-            title: S.current.settings_caching_period_dialog_title,
-            initialSelectedActionKey: keys[state.keepCachedImageDay],
-            actions: [
-              AlertDialogAction(
-                  key: keys[KeepCachedImageDay.ONE],
-                  label: S.current.settings_caching_period_one_day),
-              AlertDialogAction(
-                  key: keys[KeepCachedImageDay.WEEK],
-                  label: S.current.settings_caching_period_one_week),
-              AlertDialogAction(
-                  key: keys[KeepCachedImageDay.MONTH],
-                  label: S.current.settings_caching_period_one_month),
-              AlertDialogAction(
-                  key: keys[KeepCachedImageDay.FOREVER],
-                  label: S.current.settings_caching_period_forever),
-            ]).then((value) {
-          if (value != null) {
-            context.read<SettingsCubit>().setStoreCachedImagePeriod(
-                keys.entries.singleWhere((element) => element.value == value).key);
-          }
-        });
-      },
-    );
-  }
 }
