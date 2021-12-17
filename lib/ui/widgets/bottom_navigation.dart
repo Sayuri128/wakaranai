@@ -28,7 +28,7 @@ class BottomNavigationState extends State<BottomNavigation> {
       items: [
         BottomNavigationBarItem(
             icon: const Icon(Icons.chrome_reader_mode_rounded),
-            label: S.current.bottom_navigation_reader_menu_title,
+            label: S.current.bottom_navigation_gallery_menu_title,
             backgroundColor: AppColors.accentGreen),
         BottomNavigationBarItem(
             icon: const Icon(Icons.settings),

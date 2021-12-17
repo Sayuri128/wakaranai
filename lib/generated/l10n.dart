@@ -60,11 +60,11 @@ class S {
     );
   }
 
-  /// `Reader`
-  String get bottom_navigation_reader_menu_title {
+  /// `Gallery`
+  String get bottom_navigation_gallery_menu_title {
     return Intl.message(
-      'Reader',
-      name: 'bottom_navigation_reader_menu_title',
+      'Gallery',
+      name: 'bottom_navigation_gallery_menu_title',
       desc: '',
       args: [],
     );
@@ -75,6 +75,36 @@ class S {
     return Intl.message(
       'Settings',
       name: 'bottom_navigation_settings_menu_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pages:`
+  String get doujinshi_pages_count {
+    return Intl.message(
+      'Pages:',
+      name: 'doujinshi_pages_count',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Uploaded:`
+  String get doujinshi_uploaded {
+    return Intl.message(
+      'Uploaded:',
+      name: 'doujinshi_uploaded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copied to clipboard!`
+  String get copied_to_clipboard_message {
+    return Intl.message(
+      'Copied to clipboard!',
+      name: 'copied_to_clipboard_message',
       desc: '',
       args: [],
     );
