@@ -21,7 +21,6 @@ class CachedImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CachedNetworkImage(
         imageUrl: url,
-        cacheKey: url,
         progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(
               width: width,
               height: height,
