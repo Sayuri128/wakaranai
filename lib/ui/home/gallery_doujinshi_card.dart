@@ -18,13 +18,13 @@ class GalleryDoujinshiCard extends StatelessWidget {
       child: Card(
         shadowColor: AppColors.mainGrey,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: InkWell(
-            onTap: () {
-              MyApp.navigator?.pushNamed(Routes.doujinshiView, arguments: doujinshi);
-            },
-            borderRadius: BorderRadius.circular(8.0),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8.0),
+          onTap: () {
+            MyApp.navigator?.pushNamed(Routes.doujinshiView, arguments: doujinshi);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
                 CachedImage(
