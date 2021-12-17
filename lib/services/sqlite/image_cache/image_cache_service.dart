@@ -12,6 +12,10 @@ class ImageCacheService {
     return await _cacheDataBase.getAll();
   }
 
+  Future<void> clear() async {
+    await _cacheDataBase.clear();
+  }
+
   Future<void> close() async {
     await _cacheDataBase.close();
   }

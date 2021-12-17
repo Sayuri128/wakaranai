@@ -32,7 +32,11 @@ class _SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [BlocProvider(create: (context) => SettingsCubit()..getSettings())],
+      providers: [
+        BlocProvider(
+            create: (context) =>
+                SettingsCubit(imageCacheCubit: context.read<ImageCacheCubit>())..getSettings())
+      ],
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, settingsState) {
           if (settingsState is SettingsLoaded) {
