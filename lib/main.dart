@@ -22,16 +22,6 @@ class MyApp extends StatelessWidget {
           lazy: false,
           create: (context) => AuthenticationCubit()..authorize('armatura@gmail.com', '1234')),
       BlocProvider(create: (context) => ImageCacheCubit())
-    ], child: MultiBlocListener(
-        listeners: [
-          BlocListener<ImageCacheCubit, ImageCacheState>(listener: (context, state) {
-            if(state is ImageCacheReceivedAll) {
-              for(var image in state.data) {
-                print(image);
-              }
-            }
-          })
-        ],
-        child: const AppView()));
+    ], child: const AppView());
   }
 }
