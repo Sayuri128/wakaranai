@@ -1,6 +1,7 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:h_reader/blocs/source_view/source_view_cubit.dart';
 import 'package:h_reader/models/nhentai/doujinshi/pages_item/pages_item.dart';
 import 'package:h_reader/utils/app_colors.dart';
 import 'package:h_reader/utils/nhentai_urls.dart';
@@ -30,83 +31,100 @@ class DoujinshiSourceView extends StatefulWidget {
 class _DoujinshiSourceViewState extends State<DoujinshiSourceView> {
   late final PageController pageController;
 
-  bool _controlsVisible = false;
-
-  int currentPage = 0;
-  int totalPages = 0;
-
   @override
   void initState() {
     super.initState();
     pageController = PageController(initialPage: widget.data.initialPage);
-    totalPages = widget.data.pages.length;
-    currentPage = widget.data.initialPage + 1;
   }
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      child: Stack(
+      child: BlocProvider<SourceViewCubit>(
+        create: (context) => SourceViewCubit(SourceViewState(
+            currentPage: widget.data.initialPage + 1,
+            totalPages: widget.data.pages.length,
+            controlsVisible: true)),
+        child: _buildPage(),
+      ),
+    );
+  }
+
+  Widget _buildPage() {
+    return Builder(builder: (context) {
+      return Stack(
         children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            color: Colors.black,
-          ),
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _controlsVisible = !_controlsVisible;
-              });
-            },
-            child: PhotoViewGallery.builder(
-                allowImplicitScrolling: true,
-                pageController: pageController,
-                scrollPhysics: const BouncingScrollPhysics(),
-                itemCount: widget.data.pages.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    currentPage = index + 1;
-                  });
-                },
-                builder: (context, index) {
-                  return PhotoViewGalleryPageOptions(
-                      minScale: 0.2,
-                      imageProvider: CachedNetworkImageProvider(NHentaiUrls.pageItemSource(
-                          widget.data.mediaId, widget.data.pages[index].t, index + 1)));
-                }),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-            child: IgnorePointer(
-              ignoring: !_controlsVisible,
-              child: AnimatedOpacity(
-                opacity: _controlsVisible ? 1 : 0,
-                duration: const Duration(seconds: 1),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Row(
-                      children: [
-                        const Spacer(),
-                        Container(
-                          width: 70,
-                          height: 30,
-                          margin: const EdgeInsets.all(8.0),
-                          child: Center(child: Text('$currentPage/$totalPages')),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16.0),
-                              color: AppColors.accentGreen),
-                        )
-                      ],
-                    )
-                  ],
-                ),
+          _buildBackground(context),
+          _buildViewer(context),
+          _buildControls(context),
+        ],
+      );
+    });
+  }
+
+  Padding _buildControls(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+      child: BlocBuilder<SourceViewCubit, SourceViewState>(
+        builder: (context, state) {
+          return IgnorePointer(
+            ignoring: !state.controlsVisible,
+            child: AnimatedOpacity(
+              opacity: state.controlsVisible ? 1 : 0,
+              duration: const Duration(seconds: 1),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Row(
+                    children: [
+                      const Spacer(),
+                      Container(
+                        width: 70,
+                        height: 30,
+                        margin: const EdgeInsets.all(8.0),
+                        child: Center(child: Text('${state.currentPage}/${state.totalPages}')),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16.0),
+                            color: AppColors.accentGreen),
+                      )
+                    ],
+                  )
+                ],
               ),
             ),
-          ),
-        ],
+          );
+        },
       ),
+    );
+  }
+
+  GestureDetector _buildViewer(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        context.read<SourceViewCubit>().onChangeVisibility();
+      },
+      child: PhotoViewGallery.builder(
+          allowImplicitScrolling: true,
+          pageController: pageController,
+          scrollPhysics: const BouncingScrollPhysics(),
+          itemCount: widget.data.pages.length,
+          onPageChanged: (index) {
+            context.read<SourceViewCubit>().onPageChanged(index + 1);
+          },
+          builder: (context, index) {
+            return PhotoViewGalleryPageOptions(
+                minScale: 0.2,
+                imageProvider: CachedNetworkImageProvider(NHentaiUrls.pageItemSource(
+                    widget.data.mediaId, widget.data.pages[index].t, index + 1)));
+          }),
+    );
+  }
+
+  Container _buildBackground(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      color: Colors.black,
     );
   }
 }
