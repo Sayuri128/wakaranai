@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:h_reader/blocs/source_view/source_view_cubit.dart';
@@ -6,6 +5,8 @@ import 'package:h_reader/models/nhentai/doujinshi/pages_item/pages_item.dart';
 import 'package:h_reader/utils/app_colors.dart';
 import 'package:h_reader/utils/nhentai_urls.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+
+import '../../widgets/cached_image.dart';
 
 class DoujinshiSourceViewData {
   final int initialPage;
@@ -125,8 +126,9 @@ class _DoujinshiSourceViewState extends State<DoujinshiSourceView> {
           builder: (context, index) {
             return PhotoViewGalleryPageOptions(
                 minScale: 0.2,
-                imageProvider: CachedNetworkImageProvider(NHentaiUrls.pageItemSource(
-                    widget.data.mediaId, widget.data.pages[index].t, index + 1)));
+                imageProvider: CachedImageProvider(
+                    url: NHentaiUrls.pageItemSource(
+                        widget.data.mediaId, widget.data.pages[index].t, index + 1)));
           }),
     );
   }
