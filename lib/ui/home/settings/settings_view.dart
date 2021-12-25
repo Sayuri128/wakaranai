@@ -15,20 +15,19 @@ class SettingsView extends StatefulWidget {
 }
 
 class _SettingsViewState extends State<SettingsView> {
-
   @override
   void initState() {
     super.initState();
-    context.read<ImageCacheCubit>().getAll();
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(lazy: false, create: (context) => ImageCacheCubit()..getAll()),
         BlocProvider(
             create: (context) =>
-                SettingsCubit(imageCacheCubit: context.read<ImageCacheCubit>())..getSettings())
+                SettingsCubit(imageCacheCubit: context.read<ImageCacheCubit>())..getSettings()),
       ],
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, settingsState) {
@@ -42,9 +41,7 @@ class _SettingsViewState extends State<SettingsView> {
                   sections: [
                     SettingsSection(
                       title: S.current.settings_caching_section_title,
-                      tiles: [
-                        _buildClearCacheTile(imageCacheState)
-                      ],
+                      tiles: [_buildClearCacheTile(imageCacheState)],
                     ),
                   ],
                 ),
@@ -79,5 +76,4 @@ class _SettingsViewState extends State<SettingsView> {
       },
     );
   }
-
 }
