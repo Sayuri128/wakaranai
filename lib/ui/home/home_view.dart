@@ -6,6 +6,16 @@ import 'package:h_reader/ui/widgets/appbar.dart';
 import 'package:h_reader/ui/widgets/bottom_navigation.dart';
 import 'package:h_reader/utils/app_colors.dart';
 
+class BottomNavigationItem {
+  final String title;
+  final Widget widget;
+
+  const BottomNavigationItem({
+    required this.title,
+    required this.widget,
+  });
+}
+
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
 
@@ -14,17 +24,21 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  List<BottomNavigationItem> navigationBarItems = [
+    BottomNavigationItem(widget: const GalleryView(), title: S.current.app_name),
+    BottomNavigationItem(widget: const SettingsView(), title: S.current.settings_title),
+  ];
+
   var _currentPage = 0;
 
   @override
   Widget build(BuildContext context) {
-    List<String> appBarTitles = [S.current.app_name, S.current.settings_title];
-    List<Widget> widgets = [const GalleryView(), SettingsView()];
+    ;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      appBar: buildAppBar(title: appBarTitles[_currentPage]),
-      body: widgets.elementAt(_currentPage),
+      appBar: buildAppBar(title: navigationBarItems[_currentPage].title),
+      body: navigationBarItems[_currentPage].widget,
       bottomNavigationBar: BottomNavigation(onTap: (index) {
         setState(() {
           _currentPage = index;
