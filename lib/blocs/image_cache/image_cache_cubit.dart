@@ -12,7 +12,9 @@ import 'package:flutter_cache_manager/src/storage/file_system/file_system_io.dar
 part 'image_cache_state.dart';
 
 class ImageCacheCubit extends Cubit<ImageCacheState> {
-  ImageCacheCubit() : super(ImageCacheInitial());
+  ImageCacheCubit({required this.isPrimary}) : super(ImageCacheInitial());
+
+  final bool isPrimary;
 
   static const key = 'DoujinshiCacheKey';
   static CacheManager instance = CacheManager(Config(key,
@@ -40,7 +42,9 @@ class ImageCacheCubit extends Cubit<ImageCacheState> {
 
   @override
   Future<void> close() async {
-    await _imageCacheService.close();
+    if(isPrimary) {
+      await _imageCacheService.close();
+    }
     return super.close();
   }
 }

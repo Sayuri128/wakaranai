@@ -8,8 +8,6 @@ import 'package:meta/meta.dart';
 
 part 'settings_state.dart';
 
-const String imageCachingManagerKey = 'imageCachingManagerKey';
-
 class SettingsCubit extends Cubit<SettingsState> {
   SettingsCubit({required this.imageCacheCubit}) : super(SettingsInitial());
 
@@ -28,7 +26,8 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   void clearCache() async {
     _imageCacheService.clear();
-    imageCache?.clear();
+    await ImageCacheCubit.instance.emptyCache();
+
     imageCacheCubit.getAll();
   }
 }
