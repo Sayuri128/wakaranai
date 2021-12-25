@@ -24,7 +24,6 @@ class _SettingsViewState extends State<SettingsView> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(lazy: false, create: (context) => ImageCacheCubit()..getAll()),
         BlocProvider(
             create: (context) =>
                 SettingsCubit(imageCacheCubit: context.read<ImageCacheCubit>())..getSettings()),

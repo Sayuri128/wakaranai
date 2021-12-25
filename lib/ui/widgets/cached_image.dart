@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:h_reader/blocs/image_cache/image_cache_cubit.dart';
+import 'package:h_reader/ui/widgets/skeleton_loaders.dart';
 
 class CachedImage extends StatelessWidget {
   const CachedImage(
@@ -19,13 +20,13 @@ class CachedImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ImageCacheCubit>(
-        create: (_) => ImageCacheCubit()..saveCacheIfNotExist(url: url),
+        create: (_) => ImageCacheCubit(isPrimary: false)..saveCacheIfNotExist(url: url),
         child: BlocBuilder<ImageCacheCubit, ImageCacheState>(
           builder: (context, state) {
             if (state is ImageCacheSaved) {
               return Image.memory(state.data);
             } else {
-              return const SizedBox();
+              return buildImageSkeletonLoader(height: height, width: width);
             }
           },
         ));
