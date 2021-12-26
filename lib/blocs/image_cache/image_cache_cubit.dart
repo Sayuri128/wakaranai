@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:h_reader/models/sqlite/cached_image_data.dart';
-import 'package:h_reader/services/sqlite/image_cache/image_cache_service.dart';
+import 'package:h_reader/services/sqlite/cache/image/image_cache_service.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter_cache_manager/src/storage/file_system/file_system_io.dart';
 

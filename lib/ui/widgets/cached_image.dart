@@ -5,9 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:h_reader/blocs/image_cache/image_cache_cubit.dart';
+import 'package:h_reader/services/sqlite/cache/image/image_cache_service.dart';
 import 'package:h_reader/ui/widgets/skeleton_loaders.dart';
 
-import '../../services/sqlite/image_cache/image_cache_service.dart';
 
 class CachedImage extends StatelessWidget {
   const CachedImage(

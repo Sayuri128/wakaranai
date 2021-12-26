@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:h_reader/blocs/image_cache/image_cache_cubit.dart';
 import 'package:h_reader/repositories/settings/settings_repository.dart';
-import 'package:h_reader/services/sqlite/image_cache/image_cache_service.dart';
+import 'package:h_reader/services/sqlite/cache/image/image_cache_service.dart';
 import 'package:meta/meta.dart';
 
 part 'settings_state.dart';
