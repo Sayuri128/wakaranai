@@ -22,6 +22,10 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m0(count) => "Clear ${count} images cache.";
 
+  static String m1(count) => "${count} cached images were synchronized";
+
+  static String m2(progress) => "Synchronize cache ${progress}%";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "app_name": MessageLookupByLibrary.simpleMessage("HReader"),
@@ -37,6 +41,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage(
                 "Are your sure want to clear image cache?"),
         "settings_cache_clear_title": m0,
+        "settings_cache_sync_complete_message": m1,
+        "settings_cache_sync_title":
+            MessageLookupByLibrary.simpleMessage("Synchronize cache"),
+        "settings_cache_sync_title_progress": m2,
         "settings_caching_images_title":
             MessageLookupByLibrary.simpleMessage("Image caching"),
         "settings_caching_period_dialog_title":

@@ -10,20 +10,19 @@ class CachedImageData {
 
   final int id;
 
-  @JsonKey(name: 'cache_key')
-  final String cacheKey;
+  final String url;
 
   @JsonKey(name: 'cached_date')
   final DateTime cachedDate;
 
   const CachedImageData({
     required this.id,
-    required this.cacheKey,
+    required this.url,
     required this.cachedDate,
   });
 
   @override
   String toString() {
-    return 'CachedImageData{id: $id, cacheKey: $cacheKey, cachedDate: $cachedDate}';
+    return 'CachedImageData{id: $id, cachedDate: $cachedDate}';
   }
 }
