@@ -21,3 +21,20 @@ class ImageCacheReceivedAll extends ImageCacheState {
     required this.data,
   });
 }
+
+class ImageCacheSyncProgress extends ImageCacheState {
+  final double percentage;
+
+  ImageCacheSyncProgress({
+    required this.percentage,
+  });
+}
+
+class ImageCacheSyncCompleted extends ImageCacheState {
+
+  final int count;
+
+  ImageCacheSyncCompleted({
+    required this.count,
+  });
+}
