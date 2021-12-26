@@ -23,26 +23,52 @@ class ImageCacheDataBase {
       _isInitialized = true;
       database = await openDatabase(await _getDbName(), version: 1, onCreate: (db, version) async {
         await db.execute(
-            'CREATE TABLE $_tableName (id INTEGER PRIMARY KEY, cache_key TEXT UNIQUE, cached_date DATETIME DEFAULT CURRENT_TIMESTAMP)');
+            'CREATE TABLE $_tableName (id INTEGER PRIMARY KEY, url TEXT UNIQUE, cached_date DATETIME DEFAULT CURRENT_TIMESTAMP)');
       });
     }
   }
 
-  Future<void> saveCacheKey({required String cacheKey}) async {
+  Future<void> saveCacheUrl({required String url}) async {
     await _initialization;
-    await database!.transaction((txn) async => await txn
-        .rawInsert('INSERT OR IGNORE INTO $_tableName (cache_key) VALUES (\'$cacheKey\')'));
+    await database!.transaction((txn) async => await txn.rawInsert(
+        'INSERT OR IGNORE INTO $_tableName (url) VALUES (\'$url\')'));
+  }
+
+  Future<void> deleteByUrl({required String url}) async {
+    await _initialization;
+    await database!.transaction((txn) async =>
+        await txn.rawQuery('DELETE FROM $_tableName WHERE url = \'$url\''));
+  }
+
+  Future<List<CachedImageData>> getByUrl({required String url}) async {
+    await _initialization;
+    return (await database!.transaction(
+            (txn) async => txn.rawQuery('SELECT * FROM $_tableName WHERE url = \'$url\'')))
+        .map((e) => CachedImageData.fromJson(e))
+        .toList();
+  }
+
+  Future<void> updateCacheKeyByUrl({required String url, required String cacheKey}) async {
+    await _initialization;
+    await database!.transaction((txn) async =>
+        txn.rawQuery('UPDATE $_tableName SET cache_key = \'$cacheKey\' WHERE url = \'$url\''));
   }
 
   Future<List<CachedImageData>> getAll() async {
     await _initialization;
-    final result = await database!.transaction((txn) => txn.rawQuery('SELECT * FROM $_tableName'));
-    return result.map((e) => CachedImageData.fromJson(e)).toList();
+    return (await database!.transaction((txn) => txn.rawQuery('SELECT * FROM $_tableName')))
+        .map((e) => CachedImageData.fromJson(e))
+        .toList();
   }
 
   Future<void> clear() async {
     await _initialization;
     await database!.transaction((txn) => txn.rawQuery('DELETE FROM $_tableName'));
+  }
+
+  Future<void> _dropDb() async {
+    await _initialization;
+    deleteDatabase(await _getDbName());
   }
 
   Future<void> close() async {

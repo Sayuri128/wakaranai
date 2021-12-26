@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:h_reader/blocs/source_view/source_view_cubit.dart';
@@ -6,6 +5,8 @@ import 'package:h_reader/models/nhentai/doujinshi/pages_item/pages_item.dart';
 import 'package:h_reader/utils/app_colors.dart';
 import 'package:h_reader/utils/nhentai_urls.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+
+import '../../widgets/cached_image.dart';
 
 class DoujinshiSourceViewData {
   final int initialPage;
@@ -67,44 +68,43 @@ class _DoujinshiSourceViewState extends State<DoujinshiSourceView> {
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: BlocBuilder<SourceViewCubit, SourceViewState>(
         builder: (context, state) {
-          return IgnorePointer(
-            ignoring: !state.controlsVisible,
-            child: AnimatedOpacity(
-              opacity: state.controlsVisible ? 1 : 0,
-              duration: const Duration(seconds: 1),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        InkWell(
-                          child: const Icon(Icons.arrow_back),
-                          onTap: () {
-                            if (Navigator.of(context).canPop()) {
-                              Navigator.of(context).pop();
-                            }
-                          },
-                        ),
-                        Container(
-                          width: 70,
-                          height: 30,
-                          child: Center(child: Text('${state.currentPage}/${state.totalPages}')),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16.0),
-                              color: AppColors.accentGreen),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ),
+          return AnimatedSwitcher(
+            duration: const Duration(seconds: 1),
+            child: state.controlsVisible ? _buildControlsView(context, state) : const SizedBox(),
           );
         },
+      ),
+    );
+  }
+
+  Padding _buildControlsView(BuildContext context, SourceViewState state) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              InkWell(
+                child: const Icon(Icons.arrow_back),
+                onTap: () {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+              Container(
+                width: 70,
+                height: 30,
+                child: Center(child: Text('${state.currentPage}/${state.totalPages}')),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16.0), color: AppColors.accentGreen),
+              )
+            ],
+          )
+        ],
       ),
     );
   }
@@ -125,8 +125,9 @@ class _DoujinshiSourceViewState extends State<DoujinshiSourceView> {
           builder: (context, index) {
             return PhotoViewGalleryPageOptions(
                 minScale: 0.2,
-                imageProvider: CachedNetworkImageProvider(NHentaiUrls.pageItemSource(
-                    widget.data.mediaId, widget.data.pages[index].t, index + 1)));
+                imageProvider: CachedImageProvider(
+                    url: NHentaiUrls.pageItemSource(
+                        widget.data.mediaId, widget.data.pages[index].t, index + 1)));
           }),
     );
   }

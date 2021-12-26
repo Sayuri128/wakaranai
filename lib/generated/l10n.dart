@@ -209,6 +209,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Synchronize cache`
+  String get settings_cache_sync_title {
+    return Intl.message(
+      'Synchronize cache',
+      name: 'settings_cache_sync_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Synchronize cache {progress}%`
+  String settings_cache_sync_title_progress(Object progress) {
+    return Intl.message(
+      'Synchronize cache $progress%',
+      name: 'settings_cache_sync_title_progress',
+      desc: '',
+      args: [progress],
+    );
+  }
+
+  /// `{count} cached images were synchronized`
+  String settings_cache_sync_complete_message(Object count) {
+    return Intl.message(
+      '$count cached images were synchronized',
+      name: 'settings_cache_sync_complete_message',
+      desc: '',
+      args: [count],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
