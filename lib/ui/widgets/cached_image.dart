@@ -1,12 +1,13 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:h_reader/blocs/image_cache/image_cache_cubit.dart';
 import 'package:h_reader/ui/widgets/skeleton_loaders.dart';
+
+import '../../services/sqlite/image_cache/image_cache_service.dart';
 
 class CachedImage extends StatelessWidget {
   const CachedImage(
@@ -40,8 +41,9 @@ class CachedImage extends StatelessWidget {
 
 class CachedImageProvider extends ImageProvider<CachedImageProvider> {
   final String url;
+  final _imageCacheService = ImageCacheService();
 
-  const CachedImageProvider({
+  CachedImageProvider({
     required this.url,
   });
 
@@ -57,15 +59,22 @@ class CachedImageProvider extends ImageProvider<CachedImageProvider> {
   }
 
   Future<Codec> _loadAsync(DecoderCallback decode) async {
-    final file = await ImageCacheCubit.instance.getFileFromCache(url);
+    final fileData = await _imageCacheService.getByUrl(url: url);
 
     Uint8List? bytes;
 
-    if (file == null) {
-      bytes = (await http.get(Uri.parse(url))).bodyBytes;
-      ImageCacheCubit.instance.putFile(url, bytes);
+    if (fileData.isNotEmpty) {
+      final file = await ImageCacheCubit.instance.getFileFromCache(fileData.first.url);
+      if (file == null) {
+        final downloadedFile = await ImageCacheCubit.instance.downloadFile(url);
+        bytes = downloadedFile.file.readAsBytesSync();
+      } else {
+        bytes = file.file.readAsBytesSync();
+      }
     } else {
-      bytes = file.file.readAsBytesSync();
+      final downloadedFile = await ImageCacheCubit.instance.downloadFile(url);
+      bytes = downloadedFile.file.readAsBytesSync();
+      _imageCacheService.saveImage(url: url);
     }
 
     if (bytes.lengthInBytes == 0) {
