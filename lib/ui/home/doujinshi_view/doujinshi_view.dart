@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:h_reader/blocs/nhentai/cache/doujinshi/doujinshi_cache_cubit.dart';
 import 'package:h_reader/generated/l10n.dart';
 import 'package:h_reader/models/nhentai/doujinshi/doujinshi.dart';
 import 'package:h_reader/models/nhentai/doujinshi/tags_item/tags_item.dart';
@@ -28,41 +30,63 @@ class DoujinshiView extends StatefulWidget {
 class _DoujinshiViewState extends State<DoujinshiView> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: buildAppBar(title: widget.doujinshi.title.pretty ?? ''),
-      body: Transform.translate(
-        offset: const Offset(0, -5),
-        child: ListView(
-          physics: const BouncingScrollPhysics(),
-          children: [
-            _buildCover(context),
-            if (widget.doujinshi.title.english != null) ...[
-              const SizedBox(
-                height: 16.0,
-              ),
-              _buildTitle(title: widget.doujinshi.title.english!)
-            ],
-            if (widget.doujinshi.title.japanese != null) ...[
-              const SizedBox(
-                height: 16.0,
-              ),
-              _buildTitle(title: widget.doujinshi.title.japanese!)
-            ],
-            const SizedBox(
-              height: 8.0,
+    return MultiBlocProvider(
+      providers: [BlocProvider<DoujinshiCacheCubit>(create: (context) => DoujinshiCacheCubit())],
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<DoujinshiCacheCubit, DoujinshiCacheState>(listener: (context, state) {
+            if (state is DoujinshiCacheSaved) {
+              print('saved');
+            }
+          })
+        ],
+        child: Scaffold(
+          appBar: buildAppBar(title: widget.doujinshi.title.pretty ?? ''),
+          body: Transform.translate(
+            offset: const Offset(0, -5),
+            child: ListView(
+              physics: const BouncingScrollPhysics(),
+              children: [
+                _buildCover(context),
+                if (widget.doujinshi.title.english != null) ...[
+                  const SizedBox(
+                    height: 16.0,
+                  ),
+                  _buildTitle(title: widget.doujinshi.title.english!)
+                ],
+                if (widget.doujinshi.title.japanese != null) ...[
+                  const SizedBox(
+                    height: 16.0,
+                  ),
+                  _buildTitle(title: widget.doujinshi.title.japanese!)
+                ],
+                const SizedBox(
+                  height: 8.0,
+                ),
+                _buildTags(),
+                const SizedBox(
+                  height: 8.0,
+                ),
+                _buildPagesCount(),
+                _buildUploadedDate(),
+                Builder(
+                  builder: (context) {
+                    return ElevatedButton(
+                      onPressed: () {
+                        context.read<DoujinshiCacheCubit>().save(doujinshi: widget.doujinshi);
+                      },
+                      child: Text('Save'),
+                    );
+                  }
+                ),
+                const SizedBox(
+                  height: 8.0,
+                ),
+                DoujinshiPageView(
+                    mediaId: widget.doujinshi.mediaId, pages: widget.doujinshi.images.pages)
+              ],
             ),
-            _buildTags(),
-            const SizedBox(
-              height: 8.0,
-            ),
-            _buildPagesCount(),
-            _buildUploadedDate(),
-            const SizedBox(
-              height: 8.0,
-            ),
-            DoujinshiPageView(
-                mediaId: widget.doujinshi.mediaId, pages: widget.doujinshi.images.pages)
-          ],
+          ),
         ),
       ),
     );

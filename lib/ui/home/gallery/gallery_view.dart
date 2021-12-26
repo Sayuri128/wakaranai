@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:h_reader/blocs/nhentai/cache/doujinshi/doujinshi_cache_cubit.dart';
 import 'package:h_reader/blocs/nhentai/galleries/nhentai_galleries_cubit.dart';
 import 'package:h_reader/models/nhentai/doujinshi/doujinshi.dart';
 import 'package:provider/provider.dart';
@@ -40,18 +41,39 @@ class _GalleryViewState extends State<GalleryView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<NHentaiGalleriesCubit>(
-      create: (context) => NHentaiGalleriesCubit()..requestGallery(_galleryPage),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<NHentaiGalleriesCubit>(
+          create: (context) => NHentaiGalleriesCubit()..requestGallery(_galleryPage),
+        ),
+        BlocProvider<DoujinshiCacheCubit>(create: (context) => DoujinshiCacheCubit()..getAll())
+      ],
       child: BlocListener<NHentaiGalleriesCubit, NHentaiGalleriesState>(
         listener: (context, state) {
           if (state is NHentaiGalleriesReceived) {
             _onDoujinshiReceived(state);
           }
         },
-        child: Stack(
+        child: PageView(
           children: [
-            _buildGalleryListView(),
-            _buildLoadingIndicator(),
+            Stack(
+              children: [
+                _buildGalleryListView(),
+                _buildLoadingIndicator(),
+              ],
+            ),
+            Stack(children: [
+              BlocBuilder<DoujinshiCacheCubit, DoujinshiCacheState>(builder: (context, state) {
+                if (state is DoujinshiCacheReceived) {
+                  return ListView(
+                      children: state.doujinshi
+                          .map((e) => Text(e.doujinshi.title.pretty ?? ''))
+                          .toList());
+                } else {
+                  return const CircularProgressIndicator();
+                }
+              })
+            ])
           ],
         ),
       ),

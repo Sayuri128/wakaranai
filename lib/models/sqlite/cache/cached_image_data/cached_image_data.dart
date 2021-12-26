@@ -1,3 +1,4 @@
+import 'package:h_reader/repositories/sqlite/cache/image/image_cache_database.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'cached_image_data.g.dart';
@@ -10,9 +11,10 @@ class CachedImageData {
 
   final int id;
 
+  @JsonKey(name: ImageCacheDataBase.urlColumn)
   final String url;
 
-  @JsonKey(name: 'cached_date')
+  @JsonKey(name: ImageCacheDataBase.cachedDateColumn)
   final DateTime cachedDate;
 
   const CachedImageData({

@@ -2,7 +2,7 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
-import 'package:h_reader/blocs/image_cache/image_cache_cubit.dart';
+import 'package:h_reader/blocs/nhentai/cache/image/image_cache_cubit.dart';
 import 'package:h_reader/blocs/settings/settings_cubit.dart';
 import 'package:h_reader/generated/l10n.dart';
 import 'package:h_reader/utils/app_colors.dart';

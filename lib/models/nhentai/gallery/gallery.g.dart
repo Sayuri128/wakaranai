@@ -6,12 +6,12 @@ part of 'gallery.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Gallery _$GalleryFromJson(Map<String, dynamic> json) => Gallery(
+Gallery _$GalleryFromJson(Map json) => Gallery(
       result: (json['result'] as List<dynamic>)
-          .map((e) => Doujinshi.fromJson(e as Map<String, dynamic>))
+          .map((e) => Doujinshi.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
     );
 
 Map<String, dynamic> _$GalleryToJson(Gallery instance) => <String, dynamic>{
-      'result': instance.result,
+      'result': instance.result.map((e) => e.toJson()).toList(),
     };

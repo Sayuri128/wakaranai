@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:h_reader/blocs/auth/authentication_cubit.dart';
 import 'package:h_reader/ui/app_view.dart';
 
-import 'blocs/image_cache/image_cache_cubit.dart';
+import 'blocs/nhentai/cache/image/image_cache_cubit.dart';
 
 void main() {
   runApp(const MyApp());

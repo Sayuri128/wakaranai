@@ -6,7 +6,7 @@ part of 'thumbnail.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Thumbnail _$ThumbnailFromJson(Map<String, dynamic> json) => Thumbnail(
+Thumbnail _$ThumbnailFromJson(Map json) => Thumbnail(
       t: $enumDecode(_$ImageTypeEnumMap, json['t']),
       w: json['w'] as int,
       h: json['h'] as int,

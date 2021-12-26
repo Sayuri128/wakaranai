@@ -6,7 +6,7 @@ part of 'tags_item.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-TagsItem _$TagsItemFromJson(Map<String, dynamic> json) => TagsItem(
+TagsItem _$TagsItemFromJson(Map json) => TagsItem(
       id: json['id'] as int,
       type: json['type'] as String,
       name: json['name'] as String,

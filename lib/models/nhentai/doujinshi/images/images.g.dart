@@ -6,16 +6,17 @@ part of 'images.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Images _$ImagesFromJson(Map<String, dynamic> json) => Images(
+Images _$ImagesFromJson(Map json) => Images(
       pages: (json['pages'] as List<dynamic>)
-          .map((e) => PagesItem.fromJson(e as Map<String, dynamic>))
+          .map((e) => PagesItem.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
-      cover: Cover.fromJson(json['cover'] as Map<String, dynamic>),
-      thumbnail: Thumbnail.fromJson(json['thumbnail'] as Map<String, dynamic>),
+      cover: Cover.fromJson(Map<String, dynamic>.from(json['cover'] as Map)),
+      thumbnail: Thumbnail.fromJson(
+          Map<String, dynamic>.from(json['thumbnail'] as Map)),
     );
 
 Map<String, dynamic> _$ImagesToJson(Images instance) => <String, dynamic>{
-      'pages': instance.pages,
-      'cover': instance.cover,
-      'thumbnail': instance.thumbnail,
+      'pages': instance.pages.map((e) => e.toJson()).toList(),
+      'cover': instance.cover.toJson(),
+      'thumbnail': instance.thumbnail.toJson(),
     };

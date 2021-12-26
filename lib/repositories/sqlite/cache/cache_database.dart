@@ -1,3 +1,4 @@
+import 'package:h_reader/repositories/sqlite/cache/doujinshi/doujinshi_cache_database.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'image/image_cache_database.dart';
@@ -7,6 +8,7 @@ class CacheDataBase {
 
   late final Database? _database;
   late final ImageCacheDataBase _imageCacheDataBase;
+  late final DoujinshiCacheDatabase _doujinshiCacheDatabase;
 
   Future? _initialization;
   bool _isInitialized;
@@ -22,26 +24,47 @@ class CacheDataBase {
     return _imageCacheDataBase;
   }
 
+  Future<DoujinshiCacheDatabase> getDoujinshiCacheDatabase() async {
+    await _initialization;
+    return _doujinshiCacheDatabase;
+  }
+
   Future<String> _getDbName() async => '${await getDatabasesPath()} $_dbName';
 
   Future<void> _init() async {
     if (!_isInitialized) {
+      // await _dropDb();
       _database = await openDatabase(await _getDbName(), version: 1, onCreate: (db, version) async {
-        await db.execute(
-            'CREATE TABLE ${ImageCacheDataBase.tableName} (id INTEGER PRIMARY KEY, url TEXT UNIQUE, cached_date DATETIME DEFAULT CURRENT_TIMESTAMP)');
+        await db.execute('''CREATE TABLE ${ImageCacheDataBase.tableName}
+             (${ImageCacheDataBase.idColumn} INTEGER PRIMARY KEY,
+              ${ImageCacheDataBase.urlColumn} TEXT UNIQUE,
+              ${ImageCacheDataBase.cachedDateColumn} DATETIME DEFAULT CURRENT_TIMESTAMP)
+               ''');
+        await db.execute('''CREATE TABLE ${DoujinshiCacheDatabase.tableName} 
+            (${DoujinshiCacheDatabase.idColumn} INTEGER PRIMARY KEY,
+            ${DoujinshiCacheDatabase.doujinshiColumn} TEXT,
+            ${DoujinshiCacheDatabase.thumbnailColumn} INTEGER,
+            ${DoujinshiCacheDatabase.coverColumn} INTEGER,
+            ${DoujinshiCacheDatabase.pageItemColumn} TEXT,
+            ${DoujinshiCacheDatabase.sourceItemColumn} TEXT,
+            FOREIGN KEY(${DoujinshiCacheDatabase.thumbnailColumn})
+             REFERENCES ${ImageCacheDataBase.tableName}(${ImageCacheDataBase.idColumn}),
+            FOREIGN KEY (${DoujinshiCacheDatabase.coverColumn})
+             REFERENCES ${ImageCacheDataBase.tableName}(${ImageCacheDataBase.idColumn}))''');
       });
-      _imageCacheDataBase = ImageCacheDataBase(database: _database, initialization: _initialization);
+      _imageCacheDataBase = ImageCacheDataBase(database: _database);
+      _doujinshiCacheDatabase =
+          DoujinshiCacheDatabase(database: _database, imageCacheDataBase: _imageCacheDataBase);
       _isInitialized = true;
     }
   }
 
   Future<void> _dropDb() async {
     await _initialization;
-    deleteDatabase(await _getDbName());
+    await deleteDatabase(await _getDbName());
   }
 
   Future<void> close() async {
-    assert(_isInitialized);
     await _database!.close();
   }
 }

@@ -6,8 +6,7 @@ part of 'cached_image_data.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-CachedImageData _$CachedImageDataFromJson(Map<String, dynamic> json) =>
-    CachedImageData(
+CachedImageData _$CachedImageDataFromJson(Map json) => CachedImageData(
       id: json['id'] as int,
       url: json['url'] as String,
       cachedDate: DateTime.parse(json['cached_date'] as String),

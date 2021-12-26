@@ -2,7 +2,8 @@ import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:h_reader/models/sqlite/cached_image_data.dart';
+import 'package:h_reader/models/sqlite/cache/cached_image_data/cached_image_data.dart';
+import 'package:h_reader/repositories/sqlite/cache/cache_database_exception.dart';
 import 'package:h_reader/services/sqlite/cache/image/image_cache_service.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter_cache_manager/src/storage/file_system/file_system_io.dart';
@@ -31,17 +32,16 @@ class ImageCacheCubit extends Cubit<ImageCacheState> {
   }
 
   void saveCacheIfNotExist({required String url}) async {
-    final cacheData = await _imageCacheService.getByUrl(url: url);
-
-    if (cacheData.isNotEmpty) {
-      final cachedFile = await instance.getFileFromCache(cacheData.first.url);
+    try {
+      final cachedFile =
+          await instance.getFileFromCache((await _imageCacheService.getByUrl(url: url)).url);
       if (cachedFile == null) {
         final newFile = await instance.downloadFile(url);
         emit(ImageCacheSaved(data: newFile.file.readAsBytesSync()));
       } else {
         emit(ImageCacheSaved(data: cachedFile.file.readAsBytesSync()));
       }
-    } else {
+    } on CacheDatabaseException {
       final newFile = await instance.downloadFile(url);
       await _imageCacheService.saveImage(url: url);
       emit(ImageCacheSaved(data: newFile.file.readAsBytesSync()));

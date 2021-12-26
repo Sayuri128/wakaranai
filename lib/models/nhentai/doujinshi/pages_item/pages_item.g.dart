@@ -6,7 +6,7 @@ part of 'pages_item.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-PagesItem _$PagesItemFromJson(Map<String, dynamic> json) => PagesItem(
+PagesItem _$PagesItemFromJson(Map json) => PagesItem(
       t: $enumDecode(_$ImageTypeEnumMap, json['t']),
       w: json['w'] as int,
       h: json['h'] as int,
