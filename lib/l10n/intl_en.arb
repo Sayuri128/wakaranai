@@ -14,5 +14,8 @@
   "settings_caching_period_one_month": "Month",
   "settings_caching_period_forever": "Forever",
   "settings_cache_clear_title": "Clear {count} images cache.",
-  "settings_cache_clear_dialog_title": "Are your sure want to clear image cache?"
+  "settings_cache_clear_dialog_title": "Are your sure want to clear image cache?",
+  "settings_cache_sync_title": "Synchronize cache",
+  "settings_cache_sync_title_progress": "Synchronize cache {progress}%",
+  "settings_cache_sync_complete_message": "{count} cached images were synchronized"
 }
