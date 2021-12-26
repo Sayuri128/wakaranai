@@ -6,7 +6,7 @@ part of 'cover.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Cover _$CoverFromJson(Map<String, dynamic> json) => Cover(
+Cover _$CoverFromJson(Map json) => Cover(
       t: $enumDecode(_$ImageTypeEnumMap, json['t']),
       w: json['w'] as int,
       h: json['h'] as int,

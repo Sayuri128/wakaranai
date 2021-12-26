@@ -6,7 +6,7 @@ part of 'title.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Title _$TitleFromJson(Map<String, dynamic> json) => Title(
+Title _$TitleFromJson(Map json) => Title(
       english: json['english'] as String?,
       japanese: json['japanese'] as String?,
       pretty: json['pretty'] as String?,
