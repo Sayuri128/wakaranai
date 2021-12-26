@@ -68,44 +68,43 @@ class _DoujinshiSourceViewState extends State<DoujinshiSourceView> {
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: BlocBuilder<SourceViewCubit, SourceViewState>(
         builder: (context, state) {
-          return IgnorePointer(
-            ignoring: !state.controlsVisible,
-            child: AnimatedOpacity(
-              opacity: state.controlsVisible ? 1 : 0,
-              duration: const Duration(seconds: 1),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        InkWell(
-                          child: const Icon(Icons.arrow_back),
-                          onTap: () {
-                            if (Navigator.of(context).canPop()) {
-                              Navigator.of(context).pop();
-                            }
-                          },
-                        ),
-                        Container(
-                          width: 70,
-                          height: 30,
-                          child: Center(child: Text('${state.currentPage}/${state.totalPages}')),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16.0),
-                              color: AppColors.accentGreen),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ),
+          return AnimatedSwitcher(
+            duration: const Duration(seconds: 1),
+            child: state.controlsVisible ? _buildControlsView(context, state) : const SizedBox(),
           );
         },
+      ),
+    );
+  }
+
+  Padding _buildControlsView(BuildContext context, SourceViewState state) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              InkWell(
+                child: const Icon(Icons.arrow_back),
+                onTap: () {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+              Container(
+                width: 70,
+                height: 30,
+                child: Center(child: Text('${state.currentPage}/${state.totalPages}')),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16.0), color: AppColors.accentGreen),
+              )
+            ],
+          )
+        ],
       ),
     );
   }
