@@ -82,6 +82,10 @@ class DoujinshiCacheDatabase {
   Future<void> deleteById(int id) async {
     await database!.rawDelete('DELETE FROM $tableName WHERE $idColumn = ?', [id]);
   }
+
+  Future<void> clear() async {
+    await database!.rawQuery('DELETE FROM $tableName');
+  }
 }
 
 String escape(String content) {

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:h_reader/blocs/nhentai/cache/doujinshi/doujinshi_cache_cubit.dart';
 import 'package:h_reader/blocs/nhentai/galleries/nhentai_galleries_cubit.dart';
 import 'package:h_reader/models/nhentai/doujinshi/doujinshi.dart';
+import 'package:h_reader/ui/widgets/skeleton_loaders.dart';
 import 'package:provider/provider.dart';
 
 import 'gallery_cached_doujinshi_card.dart';
@@ -102,18 +103,20 @@ class _GalleryViewState extends State<GalleryView> {
 
   BlocBuilder<DoujinshiCacheCubit, DoujinshiCacheState> _buildGalleryCachedListView() {
     return BlocBuilder<DoujinshiCacheCubit, DoujinshiCacheState>(builder: (context, state) {
-      if (state is DoujinshiCacheReceived) {
-        return ListView(physics: const BouncingScrollPhysics(), shrinkWrap: true, children: [
-          Wrap(
-              children: state.doujinshi
-                  .map((e) => GalleryCachedDoujinshiCard(
-                        data: e,
-                      ))
-                  .toList())
-        ]);
-      } else {
-        return const CircularProgressIndicator();
-      }
+      return ListView(physics: const BouncingScrollPhysics(), shrinkWrap: true, children: [
+        state is DoujinshiCacheReceived
+            ? Wrap(
+                children: state.doujinshi
+                    .map((e) => GalleryCachedDoujinshiCard(
+                          data: e,
+                        ))
+                    .toList())
+            : Wrap(
+                children: List.generate(
+                    16,
+                    (index) => buildDoujinshiCardLoader(
+                        width: MediaQuery.of(context).size.width * 0.5, height: 200)))
+      ]);
     });
   }
 

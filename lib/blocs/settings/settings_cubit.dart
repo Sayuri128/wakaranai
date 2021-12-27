@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:h_reader/blocs/nhentai/cache/image/image_cache_cubit.dart';
 import 'package:h_reader/repositories/settings/settings_repository.dart';
+import 'package:h_reader/services/sqlite/cache/doujinshi/doujinshi_cache_service.dart';
 import 'package:h_reader/services/sqlite/cache/image/image_cache_service.dart';
 import 'package:meta/meta.dart';
 
@@ -13,6 +14,7 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   final ImageCacheCubit imageCacheCubit;
   final ImageCacheService _imageCacheService = ImageCacheService();
+  final DoujinshiCacheService _doujinshiCacheService = DoujinshiCacheService();
   final SettingsRepository _settingsRepository = SettingsRepository();
 
   void getSettings() async {
@@ -25,9 +27,9 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   void clearCache() async {
-    _imageCacheService.clear();
+    await _imageCacheService.clear();
+    await _doujinshiCacheService.clear();
     await ImageCacheCubit.instance.emptyCache();
-
     imageCacheCubit.getAll();
   }
 }
