@@ -55,6 +55,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "doujinshi_view_cache_button_save_title":
             MessageLookupByLibrary.simpleMessage("Save"),
         "doujinshi_view_cached_data_does_not_exit_error_message": m1,
+        "gallery_view_menu_cached_title":
+            MessageLookupByLibrary.simpleMessage("Cached"),
+        "gallery_view_menu_nhentai_title":
+            MessageLookupByLibrary.simpleMessage("NHentai"),
         "settings_cache_clear_dialog_title":
             MessageLookupByLibrary.simpleMessage(
                 "Are your sure want to clear image cache?"),
