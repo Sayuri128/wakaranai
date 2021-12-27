@@ -77,7 +77,8 @@ class _GalleryViewState extends State<GalleryView> {
     return PageView(
       key: _galleryPageKey,
       onPageChanged: (index) {
-        if (index == 1) {
+        if (index == 0) {
+        } else if (index == 1) {
           context.read<DoujinshiCacheCubit>().getAll();
         }
       },

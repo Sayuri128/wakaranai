@@ -39,6 +39,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Copied to clipboard!"),
         "doujinshi_pages_count": MessageLookupByLibrary.simpleMessage("Pages:"),
         "doujinshi_uploaded": MessageLookupByLibrary.simpleMessage("Uploaded:"),
+        "doujinshi_view_cache_button_delete_title":
+            MessageLookupByLibrary.simpleMessage("Delete"),
+        "doujinshi_view_cache_button_loading_title":
+            MessageLookupByLibrary.simpleMessage("Saving..."),
+        "doujinshi_view_cache_button_save_title":
+            MessageLookupByLibrary.simpleMessage("Save"),
         "doujinshi_view_cached_data_does_not_exit_error_message": m0,
         "settings_cache_clear_dialog_title":
             MessageLookupByLibrary.simpleMessage(
