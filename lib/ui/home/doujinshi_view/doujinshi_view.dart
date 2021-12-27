@@ -12,6 +12,7 @@ import 'package:h_reader/ui/home/doujinshi_view/doujinshi_page_view.dart';
 import 'package:h_reader/ui/home/doujinshi_view/tag_item.dart';
 import 'package:h_reader/ui/widgets/appbar.dart';
 import 'package:h_reader/ui/widgets/cached_image.dart';
+import 'package:h_reader/ui/widgets/primary_button.dart';
 import 'package:h_reader/utils/app_colors.dart';
 import 'package:h_reader/utils/nhentai_urls.dart';
 import 'package:h_reader/utils/text_styles.dart';
@@ -89,26 +90,36 @@ class _DoujinshiViewState extends State<DoujinshiView> {
         ),
         _buildPagesCount(),
         _buildUploadedDate(),
-        BlocBuilder<DoujinshiCacheCubit, DoujinshiCacheState>(builder: (context, state) {
-          return ElevatedButton(
-            onPressed: () {
-              if (state is DoujinshiCacheReceivedSingle && state.doujinshi == null) {
-                context.read<DoujinshiCacheCubit>().save(doujinshi: widget.doujinshi);
-              }
-            },
-            child: Text(state is DoujinshiCacheReceivedSingle && state.doujinshi == null
-                ? 'Save'
-                : state is DoujinshiCacheReceivedSingle && state.doujinshi != null
-                    ? 'Already saved'
-                    : 'Saving...'),
-          );
-        }),
+        _buildCacheButtons(),
         const SizedBox(
           height: 8.0,
         ),
         DoujinshiPageView(mediaId: widget.doujinshi.mediaId, pages: widget.doujinshi.images.pages)
       ],
     );
+  }
+
+  BlocBuilder<DoujinshiCacheCubit, DoujinshiCacheState> _buildCacheButtons() {
+    return BlocBuilder<DoujinshiCacheCubit, DoujinshiCacheState>(builder: (context, state) {
+      if (state is DoujinshiCacheReceivedSingle) {
+        if (state.doujinshi == null) {
+          return PrimaryButton(
+              title: S.current.doujinshi_view_cache_button_save_title,
+              onPressed: () {
+                context.read<DoujinshiCacheCubit>().save(doujinshi: widget.doujinshi);
+              });
+        } else {
+          return PrimaryButton(
+              title: S.current.doujinshi_view_cache_button_delete_title,
+              color: AppColors.red,
+              onPressed: () {});
+        }
+      } else if (state is DoujinshiCacheSaving) {
+        return PrimaryButton(title: S.current.doujinshi_view_cache_button_loading_title);
+      } else {
+        return const SizedBox();
+      }
+    });
   }
 
   Wrap _buildTags() {

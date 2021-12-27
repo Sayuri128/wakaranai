@@ -90,6 +90,36 @@ class S {
     );
   }
 
+  /// `Save`
+  String get doujinshi_view_cache_button_save_title {
+    return Intl.message(
+      'Save',
+      name: 'doujinshi_view_cache_button_save_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get doujinshi_view_cache_button_delete_title {
+    return Intl.message(
+      'Delete',
+      name: 'doujinshi_view_cache_button_delete_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saving...`
+  String get doujinshi_view_cache_button_loading_title {
+    return Intl.message(
+      'Saving...',
+      name: 'doujinshi_view_cache_button_loading_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Pages:`
   String get doujinshi_pages_count {
     return Intl.message(
