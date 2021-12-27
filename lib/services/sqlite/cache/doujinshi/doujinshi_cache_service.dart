@@ -42,4 +42,9 @@ class DoujinshiCacheService {
       return null;
     }
   }
+
+  Future<void> clear() async {
+    (await _getDb()).clear();
+  }
+
 }

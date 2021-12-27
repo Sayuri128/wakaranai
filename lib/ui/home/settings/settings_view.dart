@@ -55,17 +55,7 @@ class _SettingsViewState extends State<SettingsView> {
                         title: S.current.settings_caching_section_title,
                         tiles: [
                           _buildClearCacheTile(imageCacheState),
-                          SettingsTile(
-                            title: imageCacheState is ImageCacheSyncProgress
-                                ? S.current.settings_cache_sync_title_progress(
-                                    (imageCacheState.percentage * 100).toStringAsFixed(0))
-                                : S.current.settings_cache_sync_title,
-                            onPressed: (context) {
-                              if (imageCacheState is! ImageCacheSyncProgress) {
-                                context.read<ImageCacheCubit>().syncDbAndCache();
-                              }
-                            },
-                          )
+                          _buildSyncDbTile(imageCacheState)
                         ],
                       ),
                     ],
@@ -80,6 +70,20 @@ class _SettingsViewState extends State<SettingsView> {
           },
         ),
       ),
+    );
+  }
+
+  SettingsTile _buildSyncDbTile(ImageCacheState imageCacheState) {
+    return SettingsTile(
+      title: imageCacheState is ImageCacheSyncProgress
+          ? S.current.settings_cache_sync_title_progress(
+              (imageCacheState.percentage * 100).toStringAsFixed(0))
+          : S.current.settings_cache_sync_title,
+      onPressed: (context) {
+        if (imageCacheState is! ImageCacheSyncProgress) {
+          context.read<ImageCacheCubit>().syncDbAndCache();
+        }
+      },
     );
   }
 
