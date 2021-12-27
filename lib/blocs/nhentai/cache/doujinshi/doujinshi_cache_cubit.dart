@@ -14,7 +14,13 @@ class DoujinshiCacheCubit extends Cubit<DoujinshiCacheState> {
   final _doujinshiCacheService = DoujinshiCacheService();
   final _imageCacheService = ImageCacheService();
 
+  void getByMediaId({required String mediaId}) async {
+    emit(DoujinshiCacheReceivedSingle(
+        doujinshi: await _doujinshiCacheService.getByMediaId(mediaId: mediaId)));
+  }
+
   void save({required Doujinshi doujinshi}) async {
+    emit(DoujinshiCacheSaving());
     await _doujinshiCacheService.save(
         doujinshi: doujinshi,
         thumbnail: await _imageCacheService.getByUrlIfNotExistSave(

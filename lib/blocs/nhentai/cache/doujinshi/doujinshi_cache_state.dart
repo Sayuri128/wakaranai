@@ -13,4 +13,14 @@ class DoujinshiCacheReceived extends DoujinshiCacheState {
   });
 }
 
+class DoujinshiCacheReceivedSingle extends DoujinshiCacheState {
+  final CachedDoujinshi? doujinshi;
+
+  DoujinshiCacheReceivedSingle({
+    this.doujinshi,
+  });
+}
+
 class DoujinshiCacheSaved extends DoujinshiCacheState {}
+
+class DoujinshiCacheSaving extends DoujinshiCacheState {}

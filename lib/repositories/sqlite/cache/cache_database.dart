@@ -1,4 +1,5 @@
 import 'package:h_reader/repositories/sqlite/cache/doujinshi/doujinshi_cache_database.dart';
+import 'package:h_reader/ui/home/doujinshi_view/doujinshi_source_view.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'image/image_cache_database.dart';
@@ -47,6 +48,7 @@ class CacheDataBase {
             ${DoujinshiCacheDatabase.coverColumn} INTEGER,
             ${DoujinshiCacheDatabase.pageItemColumn} TEXT,
             ${DoujinshiCacheDatabase.sourceItemColumn} TEXT,
+            ${DoujinshiCacheDatabase.mediaIdColumn} TEXT,
             FOREIGN KEY(${DoujinshiCacheDatabase.thumbnailColumn})
              REFERENCES ${ImageCacheDataBase.tableName}(${ImageCacheDataBase.idColumn}),
             FOREIGN KEY (${DoujinshiCacheDatabase.coverColumn})
