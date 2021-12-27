@@ -18,7 +18,7 @@ class ImageCacheCubit extends Cubit<ImageCacheState> {
   static const key = 'DoujinshiCacheKey';
   static CacheManager instance = CacheManager(Config(key,
       stalePeriod: const Duration(days: 365),
-      maxNrOfCacheObjects: 10000,
+      maxNrOfCacheObjects: 128000,
       repo: JsonCacheInfoRepository(databaseName: key),
       fileSystem: IOFileSystem(key),
       fileService: HttpFileService()));

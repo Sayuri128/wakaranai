@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -120,7 +120,17 @@ class _DoujinshiViewState extends State<DoujinshiView> {
               title: S.current.doujinshi_view_cache_button_delete_title,
               color: AppColors.red,
               onPressed: () {
-                context.read<DoujinshiCacheCubit>().deleteCache(state.doujinshi!);
+                showOkCancelAlertDialog(
+                        context: context,
+                        okLabel: S.current.doujinshi_view_cache_button_delete_dialog_ok,
+                        cancelLabel: S.current.doujinshi_view_cache_button_delete_dialog_cancel,
+                        message: S.current.doujinshi_view_cache_button_delete_dialog_message(
+                            widget.doujinshi.title.pretty ?? ''))
+                    .then((value) {
+                  if (value == OkCancelResult.ok) {
+                    context.read<DoujinshiCacheCubit>().deleteCache(state.doujinshi!);
+                  }
+                });
               });
         }
       } else if (state is DoujinshiCacheSaving) {
