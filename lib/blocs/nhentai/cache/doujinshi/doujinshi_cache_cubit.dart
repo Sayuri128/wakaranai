@@ -1,4 +1,6 @@
+
 import 'package:bloc/bloc.dart';
+import 'package:h_reader/blocs/nhentai/cache/image/image_cache_cubit.dart';
 import 'package:h_reader/models/nhentai/doujinshi/doujinshi.dart';
 import 'package:h_reader/models/sqlite/cache/cached_doujinshi/cached_doujinshi.dart';
 import 'package:h_reader/services/sqlite/cache/doujinshi/doujinshi_cache_service.dart';
@@ -13,6 +15,21 @@ class DoujinshiCacheCubit extends Cubit<DoujinshiCacheState> {
 
   final _doujinshiCacheService = DoujinshiCacheService();
   final _imageCacheService = ImageCacheService();
+
+  Future<bool> _verifyCache(String url) async {
+    return await ImageCacheCubit.instance.getFileFromCache(url) != null;
+  }
+
+  void verifyCache(CachedDoujinshi doujinshi) async {
+    emit(DoujinshiCacheVerifyInProgress());
+    emit(DoujinshiCacheVerifiedResult(
+        result: (await _verifyCache(doujinshi.thumbnail.url)) &&
+            (await _verifyCache(doujinshi.cover.url)) &&
+            !(await Future.wait(doujinshi.pageItems.map((e) => _verifyCache(e.url))))
+                .contains(false) &&
+            !(await Future.wait(doujinshi.sourceItems.map((e) => _verifyCache(e.url))))
+                .contains(false)));
+  }
 
   void getByMediaId({required String mediaId}) async {
     emit(DoujinshiCacheReceivedSingle(

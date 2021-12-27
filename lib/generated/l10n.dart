@@ -80,6 +80,16 @@ class S {
     );
   }
 
+  /// `{title} data does not exist`
+  String doujinshi_view_cached_data_does_not_exit_error_message(Object title) {
+    return Intl.message(
+      '$title data does not exist',
+      name: 'doujinshi_view_cached_data_does_not_exit_error_message',
+      desc: '',
+      args: [title],
+    );
+  }
+
   /// `Pages:`
   String get doujinshi_pages_count {
     return Intl.message(

@@ -40,4 +40,31 @@ class Doujinshi {
     required this.numPages,
     required this.numFavorites,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Doujinshi &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          mediaId == other.mediaId &&
+          title == other.title &&
+          images == other.images &&
+          scanlator == other.scanlator &&
+          uploadDate == other.uploadDate &&
+          tags == other.tags &&
+          numPages == other.numPages &&
+          numFavorites == other.numFavorites;
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      mediaId.hashCode ^
+      title.hashCode ^
+      images.hashCode ^
+      scanlator.hashCode ^
+      uploadDate.hashCode ^
+      tags.hashCode ^
+      numPages.hashCode ^
+      numFavorites.hashCode;
 }
