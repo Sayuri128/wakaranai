@@ -78,6 +78,10 @@ class DoujinshiCacheDatabase {
               'CachedDoujinshi with $mediaIdColumn = \'$mediaId\' does not exist in the database');
     }
   }
+
+  Future<void> deleteById(int id) async {
+    await database!.rawDelete('DELETE FROM $tableName WHERE $idColumn = ?', [id]);
+  }
 }
 
 String escape(String content) {

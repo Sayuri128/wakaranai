@@ -41,6 +41,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "doujinshi_uploaded": MessageLookupByLibrary.simpleMessage("Uploaded:"),
         "doujinshi_view_cache_button_delete_title":
             MessageLookupByLibrary.simpleMessage("Delete"),
+        "doujinshi_view_cache_button_deleting_title":
+            MessageLookupByLibrary.simpleMessage("Deleting..."),
         "doujinshi_view_cache_button_loading_title":
             MessageLookupByLibrary.simpleMessage("Saving..."),
         "doujinshi_view_cache_button_save_title":

@@ -49,8 +49,8 @@ class ImageCacheService {
         .toList();
   }
 
-  Future<void> delete({required String cacheKey}) async {
-    await (await _getDb()).deleteByUrl(url: cacheKey);
+  Future<void> delete({required String url}) async {
+    await (await _getDb()).deleteByUrl(url: url);
   }
 
   Future<void> clear() async {

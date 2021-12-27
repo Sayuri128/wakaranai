@@ -6,6 +6,7 @@
   "doujinshi_view_cache_button_save_title": "Save",
   "doujinshi_view_cache_button_delete_title": "Delete",
   "doujinshi_view_cache_button_loading_title": "Saving...",
+  "doujinshi_view_cache_button_deleting_title": "Deleting...",
   "doujinshi_pages_count": "Pages:",
   "doujinshi_uploaded": "Uploaded:",
   "copied_to_clipboard_message": "Copied to clipboard!",

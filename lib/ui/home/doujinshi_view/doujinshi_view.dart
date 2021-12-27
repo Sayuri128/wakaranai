@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:h_reader/blocs/nhentai/cache/doujinshi/doujinshi_cache_cubit.dart';
 import 'package:h_reader/generated/l10n.dart';
+import 'package:h_reader/main.dart';
 import 'package:h_reader/models/nhentai/doujinshi/doujinshi.dart';
 import 'package:h_reader/models/nhentai/doujinshi/tags_item/tags_item.dart';
 import 'package:h_reader/ui/home/doujinshi_view/doujinshi_page_view.dart';
@@ -39,7 +40,13 @@ class _DoujinshiViewState extends State<DoujinshiView> {
       ],
       child: MultiBlocListener(
         listeners: [
-          BlocListener<DoujinshiCacheCubit, DoujinshiCacheState>(listener: (context, state) {})
+          BlocListener<DoujinshiCacheCubit, DoujinshiCacheState>(listener: (context, state) {
+            if (state is DoujinshiCacheDeleteResult) {
+              if (MyApp.navigator?.canPop() ?? false) {
+                MyApp.navigator?.pop();
+              }
+            }
+          })
         ],
         child: Scaffold(
           appBar: buildAppBar(title: widget.doujinshi.title.pretty ?? ''),
@@ -112,10 +119,14 @@ class _DoujinshiViewState extends State<DoujinshiView> {
           return PrimaryButton(
               title: S.current.doujinshi_view_cache_button_delete_title,
               color: AppColors.red,
-              onPressed: () {});
+              onPressed: () {
+                context.read<DoujinshiCacheCubit>().deleteCache(state.doujinshi!);
+              });
         }
       } else if (state is DoujinshiCacheSaving) {
         return PrimaryButton(title: S.current.doujinshi_view_cache_button_loading_title);
+      } else if (state is DoujinshiCacheDeleting) {
+        return PrimaryButton(title: S.current.doujinshi_view_cache_button_deleting_title);
       } else {
         return const SizedBox();
       }
