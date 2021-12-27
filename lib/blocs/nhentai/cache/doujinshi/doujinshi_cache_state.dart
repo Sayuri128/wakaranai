@@ -21,6 +21,4 @@ class DoujinshiCacheReceivedSingle extends DoujinshiCacheState {
   });
 }
 
-class DoujinshiCacheSaved extends DoujinshiCacheState {}
-
 class DoujinshiCacheSaving extends DoujinshiCacheState {}
