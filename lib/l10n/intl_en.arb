@@ -2,6 +2,8 @@
   "app_name": "HReader",
   "bottom_navigation_gallery_menu_title": "Gallery",
   "bottom_navigation_settings_menu_title": "Settings",
+  "gallery_view_menu_nhentai_title": "NHentai",
+  "gallery_view_menu_cached_title": "Cached",
   "doujinshi_view_cached_data_does_not_exit_error_message": "{title} data does not exist",
   "doujinshi_view_cache_button_save_title": "Save",
   "doujinshi_view_cache_button_delete_title": "Delete",

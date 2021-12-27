@@ -80,6 +80,26 @@ class S {
     );
   }
 
+  /// `NHentai`
+  String get gallery_view_menu_nhentai_title {
+    return Intl.message(
+      'NHentai',
+      name: 'gallery_view_menu_nhentai_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cached`
+  String get gallery_view_menu_cached_title {
+    return Intl.message(
+      'Cached',
+      name: 'gallery_view_menu_cached_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{title} data does not exist`
   String doujinshi_view_cached_data_does_not_exit_error_message(Object title) {
     return Intl.message(

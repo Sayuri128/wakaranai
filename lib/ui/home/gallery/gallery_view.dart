@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:h_reader/blocs/nhentai/cache/doujinshi/doujinshi_cache_cubit.dart';
 import 'package:h_reader/blocs/nhentai/galleries/nhentai_galleries_cubit.dart';
+import 'package:h_reader/generated/l10n.dart';
 import 'package:h_reader/models/nhentai/doujinshi/doujinshi.dart';
 import 'package:h_reader/ui/widgets/skeleton_loaders.dart';
 import 'package:provider/provider.dart';
@@ -74,21 +75,24 @@ class _GalleryViewState extends State<GalleryView> {
     );
   }
 
-  PageView _buildPage(BuildContext context) {
-    return PageView(
-      key: _galleryPageKey,
-      onPageChanged: (index) {
-        if (index == 0) {
-        } else if (index == 1) {
-          context.read<DoujinshiCacheCubit>().getAll();
-        }
-      },
-      physics: const BouncingScrollPhysics(),
-      children: [
-        Stack(children: [_buildGalleryListView(), _buildLoadingIndicator()]),
-        _buildGalleryCachedListView()
-      ],
-    );
+  Widget _buildPage(BuildContext context) {
+    return DefaultTabController(
+        length: 2,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TabBar(tabs: [
+              Tab(text: S.current.gallery_view_menu_nhentai_title),
+              Tab(text: S.current.gallery_view_menu_cached_title)
+            ]),
+            Expanded(
+              child: TabBarView(physics: const BouncingScrollPhysics(), children: [
+                Stack(children: [_buildGalleryListView(), _buildLoadingIndicator()]),
+                _buildGalleryCachedListView()
+              ]),
+            )
+          ],
+        ));
   }
 
   BlocBuilder<NHentaiGalleriesCubit, NHentaiGalleriesState> _buildLoadingIndicator() {
