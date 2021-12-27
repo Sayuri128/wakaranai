@@ -11,18 +11,19 @@ class DoujinshiCacheService {
   Future<DoujinshiCacheDatabase> _getDb() async =>
       (await _cacheDataBase.getDoujinshiCacheDatabase());
 
-  Future<void> save(
+  Future<CachedDoujinshi> save(
       {required Doujinshi doujinshi,
       required CachedImageData thumbnail,
       required CachedImageData cover,
       required List<CachedImageData> pageItems,
       required List<CachedImageData> sourceItems}) async {
-    return (await _getDb()).saveDoujinshi(
+    (await _getDb()).saveDoujinshi(
         doujinshi: doujinshi,
         thumbnail: thumbnail,
         cover: cover,
         pageItems: pageItems,
         sourceItems: sourceItems);
+    return (await getByMediaId(mediaId: doujinshi.mediaId))!;
   }
 
   Future<List<CachedDoujinshi>> getAll() async {

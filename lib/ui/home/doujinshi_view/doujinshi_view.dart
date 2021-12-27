@@ -38,17 +38,15 @@ class _DoujinshiViewState extends State<DoujinshiView> {
       ],
       child: MultiBlocListener(
         listeners: [
-          BlocListener<DoujinshiCacheCubit, DoujinshiCacheState>(listener: (context, state) {
-            if (state is DoujinshiCacheSaved) {
-              // print('saved');
-            }
-          })
+          BlocListener<DoujinshiCacheCubit, DoujinshiCacheState>(listener: (context, state) {})
         ],
         child: Scaffold(
           appBar: buildAppBar(title: widget.doujinshi.title.pretty ?? ''),
           body: Transform.translate(
             offset: const Offset(0, -5),
-            child: Stack(children: [_buildContent(context), _buildSavingProgress()]),
+            child: Stack(
+                alignment: Alignment.center,
+                children: [_buildContent(context), _buildSavingProgress()]),
           ),
         ),
       ),
@@ -102,7 +100,7 @@ class _DoujinshiViewState extends State<DoujinshiView> {
                 ? 'Save'
                 : state is DoujinshiCacheReceivedSingle && state.doujinshi != null
                     ? 'Already saved'
-                    : 'Loading..'),
+                    : 'Saving...'),
           );
         }),
         const SizedBox(

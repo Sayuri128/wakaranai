@@ -21,23 +21,23 @@ class DoujinshiCacheCubit extends Cubit<DoujinshiCacheState> {
 
   void save({required Doujinshi doujinshi}) async {
     emit(DoujinshiCacheSaving());
-    await _doujinshiCacheService.save(
-        doujinshi: doujinshi,
-        thumbnail: await _imageCacheService.getByUrlIfNotExistSave(
-            url: NHentaiUrls.thumbnailUrl(doujinshi.mediaId, doujinshi.images.thumbnail.t)),
-        cover: await _imageCacheService.getByUrlIfNotExistSave(
-            url: NHentaiUrls.coverUrl(doujinshi.mediaId, doujinshi.images.cover.t)),
-        pageItems: await _imageCacheService.getByUrlsIfNotExistSave(
-            urls: doujinshi.images.pages
-                .map((e) => NHentaiUrls.pageItem(
-                    doujinshi.mediaId, e.t, doujinshi.images.pages.indexOf(e) + 1))
-                .toList()),
-        sourceItems: await _imageCacheService.getByUrlsIfNotExistSave(
-            urls: doujinshi.images.pages
-                .map((e) => NHentaiUrls.pageItemSource(
-                    doujinshi.mediaId, e.t, doujinshi.images.pages.indexOf(e) + 1))
-                .toList()));
-    emit(DoujinshiCacheSaved());
+    emit(DoujinshiCacheReceivedSingle(
+        doujinshi: await _doujinshiCacheService.save(
+            doujinshi: doujinshi,
+            thumbnail: await _imageCacheService.getByUrlIfNotExistSave(
+                url: NHentaiUrls.thumbnailUrl(doujinshi.mediaId, doujinshi.images.thumbnail.t)),
+            cover: await _imageCacheService.getByUrlIfNotExistSave(
+                url: NHentaiUrls.coverUrl(doujinshi.mediaId, doujinshi.images.cover.t)),
+            pageItems: await _imageCacheService.getByUrlsIfNotExistSave(
+                urls: doujinshi.images.pages
+                    .map((e) => NHentaiUrls.pageItem(
+                        doujinshi.mediaId, e.t, doujinshi.images.pages.indexOf(e) + 1))
+                    .toList()),
+            sourceItems: await _imageCacheService.getByUrlsIfNotExistSave(
+                urls: doujinshi.images.pages
+                    .map((e) => NHentaiUrls.pageItemSource(
+                        doujinshi.mediaId, e.t, doujinshi.images.pages.indexOf(e) + 1))
+                    .toList()))));
   }
 
   @override
