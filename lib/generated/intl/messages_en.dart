@@ -20,11 +20,13 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(count) => "Clear ${count} images cache.";
+  static String m0(title) => "${title} data does not exist";
 
-  static String m1(count) => "${count} cached images were synchronized";
+  static String m1(count) => "Clear ${count} images cache.";
 
-  static String m2(progress) => "Synchronize cache ${progress}%";
+  static String m2(count) => "${count} cached images were synchronized";
+
+  static String m3(progress) => "Synchronize cache ${progress}%";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -37,14 +39,15 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Copied to clipboard!"),
         "doujinshi_pages_count": MessageLookupByLibrary.simpleMessage("Pages:"),
         "doujinshi_uploaded": MessageLookupByLibrary.simpleMessage("Uploaded:"),
+        "doujinshi_view_cached_data_does_not_exit_error_message": m0,
         "settings_cache_clear_dialog_title":
             MessageLookupByLibrary.simpleMessage(
                 "Are your sure want to clear image cache?"),
-        "settings_cache_clear_title": m0,
-        "settings_cache_sync_complete_message": m1,
+        "settings_cache_clear_title": m1,
+        "settings_cache_sync_complete_message": m2,
         "settings_cache_sync_title":
             MessageLookupByLibrary.simpleMessage("Synchronize cache"),
-        "settings_cache_sync_title_progress": m2,
+        "settings_cache_sync_title_progress": m3,
         "settings_caching_images_title":
             MessageLookupByLibrary.simpleMessage("Image caching"),
         "settings_caching_period_dialog_title":

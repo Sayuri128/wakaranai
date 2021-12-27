@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:h_reader/blocs/nhentai/cache/doujinshi/doujinshi_cache_cubit.dart';
 import 'package:h_reader/blocs/nhentai/galleries/nhentai_galleries_cubit.dart';
-import 'package:h_reader/ui/widgets/skeleton_loaders.dart';
+import 'package:h_reader/models/nhentai/doujinshi/doujinshi.dart';
 import 'package:provider/provider.dart';
 
-import '../gallery_doujinshi_card.dart';
+import 'gallery_cached_doujinshi_card.dart';
+import 'gallery_doujinshi_card.dart';
 
 class GalleryView extends StatefulWidget {
   const GalleryView({Key? key}) : super(key: key);
@@ -20,6 +21,9 @@ class _GalleryViewState extends State<GalleryView> {
 
   var _galleryPage = 1;
 
+  final List<Doujinshi> _doujinshi = [];
+  final List<Doujinshi> _doujinshiDisplay = [];
+
   @override
   void initState() {
     super.initState();
@@ -27,13 +31,21 @@ class _GalleryViewState extends State<GalleryView> {
     _galleryScrollController.addListener(() {
       if (_galleryScrollController.position.atEdge &&
           _galleryScrollController.position.pixels != 0) {
-        setState(() {
-          _galleryPage++;
-          _galleryPageKey.currentContext
-              ?.read<NHentaiGalleriesCubit>()
-              .requestGallery(_galleryPage);
-        });
+        _galleryPage++;
+        _galleryPageKey.currentContext?.read<NHentaiGalleriesCubit>().requestGallery(_galleryPage);
       }
+    });
+  }
+
+  void _onDoujinshiReceived(NHentaiGalleriesReceived state) {
+    _doujinshi.addAll(state.doujinshis);
+    _filterDoujinshis();
+  }
+
+  void _filterDoujinshis() {
+    setState(() {
+      _doujinshiDisplay.clear();
+      _doujinshiDisplay.addAll(_doujinshi);
     });
   }
 
@@ -46,18 +58,58 @@ class _GalleryViewState extends State<GalleryView> {
         ),
         BlocProvider<DoujinshiCacheCubit>(create: (context) => DoujinshiCacheCubit()..getAll())
       ],
-      child: PageView(
-        physics: const BouncingScrollPhysics(),
-        children: [_buildGalleryListView(), _buildGalleryCachedListView()],
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<NHentaiGalleriesCubit, NHentaiGalleriesState>(listener: (context, state) {
+            if (state is NHentaiGalleriesReceived) {
+              _onDoujinshiReceived(state);
+            }
+          })
+        ],
+        child: Builder(builder: (context) {
+          return _buildPage(context);
+        }),
       ),
     );
+  }
+
+  PageView _buildPage(BuildContext context) {
+    return PageView(
+      key: _galleryPageKey,
+      onPageChanged: (index) {
+        if (index == 1) {
+          context.read<DoujinshiCacheCubit>().getAll();
+        }
+      },
+      physics: const BouncingScrollPhysics(),
+      children: [
+        Stack(children: [_buildGalleryListView(), _buildLoadingIndicator()]),
+        _buildGalleryCachedListView()
+      ],
+    );
+  }
+
+  BlocBuilder<NHentaiGalleriesCubit, NHentaiGalleriesState> _buildLoadingIndicator() {
+    return BlocBuilder<NHentaiGalleriesCubit, NHentaiGalleriesState>(builder: (_, state) {
+      if (state is NHentaiGalleriesLoading) {
+        return const Center(child: CircularProgressIndicator());
+      } else {
+        return const SizedBox();
+      }
+    });
   }
 
   BlocBuilder<DoujinshiCacheCubit, DoujinshiCacheState> _buildGalleryCachedListView() {
     return BlocBuilder<DoujinshiCacheCubit, DoujinshiCacheState>(builder: (context, state) {
       if (state is DoujinshiCacheReceived) {
-        return ListView(
-            children: state.doujinshi.map((e) => Text(e.doujinshi.title.pretty ?? '')).toList());
+        return ListView(physics: const BouncingScrollPhysics(), shrinkWrap: true, children: [
+          Wrap(
+              children: state.doujinshi
+                  .map((e) => GalleryCachedDoujinshiCard(
+                        data: e,
+                      ))
+                  .toList())
+        ]);
       } else {
         return const CircularProgressIndicator();
       }
@@ -70,20 +122,9 @@ class _GalleryViewState extends State<GalleryView> {
       physics: const BouncingScrollPhysics(),
       shrinkWrap: true,
       children: [
-        BlocBuilder<NHentaiGalleriesCubit, NHentaiGalleriesState>(builder: (context, state) {
-          if (state is NHentaiGalleriesReceived) {
-            return Wrap(
-              children: state.doujinshis.map((e) => GalleryDoujinshiCard(doujinshi: e)).toList(),
-            );
-          } else {
-            return Wrap(
-              children: List.generate(
-                  16,
-                  (index) => buildDoujinshiCardLoader(
-                      width: MediaQuery.of(context).size.width * 0.5, height: 200)),
-            );
-          }
-        })
+        Wrap(
+          children: _doujinshi.map((e) => GalleryDoujinshiCard(doujinshi: e)).toList(),
+        ),
       ],
     );
   }

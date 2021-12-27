@@ -22,3 +22,13 @@ class DoujinshiCacheReceivedSingle extends DoujinshiCacheState {
 }
 
 class DoujinshiCacheSaving extends DoujinshiCacheState {}
+
+class DoujinshiCacheVerifyInProgress extends DoujinshiCacheState {}
+
+class DoujinshiCacheVerifiedResult extends DoujinshiCacheState {
+  final bool result;
+
+  DoujinshiCacheVerifiedResult({
+    required this.result,
+  });
+}

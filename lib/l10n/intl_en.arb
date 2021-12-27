@@ -2,6 +2,7 @@
   "app_name": "HReader",
   "bottom_navigation_gallery_menu_title": "Gallery",
   "bottom_navigation_settings_menu_title": "Settings",
+  "doujinshi_view_cached_data_does_not_exit_error_message": "{title} data does not exist",
   "doujinshi_pages_count": "Pages:",
   "doujinshi_uploaded": "Uploaded:",
   "copied_to_clipboard_message": "Copied to clipboard!",
