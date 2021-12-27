@@ -36,7 +36,7 @@ class ImageCacheService {
       if (await ImageCacheCubit.instance.getFileFromCache(data.url) == null) {
         await ImageCacheCubit.instance.downloadFile(url);
       }
-    } on CacheDatabaseException {
+    } on CacheDatabaseException catch (_) {
       await ImageCacheCubit.instance.downloadFile(url);
       await saveImage(url: url);
       data = await getByUrl(url: url);

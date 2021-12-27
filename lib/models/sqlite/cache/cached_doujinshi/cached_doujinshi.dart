@@ -7,30 +7,33 @@ part 'cached_doujinshi.g.dart';
 
 @JsonSerializable()
 class CachedDoujinshi {
+  factory CachedDoujinshi.fromJson(Map<String, dynamic> json) => _$CachedDoujinshiFromJson(json);
+  Map<String, dynamic> toJson() => _$CachedDoujinshiToJson(this);
 
-	factory CachedDoujinshi.fromJson(Map<String, dynamic> json) => _$CachedDoujinshiFromJson(json);
-	Map<String, dynamic> toJson() => _$CachedDoujinshiToJson(this);
+  final int id;
 
-	final int id;
-
-	@JsonKey(name: DoujinshiCacheDatabase.doujinshiColumn)
+  @JsonKey(name: DoujinshiCacheDatabase.doujinshiColumn)
   final Doujinshi doujinshi;
 
-	@JsonKey(name: DoujinshiCacheDatabase.thumbnailColumn)
+  @JsonKey(name: DoujinshiCacheDatabase.mediaIdColumn)
+  final String mediaId;
+
+  @JsonKey(name: DoujinshiCacheDatabase.thumbnailColumn)
   final CachedImageData thumbnail;
 
-	@JsonKey(name: DoujinshiCacheDatabase.coverColumn)
+  @JsonKey(name: DoujinshiCacheDatabase.coverColumn)
   final CachedImageData cover;
 
-	@JsonKey(name: DoujinshiCacheDatabase.pageItemColumn)
+  @JsonKey(name: DoujinshiCacheDatabase.pageItemColumn)
   final List<CachedImageData> pageItems;
 
-	@JsonKey(name: DoujinshiCacheDatabase.sourceItemColumn)
+  @JsonKey(name: DoujinshiCacheDatabase.sourceItemColumn)
   final List<CachedImageData> sourceItems;
 
   const CachedDoujinshi({
     required this.id,
     required this.doujinshi,
+    required this.mediaId,
     required this.thumbnail,
     required this.cover,
     required this.pageItems,

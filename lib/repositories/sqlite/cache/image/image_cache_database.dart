@@ -16,17 +16,17 @@ class ImageCacheDataBase {
 
   Future<void> saveCacheUrl({required String url}) async {
     await database!.transaction((txn) async =>
-        await txn.rawInsert('INSERT OR IGNORE INTO $tableName ($urlColumn) VALUES (\'$url\')'));
+        await txn.rawInsert('INSERT OR IGNORE INTO $tableName ($urlColumn) VALUES (?)', [url]));
   }
 
   Future<void> deleteByUrl({required String url}) async {
     await database!.transaction(
-        (txn) async => await txn.rawQuery('DELETE FROM $tableName WHERE $urlColumn = \'$url\''));
+        (txn) async => await txn.rawQuery('DELETE FROM $tableName WHERE $urlColumn = ?', [url]));
   }
 
   Future<CachedImageData> getById({required int id}) async {
     final result = (await database!.transaction(
-        (txn) async => await txn.rawQuery('SELECT * FROM $tableName WHERE $idColumn = $id')));
+        (txn) async => await txn.rawQuery('SELECT * FROM $tableName WHERE $idColumn = ?', [id])));
     if (result.isNotEmpty) {
       return CachedImageData.fromJson(result.first);
     } else {
@@ -36,7 +36,7 @@ class ImageCacheDataBase {
 
   Future<CachedImageData> getByUrl({required String url}) async {
     final result = (await database!.transaction(
-        (txn) async => txn.rawQuery('SELECT * FROM $tableName WHERE $urlColumn = \'$url\'')));
+        (txn) async => txn.rawQuery('SELECT * FROM $tableName WHERE $urlColumn = ?', [url])));
     if (result.isNotEmpty) {
       return CachedImageData.fromJson(result.first);
     } else {
@@ -46,7 +46,7 @@ class ImageCacheDataBase {
 
   Future<void> updateCacheKeyByUrl({required String url, required String cacheKey}) async {
     await database!.transaction((txn) async => txn.rawQuery(
-        'UPDATE $tableName SET $cachedDateColumn = \'$cacheKey\' WHERE $urlColumn = \'$url\''));
+        'UPDATE $tableName SET $cachedDateColumn = \'$cacheKey\' WHERE $urlColumn = ?', [url]));
   }
 
   Future<List<CachedImageData>> getAll() async {

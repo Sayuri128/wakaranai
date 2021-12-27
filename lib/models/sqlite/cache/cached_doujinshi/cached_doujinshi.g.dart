@@ -10,6 +10,7 @@ CachedDoujinshi _$CachedDoujinshiFromJson(Map json) => CachedDoujinshi(
       id: json['id'] as int,
       doujinshi: Doujinshi.fromJson(
           Map<String, dynamic>.from(json['doujinshi_json'] as Map)),
+      mediaId: json['cached_doujinshi_media_id'] as String,
       thumbnail: CachedImageData.fromJson(
           Map<String, dynamic>.from(json['cached_thumbnail_id'] as Map)),
       cover: CachedImageData.fromJson(
@@ -28,6 +29,7 @@ Map<String, dynamic> _$CachedDoujinshiToJson(CachedDoujinshi instance) =>
     <String, dynamic>{
       'id': instance.id,
       'doujinshi_json': instance.doujinshi.toJson(),
+      'cached_doujinshi_media_id': instance.mediaId,
       'cached_thumbnail_id': instance.thumbnail.toJson(),
       'cached_cover_id': instance.cover.toJson(),
       'cached_page_item_ids_json':

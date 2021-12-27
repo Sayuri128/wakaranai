@@ -2,6 +2,7 @@ import 'package:h_reader/models/nhentai/doujinshi/doujinshi.dart';
 import 'package:h_reader/models/sqlite/cache/cached_doujinshi/cached_doujinshi.dart';
 import 'package:h_reader/models/sqlite/cache/cached_image_data/cached_image_data.dart';
 import 'package:h_reader/repositories/sqlite/cache/cache_database.dart';
+import 'package:h_reader/repositories/sqlite/cache/cache_database_exception.dart';
 import 'package:h_reader/repositories/sqlite/cache/doujinshi/doujinshi_cache_database.dart';
 
 class DoujinshiCacheService {
@@ -26,5 +27,14 @@ class DoujinshiCacheService {
 
   Future<List<CachedDoujinshi>> getAll() async {
     return (await _getDb()).getAll();
+  }
+
+  Future<CachedDoujinshi?> getByMediaId({required String mediaId}) async {
+    try {
+      final result = (await _getDb()).getByMediaId(mediaId);
+      return await result;
+    } on CacheDatabaseException catch (_) {
+      return null;
+    }
   }
 }

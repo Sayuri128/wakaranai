@@ -31,12 +31,16 @@ class _DoujinshiViewState extends State<DoujinshiView> {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [BlocProvider<DoujinshiCacheCubit>(create: (context) => DoujinshiCacheCubit())],
+      providers: [
+        BlocProvider<DoujinshiCacheCubit>(
+            create: (context) =>
+                DoujinshiCacheCubit()..getByMediaId(mediaId: widget.doujinshi.mediaId))
+      ],
       child: MultiBlocListener(
         listeners: [
           BlocListener<DoujinshiCacheCubit, DoujinshiCacheState>(listener: (context, state) {
             if (state is DoujinshiCacheSaved) {
-              print('saved');
+              // print('saved');
             }
           })
         ],
@@ -44,51 +48,68 @@ class _DoujinshiViewState extends State<DoujinshiView> {
           appBar: buildAppBar(title: widget.doujinshi.title.pretty ?? ''),
           body: Transform.translate(
             offset: const Offset(0, -5),
-            child: ListView(
-              physics: const BouncingScrollPhysics(),
-              children: [
-                _buildCover(context),
-                if (widget.doujinshi.title.english != null) ...[
-                  const SizedBox(
-                    height: 16.0,
-                  ),
-                  _buildTitle(title: widget.doujinshi.title.english!)
-                ],
-                if (widget.doujinshi.title.japanese != null) ...[
-                  const SizedBox(
-                    height: 16.0,
-                  ),
-                  _buildTitle(title: widget.doujinshi.title.japanese!)
-                ],
-                const SizedBox(
-                  height: 8.0,
-                ),
-                _buildTags(),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                _buildPagesCount(),
-                _buildUploadedDate(),
-                Builder(
-                  builder: (context) {
-                    return ElevatedButton(
-                      onPressed: () {
-                        context.read<DoujinshiCacheCubit>().save(doujinshi: widget.doujinshi);
-                      },
-                      child: Text('Save'),
-                    );
-                  }
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                DoujinshiPageView(
-                    mediaId: widget.doujinshi.mediaId, pages: widget.doujinshi.images.pages)
-              ],
-            ),
+            child: Stack(children: [_buildContent(context), _buildSavingProgress()]),
           ),
         ),
       ),
+    );
+  }
+
+  BlocBuilder<DoujinshiCacheCubit, DoujinshiCacheState> _buildSavingProgress() {
+    return BlocBuilder<DoujinshiCacheCubit, DoujinshiCacheState>(builder: (context, state) {
+      if (state is DoujinshiCacheSaving) {
+        return const CircularProgressIndicator();
+      } else {
+        return const SizedBox();
+      }
+    });
+  }
+
+  ListView _buildContent(BuildContext context) {
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      children: [
+        _buildCover(context),
+        if (widget.doujinshi.title.english != null) ...[
+          const SizedBox(
+            height: 16.0,
+          ),
+          _buildTitle(title: widget.doujinshi.title.english!)
+        ],
+        if (widget.doujinshi.title.japanese != null) ...[
+          const SizedBox(
+            height: 16.0,
+          ),
+          _buildTitle(title: widget.doujinshi.title.japanese!)
+        ],
+        const SizedBox(
+          height: 8.0,
+        ),
+        _buildTags(),
+        const SizedBox(
+          height: 8.0,
+        ),
+        _buildPagesCount(),
+        _buildUploadedDate(),
+        BlocBuilder<DoujinshiCacheCubit, DoujinshiCacheState>(builder: (context, state) {
+          return ElevatedButton(
+            onPressed: () {
+              if (state is DoujinshiCacheReceivedSingle && state.doujinshi == null) {
+                context.read<DoujinshiCacheCubit>().save(doujinshi: widget.doujinshi);
+              }
+            },
+            child: Text(state is DoujinshiCacheReceivedSingle && state.doujinshi == null
+                ? 'Save'
+                : state is DoujinshiCacheReceivedSingle && state.doujinshi != null
+                    ? 'Already saved'
+                    : 'Loading..'),
+          );
+        }),
+        const SizedBox(
+          height: 8.0,
+        ),
+        DoujinshiPageView(mediaId: widget.doujinshi.mediaId, pages: widget.doujinshi.images.pages)
+      ],
     );
   }
 
