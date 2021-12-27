@@ -5,6 +5,7 @@ import 'package:h_reader/ui/routes.dart';
 import 'package:h_reader/ui/widgets/cached_image.dart';
 import 'package:h_reader/utils/app_colors.dart';
 import 'package:h_reader/utils/nhentai_urls.dart';
+import 'package:h_reader/utils/text_styles.dart';
 
 class GalleryDoujinshiCard extends StatelessWidget {
   const GalleryDoujinshiCard({Key? key, required this.doujinshi}) : super(key: key);
@@ -31,8 +32,9 @@ class GalleryDoujinshiCard extends StatelessWidget {
                     url: NHentaiUrls.thumbnailUrl(doujinshi.mediaId, doujinshi.images.thumbnail.t),
                     width: 200,
                     height: 180),
+                const SizedBox(height: 8),
                 Center(
-                  child: Text(doujinshi.title.pretty?.overflow ?? '', maxLines: 1),
+                  child: Text(doujinshi.title.pretty?.overflow ?? '', maxLines: 1, style: medium()),
                 )
               ],
             ),
