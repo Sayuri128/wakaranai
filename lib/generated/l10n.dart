@@ -130,6 +130,36 @@ class S {
     );
   }
 
+  /// `Are you sure want to delete {title}?`
+  String doujinshi_view_cache_button_delete_dialog_message(Object title) {
+    return Intl.message(
+      'Are you sure want to delete $title?',
+      name: 'doujinshi_view_cache_button_delete_dialog_message',
+      desc: '',
+      args: [title],
+    );
+  }
+
+  /// `Delete`
+  String get doujinshi_view_cache_button_delete_dialog_ok {
+    return Intl.message(
+      'Delete',
+      name: 'doujinshi_view_cache_button_delete_dialog_ok',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get doujinshi_view_cache_button_delete_dialog_cancel {
+    return Intl.message(
+      'Cancel',
+      name: 'doujinshi_view_cache_button_delete_dialog_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Pages:`
   String get doujinshi_pages_count {
     return Intl.message(
