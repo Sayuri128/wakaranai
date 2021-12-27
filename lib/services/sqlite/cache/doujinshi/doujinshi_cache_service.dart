@@ -26,6 +26,10 @@ class DoujinshiCacheService {
     return (await getByMediaId(mediaId: doujinshi.mediaId))!;
   }
 
+  Future<void> delete(int id) async {
+    await (await _getDb()).deleteById(id);
+  }
+
   Future<List<CachedDoujinshi>> getAll() async {
     return (await _getDb()).getAll();
   }

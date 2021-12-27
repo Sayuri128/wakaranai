@@ -32,3 +32,7 @@ class DoujinshiCacheVerifiedResult extends DoujinshiCacheState {
     required this.result,
   });
 }
+
+class DoujinshiCacheDeleting extends DoujinshiCacheState {}
+
+class DoujinshiCacheDeleteResult extends DoujinshiCacheState {}

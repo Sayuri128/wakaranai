@@ -120,6 +120,16 @@ class S {
     );
   }
 
+  /// `Deleting...`
+  String get doujinshi_view_cache_button_deleting_title {
+    return Intl.message(
+      'Deleting...',
+      name: 'doujinshi_view_cache_button_deleting_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Pages:`
   String get doujinshi_pages_count {
     return Intl.message(

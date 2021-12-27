@@ -30,7 +30,7 @@ class GalleryCachedDoujinshiCard extends StatelessWidget {
             builder: (context, state) {
               if (state is DoujinshiCacheVerifiedResult) {
                 if (state.result) {
-                  return _buildVerified();
+                  return _buildVerified(context);
                 } else {
                   return _buildDataDoesNotExist(context);
                 }
@@ -58,11 +58,13 @@ class GalleryCachedDoujinshiCard extends StatelessWidget {
     );
   }
 
-  InkWell _buildVerified() {
+  InkWell _buildVerified(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(8.0),
       onTap: () {
-        MyApp.navigator?.pushNamed(Routes.doujinshiView, arguments: data.doujinshi);
+        MyApp.navigator?.pushNamed(Routes.doujinshiView, arguments: data.doujinshi).then((value) {
+          context.read<DoujinshiCacheCubit>().verifyCache(data);
+        });
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
