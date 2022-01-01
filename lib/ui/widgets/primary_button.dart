@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:h_reader/utils/app_colors.dart';
-import 'package:h_reader/utils/text_styles.dart';
+import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/text_styles.dart';
 
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({Key? key, this.padding, required this.title, this.color, this.onPressed})

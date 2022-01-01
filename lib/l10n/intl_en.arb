@@ -1,31 +1,4 @@
 {
-  "app_name": "HReader",
-  "bottom_navigation_gallery_menu_title": "Gallery",
-  "bottom_navigation_settings_menu_title": "Settings",
-  "gallery_view_menu_nhentai_title": "NHentai",
-  "gallery_view_menu_cached_title": "Cached",
-  "doujinshi_view_cached_data_does_not_exit_error_message": "{title} data does not exist",
-  "doujinshi_view_cache_button_save_title": "Save",
-  "doujinshi_view_cache_button_delete_title": "Delete",
-  "doujinshi_view_cache_button_loading_title": "Saving...",
-  "doujinshi_view_cache_button_deleting_title": "Deleting...",
-  "doujinshi_view_cache_button_delete_dialog_message": "Are you sure want to delete {title}?",
-  "doujinshi_view_cache_button_delete_dialog_ok": "Delete",
-  "doujinshi_view_cache_button_delete_dialog_cancel": "Cancel",
-  "doujinshi_pages_count": "Pages:",
-  "doujinshi_uploaded": "Uploaded:",
-  "copied_to_clipboard_message": "Copied to clipboard!",
-  "settings_title": "Settings",
-  "settings_caching_section_title": "Cache",
-  "settings_caching_images_title": "Image caching",
-  "settings_caching_period_dialog_title": "Caching period",
-  "settings_caching_period_one_day": "Day",
-  "settings_caching_period_one_week": "Week",
-  "settings_caching_period_one_month": "Month",
-  "settings_caching_period_forever": "Forever",
-  "settings_cache_clear_title": "Clear {count} images cache.",
-  "settings_cache_clear_dialog_title": "Are your sure want to clear image cache?",
-  "settings_cache_sync_title": "Synchronize cache",
-  "settings_cache_sync_title_progress": "Synchronize cache {progress}%",
-  "settings_cache_sync_complete_message": "{count} cached images were synchronized"
+  "app_name": "Wakaranai"
+
 }

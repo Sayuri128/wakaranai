@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:h_reader/blocs/auth/authentication_cubit.dart';
-import 'package:h_reader/generated/l10n.dart';
-import 'package:h_reader/main.dart';
-import 'package:h_reader/models/nhentai/doujinshi/doujinshi.dart';
-import 'package:h_reader/ui/home/doujinshi_view/doujinshi_source_view.dart';
-import 'package:h_reader/ui/home/doujinshi_view/doujinshi_view.dart';
-import 'package:h_reader/ui/home/home_view.dart';
-import 'package:h_reader/ui/routes.dart';
-import 'package:h_reader/ui/splashscreen/splashscreen_view.dart';
+import 'package:wakaranai/blocs/auth/authentication_cubit.dart';
+import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/splashscreen/splashscreen_view.dart';
+
+
+import '../main.dart';
+import 'home/home_view.dart';
 
 class AppView extends StatelessWidget {
   const AppView({Key? key}) : super(key: key);
@@ -33,11 +32,7 @@ class AppView extends StatelessWidget {
       },
       onGenerateRoute: (settings) {
         final routes = <String, WidgetBuilder>{
-          Routes.doujinshiView: (BuildContext context) =>
-              DoujinshiView(doujinshi: settings.arguments as Doujinshi),
-          Routes.doujinshiSourceView: (BuildContext context) => DoujinshiSourceView(
-                data: settings.arguments as DoujinshiSourceViewData,
-              ),
+
         };
 
         return MaterialPageRoute(builder: routes[settings.name]!);
