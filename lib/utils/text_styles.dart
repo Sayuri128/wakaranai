@@ -15,3 +15,9 @@ TextStyle medium({double size = 14, Color? color}) {
   return TextStyle(
       fontSize: size, color: color ?? AppColors.mainWhite, fontWeight: FontWeight.w500);
 }
+
+extension StringX on String {
+  String get overflow => Characters(this)
+      .replaceAll(Characters(''), Characters('\u{200B}'))
+      .toString();
+}
