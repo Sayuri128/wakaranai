@@ -13,7 +13,7 @@ class GithubRepositoryContent {
 
   @JsonKey(name: '_links')
   final Links links;
-  final Object download_url;
+  final String download_url;
   final String git_url;
   final String html_url;
   final String name;
