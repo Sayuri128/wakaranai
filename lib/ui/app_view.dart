@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wakaranai/blocs/auth/authentication_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/service_viewer/concrete_viewer/concrete_viewer.dart';
 import 'package:wakaranai/ui/service_viewer/service_viewer.dart';
 import 'package:wakaranai/ui/splashscreen/splashscreen_view.dart';
 import 'package:wakaranai_json_runtime/api/api_client.dart';
@@ -33,9 +34,11 @@ class AppView extends StatelessWidget {
       },
       onGenerateRoute: (settings) {
         final routes = <String, WidgetBuilder>{
-          Routes.serviceView: (context) => ServiceView(
+          Routes.serviceViewer: (context) => ServiceView(
                 apiClient: settings.arguments as ApiClient,
               ),
+          Routes.concreteViewer: (context) =>
+              ConcreteViewer(data: settings.arguments as ConcreteViewerData)
         };
 
         return MaterialPageRoute(builder: routes[settings.name]!);

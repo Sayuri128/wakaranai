@@ -31,9 +31,9 @@ class ConfigsGroup extends StatelessWidget {
                 create: (context) => ApiClientControllerCubit(apiClient: e)..getConfigInfo(),
                 child: BlocBuilder<ApiClientControllerCubit, ApiClientControllerState>(
                   builder: (context, state) {
-                    if (state.configInfo != null) {
+                    if (state is ApiClientControllerConfigInfo) {
                       return ConfigCard(
-                          configInfo: state.configInfo!,
+                          configInfo: state.configInfo,
                           onTap: () {
                             _onCardClick(context, e);
                           });
@@ -51,6 +51,6 @@ class ConfigsGroup extends StatelessWidget {
 
   void _onCardClick(BuildContext context, ApiClient e) {
     Navigator.of(context)
-        .pushNamedAndRemoveUntil(Routes.serviceView, (route) => false, arguments: e);
+        .pushNamedAndRemoveUntil(Routes.serviceViewer, (route) => false, arguments: e);
   }
 }
