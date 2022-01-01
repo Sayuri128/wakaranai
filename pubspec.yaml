@@ -34,6 +34,7 @@ dependencies:
   wakaranai_json_runtime:
     path: ../../StudioProjects/wakaranai_js_runtime
   flutter_js: 0.5.0+5
+  flutter_svg: ^1.0.0
 
 flutter_intl:
   enabled: true
