@@ -48,7 +48,7 @@ class _HomeViewState extends State<HomeView> {
                         children: [_buildConfigs(state), const SizedBox(height: 720)],
                       ));
                     } else {
-                      return const CircularProgressIndicator();
+                      return const Center(child: CircularProgressIndicator());
                     }
                   },
                 )

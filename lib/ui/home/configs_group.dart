@@ -5,6 +5,7 @@ import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakaranai_json_runtime/api/api_client.dart';
 
+import '../routes.dart';
 import 'config_card.dart';
 
 class ConfigsGroup extends StatelessWidget {
@@ -31,9 +32,13 @@ class ConfigsGroup extends StatelessWidget {
                 child: BlocBuilder<ApiClientControllerCubit, ApiClientControllerState>(
                   builder: (context, state) {
                     if (state.configInfo != null) {
-                      return ConfigCard(configInfo: state.configInfo!);
+                      return ConfigCard(
+                          configInfo: state.configInfo!,
+                          onTap: () {
+                            _onCardClick(context, e);
+                          });
                     } else {
-                      return const CircularProgressIndicator();
+                      return const SizedBox();
                     }
                   },
                 ))),
@@ -42,5 +47,10 @@ class ConfigsGroup extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void _onCardClick(BuildContext context, ApiClient e) {
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil(Routes.serviceView, (route) => false, arguments: e);
   }
 }
