@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/ui/app_view.dart';
 
@@ -6,6 +7,12 @@ import 'blocs/auth/authentication_cubit.dart';
 
 
 void main() {
+
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent, // transparent status bar
+  ));
+
   runApp(const MyApp());
 }
 

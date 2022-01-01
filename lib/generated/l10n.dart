@@ -59,6 +59,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Manga`
+  String get home_manga_group_title {
+    return Intl.message(
+      'Manga',
+      name: 'home_manga_group_title',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

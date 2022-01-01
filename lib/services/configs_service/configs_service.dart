@@ -10,6 +10,6 @@ class ConfigsService {
 
   Future<List<WakaranaiJsRuntime>> getMangaConfigs() async {
     return await Future.wait((await _repository.getMangaConfigs(ORG, REPOSITORY))
-        .map((e) async => WakaranaiJsRuntime.fromSource(source: e.download_url)));
+        .map((e) async => WakaranaiJsRuntime.fromUrl(url: e.download_url)));
   }
 }

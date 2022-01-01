@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import 'links/Links.dart';
+import 'links/links.dart';
 
 part 'github_repository_content.g.dart';
 

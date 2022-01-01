@@ -8,7 +8,7 @@ part of 'github_repository_content.dart';
 
 GithubRepositoryContent _$GithubRepositoryContentFromJson(Map json) =>
     GithubRepositoryContent(
-      links: json['_links'],
+      links: Links.fromJson(Map<String, dynamic>.from(json['_links'] as Map)),
       download_url: json['download_url'] as String,
       git_url: json['git_url'] as String,
       html_url: json['html_url'] as String,
@@ -23,7 +23,7 @@ GithubRepositoryContent _$GithubRepositoryContentFromJson(Map json) =>
 Map<String, dynamic> _$GithubRepositoryContentToJson(
         GithubRepositoryContent instance) =>
     <String, dynamic>{
-      '_links': instance.links,
+      '_links': instance.links.toJson(),
       'download_url': instance.download_url,
       'git_url': instance.git_url,
       'html_url': instance.html_url,
