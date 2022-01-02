@@ -8,6 +8,8 @@ import 'package:wakaranai_json_runtime/api/api_client.dart';
 import 'package:wakaranai_json_runtime/models/concrete_view/chapter/chapter.dart';
 import 'package:wakaranai_json_runtime/models/concrete_view/concrete_view.dart';
 
+import '../../routes.dart';
+
 class ConcreteViewerData {
   final String uid;
   final ApiClient client;
@@ -46,8 +48,8 @@ class ConcreteViewer extends StatelessWidget {
                   children: [
                     _buildCover(state, context),
                     const SizedBox(height: 16.0),
-                    _buildPrettyTitle(concreteView),
-                    _buildOriginalTitle(concreteView),
+                    if (concreteView.title.pretty != null) _buildPrettyTitle(concreteView),
+                    if (concreteView.title.original != null) _buildOriginalTitle(concreteView),
                     if (concreteView.description.isNotEmpty) ...[
                       const SizedBox(height: 16.0),
                       _buildDescription(concreteView),
@@ -60,7 +62,7 @@ class ConcreteViewer extends StatelessWidget {
                       color: AppColors.accentGreen,
                     ),
                     const SizedBox(height: 16.0),
-                    _buildChapters(concreteView)
+                    _buildChapters(context, concreteView)
                   ],
                 ),
               );
@@ -73,16 +75,16 @@ class ConcreteViewer extends StatelessWidget {
     );
   }
 
-  Column _buildChapters(ConcreteView concreteView) {
+  Column _buildChapters(BuildContext context, ConcreteView concreteView) {
     return Column(
-      children: concreteView.chapters.map((e) => _buildChapter(e)).toList(),
+      children: concreteView.chapters.map((e) => _buildChapter(context, e)).toList(),
     );
   }
 
-  ListTile _buildChapter(Chapter e) {
+  ListTile _buildChapter(BuildContext context, Chapter e) {
     return ListTile(
       onTap: () {
-
+        Navigator.of(context).pushNamed(Routes.chapterViewer, arguments: e);
       },
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,12 +104,12 @@ class ConcreteViewer extends StatelessWidget {
   }
 
   Text _buildPrettyTitle(ConcreteView concreteView) {
-    return Text(concreteView.title.pretty, textAlign: TextAlign.center, style: semibold(size: 18));
+    return Text(concreteView.title.pretty ?? '', textAlign: TextAlign.center, style: semibold(size: 18));
   }
 
   Text _buildOriginalTitle(ConcreteView concreteView) {
     return Text(
-      concreteView.title.original,
+      concreteView.title.original ?? '',
       textAlign: TextAlign.center,
       style: semibold(size: 18),
     );
