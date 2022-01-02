@@ -1,21 +1,4 @@
 {
-  "app_name": "HReader",
-  "bottom_navigation_gallery_menu_title": "Gallery",
-  "bottom_navigation_settings_menu_title": "Settings",
-  "doujinshi_pages_count": "Pages:",
-  "doujinshi_uploaded": "Uploaded:",
-  "copied_to_clipboard_message": "Copied to clipboard!",
-  "settings_title": "Settings",
-  "settings_caching_section_title": "Cache",
-  "settings_caching_images_title": "Image caching",
-  "settings_caching_period_dialog_title": "Caching period",
-  "settings_caching_period_one_day": "Day",
-  "settings_caching_period_one_week": "Week",
-  "settings_caching_period_one_month": "Month",
-  "settings_caching_period_forever": "Forever",
-  "settings_cache_clear_title": "Clear {count} images cache.",
-  "settings_cache_clear_dialog_title": "Are your sure want to clear image cache?",
-  "settings_cache_sync_title": "Synchronize cache",
-  "settings_cache_sync_title_progress": "Synchronize cache {progress}%",
-  "settings_cache_sync_complete_message": "{count} cached images were synchronized"
+  "app_name": "Wakaranai",
+  "home_manga_group_title": "Manga"
 }
