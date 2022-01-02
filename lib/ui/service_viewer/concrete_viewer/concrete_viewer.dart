@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -104,7 +105,8 @@ class ConcreteViewer extends StatelessWidget {
   }
 
   Text _buildPrettyTitle(ConcreteView concreteView) {
-    return Text(concreteView.title.pretty ?? '', textAlign: TextAlign.center, style: semibold(size: 18));
+    return Text(concreteView.title.pretty ?? '',
+        textAlign: TextAlign.center, style: semibold(size: 18));
   }
 
   Text _buildOriginalTitle(ConcreteView concreteView) {
@@ -144,8 +146,8 @@ class ConcreteViewer extends StatelessWidget {
           bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
       child: Stack(
         children: [
-          Image.network(
-            state.concreteView.cover,
+          CachedNetworkImage(
+            imageUrl: state.concreteView.cover,
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height * 0.4,
             fit: BoxFit.cover,
