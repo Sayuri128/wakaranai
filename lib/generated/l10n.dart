@@ -50,193 +50,23 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
-  /// `HReader`
+  /// `Wakaranai`
   String get app_name {
     return Intl.message(
-      'HReader',
+      'Wakaranai',
       name: 'app_name',
       desc: '',
       args: [],
     );
   }
 
-  /// `Gallery`
-  String get bottom_navigation_gallery_menu_title {
+  /// `Manga`
+  String get home_manga_group_title {
     return Intl.message(
-      'Gallery',
-      name: 'bottom_navigation_gallery_menu_title',
+      'Manga',
+      name: 'home_manga_group_title',
       desc: '',
       args: [],
-    );
-  }
-
-  /// `Settings`
-  String get bottom_navigation_settings_menu_title {
-    return Intl.message(
-      'Settings',
-      name: 'bottom_navigation_settings_menu_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Pages:`
-  String get doujinshi_pages_count {
-    return Intl.message(
-      'Pages:',
-      name: 'doujinshi_pages_count',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Uploaded:`
-  String get doujinshi_uploaded {
-    return Intl.message(
-      'Uploaded:',
-      name: 'doujinshi_uploaded',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Copied to clipboard!`
-  String get copied_to_clipboard_message {
-    return Intl.message(
-      'Copied to clipboard!',
-      name: 'copied_to_clipboard_message',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Settings`
-  String get settings_title {
-    return Intl.message(
-      'Settings',
-      name: 'settings_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Cache`
-  String get settings_caching_section_title {
-    return Intl.message(
-      'Cache',
-      name: 'settings_caching_section_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Image caching`
-  String get settings_caching_images_title {
-    return Intl.message(
-      'Image caching',
-      name: 'settings_caching_images_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Caching period`
-  String get settings_caching_period_dialog_title {
-    return Intl.message(
-      'Caching period',
-      name: 'settings_caching_period_dialog_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Day`
-  String get settings_caching_period_one_day {
-    return Intl.message(
-      'Day',
-      name: 'settings_caching_period_one_day',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Week`
-  String get settings_caching_period_one_week {
-    return Intl.message(
-      'Week',
-      name: 'settings_caching_period_one_week',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Month`
-  String get settings_caching_period_one_month {
-    return Intl.message(
-      'Month',
-      name: 'settings_caching_period_one_month',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Forever`
-  String get settings_caching_period_forever {
-    return Intl.message(
-      'Forever',
-      name: 'settings_caching_period_forever',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Clear {count} images cache.`
-  String settings_cache_clear_title(Object count) {
-    return Intl.message(
-      'Clear $count images cache.',
-      name: 'settings_cache_clear_title',
-      desc: '',
-      args: [count],
-    );
-  }
-
-  /// `Are your sure want to clear image cache?`
-  String get settings_cache_clear_dialog_title {
-    return Intl.message(
-      'Are your sure want to clear image cache?',
-      name: 'settings_cache_clear_dialog_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Synchronize cache`
-  String get settings_cache_sync_title {
-    return Intl.message(
-      'Synchronize cache',
-      name: 'settings_cache_sync_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Synchronize cache {progress}%`
-  String settings_cache_sync_title_progress(Object progress) {
-    return Intl.message(
-      'Synchronize cache $progress%',
-      name: 'settings_cache_sync_title_progress',
-      desc: '',
-      args: [progress],
-    );
-  }
-
-  /// `{count} cached images were synchronized`
-  String settings_cache_sync_complete_message(Object count) {
-    return Intl.message(
-      '$count cached images were synchronized',
-      name: 'settings_cache_sync_complete_message',
-      desc: '',
-      args: [count],
     );
   }
 }

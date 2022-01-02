@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:h_reader/blocs/auth/authentication_cubit.dart';
-import 'package:h_reader/ui/app_view.dart';
+import 'package:wakaranai/ui/app_view.dart';
 
-import 'blocs/image_cache/image_cache_cubit.dart';
+import 'blocs/auth/authentication_cubit.dart';
+
 
 void main() {
+
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent, // transparent status bar
+  ));
+
   runApp(const MyApp());
 }
 
@@ -27,7 +34,6 @@ class _MyAppState extends State<MyApp> {
       BlocProvider(
           lazy: false,
           create: (context) => AuthenticationCubit()..authorize('armatura@gmail.com', '1234')),
-      BlocProvider(lazy: false, create: (context) => ImageCacheCubit(isPrimary: true)..getAll())
     ], child: const AppView());
   }
 }

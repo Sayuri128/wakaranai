@@ -20,45 +20,9 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(count) => "Clear ${count} images cache.";
-
-  static String m1(count) => "${count} cached images were synchronized";
-
-  static String m2(progress) => "Synchronize cache ${progress}%";
-
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "app_name": MessageLookupByLibrary.simpleMessage("HReader"),
-        "bottom_navigation_gallery_menu_title":
-            MessageLookupByLibrary.simpleMessage("Gallery"),
-        "bottom_navigation_settings_menu_title":
-            MessageLookupByLibrary.simpleMessage("Settings"),
-        "copied_to_clipboard_message":
-            MessageLookupByLibrary.simpleMessage("Copied to clipboard!"),
-        "doujinshi_pages_count": MessageLookupByLibrary.simpleMessage("Pages:"),
-        "doujinshi_uploaded": MessageLookupByLibrary.simpleMessage("Uploaded:"),
-        "settings_cache_clear_dialog_title":
-            MessageLookupByLibrary.simpleMessage(
-                "Are your sure want to clear image cache?"),
-        "settings_cache_clear_title": m0,
-        "settings_cache_sync_complete_message": m1,
-        "settings_cache_sync_title":
-            MessageLookupByLibrary.simpleMessage("Synchronize cache"),
-        "settings_cache_sync_title_progress": m2,
-        "settings_caching_images_title":
-            MessageLookupByLibrary.simpleMessage("Image caching"),
-        "settings_caching_period_dialog_title":
-            MessageLookupByLibrary.simpleMessage("Caching period"),
-        "settings_caching_period_forever":
-            MessageLookupByLibrary.simpleMessage("Forever"),
-        "settings_caching_period_one_day":
-            MessageLookupByLibrary.simpleMessage("Day"),
-        "settings_caching_period_one_month":
-            MessageLookupByLibrary.simpleMessage("Month"),
-        "settings_caching_period_one_week":
-            MessageLookupByLibrary.simpleMessage("Week"),
-        "settings_caching_section_title":
-            MessageLookupByLibrary.simpleMessage("Cache"),
-        "settings_title": MessageLookupByLibrary.simpleMessage("Settings")
+        "app_name": MessageLookupByLibrary.simpleMessage("Wakaranai"),
+        "home_manga_group_title": MessageLookupByLibrary.simpleMessage("Manga")
       };
 }

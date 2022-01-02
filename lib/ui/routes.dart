@@ -1,8 +1,7 @@
 class Routes {
-
   static const String splashScreen = '/';
   static const String home = '/home';
-  static const String doujinshiView = '/doujinshiView';
-  static const String doujinshiSourceView = '/doujinshiSourceView';
-
+  static const String serviceViewer = '/serviceViewer';
+  static const String concreteViewer = '/concreteViewer';
+  static const String chapterViewer = '/chapterViewer';
 }
