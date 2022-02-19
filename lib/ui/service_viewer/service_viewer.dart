@@ -26,7 +26,7 @@ class ServiceView extends StatelessWidget {
           BlocProvider<ApiClientControllerCubit>(
               create: (context) => ApiClientControllerCubit(apiClient: apiClient)
                 ..getConfigInfo()
-                ..getGallery(0))
+                ..getGallery(1))
         ],
         child: Scaffold(
           backgroundColor: AppColors.backgroundColor,
