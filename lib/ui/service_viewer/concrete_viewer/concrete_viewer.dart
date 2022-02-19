@@ -33,8 +33,8 @@ class ConcreteViewer extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<ApiClientControllerCubit>(
-          create: (context) =>
-              ApiClientControllerCubit(apiClient: data.client)..getConcrete(data.uid),
+          create: (context) => ApiClientControllerCubit(apiClient: data.client)
+            ..getConcrete(data.uid),
         )
       ],
       child: Scaffold(
@@ -49,12 +49,8 @@ class ConcreteViewer extends StatelessWidget {
                   children: [
                     _buildCover(state, context),
                     const SizedBox(height: 16.0),
-                    if (concreteView.title.pretty != null) _buildPrettyTitle(concreteView),
-                    if (concreteView.title.original != null) _buildOriginalTitle(concreteView),
-                    if (concreteView.description.isNotEmpty) ...[
-                      const SizedBox(height: 16.0),
-                      _buildDescription(concreteView),
-                    ],
+                    _buildPrettyTitle(concreteView),
+                    _buildOriginalTitle(concreteView),
                     const SizedBox(height: 16.0),
                     _buildTags(concreteView),
                     const SizedBox(height: 16.0),
@@ -78,7 +74,8 @@ class ConcreteViewer extends StatelessWidget {
 
   Column _buildChapters(BuildContext context, ConcreteView concreteView) {
     return Column(
-      children: concreteView.chapters.map((e) => _buildChapter(context, e)).toList(),
+      children:
+          concreteView.chapters.map((e) => _buildChapter(context, e)).toList(),
     );
   }
 
@@ -105,23 +102,15 @@ class ConcreteViewer extends StatelessWidget {
   }
 
   Text _buildPrettyTitle(ConcreteView concreteView) {
-    return Text(concreteView.title.pretty ?? '',
+    return Text(concreteView.title.pretty,
         textAlign: TextAlign.center, style: semibold(size: 18));
   }
 
   Text _buildOriginalTitle(ConcreteView concreteView) {
     return Text(
-      concreteView.title.original ?? '',
+      concreteView.title.original,
       textAlign: TextAlign.center,
       style: semibold(size: 18),
-    );
-  }
-
-  Text _buildDescription(ConcreteView concreteView) {
-    return Text(
-      concreteView.description,
-      style: regular(),
-      textAlign: TextAlign.center,
     );
   }
 
@@ -140,7 +129,8 @@ class ConcreteViewer extends StatelessWidget {
         ));
   }
 
-  ClipRRect _buildCover(ApiClientControllerConcreteView state, BuildContext context) {
+  ClipRRect _buildCover(
+      ApiClientControllerConcreteView state, BuildContext context) {
     return ClipRRect(
       borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
@@ -156,8 +146,10 @@ class ConcreteViewer extends StatelessWidget {
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height * 0.4,
             decoration: BoxDecoration(
-                gradient: RadialGradient(
-                    radius: 2, colors: [Colors.transparent, AppColors.mainBlack.withOpacity(1)])),
+                gradient: RadialGradient(radius: 2, colors: [
+              Colors.transparent,
+              AppColors.mainBlack.withOpacity(1)
+            ])),
           )
         ],
       ),

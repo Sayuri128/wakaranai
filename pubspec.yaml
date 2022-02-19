@@ -32,7 +32,7 @@ dependencies:
   sqflite: 2.0.1
   shimmer: ^2.0.0
   wakaranai_json_runtime:
-    path: ../../StudioProjects/wakaranai_js_runtime
+    path: ../wakaranai_js_runtime
   flutter_js: 0.5.0+5
   flutter_svg: ^1.0.0
 
@@ -50,3 +50,7 @@ dev_dependencies:
 flutter:
 
   uses-material-design: true
+
+  assets:
+    - assets/js-libs/fast-html-dom-parser.js
+    
