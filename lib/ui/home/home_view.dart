@@ -39,14 +39,11 @@ class _HomeViewState extends State<HomeView> {
             physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                SizedBox(height: MediaQuery.of(context).padding.top),
+                SizedBox(height: MediaQuery.of(context).padding.top + 20),
                 BlocBuilder<ConfigsCubit, ConfigsState>(
                   builder: (context, state) {
                     if (state is ConfigsLoaded) {
-                      return SingleChildScrollView(
-                          child: Column(
-                        children: [_buildConfigs(state), const SizedBox(height: 720)],
-                      ));
+                      return _buildConfigs(state);
                     } else {
                       return const Center(child: CircularProgressIndicator());
                     }
