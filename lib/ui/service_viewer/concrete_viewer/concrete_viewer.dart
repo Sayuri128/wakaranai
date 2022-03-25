@@ -91,8 +91,11 @@ class ConcreteViewer extends StatelessWidget {
           if (e.timestamp != null) ...[
             const SizedBox(height: 8.0),
             Text(
-              DateFormat(chapterDateFormat)
-                  .format(DateTime.fromMillisecondsSinceEpoch(e.timestamp!)),
+              int.tryParse(e.timestamp ?? '') != null
+                  ? DateFormat(chapterDateFormat).format(
+                      DateTime.fromMillisecondsSinceEpoch(
+                          int.tryParse(e.timestamp!)!))
+                  : e.timestamp ?? '',
               style: regular(color: AppColors.mainGrey, size: 12),
             )
           ]
