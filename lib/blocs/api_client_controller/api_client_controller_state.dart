@@ -16,17 +16,6 @@ class ApiClientControllerConfigInfo extends ApiClientControllerState {
       : super(client: client);
 }
 
-class ApiClientControllerGalleryView extends ApiClientControllerState {
-  final List<GalleryView> galleryViews;
-  final int currentPage;
-
-  ApiClientControllerGalleryView(
-      {required ApiClient client,
-      required this.galleryViews,
-      required this.currentPage})
-      : super(client: client);
-}
-
 class ApiClientControllerConcreteView extends ApiClientControllerState {
   final ConcreteView concreteView;
 

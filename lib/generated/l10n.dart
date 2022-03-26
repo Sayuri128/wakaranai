@@ -69,6 +69,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Search`
+  String get service_viewer_search_field_hint_text {
+    return Intl.message(
+      'Search',
+      name: 'service_viewer_search_field_hint_text',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

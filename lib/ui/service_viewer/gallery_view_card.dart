@@ -11,6 +11,8 @@ class GalleryViewCard extends StatelessWidget {
   final VoidCallback? onTap;
   final GalleryView data;
 
+  static const double height = 300;
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -19,15 +21,14 @@ class GalleryViewCard extends StatelessWidget {
       child: Stack(
         children: [
           Ink.image(
-            height: 300,
+            height: height,
             fit: BoxFit.cover,
             image: CachedNetworkImageProvider(
               data.cover,
-              maxHeight: 300,
             ),
           ),
           Container(
-            height: double.maxFinite,
+            height: height,
             width: double.maxFinite,
             decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -38,15 +39,18 @@ class GalleryViewCard extends StatelessWidget {
                   AppColors.mainBlack.withOpacity(.8),
                 ])),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: Text(
-                data.title.overflow,
-                maxLines: 3,
-                style: medium(),
-                overflow: TextOverflow.ellipsis,
+          SizedBox(
+            height: height,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Text(
+                  data.title.overflow,
+                  maxLines: 3,
+                  style: medium(),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
           ),
