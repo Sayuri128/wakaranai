@@ -4,10 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/ui/app_view.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
-
+import 'blocs/configs/configs_cubit.dart';
 
 void main() {
-
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent, // transparent status bar
@@ -33,7 +32,11 @@ class _MyAppState extends State<MyApp> {
     return MultiBlocProvider(providers: [
       BlocProvider(
           lazy: false,
-          create: (context) => AuthenticationCubit()..authorize('armatura@gmail.com', '1234')),
+          create: (context) =>
+              AuthenticationCubit()..authorize('armatura@gmail.com', '1234')),
+      BlocProvider<ConfigsCubit>(
+        create: (context) => ConfigsCubit()..getConfigs(),
+      )
     ], child: const AppView());
   }
 }

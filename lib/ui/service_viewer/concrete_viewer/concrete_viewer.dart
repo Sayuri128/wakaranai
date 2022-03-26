@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/api_client_controller/api_client_controller_cubit.dart';
+import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakaranai_json_runtime/api/api_client.dart';
@@ -82,7 +83,8 @@ class ConcreteViewer extends StatelessWidget {
   ListTile _buildChapter(BuildContext context, Chapter e) {
     return ListTile(
       onTap: () {
-        Navigator.of(context).pushNamed(Routes.chapterViewer, arguments: e);
+        Navigator.of(context).pushNamed(Routes.chapterViewer,
+            arguments: ChapterViewerData(apiClient: data.client, chapter: e));
       },
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,12 +144,10 @@ class ConcreteViewer extends StatelessWidget {
           CachedNetworkImage(
             imageUrl: state.concreteView.cover,
             width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 0.4,
             fit: BoxFit.cover,
           ),
           Container(
             width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 0.4,
             decoration: BoxDecoration(
                 gradient: RadialGradient(radius: 2, colors: [
               Colors.transparent,

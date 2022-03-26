@@ -51,40 +51,52 @@ class _ServiceViewState extends State<ServiceView> {
             body:
                 BlocBuilder<ApiClientControllerCubit, ApiClientControllerState>(
               builder: (context, state) {
-                return SmartRefresher(
-                    enablePullUp: true,
-                    enablePullDown: false,
-                    footer: CustomFooter(
-                      builder: (context, mode) {
-                        if (mode == LoadStatus.loading) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        return const SizedBox();
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: SmartRefresher(
+                      enablePullUp: true,
+                      enablePullDown: false,
+                      footer: CustomFooter(
+                        builder: (context, mode) {
+                          if (mode == LoadStatus.loading) {
+                            return Column(
+                              children: const [
+                                SizedBox(
+                                  height: 24,
+                                ),
+                                CircularProgressIndicator(),
+                                SizedBox(
+                                  height: 24,
+                                ),
+                              ],
+                            );
+                          }
+                          return const SizedBox();
+                        },
+                      ),
+                      controller: _refreshController,
+                      onLoading: () {
+                        context.read<ApiClientControllerCubit>().getGallery();
                       },
-                    ),
-                    controller: _refreshController,
-                    onLoading: () {
-                      context.read<ApiClientControllerCubit>().getGallery();
-                    },
-                    child: state is ApiClientControllerGalleryView
-                        ? GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                    mainAxisSpacing: 10,
-                                    crossAxisSpacing: 10,
-                                    mainAxisExtent: 200,
-                                    crossAxisCount: 2),
-                            itemCount: state.galleryViews.length,
-                            itemBuilder: (context, index) => GalleryViewCard(
-                                  data: state.galleryViews[index],
-                                  onTap: () {
-                                    _onGalleryViewClick(
-                                        context, state.galleryViews[index]);
-                                  },
-                                ))
-                        : const SizedBox());
+                      child: state is ApiClientControllerGalleryView
+                          ? GridView.builder(
+                              physics: const BouncingScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                      mainAxisSpacing: 10,
+                                      crossAxisSpacing: 10,
+                                      mainAxisExtent: 250,
+                                      crossAxisCount: 2),
+                              itemCount: state.galleryViews.length,
+                              itemBuilder: (context, index) => GalleryViewCard(
+                                    data: state.galleryViews[index],
+                                    onTap: () {
+                                      _onGalleryViewClick(
+                                          context, state.galleryViews[index]);
+                                    },
+                                  ))
+                          : const SizedBox()),
+                );
               },
             ),
           ),

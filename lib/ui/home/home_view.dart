@@ -26,32 +26,25 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<ConfigsCubit>(
-          create: (context) => ConfigsCubit()..getConfigs(),
-        )
-      ],
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundColor,
-        extendBodyBehindAppBar: true,
-        body: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                SizedBox(height: MediaQuery.of(context).padding.top + 20),
-                BlocBuilder<ConfigsCubit, ConfigsState>(
-                  builder: (context, state) {
-                    if (state is ConfigsLoaded) {
-                      return _buildConfigs(state);
-                    } else {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                  },
-                )
-              ],
-            )),
-      ),
+    return Scaffold(
+      backgroundColor: AppColors.backgroundColor,
+      extendBodyBehindAppBar: true,
+      body: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            children: [
+              SizedBox(height: MediaQuery.of(context).padding.top + 20),
+              BlocBuilder<ConfigsCubit, ConfigsState>(
+                builder: (context, state) {
+                  if (state is ConfigsLoaded) {
+                    return _buildConfigs(state);
+                  } else {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                },
+              )
+            ],
+          )),
     );
   }
 
