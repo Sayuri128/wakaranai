@@ -6,12 +6,23 @@ import 'package:provider/src/provider.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_cubit.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_state.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai_json_runtime/api/api_client.dart';
 import 'package:wakaranai_json_runtime/models/concrete_view/chapter/chapter.dart';
 
-class ChapterViewer extends StatefulWidget {
-  const ChapterViewer({Key? key, required this.chapter}) : super(key: key);
-
+class ChapterViewerData {
+  final ApiClient apiClient;
   final Chapter chapter;
+
+  const ChapterViewerData({
+    required this.apiClient,
+    required this.chapter,
+  });
+}
+
+class ChapterViewer extends StatefulWidget {
+  const ChapterViewer({Key? key, required this.data}) : super(key: key);
+
+  final ChapterViewerData data;
 
   @override
   State<ChapterViewer> createState() => _ChapterViewerState();
@@ -30,40 +41,46 @@ class _ChapterViewerState extends State<ChapterViewer> {
   Widget build(BuildContext context) {
     return Material(
       child: BlocProvider<ChapterViewCubit>(
-        create: (context) => ChapterViewCubit(ChapterViewState(
-            currentPage: 1, totalPages: widget.chapter.pages.length, controlsVisible: true)),
+        create: (context) => ChapterViewCubit(apiClient: widget.data.apiClient)
+          ..init(widget.data.chapter),
         child: _buildPage(),
       ),
     );
   }
 
   Widget _buildPage() {
-    return Builder(builder: (context) {
-      return Stack(
-        children: [
-          _buildBackground(context),
-          _buildViewer(context),
-          _buildControls(context),
-        ],
-      );
+    return BlocBuilder<ChapterViewCubit, ChapterViewState>(
+        builder: (context, state) {
+      if (state is ChapterViewInitialized) {
+        return Stack(
+          children: [
+            _buildBackground(context),
+            _buildViewer(context, state),
+            _buildControls(context, state),
+          ],
+        );
+      } else {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      }
     });
   }
 
-  Padding _buildControls(BuildContext context) {
+  Padding _buildControls(BuildContext context, ChapterViewInitialized state) {
     return Padding(
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-      child: BlocBuilder<ChapterViewCubit, ChapterViewState>(
-        builder: (context, state) {
-          return AnimatedSwitcher(
-            duration: const Duration(seconds: 1),
-            child: state.controlsVisible ? _buildControlsView(context, state) : const SizedBox(),
-          );
-        },
+      child: AnimatedSwitcher(
+        duration: const Duration(seconds: 1),
+        child: state.controlsVisible
+            ? _buildControlsView(context, state)
+            : const SizedBox(),
       ),
     );
   }
 
-  Padding _buildControlsView(BuildContext context, ChapterViewState state) {
+  Padding _buildControlsView(
+      BuildContext context, ChapterViewInitialized state) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       child: Column(
@@ -84,9 +101,11 @@ class _ChapterViewerState extends State<ChapterViewer> {
               Container(
                 width: 70,
                 height: 30,
-                child: Center(child: Text('${state.currentPage}/${state.totalPages}')),
+                child: Center(
+                    child: Text('${state.currentPage}/${state.totalPages}')),
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16.0), color: AppColors.accentGreen),
+                    borderRadius: BorderRadius.circular(16.0),
+                    color: AppColors.accentGreen),
               )
             ],
           )
@@ -95,7 +114,8 @@ class _ChapterViewerState extends State<ChapterViewer> {
     );
   }
 
-  GestureDetector _buildViewer(BuildContext context) {
+  GestureDetector _buildViewer(
+      BuildContext context, ChapterViewInitialized state) {
     return GestureDetector(
       onTap: () {
         context.read<ChapterViewCubit>().onChangeVisibility();
@@ -104,14 +124,15 @@ class _ChapterViewerState extends State<ChapterViewer> {
           allowImplicitScrolling: true,
           pageController: pageController,
           scrollPhysics: const BouncingScrollPhysics(),
-          itemCount: widget.chapter.pages.length,
+          itemCount: state.chapter.pages.length,
           onPageChanged: (index) {
             context.read<ChapterViewCubit>().onPageChanged(index + 1);
           },
           builder: (context, index) {
             return PhotoViewGalleryPageOptions(
                 minScale: 0.2,
-                imageProvider: CachedNetworkImageProvider(widget.chapter.pages[index]));
+                imageProvider:
+                    CachedNetworkImageProvider(state.chapter.pages[index]));
           }),
     );
   }

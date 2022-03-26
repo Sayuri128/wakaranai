@@ -9,7 +9,6 @@ import 'package:wakaranai/ui/service_viewer/concrete_viewer/concrete_viewer.dart
 import 'package:wakaranai/ui/service_viewer/service_viewer.dart';
 import 'package:wakaranai/ui/splashscreen/splashscreen_view.dart';
 import 'package:wakaranai_json_runtime/api/api_client.dart';
-import 'package:wakaranai_json_runtime/models/concrete_view/chapter/chapter.dart';
 
 import '../main.dart';
 import 'home/home_view.dart';
@@ -41,20 +40,23 @@ class AppView extends StatelessWidget {
               ),
           Routes.concreteViewer: (context) =>
               ConcreteViewer(data: settings.arguments as ConcreteViewerData),
-          Routes.chapterViewer: (context) => ChapterViewer(chapter: settings.arguments as Chapter)
+          Routes.chapterViewer: (context) =>
+              ChapterViewer(data: settings.arguments as ChapterViewerData)
         };
 
         return MaterialPageRoute(builder: routes[settings.name]!);
       },
-      builder: (context, child) => BlocListener<AuthenticationCubit, AuthenticationState>(
-          listener: (context, state) {
-            Future.delayed(const Duration(seconds: 0), () {
-              if (state is AuthenticationAuthenticated) {
-                MyApp.navigator?.pushNamedAndRemoveUntil(Routes.home, (route) => false);
-              }
-            });
-          },
-          child: child!),
+      builder: (context, child) =>
+          BlocListener<AuthenticationCubit, AuthenticationState>(
+              listener: (context, state) {
+                Future.delayed(const Duration(seconds: 0), () {
+                  if (state is AuthenticationAuthenticated) {
+                    MyApp.navigator?.pushNamedAndRemoveUntil(
+                        Routes.home, (route) => false);
+                  }
+                });
+              },
+              child: child!),
     );
   }
 }

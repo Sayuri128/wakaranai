@@ -13,31 +13,44 @@ class GalleryViewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          color: ThemeData.dark().cardColor,
-          borderRadius: BorderRadius.circular(16.0)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8.0),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: CachedNetworkImage(
-                    imageUrl: data.cover,
-                    height: 155,
-                    width: MediaQuery.of(context).size.width,
-                    fit: BoxFit.cover,
-                  )),
-              const Spacer(),
-              Text(data.title.overflow,
-                  style: medium(), overflow: TextOverflow.ellipsis)
-            ],
+    return InkWell(
+      splashColor: ThemeData().splashColor.withOpacity(0.2),
+      onTap: onTap,
+      child: Stack(
+        children: [
+          Ink.image(
+            height: 300,
+            fit: BoxFit.cover,
+            image: CachedNetworkImageProvider(
+              data.cover,
+              maxHeight: 300,
+            ),
           ),
-        ),
+          Container(
+            height: double.maxFinite,
+            width: double.maxFinite,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: const Alignment(-1, 0),
+                    end: const Alignment(-1, 1),
+                    colors: [
+                  AppColors.mainBlack.withOpacity(0.0),
+                  AppColors.mainBlack.withOpacity(.8),
+                ])),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                data.title.overflow,
+                maxLines: 3,
+                style: medium(),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
