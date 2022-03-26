@@ -15,13 +15,27 @@ class ApiClientControllerCubit extends Cubit<ApiClientControllerState> {
         client: state.client, configInfo: await state.client.getConfigInfo()));
   }
 
-  void getGallery(int page) async {
+  void getGallery() async {
+    List<GalleryView> galleryViews = [];
+    var currentPage = 0;
+
+    if (state is ApiClientControllerGalleryView) {
+      galleryViews = (state as ApiClientControllerGalleryView).galleryViews;
+      currentPage = (state as ApiClientControllerGalleryView).currentPage;
+    }
+
+    galleryViews.addAll(
+        await state.client.makeGetGalleryRequest(page: currentPage += 1));
+
     emit(ApiClientControllerGalleryView(
-        client: state.client, galleryViews: await state.client.makeGetGalleryRequest(page: page)));
+        client: state.client,
+        galleryViews: galleryViews,
+        currentPage: currentPage));
   }
 
   void getConcrete(String uid) async {
     emit(ApiClientControllerConcreteView(
-        client: state.client, concreteView: await state.client.makeGetConcreteRequest(uid: uid)));
+        client: state.client,
+        concreteView: await state.client.makeGetConcreteRequest(uid: uid)));
   }
 }
