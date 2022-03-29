@@ -45,14 +45,15 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
   }
 
   void search(String query) async {
-
-    if(query.isEmpty) {
-      getGallery();
-      return;
-    }
-
     if (state is ServiceViewInitialized) {
       final state = this.state as ServiceViewInitialized;
+
+      if (query.isEmpty) {
+        emit(state.copyWith(searchQuery: ""));
+        getGallery();
+        return;
+      }
+
       List<GalleryView> galleryViews = [];
       int currentPage = 0;
 
