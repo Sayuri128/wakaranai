@@ -14,9 +14,4 @@ class ApiClientControllerCubit extends Cubit<ApiClientControllerState> {
         client: state.client, configInfo: await state.client.getConfigInfo()));
   }
 
-  void getConcrete(String uid) async {
-    emit(ApiClientControllerConcreteView(
-        client: state.client,
-        concreteView: await state.client.makeGetConcreteRequest(uid: uid)));
-  }
 }

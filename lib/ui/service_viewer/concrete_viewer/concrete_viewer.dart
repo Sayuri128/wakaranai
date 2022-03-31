@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:wakaranai/blocs/api_client_controller/api_client_controller_cubit.dart';
+import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -33,17 +33,18 @@ class ConcreteViewer extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<ApiClientControllerCubit>(
-          create: (context) => ApiClientControllerCubit(apiClient: data.client)
-            ..getConcrete(data.uid),
+        BlocProvider<ConcreteViewCubit>(
+          create: (context) =>
+              ConcreteViewCubit(ConcreteViewState(apiClient: data.client))
+                ..getConcrete(data.uid),
         )
       ],
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
         extendBodyBehindAppBar: true,
-        body: BlocBuilder<ApiClientControllerCubit, ApiClientControllerState>(
+        body: BlocBuilder<ConcreteViewCubit, ConcreteViewState>(
           builder: (context, state) {
-            if (state is ApiClientControllerConcreteView) {
+            if (state is ConcreteViewInitialized) {
               final concreteView = state.concreteView;
               return SingleChildScrollView(
                 child: Column(
@@ -134,8 +135,7 @@ class ConcreteViewer extends StatelessWidget {
         ));
   }
 
-  ClipRRect _buildCover(
-      ApiClientControllerConcreteView state, BuildContext context) {
+  ClipRRect _buildCover(ConcreteViewInitialized state, BuildContext context) {
     return ClipRRect(
       borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
@@ -145,6 +145,14 @@ class ConcreteViewer extends StatelessWidget {
             imageUrl: state.concreteView.cover,
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.cover,
+            progressIndicatorBuilder: (context, url, progress) => SizedBox(
+              height: MediaQuery.of(context).size.height * 0.7,
+              width: MediaQuery.of(context).size.width,
+              child: Center(
+                child: CircularProgressIndicator(
+                    color: AppColors.accentGreen, value: progress.progress),
+              ),
+            ),
           ),
           Container(
             width: MediaQuery.of(context).size.width,
