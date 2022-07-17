@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:wakaranai_json_runtime/api/api_client.dart';
-import 'package:wakaranai_json_runtime/models/config_info/config_info.dart';
-import 'package:wakaranai_json_runtime/models/gallery_view/gallery_view.dart';
+import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
+import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
 part 'service_view_state.dart';
 
@@ -17,7 +17,7 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
           client: state.client,
           searchQuery: '',
           configInfo: await state.client.getConfigInfo(),
-          galleryViews: await state.client.makeGetGalleryRequest(page: 1),
+          galleryViews: await state.client.getGallery(page: 1),
           currentPage: 1));
     }
   }
@@ -33,9 +33,9 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
 
       if (state.searchQuery.isEmpty) {
         galleryViews.addAll(
-            await state.client.makeGetGalleryRequest(page: currentPage += 1));
+            await state.client.getGallery(page: currentPage += 1));
       } else {
-        galleryViews.addAll(await state.client.makeGetSearchRequest(
+        galleryViews.addAll(await state.client.getGallery(
             page: currentPage += 1, query: state.searchQuery));
       }
 
@@ -58,7 +58,7 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
       int currentPage = 0;
 
       galleryViews.addAll(await state.client
-          .makeGetSearchRequest(page: currentPage += 1, query: query));
+          .getGallery(page: currentPage += 1, query: query));
 
       emit(state.copyWith(
           galleryViews: galleryViews,

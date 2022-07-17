@@ -6,8 +6,8 @@ import 'package:provider/src/provider.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_cubit.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_state.dart';
 import 'package:wakaranai/utils/app_colors.dart';
-import 'package:wakaranai_json_runtime/api/api_client.dart';
-import 'package:wakaranai_json_runtime/models/concrete_view/chapter/chapter.dart';
+import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/models/concrete_view/chapter/chapter.dart';
 
 class ChapterViewerData {
   final ApiClient apiClient;
@@ -124,7 +124,7 @@ class _ChapterViewerState extends State<ChapterViewer> {
           allowImplicitScrolling: true,
           pageController: pageController,
           scrollPhysics: const BouncingScrollPhysics(),
-          itemCount: state.chapter.pages.length,
+          itemCount: state.pages.value.length,
           onPageChanged: (index) {
             context.read<ChapterViewCubit>().onPageChanged(index + 1);
           },
@@ -132,7 +132,7 @@ class _ChapterViewerState extends State<ChapterViewer> {
             return PhotoViewGalleryPageOptions(
                 minScale: 0.2,
                 imageProvider:
-                    CachedNetworkImageProvider(state.chapter.pages[index]));
+                    CachedNetworkImageProvider(state.pages.value[index]));
           }),
     );
   }

@@ -6,9 +6,9 @@ import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
-import 'package:wakaranai_json_runtime/api/api_client.dart';
-import 'package:wakaranai_json_runtime/models/concrete_view/chapter/chapter.dart';
-import 'package:wakaranai_json_runtime/models/concrete_view/concrete_view.dart';
+import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/models/concrete_view/chapter/chapter.dart';
+import 'package:wakascript/models/concrete_view/concrete_view.dart';
 
 import '../../routes.dart';
 

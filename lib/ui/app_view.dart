@@ -8,7 +8,7 @@ import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer.dart'
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/concrete_viewer.dart';
 import 'package:wakaranai/ui/service_viewer/service_viewer.dart';
 import 'package:wakaranai/ui/splashscreen/splashscreen_view.dart';
-import 'package:wakaranai_json_runtime/api/api_client.dart';
+import 'package:wakascript/api_controller.dart';
 
 import '../main.dart';
 import 'home/home_view.dart';

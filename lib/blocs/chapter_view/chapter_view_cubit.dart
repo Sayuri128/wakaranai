@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_state.dart';
-import 'package:wakaranai_json_runtime/api/api_client.dart';
-import 'package:wakaranai_json_runtime/models/concrete_view/chapter/chapter.dart';
+import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/models/concrete_view/chapter/chapter.dart';
 
 class ChapterViewCubit extends Cubit<ChapterViewState> {
   ChapterViewCubit({required this.apiClient}) : super(ChapterViewInit());
@@ -9,14 +9,13 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
   final ApiClient apiClient;
 
   void init(Chapter chapter) async {
-    if (apiClient.needCollectChapterData()) {
-      chapter = await apiClient.makeGetChapterRequest(chapter: chapter);
-    }
+    print(chapter.uid);
+    final pages = await apiClient.getPages(uid: chapter.uid);
 
     emit(ChapterViewInitialized(
-        chapter: chapter,
+        pages: pages,
         currentPage: 1,
-        totalPages: chapter.pages.length,
+        totalPages: pages.value.length,
         controlsVisible: true));
   }
 
