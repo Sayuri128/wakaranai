@@ -9,7 +9,6 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
   final ApiClient apiClient;
 
   void init(Chapter chapter) async {
-    print(chapter.uid);
     final pages = await apiClient.getPages(uid: chapter.uid);
 
     emit(ChapterViewInitialized(

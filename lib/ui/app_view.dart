@@ -4,7 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wakaranai/blocs/auth/authentication_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/routes.dart';
-import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer.dart';
+import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/concrete_viewer.dart';
 import 'package:wakaranai/ui/service_viewer/service_viewer.dart';
 import 'package:wakaranai/ui/splashscreen/splashscreen_view.dart';

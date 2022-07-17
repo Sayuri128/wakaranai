@@ -36,6 +36,8 @@ dependencies:
   pull_to_refresh: ^2.0.0
   flutter_dotenv: ^5.0.2
   flutter_launcher_icons: ^0.9.3
+  another_xlider: ^1.1.1
+  transparent_pointer: ^1.0.0
 
 
 flutter_intl:
