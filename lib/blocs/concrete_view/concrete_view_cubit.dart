@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:wakaranai_json_runtime/api/api_client.dart';
-import 'package:wakaranai_json_runtime/models/concrete_view/concrete_view.dart';
+import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/models/concrete_view/concrete_view.dart';
 
 part 'concrete_view_state.dart';
 
@@ -9,7 +9,7 @@ class ConcreteViewCubit extends Cubit<ConcreteViewState> {
 
   void getConcrete(String uid) async {
     emit(ConcreteViewInitialized(
-        concreteView: await state.apiClient.makeGetConcreteRequest(uid: uid),
+        concreteView: await state.apiClient.getConcrete(uid: uid),
         apiClient: state.apiClient));
   }
 }

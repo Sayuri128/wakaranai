@@ -8,11 +8,11 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/service_viewer/gallery_view_card.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
-import 'package:wakaranai_json_runtime/api/api_client.dart';
+import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
 import '../routes.dart';
 import 'concrete_viewer/concrete_viewer.dart';
-import 'package:wakaranai_json_runtime/models/gallery_view/gallery_view.dart';
 
 class ServiceView extends StatefulWidget {
   const ServiceView({Key? key, required this.apiClient}) : super(key: key);
@@ -95,13 +95,16 @@ class _ServiceViewState extends State<ServiceView> {
                                   elevation: 0,
                                   expandedHeight: 50,
                                   toolbarHeight:
-                                      state.client.isSearchByQueryAvailable()
-                                          ? 70
-                                          : 40,
-                                  flexibleSpace: state.client
-                                          .isSearchByQueryAvailable()
-                                      ? _buildSearchableAppBar(context, state)
-                                      : _buildTitleAppBar(state),
+                                      // state.client.isSearchByQueryAvailable()
+                                      //     ? 70
+                                      //     : 40,
+                                      70,
+                                  // flexibleSpace: state.client
+                                  //         .isSearchByQueryAvailable()
+                                  //     ? _buildSearchableAppBar(context, state)
+                                  //     : _buildTitleAppBar(state),
+                                  flexibleSpace:
+                                      _buildSearchableAppBar(context, state),
                                 ),
                                 SliverPadding(
                                   padding: const EdgeInsets.only(top: 16),

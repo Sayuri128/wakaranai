@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:wakaranai_json_runtime/models/config_info/config_info.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
 
 class ConfigCard extends StatelessWidget {
   const ConfigCard({Key? key, this.onTap, required this.configInfo}) : super(key: key);

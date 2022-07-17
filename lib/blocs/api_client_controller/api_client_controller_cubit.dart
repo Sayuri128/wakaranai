@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:wakaranai_json_runtime/api/api_client.dart';
-import 'package:wakaranai_json_runtime/models/concrete_view/concrete_view.dart';
-import 'package:wakaranai_json_runtime/models/config_info/config_info.dart';
+import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/models/concrete_view/concrete_view.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
 
 part 'api_client_controller_state.dart';
 
