@@ -58,11 +58,11 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
       int currentPage = 0;
 
       galleryViews.addAll(await state.client
-          .getGallery(page: currentPage += 1, query: query));
+          .getGallery(page: currentPage, query: query));
 
       emit(state.copyWith(
           galleryViews: galleryViews,
-          currentPage: currentPage,
+          currentPage: currentPage += 1,
           searchQuery: query));
     }
   }

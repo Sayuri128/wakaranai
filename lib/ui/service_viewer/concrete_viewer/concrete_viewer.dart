@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
-import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer.dart';
+import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_controller.dart';
@@ -46,24 +46,30 @@ class ConcreteViewer extends StatelessWidget {
           builder: (context, state) {
             if (state is ConcreteViewInitialized) {
               final concreteView = state.concreteView;
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildCover(state, context),
-                    const SizedBox(height: 16.0),
-                    _buildPrettyTitle(concreteView),
-                    _buildOriginalTitle(concreteView),
-                    const SizedBox(height: 16.0),
-                    _buildTags(concreteView),
-                    const SizedBox(height: 16.0),
-                    const Divider(
-                      thickness: 1,
-                      color: AppColors.accentGreen,
-                    ),
-                    const SizedBox(height: 16.0),
-                    _buildChapters(context, concreteView)
-                  ],
-                ),
+              return ListView.builder(
+                itemCount: 1 + concreteView.chapters.length,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return Column(
+                      children: [
+                        _buildCover(state, context),
+                        const SizedBox(height: 16.0),
+                        _buildPrettyTitle(concreteView),
+                        _buildOriginalTitle(concreteView),
+                        const SizedBox(height: 16.0),
+                        _buildTags(concreteView),
+                        const SizedBox(height: 16.0),
+                        const Divider(
+                          thickness: 1,
+                          color: AppColors.accentGreen,
+                        ),
+                        const SizedBox(height: 16.0),
+                      ],
+                    );
+                  } else {
+                    return _buildChapter(context, concreteView.chapters[index - 1]);
+                  }
+                },
               );
             } else {
               return const SizedBox();
@@ -71,13 +77,6 @@ class ConcreteViewer extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
-
-  Column _buildChapters(BuildContext context, ConcreteView concreteView) {
-    return Column(
-      children:
-          concreteView.chapters.map((e) => _buildChapter(context, e)).toList(),
     );
   }
 

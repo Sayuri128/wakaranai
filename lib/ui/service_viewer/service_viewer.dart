@@ -95,14 +95,7 @@ class _ServiceViewState extends State<ServiceView> {
                                   elevation: 0,
                                   expandedHeight: 50,
                                   toolbarHeight:
-                                      // state.client.isSearchByQueryAvailable()
-                                      //     ? 70
-                                      //     : 40,
                                       70,
-                                  // flexibleSpace: state.client
-                                  //         .isSearchByQueryAvailable()
-                                  //     ? _buildSearchableAppBar(context, state)
-                                  //     : _buildTitleAppBar(state),
                                   flexibleSpace:
                                       _buildSearchableAppBar(context, state),
                                 ),
@@ -135,17 +128,6 @@ class _ServiceViewState extends State<ServiceView> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildTitleAppBar(ServiceViewInitialized state) {
-    return Padding(
-      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-      child: Center(
-          child: Text(
-        state.configInfo.name,
-        style: medium(size: 24),
-      )),
     );
   }
 
