@@ -1,5 +1,7 @@
 {
   "app_name": "Wakaranai",
   "home_manga_group_title": "Manga",
-  "service_viewer_search_field_hint_text": "Search"
+  "service_viewer_search_field_hint_text": "Search",
+  "download_again": "Download again",
+  "delete": "Delete"
 }

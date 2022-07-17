@@ -79,6 +79,26 @@ class S {
       args: [],
     );
   }
+
+  /// `Download again`
+  String get download_again {
+    return Intl.message(
+      'Download again',
+      name: 'download_again',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get delete {
+    return Intl.message(
+      'Delete',
+      name: 'delete',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
