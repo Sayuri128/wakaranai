@@ -27,7 +27,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "download_again":
             MessageLookupByLibrary.simpleMessage("Download again"),
         "home_manga_group_title": MessageLookupByLibrary.simpleMessage("Manga"),
+        "left_to_right_read_mode":
+            MessageLookupByLibrary.simpleMessage("Left to right"),
+        "right_to_left_read_mode":
+            MessageLookupByLibrary.simpleMessage("Right to left"),
         "service_viewer_search_field_hint_text":
-            MessageLookupByLibrary.simpleMessage("Search")
+            MessageLookupByLibrary.simpleMessage("Search"),
+        "webtoon": MessageLookupByLibrary.simpleMessage("Webtoon")
       };
 }

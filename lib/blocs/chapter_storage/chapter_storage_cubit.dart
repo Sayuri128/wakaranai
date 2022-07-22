@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:wakaranai/utils/globals.dart';
 import 'package:wakascript/api_controller.dart';
 
 import 'package:wakascript/models/concrete_view/chapter/chapter.dart';
@@ -47,7 +48,7 @@ class ChapterStorageCubit extends Cubit<ChapterStorageState> {
   }
 
   Future<Directory> _getConcreteDir(Chapter chapter) async {
-    docDir ??= (await getApplicationDocumentsDirectory()).path;
+    docDir ??= '${await getAppDocumentsDir()}/cache';
 
     final serviceInfo = await client.getConfigInfo();
 
@@ -55,7 +56,7 @@ class ChapterStorageCubit extends Cubit<ChapterStorageState> {
         Directory('$docDir/${serviceInfo.name.replaceAll(" ", '_')}');
 
     if (!serviceDir.existsSync()) {
-      await serviceDir.create();
+      await serviceDir.create(recursive: true);
       emit(ChapterStorageInitialized(chapter: chapter));
     }
 
