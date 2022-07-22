@@ -6,5 +6,6 @@
   "delete": "Delete",
   "right_to_left_read_mode": "Right to left",
   "left_to_right_read_mode": "Left to right",
-  "webtoon": "Webtoon"
+  "webtoon": "Webtoon",
+  "settings_default_reader_mode_title": "Default reader mode"
 }

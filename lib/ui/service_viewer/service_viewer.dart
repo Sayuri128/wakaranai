@@ -91,6 +91,10 @@ class _ServiceViewState extends State<ServiceView> {
                             slivers: [
                                 SliverAppBar(
                                   floating: true,
+                                  shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.circular(8.0),
+                                          bottomRight: Radius.circular(8.0))),
                                   backgroundColor: AppColors.backgroundColor,
                                   elevation: 0,
                                   expandedHeight: 70,

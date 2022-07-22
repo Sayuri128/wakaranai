@@ -33,6 +33,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Right to left"),
         "service_viewer_search_field_hint_text":
             MessageLookupByLibrary.simpleMessage("Search"),
+        "settings_default_reader_mode_title":
+            MessageLookupByLibrary.simpleMessage("Default reader mode"),
         "webtoon": MessageLookupByLibrary.simpleMessage("Webtoon")
       };
 }

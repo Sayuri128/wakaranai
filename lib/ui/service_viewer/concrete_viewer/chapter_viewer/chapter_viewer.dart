@@ -12,6 +12,7 @@ import 'package:transparent_pointer/transparent_pointer.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_cubit.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_state.dart';
+import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/settings_overlay.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -48,7 +49,7 @@ class _ChapterViewerState extends State<ChapterViewer>
   @override
   void initState() {
     super.initState();
-    pageController = PageController(initialPage: 1);
+    pageController = PageController(initialPage: 0);
     itemScrollController = ItemScrollController();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
@@ -63,7 +64,9 @@ class _ChapterViewerState extends State<ChapterViewer>
   Widget build(BuildContext context) {
     return Material(
       child: BlocProvider<ChapterViewCubit>(
-        create: (context) => ChapterViewCubit(apiClient: widget.data.apiClient)
+        create: (context) => ChapterViewCubit(
+            apiClient: widget.data.apiClient,
+            settingsCubit: context.read<SettingsCubit>())
           ..init(widget.data.chapter),
         child: _buildPage(),
       ),
@@ -156,6 +159,7 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   Padding _buildControlsView(
       BuildContext context, ChapterViewInitialized state) {
+    final centeredElementWidth = MediaQuery.of(context).size.width - 144;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       child: Column(
@@ -181,54 +185,9 @@ class _ChapterViewerState extends State<ChapterViewer>
             ),
           ),
           const Spacer(),
-          Column(
+          Stack(
+            alignment: Alignment.bottomCenter,
             children: [
-              Container(
-                width: MediaQuery.of(context).size.width * .8,
-                decoration: BoxDecoration(
-                    color: AppColors.backgroundColor,
-                    borderRadius: BorderRadius.circular(16.0)),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: double.maxFinite,
-                      child: DropdownButtonFormField<ChapterViewMode>(
-                          value: state.mode,
-                          borderRadius: BorderRadius.circular(16.0),
-                          style: medium(),
-                          icon: const Icon(Icons.arrow_drop_down_rounded),
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.transparent)),
-                              focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.transparent)),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.transparent))),
-                          items: ChapterViewMode.values
-                              .map((e) => DropdownMenuItem(
-                                    value: e,
-                                    alignment: Alignment.center,
-                                    child: Text(chapterViewModelToString(e),
-                                        textAlign: TextAlign.center),
-                                  ))
-                              .toList(),
-                          onChanged: (mode) {
-                            if (mode != null) {
-                              context
-                                  .read<ChapterViewCubit>()
-                                  .onModeChanged(mode);
-                            }
-                          }),
-                    )
-                  ],
-                ),
-              ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -253,7 +212,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                   ),
                   Center(
                     child: Container(
-                      width: MediaQuery.of(context).size.width - 144,
+                      width: centeredElementWidth,
                       decoration: BoxDecoration(
                           color: AppColors.backgroundColor,
                           borderRadius: BorderRadius.circular(8.0)),
@@ -278,7 +237,8 @@ class _ChapterViewerState extends State<ChapterViewer>
                                 itemScrollController.scrollTo(
                                     index: min((index as double).toInt(),
                                         state.pages.value.length - 1),
-                                    duration: const Duration(milliseconds: 300));
+                                    duration:
+                                        const Duration(milliseconds: 300));
                                 break;
                             }
                           },
@@ -347,6 +307,55 @@ class _ChapterViewerState extends State<ChapterViewer>
                       ))
                 ],
               ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 72),
+                child: Container(
+                  width: centeredElementWidth,
+                  decoration: BoxDecoration(
+                      color: AppColors.backgroundColor,
+                      borderRadius: BorderRadius.circular(16.0)),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: double.maxFinite,
+                        child: DropdownButtonFormField<ChapterViewMode>(
+                            value: state.mode,
+                            borderRadius: BorderRadius.circular(16.0),
+                            style: medium(),
+                            icon: const Icon(Icons.arrow_drop_down_rounded),
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.transparent)),
+                                focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.transparent)),
+                                enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.transparent))),
+                            items: ChapterViewMode.values
+                                .map((e) => DropdownMenuItem(
+                              value: e,
+                              alignment: Alignment.center,
+                              child: Text(chapterViewModelToString(e),
+                                  textAlign: TextAlign.center),
+                            ))
+                                .toList(),
+                            onChanged: (mode) {
+                              if (mode != null) {
+                                context
+                                    .read<ChapterViewCubit>()
+                                    .onModeChanged(mode);
+                              }
+                            }),
+                      )
+                    ],
+                  ),
+                ),
+              )
             ],
           )
         ],
@@ -394,7 +403,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                   key: Key(index.toString()),
                   onVisibilityChanged: (info) {
                     if (info.visibleFraction >= 0.2) {
-                      context.read<ChapterViewCubit>().onPageChanged(index);
+                      context.read<ChapterViewCubit>().onPageChanged(index + 1);
                     }
                   },
                   child: CachedNetworkImage(

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:wakaranai/blocs/local_configs/local_configs_cubit.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
+import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/app_view.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
@@ -41,7 +42,8 @@ class _MyAppState extends State<MyApp> {
       BlocProvider<RemoteConfigsCubit>(
         create: (context) => RemoteConfigsCubit()..getConfigs(),
       ),
-      BlocProvider(create: (context) => LocalConfigsCubit()..init())
+      BlocProvider(create: (context) => LocalConfigsCubit()..init()),
+      BlocProvider(create: (context) => SettingsCubit()..init())
     ], child: const AppView());
   }
 }
