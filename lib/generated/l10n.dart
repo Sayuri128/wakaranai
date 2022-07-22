@@ -99,6 +99,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Right to left`
+  String get right_to_left_read_mode {
+    return Intl.message(
+      'Right to left',
+      name: 'right_to_left_read_mode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Left to right`
+  String get left_to_right_read_mode {
+    return Intl.message(
+      'Left to right',
+      name: 'left_to_right_read_mode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Webtoon`
+  String get webtoon {
+    return Intl.message(
+      'Webtoon',
+      name: 'webtoon',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

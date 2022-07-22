@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_state.dart';
+import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakascript/api_controller.dart';
 import 'package:wakascript/models/concrete_view/chapter/chapter.dart';
 
@@ -15,7 +16,8 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         pages: pages,
         currentPage: 1,
         totalPages: pages.value.length,
-        controlsVisible: true));
+        controlsVisible: true,
+        mode: ChapterViewMode.RIGHT_TO_LEFT));
   }
 
   void onPageChanged(int index) {
@@ -28,6 +30,12 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     if (state is ChapterViewInitialized) {
       emit((state as ChapterViewInitialized).copyWith(
           controlsVisible: !(state as ChapterViewInitialized).controlsVisible));
+    }
+  }
+
+  void onModeChanged(ChapterViewMode mode) {
+    if (state is ChapterViewInitialized) {
+      emit((state as ChapterViewInitialized).copyWith(mode: mode));
     }
   }
 }

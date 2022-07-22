@@ -93,9 +93,8 @@ class _ServiceViewState extends State<ServiceView> {
                                   floating: true,
                                   backgroundColor: AppColors.backgroundColor,
                                   elevation: 0,
-                                  expandedHeight: 50,
-                                  toolbarHeight:
-                                      70,
+                                  expandedHeight: 70,
+                                  toolbarHeight: 80,
                                   flexibleSpace:
                                       _buildSearchableAppBar(context, state),
                                 ),
@@ -153,16 +152,7 @@ class _ServiceViewState extends State<ServiceView> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: TextField(
                   controller: _searchController,
-                  onChanged: (value) {
-                    _searchTimer?.cancel();
-                    _searchTimer = Timer(const Duration(seconds: 1), () {
-                      context
-                          .read<ServiceViewCubit>()
-                          .search(_searchController.text);
-                    });
-                  },
                   onSubmitted: (value) {
-                    _searchTimer?.cancel();
                     context
                         .read<ServiceViewCubit>()
                         .search(_searchController.text);

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -19,7 +20,16 @@ class AppView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.dark(),
+      theme: ThemeData.dark().copyWith(
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          }
+        )
+      ),
       debugShowCheckedModeBanner: false,
       navigatorKey: MyApp.navigatorKey,
       localizationsDelegates: const [
@@ -44,7 +54,8 @@ class AppView extends StatelessWidget {
               ChapterViewer(data: settings.arguments as ChapterViewerData)
         };
 
-        return MaterialPageRoute(builder: routes[settings.name]!);
+        return CupertinoPageRoute(
+            builder: routes[settings.name]!);
       },
       builder: (context, child) =>
           BlocListener<AuthenticationCubit, AuthenticationState>(
