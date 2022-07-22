@@ -18,12 +18,15 @@ class ServiceViewInitialized extends ServiceViewState {
   final List<GalleryView> galleryViews;
   final int currentPage;
 
+  final Map<String, FilterData> selectedFilters;
+
   ServiceViewInitialized(
       {required this.client,
       required this.searchQuery,
       required this.configInfo,
       required this.galleryViews,
-      required this.currentPage});
+      required this.currentPage,
+      required this.selectedFilters});
 
   ServiceViewInitialized copyWith({
     String? searchQuery,
@@ -31,6 +34,7 @@ class ServiceViewInitialized extends ServiceViewState {
     ConfigInfo? configInfo,
     List<GalleryView>? galleryViews,
     int? currentPage,
+    Map<String, FilterData>? selectedFilters,
   }) {
     return ServiceViewInitialized(
       searchQuery: searchQuery ?? this.searchQuery,
@@ -38,6 +42,7 @@ class ServiceViewInitialized extends ServiceViewState {
       configInfo: configInfo ?? this.configInfo,
       galleryViews: galleryViews ?? this.galleryViews,
       currentPage: currentPage ?? this.currentPage,
+      selectedFilters: selectedFilters ?? this.selectedFilters,
     );
   }
 }

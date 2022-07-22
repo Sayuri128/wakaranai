@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:wakaranai/models/data/filters/filter_data.dart';
 import 'package:wakascript/api_controller.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
 import 'package:wakascript/models/gallery_view/gallery_view.dart';
@@ -18,7 +19,8 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
           searchQuery: '',
           configInfo: await state.client.getConfigInfo(),
           galleryViews: await state.client.getGallery(page: 1),
-          currentPage: 1));
+          currentPage: 1,
+          selectedFilters: {}));
     }
   }
 
@@ -32,11 +34,11 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
       currentPage = state.currentPage;
 
       if (state.searchQuery.isEmpty) {
-        galleryViews.addAll(
-            await state.client.getGallery(page: currentPage += 1));
+        galleryViews
+            .addAll(await state.client.getGallery(page: currentPage += 1));
       } else {
-        galleryViews.addAll(await state.client.getGallery(
-            page: currentPage += 1, query: state.searchQuery));
+        galleryViews.addAll(await state.client
+            .getGallery(page: currentPage += 1, query: state.searchQuery));
       }
 
       emit(
@@ -57,13 +59,36 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
       List<GalleryView> galleryViews = [];
       int currentPage = 0;
 
-      galleryViews.addAll(await state.client
-          .getGallery(page: currentPage, query: query));
+      galleryViews.addAll(
+          await state.client.getGallery(page: currentPage, query: query));
 
       emit(state.copyWith(
           galleryViews: galleryViews,
           currentPage: currentPage += 1,
           searchQuery: query));
+    }
+  }
+
+  void removeFilter(String param) {
+    if (state is ServiceViewInitialized) {
+      final state = this.state as ServiceViewInitialized;
+
+      final newFilters = Map.of(state.selectedFilters);
+      newFilters.remove(param);
+
+      emit(state.copyWith(selectedFilters: newFilters));
+    }
+  }
+
+  void onFilterChanged(String param, FilterData data) {
+    if (state is ServiceViewInitialized) {
+      final state = this.state as ServiceViewInitialized;
+
+      final newFilters = Map.of(state.selectedFilters);
+
+      newFilters[param] = data;
+
+      emit(state.copyWith(selectedFilters: newFilters));
     }
   }
 }

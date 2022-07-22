@@ -139,6 +139,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Filters`
+  String get service_viewer_filters_title {
+    return Intl.message(
+      'Filters',
+      name: 'service_viewer_filters_title',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
