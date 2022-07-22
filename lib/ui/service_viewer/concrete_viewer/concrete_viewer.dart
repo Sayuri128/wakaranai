@@ -189,7 +189,7 @@ class ConcreteViewer extends StatelessWidget {
         ));
   }
 
-  ClipRRect _buildCover(ConcreteViewInitialized state, BuildContext context) {
+  Widget _buildCover(ConcreteViewInitialized state, BuildContext context) {
     return ClipRRect(
       borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),

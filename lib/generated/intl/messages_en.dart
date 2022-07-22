@@ -31,6 +31,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Left to right"),
         "right_to_left_read_mode":
             MessageLookupByLibrary.simpleMessage("Right to left"),
+        "service_viewer_filters_title":
+            MessageLookupByLibrary.simpleMessage("Filters"),
         "service_viewer_search_field_hint_text":
             MessageLookupByLibrary.simpleMessage("Search"),
         "settings_default_reader_mode_title":

@@ -5,10 +5,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/models/data/filters/multiple_of_any/multiple_of_any.dart';
+import 'package:wakaranai/models/data/filters/one_of_multiple/one_of_multiple.dart';
+import 'package:wakaranai/ui/service_viewer/filters/multiple_of_any.dart';
+import 'package:wakaranai/ui/service_viewer/filters/one_of_multiple.dart';
 import 'package:wakaranai/ui/service_viewer/gallery_view_card.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/models/gallery_view/filters/gallery_filter.dart';
+import 'package:wakascript/models/gallery_view/filters/multiple_of_any/multiple_of_any.dart';
+import 'package:wakascript/models/gallery_view/filters/one_of_multiple/one_of_multiple.dart';
 import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
 import '../routes.dart';
@@ -55,12 +62,22 @@ class _ServiceViewState extends State<ServiceView> {
               _refreshController.loadComplete();
             }
           },
-          child: Scaffold(
-            backgroundColor: AppColors.backgroundColor,
-            extendBodyBehindAppBar: true,
-            body: BlocBuilder<ServiceViewCubit, ServiceViewState>(
-              builder: (context, state) {
-                return SmartRefresher(
+          child: BlocBuilder<ServiceViewCubit, ServiceViewState>(
+            builder: (context, state) {
+              return Scaffold(
+                backgroundColor: AppColors.backgroundColor,
+                extendBodyBehindAppBar: true,
+                endDrawer: Container(
+                  decoration: BoxDecoration(
+                      color: AppColors.backgroundColor.withOpacity(0.90)),
+                  child: state is ServiceViewInitialized
+                      ? _buildFilters(context, state)
+                      : const Center(
+                          child: CircularProgressIndicator(
+                              color: AppColors.accentGreen),
+                        ),
+                ),
+                body: SmartRefresher(
                     enablePullUp: true,
                     enablePullDown: false,
                     footer: CustomFooter(
@@ -125,13 +142,91 @@ class _ServiceViewState extends State<ServiceView> {
                               ])
                         : const Center(
                             child: CircularProgressIndicator(),
-                          ));
-              },
-            ),
+                          )),
+              );
+            },
           ),
         ),
       ),
     );
+  }
+
+  ListView _buildFilters(BuildContext context, ServiceViewInitialized state) {
+    return ListView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        children: [
+          SizedBox(height: MediaQuery.of(context).padding.top + 24),
+          Text(
+            S.current.service_viewer_filters_title,
+            style: semibold(size: 18),
+          ),
+          const SizedBox(
+            height: 24,
+          ),
+          ...state.configInfo.filters.map((e) {
+            return _buildFilter(e, state, context);
+          }).toList()
+        ]);
+  }
+
+  RenderObjectWidget _buildFilter(
+      GalleryFilter e, ServiceViewInitialized state, BuildContext context) {
+    if (e is GalleryFilterMultipleOfAny) {
+      return Column(
+        children: [
+          MultipleOfAnyWidget(
+            parameterName: e.paramName,
+            initSelectedItems: state.selectedFilters.containsKey(e.param)
+                ? (state.selectedFilters[e.param] as FilterDataMultipleOfAny)
+                    .selected
+                : [],
+            onChanged: (List<String> selectedItems) {
+              context.read<ServiceViewCubit>().onFilterChanged(
+                  e.param, FilterDataMultipleOfAny(selected: selectedItems));
+            },
+          ),
+          ..._buildFiltersSeparator()
+        ],
+      );
+    } else if (e is GalleryFilterOneOfMultiple) {
+      return Column(
+        children: [
+          OneOfMultipleWidget(
+            paramName: e.paramName,
+            items: e.values,
+            onChanged: (item) {
+              if (item == null) {
+                context.read<ServiceViewCubit>().removeFilter(e.param);
+              } else {
+                context.read<ServiceViewCubit>().onFilterChanged(
+                    e.param, FilterDataOneOfMultiple(selected: item));
+              }
+            },
+            defaultSelected: state.selectedFilters.containsKey(e.param)
+                ? e.values.indexOf(
+                    (state.selectedFilters[e.param] as FilterDataOneOfMultiple)
+                        .selected)
+                : -1,
+          ),
+          ..._buildFiltersSeparator()
+        ],
+      );
+    }
+
+    return const SizedBox();
+  }
+
+  List<Widget> _buildFiltersSeparator() {
+    return [
+      const SizedBox(
+        height: 12,
+      ),
+      const Divider(color: AppColors.accentGreen),
+      const SizedBox(
+        height: 12,
+      ),
+    ];
   }
 
   Timer? _searchTimer;
