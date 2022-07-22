@@ -129,6 +129,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Default reader mode`
+  String get settings_default_reader_mode_title {
+    return Intl.message(
+      'Default reader mode',
+      name: 'settings_default_reader_mode_title',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wakaranai/ui/home/local_configs_page.dart';
 import 'package:wakaranai/ui/home/remote_configs_page.dart';
+import 'package:wakaranai/ui/home/settings_page.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -41,11 +41,18 @@ class _HomeViewState extends State<HomeView> {
         )),
     BottomNavigationItem(
         index: 1,
-        title: 'Local',
-        build: (context) => const LocalConfigsPage(),
+        title: 'Settings',
+        build: (context) => const SettingsPage(),
         icon: const Icon(
-          Icons.home,
+          Icons.settings,
         ))
+    // BottomNavigationItem(
+    //     index: 1,
+    //     title: 'Local',
+    //     build: (context) => const LocalConfigsPage(),
+    //     icon: const Icon(
+    //       Icons.home,
+    //     ))
   ];
 
   @override
