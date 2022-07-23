@@ -8,9 +8,12 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/models/data/filters/multiple_of_any/multiple_of_any.dart';
 import 'package:wakaranai/models/data/filters/multiple_of_multiple/multiple_of_multiple.dart';
 import 'package:wakaranai/models/data/filters/one_of_multiple/one_of_multiple.dart';
+import 'package:wakaranai/models/data/filters/switcher/switcher.dart';
 import 'package:wakaranai/ui/service_viewer/filters/multiple_of_any.dart';
 import 'package:wakaranai/ui/service_viewer/filters/multiple_of_multiple.dart';
+import 'package:wakaranai/ui/service_viewer/filters/one_of_any.dart';
 import 'package:wakaranai/ui/service_viewer/filters/one_of_multiple.dart';
+import 'package:wakaranai/ui/service_viewer/filters/switcher.dart';
 import 'package:wakaranai/ui/service_viewer/gallery_view_card.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -18,9 +21,12 @@ import 'package:wakascript/api_controller.dart';
 import 'package:wakascript/models/gallery_view/filters/gallery_filter.dart';
 import 'package:wakascript/models/gallery_view/filters/multiple_of_any/multiple_of_any.dart';
 import 'package:wakascript/models/gallery_view/filters/multiple_of_multiple/multiple_of_multiple.dart';
+import 'package:wakascript/models/gallery_view/filters/one_of_any/one_of_any.dart';
 import 'package:wakascript/models/gallery_view/filters/one_of_multiple/one_of_multiple.dart';
+import 'package:wakascript/models/gallery_view/filters/switcher/swircher.dart';
 import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
+import '../../models/data/filters/one_of_any/one_of_any.dart';
 import '../routes.dart';
 import 'concrete_viewer/concrete_viewer.dart';
 
@@ -77,7 +83,7 @@ class _ServiceViewState extends State<ServiceView> {
                       ? _buildFilters(context, state)
                       : const Center(
                           child: CircularProgressIndicator(
-                              color: AppColors.accentGreen),
+                              color: AppColors.primary),
                         ),
                 ),
                 body: SmartRefresher(
@@ -233,6 +239,39 @@ class _ServiceViewState extends State<ServiceView> {
           ..._buildFiltersSeparator()
         ],
       );
+    } else if (e is GalleryFilterOneOfAny) {
+      return Column(
+        children: [
+          OneOfAnyWidget(
+              selected: state.selectedFilters.containsKey(e.param)
+                  ? (state.selectedFilters[e.param] as FilterDataOneOfAny)
+                      .selected
+                  : null,
+              onChanged: (selected) {
+                context.read<ServiceViewCubit>().onFilterChanged(
+                    e.param, FilterDataOneOfAny(selected: selected));
+              }),
+          ..._buildFiltersSeparator()
+        ],
+      );
+    } else if (e is GalleryFilterSwitcher) {
+      return Column(
+        children: [
+          SwitcherWidget(
+              on: state.selectedFilters.containsKey(e.param)
+                  ? (state.selectedFilters[e.param] as FilterDataSwitcher).on
+                  : false,
+              paramName: e.paramName,
+              onChanged: (on) {
+                context
+                    .read<ServiceViewCubit>()
+                    .onFilterChanged(e.param, FilterDataSwitcher(on: on));
+              },
+              onValue: e.onValue,
+              offValue: e.offValue),
+          ..._buildFiltersSeparator()
+        ],
+      );
     }
 
     return const SizedBox();
@@ -243,7 +282,7 @@ class _ServiceViewState extends State<ServiceView> {
       const SizedBox(
         height: 12,
       ),
-      const Divider(color: AppColors.accentGreen),
+      const Divider(color: AppColors.primary),
       const SizedBox(
         height: 12,
       ),
@@ -279,9 +318,9 @@ class _ServiceViewState extends State<ServiceView> {
                   },
                   decoration: InputDecoration(
                       enabledBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.accentGreen)),
+                          borderSide: BorderSide(color: AppColors.primary)),
                       focusedBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.accentGreen)),
+                          borderSide: BorderSide(color: AppColors.primary)),
                       hintText: S.current.service_viewer_search_field_hint_text,
                       hintStyle: medium()),
                 ),

@@ -16,7 +16,7 @@ class SettingsPage extends StatelessWidget {
         builder: (context, state) {
           if (state is SettingsInitial) {
             return const Center(
-              child: CircularProgressIndicator(color: AppColors.accentGreen),
+              child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
           if (state is SettingsInitialized) {

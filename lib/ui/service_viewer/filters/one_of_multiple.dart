@@ -54,18 +54,19 @@ class _OneOfMultipleWidgetState extends State<OneOfMultipleWidget> {
   }
 
   Widget _buildItem(String item) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.0),
           color:
               _indexOfSelected != -1 && widget.items[_indexOfSelected] == item
-                  ? AppColors.green
+                  ? AppColors.secondary
                   : AppColors.backgroundColor,
           boxShadow: [
             BoxShadow(
                 color: _indexOfSelected != -1 &&
                         widget.items[_indexOfSelected] == item
-                    ? AppColors.green.withOpacity(0.5)
+                    ? AppColors.secondary.withOpacity(0.5)
                     : AppColors.mainBlack.withOpacity(0.5),
                 spreadRadius: 2,
                 blurRadius: 1)

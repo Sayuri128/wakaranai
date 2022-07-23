@@ -63,7 +63,7 @@ class ConcreteViewer extends StatelessWidget {
                         const SizedBox(height: 16.0),
                         const Divider(
                           thickness: 1,
-                          color: AppColors.accentGreen,
+                          color: AppColors.primary,
                         ),
                         const SizedBox(height: 16.0),
                       ],
@@ -204,7 +204,7 @@ class ConcreteViewer extends StatelessWidget {
               width: MediaQuery.of(context).size.width,
               child: Center(
                 child: CircularProgressIndicator(
-                    color: AppColors.accentGreen, value: progress.progress),
+                    color: AppColors.primary, value: progress.progress),
               ),
             ),
           ),
