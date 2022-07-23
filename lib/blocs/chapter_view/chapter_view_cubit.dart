@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_state.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
@@ -7,12 +9,19 @@ import 'package:wakascript/api_controller.dart';
 import 'package:collection/collection.dart';
 
 class ChapterViewCubit extends Cubit<ChapterViewState> {
-  ChapterViewCubit({required this.apiClient, required this.settingsCubit})
+  ChapterViewCubit(
+      {required this.apiClient,
+      required this.settingsCubit,
+      required this.pageController,
+      required this.itemScrollController})
       : super(ChapterViewInit());
 
   final SettingsCubit settingsCubit;
 
   final ApiClient apiClient;
+
+  final PageController pageController;
+  final ItemScrollController itemScrollController;
 
   void init(ChapterViewerData data) async {
     final pagesS = [await apiClient.getPages(uid: data.chapter.uid)];
@@ -23,7 +32,6 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     final canGetPreviousPages = (chapterIndex - 1) >= 0;
     final canGetNextPages =
         (chapterIndex + 1) < data.concreteView.chapters.length;
-
 
     emit(ChapterViewInitialized(
         pages: pagesS,
@@ -39,7 +47,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         canGetNextPages: canGetNextPages));
   }
 
-  void onPagesChanged(bool next) async {
+  void onPagesChanged({required bool next}) async {
     if (state is ChapterViewInitialized) {
       final state = this.state as ChapterViewInitialized;
 
@@ -48,8 +56,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
           (next ? 1 : -1);
 
       final canGetPreviousPages = chapterIndex > 0;
-      final canGetNextPages =
-          chapterIndex < state.concreteView.chapters.length;
+      final canGetNextPages = chapterIndex < state.concreteView.chapters.length;
 
       var optionalLoadedPages = state.pages.firstWhereOrNull((element) =>
           element.chapterUid == state.concreteView.chapters[chapterIndex].uid);
@@ -66,10 +73,21 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         }
       }
 
+      if (state.mode == ChapterViewMode.WEBTOON) {
+        itemScrollController.jumpTo(
+            index: next ? 0 : optionalLoadedPages.value.length - 1,
+            alignment: 0);
+      } else {
+        pageController
+            .jumpToPage(next ? 0 : optionalLoadedPages.value.length - 1);
+      }
+
       emit(state.copyWith(
           canGetNextPages: canGetNextPages,
           canGetPreviousPages: canGetPreviousPages,
           pages: newPages,
+          totalPages: optionalLoadedPages.value.length,
+          currentPage: next ? 1 : optionalLoadedPages.value.length,
           currentPages: optionalLoadedPages));
     }
   }

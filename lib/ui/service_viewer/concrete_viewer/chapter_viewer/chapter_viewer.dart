@@ -45,8 +45,8 @@ class ChapterViewer extends StatefulWidget {
 
 class _ChapterViewerState extends State<ChapterViewer>
     with TickerProviderStateMixin {
-  late final PageController pageController;
-  late final ItemScrollController _itemScrollController;
+  final PageController _pageController = PageController(initialPage: 0);
+  final ItemScrollController _itemScrollController = ItemScrollController();
 
   bool _showGestureOverlay = false;
 
@@ -56,8 +56,6 @@ class _ChapterViewerState extends State<ChapterViewer>
   @override
   void initState() {
     super.initState();
-    pageController = PageController(initialPage: 0);
-    _itemScrollController = ItemScrollController();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
@@ -73,7 +71,9 @@ class _ChapterViewerState extends State<ChapterViewer>
       child: BlocProvider<ChapterViewCubit>(
         create: (context) => ChapterViewCubit(
             apiClient: widget.data.apiClient,
-            settingsCubit: context.read<SettingsCubit>())
+            settingsCubit: context.read<SettingsCubit>(),
+            pageController: _pageController,
+            itemScrollController: _itemScrollController)
           ..init(widget.data),
         child: _buildPage(),
       ),
@@ -114,7 +114,7 @@ class _ChapterViewerState extends State<ChapterViewer>
             children: [
               GestureDetector(
                 onTap: () {
-                  pageController.jumpToPage(max(0, state.currentPage - 2));
+                  _pageController.jumpToPage(max(0, state.currentPage - 2));
                 },
                 // behavior: HitTestBehavior.translucent,
                 child: AnimatedContainer(
@@ -130,7 +130,7 @@ class _ChapterViewerState extends State<ChapterViewer>
               GestureDetector(
                 // behavior: HitTestBehavior.translucent,
                 onTap: () {
-                  pageController.jumpToPage(min(
+                  _pageController.jumpToPage(min(
                       state.currentPages.value.length - 1, state.currentPage));
                 },
                 child: AnimatedContainer(
@@ -286,7 +286,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                             switch (state.mode) {
                               case ChapterViewMode.RIGHT_TO_LEFT:
                               case ChapterViewMode.LEFT_TO_RIGHT:
-                                pageController.jumpToPage(
+                                _pageController.jumpToPage(
                                   min((index as double).toInt(),
                                       state.currentPages.value.length - 1),
                                 );
@@ -393,12 +393,21 @@ class _ChapterViewerState extends State<ChapterViewer>
       case ChapterViewMode.LEFT_TO_RIGHT:
         return PhotoViewGallery.builder(
             allowImplicitScrolling: true,
-            pageController: pageController,
+            pageController: _pageController,
             scrollPhysics: const BouncingScrollPhysics(),
             itemCount: state.currentPages.value.length,
             reverse: state.mode == ChapterViewMode.RIGHT_TO_LEFT,
             onPageChanged: (index) {
               context.read<ChapterViewCubit>().onPageChanged(index + 1);
+              if (index == 0) {
+                _canLoadPrevious = true;
+              } else if (index == state.currentPages.value.length - 1) {
+                _canLoadNext = true;
+              } else {
+                _canLoadPrevious = false;
+                _canLoadNext = false;
+              }
+              setState(() {});
             },
             builder: (context, index) {
               return PhotoViewGalleryPageOptions(
@@ -477,42 +486,9 @@ class _ChapterViewerState extends State<ChapterViewer>
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 350),
-                  child: _canLoadPrevious && state.canGetPreviousPages
-                      ? PagesChangeButton(
-                          icon: const Icon(Icons.arrow_left, size: 32),
-                          onTap: () {
-                            context
-                                .read<ChapterViewCubit>()
-                                .onPagesChanged(false);
-                            if (state.mode == ChapterViewMode.WEBTOON) {
-                              _itemScrollController.scrollTo(
-                                  index: 0,
-                                  duration: const Duration(milliseconds: 350));
-                            }
-                          })
-                      : const SizedBox(),
-                ),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 350),
-                  child: _canLoadNext && state.canGetNextPages
-                      ? PagesChangeButton(
-                          icon: const Icon(Icons.arrow_right, size: 32),
-                          onTap: () {
-                            context
-                                .read<ChapterViewCubit>()
-                                .onPagesChanged(true);
-                            if (state.mode == ChapterViewMode.WEBTOON) {
-                              _itemScrollController.scrollTo(
-                                  index: 0,
-                                  duration: const Duration(milliseconds: 350));
-                            }
-                          })
-                      : const SizedBox(),
-                ),
-              ],
+              children: state.mode != ChapterViewMode.RIGHT_TO_LEFT
+                  ? _buildControlButtons(context, state)
+                  : _buildControlButtons(context, state).reversed.toList(),
             ),
             const SizedBox(
               height: 162,
@@ -521,5 +497,53 @@ class _ChapterViewerState extends State<ChapterViewer>
         ),
       ),
     );
+  }
+
+  List<Widget> _buildControlButtons(
+      BuildContext context, ChapterViewInitialized state) {
+    return [
+      AnimatedSwitcher(
+        duration: const Duration(milliseconds: 350),
+        child: _canLoadPrevious && state.canGetPreviousPages
+            ? _buildPreviousPageButton(context, state)
+            : const SizedBox(),
+      ),
+      AnimatedSwitcher(
+        duration: const Duration(milliseconds: 350),
+        child: _canLoadNext && state.canGetNextPages
+            ? _buildNextPageButton(context, state)
+            : const SizedBox(),
+      ),
+    ];
+  }
+
+  PagesChangeButton _buildNextPageButton(
+      BuildContext context, ChapterViewInitialized state) {
+    return PagesChangeButton(
+        icon: Icon(
+            state.mode != ChapterViewMode.RIGHT_TO_LEFT
+                ? Icons.arrow_right
+                : Icons.arrow_left,
+            size: 32),
+        onTap: () {
+          context.read<ChapterViewCubit>().onPagesChanged(next: true);
+          _canLoadNext = false;
+          _canLoadPrevious = true;
+        });
+  }
+
+  PagesChangeButton _buildPreviousPageButton(
+      BuildContext context, ChapterViewInitialized state) {
+    return PagesChangeButton(
+        icon: Icon(
+            state.mode != ChapterViewMode.RIGHT_TO_LEFT
+                ? Icons.arrow_left
+                : Icons.arrow_right,
+            size: 32),
+        onTap: () {
+          context.read<ChapterViewCubit>().onPagesChanged(next: false);
+          _canLoadPrevious = false;
+          _canLoadNext = true;
+        });
   }
 }
