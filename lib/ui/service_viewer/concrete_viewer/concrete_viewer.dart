@@ -70,7 +70,7 @@ class ConcreteViewer extends StatelessWidget {
                     );
                   } else {
                     return _buildChapter(
-                        context, concreteView.chapters[index - 1]);
+                        context, concreteView.chapters[index - 1], state);
                   }
                 },
               );
@@ -83,7 +83,8 @@ class ConcreteViewer extends StatelessWidget {
     );
   }
 
-  Widget _buildChapter(BuildContext context, Chapter e) {
+  Widget _buildChapter(
+      BuildContext context, Chapter e, ConcreteViewInitialized state) {
     return BlocProvider<ChapterStorageCubit>(
       create: (context) =>
           ChapterStorageCubit(uid: data.uid, client: data.client)..init(e),
@@ -92,8 +93,10 @@ class ConcreteViewer extends StatelessWidget {
           return ListTile(
             onTap: () {
               Navigator.of(context).pushNamed(Routes.chapterViewer,
-                  arguments:
-                      ChapterViewerData(apiClient: data.client, chapter: e));
+                  arguments: ChapterViewerData(
+                      apiClient: data.client,
+                      chapter: e,
+                      concreteView: state.concreteView));
             },
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
