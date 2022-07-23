@@ -50,6 +50,13 @@ class _SwitcherWidgetState extends State<SwitcherWidget>
   }
 
   @override
+  void dispose() {
+    super.dispose();
+
+    _switcherAnimationController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

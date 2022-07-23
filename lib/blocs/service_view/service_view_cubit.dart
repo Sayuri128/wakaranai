@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:wakaranai/models/data/filters/filter_data.dart';
 import 'package:wakascript/api_controller.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
+import 'package:wakascript/models/gallery_view/filters/data/filters/filter_data.dart';
 import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
 part 'service_view_state.dart';
@@ -37,8 +37,10 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
         galleryViews
             .addAll(await state.client.getGallery(page: currentPage += 1));
       } else {
-        galleryViews.addAll(await state.client
-            .getGallery(page: currentPage += 1, query: state.searchQuery));
+        galleryViews.addAll(await state.client.getGallery(
+            page: currentPage += 1,
+            query: state.searchQuery,
+            filters: state.selectedFilters.values.toList()));
       }
 
       emit(
@@ -46,11 +48,11 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
     }
   }
 
-  void search(String query) async {
+  void search(String? query) async {
     if (state is ServiceViewInitialized) {
       final state = this.state as ServiceViewInitialized;
 
-      if (query.isEmpty) {
+      if (query != null && query.isEmpty) {
         emit(state.copyWith(searchQuery: ""));
         getGallery();
         return;
@@ -59,8 +61,10 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
       List<GalleryView> galleryViews = [];
       int currentPage = 0;
 
-      galleryViews.addAll(
-          await state.client.getGallery(page: currentPage, query: query));
+      galleryViews.addAll(await state.client.getGallery(
+          page: currentPage,
+          query: query == null ? state.searchQuery : null,
+          filters: state.selectedFilters.values.toList()));
 
       emit(state.copyWith(
           galleryViews: galleryViews,
