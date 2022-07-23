@@ -5,28 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/models/data/filters/multiple_of_any/multiple_of_any.dart';
-import 'package:wakaranai/models/data/filters/multiple_of_multiple/multiple_of_multiple.dart';
-import 'package:wakaranai/models/data/filters/one_of_multiple/one_of_multiple.dart';
-import 'package:wakaranai/models/data/filters/switcher/switcher.dart';
-import 'package:wakaranai/ui/service_viewer/filters/multiple_of_any.dart';
-import 'package:wakaranai/ui/service_viewer/filters/multiple_of_multiple.dart';
-import 'package:wakaranai/ui/service_viewer/filters/one_of_any.dart';
-import 'package:wakaranai/ui/service_viewer/filters/one_of_multiple.dart';
-import 'package:wakaranai/ui/service_viewer/filters/switcher.dart';
+import 'package:wakaranai/ui/service_viewer/filters/filters_page.dart';
 import 'package:wakaranai/ui/service_viewer/gallery_view_card.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_controller.dart';
-import 'package:wakascript/models/gallery_view/filters/gallery_filter.dart';
-import 'package:wakascript/models/gallery_view/filters/multiple_of_any/multiple_of_any.dart';
-import 'package:wakascript/models/gallery_view/filters/multiple_of_multiple/multiple_of_multiple.dart';
-import 'package:wakascript/models/gallery_view/filters/one_of_any/one_of_any.dart';
-import 'package:wakascript/models/gallery_view/filters/one_of_multiple/one_of_multiple.dart';
-import 'package:wakascript/models/gallery_view/filters/switcher/swircher.dart';
 import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
-import '../../models/data/filters/one_of_any/one_of_any.dart';
 import '../routes.dart';
 import 'concrete_viewer/concrete_viewer.dart';
 
@@ -80,7 +65,7 @@ class _ServiceViewState extends State<ServiceView> {
                   decoration: BoxDecoration(
                       color: AppColors.backgroundColor.withOpacity(0.90)),
                   child: state is ServiceViewInitialized
-                      ? _buildFilters(context, state)
+                      ? FiltersPage(state: state)
                       : const Center(
                           child: CircularProgressIndicator(
                               color: AppColors.primary),
@@ -125,6 +110,7 @@ class _ServiceViewState extends State<ServiceView> {
                                   elevation: 0,
                                   expandedHeight: 70,
                                   toolbarHeight: 80,
+                                  actions: const [SizedBox()],
                                   flexibleSpace:
                                       _buildSearchableAppBar(context, state),
                                 ),
@@ -158,135 +144,6 @@ class _ServiceViewState extends State<ServiceView> {
         ),
       ),
     );
-  }
-
-  ListView _buildFilters(BuildContext context, ServiceViewInitialized state) {
-    return ListView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-        children: [
-          SizedBox(height: MediaQuery.of(context).padding.top + 24),
-          Text(
-            S.current.service_viewer_filters_title,
-            style: semibold(size: 18),
-          ),
-          const SizedBox(
-            height: 24,
-          ),
-          ...state.configInfo.filters.map((e) {
-            return _buildFilter(e, state, context);
-          }).toList()
-        ]);
-  }
-
-  RenderObjectWidget _buildFilter(
-      GalleryFilter e, ServiceViewInitialized state, BuildContext context) {
-    if (e is GalleryFilterMultipleOfAny) {
-      return Column(
-        children: [
-          MultipleOfAnyWidget(
-            parameterName: e.paramName,
-            initSelectedItems: state.selectedFilters.containsKey(e.param)
-                ? (state.selectedFilters[e.param] as FilterDataMultipleOfAny)
-                    .selected
-                : [],
-            onChanged: (List<String> selectedItems) {
-              context.read<ServiceViewCubit>().onFilterChanged(
-                  e.param, FilterDataMultipleOfAny(selected: selectedItems));
-            },
-          ),
-          ..._buildFiltersSeparator()
-        ],
-      );
-    } else if (e is GalleryFilterOneOfMultiple) {
-      return Column(
-        children: [
-          OneOfMultipleWidget(
-            paramName: e.paramName,
-            items: e.values,
-            onChanged: (item) {
-              if (item == null) {
-                context.read<ServiceViewCubit>().removeFilter(e.param);
-              } else {
-                context.read<ServiceViewCubit>().onFilterChanged(
-                    e.param, FilterDataOneOfMultiple(selected: item));
-              }
-            },
-            defaultSelected: state.selectedFilters.containsKey(e.param)
-                ? e.values.indexOf(
-                    (state.selectedFilters[e.param] as FilterDataOneOfMultiple)
-                        .selected)
-                : -1,
-          ),
-          ..._buildFiltersSeparator()
-        ],
-      );
-    } else if (e is GalleryFilterMultipleOfMultiple) {
-      return Column(
-        children: [
-          MultipleOfMultipleWidget(
-              paramName: e.paramName,
-              items: e.values,
-              selected: state.selectedFilters.containsKey(e.param)
-                  ? (state.selectedFilters[e.param]
-                          as FilterDataMultipleOfMultiple)
-                      .selected
-                  : [],
-              onChanged: (selected) {
-                context.read<ServiceViewCubit>().onFilterChanged(
-                    e.param, FilterDataMultipleOfMultiple(selected: selected));
-              }),
-          ..._buildFiltersSeparator()
-        ],
-      );
-    } else if (e is GalleryFilterOneOfAny) {
-      return Column(
-        children: [
-          OneOfAnyWidget(
-              selected: state.selectedFilters.containsKey(e.param)
-                  ? (state.selectedFilters[e.param] as FilterDataOneOfAny)
-                      .selected
-                  : null,
-              onChanged: (selected) {
-                context.read<ServiceViewCubit>().onFilterChanged(
-                    e.param, FilterDataOneOfAny(selected: selected));
-              }),
-          ..._buildFiltersSeparator()
-        ],
-      );
-    } else if (e is GalleryFilterSwitcher) {
-      return Column(
-        children: [
-          SwitcherWidget(
-              on: state.selectedFilters.containsKey(e.param)
-                  ? (state.selectedFilters[e.param] as FilterDataSwitcher).on
-                  : false,
-              paramName: e.paramName,
-              onChanged: (on) {
-                context
-                    .read<ServiceViewCubit>()
-                    .onFilterChanged(e.param, FilterDataSwitcher(on: on));
-              },
-              onValue: e.onValue,
-              offValue: e.offValue),
-          ..._buildFiltersSeparator()
-        ],
-      );
-    }
-
-    return const SizedBox();
-  }
-
-  List<Widget> _buildFiltersSeparator() {
-    return [
-      const SizedBox(
-        height: 12,
-      ),
-      const Divider(color: AppColors.primary),
-      const SizedBox(
-        height: 12,
-      ),
-    ];
   }
 
   Timer? _searchTimer;
