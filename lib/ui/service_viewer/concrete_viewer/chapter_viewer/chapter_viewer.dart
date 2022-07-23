@@ -114,7 +114,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                   width: MediaQuery.of(context).size.width * .2,
                   decoration: BoxDecoration(
                       color: _showGestureOverlay
-                          ? AppColors.accentGreen.withOpacity(0.25)
+                          ? AppColors.primary.withOpacity(0.25)
                           : Colors.transparent),
                 ),
               ),
@@ -130,7 +130,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                   width: MediaQuery.of(context).size.width * .2,
                   decoration: BoxDecoration(
                       color: _showGestureOverlay
-                          ? AppColors.accentGreen.withOpacity(0.25)
+                          ? AppColors.primary.withOpacity(0.25)
                           : Colors.transparent),
                 ),
               )
@@ -203,7 +203,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                           shape: BoxShape.circle),
                       child: const Icon(
                         Icons.arrow_back,
-                        color: AppColors.accentGreen,
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
@@ -259,12 +259,12 @@ class _ChapterViewerState extends State<ChapterViewer>
                                   color: AppColors.mainBlack,
                                   borderRadius: BorderRadius.circular(16.0)),
                               activeTrackBar: BoxDecoration(
-                                  color: AppColors.green,
+                                  color: AppColors.secondary,
                                   borderRadius: BorderRadius.circular(16.0))),
                           handler: FlutterSliderHandler(
                               child: const SizedBox(),
                               decoration: const BoxDecoration(
-                                  color: AppColors.accentGreen,
+                                  color: AppColors.primary,
                                   shape: BoxShape.circle)),
                         ),
                       ),
@@ -286,7 +286,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                                   ? const Icon(
                                       Icons.layers_outlined,
                                       key: ValueKey(1),
-                                      color: AppColors.accentGreen,
+                                      color: AppColors.primary,
                                     )
                                   : const Icon(
                                       Icons.layers_outlined,
@@ -302,7 +302,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                             shape: BoxShape.circle),
                         child: const Icon(
                           Icons.settings_rounded,
-                          color: AppColors.accentGreen,
+                          color: AppColors.primary,
                         ),
                       ))
                 ],

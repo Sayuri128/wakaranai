@@ -35,7 +35,15 @@ class _MultipleOfAnyWidgetState extends State<MultipleOfAnyWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          widget.parameterName,
+          style: medium(size: 16),
+        ),
+        const SizedBox(
+          height: 12,
+        ),
         Wrap(
           runSpacing: 12,
           spacing: 12,
@@ -61,14 +69,14 @@ class _MultipleOfAnyWidgetState extends State<MultipleOfAnyWidget> {
                   medium(size: 14, color: AppColors.mainWhite.withOpacity(0.6)),
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16.0),
-                  borderSide: const BorderSide(color: AppColors.accentGreen)),
+                  borderSide: const BorderSide(color: AppColors.primary)),
               enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16.0),
                   borderSide:
                       BorderSide(color: AppColors.mainWhite.withOpacity(0.75))),
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16.0),
-                  borderSide: const BorderSide(color: AppColors.accentGreen))),
+                  borderSide: const BorderSide(color: AppColors.primary))),
         )
       ],
     );
@@ -97,7 +105,7 @@ class _MultipleOfAnyWidgetState extends State<MultipleOfAnyWidget> {
             Container(
               width: 1,
               height: 16,
-              color: AppColors.accentGreen,
+              color: AppColors.secondary,
             ),
             const SizedBox(
               width: 4,
