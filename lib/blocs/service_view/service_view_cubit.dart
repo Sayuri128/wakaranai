@@ -34,8 +34,9 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
       currentPage = state.currentPage;
 
       if (state.searchQuery.isEmpty) {
-        galleryViews
-            .addAll(await state.client.getGallery(page: currentPage += 1));
+        galleryViews.addAll(await state.client.getGallery(
+            page: currentPage += 1,
+            filters: state.selectedFilters.values.toList()));
       } else {
         galleryViews.addAll(await state.client.getGallery(
             page: currentPage += 1,

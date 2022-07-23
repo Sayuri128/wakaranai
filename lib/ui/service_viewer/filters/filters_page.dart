@@ -112,8 +112,8 @@ class _FiltersPageState extends State<FiltersPage>
                 context.read<ServiceViewCubit>().search(null);
               },
               child: Container(
-                width: 64,
-                height: 64,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
                     color: _searchButtonColorAnimation.value,
                     boxShadow: [
@@ -124,7 +124,7 @@ class _FiltersPageState extends State<FiltersPage>
                           blurRadius: _searchButtonShadowAnimation.value * 3)
                     ],
                     shape: BoxShape.circle),
-                child: const Icon(Icons.search, size: 32),
+                child: const Icon(Icons.search, size: 24),
               ),
             ),
           ),
