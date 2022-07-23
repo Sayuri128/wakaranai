@@ -6,8 +6,10 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/models/data/filters/multiple_of_any/multiple_of_any.dart';
+import 'package:wakaranai/models/data/filters/multiple_of_multiple/multiple_of_multiple.dart';
 import 'package:wakaranai/models/data/filters/one_of_multiple/one_of_multiple.dart';
 import 'package:wakaranai/ui/service_viewer/filters/multiple_of_any.dart';
+import 'package:wakaranai/ui/service_viewer/filters/multiple_of_multiple.dart';
 import 'package:wakaranai/ui/service_viewer/filters/one_of_multiple.dart';
 import 'package:wakaranai/ui/service_viewer/gallery_view_card.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -15,6 +17,7 @@ import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_controller.dart';
 import 'package:wakascript/models/gallery_view/filters/gallery_filter.dart';
 import 'package:wakascript/models/gallery_view/filters/multiple_of_any/multiple_of_any.dart';
+import 'package:wakascript/models/gallery_view/filters/multiple_of_multiple/multiple_of_multiple.dart';
 import 'package:wakascript/models/gallery_view/filters/one_of_multiple/one_of_multiple.dart';
 import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
@@ -209,6 +212,24 @@ class _ServiceViewState extends State<ServiceView> {
                         .selected)
                 : -1,
           ),
+          ..._buildFiltersSeparator()
+        ],
+      );
+    } else if (e is GalleryFilterMultipleOfMultiple) {
+      return Column(
+        children: [
+          MultipleOfMultipleWidget(
+              paramName: e.paramName,
+              items: e.values,
+              selected: state.selectedFilters.containsKey(e.param)
+                  ? (state.selectedFilters[e.param]
+                          as FilterDataMultipleOfMultiple)
+                      .selected
+                  : [],
+              onChanged: (selected) {
+                context.read<ServiceViewCubit>().onFilterChanged(
+                    e.param, FilterDataMultipleOfMultiple(selected: selected));
+              }),
           ..._buildFiltersSeparator()
         ],
       );
