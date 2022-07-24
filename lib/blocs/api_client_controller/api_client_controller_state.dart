@@ -11,20 +11,15 @@ class ApiClientControllerState {
 class ApiClientControllerConfigInfo extends ApiClientControllerState {
   final ConfigInfo configInfo;
 
-  ApiClientControllerConfigInfo({required ApiClient client, required this.configInfo})
-      : super(client: client);
-}
-
-class ApiClientControllerGalleryView extends ApiClientControllerState {
-  final List<GalleryView> galleryViews;
-
-  ApiClientControllerGalleryView({required ApiClient client, required this.galleryViews})
+  ApiClientControllerConfigInfo(
+      {required ApiClient client, required this.configInfo})
       : super(client: client);
 }
 
 class ApiClientControllerConcreteView extends ApiClientControllerState {
   final ConcreteView concreteView;
 
-  ApiClientControllerConcreteView({required ApiClient client, required this.concreteView})
+  ApiClientControllerConcreteView(
+      {required ApiClient client, required this.concreteView})
       : super(client: client);
 }

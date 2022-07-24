@@ -1,15 +1,15 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wakaranai/blocs/auth/authentication_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/routes.dart';
-import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer.dart';
+import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/concrete_viewer.dart';
 import 'package:wakaranai/ui/service_viewer/service_viewer.dart';
 import 'package:wakaranai/ui/splashscreen/splashscreen_view.dart';
-import 'package:wakaranai_json_runtime/api/api_client.dart';
-import 'package:wakaranai_json_runtime/models/concrete_view/chapter/chapter.dart';
+import 'package:wakascript/api_controller.dart';
 
 import '../main.dart';
 import 'home/home_view.dart';
@@ -20,7 +20,16 @@ class AppView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.dark(),
+      theme: ThemeData.dark().copyWith(
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          }
+        )
+      ),
       debugShowCheckedModeBanner: false,
       navigatorKey: MyApp.navigatorKey,
       localizationsDelegates: const [
@@ -41,20 +50,24 @@ class AppView extends StatelessWidget {
               ),
           Routes.concreteViewer: (context) =>
               ConcreteViewer(data: settings.arguments as ConcreteViewerData),
-          Routes.chapterViewer: (context) => ChapterViewer(chapter: settings.arguments as Chapter)
+          Routes.chapterViewer: (context) =>
+              ChapterViewer(data: settings.arguments as ChapterViewerData)
         };
 
-        return MaterialPageRoute(builder: routes[settings.name]!);
+        return CupertinoPageRoute(
+            builder: routes[settings.name]!);
       },
-      builder: (context, child) => BlocListener<AuthenticationCubit, AuthenticationState>(
-          listener: (context, state) {
-            Future.delayed(const Duration(seconds: 0), () {
-              if (state is AuthenticationAuthenticated) {
-                MyApp.navigator?.pushNamedAndRemoveUntil(Routes.home, (route) => false);
-              }
-            });
-          },
-          child: child!),
+      builder: (context, child) =>
+          BlocListener<AuthenticationCubit, AuthenticationState>(
+              listener: (context, state) {
+                Future.delayed(const Duration(seconds: 0), () {
+                  if (state is AuthenticationAuthenticated) {
+                    MyApp.navigator?.pushNamedAndRemoveUntil(
+                        Routes.home, (route) => false);
+                  }
+                });
+              },
+              child: child!),
     );
   }
 }

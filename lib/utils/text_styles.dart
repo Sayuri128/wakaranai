@@ -8,12 +8,16 @@ TextStyle regular({double size = 14, Color? color}) {
 
 TextStyle semibold({double size = 14, Color? color}) {
   return TextStyle(
-      fontSize: size, color: color ?? AppColors.mainWhite, fontWeight: FontWeight.w600);
+      fontSize: size,
+      color: color ?? AppColors.mainWhite,
+      fontWeight: FontWeight.w600);
 }
 
 TextStyle medium({double size = 14, Color? color}) {
   return TextStyle(
-      fontSize: size, color: color ?? AppColors.mainWhite, fontWeight: FontWeight.w500);
+      fontSize: size,
+      color: color ?? AppColors.mainWhite,
+      fontWeight: FontWeight.w500);
 }
 
 extension StringX on String {

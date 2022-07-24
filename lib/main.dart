@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:wakaranai/blocs/history/history_cubit.dart';
+import 'package:wakaranai/blocs/local_configs/local_configs_cubit.dart';
+import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
+import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/app_view.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
 
-
-void main() {
-
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent, // transparent status bar
   ));
+
+  await dotenv.load(fileName: '.env');
 
   runApp(const MyApp());
 }
@@ -33,7 +38,14 @@ class _MyAppState extends State<MyApp> {
     return MultiBlocProvider(providers: [
       BlocProvider(
           lazy: false,
-          create: (context) => AuthenticationCubit()..authorize('armatura@gmail.com', '1234')),
+          create: (context) =>
+              AuthenticationCubit()..authorize('armatura@gmail.com', '1234')),
+      BlocProvider<RemoteConfigsCubit>(
+        create: (context) => RemoteConfigsCubit()..getConfigs(),
+      ),
+      BlocProvider(create: (context) => LocalConfigsCubit()..init()),
+      BlocProvider(create: (context) => SettingsCubit()..init()),
+      BlocProvider(create: (context) => HistoryCubit()..init())
     ], child: const AppView());
   }
 }

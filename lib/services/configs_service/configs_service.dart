@@ -1,20 +1,30 @@
 import 'package:dio/dio.dart';
-import 'package:wakaranai/repositories/configs_repository/configs_repository.dart';
-import 'package:wakaranai/res.dart';
-import 'package:wakaranai_json_runtime/wakaranai_js_runtime.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:wakaranai/env.dart';
+import 'package:wakaranai/repositories/configs_repository/github/github_configs_repository.dart';
+import 'package:wakaranai/repositories/configs_repository/local/local_configs_repository.dart';
+import 'package:wakascript/api_controller.dart';
+import 'package:http/http.dart' as http;
 
 class ConfigsService {
   static const String ORG = 'KoneruHodl';
-  static const String REPOSITORY = 'wakaranai_configs';
+  static const String REPOSITORY = 'waka-configs';
 
-  final ConfigsRepository _repository = ConfigsRepository(Dio());
+  final GithubConfigsRepository _repository = GithubConfigsRepository(Dio());
+  final LocalConfigsRepository _localRepository =
+      LocalConfigsRepository(Dio(), baseUrl: Env.LOCAL_REPOSITORY_URL);
 
-  Future<List<WakaranaiJsRuntime>> getMangaConfigs() async {
+  Future<String> _downloadSourceCode(String url) async {
+    return (await http.get(Uri.parse(url))).body;
+  }
+
+  Future<List<ApiClient>> getMangaConfigs() async {
     return await Future.wait(
         (await _repository.getMangaConfigs(ORG, REPOSITORY)).map((e) async =>
-            WakaranaiJsRuntime.fromUrl(
-                url: e.download_url,
-                lib: await rootBundle.loadString(Res.fast_html_dom_parser))));
+            ApiClient(code: await _downloadSourceCode(e.download_url))));
+  }
+
+  Future<List<ApiClient>> getLocalMangaConfigs() async {
+    return await Future.wait((await _localRepository.getMangaConfigs())
+        .map((e) async => ApiClient(code: await _downloadSourceCode(e))));
   }
 }
