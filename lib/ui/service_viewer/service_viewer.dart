@@ -82,7 +82,8 @@ class _ServiceViewState extends State<ServiceView> {
                               SizedBox(
                                 height: 24,
                               ),
-                              CircularProgressIndicator(),
+                              CircularProgressIndicator(
+                                  color: AppColors.primary),
                               SizedBox(
                                 height: 24,
                               ),
@@ -136,7 +137,7 @@ class _ServiceViewState extends State<ServiceView> {
                                 ),
                               ])
                         : const Center(
-                            child: CircularProgressIndicator(),
+                            child: CircularProgressIndicator(color: AppColors.primary,),
                           )),
               );
             },

@@ -156,7 +156,9 @@ class ConcreteViewer extends StatelessWidget {
                           child: Icon(Icons.download),
                         ))
                 : storage is ChapterStorageInitializing
-                    ? const CircularProgressIndicator()
+                    ? const CircularProgressIndicator(
+                        color: AppColors.primary,
+                      )
                     : null,
           );
         },

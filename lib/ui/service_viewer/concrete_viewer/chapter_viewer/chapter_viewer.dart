@@ -22,6 +22,8 @@ import 'package:wakascript/api_controller.dart';
 import 'package:wakascript/models/concrete_view/chapter/chapter.dart';
 import 'package:wakascript/models/concrete_view/concrete_view.dart';
 
+import '../../../../blocs/history/history_cubit.dart';
+
 class ChapterViewerData {
   final ApiClient apiClient;
   final ConcreteView concreteView;
@@ -73,7 +75,8 @@ class _ChapterViewerState extends State<ChapterViewer>
             apiClient: widget.data.apiClient,
             settingsCubit: context.read<SettingsCubit>(),
             pageController: _pageController,
-            itemScrollController: _itemScrollController)
+            itemScrollController: _itemScrollController,
+            historyCubit: context.read<HistoryCubit>())
           ..init(widget.data),
         child: _buildPage(),
       ),
@@ -96,7 +99,7 @@ class _ChapterViewerState extends State<ChapterViewer>
         );
       } else {
         return const Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(color: AppColors.primary),
         );
       }
     });
@@ -305,10 +308,12 @@ class _ChapterViewerState extends State<ChapterViewer>
                                     imageUrl: state.currentPages.value[min(
                                         (v as double).toInt(),
                                         state.currentPages.value.length - 1)],
-                                    progressIndicatorBuilder: (context, url,
-                                            progress) =>
-                                        CircularProgressIndicator(
-                                            value: progress.progress ?? 0.01),
+                                    progressIndicatorBuilder:
+                                        (context, url, progress) =>
+                                            CircularProgressIndicator(
+                                      value: progress.progress ?? 0.01,
+                                      color: AppColors.primary,
+                                    ),
                                     fit: BoxFit.cover,
                                   ),
                               textStyle: regular(color: AppColors.mainWhite)),
