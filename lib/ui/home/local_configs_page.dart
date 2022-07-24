@@ -23,7 +23,7 @@ class LocalConfigsPage extends StatelessWidget {
                   if (state is LocalConfigsInitialized) {
                     return _buildConfigs(state);
                   } else {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator(color: AppColors.primary,));
                   }
                 },
               )

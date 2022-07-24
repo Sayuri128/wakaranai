@@ -149,6 +149,56 @@ class S {
       args: [],
     );
   }
+
+  /// `Source`
+  String get navigation_bar_sources_title {
+    return Intl.message(
+      'Source',
+      name: 'navigation_bar_sources_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `History`
+  String get navigation_bar_history_title {
+    return Intl.message(
+      'History',
+      name: 'navigation_bar_history_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Settings`
+  String get navigation_bar_settings_title {
+    return Intl.message(
+      'Settings',
+      name: 'navigation_bar_settings_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `History`
+  String get history_page_title {
+    return Intl.message(
+      'History',
+      name: 'history_page_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Last visit: {date}`
+  String history_last_visit(Object date) {
+    return Intl.message(
+      'Last visit: $date',
+      name: 'history_last_visit',
+      desc: '',
+      args: [date],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
