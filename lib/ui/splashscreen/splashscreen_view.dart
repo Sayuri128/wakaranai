@@ -11,7 +11,7 @@ class SplashScreen extends StatelessWidget {
     context.read<AuthenticationCubit>().authorize('email', 'password');
     return Scaffold(
       body: Container(
-        color: AppColors.accentGreen,
+        color: AppColors.primary,
       ),
     );
   }
