@@ -47,7 +47,7 @@ class HistoryPage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: HistoryGroupWidget(
                         group: state.groups[index - 1],
-                        showAll: state.expanded[index - 1]!,
+                        showAll: state.expanded[index - 1] ?? false,
                         index: index - 1),
                   );
                 }),

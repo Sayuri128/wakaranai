@@ -67,8 +67,12 @@ class HistoryCubit extends Cubit<HistoryState> {
 
     if (state is HistoryInitialized) {
       var history = [...(state as HistoryInitialized).mangaHistory, item];
+      final groups = await _processGroups(history);
+
       emit((state as HistoryInitialized).copyWith(
-          mangaHistory: history, groups: await _processGroups(history)));
+          mangaHistory: history,
+          groups: groups,
+          expanded: {for (var i in groups) groups.indexOf(i): false}));
     }
   }
 
