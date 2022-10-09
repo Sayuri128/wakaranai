@@ -13,5 +13,6 @@
   "navigation_bar_history_title": "History",
   "navigation_bar_settings_title": "Settings",
   "history_page_title": "History",
-  "history_last_visit": "Last visit: {date}"
+  "history_last_visit": "Last visit: {date}",
+  "web_browser_no_login_button": "Click this button once you see the page loaded with some useful data"
 }

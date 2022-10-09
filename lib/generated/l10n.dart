@@ -199,6 +199,16 @@ class S {
       args: [date],
     );
   }
+
+  /// `Click this button once you see the page loaded with some useful data`
+  String get web_browser_no_login_button {
+    return Intl.message(
+      'Click this button once you see the page loaded with some useful data',
+      name: 'web_browser_no_login_button',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

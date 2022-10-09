@@ -4,12 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wakaranai/blocs/auth/authentication_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/concrete_viewer.dart';
 import 'package:wakaranai/ui/service_viewer/service_viewer.dart';
 import 'package:wakaranai/ui/splashscreen/splashscreen_view.dart';
 import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/models/config_info/protector_config/protector_config.dart';
 
 import '../main.dart';
 import 'home/home_view.dart';
@@ -21,15 +23,12 @@ class AppView extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(
-        pageTransitionsTheme: const PageTransitionsTheme(
-          builders: {
-            TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-          }
-        )
-      ),
+          pageTransitionsTheme: const PageTransitionsTheme(builders: {
+        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+      })),
       debugShowCheckedModeBanner: false,
       navigatorKey: MyApp.navigatorKey,
       localizationsDelegates: const [
@@ -51,11 +50,12 @@ class AppView extends StatelessWidget {
           Routes.concreteViewer: (context) =>
               ConcreteViewer(data: settings.arguments as ConcreteViewerData),
           Routes.chapterViewer: (context) =>
-              ChapterViewer(data: settings.arguments as ChapterViewerData)
+              ChapterViewer(data: settings.arguments as ChapterViewerData),
+          Routes.webBrowser: (context) =>
+              WebBrowserPage(config: settings.arguments as ProtectorConfig)
         };
 
-        return CupertinoPageRoute(
-            builder: routes[settings.name]!);
+        return CupertinoPageRoute(builder: routes[settings.name]!);
       },
       builder: (context, child) =>
           BlocListener<AuthenticationCubit, AuthenticationState>(

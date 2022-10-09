@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/api_client_controller/api_client_controller_cubit.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/logger.dart';
 
 import '../routes.dart';
 import 'config_card.dart';
@@ -59,7 +62,22 @@ class ConfigsGroup extends StatelessWidget {
     );
   }
 
-  void _onCardClick(BuildContext context, ApiClient e) {
+  void _onCardClick(BuildContext context, ApiClient e) async {
+    final config = await e.getConfigInfo();
+
+    if (config.protectorConfig != null) {
+      final result = await Navigator.of(context)
+          .pushNamed(Routes.webBrowser, arguments: config.protectorConfig);
+      if (result != null) {
+        (result as Map<String, String>).forEach((key, value) {
+          print('$key: $value}');
+        });
+        e.passProtector(headers: result as Map<String, String>);
+      } else {
+        return;
+      }
+    }
+
     Navigator.of(context).pushNamedAndRemoveUntil(
         Routes.serviceViewer, (route) => false,
         arguments: e);
