@@ -42,6 +42,7 @@ dependencies:
   scrollable_positioned_list: ^0.3.2
   shared_preferences: ^2.0.15
   sqflite: ^2.0.3
+  flutter_inappwebview: ^5.4.3+7
 
 
 flutter_intl:
