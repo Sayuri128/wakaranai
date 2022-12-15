@@ -16,18 +16,18 @@ class _LocalConfigsRepository implements LocalConfigsRepository {
   String? baseUrl;
 
   @override
-  Future<List<String>> getMangaConfigs() async {
+  Future<RepoConfigsResponse> getConfigs() async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    final _result = await _dio.fetch<List<dynamic>>(
-        _setStreamType<List<String>>(
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<RepoConfigsResponse>(
             Options(method: 'GET', headers: _headers, extra: _extra)
-                .compose(_dio.options, '/script/manga',
+                .compose(_dio.options, '/configs',
                     queryParameters: queryParameters, data: _data)
                 .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
-    final value = _result.data!.cast<String>();
+    final value = RepoConfigsResponse.fromJson(_result.data!);
     return value;
   }
 

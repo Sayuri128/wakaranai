@@ -5,7 +5,7 @@ import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakascript/models/config_info/protector_config/protector_config.dart';
 
 class WebBrowserPage extends StatefulWidget {
-  WebBrowserPage({Key? key, required this.config}) : super(key: key);
+  const WebBrowserPage({Key? key, required this.config}) : super(key: key);
 
   final ProtectorConfig config;
 
@@ -32,7 +32,7 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
               clearCache: true,
               cacheEnabled: false,
             )),
-            onWebViewCreated: (controller) {
+            onWebViewCreated: (controller) async {
               _webView = controller;
             },
           ),
@@ -40,24 +40,10 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
             padding: const EdgeInsets.all(16.0),
             child: InkWell(
               onTap: () async {
-                final headers = Map.fromEntries(
-                    ((await _webView.callAsyncJavaScript(functionBody: '''
-                  return await new Promise((resolve, reject) => {
-                      var req = new XMLHttpRequest();
-                      req.open('GET', document.location, false);
-                      req.send(null);
-                      resolve(req.getAllResponseHeaders());
-                  })
-                '''))?.value as String).trim().split('\r\n').map((element) {
-                  final keyValue = element.split(': ');
-                  return MapEntry(keyValue[0], keyValue[1]);
-                }));
-                headers['cookies'] = (await CookieManager.instance()
-                        .getCookies(url: Uri.parse(widget.config.pingUrl)))
-                    .map((e) => '${e.name}=${e.value}')
-                    .join('; ');
-
-                Navigator.of(context).pop(headers);
+                _getHeaders((headers) {
+                  if (!mounted) return;
+                  Navigator.of(context).pop(headers);
+                });
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -73,5 +59,17 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
         ],
       ),
     );
+  }
+
+  Future<void> _getHeaders(Function(Map<String, String>) done) async {
+    done({
+      'user-agent': ((await _webView.callAsyncJavaScript(
+              functionBody: 'return navigator.userAgent;'))
+          ?.value as String),
+      'cookie': (await CookieManager.instance()
+              .getCookies(url: Uri.parse(widget.config.pingUrl)))
+          .map((e) => '${e.name}=${e.value}')
+          .join('; ')
+    });
   }
 }
