@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/history/history_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/models/data/history_manga_group/history_manga_group.dart';
+import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/concrete_viewer.dart';
@@ -109,7 +110,29 @@ class HistoryGroupWidget extends StatelessWidget {
                 ),
                 key: ValueKey(chapter.uid),
                 child: InkWell(
-                  onTap: () {
+                  onTap: () async {
+                    final config = await group.client.getConfigInfo();
+
+                    final cachedHeaders = await ProtectorStorageService()
+                        .getItem(uid: '${config.name}_${config.version}');
+
+                    final Map<String, String> headers = {};
+
+                    if (cachedHeaders == null) {
+                      final result = await Navigator.of(context).pushNamed(
+                          Routes.webBrowser,
+                          arguments: config.protectorConfig);
+                      if (result != null) {
+                        headers.addAll(result as Map<String, String>);
+                      } else {
+                        return;
+                      }
+                    } else {
+                      headers.addAll(cachedHeaders.headers);
+                    }
+
+                    await group.client.passProtector(headers: headers);
+
                     Navigator.of(context).pushNamed(Routes.chapterViewer,
                         arguments: ChapterViewerData(
                             apiClient: group.client,
