@@ -39,6 +39,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     historyCubit.addMangaToHistory(
         serviceSourceCode: apiClient.parser.code,
         concreteView: data.concreteView,
+        galleryView: data.galleryView,
         chapterUid: pagesS[0].chapterUid);
 
     emit(ChapterViewInitialized(
@@ -51,6 +52,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
             ? (settingsCubit.state as SettingsInitialized).defaultMode
             : ChapterViewMode.RIGHT_TO_LEFT,
         concreteView: data.concreteView,
+        galleryView: data.galleryView,
         canGetPreviousPages: canGetPreviousPages,
         canGetNextPages: canGetNextPages));
   }
@@ -93,6 +95,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       historyCubit.addMangaToHistory(
           serviceSourceCode: apiClient.parser.code,
           concreteView: state.concreteView,
+          galleryView: state.galleryView,
           chapterUid: optionalLoadedPages.chapterUid);
 
       emit(state.copyWith(

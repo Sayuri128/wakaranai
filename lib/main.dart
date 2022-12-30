@@ -10,6 +10,8 @@ import 'package:wakaranai/ui/app_view.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
 
+final bool debug = true;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(

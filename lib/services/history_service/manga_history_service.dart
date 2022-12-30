@@ -14,6 +14,7 @@ class HistoryService {
                             id integer PRIMARY KEY AUTOINCREMENT,
                             serviceSourceCode text NOT NULL,
                             concreteView text NOT NULL,
+                            galleryView text NOT NULL,
                             chapterUid text NOT NULL,
                             timestamp integer NOT NULL
                             );''');
@@ -49,5 +50,11 @@ class HistoryService {
     return (await _db!.query(tableName))
         .map((e) => HistoryMangaItem.fromJson(e))
         .toList();
+  }
+
+  Future<void> clear() async {
+    _db ??= await _open();
+
+    await _db!.delete(tableName);
   }
 }

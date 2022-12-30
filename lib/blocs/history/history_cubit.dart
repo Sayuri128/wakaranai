@@ -6,6 +6,7 @@ import 'package:wakaranai/models/data/history_manga_item/history_manga_item.dart
 import 'package:wakaranai/services/history_service/manga_history_service.dart';
 import 'package:wakascript/api_controller.dart';
 import 'package:wakascript/models/concrete_view/concrete_view.dart';
+import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
 part 'history_state.dart';
 
@@ -45,6 +46,7 @@ class HistoryCubit extends Cubit<HistoryState> {
           client: client,
           configInfo: await client.getConfigInfo(),
           concreteView: e.value.first.concreteView,
+          galleryView: e.value.first.galleryView,
           mangaItems: e.value
             ..sort(
               (a, b) => b.timestamp.compareTo(a.timestamp),
@@ -56,10 +58,12 @@ class HistoryCubit extends Cubit<HistoryState> {
   void addMangaToHistory(
       {required String serviceSourceCode,
       required ConcreteView concreteView,
+      required GalleryView galleryView,
       required String chapterUid}) async {
     final item = HistoryMangaItem(
         serviceSourceCode: serviceSourceCode,
         concreteView: concreteView,
+        galleryView: galleryView,
         chapterUid: chapterUid,
         timestamp: DateTime.now());
 
@@ -100,6 +104,11 @@ class HistoryCubit extends Cubit<HistoryState> {
       ..removeWhere((element) => element.id == item.id);
 
     emit((state).copyWith(mangaHistory: history, groups: groups));
+  }
+
+  Future<void> clear() async {
+    await historyService.clear();
+    init();
   }
 
   void expand({required int index}) async {

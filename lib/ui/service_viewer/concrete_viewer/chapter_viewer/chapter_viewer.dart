@@ -21,17 +21,20 @@ import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_controller.dart';
 import 'package:wakascript/models/concrete_view/chapter/chapter.dart';
 import 'package:wakascript/models/concrete_view/concrete_view.dart';
+import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
 import '../../../../blocs/history/history_cubit.dart';
 
 class ChapterViewerData {
   final ApiClient apiClient;
   final ConcreteView concreteView;
+  final GalleryView galleryView;
   final Chapter chapter;
 
   const ChapterViewerData({
     required this.apiClient,
     required this.concreteView,
+    required this.galleryView,
     required this.chapter,
   });
 }

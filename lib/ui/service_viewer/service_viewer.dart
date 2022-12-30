@@ -137,7 +137,9 @@ class _ServiceViewState extends State<ServiceView> {
                                 ),
                               ])
                         : const Center(
-                            child: CircularProgressIndicator(color: AppColors.primary,),
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                            ),
                           )),
               );
             },
@@ -193,6 +195,7 @@ class _ServiceViewState extends State<ServiceView> {
 
   void _onGalleryViewClick(BuildContext context, GalleryView e) {
     Navigator.of(context).pushNamed(Routes.concreteViewer,
-        arguments: ConcreteViewerData(client: widget.apiClient, uid: e.uid));
+        arguments: ConcreteViewerData(
+            client: widget.apiClient, uid: e.uid, galleryView: e));
   }
 }

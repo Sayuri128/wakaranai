@@ -45,6 +45,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Filters"),
         "service_viewer_search_field_hint_text":
             MessageLookupByLibrary.simpleMessage("Search"),
+        "settings_clear_history_title":
+            MessageLookupByLibrary.simpleMessage("Clear history"),
         "settings_default_reader_mode_title":
             MessageLookupByLibrary.simpleMessage("Default reader mode"),
         "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage(
