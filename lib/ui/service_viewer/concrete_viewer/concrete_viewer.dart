@@ -11,15 +11,18 @@ import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_controller.dart';
 import 'package:wakascript/models/concrete_view/chapter/chapter.dart';
 import 'package:wakascript/models/concrete_view/concrete_view.dart';
+import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
 import '../../routes.dart';
 
 class ConcreteViewerData {
   final String uid;
+  final GalleryView galleryView;
   final ApiClient client;
 
   const ConcreteViewerData({
     required this.uid,
+    required this.galleryView,
     required this.client,
   });
 }
@@ -38,7 +41,7 @@ class ConcreteViewer extends StatelessWidget {
         BlocProvider<ConcreteViewCubit>(
           create: (context) =>
               ConcreteViewCubit(ConcreteViewState(apiClient: data.client))
-                ..getConcrete(data.uid),
+                ..getConcrete(data.uid, data.galleryView),
         ),
       ],
       child: Scaffold(
@@ -96,7 +99,8 @@ class ConcreteViewer extends StatelessWidget {
                   arguments: ChapterViewerData(
                       apiClient: data.client,
                       chapter: e,
-                      concreteView: state.concreteView));
+                      concreteView: state.concreteView,
+                  galleryView: state.galleryView));
             },
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

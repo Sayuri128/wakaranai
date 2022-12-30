@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/main.dart';
 import 'package:wakaranai/ui/service_viewer/filters/switcher.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakascript/logger.dart';
 import 'package:wakascript/models/gallery_view/filters/data/filters/multiple_of_any/multiple_of_any.dart';
 import 'package:wakascript/models/gallery_view/filters/data/filters/multiple_of_multiple/multiple_of_multiple.dart';
 import 'package:wakascript/models/gallery_view/filters/data/filters/one_of_any/one_of_any.dart';
@@ -98,10 +100,39 @@ class _FiltersPageState extends State<FiltersPage>
               const SizedBox(
                 height: 24,
               ),
+              if (debug) ...[
+                const SizedBox(
+                  height: 24,
+                ),
+                ElevatedButton(
+                    onPressed: () {
+                      widget.state.client.getGallery(page: 1).then((value) {
+                        logger.d(value);
+                      });
+                    },
+                    child: const Text("Get gallery")),
+                ElevatedButton(
+                    onPressed: () {
+                      widget.state.client.getGallery(page: 1).then((value) {
+                        widget.state.client
+                            .getConcrete(
+                                uid: value.first.uid, data: value.first.data)
+                            .then((value) {
+                          logger.d(value);
+                        });
+                      });
+                    },
+                    child: const Text("Get concrete")),
+                const SizedBox(
+                  height: 24,
+                )
+              ],
               ...widget.state.configInfo.filters.map((e) {
                 return _buildFilter(e, widget.state, context);
               }).toList(),
-              const SizedBox(height: 96,)
+              const SizedBox(
+                height: 96,
+              )
             ]),
         Padding(
           padding: const EdgeInsets.all(32.0),
@@ -110,6 +141,7 @@ class _FiltersPageState extends State<FiltersPage>
             child: InkWell(
               onTap: () {
                 context.read<ServiceViewCubit>().search(null);
+                Scaffold.of(context).closeEndDrawer();
               },
               child: Container(
                 width: 48,

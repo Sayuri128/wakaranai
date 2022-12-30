@@ -6,10 +6,13 @@ part of 'github_configs_repository.dart';
 // RetrofitGenerator
 // **************************************************************************
 
-// ignore_for_file: unnecessary_brace_in_string_interps
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers
 
 class _GithubConfigsRepository implements GithubConfigsRepository {
-  _GithubConfigsRepository(this._dio, {this.baseUrl}) {
+  _GithubConfigsRepository(
+    this._dio, {
+    this.baseUrl,
+  }) {
     baseUrl ??= 'https://api.github.com/';
   }
 
@@ -18,17 +21,26 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
   String? baseUrl;
 
   @override
-  Future<List<GithubRepositoryContent>> getMangaConfigs(org, repo) async {
+  Future<List<GithubRepositoryContent>> getMangaConfigs(
+    org,
+    repo,
+  ) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<List<GithubRepositoryContent>>(Options(
-                method: 'GET', headers: _headers, extra: _extra)
+      method: 'GET',
+      headers: _headers,
+      extra: _extra,
+    )
             .compose(
-                _dio.options, '/repos/${org}/${repo}/contents/scripts/manga',
-                queryParameters: queryParameters, data: _data)
+              _dio.options,
+              '/repos/${org}/${repo}/contents/scripts/manga',
+              queryParameters: queryParameters,
+              data: _data,
+            )
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     var value = _result.data!
         .map((dynamic i) =>

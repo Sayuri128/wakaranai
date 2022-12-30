@@ -140,6 +140,16 @@ class S {
     );
   }
 
+  /// `Clear history`
+  String get settings_clear_history_title {
+    return Intl.message(
+      'Clear history',
+      name: 'settings_clear_history_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Filters`
   String get service_viewer_filters_title {
     return Intl.message(

@@ -39,7 +39,9 @@ class HistoryGroupWidget extends StatelessWidget {
               Navigator.of(context).pushNamedAndRemoveUntil(
                   Routes.concreteViewer, (_) => true,
                   arguments: ConcreteViewerData(
-                      uid: group.concreteView.uid, client: group.client));
+                      uid: group.concreteView.uid,
+                      client: group.client,
+                      galleryView: group.galleryView));
             },
             leading: SizedBox(
               height: 64,
@@ -112,6 +114,7 @@ class HistoryGroupWidget extends StatelessWidget {
                         arguments: ChapterViewerData(
                             apiClient: group.client,
                             chapter: chapter,
+                            galleryView: e.galleryView,
                             concreteView: e.concreteView));
                   },
                   child: Container(

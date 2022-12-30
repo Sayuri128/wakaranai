@@ -9,11 +9,12 @@ class ConcreteViewState {
 }
 
 class ConcreteViewInitialized extends ConcreteViewState {
-
   final ConcreteView concreteView;
+  final GalleryView galleryView;
 
   const ConcreteViewInitialized(
-      {required this.concreteView, required ApiClient apiClient})
+      {required this.concreteView,
+      required this.galleryView,
+      required ApiClient apiClient})
       : super(apiClient: apiClient);
-
 }

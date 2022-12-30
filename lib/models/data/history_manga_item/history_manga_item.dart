@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:wakascript/models/concrete_view/concrete_view.dart';
+import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
 class HistoryMangaItem {
   int? id;
   final String serviceSourceCode;
   final ConcreteView concreteView;
+  final GalleryView galleryView;
   final String chapterUid;
 
   @DateTimeTimeStampJsonConverter()
@@ -16,31 +18,17 @@ class HistoryMangaItem {
     this.id,
     required this.serviceSourceCode,
     required this.concreteView,
+    required this.galleryView,
     required this.chapterUid,
     required this.timestamp,
   });
-
-  HistoryMangaItem copyWith({
-    int? id,
-    String? serviceSourceCode,
-    ConcreteView? concreteView,
-    String? chapterUid,
-    DateTime? timestamp,
-  }) {
-    return HistoryMangaItem(
-      id: id ?? this.id,
-      serviceSourceCode: serviceSourceCode ?? this.serviceSourceCode,
-      concreteView: concreteView ?? this.concreteView,
-      chapterUid: chapterUid ?? this.chapterUid,
-      timestamp: timestamp ?? this.timestamp,
-    );
-  }
 
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
       'serviceSourceCode': serviceSourceCode,
       'concreteView': jsonEncode(concreteView.toJson()),
+      'galleryView': jsonEncode(galleryView.toJson()),
       'chapterUid': chapterUid,
       'timestamp': const DateTimeTimeStampJsonConverter().toJson(timestamp),
     };
@@ -52,6 +40,8 @@ class HistoryMangaItem {
       serviceSourceCode: map['serviceSourceCode'] as String,
       concreteView:
           ConcreteView.fromJson(jsonDecode(map['concreteView'] as String)),
+      galleryView:
+          GalleryView.fromJson(jsonDecode(map['galleryView'] as String)),
       chapterUid: map['chapterUid'] as String,
       timestamp: const DateTimeTimeStampJsonConverter()
           .fromJson(map['timestamp'] as int),
@@ -67,6 +57,24 @@ class HistoryMangaItem {
 
   @override
   int get hashCode => id.hashCode;
+
+  HistoryMangaItem copyWith({
+    int? id,
+    String? serviceSourceCode,
+    ConcreteView? concreteView,
+    GalleryView? galleryView,
+    String? chapterUid,
+    DateTime? timestamp,
+  }) {
+    return HistoryMangaItem(
+      id: id ?? this.id,
+      serviceSourceCode: serviceSourceCode ?? this.serviceSourceCode,
+      concreteView: concreteView ?? this.concreteView,
+      galleryView: galleryView ?? this.galleryView,
+      chapterUid: chapterUid ?? this.chapterUid,
+      timestamp: timestamp ?? this.timestamp,
+    );
+  }
 }
 
 class DateTimeTimeStampJsonConverter extends JsonConverter<DateTime, int> {
