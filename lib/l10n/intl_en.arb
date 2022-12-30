@@ -15,5 +15,5 @@
   "navigation_bar_settings_title": "Settings",
   "history_page_title": "History",
   "history_last_visit": "Last visit: {date}",
-  "web_browser_no_login_button": "Click this button once you see the page loaded with some useful data"
+  "web_browser_no_login_button": "Click once the page is loaded"
 }

@@ -50,7 +50,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "settings_default_reader_mode_title":
             MessageLookupByLibrary.simpleMessage("Default reader mode"),
         "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage(
-            "Click this button once you see the page loaded with some useful data"),
+            "Click once the page is loaded"),
         "webtoon": MessageLookupByLibrary.simpleMessage("Webtoon")
       };
 }

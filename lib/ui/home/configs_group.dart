@@ -1,9 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/api_client_controller/api_client_controller_cubit.dart';
 import 'package:wakaranai/models/protector/protector_storage_item.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
+import 'package:wakaranai/ui/service_viewer/service_viewer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_controller.dart';
@@ -78,12 +78,12 @@ class ConfigsGroup extends StatelessWidget {
       } else {
         return;
       }
-    } else {
+    } else if (config.protectorConfig != null) {
       await e.passProtector(headers: state.cachedProtector!.headers);
     }
 
     Navigator.of(context).pushNamedAndRemoveUntil(
         Routes.serviceViewer, (route) => false,
-        arguments: e);
+        arguments: ServiceViewData(apiClient: e, configInfo: config));
   }
 }

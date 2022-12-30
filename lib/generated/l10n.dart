@@ -210,10 +210,10 @@ class S {
     );
   }
 
-  /// `Click this button once you see the page loaded with some useful data`
+  /// `Click once the page is loaded`
   String get web_browser_no_login_button {
     return Intl.message(
-      'Click this button once you see the page loaded with some useful data',
+      'Click once the page is loaded',
       name: 'web_browser_no_login_button',
       desc: '',
       args: [],
