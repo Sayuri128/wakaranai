@@ -18,7 +18,7 @@ class PrimaryButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onPressed,
           style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(color ?? AppColors.accentGreen)),
+              backgroundColor: MaterialStateProperty.all(color ?? AppColors.primary)),
           child: Text(title, style: medium()),
         ));
   }

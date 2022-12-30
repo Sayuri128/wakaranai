@@ -1,5 +1,19 @@
 {
   "app_name": "Wakaranai",
   "home_manga_group_title": "Manga",
-  "service_viewer_search_field_hint_text": "Search"
+  "service_viewer_search_field_hint_text": "Search",
+  "download_again": "Download again",
+  "delete": "Delete",
+  "right_to_left_read_mode": "Right to left",
+  "left_to_right_read_mode": "Left to right",
+  "webtoon": "Webtoon",
+  "settings_default_reader_mode_title": "Default reader mode",
+  "settings_clear_history_title": "Clear history",
+  "service_viewer_filters_title": "Filters",
+  "navigation_bar_sources_title": "Source",
+  "navigation_bar_history_title": "History",
+  "navigation_bar_settings_title": "Settings",
+  "history_page_title": "History",
+  "history_last_visit": "Last visit: {date}",
+  "web_browser_no_login_button": "Click this button once you see the page loaded with some useful data"
 }

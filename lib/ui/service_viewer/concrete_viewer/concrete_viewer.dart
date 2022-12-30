@@ -2,22 +2,27 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wakaranai/blocs/chapter_storage/chapter_storage_cubit.dart';
 import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
+import 'package:wakaranai/ui/service_viewer/concrete_viewer/downloaded_chapter_dialog.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_controller.dart';
 import 'package:wakascript/models/concrete_view/chapter/chapter.dart';
 import 'package:wakascript/models/concrete_view/concrete_view.dart';
+import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
 import '../../routes.dart';
 
 class ConcreteViewerData {
   final String uid;
+  final GalleryView galleryView;
   final ApiClient client;
 
   const ConcreteViewerData({
     required this.uid,
+    required this.galleryView,
     required this.client,
   });
 }
@@ -36,8 +41,8 @@ class ConcreteViewer extends StatelessWidget {
         BlocProvider<ConcreteViewCubit>(
           create: (context) =>
               ConcreteViewCubit(ConcreteViewState(apiClient: data.client))
-                ..getConcrete(data.uid),
-        )
+                ..getConcrete(data.uid, data.galleryView),
+        ),
       ],
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
@@ -61,13 +66,14 @@ class ConcreteViewer extends StatelessWidget {
                         const SizedBox(height: 16.0),
                         const Divider(
                           thickness: 1,
-                          color: AppColors.accentGreen,
+                          color: AppColors.primary,
                         ),
                         const SizedBox(height: 16.0),
                       ],
                     );
                   } else {
-                    return _buildChapter(context, concreteView.chapters[index - 1]);
+                    return _buildChapter(
+                        context, concreteView.chapters[index - 1], state);
                   }
                 },
               );
@@ -80,28 +86,86 @@ class ConcreteViewer extends StatelessWidget {
     );
   }
 
-  ListTile _buildChapter(BuildContext context, Chapter e) {
-    return ListTile(
-      onTap: () {
-        Navigator.of(context).pushNamed(Routes.chapterViewer,
-            arguments: ChapterViewerData(apiClient: data.client, chapter: e));
-      },
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(e.title),
-          if (e.timestamp != null) ...[
-            const SizedBox(height: 8.0),
-            Text(
-              int.tryParse(e.timestamp ?? '') != null
-                  ? DateFormat(chapterDateFormat).format(
-                      DateTime.fromMillisecondsSinceEpoch(
-                          int.tryParse(e.timestamp!)!))
-                  : e.timestamp ?? '',
-              style: regular(color: AppColors.mainGrey, size: 12),
-            )
-          ]
-        ],
+  Widget _buildChapter(
+      BuildContext context, Chapter e, ConcreteViewInitialized state) {
+    return BlocProvider<ChapterStorageCubit>(
+      create: (context) =>
+          ChapterStorageCubit(uid: data.uid, client: data.client)..init(e),
+      child: BlocBuilder<ChapterStorageCubit, ChapterStorageState>(
+        builder: (context, storage) {
+          return ListTile(
+            onTap: () {
+              Navigator.of(context).pushNamed(Routes.chapterViewer,
+                  arguments: ChapterViewerData(
+                      apiClient: data.client,
+                      chapter: e,
+                      concreteView: state.concreteView,
+                  galleryView: state.galleryView));
+            },
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(e.title),
+                if (e.timestamp != null) ...[
+                  const SizedBox(height: 8.0),
+                  Text(
+                    int.tryParse(e.timestamp ?? '') != null
+                        ? DateFormat(chapterDateFormat).format(
+                            DateTime.fromMillisecondsSinceEpoch(
+                                int.tryParse(e.timestamp!)!))
+                        : e.timestamp ?? '',
+                    style: regular(color: AppColors.mainGrey, size: 12),
+                  )
+                ]
+              ],
+            ),
+            trailing: storage is ChapterStorageInitialized
+                ? storage.item != null
+                    ? InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () {
+                          showDialog(
+                                  context: context,
+                                  builder: (context) =>
+                                      DownloadedChapterDialog(chapter: e))
+                              .then((res) {
+                            if (res != null) {
+                              switch (res as DownloadedChapterDialogResult) {
+                                case DownloadedChapterDialogResult
+                                    .DOWNLOAD_AGAIN:
+                                  context
+                                      .read<ChapterStorageCubit>()
+                                      .downloadChapter(e);
+                                  break;
+                                case DownloadedChapterDialogResult.DELETE:
+                                  context.read<ChapterStorageCubit>().delete(e);
+                                  break;
+                              }
+                            }
+                          });
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(Icons.check),
+                        ))
+                    : InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () {
+                          context
+                              .read<ChapterStorageCubit>()
+                              .downloadChapter(e);
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(Icons.download),
+                        ))
+                : storage is ChapterStorageInitializing
+                    ? const CircularProgressIndicator(
+                        color: AppColors.primary,
+                      )
+                    : null,
+          );
+        },
       ),
     );
   }
@@ -134,7 +198,7 @@ class ConcreteViewer extends StatelessWidget {
         ));
   }
 
-  ClipRRect _buildCover(ConcreteViewInitialized state, BuildContext context) {
+  Widget _buildCover(ConcreteViewInitialized state, BuildContext context) {
     return ClipRRect(
       borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
@@ -149,7 +213,7 @@ class ConcreteViewer extends StatelessWidget {
               width: MediaQuery.of(context).size.width,
               child: Center(
                 child: CircularProgressIndicator(
-                    color: AppColors.accentGreen, value: progress.progress),
+                    color: AppColors.primary, value: progress.progress),
               ),
             ),
           ),
