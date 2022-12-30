@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:wakaranai/blocs/history/history_cubit.dart';
+import 'package:wakaranai/blocs/local_configs/local_configs_cubit.dart';
+import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
+import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/app_view.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
-import 'blocs/configs/configs_cubit.dart';
+
+final bool debug = true;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,9 +42,12 @@ class _MyAppState extends State<MyApp> {
           lazy: false,
           create: (context) =>
               AuthenticationCubit()..authorize('armatura@gmail.com', '1234')),
-      BlocProvider<ConfigsCubit>(
-        create: (context) => ConfigsCubit()..getConfigs(),
-      )
+      BlocProvider<RemoteConfigsCubit>(
+        create: (context) => RemoteConfigsCubit()..getConfigs(),
+      ),
+      BlocProvider(create: (context) => LocalConfigsCubit()..init()),
+      BlocProvider(create: (context) => SettingsCubit()..init()),
+      BlocProvider(create: (context) => HistoryCubit()..init())
     ], child: const AppView());
   }
 }

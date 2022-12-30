@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/blocs/configs/configs_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/home/history_page.dart';
+import 'package:wakaranai/ui/home/remote_configs_page.dart';
+import 'package:wakaranai/ui/home/settings_page.dart';
 import 'package:wakaranai/utils/app_colors.dart';
-
-import 'configs_group.dart';
+import 'package:wakaranai/utils/text_styles.dart';
 
 class BottomNavigationItem {
+  final int index;
+  final Icon icon;
   final String title;
-  final Widget widget;
+  final Function(BuildContext) build;
 
   const BottomNavigationItem({
+    required this.index,
+    required this.icon,
     required this.title,
-    required this.widget,
+    required this.build,
   });
+
+  BottomNavigationBarItem toBarItem() =>
+      BottomNavigationBarItem(icon: icon, label: title);
 }
 
 class HomeView extends StatefulWidget {
@@ -24,39 +31,57 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  int _currentPage = 0;
+
+  final navigationItem = [
+    BottomNavigationItem(
+        index: 0,
+        title: S.current.navigation_bar_sources_title,
+        build: (context) => const RemoteConfigPage(),
+        icon: const Icon(
+          Icons.home_filled,
+        )),
+    BottomNavigationItem(
+        index: 1,
+        title: S.current.navigation_bar_history_title,
+        build: (context) => const HistoryPage(),
+        icon: const Icon(
+          Icons.history,
+        )),
+    BottomNavigationItem(
+        index: 2,
+        title: S.current.navigation_bar_settings_title,
+        build: (context) => const SettingsPage(),
+        icon: const Icon(
+          Icons.settings,
+        ))
+    // BottomNavigationItem(
+    //     index: 1,
+    //     title: 'Local',
+    //     build: (context) => const LocalConfigsPage(),
+    //     icon: const Icon(
+    //       Icons.home,
+    //     ))
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       extendBodyBehindAppBar: true,
-      body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              SizedBox(height: MediaQuery.of(context).padding.top + 20),
-              BlocBuilder<ConfigsCubit, ConfigsState>(
-                builder: (context, state) {
-                  if (state is ConfigsLoaded) {
-                    return _buildConfigs(state);
-                  } else {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                },
-              )
-            ],
-          )),
-    );
-  }
-
-  Widget _buildConfigs(ConfigsLoaded state) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ConfigsGroup(
-          title: S.current.home_manga_group_title,
-          apiClients: state.mangaApiClients,
-        )
-      ],
+      bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentPage,
+          selectedLabelStyle: medium(size: 14, color: AppColors.primary),
+          selectedIconTheme: const IconThemeData(color: AppColors.primary),
+          unselectedLabelStyle: medium(size: 14, color: AppColors.mainWhite),
+          unselectedIconTheme: const IconThemeData(color: AppColors.mainWhite),
+          type: BottomNavigationBarType.fixed,
+          onTap: (i) {
+            _currentPage = i;
+            setState(() {});
+          },
+          items: navigationItem.map((e) => e.toBarItem()).toList()),
+      body: navigationItem[_currentPage].build(context),
     );
   }
 }

@@ -79,6 +79,146 @@ class S {
       args: [],
     );
   }
+
+  /// `Download again`
+  String get download_again {
+    return Intl.message(
+      'Download again',
+      name: 'download_again',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get delete {
+    return Intl.message(
+      'Delete',
+      name: 'delete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Right to left`
+  String get right_to_left_read_mode {
+    return Intl.message(
+      'Right to left',
+      name: 'right_to_left_read_mode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Left to right`
+  String get left_to_right_read_mode {
+    return Intl.message(
+      'Left to right',
+      name: 'left_to_right_read_mode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Webtoon`
+  String get webtoon {
+    return Intl.message(
+      'Webtoon',
+      name: 'webtoon',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Default reader mode`
+  String get settings_default_reader_mode_title {
+    return Intl.message(
+      'Default reader mode',
+      name: 'settings_default_reader_mode_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear history`
+  String get settings_clear_history_title {
+    return Intl.message(
+      'Clear history',
+      name: 'settings_clear_history_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Filters`
+  String get service_viewer_filters_title {
+    return Intl.message(
+      'Filters',
+      name: 'service_viewer_filters_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Source`
+  String get navigation_bar_sources_title {
+    return Intl.message(
+      'Source',
+      name: 'navigation_bar_sources_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `History`
+  String get navigation_bar_history_title {
+    return Intl.message(
+      'History',
+      name: 'navigation_bar_history_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Settings`
+  String get navigation_bar_settings_title {
+    return Intl.message(
+      'Settings',
+      name: 'navigation_bar_settings_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `History`
+  String get history_page_title {
+    return Intl.message(
+      'History',
+      name: 'history_page_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Last visit: {date}`
+  String history_last_visit(Object date) {
+    return Intl.message(
+      'Last visit: $date',
+      name: 'history_last_visit',
+      desc: '',
+      args: [date],
+    );
+  }
+
+  /// `Click this button once you see the page loaded with some useful data`
+  String get web_browser_no_login_button {
+    return Intl.message(
+      'Click this button once you see the page loaded with some useful data',
+      name: 'web_browser_no_login_button',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
