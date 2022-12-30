@@ -10,7 +10,6 @@ import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapt
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/concrete_viewer.dart';
 import 'package:wakaranai/ui/service_viewer/service_viewer.dart';
 import 'package:wakaranai/ui/splashscreen/splashscreen_view.dart';
-import 'package:wakascript/api_controller.dart';
 import 'package:wakascript/models/config_info/protector_config/protector_config.dart';
 
 import '../main.dart';
@@ -45,7 +44,8 @@ class AppView extends StatelessWidget {
       onGenerateRoute: (settings) {
         final routes = <String, WidgetBuilder>{
           Routes.serviceViewer: (context) => ServiceView(
-                apiClient: settings.arguments as ApiClient,
+                apiClient: (settings.arguments as ServiceViewData).apiClient,
+                configInfo: (settings.arguments as ServiceViewData).configInfo,
               ),
           Routes.concreteViewer: (context) =>
               ConcreteViewer(data: settings.arguments as ConcreteViewerData),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/models/config_info/protector_config/protector_config.dart';
 
 class WebBrowserPage extends StatefulWidget {
@@ -37,24 +38,27 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
             },
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: InkWell(
-              onTap: () async {
-                _getHeaders((headers) {
-                  if (!mounted) return;
-                  Navigator.of(context).pop(headers);
-                });
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(16.0)),
+            padding: const EdgeInsets.all(48.0),
+            child: ElevatedButton(
+                onPressed: () async {
+                  _getHeaders((headers) {
+                    if (!mounted) return;
+                    Navigator.of(context).pop(headers);
+                  });
+                },
+                style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(AppColors.primary),
+                    shadowColor: MaterialStateProperty.all(
+                        AppColors.primary.withOpacity(0.35))),
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(S.current.web_browser_no_login_button),
-                ),
-              ),
-            ),
+                  padding: const EdgeInsets.all(4.0),
+                  child: Text(
+                    S.current.web_browser_no_login_button,
+                    style: semibold(size: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                )),
           )
         ],
       ),

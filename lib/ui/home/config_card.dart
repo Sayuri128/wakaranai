@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
@@ -31,11 +32,11 @@ class ConfigCard extends StatelessWidget {
                           "Mozilla/5.0 (Linux; Android 9; SM-G960N Build/PQ3B.190801.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/91.0.4472.114 Safari/537.36"
                     })
               else
-                Image.network(
-                  configInfo.logoUrl,
+                CachedNetworkImage(
+                  imageUrl: configInfo.logoUrl,
                   height: 80,
                   fit: BoxFit.cover,
-                  headers: const {
+                  httpHeaders: const {
                     "user-agent":
                         "Mozilla/5.0 (Linux; Android 9; SM-G960N Build/PQ3B.190801.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/91.0.4472.114 Safari/537.36"
                   },

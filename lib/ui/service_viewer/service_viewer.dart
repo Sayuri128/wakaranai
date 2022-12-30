@@ -5,20 +5,36 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/models/protector/protector_storage_item.dart';
+import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 import 'package:wakaranai/ui/service_viewer/filters/filters_page.dart';
 import 'package:wakaranai/ui/service_viewer/gallery_view_card.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
 import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
 import '../routes.dart';
 import 'concrete_viewer/concrete_viewer.dart';
 
+class ServiceViewData {
+  final ApiClient apiClient;
+  final ConfigInfo configInfo;
+
+  const ServiceViewData({
+    required this.apiClient,
+    required this.configInfo,
+  });
+}
+
 class ServiceView extends StatefulWidget {
-  const ServiceView({Key? key, required this.apiClient}) : super(key: key);
+  const ServiceView(
+      {Key? key, required this.apiClient, required this.configInfo})
+      : super(key: key);
 
   final ApiClient apiClient;
+  final ConfigInfo configInfo;
 
   @override
   State<ServiceView> createState() => _ServiceViewState();
@@ -109,8 +125,14 @@ class _ServiceViewState extends State<ServiceView> {
                                           bottomRight: Radius.circular(8.0))),
                                   backgroundColor: AppColors.backgroundColor,
                                   elevation: 0,
-                                  expandedHeight: 70,
-                                  toolbarHeight: 80,
+                                  expandedHeight:
+                                      widget.configInfo.searchAvailable
+                                          ? 70
+                                          : 30,
+                                  toolbarHeight:
+                                      widget.configInfo.searchAvailable
+                                          ? 110
+                                          : 70,
                                   actions: const [SizedBox()],
                                   flexibleSpace:
                                       _buildSearchableAppBar(context, state),
@@ -158,34 +180,69 @@ class _ServiceViewState extends State<ServiceView> {
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Center(
-                child: Text(
-              state.configInfo.name,
-              style: medium(size: 24),
-            )),
+            const SizedBox(
+              height: 12,
+            ),
+            Expanded(
+              child: Stack(
+                children: [
+                  Center(
+                      child: Text(
+                    state.configInfo.name,
+                    style: medium(size: 24),
+                  )),
+                  if (widget.configInfo.protectorConfig != null)
+                    Positioned(
+                        right: 0,
+                        top: 0,
+                        child: IconButton(
+                          icon: const Icon(Icons.webhook),
+                          onPressed: () async {
+                            final config =
+                                await widget.apiClient.getConfigInfo();
+                            final result = await Navigator.of(context)
+                                .pushNamed(Routes.webBrowser,
+                                    arguments: config.protectorConfig);
+                            if (result != null) {
+                              await widget.apiClient.passProtector(
+                                  headers: result as Map<String, String>);
+                              await ProtectorStorageService().saveItem(
+                                  item: ProtectorStorageItem(
+                                      uid: '${config.name}_${config.version}',
+                                      headers: result));
+                            } else {
+                              return;
+                            }
+                          },
+                        ))
+                ],
+              ),
+            ),
             const SizedBox(
               height: 8,
             ),
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: TextField(
-                  controller: _searchController,
-                  onSubmitted: (value) {
-                    context
-                        .read<ServiceViewCubit>()
-                        .search(_searchController.text);
-                  },
-                  decoration: InputDecoration(
-                      enabledBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.primary)),
-                      focusedBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.primary)),
-                      hintText: S.current.service_viewer_search_field_hint_text,
-                      hintStyle: medium()),
+            if (widget.configInfo.searchAvailable)
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: TextField(
+                    controller: _searchController,
+                    onSubmitted: (value) {
+                      context
+                          .read<ServiceViewCubit>()
+                          .search(_searchController.text);
+                    },
+                    decoration: InputDecoration(
+                        enabledBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.primary)),
+                        focusedBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.primary)),
+                        hintText:
+                            S.current.service_viewer_search_field_hint_text,
+                        hintStyle: medium()),
+                  ),
                 ),
               ),
-            ),
             const SizedBox(
               height: 16.0,
             )
