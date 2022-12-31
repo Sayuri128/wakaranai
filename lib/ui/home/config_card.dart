@@ -24,7 +24,6 @@ class ConfigCard extends StatelessWidget {
             children: [
               if (configInfo.logoUrl.contains('.svg'))
                 SvgPicture.network(configInfo.logoUrl,
-                    width: 80,
                     height: 80,
                     fit: BoxFit.cover,
                     headers: const {

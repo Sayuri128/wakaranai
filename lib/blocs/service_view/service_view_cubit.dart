@@ -26,7 +26,7 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
     }
   }
 
-  void getGallery() async {
+  void getGallery({String? query}) async {
     if (state is ServiceViewInitialized) {
       final state = this.state as ServiceViewInitialized;
       List<GalleryView> galleryViews = [];
@@ -35,14 +35,14 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
       galleryViews = state.galleryViews;
       currentPage = state.currentPage;
 
-      if (state.searchQuery.isEmpty) {
+      if (state.searchQuery.isEmpty || (query?.isEmpty ?? false)) {
         galleryViews.addAll(await state.client.getGallery(
             page: currentPage += 1,
             filters: state.selectedFilters.values.toList()));
       } else {
         galleryViews.addAll(await state.client.getGallery(
             page: currentPage += 1,
-            query: state.searchQuery,
+            query: query ?? state.searchQuery,
             filters: state.selectedFilters.values.toList()));
       }
 
@@ -56,9 +56,9 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
       final state = this.state as ServiceViewInitialized;
 
       emit(ServiceViewLoading());
-      if (query != null && query.isEmpty) {
+      if (query == null || query.isEmpty) {
         emit(state.copyWith(searchQuery: ""));
-        getGallery();
+        getGallery(query: "");
         return;
       }
 
@@ -67,7 +67,7 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
 
       galleryViews.addAll(await state.client.getGallery(
           page: currentPage,
-          query: query == null ? state.searchQuery : null,
+          query: query,
           filters: state.selectedFilters.values.toList()));
 
       emit(state.copyWith(
