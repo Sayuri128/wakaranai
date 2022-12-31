@@ -219,6 +219,146 @@ class S {
       args: [],
     );
   }
+
+  /// `Wakaranai GitHub`
+  String get official_github_configs_source_repository {
+    return Intl.message(
+      'Wakaranai GitHub',
+      name: 'official_github_configs_source_repository',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `GitHub`
+  String get github_configs_source_type {
+    return Intl.message(
+      'GitHub',
+      name: 'github_configs_source_type',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `REST`
+  String get rest_configs_source_type {
+    return Intl.message(
+      'REST',
+      name: 'rest_configs_source_type',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change configs source`
+  String get change_configs_source_dialog {
+    return Intl.message(
+      'Change configs source',
+      name: 'change_configs_source_dialog',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add`
+  String get add_new_configs_source_button {
+    return Intl.message(
+      'Add',
+      name: 'add_new_configs_source_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create`
+  String get create_new_configs_source_button {
+    return Intl.message(
+      'Create',
+      name: 'create_new_configs_source_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Name`
+  String get new_configs_name_field_label {
+    return Intl.message(
+      'Name',
+      name: 'new_configs_name_field_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `URL`
+  String get new_configs_base_url_field_label {
+    return Intl.message(
+      'URL',
+      name: 'new_configs_base_url_field_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Name is required`
+  String get new_configs_name_required_error {
+    return Intl.message(
+      'Name is required',
+      name: 'new_configs_name_required_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Base URL is required`
+  String get new_configs_base_url_required_error {
+    return Intl.message(
+      'Base URL is required',
+      name: 'new_configs_base_url_required_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirmation`
+  String get delete_configs_source_confirmation_dialog_title {
+    return Intl.message(
+      'Confirmation',
+      name: 'delete_configs_source_confirmation_dialog_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to delete {name} source?`
+  String delete_configs_source_confirmation_dialog_message(Object name) {
+    return Intl.message(
+      'Are you sure you want to delete $name source?',
+      name: 'delete_configs_source_confirmation_dialog_message',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Error occurred during fetching manga configs`
+  String get fetching_mangas_configs_error {
+    return Intl.message(
+      'Error occurred during fetching manga configs',
+      name: 'fetching_mangas_configs_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during initializing configs {name} source`
+  String configs_source_initializing_error(Object name) {
+    return Intl.message(
+      'Error occurred during initializing configs $name source',
+      name: 'configs_source_initializing_error',
+      desc: '',
+      args: [name],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

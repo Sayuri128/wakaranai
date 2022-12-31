@@ -20,15 +20,34 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(date) => "Last visit: ${date}";
+  static String m0(name) =>
+      "Error occurred during initializing configs ${name} source";
+
+  static String m1(name) => "Are you sure you want to delete ${name} source?";
+
+  static String m2(date) => "Last visit: ${date}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "add_new_configs_source_button":
+            MessageLookupByLibrary.simpleMessage("Add"),
         "app_name": MessageLookupByLibrary.simpleMessage("Wakaranai"),
+        "change_configs_source_dialog":
+            MessageLookupByLibrary.simpleMessage("Change configs source"),
+        "configs_source_initializing_error": m0,
+        "create_new_configs_source_button":
+            MessageLookupByLibrary.simpleMessage("Create"),
         "delete": MessageLookupByLibrary.simpleMessage("Delete"),
+        "delete_configs_source_confirmation_dialog_message": m1,
+        "delete_configs_source_confirmation_dialog_title":
+            MessageLookupByLibrary.simpleMessage("Confirmation"),
         "download_again":
             MessageLookupByLibrary.simpleMessage("Download again"),
-        "history_last_visit": m0,
+        "fetching_mangas_configs_error": MessageLookupByLibrary.simpleMessage(
+            "Error occurred during fetching manga configs"),
+        "github_configs_source_type":
+            MessageLookupByLibrary.simpleMessage("GitHub"),
+        "history_last_visit": m2,
         "history_page_title": MessageLookupByLibrary.simpleMessage("History"),
         "home_manga_group_title": MessageLookupByLibrary.simpleMessage("Manga"),
         "left_to_right_read_mode":
@@ -39,6 +58,18 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Settings"),
         "navigation_bar_sources_title":
             MessageLookupByLibrary.simpleMessage("Source"),
+        "new_configs_base_url_field_label":
+            MessageLookupByLibrary.simpleMessage("URL"),
+        "new_configs_base_url_required_error":
+            MessageLookupByLibrary.simpleMessage("Base URL is required"),
+        "new_configs_name_field_label":
+            MessageLookupByLibrary.simpleMessage("Name"),
+        "new_configs_name_required_error":
+            MessageLookupByLibrary.simpleMessage("Name is required"),
+        "official_github_configs_source_repository":
+            MessageLookupByLibrary.simpleMessage("Wakaranai GitHub"),
+        "rest_configs_source_type":
+            MessageLookupByLibrary.simpleMessage("REST"),
         "right_to_left_read_mode":
             MessageLookupByLibrary.simpleMessage("Right to left"),
         "service_viewer_filters_title":

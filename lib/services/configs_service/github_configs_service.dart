@@ -5,10 +5,13 @@ import 'package:wakascript/api_controller.dart';
 import 'package:http/http.dart' as http;
 
 class GitHubConfigsService implements ConfigsService {
-  static const String ORG = 'KoneruHodl';
-  static const String REPOSITORY = 'waka-configs';
+  final String ORG;
+  final String REPOSITORY;
 
   final GithubConfigsRepository _repository = GithubConfigsRepository(Dio());
+
+
+  GitHubConfigsService(this.ORG, this.REPOSITORY);
 
   Future<String> _downloadSourceCode(String url) async {
     return (await http.get(Uri.parse(url))).body;
@@ -20,5 +23,4 @@ class GitHubConfigsService implements ConfigsService {
         (await _repository.getMangaConfigs(ORG, REPOSITORY)).map((e) async =>
             ApiClient(code: await _downloadSourceCode(e.download_url))));
   }
-
 }

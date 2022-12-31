@@ -15,5 +15,19 @@
   "navigation_bar_settings_title": "Settings",
   "history_page_title": "History",
   "history_last_visit": "Last visit: {date}",
-  "web_browser_no_login_button": "Click once the page is loaded"
+  "web_browser_no_login_button": "Click once the page is loaded",
+  "official_github_configs_source_repository": "Wakaranai GitHub",
+  "github_configs_source_type": "GitHub",
+  "rest_configs_source_type": "REST",
+  "change_configs_source_dialog": "Change configs source",
+  "add_new_configs_source_button": "Add",
+  "create_new_configs_source_button": "Create",
+  "new_configs_name_field_label": "Name",
+  "new_configs_base_url_field_label": "URL",
+  "new_configs_name_required_error": "Name is required",
+  "new_configs_base_url_required_error": "Base URL is required",
+  "delete_configs_source_confirmation_dialog_title": "Confirmation",
+  "delete_configs_source_confirmation_dialog_message": "Are you sure you want to delete {name} source?",
+  "fetching_mangas_configs_error": "Error occurred during fetching manga configs",
+  "configs_source_initializing_error": "Error occurred during initializing configs {name} source"
 }

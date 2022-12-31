@@ -1,10 +1,11 @@
 import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:wakaranai/models/serializable_object.dart';
 import 'package:wakascript/models/concrete_view/concrete_view.dart';
 import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
-class HistoryMangaItem {
+class HistoryMangaItem extends SerializableObject {
   int? id;
   final String serviceSourceCode;
   final ConcreteView concreteView;
@@ -75,6 +76,9 @@ class HistoryMangaItem {
       timestamp: timestamp ?? this.timestamp,
     );
   }
+
+  @override
+  Map<String, dynamic> toMap() => toJson();
 }
 
 class DateTimeTimeStampJsonConverter extends JsonConverter<DateTime, int> {

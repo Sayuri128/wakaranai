@@ -13,3 +13,11 @@ class RemoteConfigsLoaded extends RemoteConfigsState {
     required this.mangaApiClients,
   });
 }
+
+class RemoteConfigsError extends RemoteConfigsState {
+  final String message;
+
+  RemoteConfigsError({
+    required this.message,
+  });
+}

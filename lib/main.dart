@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:wakaranai/blocs/configs_sources/configs_sources_cubit.dart';
 import 'package:wakaranai/blocs/history/history_cubit.dart';
 import 'package:wakaranai/blocs/local_configs/local_configs_cubit.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
@@ -40,11 +41,16 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
     return MultiBlocProvider(providers: [
       BlocProvider(lazy: false, create: (context) => AuthenticationCubit()),
       BlocProvider<RemoteConfigsCubit>(
-        create: (context) => RemoteConfigsCubit()..getConfigs(),
+        create: (context) => RemoteConfigsCubit()..init(),
       ),
       BlocProvider(create: (context) => LocalConfigsCubit()..init()),
-      BlocProvider(create: (context) => SettingsCubit()..init()),
-      BlocProvider(create: (context) => HistoryCubit()..init())
+      BlocProvider(create: (context) => HistoryCubit()..init()),
+      BlocProvider(create: (context) => ConfigsSourcesCubit()..getSources()),
+      BlocProvider(
+          create: (context) => SettingsCubit(
+              remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
+              sourcesCubit: context.read<ConfigsSourcesCubit>())
+            ..init()),
     ], child: const AppView());
   }
 }
