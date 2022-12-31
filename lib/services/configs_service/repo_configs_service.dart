@@ -5,8 +5,11 @@ import 'package:wakaranai/services/configs_service/configs_service.dart';
 import 'package:wakascript/api_controller.dart';
 
 class RepoConfigsService implements ConfigsService {
-  final LocalConfigsRepository _localRepository =
-      LocalConfigsRepository(Dio(), baseUrl: Env.LOCAL_REPOSITORY_URL);
+  late final LocalConfigsRepository _localRepository;
+
+  RepoConfigsService({String? url}) {
+    _localRepository = LocalConfigsRepository(Dio(), baseUrl: url ?? Env.LOCAL_REPOSITORY_URL);
+  }
 
   @override
   Future<List<ApiClient>> getMangaConfigs() async {

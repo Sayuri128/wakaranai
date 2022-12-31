@@ -51,7 +51,7 @@ class _HomeViewState extends State<HomeView> {
     BottomNavigationItem(
         index: 2,
         title: S.current.navigation_bar_settings_title,
-        build: (context) => const SettingsPage(),
+        build: (context) => SettingsPage(),
         icon: const Icon(
           Icons.settings,
         ))

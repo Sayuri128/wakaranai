@@ -12,13 +12,13 @@ part 'history_state.dart';
 
 class HistoryCubit extends Cubit<HistoryState> {
   HistoryCubit() : super(HistoryInitial()) {
-    historyService = HistoryService();
+    historyService = MangaHistoryService();
   }
 
-  late final HistoryService historyService;
+  late final MangaHistoryService historyService;
 
   void init() async {
-    final manga = await historyService.getAll();
+    final List<HistoryMangaItem> manga = await historyService.getAll(HistoryMangaItem.fromJson);
 
     List<HistoryMangaGroup> groups = await _processGroups(manga);
 
@@ -71,7 +71,7 @@ class HistoryCubit extends Cubit<HistoryState> {
         chapterUid: chapterUid,
         timestamp: DateTime.now());
 
-    await historyService.insert(item);
+    item.id = await historyService.insert(item);
 
     if (state is HistoryInitialized) {
       var history = [...(state as HistoryInitialized).mangaHistory, item];
