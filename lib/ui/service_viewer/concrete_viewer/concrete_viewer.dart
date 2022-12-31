@@ -192,6 +192,9 @@ class ConcreteViewer extends StatelessWidget {
   }
 
   Widget _buildPrettyTitle(ConcreteView concreteView) {
+    if (concreteView.title.pretty.isEmpty) {
+      return const SizedBox();
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Text(concreteView.title.pretty,
@@ -200,6 +203,9 @@ class ConcreteViewer extends StatelessWidget {
   }
 
   Widget _buildOriginalTitle(ConcreteView concreteView) {
+    if (concreteView.title.original.isEmpty) {
+      return const SizedBox();
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Text(
@@ -263,6 +269,9 @@ class ConcreteViewer extends StatelessWidget {
   }
 
   Widget _buildDescription(BuildContext context, ConcreteView concreteView) {
+    if(concreteView.description.isEmpty) {
+      return const SizedBox();
+    }
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       child: Padding(
