@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/chapter_storage/chapter_storage_cubit.dart';
 import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
+import 'package:wakaranai/heroes.dart';
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/downloaded_chapter_dialog.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -78,7 +79,11 @@ class ConcreteViewer extends StatelessWidget {
                 },
               );
             } else {
-              return const SizedBox();
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primary,
+                ),
+              );
             }
           },
         ),
@@ -100,7 +105,7 @@ class ConcreteViewer extends StatelessWidget {
                       apiClient: data.client,
                       chapter: e,
                       concreteView: state.concreteView,
-                  galleryView: state.galleryView));
+                      galleryView: state.galleryView));
             },
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,16 +209,21 @@ class ConcreteViewer extends StatelessWidget {
           bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
       child: Stack(
         children: [
-          CachedNetworkImage(
-            imageUrl: state.concreteView.cover,
-            width: MediaQuery.of(context).size.width,
-            fit: BoxFit.cover,
-            progressIndicatorBuilder: (context, url, progress) => SizedBox(
-              height: MediaQuery.of(context).size.height * 0.7,
-              width: MediaQuery.of(context).size.width,
-              child: Center(
-                child: CircularProgressIndicator(
-                    color: AppColors.primary, value: progress.progress),
+          Hero(
+            tag: Heroes.galleryViewToConcreteView(data.uid),
+            child: Material(
+              child: CachedNetworkImage(
+                imageUrl: state.concreteView.cover,
+                width: MediaQuery.of(context).size.width,
+                fit: BoxFit.cover,
+                progressIndicatorBuilder: (context, url, progress) => SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                        color: AppColors.primary, value: progress.progress),
+                  ),
+                ),
               ),
             ),
           ),

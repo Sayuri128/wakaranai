@@ -20,28 +20,25 @@ void main() async {
 
   await dotenv.load(fileName: '.env');
 
-  runApp(const MyApp());
+  runApp(const WakaranaiApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+class WakaranaiApp extends StatefulWidget {
+  const WakaranaiApp({Key? key}) : super(key: key);
 
   static final navigatorKey = GlobalKey<NavigatorState>();
 
   static NavigatorState? get navigator => navigatorKey.currentState;
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<WakaranaiApp> createState() => _WakaranaiAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _WakaranaiAppState extends State<WakaranaiApp> {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(providers: [
-      BlocProvider(
-          lazy: false,
-          create: (context) =>
-              AuthenticationCubit()..authorize('armatura@gmail.com', '1234')),
+      BlocProvider(lazy: false, create: (context) => AuthenticationCubit()),
       BlocProvider<RemoteConfigsCubit>(
         create: (context) => RemoteConfigsCubit()..getConfigs(),
       ),

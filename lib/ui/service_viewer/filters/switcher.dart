@@ -32,6 +32,7 @@ class _SwitcherWidgetState extends State<SwitcherWidget>
 
   late final AnimationController _switcherAnimationController;
   late final Animation<double> _switcherAnimation;
+  late final Animation<double> _shadowAnimation;
 
   @override
   void initState() {
@@ -47,6 +48,12 @@ class _SwitcherWidgetState extends State<SwitcherWidget>
           ..addListener(() {
             setState(() {});
           });
+    _shadowAnimation = Tween<double>(begin: 0, end: 4).animate(
+        CurveTween(curve: Curves.easeInOutCubic)
+            .animate(_switcherAnimationController))
+      ..addListener(() {
+        setState(() {});
+      });
   }
 
   @override
@@ -94,8 +101,8 @@ class _SwitcherWidgetState extends State<SwitcherWidget>
                     boxShadow: [
                       BoxShadow(
                           color: AppColors.secondary.withOpacity(0.3),
-                          spreadRadius: 4,
-                          blurRadius: 2)
+                          spreadRadius: _shadowAnimation.value,
+                          blurRadius: _shadowAnimation.value)
                     ],
                     color:
                         _on ? AppColors.secondary : AppColors.backgroundColor),
