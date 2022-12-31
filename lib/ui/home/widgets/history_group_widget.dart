@@ -52,8 +52,12 @@ class HistoryGroupWidget extends StatelessWidget {
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(group.concreteView.title.original,
-                    maxLines: 3, style: medium(size: 16)),
+                Text(
+                    group.concreteView.title.pretty.isEmpty
+                        ? group.concreteView.title.original
+                        : group.concreteView.title.pretty,
+                    maxLines: 3,
+                    style: medium(size: 16)),
                 const SizedBox(
                   height: 4,
                 ),
@@ -113,25 +117,27 @@ class HistoryGroupWidget extends StatelessWidget {
                   onTap: () async {
                     final config = await group.client.getConfigInfo();
 
-                    final cachedHeaders = await ProtectorStorageService()
-                        .getItem(uid: '${config.name}_${config.version}');
+                    if (config.protectorConfig != null) {
+                      final cachedHeaders = await ProtectorStorageService()
+                          .getItem(uid: '${config.name}_${config.version}');
 
-                    final Map<String, String> headers = {};
+                      final Map<String, String> headers = {};
 
-                    if (cachedHeaders == null) {
-                      final result = await Navigator.of(context).pushNamed(
-                          Routes.webBrowser,
-                          arguments: config.protectorConfig);
-                      if (result != null) {
-                        headers.addAll(result as Map<String, String>);
+                      if (cachedHeaders == null) {
+                        final result = await Navigator.of(context).pushNamed(
+                            Routes.webBrowser,
+                            arguments: config.protectorConfig);
+                        if (result != null) {
+                          headers.addAll(result as Map<String, String>);
+                        } else {
+                          return;
+                        }
                       } else {
-                        return;
+                        headers.addAll(cachedHeaders.headers);
                       }
-                    } else {
-                      headers.addAll(cachedHeaders.headers);
-                    }
 
-                    await group.client.passProtector(headers: headers);
+                      await group.client.passProtector(headers: headers);
+                    }
 
                     Navigator.of(context).pushNamed(Routes.chapterViewer,
                         arguments: ChapterViewerData(

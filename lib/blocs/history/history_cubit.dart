@@ -52,7 +52,11 @@ class HistoryCubit extends Cubit<HistoryState> {
               (a, b) => b.timestamp.compareTo(a.timestamp),
             ));
     }));
-    return groups;
+    return groups
+      ..sort(
+        (a, b) => b.mangaItems.first.timestamp
+            .compareTo(a.mangaItems.first.timestamp),
+      );
   }
 
   void addMangaToHistory(
