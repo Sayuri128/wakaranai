@@ -55,13 +55,6 @@ class _HomeViewState extends State<HomeView> {
         icon: const Icon(
           Icons.settings,
         ))
-    // BottomNavigationItem(
-    //     index: 1,
-    //     title: 'Local',
-    //     build: (context) => const LocalConfigsPage(),
-    //     icon: const Icon(
-    //       Icons.home,
-    //     ))
   ];
 
   @override
@@ -71,17 +64,25 @@ class _HomeViewState extends State<HomeView> {
       extendBodyBehindAppBar: true,
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentPage,
+          selectedItemColor: AppColors.primary,
           selectedLabelStyle: medium(size: 14, color: AppColors.primary),
           selectedIconTheme: const IconThemeData(color: AppColors.primary),
+          showSelectedLabels: true,
           unselectedLabelStyle: medium(size: 14, color: AppColors.mainWhite),
           unselectedIconTheme: const IconThemeData(color: AppColors.mainWhite),
-          type: BottomNavigationBarType.fixed,
+          type: BottomNavigationBarType.shifting,
           onTap: (i) {
             _currentPage = i;
             setState(() {});
           },
           items: navigationItem.map((e) => e.toBarItem()).toList()),
-      body: navigationItem[_currentPage].build(context),
+      body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: child,
+              ),
+          child: navigationItem[_currentPage].build(context)),
     );
   }
 }
