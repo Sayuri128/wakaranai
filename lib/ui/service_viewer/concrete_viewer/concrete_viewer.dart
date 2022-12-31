@@ -62,30 +62,35 @@ class ConcreteViewer extends StatelessWidget {
                       : 0),
               itemBuilder: (context, index) {
                 if (index == 0) {
-                  return Column(
-                    children: [
-                      _buildCover(data.galleryView.cover, context),
-                      const SizedBox(height: 16.0),
-                      if (state is ConcreteViewInitialized) ...[
-                        _buildPrettyTitle(concreteView),
-                        _buildOriginalTitle(concreteView),
+                  return SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: Column(
+                      children: [
+                        _buildCover(data.galleryView.cover, context),
                         const SizedBox(height: 16.0),
-                        _buildTags(concreteView),
+                        if (state is ConcreteViewInitialized) ...[
+                          _buildPrettyTitle(concreteView),
+                          _buildOriginalTitle(concreteView),
+                          const SizedBox(height: 16.0),
+                          _buildTags(concreteView),
+                          const SizedBox(height: 16.0),
+                          _buildDescription(context, concreteView),
+                          const SizedBox(height: 16.0),
+                          const Divider(
+                            thickness: 1,
+                            color: AppColors.primary,
+                          ),
+                        ] else ...[
+                          const SizedBox(
+                            height: 32,
+                          ),
+                          const CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
+                        ],
                         const SizedBox(height: 16.0),
-                        const Divider(
-                          thickness: 1,
-                          color: AppColors.primary,
-                        ),
-                      ] else ...[
-                        const SizedBox(
-                          height: 32,
-                        ),
-                        const CircularProgressIndicator(
-                          color: AppColors.primary,
-                        ),
                       ],
-                      const SizedBox(height: 16.0),
-                    ],
+                    ),
                   );
                 } else {
                   return _buildChapter(
@@ -253,6 +258,20 @@ class ConcreteViewer extends StatelessWidget {
             ])),
           )
         ],
+      ),
+    );
+  }
+
+  Widget _buildDescription(BuildContext context, ConcreteView concreteView) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        child: Text(
+          concreteView.description.replaceAll('\\n', '\n\n'),
+          textAlign: TextAlign.left,
+          style: regular(size: 16),
+        ),
       ),
     );
   }
