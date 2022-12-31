@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
 
 class ConfigCard extends StatelessWidget {
@@ -26,6 +27,8 @@ class ConfigCard extends StatelessWidget {
                 SvgPicture.network(configInfo.logoUrl,
                     height: 80,
                     fit: BoxFit.cover,
+                    placeholderBuilder: (context) =>
+                        _buildSourceLogoPlaceholder(),
                     headers: const {
                       "user-agent":
                           "Mozilla/5.0 (Linux; Android 9; SM-G960N Build/PQ3B.190801.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/91.0.4472.114 Safari/537.36"
@@ -35,6 +38,7 @@ class ConfigCard extends StatelessWidget {
                   imageUrl: configInfo.logoUrl,
                   height: 80,
                   fit: BoxFit.cover,
+                  placeholder: (context, url) => _buildSourceLogoPlaceholder(),
                   httpHeaders: const {
                     "user-agent":
                         "Mozilla/5.0 (Linux; Android 9; SM-G960N Build/PQ3B.190801.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/91.0.4472.114 Safari/537.36"
@@ -46,6 +50,16 @@ class ConfigCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSourceLogoPlaceholder() {
+    return Container(
+      height: 80,
+      width: 120,
+      decoration: BoxDecoration(
+          color: AppColors.backgroundColor,
+          borderRadius: BorderRadius.circular(16.0)),
     );
   }
 }
