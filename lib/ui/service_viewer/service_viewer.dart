@@ -87,56 +87,58 @@ class _ServiceViewState extends State<ServiceView> {
                               color: AppColors.primary),
                         ),
                 ),
-                body: SmartRefresher(
-                    enablePullUp: true,
-                    enablePullDown: false,
-                    footer: CustomFooter(
-                      builder: (context, mode) {
-                        if (mode == LoadStatus.loading) {
-                          return Column(
-                            children: const [
-                              SizedBox(
-                                height: 24,
-                              ),
-                              CircularProgressIndicator(
-                                  color: AppColors.primary),
-                              SizedBox(
-                                height: 24,
-                              ),
-                            ],
-                          );
-                        }
-                        return const SizedBox();
-                      },
-                    ),
-                    controller: _refreshController,
-                    onLoading: () {
-                      context.read<ServiceViewCubit>().getGallery();
-                    },
-                    child: state is ServiceViewInitialized
-                        ? CustomScrollView(
+                body: Stack(
+                  children: [
+                    SmartRefresher(
+                        enablePullUp: true,
+                        enablePullDown: false,
+                        footer: CustomFooter(
+                          builder: (context, mode) {
+                            if (mode == LoadStatus.loading) {
+                              return Column(
+                                children: const [
+                                  SizedBox(
+                                    height: 24,
+                                  ),
+                                  CircularProgressIndicator(
+                                      color: AppColors.primary),
+                                  SizedBox(
+                                    height: 24,
+                                  ),
+                                ],
+                              );
+                            }
+                            return const SizedBox();
+                          },
+                        ),
+                        controller: _refreshController,
+                        onLoading: () {
+                          context.read<ServiceViewCubit>().getGallery();
+                        },
+                        child: CustomScrollView(
                             physics: const BouncingScrollPhysics(),
                             slivers: [
-                                SliverAppBar(
-                                  floating: true,
-                                  shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.only(
-                                          bottomLeft: Radius.circular(8.0),
-                                          bottomRight: Radius.circular(8.0))),
-                                  backgroundColor: AppColors.backgroundColor,
-                                  elevation: 0,
-                                  expandedHeight:
-                                      widget.configInfo.searchAvailable
-                                          ? 70
-                                          : 30,
-                                  toolbarHeight:
-                                      widget.configInfo.searchAvailable
-                                          ? 110
-                                          : 70,
-                                  actions: const [SizedBox()],
-                                  flexibleSpace:
-                                      _buildSearchableAppBar(context, state),
-                                ),
+                              SliverAppBar(
+                                floating: true,
+                                shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(8.0),
+                                        bottomRight: Radius.circular(8.0))),
+                                backgroundColor: AppColors.backgroundColor,
+                                elevation: 0,
+                                expandedHeight:
+                                    widget.configInfo.searchAvailable ? 70 : 30,
+                                toolbarHeight: widget.configInfo.searchAvailable
+                                    ? 110
+                                    : 70,
+                                actions: const [SizedBox()],
+                                flexibleSpace: _buildSearchableAppBar(
+                                    context,
+                                    state is ServiceViewInitialized
+                                        ? state
+                                        : null),
+                              ),
+                              if (state is ServiceViewInitialized)
                                 SliverPadding(
                                   padding: const EdgeInsets.only(top: 16),
                                   sliver: SliverGrid.count(
@@ -157,12 +159,15 @@ class _ServiceViewState extends State<ServiceView> {
                                         .toList(),
                                   ),
                                 ),
-                              ])
-                        : const Center(
-                            child: CircularProgressIndicator(
-                              color: AppColors.primary,
-                            ),
-                          )),
+                            ])),
+                    if (state is! ServiceViewInitialized)
+                      const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      )
+                  ],
+                ),
               );
             },
           ),
@@ -174,7 +179,7 @@ class _ServiceViewState extends State<ServiceView> {
   Timer? _searchTimer;
 
   Widget _buildSearchableAppBar(
-          BuildContext context, ServiceViewInitialized state) =>
+          BuildContext context, ServiceViewInitialized? state) =>
       Padding(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         child: Column(
@@ -188,7 +193,7 @@ class _ServiceViewState extends State<ServiceView> {
                 children: [
                   Center(
                       child: Text(
-                    state.configInfo.name,
+                    widget.configInfo.name,
                     style: medium(size: 24),
                   )),
                   if (widget.configInfo.protectorConfig != null)
@@ -221,7 +226,7 @@ class _ServiceViewState extends State<ServiceView> {
             const SizedBox(
               height: 8,
             ),
-            if (widget.configInfo.searchAvailable)
+            if (state != null && widget.configInfo.searchAvailable)
               Flexible(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
