@@ -14,6 +14,8 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
     if (state is ServiceViewInitial) {
       final state = this.state as ServiceViewInitial;
 
+      emit(ServiceViewLoading());
+
       emit(ServiceViewInitialized(
           client: state.client,
           searchQuery: '',
@@ -53,6 +55,7 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
     if (state is ServiceViewInitialized) {
       final state = this.state as ServiceViewInitialized;
 
+      emit(ServiceViewLoading());
       if (query != null && query.isEmpty) {
         emit(state.copyWith(searchQuery: ""));
         getGallery();

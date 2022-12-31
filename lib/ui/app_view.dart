@@ -29,7 +29,7 @@ class AppView extends StatelessWidget {
         TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
       })),
       debugShowCheckedModeBanner: false,
-      navigatorKey: MyApp.navigatorKey,
+      navigatorKey: WakaranaiApp.navigatorKey,
       localizationsDelegates: const [
         S.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -62,7 +62,7 @@ class AppView extends StatelessWidget {
               listener: (context, state) {
                 Future.delayed(const Duration(seconds: 0), () {
                   if (state is AuthenticationAuthenticated) {
-                    MyApp.navigator?.pushNamedAndRemoveUntil(
+                    WakaranaiApp.navigator?.pushNamedAndRemoveUntil(
                         Routes.home, (route) => false);
                   }
                 });

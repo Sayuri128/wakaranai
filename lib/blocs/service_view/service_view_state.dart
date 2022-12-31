@@ -11,6 +11,10 @@ class ServiceViewInitial extends ServiceViewState {
   });
 }
 
+class ServiceViewLoading extends ServiceViewState {
+
+}
+
 class ServiceViewInitialized extends ServiceViewState {
   final String searchQuery;
   final ApiClient client;

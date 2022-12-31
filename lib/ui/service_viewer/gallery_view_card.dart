@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:wakaranai/heroes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/models/gallery_view/gallery_view.dart';
@@ -20,11 +21,16 @@ class GalleryViewCard extends StatelessWidget {
       onTap: onTap,
       child: Stack(
         children: [
-          Ink.image(
-            height: height,
-            fit: BoxFit.cover,
-            image: CachedNetworkImageProvider(
-              data.cover,
+          Hero(
+            tag: Heroes.galleryViewToConcreteView(data.uid),
+            child: Material(
+              child: Ink.image(
+                height: height,
+                fit: BoxFit.cover,
+                image: CachedNetworkImageProvider(
+                  data.cover,
+                ),
+              ),
             ),
           ),
           Container(
