@@ -21,43 +21,43 @@ class ConfigsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(title,
-              style: semibold(size: 18, color: AppColors.mainWhite)),
-        ),
-        const SizedBox(height: 16.0),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          child: Row(
-            children: [
-              const SizedBox(width: 16.0),
-              ...apiClients.map((e) => BlocProvider<ApiClientControllerCubit>(
-                  create: (context) =>
-                      ApiClientControllerCubit(apiClient: e)..getConfigInfo(),
-                  child: BlocBuilder<ApiClientControllerCubit,
-                      ApiClientControllerState>(
-                    builder: (context, state) {
-                      if (state is ApiClientControllerConfigInfo) {
-                        return ConfigCard(
-                            configInfo: state.configInfo,
-                            onTap: () {
-                              _onCardClick(context, e, state);
-                            });
-                      } else {
-                        return const SizedBox();
-                      }
-                    },
-                  ))),
-              const SizedBox(width: 16.0)
-            ],
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(title,
+                style: semibold(size: 18, color: AppColors.mainWhite)),
           ),
-        ),
-      ],
+          const SizedBox(height: 16.0),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6.0),
+            child: Wrap(
+              children: [
+                ...apiClients.map((e) => BlocProvider<ApiClientControllerCubit>(
+                    create: (context) =>
+                        ApiClientControllerCubit(apiClient: e)..getConfigInfo(),
+                    child: BlocBuilder<ApiClientControllerCubit,
+                        ApiClientControllerState>(
+                      builder: (context, state) {
+                        if (state is ApiClientControllerConfigInfo) {
+                          return ConfigCard(
+                              configInfo: state.configInfo,
+                              onTap: () {
+                                _onCardClick(context, e, state);
+                              });
+                        } else {
+                          return const SizedBox();
+                        }
+                      },
+                    ))),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
