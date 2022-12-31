@@ -50,16 +50,23 @@ class ConcreteViewer extends StatelessWidget {
         extendBodyBehindAppBar: true,
         body: BlocBuilder<ConcreteViewCubit, ConcreteViewState>(
           builder: (context, state) {
+            late final ConcreteView concreteView;
+
             if (state is ConcreteViewInitialized) {
-              final concreteView = state.concreteView;
-              return ListView.builder(
-                itemCount: 1 + concreteView.chapters.length,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return Column(
-                      children: [
-                        _buildCover(state, context),
-                        const SizedBox(height: 16.0),
+              concreteView = state.concreteView;
+            }
+            return ListView.builder(
+              itemCount: 1 +
+                  ((state is ConcreteViewInitialized)
+                      ? concreteView.chapters.length
+                      : 0),
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return Column(
+                    children: [
+                      _buildCover(data.galleryView.cover, context),
+                      const SizedBox(height: 16.0),
+                      if (state is ConcreteViewInitialized) ...[
                         _buildPrettyTitle(concreteView),
                         _buildOriginalTitle(concreteView),
                         const SizedBox(height: 16.0),
@@ -69,30 +76,34 @@ class ConcreteViewer extends StatelessWidget {
                           thickness: 1,
                           color: AppColors.primary,
                         ),
-                        const SizedBox(height: 16.0),
+                      ] else ...[
+                        const SizedBox(
+                          height: 32,
+                        ),
+                        const CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
                       ],
-                    );
-                  } else {
-                    return _buildChapter(
-                        context, concreteView.chapters[index - 1], state);
-                  }
-                },
-              );
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.primary,
-                ),
-              );
-            }
+                      const SizedBox(height: 16.0),
+                    ],
+                  );
+                } else {
+                  return _buildChapter(
+                      context,
+                      concreteView.chapters[index - 1],
+                      data.galleryView,
+                      concreteView);
+                }
+              },
+            );
           },
         ),
       ),
     );
   }
 
-  Widget _buildChapter(
-      BuildContext context, Chapter e, ConcreteViewInitialized state) {
+  Widget _buildChapter(BuildContext context, Chapter e, GalleryView galleryView,
+      ConcreteView concreteView) {
     return BlocProvider<ChapterStorageCubit>(
       create: (context) =>
           ChapterStorageCubit(uid: data.uid, client: data.client)..init(e),
@@ -104,8 +115,8 @@ class ConcreteViewer extends StatelessWidget {
                   arguments: ChapterViewerData(
                       apiClient: data.client,
                       chapter: e,
-                      concreteView: state.concreteView,
-                      galleryView: state.galleryView));
+                      concreteView: concreteView,
+                      galleryView: galleryView));
             },
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,16 +186,22 @@ class ConcreteViewer extends StatelessWidget {
     );
   }
 
-  Text _buildPrettyTitle(ConcreteView concreteView) {
-    return Text(concreteView.title.pretty,
-        textAlign: TextAlign.center, style: semibold(size: 18));
+  Widget _buildPrettyTitle(ConcreteView concreteView) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: Text(concreteView.title.pretty,
+          textAlign: TextAlign.center, style: semibold(size: 18)),
+    );
   }
 
-  Text _buildOriginalTitle(ConcreteView concreteView) {
-    return Text(
-      concreteView.title.original,
-      textAlign: TextAlign.center,
-      style: semibold(size: 18),
+  Widget _buildOriginalTitle(ConcreteView concreteView) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: Text(
+        concreteView.title.original,
+        textAlign: TextAlign.center,
+        style: semibold(size: 18),
+      ),
     );
   }
 
@@ -203,7 +220,7 @@ class ConcreteViewer extends StatelessWidget {
         ));
   }
 
-  Widget _buildCover(ConcreteViewInitialized state, BuildContext context) {
+  Widget _buildCover(String cover, BuildContext context) {
     return ClipRRect(
       borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
@@ -213,7 +230,7 @@ class ConcreteViewer extends StatelessWidget {
             tag: Heroes.galleryViewToConcreteView(data.uid),
             child: Material(
               child: CachedNetworkImage(
-                imageUrl: state.concreteView.cover,
+                imageUrl: cover,
                 width: MediaQuery.of(context).size.width,
                 fit: BoxFit.cover,
                 progressIndicatorBuilder: (context, url, progress) => SizedBox(

@@ -15,8 +15,15 @@ import 'package:wakascript/models/config_info/protector_config/protector_config.
 import '../main.dart';
 import 'home/home_view.dart';
 
-class AppView extends StatelessWidget {
+class AppView extends StatefulWidget {
   const AppView({Key? key}) : super(key: key);
+
+  @override
+  State<AppView> createState() => _AppViewState();
+}
+
+class _AppViewState extends State<AppView> {
+  final HeroController _heroController = HeroController();
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +44,7 @@ class AppView extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate
       ],
       supportedLocales: S.delegate.supportedLocales,
+      navigatorObservers: [_heroController],
       routes: {
         Routes.splashScreen: (context) => const SplashScreen(),
         Routes.home: (context) => const HomeView()
