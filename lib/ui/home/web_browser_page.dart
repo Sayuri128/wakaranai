@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/models/protector/protector_storage_item.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/models/config_info/protector_config/protector_config.dart';
 
-class WebBrowserPage extends StatefulWidget {
-  const WebBrowserPage({Key? key, required this.config}) : super(key: key);
-
+class WebBrowserData {
   final ProtectorConfig config;
+  final ProtectorStorageItem? protectorStorageItem;
+
+  const WebBrowserData({
+    required this.config,
+    this.protectorStorageItem,
+  });
+}
+
+class WebBrowserPage extends StatefulWidget {
+  const WebBrowserPage({Key? key, required this.data}) : super(key: key);
+
+  final WebBrowserData data;
 
   @override
   State<WebBrowserPage> createState() => _WebBrowserPageState();
@@ -27,12 +38,7 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
           InAppWebView(
             key: _webViewKey,
             initialUrlRequest:
-                URLRequest(url: Uri.parse(widget.config.pingUrl)),
-            initialOptions: InAppWebViewGroupOptions(
-                crossPlatform: InAppWebViewOptions(
-              clearCache: true,
-              cacheEnabled: false,
-            )),
+                URLRequest(url: Uri.parse(widget.data.config.pingUrl)),
             onWebViewCreated: (controller) async {
               _webView = controller;
             },
@@ -41,10 +47,13 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
             padding: const EdgeInsets.all(48.0),
             child: ElevatedButton(
                 onPressed: () async {
-                  _getHeaders((headers) {
-                    if (!mounted) return;
-                    Navigator.of(context).pop(headers);
-                  });
+                  getHeaders(
+                      done: (headers) {
+                        if (!mounted) return;
+                        Navigator.of(context).pop(headers);
+                      },
+                      controller: _webView,
+                      pingUrl: widget.data.config.pingUrl);
                 },
                 style: ButtonStyle(
                     backgroundColor:
@@ -64,16 +73,22 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
       ),
     );
   }
+}
 
-  Future<void> _getHeaders(Function(Map<String, String>) done) async {
-    done({
-      'user-agent': ((await _webView.callAsyncJavaScript(
+Future<void> getHeaders(
+    {required Function(Map<String, dynamic>) done,
+    required String pingUrl,
+    required InAppWebViewController controller}) async {
+  final cookies = Map.fromEntries(
+      (await CookieManager.instance().getCookies(url: Uri.parse(pingUrl)))
+          .map((e) => MapEntry(e.name, e.value)));
+  done({
+    'headers': Map.from(<String, String>{
+      'user-agent': ((await controller.callAsyncJavaScript(
               functionBody: 'return navigator.userAgent;'))
           ?.value as String),
-      'cookie': (await CookieManager.instance()
-              .getCookies(url: Uri.parse(widget.config.pingUrl)))
-          .map((e) => '${e.name}=${e.value}')
-          .join('; ')
-    });
-  }
+      'cookie': cookies.entries.map((e) => '${e.key}=${e.value}').join('; ')
+    }),
+    'cookies-raw': cookies
+  });
 }

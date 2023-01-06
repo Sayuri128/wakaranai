@@ -21,18 +21,21 @@ import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_controller.dart';
 import 'package:wakascript/models/concrete_view/chapter/chapter.dart';
 import 'package:wakascript/models/concrete_view/concrete_view.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
 import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
 import '../../../../blocs/history/history_cubit.dart';
 
 class ChapterViewerData {
   final ApiClient apiClient;
+  final ConfigInfo configInfo;
   final ConcreteView concreteView;
   final GalleryView galleryView;
   final Chapter chapter;
 
   const ChapterViewerData({
     required this.apiClient,
+    required this.configInfo,
     required this.concreteView,
     required this.galleryView,
     required this.chapter,
@@ -58,10 +61,19 @@ class _ChapterViewerState extends State<ChapterViewer>
   bool _canLoadNext = false;
   bool _canLoadPrevious = true;
 
+  Map<String, String> _headers = {};
+
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (widget.data.configInfo.protectorConfig != null) {
+        _headers = widget.data.apiClient.getProtectorHeaders();
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -308,6 +320,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                           },
                           tooltip: FlutterSliderTooltip(
                               custom: (v) => CachedNetworkImage(
+                                    httpHeaders: _headers,
                                     imageUrl: state.currentPages.value[min(
                                         (v as double).toInt(),
                                         state.currentPages.value.length - 1)],
@@ -424,7 +437,8 @@ class _ChapterViewerState extends State<ChapterViewer>
                   basePosition: Alignment.center,
                   tightMode: true,
                   imageProvider: CachedNetworkImageProvider(
-                      state.currentPages.value[index]));
+                      state.currentPages.value[index],
+                      headers: _headers));
             });
       case ChapterViewMode.WEBTOON:
         return NotificationListener<ScrollUpdateNotification>(

@@ -10,7 +10,6 @@ import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapt
 import 'package:wakaranai/ui/service_viewer/concrete_viewer/concrete_viewer.dart';
 import 'package:wakaranai/ui/service_viewer/service_viewer.dart';
 import 'package:wakaranai/ui/splashscreen/splashscreen_view.dart';
-import 'package:wakascript/models/config_info/protector_config/protector_config.dart';
 
 import '../main.dart';
 import 'home/home_view.dart';
@@ -60,7 +59,7 @@ class _AppViewState extends State<AppView> {
           Routes.chapterViewer: (context) =>
               ChapterViewer(data: settings.arguments as ChapterViewerData),
           Routes.webBrowser: (context) =>
-              WebBrowserPage(config: settings.arguments as ProtectorConfig)
+              WebBrowserPage(data: settings.arguments as WebBrowserData)
         };
 
         return CupertinoPageRoute(builder: routes[settings.name]!);

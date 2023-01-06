@@ -19,4 +19,9 @@ class ProtectorStorageService {
   Future<void> saveItem({required ProtectorStorageItem item}) async {
     await _secureStorage.write(key: item.uid, value: jsonEncode(item.toJson()));
   }
+
+  Future<void> clear() async {
+    await _secureStorage.deleteAll();
+  }
+
 }

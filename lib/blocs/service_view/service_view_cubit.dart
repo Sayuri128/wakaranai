@@ -14,16 +14,40 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
     if (state is ServiceViewInitial) {
       final state = this.state as ServiceViewInitial;
 
-      emit(ServiceViewLoading());
+      emit(ServiceViewLoading(client: state.client));
 
-      emit(ServiceViewInitialized(
-          client: state.client,
-          searchQuery: '',
-          configInfo: await state.client.getConfigInfo(),
-          galleryViews: await state.client.getGallery(page: 1),
-          currentPage: 1,
-          selectedFilters: {}));
+      final List<GalleryView>? galleryViews =
+          await _getGalleryViews(page: 1, query: null, filters: null);
+
+      if (galleryViews != null) {
+        emit(ServiceViewInitialized(
+            client: state.client,
+            searchQuery: '',
+            configInfo: await state.client.getConfigInfo(),
+            galleryViews: galleryViews,
+            currentPage: 1,
+            selectedFilters: {}));
+      }
     }
+  }
+
+  Future<List<GalleryView>?> _getGalleryViews(
+      {required int page,
+      required String? query,
+      required List<FilterData>? filters}) async {
+    List<GalleryView>? galleryViews;
+
+    await state.client
+        .getGallery(page: 1, query: query, filters: filters)
+        .catchError((error) {
+      emit(ServiceViewError(
+          message: error?.toString() ?? '', client: state.client));
+      return <GalleryView>[];
+    }).then((value) {
+      galleryViews = value;
+    });
+
+    return galleryViews;
   }
 
   void getGallery({String? query}) async {
@@ -35,16 +59,16 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
       galleryViews = state.galleryViews;
       currentPage = state.currentPage;
 
-      if (state.searchQuery.isEmpty || (query?.isEmpty ?? false)) {
-        galleryViews.addAll(await state.client.getGallery(
-            page: currentPage += 1,
-            filters: state.selectedFilters.values.toList()));
-      } else {
-        galleryViews.addAll(await state.client.getGallery(
-            page: currentPage += 1,
-            query: query ?? state.searchQuery,
-            filters: state.selectedFilters.values.toList()));
+      final newGalleryViews = await _getGalleryViews(
+          page: currentPage += 1,
+          filters: state.selectedFilters.values.toList(),
+          query:
+              query ?? (state.searchQuery.isEmpty ? null : state.searchQuery));
+      if (newGalleryViews == null) {
+        return;
       }
+
+      galleryViews.addAll(newGalleryViews);
 
       emit(
           state.copyWith(galleryViews: galleryViews, currentPage: currentPage));
@@ -52,29 +76,33 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
   }
 
   void search(String? query) async {
-    if (state is ServiceViewInitialized) {
-      final state = this.state as ServiceViewInitialized;
+    final state = this.state as ServiceViewInitialized;
 
-      emit(ServiceViewLoading());
-      if (query == null || query.isEmpty) {
-        emit(state.copyWith(searchQuery: ""));
-        getGallery(query: "");
-        return;
-      }
-
-      List<GalleryView> galleryViews = [];
-      int currentPage = 0;
-
-      galleryViews.addAll(await state.client.getGallery(
-          page: currentPage,
-          query: query,
-          filters: state.selectedFilters.values.toList()));
-
-      emit(state.copyWith(
-          galleryViews: galleryViews,
-          currentPage: currentPage += 1,
-          searchQuery: query));
+    emit(ServiceViewLoading(client: this.state.client));
+    if (query == null || query.isEmpty) {
+      emit(state.copyWith(searchQuery: ""));
+      getGallery(query: "");
+      return;
     }
+
+    List<GalleryView> galleryViews = [];
+    int currentPage = 0;
+
+    final newGalleryViews = await _getGalleryViews(
+        page: currentPage,
+        query: query,
+        filters: state.selectedFilters.values.toList());
+
+    if (newGalleryViews == null) {
+      return;
+    }
+
+    galleryViews.addAll(newGalleryViews);
+
+    emit(state.copyWith(
+        galleryViews: galleryViews,
+        currentPage: currentPage += 1,
+        searchQuery: query));
   }
 
   void removeFilter(String param) {

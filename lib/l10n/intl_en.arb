@@ -29,5 +29,16 @@
   "delete_configs_source_confirmation_dialog_title": "Confirmation",
   "delete_configs_source_confirmation_dialog_message": "Are you sure you want to delete {name} source?",
   "fetching_mangas_configs_error": "Error occurred during fetching manga configs",
-  "configs_source_initializing_error": "Error occurred during initializing configs {name} source"
+  "configs_source_initializing_error": "Error occurred during initializing configs {name} source",
+  "clear_history_dialog_confirmation_title": "Are you sure you want to clear your history?",
+  "clear_history_dialog_confirmation_message": "This action cannot be canceled later",
+  "clear_history_dialog_confirmation_ok_label": "Delete",
+  "clear_history_dialog_confirmation_cancel_label": "Cancel",
+  "clear_history_dialog_success": "History has been cleared",
+  "clear_cookies_cache": "Clear cookies cache",
+  "clear_cookies_cache_dialog_confirmation_title": "Are you sure you want to clear your cookies?",
+  "clear_cookies_cache_dialog_confirmation_message": "This action cannot be canceled later",
+  "clear_cookies_cache_dialog_confirmation_ok_label": "Delete",
+  "clear_cookies_cache_dialog_confirmation_cancel_label": "Cancel",
+  "clear_cookies_dialog_success": "Cookies has been cleared"
 }

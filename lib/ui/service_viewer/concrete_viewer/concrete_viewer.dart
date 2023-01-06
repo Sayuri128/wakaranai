@@ -12,6 +12,7 @@ import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_controller.dart';
 import 'package:wakascript/models/concrete_view/chapter/chapter.dart';
 import 'package:wakascript/models/concrete_view/concrete_view.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
 import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
 import '../../routes.dart';
@@ -20,12 +21,13 @@ class ConcreteViewerData {
   final String uid;
   final GalleryView galleryView;
   final ApiClient client;
+  final ConfigInfo configInfo;
 
-  const ConcreteViewerData({
-    required this.uid,
-    required this.galleryView,
-    required this.client,
-  });
+  const ConcreteViewerData(
+      {required this.uid,
+      required this.galleryView,
+      required this.client,
+      required this.configInfo});
 }
 
 class ConcreteViewer extends StatelessWidget {
@@ -97,7 +99,8 @@ class ConcreteViewer extends StatelessWidget {
                       context,
                       concreteView.chapters[index - 1],
                       data.galleryView,
-                      concreteView);
+                      concreteView,
+                      data.configInfo);
                 }
               },
             );
@@ -108,7 +111,7 @@ class ConcreteViewer extends StatelessWidget {
   }
 
   Widget _buildChapter(BuildContext context, Chapter e, GalleryView galleryView,
-      ConcreteView concreteView) {
+      ConcreteView concreteView, ConfigInfo configInfo) {
     return BlocProvider<ChapterStorageCubit>(
       create: (context) =>
           ChapterStorageCubit(uid: data.uid, client: data.client)..init(e),
@@ -121,7 +124,8 @@ class ConcreteViewer extends StatelessWidget {
                       apiClient: data.client,
                       chapter: e,
                       concreteView: concreteView,
-                      galleryView: galleryView));
+                      galleryView: galleryView,
+                      configInfo: configInfo));
             },
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,7 +273,7 @@ class ConcreteViewer extends StatelessWidget {
   }
 
   Widget _buildDescription(BuildContext context, ConcreteView concreteView) {
-    if(concreteView.description.isEmpty) {
+    if (concreteView.description.isEmpty) {
       return const SizedBox();
     }
     return SizedBox(

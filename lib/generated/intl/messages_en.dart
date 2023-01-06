@@ -34,6 +34,32 @@ class MessageLookup extends MessageLookupByLibrary {
         "app_name": MessageLookupByLibrary.simpleMessage("Wakaranai"),
         "change_configs_source_dialog":
             MessageLookupByLibrary.simpleMessage("Change configs source"),
+        "clear_cookies_cache":
+            MessageLookupByLibrary.simpleMessage("Clear cookies cache"),
+        "clear_cookies_cache_dialog_confirmation_cancel_label":
+            MessageLookupByLibrary.simpleMessage("Cancel"),
+        "clear_cookies_cache_dialog_confirmation_message":
+            MessageLookupByLibrary.simpleMessage(
+                "This action cannot be canceled later"),
+        "clear_cookies_cache_dialog_confirmation_ok_label":
+            MessageLookupByLibrary.simpleMessage("Delete"),
+        "clear_cookies_cache_dialog_confirmation_title":
+            MessageLookupByLibrary.simpleMessage(
+                "Are you sure you want to clear your cookies?"),
+        "clear_cookies_dialog_success":
+            MessageLookupByLibrary.simpleMessage("Cookies has been cleared"),
+        "clear_history_dialog_confirmation_cancel_label":
+            MessageLookupByLibrary.simpleMessage("Cancel"),
+        "clear_history_dialog_confirmation_message":
+            MessageLookupByLibrary.simpleMessage(
+                "This action cannot be canceled later"),
+        "clear_history_dialog_confirmation_ok_label":
+            MessageLookupByLibrary.simpleMessage("Delete"),
+        "clear_history_dialog_confirmation_title":
+            MessageLookupByLibrary.simpleMessage(
+                "Are you sure you want to clear your history?"),
+        "clear_history_dialog_success":
+            MessageLookupByLibrary.simpleMessage("History has been cleared"),
         "configs_source_initializing_error": m0,
         "create_new_configs_source_button":
             MessageLookupByLibrary.simpleMessage("Create"),

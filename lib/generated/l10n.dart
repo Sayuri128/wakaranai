@@ -359,6 +359,116 @@ class S {
       args: [name],
     );
   }
+
+  /// `Are you sure you want to clear your history?`
+  String get clear_history_dialog_confirmation_title {
+    return Intl.message(
+      'Are you sure you want to clear your history?',
+      name: 'clear_history_dialog_confirmation_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This action cannot be canceled later`
+  String get clear_history_dialog_confirmation_message {
+    return Intl.message(
+      'This action cannot be canceled later',
+      name: 'clear_history_dialog_confirmation_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get clear_history_dialog_confirmation_ok_label {
+    return Intl.message(
+      'Delete',
+      name: 'clear_history_dialog_confirmation_ok_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get clear_history_dialog_confirmation_cancel_label {
+    return Intl.message(
+      'Cancel',
+      name: 'clear_history_dialog_confirmation_cancel_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `History has been cleared`
+  String get clear_history_dialog_success {
+    return Intl.message(
+      'History has been cleared',
+      name: 'clear_history_dialog_success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear cookies cache`
+  String get clear_cookies_cache {
+    return Intl.message(
+      'Clear cookies cache',
+      name: 'clear_cookies_cache',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to clear your cookies?`
+  String get clear_cookies_cache_dialog_confirmation_title {
+    return Intl.message(
+      'Are you sure you want to clear your cookies?',
+      name: 'clear_cookies_cache_dialog_confirmation_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This action cannot be canceled later`
+  String get clear_cookies_cache_dialog_confirmation_message {
+    return Intl.message(
+      'This action cannot be canceled later',
+      name: 'clear_cookies_cache_dialog_confirmation_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get clear_cookies_cache_dialog_confirmation_ok_label {
+    return Intl.message(
+      'Delete',
+      name: 'clear_cookies_cache_dialog_confirmation_ok_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get clear_cookies_cache_dialog_confirmation_cancel_label {
+    return Intl.message(
+      'Cancel',
+      name: 'clear_cookies_cache_dialog_confirmation_cancel_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cookies has been cleared`
+  String get clear_cookies_dialog_success {
+    return Intl.message(
+      'Cookies has been cleared',
+      name: 'clear_cookies_dialog_success',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

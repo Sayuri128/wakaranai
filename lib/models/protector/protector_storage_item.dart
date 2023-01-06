@@ -9,7 +9,7 @@ class ProtectorStorageItem {
 	Map<String, dynamic> toJson() => _$ProtectorStorageItemToJson(this);
 
   final String uid;
-  final Map<String, String> headers;
+  final Map<String, dynamic> headers;
 
   const ProtectorStorageItem({
     required this.uid,
