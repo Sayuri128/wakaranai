@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:wakaranai/utils/globals.dart';
 import 'package:wakascript/api_controller.dart';
 
@@ -73,7 +72,7 @@ class ChapterStorageCubit extends Cubit<ChapterStorageState> {
     emit(ChapterStorageInitializing());
 
     try {
-      final pages = await client.getPages(uid: chapter.uid);
+      final pages = await client.getPages(uid: chapter.uid, data: chapter.data);
 
       final concreteDir = await _getConcreteDir(chapter);
 

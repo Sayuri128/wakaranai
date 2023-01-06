@@ -27,7 +27,9 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
   final ItemScrollController itemScrollController;
 
   void init(ChapterViewerData data) async {
-    final pagesS = [await apiClient.getPages(uid: data.chapter.uid)];
+    final pagesS = [
+      await apiClient.getPages(uid: data.chapter.uid, data: data.chapter.data)
+    ];
 
     var chapterIndex = data.concreteView.chapters
         .indexWhere((element) => element.uid == pagesS.last.chapterUid);
@@ -75,7 +77,8 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
 
       if (optionalLoadedPages == null) {
         optionalLoadedPages = await apiClient.getPages(
-            uid: state.concreteView.chapters[chapterIndex].uid);
+            uid: state.concreteView.chapters[chapterIndex].uid,
+            data: state.concreteView.chapters[chapterIndex].data);
         if (next) {
           newPages.add(optionalLoadedPages);
         } else {

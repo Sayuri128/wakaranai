@@ -1,36 +1,49 @@
 part of 'service_view_cubit.dart';
 
 @immutable
-abstract class ServiceViewState {}
-
-class ServiceViewInitial extends ServiceViewState {
+abstract class ServiceViewState {
   final ApiClient client;
 
-  ServiceViewInitial({
+  const ServiceViewState({
     required this.client,
   });
 }
 
-class ServiceViewLoading extends ServiceViewState {
+class ServiceViewInitial extends ServiceViewState {
+  const ServiceViewInitial({
+    required ApiClient client,
+  }) : super(client: client);
+}
 
+class ServiceViewLoading extends ServiceViewState {
+  const ServiceViewLoading({
+    required ApiClient client,
+  }) : super(client: client);
+}
+
+class ServiceViewError extends ServiceViewState {
+  final String message;
+
+  const ServiceViewError({required this.message, required ApiClient client})
+      : super(client: client);
 }
 
 class ServiceViewInitialized extends ServiceViewState {
   final String searchQuery;
-  final ApiClient client;
   final ConfigInfo configInfo;
   final List<GalleryView> galleryViews;
   final int currentPage;
 
   final Map<String, FilterData> selectedFilters;
 
-  ServiceViewInitialized(
-      {required this.client,
+  const ServiceViewInitialized(
+      {required ApiClient client,
       required this.searchQuery,
       required this.configInfo,
       required this.galleryViews,
       required this.currentPage,
-      required this.selectedFilters});
+      required this.selectedFilters})
+      : super(client: client);
 
   ServiceViewInitialized copyWith({
     String? searchQuery,

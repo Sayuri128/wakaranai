@@ -9,7 +9,7 @@ part of 'protector_storage_item.dart';
 ProtectorStorageItem _$ProtectorStorageItemFromJson(Map json) =>
     ProtectorStorageItem(
       uid: json['uid'] as String,
-      headers: Map<String, String>.from(json['headers'] as Map),
+      headers: Map<String, dynamic>.from(json['headers'] as Map),
     );
 
 Map<String, dynamic> _$ProtectorStorageItemToJson(

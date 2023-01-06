@@ -42,7 +42,8 @@ class HistoryGroupWidget extends StatelessWidget {
                   arguments: ConcreteViewerData(
                       uid: group.concreteView.uid,
                       client: group.client,
-                      galleryView: group.galleryView));
+                      galleryView: group.galleryView,
+                      configInfo: group.configInfo));
             },
             leading: SizedBox(
               height: 64,
@@ -121,14 +122,14 @@ class HistoryGroupWidget extends StatelessWidget {
                       final cachedHeaders = await ProtectorStorageService()
                           .getItem(uid: '${config.name}_${config.version}');
 
-                      final Map<String, String> headers = {};
+                      final Map<String, dynamic> headers = {};
 
                       if (cachedHeaders == null) {
                         final result = await Navigator.of(context).pushNamed(
                             Routes.webBrowser,
                             arguments: config.protectorConfig);
                         if (result != null) {
-                          headers.addAll(result as Map<String, String>);
+                          headers.addAll(result as Map<String, dynamic>);
                         } else {
                           return;
                         }
@@ -136,7 +137,7 @@ class HistoryGroupWidget extends StatelessWidget {
                         headers.addAll(cachedHeaders.headers);
                       }
 
-                      await group.client.passProtector(headers: headers);
+                      await group.client.passProtector(data: headers);
                     }
 
                     Navigator.of(context).pushNamed(Routes.chapterViewer,
@@ -144,7 +145,8 @@ class HistoryGroupWidget extends StatelessWidget {
                             apiClient: group.client,
                             chapter: chapter,
                             galleryView: e.galleryView,
-                            concreteView: e.concreteView));
+                            concreteView: e.concreteView,
+                            configInfo: config));
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
