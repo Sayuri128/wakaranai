@@ -14,44 +14,87 @@ class RemoteConfigPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: const Center(child: Text("Configs")),
-        actions: [
-          IconButton(
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (context) => const ConfigsSourceDialog());
-              },
-              icon: const Icon(
-                Icons.filter_list_rounded,
-                color: AppColors.mainWhite,
-              ))
-        ],
-      ),
-      body: BlocBuilder<RemoteConfigsCubit, RemoteConfigsState>(
-        builder: (context, state) {
-          if (state is RemoteConfigsLoaded) {
-            return Padding(
-              padding:
-                  EdgeInsets.only(top: MediaQuery.of(context).padding.top + 20),
-              child: SingleChildScrollView(child: _buildConfigs(state)),
-            );
-          } else if (state is RemoteConfigsError) {
-            return Center(
-                child: Text(
-              state.message,
-              style: regular(size: 18, color: AppColors.red),
-            ));
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primary,
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          Column(
+            children: [
+              Container(
+                decoration:
+                    BoxDecoration(color: AppColors.backgroundColor, boxShadow: [
+                  BoxShadow(
+                      color: AppColors.mainBlack.withOpacity(0.5),
+                      blurRadius: 8,
+                      spreadRadius: 2)
+                ]),
+                child: Padding(
+                  padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + 12, bottom: 12),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text("Configs", style: medium(size: 24)),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: IconButton(
+                            onPressed: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) =>
+                                      const ConfigsSourceDialog());
+                            },
+                            icon: const Icon(
+                              Icons.filter_list_rounded,
+                              color: AppColors.mainWhite,
+                            )),
+                      )
+                    ],
+                  ),
+                ),
               ),
-            );
-          }
-        },
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: BlocBuilder<RemoteConfigsCubit, RemoteConfigsState>(
+                  builder: (context, state) {
+                    if (state is RemoteConfigsLoaded) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                            top: MediaQuery.of(context).padding.top + 20),
+                        child:
+                            SingleChildScrollView(child: _buildConfigs(state)),
+                      );
+                    }
+                    return const SizedBox();
+                  },
+                ),
+              ),
+            ],
+          ),
+          Align(
+            alignment: Alignment.center,
+            child: BlocBuilder<RemoteConfigsCubit, RemoteConfigsState>(
+              builder: (context, state) {
+                if (state is RemoteConfigsError) {
+                  return Center(
+                      child: Text(
+                    state.message,
+                    style: regular(size: 18, color: AppColors.red),
+                  ));
+                } else if (state is RemoteConfigsLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primary,
+                    ),
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+          )
+        ],
       ),
     );
   }

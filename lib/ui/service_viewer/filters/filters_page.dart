@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
@@ -123,6 +124,19 @@ class _FiltersPageState extends State<FiltersPage>
                       });
                     },
                     child: const Text("Get concrete")),
+                ElevatedButton(
+                    onPressed: () {
+                      context
+                          .read<BrowserInterceptorCubit>()
+                          .loadPage(
+                              url:
+                                  'https://img3.hentailib.org//manga/jin-lin-qi-shi-zhong-wu/chapters/2270101/0a920b94-fc3b-4fa9-93c8-f9cbd4730556_QOKp.png')
+                          .then((value) {
+                        print(value.body);
+                        print(value.data);
+                      });
+                    },
+                    child: const Text("Get image")),
                 const SizedBox(
                   height: 24,
                 )

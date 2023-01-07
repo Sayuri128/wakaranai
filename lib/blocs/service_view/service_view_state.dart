@@ -23,8 +23,10 @@ class ServiceViewLoading extends ServiceViewState {
 
 class ServiceViewError extends ServiceViewState {
   final String message;
+  final void Function() retry;
 
-  const ServiceViewError({required this.message, required ApiClient client})
+  const ServiceViewError(
+      {required this.message, required ApiClient client, required this.retry})
       : super(client: client);
 }
 

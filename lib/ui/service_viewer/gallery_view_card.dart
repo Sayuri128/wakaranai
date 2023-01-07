@@ -12,7 +12,7 @@ class GalleryViewCard extends StatelessWidget {
   final VoidCallback? onTap;
   final GalleryView data;
 
-  static const double height = 300;
+  static const double aspectRatio = 6 / 9;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class GalleryViewCard extends StatelessWidget {
             tag: Heroes.galleryViewToConcreteView(data.uid),
             child: Material(
               child: Ink.image(
-                height: height,
+                height: MediaQuery.of(context).size.width * .5 / aspectRatio,
                 fit: BoxFit.cover,
                 image: CachedNetworkImageProvider(
                   data.cover,
@@ -34,7 +34,7 @@ class GalleryViewCard extends StatelessWidget {
             ),
           ),
           Container(
-            height: height,
+            height: MediaQuery.of(context).size.width * .5 / aspectRatio,
             width: double.maxFinite,
             decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -46,7 +46,7 @@ class GalleryViewCard extends StatelessWidget {
                 ])),
           ),
           SizedBox(
-            height: height,
+            height: MediaQuery.of(context).size.width * .5 / aspectRatio,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Align(
