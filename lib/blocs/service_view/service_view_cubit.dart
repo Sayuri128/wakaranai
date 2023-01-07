@@ -11,41 +11,44 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
   ServiceViewCubit(initialState) : super(initialState);
 
   void init() async {
-    if (state is ServiceViewInitial) {
-      final state = this.state as ServiceViewInitial;
+    emit(ServiceViewLoading(client: state.client));
 
-      emit(ServiceViewLoading(client: state.client));
+    final List<GalleryView>? galleryViews = await _getGalleryViews(
+        page: 1,
+        query: null,
+        filters: null,
+        retry: () {
+          init();
+        });
 
-      final List<GalleryView>? galleryViews =
-          await _getGalleryViews(page: 1, query: null, filters: null);
-
-      if (galleryViews != null) {
-        emit(ServiceViewInitialized(
-            client: state.client,
-            searchQuery: '',
-            configInfo: await state.client.getConfigInfo(),
-            galleryViews: galleryViews,
-            currentPage: 1,
-            selectedFilters: {}));
-      }
+    if (galleryViews != null) {
+      emit(ServiceViewInitialized(
+          client: state.client,
+          searchQuery: '',
+          configInfo: await state.client.getConfigInfo(),
+          galleryViews: galleryViews,
+          currentPage: 1,
+          selectedFilters: {}));
     }
   }
 
   Future<List<GalleryView>?> _getGalleryViews(
       {required int page,
       required String? query,
-      required List<FilterData>? filters}) async {
+      required List<FilterData>? filters,
+      required void Function() retry}) async {
     List<GalleryView>? galleryViews;
 
-    await state.client
-        .getGallery(page: 1, query: query, filters: filters)
-        .catchError((error) {
+    try {
+      await state.client
+          .getGallery(page: 1, query: query, filters: filters)
+          .then((value) {
+        galleryViews = value;
+      });
+    } catch (exception) {
       emit(ServiceViewError(
-          message: error?.toString() ?? '', client: state.client));
-      return <GalleryView>[];
-    }).then((value) {
-      galleryViews = value;
-    });
+          message: exception.toString(), client: state.client, retry: retry));
+    }
 
     return galleryViews;
   }
@@ -63,7 +66,10 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
           page: currentPage += 1,
           filters: state.selectedFilters.values.toList(),
           query:
-              query ?? (state.searchQuery.isEmpty ? null : state.searchQuery));
+              query ?? (state.searchQuery.isEmpty ? null : state.searchQuery),
+          retry: () {
+            getGallery(query: query);
+          });
       if (newGalleryViews == null) {
         return;
       }
@@ -91,7 +97,10 @@ class ServiceViewCubit extends Cubit<ServiceViewState> {
     final newGalleryViews = await _getGalleryViews(
         page: currentPage,
         query: query,
-        filters: state.selectedFilters.values.toList());
+        filters: state.selectedFilters.values.toList(),
+        retry: () {
+          search(query);
+        });
 
     if (newGalleryViews == null) {
       return;

@@ -39,9 +39,9 @@ class _WebBrowserInterceptorWidgetState
       if (context.read<BrowserInterceptorCubit>().state
           is BrowserInterceptorInitial) {
         _webView.then((value) {
-          context
-              .read<BrowserInterceptorCubit>()
-              .init(url: widget.initUrl, webViewController: value);
+          // context
+          //     .read<BrowserInterceptorCubit>()
+          //     .init(url: widget.initUrl, webViewController: value);
         });
       } else {
         widget.initCompleter.complete(true);
@@ -65,7 +65,6 @@ class _WebBrowserInterceptorWidgetState
                   headers: state.headers)));
         } else if (state is BrowserInterceptorInitialized) {
           widget.initCompleter.complete(true);
-          // context.read<ServiceViewCubit>().init();
         }
       },
       child: Scaffold(
@@ -77,13 +76,27 @@ class _WebBrowserInterceptorWidgetState
               onLoadStart: (controller, url) {
                 print("Load start: $url");
               },
+              onLoadError: ((controller, url, code, message) {
+                print("onLoadError: $url $code");
+              }),
+              onLoadHttpError: (controller, url, statusCode, description) {
+                print("onLoadHttpError: $url $statusCode");
+              },
               initialOptions: InAppWebViewGroupOptions(
                   crossPlatform: InAppWebViewOptions(
                     javaScriptEnabled: true,
                     preferredContentMode: UserPreferredContentMode.DESKTOP,
                     allowFileAccessFromFileURLs: true,
                     allowUniversalAccessFromFileURLs: true,
-                    cacheEnabled: true
+                    useShouldOverrideUrlLoading: true,
+                    mediaPlaybackRequiresUserGesture: false,
+                    javaScriptCanOpenWindowsAutomatically: true,
+                    cacheEnabled: true,
+                  ),
+                  android: AndroidInAppWebViewOptions(
+                      useHybridComposition: true, supportMultipleWindows: true),
+                  ios: IOSInAppWebViewOptions(
+                    allowsInlineMediaPlayback: true,
                   )),
               onWebViewCreated: (controller) async {
                 _webViewCompleter.complete(controller);

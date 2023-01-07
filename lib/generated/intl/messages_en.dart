@@ -98,6 +98,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("REST"),
         "right_to_left_read_mode":
             MessageLookupByLibrary.simpleMessage("Right to left"),
+        "service_view_error": MessageLookupByLibrary.simpleMessage("Error :c"),
+        "service_view_open_web_view_button_title":
+            MessageLookupByLibrary.simpleMessage("Open in WebView"),
+        "service_view_retry_button_title":
+            MessageLookupByLibrary.simpleMessage("Retry"),
         "service_viewer_filters_title":
             MessageLookupByLibrary.simpleMessage("Filters"),
         "service_viewer_search_field_hint_text":

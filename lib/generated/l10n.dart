@@ -469,6 +469,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Error :c`
+  String get service_view_error {
+    return Intl.message(
+      'Error :c',
+      name: 'service_view_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get service_view_retry_button_title {
+    return Intl.message(
+      'Retry',
+      name: 'service_view_retry_button_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open in WebView`
+  String get service_view_open_web_view_button_title {
+    return Intl.message(
+      'Open in WebView',
+      name: 'service_view_open_web_view_button_title',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

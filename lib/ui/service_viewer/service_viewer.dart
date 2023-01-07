@@ -146,12 +146,17 @@ class _ServiceViewState extends State<ServiceView> {
           }),
           if (widget.configInfo.protectorConfig?.inAppBrowserInterceptor ??
               false)
-            BlocProvider<BrowserInterceptorCubit>(create: (context) {
-              final cubit = BrowserInterceptorCubit();
-              widget.apiClient
-                  .passWebBrowserInterceptorController(controller: cubit);
-              return cubit;
-            })
+            BlocProvider<BrowserInterceptorCubit>(
+                lazy: false,
+                create: (context) {
+                  final cubit = BrowserInterceptorCubit()
+                    ..init(
+                        url: widget.configInfo.protectorConfig!.pingUrl,
+                        initCompleter: _interceptorInitCompleter);
+                  widget.apiClient
+                      .passWebBrowserInterceptorController(controller: cubit);
+                  return cubit;
+                })
         ],
         child: MultiBlocListener(
           listeners: [
@@ -163,18 +168,7 @@ class _ServiceViewState extends State<ServiceView> {
               },
             ),
           ],
-          child: Stack(
-            children: [
-              // _buildBody(),
-              if (widget.configInfo.protectorConfig?.inAppBrowserInterceptor ??
-                  false)
-                WebBrowserInterceptorWidget(
-                  initUrl: widget.configInfo.protectorConfig!.pingUrl,
-                  initCompleter: _interceptorInitCompleter,
-                ),
-              _buildBody()
-            ],
-          ),
+          child: _buildBody(),
         ),
       ),
     );
@@ -197,6 +191,7 @@ class _ServiceViewState extends State<ServiceView> {
                   ),
           ),
           body: Stack(
+            alignment: Alignment.center,
             children: [
               SmartRefresher(
                   enablePullUp: true,
@@ -249,9 +244,7 @@ class _ServiceViewState extends State<ServiceView> {
                               crossAxisCount: 2,
                               crossAxisSpacing: 8,
                               mainAxisSpacing: 8,
-                              childAspectRatio:
-                                  (MediaQuery.of(context).size.width * .5) /
-                                      GalleryViewCard.height,
+                              childAspectRatio: GalleryViewCard.aspectRatio,
                               children: state.galleryViews
                                   .map((e) => GalleryViewCard(
                                         data: e,
@@ -273,8 +266,46 @@ class _ServiceViewState extends State<ServiceView> {
               else if (state is ServiceViewError)
                 Center(
                   child: Column(
-                    children: const [
-                      Text("Error :c"),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            children: [
+                              IconButton(
+                                onPressed: state.retry,
+                                icon: const Icon(Icons.refresh),
+                                splashRadius: 18,
+                              ),
+                              Text(
+                                S.current.service_view_retry_button_title,
+                                style: regular(
+                                    color: AppColors.mainWhite, size: 14),
+                              )
+                            ],
+                          ),
+                          Text(S.current.service_view_error,
+                              style: regular(
+                                  color: AppColors.mainWhite, size: 18)),
+                          Column(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.webhook),
+                                onPressed: _openWebView,
+                                splashRadius: 18,
+                              ),
+                              Text(
+                                S.current
+                                    .service_view_open_web_view_button_title,
+                                style: regular(
+                                    color: AppColors.mainWhite, size: 14),
+                              )
+                            ],
+                          )
+                        ],
+                      )
                     ],
                   ),
                 )
@@ -310,29 +341,8 @@ class _ServiceViewState extends State<ServiceView> {
                         right: 0,
                         top: 0,
                         child: IconButton(
-                          icon: const Icon(Icons.webhook),
-                          onPressed: () async {
-                            final config =
-                                await widget.apiClient.getConfigInfo();
-                            final uid = '${config.name}_${config.version}';
-                            final result = await Navigator.of(context)
-                                .pushNamed(Routes.webBrowser,
-                                    arguments: WebBrowserData(
-                                        config: config.protectorConfig!,
-                                        protectorStorageItem:
-                                            await ProtectorStorageService()
-                                                .getItem(uid: uid)));
-                            if (result != null) {
-                              await widget.apiClient.passProtector(
-                                  data: result as Map<String, dynamic>);
-                              await ProtectorStorageService().saveItem(
-                                  item: ProtectorStorageItem(
-                                      uid: uid, headers: result));
-                            } else {
-                              return;
-                            }
-                          },
-                        ))
+                            icon: const Icon(Icons.webhook),
+                            onPressed: _openWebView))
                 ],
               ),
             ),
@@ -375,5 +385,23 @@ class _ServiceViewState extends State<ServiceView> {
             uid: e.uid,
             galleryView: e,
             configInfo: widget.configInfo));
+  }
+
+  Future<void> _openWebView() async {
+    final config = await widget.apiClient.getConfigInfo();
+    final uid = '${config.name}_${config.version}';
+    final result = await Navigator.of(context).pushNamed(Routes.webBrowser,
+        arguments: WebBrowserData(
+            config: config.protectorConfig!,
+            protectorStorageItem:
+                await ProtectorStorageService().getItem(uid: uid)));
+    if (result != null) {
+      await widget.apiClient
+          .passProtector(data: result as Map<String, dynamic>);
+      await ProtectorStorageService()
+          .saveItem(item: ProtectorStorageItem(uid: uid, headers: result));
+    } else {
+      return;
+    }
   }
 }
