@@ -1,6 +1,6 @@
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakascript/models/manga/manga_concrete_view/chapter/pages/pages.dart';
-import 'package:wakascript/models/manga/manga_concrete_view/manga_concrete_view.dart';
+import 'package:wakascript/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
 import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
 
 abstract class ChapterViewState {
@@ -14,7 +14,7 @@ class ChapterViewInitialized extends ChapterViewState {
   final List<Pages> pages;
   final Pages currentPages;
 
-  final MangaConcreteView concreteView;
+  final ChaptersGroup group;
   final MangaGalleryView galleryView;
 
   final int currentPage;
@@ -29,7 +29,7 @@ class ChapterViewInitialized extends ChapterViewState {
   const ChapterViewInitialized({
     required this.pages,
     required this.currentPages,
-    required this.concreteView,
+    required this.group,
     required this.galleryView,
     required this.currentPage,
     required this.totalPages,
@@ -42,7 +42,7 @@ class ChapterViewInitialized extends ChapterViewState {
   ChapterViewInitialized copyWith({
     List<Pages>? pages,
     Pages? currentPages,
-    MangaConcreteView? concreteView,
+    ChaptersGroup? group,
     MangaGalleryView? galleryView,
     int? currentPage,
     int? totalPages,
@@ -54,7 +54,7 @@ class ChapterViewInitialized extends ChapterViewState {
     return ChapterViewInitialized(
       pages: pages ?? this.pages,
       currentPages: currentPages ?? this.currentPages,
-      concreteView: concreteView ?? this.concreteView,
+      group: group ?? this.group,
       galleryView: galleryView ?? this.galleryView,
       currentPage: currentPage ?? this.currentPage,
       totalPages: totalPages ?? this.totalPages,

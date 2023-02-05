@@ -9,10 +9,19 @@ class MangaConcreteViewCubit extends Cubit<MangaConcreteViewState> {
   MangaConcreteViewCubit(initialState) : super(initialState);
 
   void getConcrete(String uid, MangaGalleryView galleryView) async {
+    final concrete =
+        await state.apiClient.getConcrete(uid: uid, data: galleryView.data);
     emit(MangaConcreteViewInitialized(
-        concreteView:
-            await state.apiClient.getConcrete(uid: uid, data: galleryView.data),
+        concreteView: concrete,
         galleryView: galleryView,
-        apiClient: state.apiClient));
+        apiClient: state.apiClient,
+        currentGroupIndex: concrete.chapterGroups.isNotEmpty ? 0 : -1));
+  }
+
+  void changeGroup(int index) async {
+    if (state is MangaConcreteViewInitialized) {
+      emit((state as MangaConcreteViewInitialized)
+          .copyWith(currentGroupIndex: index));
+    }
   }
 }
