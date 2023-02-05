@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
-import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
+import 'package:wakaranai/blocs/manga_service_view/manga_service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/main.dart';
-import 'package:wakaranai/ui/service_viewer/filters/switcher.dart';
+import 'package:wakaranai/ui/manga_service_viewer/filters/switcher.dart';
 import 'package:wakaranai/utils/app_colors.dart';
-import 'package:wakascript/logger.dart';
-import 'package:wakascript/models/gallery_view/filters/data/filters/multiple_of_any/multiple_of_any.dart';
-import 'package:wakascript/models/gallery_view/filters/data/filters/multiple_of_multiple/multiple_of_multiple.dart';
-import 'package:wakascript/models/gallery_view/filters/data/filters/one_of_any/one_of_any.dart';
-import 'package:wakascript/models/gallery_view/filters/data/filters/one_of_multiple/one_of_multiple.dart';
-import 'package:wakascript/models/gallery_view/filters/data/filters/switcher/switcher.dart';
-import 'package:wakascript/models/gallery_view/filters/gallery_filter.dart';
-import 'package:wakascript/models/gallery_view/filters/multiple_of_any/multiple_of_any.dart';
-import 'package:wakascript/models/gallery_view/filters/multiple_of_multiple/multiple_of_multiple.dart';
-import 'package:wakascript/models/gallery_view/filters/one_of_any/one_of_any.dart';
-import 'package:wakascript/models/gallery_view/filters/one_of_multiple/one_of_multiple.dart';
-import 'package:wakascript/models/gallery_view/filters/switcher/swircher.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/filters/data/filters/filter_data.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/filters/data/filters/multiple_of_any/multiple_of_any.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/filters/data/filters/multiple_of_multiple/multiple_of_multiple.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/filters/data/filters/one_of_any/one_of_any.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/filters/data/filters/one_of_multiple/one_of_multiple.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/filters/data/filters/switcher/switcher.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/filters/gallery_filter.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/filters/multiple_of_any/multiple_of_any.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/filters/multiple_of_multiple/multiple_of_multiple.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/filters/one_of_any/one_of_any.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/filters/one_of_multiple/one_of_multiple.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/filters/switcher/swircher.dart';
 
 import '../../../utils/text_styles.dart';
 import 'multiple_of_any.dart';
@@ -26,9 +24,12 @@ import 'one_of_any.dart';
 import 'one_of_multiple.dart';
 
 class FiltersPage extends StatefulWidget {
-  const FiltersPage({Key? key, required this.state}) : super(key: key);
+  const FiltersPage(
+      {Key? key, required this.filters, required this.selectedFilters})
+      : super(key: key);
 
-  final ServiceViewInitialized state;
+  final Map<String, FilterData> selectedFilters;
+  final List<GalleryFilter> filters;
 
   @override
   State<FiltersPage> createState() => _FiltersPageState();
@@ -101,48 +102,8 @@ class _FiltersPageState extends State<FiltersPage>
               const SizedBox(
                 height: 24,
               ),
-              if (debug) ...[
-                const SizedBox(
-                  height: 24,
-                ),
-                ElevatedButton(
-                    onPressed: () {
-                      widget.state.client.getGallery(page: 1).then((value) {
-                        logger.d(value);
-                      });
-                    },
-                    child: const Text("Get gallery")),
-                ElevatedButton(
-                    onPressed: () {
-                      widget.state.client.getGallery(page: 1).then((value) {
-                        widget.state.client
-                            .getConcrete(
-                                uid: value.first.uid, data: value.first.data)
-                            .then((value) {
-                          logger.d(value);
-                        });
-                      });
-                    },
-                    child: const Text("Get concrete")),
-                ElevatedButton(
-                    onPressed: () {
-                      context
-                          .read<BrowserInterceptorCubit>()
-                          .loadPage(
-                              url:
-                                  'https://img3.hentailib.org//manga/jin-lin-qi-shi-zhong-wu/chapters/2270101/0a920b94-fc3b-4fa9-93c8-f9cbd4730556_QOKp.png')
-                          .then((value) {
-                        print(value.body);
-                        print(value.data);
-                      });
-                    },
-                    child: const Text("Get image")),
-                const SizedBox(
-                  height: 24,
-                )
-              ],
-              ...widget.state.configInfo.filters.map((e) {
-                return _buildFilter(e, widget.state, context);
+              ...widget.filters.map((e) {
+                return _buildFilter(e, context);
               }).toList(),
               const SizedBox(
                 height: 96,
@@ -154,7 +115,7 @@ class _FiltersPageState extends State<FiltersPage>
             alignment: Alignment.bottomRight,
             child: InkWell(
               onTap: () {
-                context.read<ServiceViewCubit>().search(null);
+                context.read<MangaServiceViewCubit>().search(null);
                 Scaffold.of(context).closeEndDrawer();
               },
               child: Container(
@@ -179,22 +140,21 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  RenderObjectWidget _buildFilter(
-      GalleryFilter e, ServiceViewInitialized state, BuildContext context) {
+  RenderObjectWidget _buildFilter(GalleryFilter e, BuildContext context) {
     if (e is GalleryFilterMultipleOfAny) {
       return Column(
         children: [
           MultipleOfAnyWidget(
             parameterName: e.paramName,
-            initSelectedItems: state.selectedFilters.containsKey(e.param)
-                ? (state.selectedFilters[e.param] as FilterDataMultipleOfAny)
+            initSelectedItems: widget.selectedFilters.containsKey(e.param)
+                ? (widget.selectedFilters[e.param] as FilterDataMultipleOfAny)
                     .selected
                 : [],
             onChanged: (List<String> selectedItems) {
               if (selectedItems.isEmpty) {
-                context.read<ServiceViewCubit>().removeFilter(e.param);
+                context.read<MangaServiceViewCubit>().removeFilter(e.param);
               } else {
-                context.read<ServiceViewCubit>().onFilterChanged(
+                context.read<MangaServiceViewCubit>().onFilterChanged(
                     e.param,
                     FilterDataMultipleOfAny(
                         selected: selectedItems, filter: e));
@@ -212,15 +172,15 @@ class _FiltersPageState extends State<FiltersPage>
             items: e.values,
             onChanged: (item) {
               if (item == null) {
-                context.read<ServiceViewCubit>().removeFilter(e.param);
+                context.read<MangaServiceViewCubit>().removeFilter(e.param);
               } else {
-                context.read<ServiceViewCubit>().onFilterChanged(e.param,
+                context.read<MangaServiceViewCubit>().onFilterChanged(e.param,
                     FilterDataOneOfMultiple(selected: item, filter: e));
               }
             },
-            defaultSelected: state.selectedFilters.containsKey(e.param)
+            defaultSelected: widget.selectedFilters.containsKey(e.param)
                 ? e.values.indexOf(
-                    (state.selectedFilters[e.param] as FilterDataOneOfMultiple)
+                    (widget.selectedFilters[e.param] as FilterDataOneOfMultiple)
                         .selected)
                 : -1,
           ),
@@ -233,16 +193,16 @@ class _FiltersPageState extends State<FiltersPage>
           MultipleOfMultipleWidget(
               paramName: e.paramName,
               items: e.values,
-              selected: state.selectedFilters.containsKey(e.param)
-                  ? (state.selectedFilters[e.param]
+              selected: widget.selectedFilters.containsKey(e.param)
+                  ? (widget.selectedFilters[e.param]
                           as FilterDataMultipleOfMultiple)
                       .selected
                   : [],
               onChanged: (selected) {
                 if (selected.isEmpty) {
-                  context.read<ServiceViewCubit>().removeFilter(e.param);
+                  context.read<MangaServiceViewCubit>().removeFilter(e.param);
                 } else {
-                  context.read<ServiceViewCubit>().onFilterChanged(
+                  context.read<MangaServiceViewCubit>().onFilterChanged(
                       e.param,
                       FilterDataMultipleOfMultiple(
                           selected: selected, filter: e));
@@ -255,15 +215,15 @@ class _FiltersPageState extends State<FiltersPage>
       return Column(
         children: [
           OneOfAnyWidget(
-            selected: state.selectedFilters.containsKey(e.param)
-                ? (state.selectedFilters[e.param] as FilterDataOneOfAny)
+            selected: widget.selectedFilters.containsKey(e.param)
+                ? (widget.selectedFilters[e.param] as FilterDataOneOfAny)
                     .selected
                 : null,
             onChanged: (selected) {
               if (selected == null) {
-                context.read<ServiceViewCubit>().removeFilter(e.param);
+                context.read<MangaServiceViewCubit>().removeFilter(e.param);
               } else {
-                context.read<ServiceViewCubit>().onFilterChanged(
+                context.read<MangaServiceViewCubit>().onFilterChanged(
                     e.param, FilterDataOneOfAny(selected: selected, filter: e));
               }
             },
@@ -276,12 +236,12 @@ class _FiltersPageState extends State<FiltersPage>
       return Column(
         children: [
           SwitcherWidget(
-              on: state.selectedFilters.containsKey(e.param)
-                  ? (state.selectedFilters[e.param] as FilterDataSwitcher).on
+              on: widget.selectedFilters.containsKey(e.param)
+                  ? (widget.selectedFilters[e.param] as FilterDataSwitcher).on
                   : false,
               paramName: e.paramName,
               onChanged: (on) {
-                context.read<ServiceViewCubit>().onFilterChanged(
+                context.read<MangaServiceViewCubit>().onFilterChanged(
                     e.param, FilterDataSwitcher(on: on, filter: e));
               },
               onValue: e.onValue,

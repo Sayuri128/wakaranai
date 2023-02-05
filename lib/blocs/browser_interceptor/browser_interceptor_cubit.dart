@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:meta/meta.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakascript/inbuilt_libs/http/http_interceptor_controller.dart';
 import 'package:wakascript/logger.dart';
@@ -127,6 +126,8 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
     await Future.delayed(const Duration(milliseconds: 150));
     final res =
         await _inAppWebViewController.callAsyncJavaScript(functionBody: code);
+
+    logger.d(res);
 
     if (res == null || res.error != null || res.value == null) {
       return await executeJsScript(code);

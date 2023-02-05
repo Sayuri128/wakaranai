@@ -37,6 +37,22 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
         children: [
           InAppWebView(
             key: _webViewKey,
+            initialOptions: InAppWebViewGroupOptions(
+                crossPlatform: InAppWebViewOptions(
+                  javaScriptEnabled: true,
+                  preferredContentMode: UserPreferredContentMode.DESKTOP,
+                  allowFileAccessFromFileURLs: true,
+                  allowUniversalAccessFromFileURLs: true,
+                  useShouldOverrideUrlLoading: true,
+                  mediaPlaybackRequiresUserGesture: false,
+                  javaScriptCanOpenWindowsAutomatically: true,
+                  cacheEnabled: true,
+                ),
+                android: AndroidInAppWebViewOptions(
+                    useHybridComposition: true, supportMultipleWindows: true),
+                ios: IOSInAppWebViewOptions(
+                  allowsInlineMediaPlayback: true,
+                )),
             initialUrlRequest:
                 URLRequest(url: Uri.parse(widget.data.config.pingUrl)),
             onWebViewCreated: (controller) async {

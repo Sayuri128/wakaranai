@@ -1,7 +1,7 @@
-import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
-import 'package:wakascript/models/concrete_view/chapter/pages/pages.dart';
-import 'package:wakascript/models/concrete_view/concrete_view.dart';
-import 'package:wakascript/models/gallery_view/gallery_view.dart';
+import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
+import 'package:wakascript/models/manga/manga_concrete_view/chapter/pages/pages.dart';
+import 'package:wakascript/models/manga/manga_concrete_view/manga_concrete_view.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
 
 abstract class ChapterViewState {
   const ChapterViewState();
@@ -14,8 +14,8 @@ class ChapterViewInitialized extends ChapterViewState {
   final List<Pages> pages;
   final Pages currentPages;
 
-  final ConcreteView concreteView;
-  final GalleryView galleryView;
+  final MangaConcreteView concreteView;
+  final MangaGalleryView galleryView;
 
   final int currentPage;
   final int totalPages;
@@ -42,8 +42,8 @@ class ChapterViewInitialized extends ChapterViewState {
   ChapterViewInitialized copyWith({
     List<Pages>? pages,
     Pages? currentPages,
-    ConcreteView? concreteView,
-    GalleryView? galleryView,
+    MangaConcreteView? concreteView,
+    MangaGalleryView? galleryView,
     int? currentPage,
     int? totalPages,
     ChapterViewMode? mode,

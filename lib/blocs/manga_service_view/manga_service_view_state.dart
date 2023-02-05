@@ -1,45 +1,45 @@
-part of 'service_view_cubit.dart';
+part of 'manga_service_view_cubit.dart';
 
 @immutable
-abstract class ServiceViewState {
-  final ApiClient client;
+abstract class MangaServiceViewState {
+  final MangaApiClient client;
 
-  const ServiceViewState({
+  const MangaServiceViewState({
     required this.client,
   });
 }
 
-class ServiceViewInitial extends ServiceViewState {
-  const ServiceViewInitial({
-    required ApiClient client,
+class MangaServiceViewInitial extends MangaServiceViewState {
+  const MangaServiceViewInitial({
+    required MangaApiClient client,
   }) : super(client: client);
 }
 
-class ServiceViewLoading extends ServiceViewState {
-  const ServiceViewLoading({
-    required ApiClient client,
+class MangaServiceViewLoading extends MangaServiceViewState {
+  const MangaServiceViewLoading({
+    required MangaApiClient client,
   }) : super(client: client);
 }
 
-class ServiceViewError extends ServiceViewState {
+class MangaServiceViewError extends MangaServiceViewState {
   final String message;
   final void Function() retry;
 
-  const ServiceViewError(
-      {required this.message, required ApiClient client, required this.retry})
+  const MangaServiceViewError(
+      {required this.message, required MangaApiClient client, required this.retry})
       : super(client: client);
 }
 
-class ServiceViewInitialized extends ServiceViewState {
+class MangaServiceViewInitialized extends MangaServiceViewState {
   final String searchQuery;
   final ConfigInfo configInfo;
-  final List<GalleryView> galleryViews;
+  final List<MangaGalleryView> galleryViews;
   final int currentPage;
 
   final Map<String, FilterData> selectedFilters;
 
-  const ServiceViewInitialized(
-      {required ApiClient client,
+  const MangaServiceViewInitialized(
+      {required MangaApiClient client,
       required this.searchQuery,
       required this.configInfo,
       required this.galleryViews,
@@ -47,15 +47,15 @@ class ServiceViewInitialized extends ServiceViewState {
       required this.selectedFilters})
       : super(client: client);
 
-  ServiceViewInitialized copyWith({
+  MangaServiceViewInitialized copyWith({
     String? searchQuery,
-    ApiClient? client,
+    MangaApiClient? client,
     ConfigInfo? configInfo,
-    List<GalleryView>? galleryViews,
+    List<MangaGalleryView>? galleryViews,
     int? currentPage,
     Map<String, FilterData>? selectedFilters,
   }) {
-    return ServiceViewInitialized(
+    return MangaServiceViewInitialized(
       searchQuery: searchQuery ?? this.searchQuery,
       client: client ?? this.client,
       configInfo: configInfo ?? this.configInfo,

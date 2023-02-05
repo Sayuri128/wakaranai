@@ -104,7 +104,10 @@ class ConfigsSourceDialog extends StatelessWidget {
                             builder: (context) =>
                                 const AddConfigsSourceDialog());
                       },
-                      child: Text(S.current.add_new_configs_source_button)),
+                      child: Text(
+                        S.current.add_new_configs_source_button,
+                        style: medium(color: AppColors.mainWhite),
+                      )),
                 ),
               ],
             ),

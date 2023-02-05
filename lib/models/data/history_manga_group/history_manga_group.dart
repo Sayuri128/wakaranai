@@ -1,14 +1,14 @@
 import 'package:wakaranai/models/data/history_manga_item/history_manga_item.dart';
-import 'package:wakascript/api_controller.dart';
-import 'package:wakascript/models/concrete_view/concrete_view.dart';
+import 'package:wakascript/api_clients/manga_api_client.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
-import 'package:wakascript/models/gallery_view/gallery_view.dart';
+import 'package:wakascript/models/manga/manga_concrete_view/manga_concrete_view.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
 
 class HistoryMangaGroup {
-  final ApiClient client;
+  final MangaApiClient client;
   final ConfigInfo configInfo;
-  final ConcreteView concreteView;
-  final GalleryView galleryView;
+  final MangaConcreteView concreteView;
+  final MangaGalleryView galleryView;
 
   final List<HistoryMangaItem> mangaItems;
 
@@ -21,10 +21,10 @@ class HistoryMangaGroup {
   });
 
   HistoryMangaGroup copyWith({
-    ApiClient? client,
+    MangaApiClient? client,
     ConfigInfo? configInfo,
-    ConcreteView? concreteView,
-    GalleryView? galleryView,
+    MangaConcreteView? concreteView,
+    MangaGalleryView? galleryView,
     List<HistoryMangaItem>? mangaItems,
   }) {
     return HistoryMangaGroup(

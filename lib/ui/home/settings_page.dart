@@ -6,7 +6,7 @@ import 'package:wakaranai/blocs/history/history_cubit.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
-import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
+import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
