@@ -97,48 +97,54 @@ class SettingsPage extends StatelessWidget {
                 ),
                 BlocBuilder<ConfigsSourcesCubit, ConfigsSourcesState>(
                   builder: (context, configsState) {
-                    return SizedBox(
-                      width: double.maxFinite,
-                      child: DropdownButtonFormField<int?>(
-                          value: state.defaultConfigsSourceId,
-                          // borderRadius: BorderRadius.circular(16.0),
-                          style: medium(),
-                          icon: const Icon(Icons.arrow_drop_down_rounded),
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.transparent)),
-                              focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.transparent)),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.transparent))),
-                          items: configsState is ConfigsSourcesInitialized
-                              ? [
-                                  _defaultConfigsSourceDropdownMenuItem,
-                                  ...configsState.sources
-                                      .map((e) => DropdownMenuItem(
-                                            value: e.id,
-                                            alignment: Alignment.center,
-                                            child: Text(e.name,
-                                                textAlign: TextAlign.center,
-                                                style: medium()),
-                                          ))
-                                      .toList()
-                                ]
-                              : [_defaultConfigsSourceDropdownMenuItem],
-                          onChanged: (mode) {
-                            if (mode != null) {
-                              context
-                                  .read<SettingsCubit>()
-                                  .onChangedDefaultSourceId(mode);
-                            }
-                          }),
-                    );
+                    if (configsState is ConfigsSourcesInitialized) {
+                      return SizedBox(
+                        width: double.maxFinite,
+                        child: DropdownButtonFormField<int?>(
+                            value: configsState.sources
+                                    .where((e) =>
+                                        e.id == state.defaultConfigsSourceId)
+                                    .isNotEmpty
+                                ? state.defaultConfigsSourceId
+                                : null,
+                            borderRadius: BorderRadius.circular(16.0),
+                            style: medium(),
+                            icon: const Icon(Icons.arrow_drop_down_rounded),
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.transparent)),
+                                focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.transparent)),
+                                enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.transparent))),
+                            items: [
+                              _defaultConfigsSourceDropdownMenuItem,
+                              ...configsState.sources
+                                  .map((e) => DropdownMenuItem(
+                                        value: e.id,
+                                        alignment: Alignment.center,
+                                        child: Text(e.name,
+                                            textAlign: TextAlign.center,
+                                            style: medium()),
+                                      ))
+                                  .toList()
+                            ],
+                            onChanged: (mode) {
+                              if (mode != null) {
+                                context
+                                    .read<SettingsCubit>()
+                                    .onChangedDefaultSourceId(mode);
+                              }
+                            }),
+                      );
+                    }
+                    return const SizedBox();
                   },
                 ),
                 const Divider(
@@ -162,8 +168,7 @@ class SettingsPage extends StatelessWidget {
                         ProtectorStorageService().clear().then((_) {
                           showOkAlertDialog(
                               context: context,
-                              title: S.current
-                                  .clear_cookies_dialog_success);
+                              title: S.current.clear_cookies_dialog_success);
                         });
                       }
                     });

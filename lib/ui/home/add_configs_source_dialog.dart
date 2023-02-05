@@ -111,7 +111,10 @@ class _AddConfigsSourceDialogState extends State<AddConfigsSourceDialog> {
                           Navigator.of(context).pop();
                         }
                       },
-                      child: Text(S.current.create_new_configs_source_button)),
+                      child: Text(
+                        S.current.create_new_configs_source_button,
+                        style: regular(color: AppColors.mainWhite),
+                      )),
                 ),
               ],
             )
