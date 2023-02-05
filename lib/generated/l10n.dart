@@ -1,7 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import 'intl/messages_all.dart';
 
 // **************************************************************************
@@ -221,10 +220,10 @@ class S {
     );
   }
 
-  /// `Click once the page is loaded`
+  /// `Done`
   String get web_browser_no_login_button {
     return Intl.message(
-      'Click once the page is loaded',
+      'Done',
       name: 'web_browser_no_login_button',
       desc: '',
       args: [],

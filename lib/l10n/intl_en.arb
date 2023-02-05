@@ -16,7 +16,7 @@
   "navigation_bar_settings_title": "Settings",
   "history_page_title": "History",
   "history_last_visit": "Last visit: {date}",
-  "web_browser_no_login_button": "Click once the page is loaded",
+  "web_browser_no_login_button": "Done",
   "official_github_configs_source_repository": "Wakaranai GitHub",
   "github_configs_source_type": "GitHub",
   "rest_configs_source_type": "REST",
