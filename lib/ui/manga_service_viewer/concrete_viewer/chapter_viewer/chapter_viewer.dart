@@ -23,7 +23,6 @@ import 'package:wakascript/models/manga/manga_concrete_view/chapter/chapter.dart
 import 'package:wakascript/models/manga/manga_concrete_view/manga_concrete_view.dart';
 import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
 
-import '../../../../blocs/history/history_cubit.dart';
 
 class ChapterViewerData {
   final MangaApiClient apiClient;
@@ -89,8 +88,7 @@ class _ChapterViewerState extends State<ChapterViewer>
             apiClient: widget.data.apiClient,
             settingsCubit: context.read<SettingsCubit>(),
             pageController: _pageController,
-            itemScrollController: _itemScrollController,
-            historyCubit: context.read<HistoryCubit>())
+            itemScrollController: _itemScrollController)
           ..init(widget.data),
         child: _buildPage(),
       ),

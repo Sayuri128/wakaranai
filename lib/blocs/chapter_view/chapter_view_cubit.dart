@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_state.dart';
-import 'package:wakaranai/blocs/history/history_cubit.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
@@ -13,13 +12,11 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
   ChapterViewCubit(
       {required this.apiClient,
       required this.settingsCubit,
-      required this.historyCubit,
       required this.pageController,
       required this.itemScrollController})
       : super(ChapterViewInit());
 
   final SettingsCubit settingsCubit;
-  final HistoryCubit historyCubit;
 
   final MangaApiClient apiClient;
 
@@ -37,12 +34,6 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     final canGetPreviousPages = (chapterIndex - 1) >= 0;
     final canGetNextPages =
         (chapterIndex + 1) < data.concreteView.chapters.length;
-
-    historyCubit.addMangaToHistory(
-        serviceSourceCode: apiClient.parser.code,
-        concreteView: data.concreteView,
-        galleryView: data.galleryView,
-        chapterUid: pagesS[0].chapterUid);
 
     emit(ChapterViewInitialized(
         pages: pagesS,
@@ -94,12 +85,6 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         pageController
             .jumpToPage(next ? 0 : optionalLoadedPages.value.length - 1);
       }
-
-      historyCubit.addMangaToHistory(
-          serviceSourceCode: apiClient.parser.code,
-          concreteView: state.concreteView,
-          galleryView: state.galleryView,
-          chapterUid: optionalLoadedPages.chapterUid);
 
       emit(state.copyWith(
           canGetNextPages: canGetNextPages,
