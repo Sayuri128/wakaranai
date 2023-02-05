@@ -82,27 +82,8 @@ class AnimeConcreteViewer extends StatelessWidget {
                             color: AppColors.primary,
                           ),
                           const SizedBox(height: 16.0),
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            children: state.concreteView.videoGroups.map((e) {
-                              final elementVideoGroupIndex =
-                                  state.concreteView.videoGroups.indexOf(e);
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                                child: AnimePlayerButton(
-                                  title: e.title,
-                                  onClick: () {
-                                    context
-                                        .read<AnimeConcreteViewCubit>()
-                                        .changeGroup(elementVideoGroupIndex);
-                                  },
-                                  selected: currentGroupIndex ==
-                                      elementVideoGroupIndex,
-                                ),
-                              );
-                            }).toList(),
-                          ),
+                          _buildPlayerButtons(
+                              state, context, currentGroupIndex),
                         ] else ...[
                           const SizedBox(
                             height: 32,
@@ -149,6 +130,29 @@ class AnimeConcreteViewer extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+
+  Wrap _buildPlayerButtons(AnimeConcreteViewInitialized state,
+      BuildContext context, int currentGroupIndex) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      children: state.concreteView.videoGroups.map((e) {
+        final elementVideoGroupIndex =
+            state.concreteView.videoGroups.indexOf(e);
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          child: AnimePlayerButton(
+            title: e.title,
+            onClick: () {
+              context
+                  .read<AnimeConcreteViewCubit>()
+                  .changeGroup(elementVideoGroupIndex);
+            },
+            selected: currentGroupIndex == elementVideoGroupIndex,
+          ),
+        );
+      }).toList(),
     );
   }
 

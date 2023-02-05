@@ -4,6 +4,7 @@ import 'package:wakaranai/repositories/configs_repository/local/local_configs_re
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 import 'package:wakascript/api_clients/anime_api_client.dart';
 import 'package:wakascript/api_clients/manga_api_client.dart';
+import 'package:wakascript/logger.dart';
 
 class RepoConfigsService implements ConfigsService {
   late final LocalConfigsRepository _localRepository;
@@ -20,7 +21,10 @@ class RepoConfigsService implements ConfigsService {
         .where((e) => e.category == 'manga')
         .first
         .scripts
-        .map((e) async => MangaApiClient(code: e)));
+        .map((e) async {
+      logger.d(e);
+      return MangaApiClient(code: e);
+    }));
   }
 
   @override

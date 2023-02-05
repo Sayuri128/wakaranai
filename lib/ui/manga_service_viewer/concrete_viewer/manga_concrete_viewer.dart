@@ -2,16 +2,16 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:wakaranai/blocs/chapter_storage/chapter_storage_cubit.dart';
 import 'package:wakaranai/blocs/manga_concrete_view/manga_concrete_view_cubit.dart';
 import 'package:wakaranai/heroes.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
-import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/downloaded_chapter_dialog.dart';
+import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/manga_provider_button.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_clients/manga_api_client.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
 import 'package:wakascript/models/manga/manga_concrete_view/chapter/chapter.dart';
+import 'package:wakascript/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
 import 'package:wakascript/models/manga/manga_concrete_view/manga_concrete_view.dart';
 import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
 
@@ -42,9 +42,9 @@ class MangaConcreteViewer extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MangaConcreteViewCubit>(
-          create: (context) =>
-              MangaConcreteViewCubit(MangaConcreteViewState(apiClient: data.client))
-                ..getConcrete(data.uid, data.galleryView),
+          create: (context) => MangaConcreteViewCubit(
+              MangaConcreteViewState(apiClient: data.client))
+            ..getConcrete(data.uid, data.galleryView),
         ),
       ],
       child: Scaffold(
@@ -54,13 +54,18 @@ class MangaConcreteViewer extends StatelessWidget {
           builder: (context, state) {
             late final MangaConcreteView concreteView;
 
+            int currentGroupsIndex = -1;
             if (state is MangaConcreteViewInitialized) {
               concreteView = state.concreteView;
+              currentGroupsIndex = state.currentGroupIndex;
             }
             return ListView.builder(
               itemCount: 1 +
                   ((state is MangaConcreteViewInitialized)
-                      ? concreteView.chapters.length
+                      ? state.currentGroupIndex != -1
+                          ? concreteView.chapterGroups[state.currentGroupIndex]
+                              .chapters.length
+                          : 0
                       : 0),
               itemBuilder: (context, index) {
                 if (index == 0) {
@@ -82,6 +87,9 @@ class MangaConcreteViewer extends StatelessWidget {
                             thickness: 1,
                             color: AppColors.primary,
                           ),
+                          const SizedBox(height: 16.0),
+                          _buildMangaProviderButtons(
+                              state, context, currentGroupsIndex)
                         ] else ...[
                           const SizedBox(
                             height: 32,
@@ -97,9 +105,10 @@ class MangaConcreteViewer extends StatelessWidget {
                 } else {
                   return _buildChapter(
                       context,
-                      concreteView.chapters[index - 1],
+                      concreteView.chapterGroups[currentGroupsIndex]
+                          .chapters[index - 1],
                       data.galleryView,
-                      concreteView,
+                      concreteView.chapterGroups[currentGroupsIndex],
                       data.configInfo);
                 }
               },
@@ -110,89 +119,44 @@ class MangaConcreteViewer extends StatelessWidget {
     );
   }
 
-  Widget _buildChapter(BuildContext context, Chapter e, MangaGalleryView galleryView,
-      MangaConcreteView concreteView, ConfigInfo configInfo) {
-    return BlocProvider<ChapterStorageCubit>(
-      create: (context) =>
-          ChapterStorageCubit(uid: data.uid, client: data.client)..init(e),
-      child: BlocBuilder<ChapterStorageCubit, ChapterStorageState>(
-        builder: (context, storage) {
-          return ListTile(
-            onTap: () {
-              Navigator.of(context).pushNamed(Routes.chapterViewer,
-                  arguments: ChapterViewerData(
-                      apiClient: data.client,
-                      chapter: e,
-                      concreteView: concreteView,
-                      galleryView: galleryView,
-                      configInfo: configInfo));
-            },
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(e.title),
-                if (e.timestamp != null) ...[
-                  const SizedBox(height: 8.0),
-                  Text(
-                    int.tryParse(e.timestamp ?? '') != null
-                        ? DateFormat(chapterDateFormat).format(
-                            DateTime.fromMillisecondsSinceEpoch(
-                                int.tryParse(e.timestamp!)!))
-                        : e.timestamp ?? '',
-                    style: regular(color: AppColors.mainGrey, size: 12),
-                  )
-                ]
-              ],
-            ),
-            trailing: storage is ChapterStorageInitialized
-                ? storage.item != null
-                    ? InkWell(
-                        borderRadius: BorderRadius.circular(8),
-                        onTap: () {
-                          showDialog(
-                                  context: context,
-                                  builder: (context) =>
-                                      DownloadedChapterDialog(chapter: e))
-                              .then((res) {
-                            if (res != null) {
-                              switch (res as DownloadedChapterDialogResult) {
-                                case DownloadedChapterDialogResult
-                                    .DOWNLOAD_AGAIN:
-                                  context
-                                      .read<ChapterStorageCubit>()
-                                      .downloadChapter(e);
-                                  break;
-                                case DownloadedChapterDialogResult.DELETE:
-                                  context.read<ChapterStorageCubit>().delete(e);
-                                  break;
-                              }
-                            }
-                          });
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.check),
-                        ))
-                    : InkWell(
-                        borderRadius: BorderRadius.circular(8),
-                        onTap: () {
-                          context
-                              .read<ChapterStorageCubit>()
-                              .downloadChapter(e);
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.download),
-                        ))
-                : storage is ChapterStorageInitializing
-                    ? const CircularProgressIndicator(
-                        color: AppColors.primary,
-                      )
-                    : null,
-          );
-        },
+  Widget _buildChapter(
+      BuildContext context,
+      Chapter e,
+      MangaGalleryView galleryView,
+      ChaptersGroup group,
+      ConfigInfo configInfo) {
+    return ListTile(
+      onTap: () {
+        Navigator.of(context).pushNamed(Routes.chapterViewer,
+            arguments: ChapterViewerData(
+                apiClient: data.client,
+                chapter: e,
+                group: group,
+                galleryView: galleryView,
+                configInfo: configInfo));
+      },
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(e.title, style: medium(size: 18)),
+          if (e.timestamp != null && formatTimestamp(e).isNotEmpty) ...[
+            const SizedBox(height: 8.0),
+            Text(
+              formatTimestamp(e),
+              style: regular(color: AppColors.mainGrey, size: 12),
+            )
+          ]
+        ],
       ),
     );
+  }
+
+  String formatTimestamp(Chapter e) {
+    return int.tryParse(e.timestamp ?? '') != null
+        ? DateFormat(chapterDateFormat).format(
+            DateTime.fromMillisecondsSinceEpoch(int.tryParse(e.timestamp!)!))
+        : e.timestamp ?? '';
   }
 
   Widget _buildPrettyTitle(MangaConcreteView concreteView) {
@@ -203,6 +167,29 @@ class MangaConcreteViewer extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Text(concreteView.title.pretty,
           textAlign: TextAlign.center, style: semibold(size: 18)),
+    );
+  }
+
+  Wrap _buildMangaProviderButtons(MangaConcreteViewInitialized state,
+      BuildContext context, int currentGroupIndex) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      children: state.concreteView.chapterGroups.map((e) {
+        final elementVideoGroupIndex =
+            state.concreteView.chapterGroups.indexOf(e);
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          child: MangaProviderButton(
+            title: e.title,
+            onClick: () {
+              context
+                  .read<MangaConcreteViewCubit>()
+                  .changeGroup(elementVideoGroupIndex);
+            },
+            selected: currentGroupIndex == elementVideoGroupIndex,
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -272,7 +259,8 @@ class MangaConcreteViewer extends StatelessWidget {
     );
   }
 
-  Widget _buildDescription(BuildContext context, MangaConcreteView concreteView) {
+  Widget _buildDescription(
+      BuildContext context, MangaConcreteView concreteView) {
     if (concreteView.description.isEmpty) {
       return const SizedBox();
     }

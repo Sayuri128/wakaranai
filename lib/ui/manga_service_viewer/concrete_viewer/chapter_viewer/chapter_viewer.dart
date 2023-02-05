@@ -20,21 +20,21 @@ import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_clients/manga_api_client.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
 import 'package:wakascript/models/manga/manga_concrete_view/chapter/chapter.dart';
-import 'package:wakascript/models/manga/manga_concrete_view/manga_concrete_view.dart';
+import 'package:wakascript/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
 import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
 
 
 class ChapterViewerData {
   final MangaApiClient apiClient;
   final ConfigInfo configInfo;
-  final MangaConcreteView concreteView;
+  final ChaptersGroup group;
   final MangaGalleryView galleryView;
   final Chapter chapter;
 
   const ChapterViewerData({
     required this.apiClient,
     required this.configInfo,
-    required this.concreteView,
+    required this.group,
     required this.galleryView,
     required this.chapter,
   });
