@@ -28,12 +28,12 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       await apiClient.getPages(uid: data.chapter.uid, data: data.chapter.data)
     ];
 
-    var chapterIndex = data.concreteView.chapters
+    var chapterIndex = data.group.chapters
         .indexWhere((element) => element.uid == pagesS.last.chapterUid);
 
     final canGetPreviousPages = (chapterIndex - 1) >= 0;
     final canGetNextPages =
-        (chapterIndex + 1) < data.concreteView.chapters.length;
+        (chapterIndex + 1) < data.group.chapters.length;
 
     emit(ChapterViewInitialized(
         pages: pagesS,
@@ -44,7 +44,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         mode: settingsCubit.state is SettingsInitialized
             ? (settingsCubit.state as SettingsInitialized).defaultMode
             : ChapterViewMode.RIGHT_TO_LEFT,
-        concreteView: data.concreteView,
+        group: data.group,
         galleryView: data.galleryView,
         canGetPreviousPages: canGetPreviousPages,
         canGetNextPages: canGetNextPages));
@@ -54,22 +54,22 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     if (state is ChapterViewInitialized) {
       final state = this.state as ChapterViewInitialized;
 
-      var chapterIndex = state.concreteView.chapters.indexWhere(
+      var chapterIndex = state.group.chapters.indexWhere(
               (element) => element.uid == state.currentPages.chapterUid) +
           (next ? 1 : -1);
 
       final canGetPreviousPages = chapterIndex > 0;
-      final canGetNextPages = chapterIndex < state.concreteView.chapters.length;
+      final canGetNextPages = chapterIndex < state.group.chapters.length;
 
       var optionalLoadedPages = state.pages.firstWhereOrNull((element) =>
-          element.chapterUid == state.concreteView.chapters[chapterIndex].uid);
+          element.chapterUid == state.group.chapters[chapterIndex].uid);
 
       final newPages = [...state.pages];
 
       if (optionalLoadedPages == null) {
         optionalLoadedPages = await apiClient.getPages(
-            uid: state.concreteView.chapters[chapterIndex].uid,
-            data: state.concreteView.chapters[chapterIndex].data);
+            uid: state.group.chapters[chapterIndex].uid,
+            data: state.group.chapters[chapterIndex].data);
         if (next) {
           newPages.add(optionalLoadedPages);
         } else {
