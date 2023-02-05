@@ -4,7 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:wakaranai/models/data/local_config.dart';
 import 'package:wakaranai/utils/globals.dart';
-import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/api_clients/manga_api_client.dart';
 
 part 'local_configs_state.dart';
 
@@ -29,7 +29,7 @@ class LocalConfigsCubit extends Cubit<LocalConfigsState> {
         final file = File(element.path);
         final code = file.readAsStringSync();
         scripts.add(
-            LocalConfig(file: file, code: code, client: ApiClient(code: code)));
+            LocalConfig(file: file, code: code, client: MangaApiClient(code: code)));
       });
     }
 

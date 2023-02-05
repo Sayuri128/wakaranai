@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/anime_debug/anime_debug.dart';
 import 'package:wakaranai/ui/home/history_page.dart';
 import 'package:wakaranai/ui/home/remote_configs_page.dart';
 import 'package:wakaranai/ui/home/settings_page.dart';
@@ -54,6 +55,13 @@ class _HomeViewState extends State<HomeView> {
         build: (context) => SettingsPage(),
         icon: const Icon(
           Icons.settings,
+        )),
+    BottomNavigationItem(
+        index: 3,
+        title: "Anime debug",
+        build: (context) => AnimeDebug(),
+        icon: const Icon(
+          Icons.video_call,
         ))
   ];
 

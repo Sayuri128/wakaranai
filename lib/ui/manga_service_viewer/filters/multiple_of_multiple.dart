@@ -1,36 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
-typedef OneOfMultipleSelectedItemChanged = Function(String?);
+typedef MultipleOfMultipleSelectedItemChanged = Function(List<List<String>>);
 
-class OneOfMultipleWidget extends StatefulWidget {
-  const OneOfMultipleWidget(
+class MultipleOfMultipleWidget extends StatefulWidget {
+  const MultipleOfMultipleWidget(
       {Key? key,
       required this.paramName,
       required this.items,
-      required this.defaultSelected,
+      required this.selected,
       required this.onChanged})
       : super(key: key);
 
   final String paramName;
-  final List<String> items;
-  final int defaultSelected;
-  final OneOfMultipleSelectedItemChanged onChanged;
+  final List<List<String>> items;
+  final List<List<String>> selected;
+  final MultipleOfMultipleSelectedItemChanged onChanged;
 
   @override
-  State<OneOfMultipleWidget> createState() => _OneOfMultipleWidgetState();
+  State<MultipleOfMultipleWidget> createState() =>
+      _MultipleOfMultipleWidgetState();
 }
 
-class _OneOfMultipleWidgetState extends State<OneOfMultipleWidget> {
-  int _indexOfSelected = -1;
+class _MultipleOfMultipleWidgetState extends State<MultipleOfMultipleWidget> {
+  final List<List<String>> _selectedItem = [];
 
   @override
   initState() {
     super.initState();
 
-    _indexOfSelected = widget.defaultSelected;
+    _selectedItem.addAll(widget.selected);
   }
 
   @override
@@ -53,19 +53,17 @@ class _OneOfMultipleWidgetState extends State<OneOfMultipleWidget> {
     );
   }
 
-  Widget _buildItem(String item) {
+  Widget _buildItem(List<String> item) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.0),
-          color:
-              _indexOfSelected != -1 && widget.items[_indexOfSelected] == item
-                  ? AppColors.secondary
-                  : AppColors.backgroundColor,
+          color: widget.selected.contains(item)
+              ? AppColors.secondary
+              : AppColors.backgroundColor,
           boxShadow: [
             BoxShadow(
-                color: _indexOfSelected != -1 &&
-                        widget.items[_indexOfSelected] == item
+                color: widget.selected.contains(item)
                     ? AppColors.secondary.withOpacity(0.5)
                     : AppColors.mainBlack.withOpacity(0.5),
                 spreadRadius: 2,
@@ -73,22 +71,19 @@ class _OneOfMultipleWidgetState extends State<OneOfMultipleWidget> {
           ]),
       child: InkWell(
         onTap: () {
-          if (_indexOfSelected != -1 &&
-              widget.items[_indexOfSelected] == item) {
-            _indexOfSelected = -1;
+          if (_selectedItem.contains(item)) {
+            _selectedItem.remove(item);
           } else {
-            _indexOfSelected = widget.items.indexOf(item);
+            _selectedItem.add(item);
           }
-          if (_indexOfSelected == -1) {
-            widget.onChanged(null);
-          } else {
-            widget.onChanged(widget.items[_indexOfSelected]);
-          }
+
+          widget.onChanged(_selectedItem);
+
           setState(() {});
         },
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(item, style: medium()),
+          child: Text(item[1], style: medium()),
         ),
       ),
     );

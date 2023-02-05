@@ -1,6 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import 'intl/messages_all.dart';
 
 // **************************************************************************
@@ -65,6 +66,16 @@ class S {
     return Intl.message(
       'Manga',
       name: 'home_manga_group_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Anime`
+  String get home_anime_group_title {
+    return Intl.message(
+      'Anime',
+      name: 'home_anime_group_title',
       desc: '',
       args: [],
     );

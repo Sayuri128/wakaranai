@@ -4,9 +4,9 @@ import 'package:meta/meta.dart';
 import 'package:wakaranai/models/data/history_manga_group/history_manga_group.dart';
 import 'package:wakaranai/models/data/history_manga_item/history_manga_item.dart';
 import 'package:wakaranai/services/history_service/manga_history_service.dart';
-import 'package:wakascript/api_controller.dart';
-import 'package:wakascript/models/concrete_view/concrete_view.dart';
-import 'package:wakascript/models/gallery_view/gallery_view.dart';
+import 'package:wakascript/api_clients/manga_api_client.dart';
+import 'package:wakascript/models/manga/manga_concrete_view/manga_concrete_view.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
 
 part 'history_state.dart';
 
@@ -41,7 +41,7 @@ class HistoryCubit extends Cubit<HistoryState> {
     }
 
     final groups = await Future.wait(concreteGroups.entries.map((e) async {
-      var client = ApiClient(code: e.value.first.serviceSourceCode);
+      final client = MangaApiClient(code: e.value.first.serviceSourceCode);
       return HistoryMangaGroup(
           client: client,
           configInfo: await client.getConfigInfo(),
@@ -61,8 +61,8 @@ class HistoryCubit extends Cubit<HistoryState> {
 
   void addMangaToHistory(
       {required String serviceSourceCode,
-      required ConcreteView concreteView,
-      required GalleryView galleryView,
+      required MangaConcreteView concreteView,
+      required MangaGalleryView galleryView,
       required String chapterUid}) async {
     final item = HistoryMangaItem(
         serviceSourceCode: serviceSourceCode,

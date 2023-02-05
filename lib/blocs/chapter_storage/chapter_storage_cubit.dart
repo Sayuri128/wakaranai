@@ -2,11 +2,9 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:wakaranai/utils/globals.dart';
-import 'package:wakascript/api_controller.dart';
-
-import 'package:wakascript/models/concrete_view/chapter/chapter.dart';
+import 'package:wakascript/api_clients/manga_api_client.dart';
+import 'package:wakascript/models/manga/manga_concrete_view/chapter/chapter.dart';
 
 import '../../models/data/manga_storage_item.dart';
 
@@ -16,7 +14,7 @@ class ChapterStorageCubit extends Cubit<ChapterStorageState> {
   ChapterStorageCubit({required this.client, required this.uid})
       : super(ChapterStorageInitial());
 
-  final ApiClient client;
+  final MangaApiClient client;
   final String uid;
   String? docDir;
 

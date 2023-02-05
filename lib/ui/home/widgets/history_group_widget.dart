@@ -6,9 +6,9 @@ import 'package:wakaranai/blocs/history/history_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/models/data/history_manga_group/history_manga_group.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
+import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
+import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
-import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
-import 'package:wakaranai/ui/service_viewer/concrete_viewer/concrete_viewer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -38,8 +38,8 @@ class HistoryGroupWidget extends StatelessWidget {
             },
             onLongPress: () {
               Navigator.of(context).pushNamedAndRemoveUntil(
-                  Routes.concreteViewer, (_) => true,
-                  arguments: ConcreteViewerData(
+                  Routes.mangaConcreteViewer, (_) => true,
+                  arguments: MangaConcreteViewerData(
                       uid: group.concreteView.uid,
                       client: group.client,
                       galleryView: group.galleryView,

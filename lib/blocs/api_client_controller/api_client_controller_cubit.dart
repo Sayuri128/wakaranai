@@ -1,13 +1,13 @@
 import 'package:bloc/bloc.dart';
 import 'package:wakaranai/models/protector/protector_storage_item.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
-import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/api_clients/api_client.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
 
 part 'api_client_controller_state.dart';
 
-class ApiClientControllerCubit extends Cubit<ApiClientControllerState> {
-  ApiClientControllerCubit({required ApiClient apiClient})
+class ApiClientControllerCubit<T extends ApiClient> extends Cubit<ApiClientControllerState> {
+  ApiClientControllerCubit({required T apiClient})
       : super(ApiClientControllerState(client: apiClient));
 
   final ProtectorStorageService _protectorStorageService =
