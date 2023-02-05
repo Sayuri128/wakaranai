@@ -3,63 +3,63 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/chapter_storage/chapter_storage_cubit.dart';
-import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
+import 'package:wakaranai/blocs/manga_concrete_view/manga_concrete_view_cubit.dart';
 import 'package:wakaranai/heroes.dart';
-import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
-import 'package:wakaranai/ui/service_viewer/concrete_viewer/downloaded_chapter_dialog.dart';
+import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
+import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/downloaded_chapter_dialog.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
-import 'package:wakascript/api_controller.dart';
-import 'package:wakascript/models/concrete_view/chapter/chapter.dart';
-import 'package:wakascript/models/concrete_view/concrete_view.dart';
+import 'package:wakascript/api_clients/manga_api_client.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
-import 'package:wakascript/models/gallery_view/gallery_view.dart';
+import 'package:wakascript/models/manga/manga_concrete_view/chapter/chapter.dart';
+import 'package:wakascript/models/manga/manga_concrete_view/manga_concrete_view.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
 
 import '../../routes.dart';
 
-class ConcreteViewerData {
+class MangaConcreteViewerData {
   final String uid;
-  final GalleryView galleryView;
-  final ApiClient client;
+  final MangaGalleryView galleryView;
+  final MangaApiClient client;
   final ConfigInfo configInfo;
 
-  const ConcreteViewerData(
+  const MangaConcreteViewerData(
       {required this.uid,
       required this.galleryView,
       required this.client,
       required this.configInfo});
 }
 
-class ConcreteViewer extends StatelessWidget {
+class MangaConcreteViewer extends StatelessWidget {
   static const String chapterDateFormat = 'yyyy-MM-dd HH:mm';
 
-  const ConcreteViewer({Key? key, required this.data}) : super(key: key);
+  const MangaConcreteViewer({Key? key, required this.data}) : super(key: key);
 
-  final ConcreteViewerData data;
+  final MangaConcreteViewerData data;
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<ConcreteViewCubit>(
+        BlocProvider<MangaConcreteViewCubit>(
           create: (context) =>
-              ConcreteViewCubit(ConcreteViewState(apiClient: data.client))
+              MangaConcreteViewCubit(MangaConcreteViewState(apiClient: data.client))
                 ..getConcrete(data.uid, data.galleryView),
         ),
       ],
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
         extendBodyBehindAppBar: true,
-        body: BlocBuilder<ConcreteViewCubit, ConcreteViewState>(
+        body: BlocBuilder<MangaConcreteViewCubit, MangaConcreteViewState>(
           builder: (context, state) {
-            late final ConcreteView concreteView;
+            late final MangaConcreteView concreteView;
 
-            if (state is ConcreteViewInitialized) {
+            if (state is MangaConcreteViewInitialized) {
               concreteView = state.concreteView;
             }
             return ListView.builder(
               itemCount: 1 +
-                  ((state is ConcreteViewInitialized)
+                  ((state is MangaConcreteViewInitialized)
                       ? concreteView.chapters.length
                       : 0),
               itemBuilder: (context, index) {
@@ -70,7 +70,7 @@ class ConcreteViewer extends StatelessWidget {
                       children: [
                         _buildCover(data.galleryView.cover, context),
                         const SizedBox(height: 16.0),
-                        if (state is ConcreteViewInitialized) ...[
+                        if (state is MangaConcreteViewInitialized) ...[
                           _buildPrettyTitle(concreteView),
                           _buildOriginalTitle(concreteView),
                           const SizedBox(height: 16.0),
@@ -110,8 +110,8 @@ class ConcreteViewer extends StatelessWidget {
     );
   }
 
-  Widget _buildChapter(BuildContext context, Chapter e, GalleryView galleryView,
-      ConcreteView concreteView, ConfigInfo configInfo) {
+  Widget _buildChapter(BuildContext context, Chapter e, MangaGalleryView galleryView,
+      MangaConcreteView concreteView, ConfigInfo configInfo) {
     return BlocProvider<ChapterStorageCubit>(
       create: (context) =>
           ChapterStorageCubit(uid: data.uid, client: data.client)..init(e),
@@ -195,7 +195,7 @@ class ConcreteViewer extends StatelessWidget {
     );
   }
 
-  Widget _buildPrettyTitle(ConcreteView concreteView) {
+  Widget _buildPrettyTitle(MangaConcreteView concreteView) {
     if (concreteView.title.pretty.isEmpty) {
       return const SizedBox();
     }
@@ -206,7 +206,7 @@ class ConcreteViewer extends StatelessWidget {
     );
   }
 
-  Widget _buildOriginalTitle(ConcreteView concreteView) {
+  Widget _buildOriginalTitle(MangaConcreteView concreteView) {
     if (concreteView.title.original.isEmpty) {
       return const SizedBox();
     }
@@ -220,7 +220,7 @@ class ConcreteViewer extends StatelessWidget {
     );
   }
 
-  Wrap _buildTags(ConcreteView concreteView) {
+  Wrap _buildTags(MangaConcreteView concreteView) {
     return Wrap(
       children: concreteView.tags.map((e) => _buildTagCard(e)).toList(),
     );
@@ -272,7 +272,7 @@ class ConcreteViewer extends StatelessWidget {
     );
   }
 
-  Widget _buildDescription(BuildContext context, ConcreteView concreteView) {
+  Widget _buildDescription(BuildContext context, MangaConcreteView concreteView) {
     if (concreteView.description.isEmpty) {
       return const SizedBox();
     }

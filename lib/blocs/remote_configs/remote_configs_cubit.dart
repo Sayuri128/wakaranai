@@ -9,7 +9,8 @@ import 'package:wakaranai/services/configs_service/github_configs_service.dart';
 import 'package:wakaranai/services/configs_service/repo_configs_service.dart';
 import 'package:wakaranai/services/configs_source_service/configs_source_service.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
-import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/api_clients/anime_api_client.dart';
+import 'package:wakascript/api_clients/manga_api_client.dart';
 
 part 'remote_configs_state.dart';
 
@@ -37,11 +38,11 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
 
   void getConfigs() async {
     emit(RemoteConfigsLoading());
-    final mangaConfigs =
-        await _configsService.getMangaConfigs();
-    // TODO: other configs. booru, anime etc
+    final mangaConfigs = await _configsService.getMangaConfigs();
+    final animeConfigs = await _configsService.getAnimeConfigs();
 
-    emit(RemoteConfigsLoaded(mangaApiClients: mangaConfigs));
+    emit(RemoteConfigsLoaded(
+        mangaApiClients: mangaConfigs, animeApiClients: animeConfigs));
   }
 
   void changeSource(ConfigsSourceItem source) async {

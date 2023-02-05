@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/ui/home/history_page.dart';
 import 'package:wakaranai/ui/home/remote_configs_page.dart';
 import 'package:wakaranai/ui/home/settings_page.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -43,13 +42,6 @@ class _HomeViewState extends State<HomeView> {
         )),
     BottomNavigationItem(
         index: 1,
-        title: S.current.navigation_bar_history_title,
-        build: (context) => const HistoryPage(),
-        icon: const Icon(
-          Icons.history,
-        )),
-    BottomNavigationItem(
-        index: 2,
         title: S.current.navigation_bar_settings_title,
         build: (context) => SettingsPage(),
         icon: const Icon(

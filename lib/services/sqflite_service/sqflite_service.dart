@@ -1,5 +1,4 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:sqflite/sqlite_api.dart';
 import 'package:wakaranai/env.dart';
 import 'package:wakaranai/models/serializable_object.dart';
 

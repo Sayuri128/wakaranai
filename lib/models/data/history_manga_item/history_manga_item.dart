@@ -2,14 +2,14 @@ import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:wakaranai/models/serializable_object.dart';
-import 'package:wakascript/models/concrete_view/concrete_view.dart';
-import 'package:wakascript/models/gallery_view/gallery_view.dart';
+import 'package:wakascript/models/manga/manga_concrete_view/manga_concrete_view.dart';
+import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
 
 class HistoryMangaItem extends SerializableObject {
   int? id;
   final String serviceSourceCode;
-  final ConcreteView concreteView;
-  final GalleryView galleryView;
+  final MangaConcreteView concreteView;
+  final MangaGalleryView galleryView;
   final String chapterUid;
 
   @DateTimeTimeStampJsonConverter()
@@ -40,9 +40,9 @@ class HistoryMangaItem extends SerializableObject {
       id: map['id'] as int,
       serviceSourceCode: map['serviceSourceCode'] as String,
       concreteView:
-          ConcreteView.fromJson(jsonDecode(map['concreteView'] as String)),
+          MangaConcreteView.fromJson(jsonDecode(map['concreteView'] as String)),
       galleryView:
-          GalleryView.fromJson(jsonDecode(map['galleryView'] as String)),
+          MangaGalleryView.fromJson(jsonDecode(map['galleryView'] as String)),
       chapterUid: map['chapterUid'] as String,
       timestamp: const DateTimeTimeStampJsonConverter()
           .fromJson(map['timestamp'] as int),
@@ -62,8 +62,8 @@ class HistoryMangaItem extends SerializableObject {
   HistoryMangaItem copyWith({
     int? id,
     String? serviceSourceCode,
-    ConcreteView? concreteView,
-    GalleryView? galleryView,
+    MangaConcreteView? concreteView,
+    MangaGalleryView? galleryView,
     String? chapterUid,
     DateTime? timestamp,
   }) {

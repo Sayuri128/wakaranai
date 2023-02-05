@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:wakascript/api_controller.dart';
+import 'package:wakascript/api_clients/manga_api_client.dart';
 
 class LocalConfig {
 
   final File file;
   final String code;
-  final ApiClient client;
+  final MangaApiClient client;
 
   const LocalConfig({
     required this.file,
