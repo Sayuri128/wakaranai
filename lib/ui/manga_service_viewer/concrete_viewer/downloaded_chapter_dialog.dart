@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/utils/text_styles.dart';
-import 'package:wakascript/models/concrete_view/chapter/chapter.dart';
+import 'package:wakascript/models/manga/manga_concrete_view/chapter/chapter.dart';
 
 enum DownloadedChapterDialogResult { DOWNLOAD_AGAIN, DELETE }
 

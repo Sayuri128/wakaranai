@@ -15,13 +15,38 @@ class RemoteConfigPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       body: Stack(
-        alignment: Alignment.center,
+        alignment: Alignment.topCenter,
         children: [
-          Column(
-            children: [
-              Container(
+          Padding(
+            padding: EdgeInsets.only(top: 80),
+            child: BlocBuilder<RemoteConfigsCubit, RemoteConfigsState>(
+              builder: (context, state) {
+                if (state is RemoteConfigsLoaded) {
+                  return ListView(
+                    children: [
+                      ConfigsGroup(
+                        title: S.current.home_manga_group_title,
+                        apiClients: state.mangaApiClients,
+                      ),
+                      const SizedBox(
+                        height: 48,
+                      ),
+                      ConfigsGroup(
+                          title: S.current.home_anime_group_title,
+                          apiClients: state.animeApiClients)
+                    ],
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+          ),
+          Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                height: 100,
                 decoration:
-                    BoxDecoration(color: AppColors.backgroundColor, boxShadow: [
+                BoxDecoration(color: AppColors.backgroundColor, boxShadow: [
                   BoxShadow(
                       color: AppColors.mainBlack.withOpacity(0.5),
                       blurRadius: 8,
@@ -29,7 +54,10 @@ class RemoteConfigPage extends StatelessWidget {
                 ]),
                 child: Padding(
                   padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).padding.top + 12, bottom: 12),
+                      top: MediaQuery
+                          .of(context)
+                          .padding
+                          .top + 12, bottom: 12),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
@@ -44,7 +72,7 @@ class RemoteConfigPage extends StatelessWidget {
                               showDialog(
                                   context: context,
                                   builder: (context) =>
-                                      const ConfigsSourceDialog());
+                                  const ConfigsSourceDialog());
                             },
                             icon: const Icon(
                               Icons.filter_list_rounded,
@@ -54,25 +82,7 @@ class RemoteConfigPage extends StatelessWidget {
                     ],
                   ),
                 ),
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: BlocBuilder<RemoteConfigsCubit, RemoteConfigsState>(
-                  builder: (context, state) {
-                    if (state is RemoteConfigsLoaded) {
-                      return Padding(
-                        padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).padding.top + 20),
-                        child:
-                            SingleChildScrollView(child: _buildConfigs(state)),
-                      );
-                    }
-                    return const SizedBox();
-                  },
-                ),
-              ),
-            ],
-          ),
+              )),
           Align(
             alignment: Alignment.center,
             child: BlocBuilder<RemoteConfigsCubit, RemoteConfigsState>(
@@ -80,9 +90,9 @@ class RemoteConfigPage extends StatelessWidget {
                 if (state is RemoteConfigsError) {
                   return Center(
                       child: Text(
-                    state.message,
-                    style: regular(size: 18, color: AppColors.red),
-                  ));
+                        state.message,
+                        style: regular(size: 18, color: AppColors.red),
+                      ));
                 } else if (state is RemoteConfigsLoading) {
                   return const Center(
                     child: CircularProgressIndicator(
@@ -96,18 +106,6 @@ class RemoteConfigPage extends StatelessWidget {
           )
         ],
       ),
-    );
-  }
-
-  Widget _buildConfigs(RemoteConfigsLoaded state) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ConfigsGroup(
-          title: S.current.home_manga_group_title,
-          apiClients: state.mangaApiClients,
-        )
-      ],
     );
   }
 }

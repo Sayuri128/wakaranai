@@ -4,6 +4,7 @@ import 'package:wakaranai/blocs/local_configs/local_configs_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/configs_group.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakascript/api_clients/manga_api_client.dart';
 
 class LocalConfigsPage extends StatelessWidget {
   const LocalConfigsPage({Key? key}) : super(key: key);
@@ -36,7 +37,7 @@ class LocalConfigsPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ConfigsGroup(
+        ConfigsGroup<MangaApiClient>(
           title: S.current.home_manga_group_title,
           apiClients: state.mangas.map((e) => e.client).toList(),
         )

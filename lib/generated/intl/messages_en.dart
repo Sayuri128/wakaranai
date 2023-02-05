@@ -75,6 +75,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("GitHub"),
         "history_last_visit": m2,
         "history_page_title": MessageLookupByLibrary.simpleMessage("History"),
+        "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Anime"),
         "home_manga_group_title": MessageLookupByLibrary.simpleMessage("Manga"),
         "left_to_right_read_mode":
             MessageLookupByLibrary.simpleMessage("Left to right"),

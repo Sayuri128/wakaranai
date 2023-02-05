@@ -7,7 +7,7 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/models/configs_source_item/configs_source_item.dart';
 import 'package:wakaranai/models/configs_source_type/configs_source_type.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
-import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
+import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 
 part 'settings_state.dart';
 

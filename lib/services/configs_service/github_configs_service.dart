@@ -1,8 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:wakaranai/repositories/configs_repository/github/github_configs_repository.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
-import 'package:wakascript/api_controller.dart';
-import 'package:http/http.dart' as http;
+import 'package:wakascript/api_clients/anime_api_client.dart';
+import 'package:wakascript/api_clients/manga_api_client.dart';
 
 class GitHubConfigsService implements ConfigsService {
   final String ORG;
@@ -18,9 +19,17 @@ class GitHubConfigsService implements ConfigsService {
   }
 
   @override
-  Future<List<ApiClient>> getMangaConfigs() async {
+  Future<List<MangaApiClient>> getMangaConfigs() async {
     return await Future.wait(
         (await _repository.getMangaConfigs(ORG, REPOSITORY)).map((e) async =>
-            ApiClient(code: await _downloadSourceCode(e.download_url))));
+            MangaApiClient(code: await _downloadSourceCode(e.download_url))));
   }
+
+  @override
+  Future<List<AnimeApiClient>> getAnimeConfigs() async {
+    return await Future.wait(
+        (await _repository.getAnimeConfigs(ORG, REPOSITORY)).map((e) async =>
+        AnimeApiClient(code: await _downloadSourceCode(e.download_url))));
+  }
+
 }

@@ -3,14 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:wakaranai/heroes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
-import 'package:wakascript/models/gallery_view/gallery_view.dart';
 
 class GalleryViewCard extends StatelessWidget {
-  const GalleryViewCard({Key? key, this.onTap, required this.data})
+  GalleryViewCard(
+      {Key? key,
+      this.onTap,
+      required this.uid,
+      required this.cover,
+      required this.title})
       : super(key: key);
 
   final VoidCallback? onTap;
-  final GalleryView data;
+
+  final String uid;
+  final String cover;
+  final String title;
 
   static const double aspectRatio = 6 / 9;
 
@@ -22,14 +29,12 @@ class GalleryViewCard extends StatelessWidget {
       child: Stack(
         children: [
           Hero(
-            tag: Heroes.galleryViewToConcreteView(data.uid),
+            tag: Heroes.galleryViewToConcreteView(uid),
             child: Material(
-              child: Ink.image(
+              child: CachedNetworkImage(
+                imageUrl: cover,
                 height: MediaQuery.of(context).size.width * .5 / aspectRatio,
                 fit: BoxFit.cover,
-                image: CachedNetworkImageProvider(
-                  data.cover,
-                ),
               ),
             ),
           ),
@@ -52,7 +57,7 @@ class GalleryViewCard extends StatelessWidget {
               child: Align(
                 alignment: Alignment.bottomLeft,
                 child: Text(
-                  data.title.overflow,
+                  title.overflow,
                   maxLines: 3,
                   style: medium(),
                   overflow: TextOverflow.ellipsis,

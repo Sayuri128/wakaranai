@@ -2,11 +2,10 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/configs_sources/configs_sources_cubit.dart';
-import 'package:wakaranai/blocs/history/history_cubit.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
-import 'package:wakaranai/ui/service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
+import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -145,30 +144,6 @@ class SettingsPage extends StatelessWidget {
                 const Divider(
                   height: 2,
                   color: AppColors.primary,
-                ),
-                ListTile(
-                  onTap: () {
-                    showOkCancelAlertDialog(
-                      context: context,
-                      okLabel:
-                          S.current.clear_history_dialog_confirmation_ok_label,
-                      cancelLabel: S.current
-                          .clear_history_dialog_confirmation_cancel_label,
-                      title: S.current.clear_history_dialog_confirmation_title,
-                      message:
-                          S.current.clear_history_dialog_confirmation_message,
-                    ).then((value) {
-                      if (value.index == 0) {
-                        context.read<HistoryCubit>().clear().then((_) {
-                          showOkAlertDialog(
-                              context: context,
-                              title: S.current.clear_history_dialog_success);
-                        });
-                      }
-                    });
-                  },
-                  title: Text(S.current.settings_clear_history_title,
-                      style: medium(size: 16)),
                 ),
                 ListTile(
                   onTap: () {
