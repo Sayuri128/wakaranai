@@ -3,6 +3,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/models/protector/protector_storage_item.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/browser.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/models/config_info/protector_config/protector_config.dart';
 
@@ -37,22 +38,7 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
         children: [
           InAppWebView(
             key: _webViewKey,
-            initialOptions: InAppWebViewGroupOptions(
-                crossPlatform: InAppWebViewOptions(
-                  javaScriptEnabled: true,
-                  preferredContentMode: UserPreferredContentMode.DESKTOP,
-                  allowFileAccessFromFileURLs: true,
-                  allowUniversalAccessFromFileURLs: true,
-                  useShouldOverrideUrlLoading: true,
-                  mediaPlaybackRequiresUserGesture: false,
-                  javaScriptCanOpenWindowsAutomatically: true,
-                  cacheEnabled: true,
-                ),
-                android: AndroidInAppWebViewOptions(
-                    useHybridComposition: true, supportMultipleWindows: true),
-                ios: IOSInAppWebViewOptions(
-                  allowsInlineMediaPlayback: true,
-                )),
+            initialOptions: getDefaultBrowserOption(),
             initialUrlRequest:
                 URLRequest(url: Uri.parse(widget.data.config.pingUrl)),
             onWebViewCreated: (controller) async {
