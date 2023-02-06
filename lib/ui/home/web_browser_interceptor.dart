@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
+import 'package:wakaranai/utils/browser.dart';
 import 'package:wakascript/logger.dart';
 
 class WebBrowserInterceptorWidget extends StatefulWidget {
@@ -82,22 +83,7 @@ class _WebBrowserInterceptorWidgetState
               onLoadHttpError: (controller, url, statusCode, description) {
                 print("onLoadHttpError: $url $statusCode");
               },
-              initialOptions: InAppWebViewGroupOptions(
-                  crossPlatform: InAppWebViewOptions(
-                    javaScriptEnabled: true,
-                    preferredContentMode: UserPreferredContentMode.DESKTOP,
-                    allowFileAccessFromFileURLs: true,
-                    allowUniversalAccessFromFileURLs: true,
-                    useShouldOverrideUrlLoading: true,
-                    mediaPlaybackRequiresUserGesture: false,
-                    javaScriptCanOpenWindowsAutomatically: true,
-                    cacheEnabled: true,
-                  ),
-                  android: AndroidInAppWebViewOptions(
-                      useHybridComposition: true, supportMultipleWindows: true),
-                  ios: IOSInAppWebViewOptions(
-                    allowsInlineMediaPlayback: true,
-                  )),
+              initialOptions: getDefaultBrowserOption(),
               onWebViewCreated: (controller) async {
                 _webViewCompleter.complete(controller);
               },

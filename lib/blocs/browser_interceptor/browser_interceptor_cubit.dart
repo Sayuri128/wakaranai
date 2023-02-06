@@ -5,6 +5,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
+import 'package:wakaranai/utils/browser.dart';
 import 'package:wakascript/inbuilt_libs/http/http_interceptor_controller.dart';
 import 'package:wakascript/logger.dart';
 
@@ -27,13 +28,7 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
         onLoadStart: (controller, url) {
           // print("onLoadStart: $url");
         },
-        initialOptions: InAppWebViewGroupOptions(
-            crossPlatform: InAppWebViewOptions(
-              javaScriptEnabled: true,
-              preferredContentMode: UserPreferredContentMode.DESKTOP,
-              useShouldOverrideUrlLoading: true,
-              cacheEnabled: true,
-            )),
+        initialOptions: getDefaultBrowserOption(),
         onWebViewCreated: ((controller) {
           _inAppWebViewController = controller;
 
@@ -121,8 +116,14 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
     }
   }
 
+  int _jsAttempts = 0;
+
   @override
   Future<dynamic> executeJsScript(String code) async {
+    if(this.isClosed || _jsAttempts > 10) {
+      _jsAttempts = 0;
+      return;
+    }
     await Future.delayed(const Duration(milliseconds: 150));
     final res =
         await _inAppWebViewController.callAsyncJavaScript(functionBody: code);
@@ -130,6 +131,8 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
     logger.d(res);
 
     if (res == null || res.error != null || res.value == null) {
+      _jsAttempts++;
+      await Future.delayed(const Duration(milliseconds: 150));
       return await executeJsScript(code);
     }
 
