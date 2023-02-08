@@ -63,7 +63,8 @@ class RemoteConfigPage extends StatelessWidget {
                     children: [
                       Align(
                         alignment: Alignment.center,
-                        child: Text("Configs", style: medium(size: 24)),
+                        child: Text(S.current.remote_configs_page_appbar_title,
+                            style: medium(size: 24)),
                       ),
                       Align(
                         alignment: Alignment.centerRight,

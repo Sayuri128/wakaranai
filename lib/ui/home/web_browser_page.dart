@@ -43,6 +43,7 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
                 URLRequest(url: Uri.parse(widget.data.config.pingUrl)),
             onWebViewCreated: (controller) async {
               _webView = controller;
+              controller.android.clearSslPreferences();
             },
           ),
           Padding(

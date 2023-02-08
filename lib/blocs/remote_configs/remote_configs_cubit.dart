@@ -1,3 +1,4 @@
+
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
@@ -41,11 +42,14 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
 
   void getConfigs() async {
     emit(RemoteConfigsLoading());
-    final mangaConfigs = await _configsService.getMangaConfigs();
-    final animeConfigs = await _configsService.getAnimeConfigs();
 
-    emit(RemoteConfigsLoaded(
-        mangaApiClients: mangaConfigs, animeApiClients: animeConfigs));
+    Future.wait([
+      _configsService.getMangaConfigs(),
+      _configsService.getAnimeConfigs()
+    ]).then((value) {
+      emit(RemoteConfigsLoaded(
+          mangaApiClients: value[0].cast(), animeApiClients: value[1].cast()));
+    });
   }
 
   void changeSource(ConfigsSourceItem source) async {

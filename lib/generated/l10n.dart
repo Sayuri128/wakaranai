@@ -140,6 +140,16 @@ class S {
     );
   }
 
+  /// `Configs`
+  String get remote_configs_page_appbar_title {
+    return Intl.message(
+      'Configs',
+      name: 'remote_configs_page_appbar_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Default reader mode`
   String get settings_default_reader_mode_title {
     return Intl.message(
