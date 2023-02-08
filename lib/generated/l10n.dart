@@ -470,6 +470,16 @@ class S {
     );
   }
 
+  /// `Default configs source`
+  String get settings_default_configs_source_title {
+    return Intl.message(
+      'Default configs source',
+      name: 'settings_default_configs_source_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cookies has been cleared`
   String get clear_cookies_dialog_success {
     return Intl.message(

@@ -118,6 +118,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Search"),
         "settings_clear_history_title":
             MessageLookupByLibrary.simpleMessage("Clear history"),
+        "settings_default_configs_source_title":
+            MessageLookupByLibrary.simpleMessage("Default configs source"),
         "settings_default_reader_mode_title":
             MessageLookupByLibrary.simpleMessage("Default reader mode"),
         "web_browser_no_login_button":

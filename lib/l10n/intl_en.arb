@@ -41,6 +41,7 @@
   "clear_cookies_cache_dialog_confirmation_message": "This action cannot be canceled later",
   "clear_cookies_cache_dialog_confirmation_ok_label": "Delete",
   "clear_cookies_cache_dialog_confirmation_cancel_label": "Cancel",
+  "settings_default_configs_source_title": "Default configs source",
   "clear_cookies_dialog_success": "Cookies has been cleared",
   "service_view_error": "Error :c",
   "service_view_retry_button_title": "Retry",

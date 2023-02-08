@@ -15,7 +15,7 @@ class GitHubConfigsService implements ConfigsService {
   GitHubConfigsService(this.ORG, this.REPOSITORY);
 
   Future<String> _downloadSourceCode(String url) async {
-    return (await http.get(Uri.parse(url))).body;
+    return (await http.get(Uri.parse(url))).body.replaceAll("\n", "\r\n");
   }
 
   @override
