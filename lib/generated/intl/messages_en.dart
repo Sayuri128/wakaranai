@@ -34,6 +34,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "app_name": MessageLookupByLibrary.simpleMessage("Wakaranai"),
         "change_configs_source_dialog":
             MessageLookupByLibrary.simpleMessage("Change configs source"),
+        "chapter_viewer_bottom_modal_settings_reading_mode_title":
+            MessageLookupByLibrary.simpleMessage("Reading Mode"),
+        "chapter_viewer_bottom_modal_settings_tap_controls":
+            MessageLookupByLibrary.simpleMessage("Enable tap controls"),
+        "chapter_viewer_next_chapter_button_title":
+            MessageLookupByLibrary.simpleMessage("Next"),
+        "chapter_viewer_previous_chapter_button_title":
+            MessageLookupByLibrary.simpleMessage("Previous"),
         "clear_cookies_cache":
             MessageLookupByLibrary.simpleMessage("Clear cookies cache"),
         "clear_cookies_cache_dialog_confirmation_cancel_label":

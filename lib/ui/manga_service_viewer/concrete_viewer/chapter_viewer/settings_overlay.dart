@@ -35,7 +35,9 @@ class _SettingsOverlayState extends State<SettingsOverlay>
     _settingsOverlayAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500))
       ..addListener(() {
-        setState(() {});
+        if(mounted) {
+          setState(() {});
+        }
       });
 
     for (int i = widget.entries.length; i > 0; i--) {

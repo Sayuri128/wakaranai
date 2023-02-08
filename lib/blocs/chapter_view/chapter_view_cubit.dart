@@ -32,8 +32,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         .indexWhere((element) => element.uid == pagesS.last.chapterUid);
 
     final canGetPreviousPages = (chapterIndex - 1) >= 0;
-    final canGetNextPages =
-        (chapterIndex + 1) < data.group.chapters.length;
+    final canGetNextPages = (chapterIndex + 1) < data.group.chapters.length;
 
     emit(ChapterViewInitialized(
         pages: pagesS,
@@ -41,6 +40,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         currentPage: 1,
         totalPages: pagesS[0].value.length,
         controlsVisible: true,
+        controlsEnabled: false,
         mode: settingsCubit.state is SettingsInitialized
             ? (settingsCubit.state as SettingsInitialized).defaultMode
             : ChapterViewMode.RIGHT_TO_LEFT,
@@ -99,6 +99,12 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
   void onPageChanged(int index) {
     if (state is ChapterViewInitialized) {
       emit((state as ChapterViewInitialized).copyWith(currentPage: index));
+    }
+  }
+
+  void onSetControls(bool value) {
+    if (state is ChapterViewInitialized) {
+      emit((state as ChapterViewInitialized).copyWith(controlsEnabled: value));
     }
   }
 

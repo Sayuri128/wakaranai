@@ -12,6 +12,8 @@ import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_cubit.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_state.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
+import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/bottom_modal_settings.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/settings_overlay.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -130,7 +132,9 @@ class _ChapterViewerState extends State<ChapterViewer>
             children: [
               GestureDetector(
                 onTap: () {
-                  _pageController.jumpToPage(max(0, state.currentPage - 2));
+                  _pageController.animateToPage(max(0, state.currentPage - 2),
+                      duration: Duration(milliseconds: 200),
+                      curve: Curves.ease);
                 },
                 // behavior: HitTestBehavior.translucent,
                 child: AnimatedContainer(
@@ -141,13 +145,33 @@ class _ChapterViewerState extends State<ChapterViewer>
                       color: _showGestureOverlay
                           ? AppColors.primary.withOpacity(0.25)
                           : Colors.transparent),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: _showGestureOverlay
+                        ? Center(
+                            child: Text(
+                            state.mode == ChapterViewMode.LEFT_TO_RIGHT
+                                ? "Prev"
+                                : "Next",
+                            style: semibold(size: 24).apply(shadows: [
+                              BoxShadow(
+                                  color: AppColors.mainBlack,
+                                  blurRadius: 8,
+                                  spreadRadius: 2)
+                            ]),
+                          ))
+                        : const SizedBox(),
+                  ),
                 ),
               ),
               GestureDetector(
                 // behavior: HitTestBehavior.translucent,
                 onTap: () {
-                  _pageController.jumpToPage(min(
-                      state.currentPages.value.length - 1, state.currentPage));
+                  _pageController.animateToPage(
+                      min(state.currentPages.value.length - 1,
+                          state.currentPage),
+                      duration: Duration(milliseconds: 200),
+                      curve: Curves.ease);
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
@@ -157,6 +181,23 @@ class _ChapterViewerState extends State<ChapterViewer>
                       color: _showGestureOverlay
                           ? AppColors.primary.withOpacity(0.25)
                           : Colors.transparent),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: _showGestureOverlay
+                        ? Center(
+                            child: Text(
+                            state.mode == ChapterViewMode.LEFT_TO_RIGHT
+                                ? "Next"
+                                : "Prev",
+                            style: semibold(size: 24).apply(shadows: [
+                              BoxShadow(
+                                  color: AppColors.mainBlack,
+                                  blurRadius: 8,
+                                  spreadRadius: 2)
+                            ]),
+                          ))
+                        : const SizedBox(),
+                  ),
                 ),
               )
             ],
@@ -196,7 +237,24 @@ class _ChapterViewerState extends State<ChapterViewer>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const SizedBox(),
+                Flexible(
+                  child: Container(
+                    child: Text(widget.data.chapter.title,
+                        style: medium(size: 18),
+                        maxLines: 4,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis),
+                    decoration: BoxDecoration(boxShadow: [
+                      BoxShadow(
+                          color: AppColors.mainBlack.withOpacity(0.5),
+                          blurRadius: 24,
+                          spreadRadius: 24)
+                    ]),
+                  ),
+                ),
+                const SizedBox(
+                  width: 8,
+                ),
                 Container(
                   width: 70,
                   height: 30,
@@ -349,76 +407,12 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   void _showBottomSheetSettings(
       BuildContext context, ChapterViewInitialized state) {
-    showBottomSheet(
+    showModalBottomSheet(
         context: context,
         enableDrag: true,
-        builder: (context) => FractionallySizedBox(
-              heightFactor: 0.2,
-              widthFactor: 1,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(
-                    height: 32,
-                  ),
-                  Flexible(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                              width: 128,
-                              child: Text(
-                                "Reading mode",
-                                style: semibold(size: 18),
-                              )),
-                          Flexible(
-                            child: DropdownButtonFormField<ChapterViewMode>(
-                                value: state.mode,
-                                borderRadius: BorderRadius.circular(16.0),
-                                style: medium(size: 18),
-                                icon: const Icon(Icons.arrow_drop_down_rounded),
-                                decoration: InputDecoration(
-                                    labelStyle: medium(size: 18),
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(16.0),
-                                        borderSide: const BorderSide(
-                                            color: Colors.transparent)),
-                                    focusedBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(16.0),
-                                        borderSide: const BorderSide(
-                                            color: Colors.transparent)),
-                                    enabledBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(16.0),
-                                        borderSide: const BorderSide(
-                                            color: Colors.transparent))),
-                                items: ChapterViewMode.values
-                                    .map((e) => DropdownMenuItem(
-                                          value: e,
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                              chapterViewModelToString(e),
-                                              textAlign: TextAlign.center),
-                                        ))
-                                    .toList(),
-                                onChanged: (mode) {
-                                  if (mode != null) {
-                                    _key.currentContext
-                                        ?.read<ChapterViewCubit>()
-                                        .onModeChanged(mode);
-                                  }
-                                }),
-                          )
-                        ],
-                      ),
-                    ),
-                  )
-                ],
-              ),
+        builder: (context) => BottomModalSettings(
+              scaffoldKey: _key,
+              state: state,
             ));
   }
 
@@ -484,7 +478,7 @@ class _ChapterViewerState extends State<ChapterViewer>
         return NotificationListener<ScrollUpdateNotification>(
           onNotification: (notification) {
             if (notification.metrics.pixels >=
-                    notification.metrics.maxScrollExtent - 500) {
+                notification.metrics.maxScrollExtent - 500) {
               _canLoadNext = true;
               setState(() {});
             } else if (_canLoadNext) {
@@ -493,7 +487,7 @@ class _ChapterViewerState extends State<ChapterViewer>
             }
 
             if ((notification.metrics.pixels <=
-                    notification.metrics.minScrollExtent + 500)) {
+                notification.metrics.minScrollExtent + 500)) {
               _canLoadPrevious = true;
               setState(() {});
             } else if (_canLoadPrevious) {
@@ -505,7 +499,8 @@ class _ChapterViewerState extends State<ChapterViewer>
           },
           child: ScrollablePositionedList.builder(
               itemScrollController: _itemScrollController,
-              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+              physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics()),
               itemCount: state.currentPages.value.length,
               itemBuilder: (context, index) => VisibilityDetector(
                     key: ValueKey<String>(state.currentPages.value[index]),
@@ -553,7 +548,7 @@ class _ChapterViewerState extends State<ChapterViewer>
           children: [
             _buildControlButtons(context, state),
             const SizedBox(
-              height: 162,
+              height: 80,
             )
           ],
         ),
@@ -568,6 +563,9 @@ class _ChapterViewerState extends State<ChapterViewer>
       child: (_canLoadPrevious && state.canGetPreviousPages) ||
               (_canLoadNext && state.canGetNextPages)
           ? ElevatedButton(
+              style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all(AppColors.backgroundColor)),
               onPressed: () {
                 if (_canLoadNext) {
                   context.read<ChapterViewCubit>().onPagesChanged(next: true);
@@ -581,7 +579,9 @@ class _ChapterViewerState extends State<ChapterViewer>
                 setState(() {});
               },
               child: Text(
-                _canLoadNext ? "Next" : "Previous",
+                _canLoadNext
+                    ? S.current.chapter_viewer_next_chapter_button_title
+                    : S.current.chapter_viewer_previous_chapter_button_title,
                 style: medium(size: 16),
               ))
           : const SizedBox(),

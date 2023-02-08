@@ -44,5 +44,9 @@
   "clear_cookies_dialog_success": "Cookies has been cleared",
   "service_view_error": "Error :c",
   "service_view_retry_button_title": "Retry",
-  "service_view_open_web_view_button_title": "Open in WebView"
+  "service_view_open_web_view_button_title": "Open in WebView",
+  "chapter_viewer_next_chapter_button_title": "Next",
+  "chapter_viewer_previous_chapter_button_title": "Previous",
+  "chapter_viewer_bottom_modal_settings_reading_mode_title": "Reading Mode",
+  "chapter_viewer_bottom_modal_settings_tap_controls": "Enable tap controls"
 }

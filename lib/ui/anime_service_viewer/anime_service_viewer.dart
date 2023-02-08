@@ -124,7 +124,10 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
         return Scaffold(
           key: _scaffold,
           backgroundColor: AppColors.backgroundColor,
-          extendBodyBehindAppBar: true,
+          appBar: PreferredSize(
+              preferredSize: Size(MediaQuery.of(context).size.width, 100),
+              child: _buildSearchableAppBar(context,
+                  state is AnimeServiceViewInitialized ? state : null)),
           endDrawer: Container(
             decoration: BoxDecoration(
                 color: AppColors.backgroundColor.withOpacity(0.90)),
@@ -165,49 +168,27 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                   onLoading: () {
                     context.read<AnimeServiceViewCubit>().getGallery();
                   },
-                  child: CustomScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      slivers: [
-                        SliverAppBar(
-                          floating: true,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(8.0),
-                                  bottomRight: Radius.circular(8.0))),
-                          backgroundColor: AppColors.backgroundColor,
-                          elevation: 0,
-                          expandedHeight:
-                              widget.configInfo.searchAvailable ? 70 : 30,
-                          toolbarHeight:
-                              widget.configInfo.searchAvailable ? 110 : 70,
-                          actions: const [SizedBox()],
-                          flexibleSpace: _buildSearchableAppBar(
-                              context,
-                              state is AnimeServiceViewInitialized
-                                  ? state
-                                  : null),
-                        ),
-                        if (state is AnimeServiceViewInitialized)
-                          SliverPadding(
-                            padding: const EdgeInsets.only(top: 16),
-                            sliver: SliverGrid.count(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 8,
-                              mainAxisSpacing: 8,
-                              childAspectRatio: GalleryViewCard.aspectRatio,
-                              children: state.galleryViews
-                                  .map((e) => GalleryViewCard(
-                                        cover: e.cover,
-                                        uid: e.uid,
-                                        title: e.title,
-                                        onTap: () {
-                                          _onGalleryViewClick(context, e);
-                                        },
-                                      ))
-                                  .toList(),
-                            ),
-                          ),
-                      ])),
+                  child: state is AnimeServiceViewInitialized
+                      ? GridView.builder(
+                          itemBuilder: (context, index) {
+                            final e = state.galleryViews[index];
+                            return GalleryViewCard(
+                              cover: e.cover,
+                              uid: e.uid,
+                              title: e.title,
+                              onTap: () {
+                                _onGalleryViewClick(context, e);
+                              },
+                            );
+                          },
+                          itemCount: state.galleryViews.length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  childAspectRatio: GalleryViewCard.aspectRatio,
+                                  crossAxisSpacing: 8,
+                                  mainAxisSpacing: 8))
+                      : const SizedBox()),
               if (state is! AnimeServiceViewInitialized &&
                   state is! AnimeServiceViewError)
                 const Center(

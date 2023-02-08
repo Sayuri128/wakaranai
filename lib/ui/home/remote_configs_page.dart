@@ -44,7 +44,7 @@ class RemoteConfigPage extends StatelessWidget {
           Align(
               alignment: Alignment.topCenter,
               child: Container(
-                height: 100,
+                height: 80,
                 decoration:
                 BoxDecoration(color: AppColors.backgroundColor, boxShadow: [
                   BoxShadow(

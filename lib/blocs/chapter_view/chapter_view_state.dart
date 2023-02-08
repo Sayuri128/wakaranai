@@ -22,6 +22,7 @@ class ChapterViewInitialized extends ChapterViewState {
 
   final ChapterViewMode mode;
   final bool controlsVisible;
+  final bool controlsEnabled;
 
   final bool canGetNextPages;
   final bool canGetPreviousPages;
@@ -35,6 +36,7 @@ class ChapterViewInitialized extends ChapterViewState {
     required this.totalPages,
     required this.mode,
     required this.controlsVisible,
+    required this.controlsEnabled,
     required this.canGetNextPages,
     required this.canGetPreviousPages,
   });
@@ -48,6 +50,7 @@ class ChapterViewInitialized extends ChapterViewState {
     int? totalPages,
     ChapterViewMode? mode,
     bool? controlsVisible,
+    bool? controlsEnabled,
     bool? canGetNextPages,
     bool? canGetPreviousPages,
   }) {
@@ -60,6 +63,7 @@ class ChapterViewInitialized extends ChapterViewState {
       totalPages: totalPages ?? this.totalPages,
       mode: mode ?? this.mode,
       controlsVisible: controlsVisible ?? this.controlsVisible,
+      controlsEnabled: controlsEnabled ?? this.controlsEnabled,
       canGetNextPages: canGetNextPages ?? this.canGetNextPages,
       canGetPreviousPages: canGetPreviousPages ?? this.canGetPreviousPages,
     );
