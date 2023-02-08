@@ -123,7 +123,7 @@ class _MangaServiceViewState extends State<MangaServiceView> {
           key: _scaffold,
           backgroundColor: AppColors.backgroundColor,
           appBar: PreferredSize(
-              preferredSize: Size(MediaQuery.of(context).size.width, 100),
+              preferredSize: Size(MediaQuery.of(context).size.width, 120),
               child: _buildSearchableAppBar(context,
                   state is MangaServiceViewInitialized ? state : null)),
           endDrawer: Container(

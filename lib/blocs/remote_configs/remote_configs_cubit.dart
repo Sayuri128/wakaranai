@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/env.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/models/configs_source_item/configs_source_item.dart';
@@ -11,6 +12,7 @@ import 'package:wakaranai/services/configs_source_service/configs_source_service
 import 'package:wakaranai/services/settings_service/settings_service.dart';
 import 'package:wakascript/api_clients/anime_api_client.dart';
 import 'package:wakascript/api_clients/manga_api_client.dart';
+import 'package:collection/collection.dart';
 
 part 'remote_configs_state.dart';
 
@@ -33,7 +35,8 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
     }
 
     changeSource((await configsSourceService.getAll(ConfigsSourceItem.fromJson))
-        .firstWhere((element) => element.id == defaultId));
+            .firstWhereOrNull((element) => element.id == defaultId) ??
+        SettingsCubit.DefaultConfigsServiceItem);
   }
 
   void getConfigs() async {

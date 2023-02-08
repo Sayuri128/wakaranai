@@ -125,7 +125,7 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
           key: _scaffold,
           backgroundColor: AppColors.backgroundColor,
           appBar: PreferredSize(
-              preferredSize: Size(MediaQuery.of(context).size.width, 100),
+              preferredSize: Size(MediaQuery.of(context).size.width, 120),
               child: _buildSearchableAppBar(context,
                   state is AnimeServiceViewInitialized ? state : null)),
           endDrawer: Container(
