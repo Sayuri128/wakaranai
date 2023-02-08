@@ -509,6 +509,46 @@ class S {
       args: [],
     );
   }
+
+  /// `Next`
+  String get chapter_viewer_next_chapter_button_title {
+    return Intl.message(
+      'Next',
+      name: 'chapter_viewer_next_chapter_button_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Previous`
+  String get chapter_viewer_previous_chapter_button_title {
+    return Intl.message(
+      'Previous',
+      name: 'chapter_viewer_previous_chapter_button_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reading Mode`
+  String get chapter_viewer_bottom_modal_settings_reading_mode_title {
+    return Intl.message(
+      'Reading Mode',
+      name: 'chapter_viewer_bottom_modal_settings_reading_mode_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enable tap controls`
+  String get chapter_viewer_bottom_modal_settings_tap_controls {
+    return Intl.message(
+      'Enable tap controls',
+      name: 'chapter_viewer_bottom_modal_settings_tap_controls',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
