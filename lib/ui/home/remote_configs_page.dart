@@ -47,7 +47,7 @@ class RemoteConfigPage extends StatelessWidget {
           Align(
               alignment: Alignment.topCenter,
               child: Container(
-                height: 60,
+                height: 60 + MediaQuery.of(context).padding.top,
                 decoration:
                     BoxDecoration(color: AppColors.backgroundColor, boxShadow: [
                   BoxShadow(
@@ -56,8 +56,8 @@ class RemoteConfigPage extends StatelessWidget {
                       spreadRadius: 2)
                 ]),
                 child: Padding(
-                  padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).padding.top + 12, bottom: 12),
+                  padding:
+                      EdgeInsets.only(top: MediaQuery.of(context).padding.top),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
