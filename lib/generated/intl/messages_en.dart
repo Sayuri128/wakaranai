@@ -103,6 +103,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Name is required"),
         "official_github_configs_source_repository":
             MessageLookupByLibrary.simpleMessage("Wakaranai GitHub"),
+        "remote_configs_page_appbar_title":
+            MessageLookupByLibrary.simpleMessage("Configs"),
         "rest_configs_source_type":
             MessageLookupByLibrary.simpleMessage("REST"),
         "right_to_left_read_mode":
