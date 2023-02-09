@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/manga_concrete_view/manga_concrete_view_cubit.dart';
 import 'package:wakaranai/heroes.dart';
+import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/manga_provider_button.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -50,6 +51,28 @@ class MangaConcreteViewer extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
         extendBodyBehindAppBar: true,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+        floatingActionButton:
+            BlocBuilder<MangaConcreteViewCubit, MangaConcreteViewState>(
+          builder: (context, state) {
+            if (state is MangaConcreteViewInitialized) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 24.0, right: 8.0),
+                child: ChangeOrderIconButton(
+                  state: state.order == MangaConcreteViewOrder.DEFAULT,
+                  onTap: () {
+                    context.read<MangaConcreteViewCubit>().changeOrder(
+                        state.order == MangaConcreteViewOrder.DEFAULT
+                            ? MangaConcreteViewOrder.DEFAULT_REVERSE
+                            : MangaConcreteViewOrder.DEFAULT);
+                  },
+                ),
+              );
+            }
+
+            return const SizedBox();
+          },
+        ),
         body: BlocBuilder<MangaConcreteViewCubit, MangaConcreteViewState>(
           builder: (context, state) {
             late final MangaConcreteView concreteView;
@@ -83,13 +106,12 @@ class MangaConcreteViewer extends StatelessWidget {
                           const SizedBox(height: 16.0),
                           _buildDescription(context, concreteView),
                           const SizedBox(height: 16.0),
+                          _buildMangaProviderButtons(
+                              state, context, currentGroupsIndex),
                           const Divider(
                             thickness: 1,
-                            color: AppColors.primary,
+                            color: AppColors.secondary,
                           ),
-                          const SizedBox(height: 16.0),
-                          _buildMangaProviderButtons(
-                              state, context, currentGroupsIndex)
                         ] else ...[
                           const SizedBox(
                             height: 32,
@@ -269,7 +291,7 @@ class MangaConcreteViewer extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Text(
-          concreteView.description.replaceAll('\\n', '\n\n'),
+          concreteView.description.replaceAll('\\n', '\n\n').trim(),
           textAlign: TextAlign.left,
           style: regular(size: 16),
         ),
