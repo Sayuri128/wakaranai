@@ -125,7 +125,8 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
           key: _scaffold,
           backgroundColor: AppColors.backgroundColor,
           appBar: PreferredSize(
-              preferredSize: Size(MediaQuery.of(context).size.width, 120),
+              preferredSize: Size(MediaQuery.of(context).size.width,
+                  widget.configInfo.searchAvailable ? 80 : 60),
               child: _buildSearchableAppBar(context,
                   state is AnimeServiceViewInitialized ? state : null)),
           endDrawer: Container(
@@ -256,29 +257,24 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            const SizedBox(
-              height: 12,
-            ),
-            Expanded(
-              child: Stack(
-                children: [
-                  Center(
-                      child: Text(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 12.0),
+                  child: Text(
                     widget.configInfo.name,
                     style: medium(size: 24),
-                  )),
-                  if (widget.configInfo.protectorConfig != null)
-                    Positioned(
-                        right: 0,
-                        top: 0,
-                        child: IconButton(
-                            icon: const Icon(Icons.webhook),
-                            onPressed: _openWebView))
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 8,
+                  ),
+                ),
+                if (widget.configInfo.protectorConfig != null)
+                  Positioned(
+                      right: 0,
+                      top: 0,
+                      child: IconButton(
+                          icon: const Icon(Icons.webhook),
+                          onPressed: _openWebView))
+              ],
             ),
             if (state != null && widget.data.configInfo.searchAvailable)
               Flexible(
@@ -292,20 +288,20 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                           .search(_searchController.text);
                     },
                     cursorColor: AppColors.primary,
+                    style: medium(size: 16),
                     decoration: InputDecoration(
+                        contentPadding: EdgeInsets.only(bottom: 4.0),
+                        isCollapsed: true,
                         enabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: AppColors.primary)),
                         focusedBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: AppColors.primary)),
                         hintText:
                             S.current.service_viewer_search_field_hint_text,
-                        hintStyle: medium()),
+                        hintStyle: medium(size: 16)),
                   ),
                 ),
-              ),
-            const SizedBox(
-              height: 16.0,
-            )
+              )
           ],
         ),
       );

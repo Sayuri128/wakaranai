@@ -506,6 +506,8 @@ class _ChapterViewerState extends State<ChapterViewer>
               physics: const AlwaysScrollableScrollPhysics(
                   parent: BouncingScrollPhysics()),
               itemCount: state.currentPages.value.length,
+              minCacheExtent: 600,
+              padding: EdgeInsets.zero,
               itemBuilder: (context, index) => VisibilityDetector(
                     key: ValueKey<String>(state.currentPages.value[index]),
                     onVisibilityChanged: (info) {
@@ -519,7 +521,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                       imageUrl: state.currentPages.value[index],
                       progressIndicatorBuilder: (context, url, progress) =>
                           SizedBox(
-                        height: 360,
+                        height: MediaQuery.of(context).size.height,
                         width: MediaQuery.of(context).size.width,
                         child: Center(
                           child: CircularProgressIndicator(
