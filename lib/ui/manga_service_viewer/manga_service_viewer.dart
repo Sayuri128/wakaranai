@@ -273,18 +273,15 @@ class _MangaServiceViewState extends State<MangaServiceView> {
                       style: medium(size: 24),
                     ),
                   ),
-                  Positioned(
-                      right: 0,
-                      top: 0,
-                      child: IconButton(
-                          icon: Icon(
-                            Icons.webhook,
-                            color: widget.configInfo.protectorConfig != null
-                                ? AppColors.mainWhite
-                                : Colors.transparent,
-                          ),
-                          onPressed: widget.configInfo.protectorConfig != null
-                              ? _openWebView : null))
+                  IconButton(
+                      icon: Icon(
+                        Icons.webhook,
+                        color: widget.configInfo.protectorConfig != null
+                            ? AppColors.mainWhite
+                            : Colors.transparent,
+                      ),
+                      onPressed: widget.configInfo.protectorConfig != null
+                          ? _openWebView : null)
                 ],
               ),
               if (state != null && widget.configInfo.searchAvailable)

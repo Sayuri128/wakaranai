@@ -57,8 +57,8 @@ class GalleryViewCard extends StatelessWidget {
               child: Align(
                 alignment: Alignment.bottomLeft,
                 child: Text(
-                  title.overflow,
-                  maxLines: 3,
+                  title,
+                  maxLines: 4,
                   style: medium(),
                   overflow: TextOverflow.ellipsis,
                 ),
