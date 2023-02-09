@@ -83,11 +83,14 @@ class MangaConcreteViewer extends StatelessWidget {
               currentGroupsIndex = state.currentGroupIndex;
             }
             return ListView.builder(
+              padding: EdgeInsets.zero,
               itemCount: 1 +
                   ((state is MangaConcreteViewInitialized)
                       ? state.currentGroupIndex != -1
-                          ? concreteView.chapterGroups[state.currentGroupIndex]
-                              .chapters.length
+                          ? concreteView
+                              .chapterGroups[state.currentGroupIndex]
+                              .chapters
+                              .length
                           : 0
                       : 0),
               itemBuilder: (context, index) {
