@@ -94,8 +94,10 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
           height: 2,
         ),
         CheckboxListTile(
-          title:
-              Text(S.current.chapter_viewer_bottom_modal_settings_tap_controls),
+          title: Text(
+            S.current.chapter_viewer_bottom_modal_settings_tap_controls,
+            style: medium(),
+          ),
           value: _enableTapControlsState,
           onChanged: (newValue) {
             if (newValue == null) {

@@ -132,7 +132,7 @@ class AnimeConcreteViewer extends StatelessWidget {
                     title: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(animeVideo.title),
+                        Text(animeVideo.title.trim()),
                         if (animeVideo.timestamp != null) ...[
                           const SizedBox(height: 8.0),
                           Text(
