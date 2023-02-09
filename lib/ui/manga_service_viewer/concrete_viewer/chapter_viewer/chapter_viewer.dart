@@ -250,7 +250,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                         overflow: TextOverflow.ellipsis),
                     decoration: BoxDecoration(boxShadow: [
                       BoxShadow(
-                          color: AppColors.mainBlack.withOpacity(0.5),
+                          color: AppColors.mainBlack.withOpacity(0.25),
                           blurRadius: 24,
                           spreadRadius: 24)
                     ]),

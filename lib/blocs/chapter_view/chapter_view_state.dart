@@ -44,6 +44,8 @@ class ChapterViewInitialized extends ChapterViewState {
   ChapterViewInitialized copyWith({
     List<Pages>? pages,
     Pages? currentPages,
+    Pages? nextPages,
+    Pages? previousPages,
     ChaptersGroup? group,
     MangaGalleryView? galleryView,
     int? currentPage,
