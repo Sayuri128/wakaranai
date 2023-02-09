@@ -267,13 +267,16 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                     style: medium(size: 24),
                   ),
                 ),
-                if (widget.configInfo.protectorConfig != null)
-                  Positioned(
-                      right: 0,
-                      top: 0,
-                      child: IconButton(
-                          icon: const Icon(Icons.webhook),
-                          onPressed: _openWebView))
+                IconButton(
+                    icon: Icon(
+                      Icons.webhook,
+                      color: widget.configInfo.protectorConfig != null
+                          ? AppColors.mainWhite
+                          : Colors.transparent,
+                    ),
+                    onPressed: widget.configInfo.protectorConfig != null
+                        ? _openWebView
+                        : null)
               ],
             ),
             if (state != null && widget.data.configInfo.searchAvailable)
