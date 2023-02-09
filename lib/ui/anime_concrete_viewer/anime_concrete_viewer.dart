@@ -77,6 +77,7 @@ class AnimeConcreteViewer extends StatelessWidget {
               currentGroupIndex = state.videoGroupIndex;
             }
             return ListView.builder(
+              padding: EdgeInsets.zero,
               itemCount: 1 +
                   ((state is AnimeConcreteViewInitialized)
                       ? (state.videoGroupIndex != -1
