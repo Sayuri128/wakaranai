@@ -29,7 +29,7 @@ class ConfigsSourceDialog extends StatelessWidget {
             child: Center(
               child: Text(
                 S.current.change_configs_source_dialog,
-                style: regular(size: 18),
+                style: semibold(size: 18),
               ),
             ),
           ),
@@ -59,7 +59,7 @@ class ConfigsSourceDialog extends StatelessWidget {
                                   .changeSource(e);
                               Navigator.of(context).pop();
                             },
-                            title: Text(e.name),
+                            title: Text(e.name, style: medium()),
                             trailing: IconButton(
                               icon: const Icon(
                                 Icons.delete_forever,

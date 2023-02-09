@@ -164,7 +164,7 @@ class MangaConcreteViewer extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(e.title, style: medium(size: 18)),
+          Text(e.title.trim(), style: medium(size: 18)),
           if (e.timestamp != null && formatTimestamp(e).isNotEmpty) ...[
             const SizedBox(height: 8.0),
             Text(
