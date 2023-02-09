@@ -239,7 +239,11 @@ class _ChapterViewerState extends State<ChapterViewer>
               children: [
                 Flexible(
                   child: Container(
-                    child: Text(widget.data.chapter.title,
+                    child: Text(
+                        state.group.chapters
+                            .firstWhere((element) =>
+                                element.uid == state.currentPages.chapterUid)
+                            .title,
                         style: medium(size: 18),
                         maxLines: 4,
                         softWrap: true,

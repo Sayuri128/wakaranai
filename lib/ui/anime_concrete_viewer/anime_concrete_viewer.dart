@@ -7,6 +7,7 @@ import 'package:wakaranai/heroes.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_player_button.dart';
 import 'package:wakaranai/ui/anime_iframe_player/anime_iframe_player.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_clients/anime_api_client.dart';
@@ -45,6 +46,27 @@ class AnimeConcreteViewer extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
         extendBodyBehindAppBar: true,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+        floatingActionButton:
+            BlocBuilder<AnimeConcreteViewCubit, AnimeConcreteViewState>(
+          builder: (context, state) {
+            if (state is AnimeConcreteViewInitialized) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 24.0, right: 8.0),
+                child: ChangeOrderIconButton(
+                  state: state.order == AnimeConcreteViewOrder.DEFAULT,
+                  onTap: () {
+                    context.read<AnimeConcreteViewCubit>().changeOrder(
+                        state.order == AnimeConcreteViewOrder.DEFAULT
+                            ? AnimeConcreteViewOrder.DEFAULT_REVERSE
+                            : AnimeConcreteViewOrder.DEFAULT);
+                  },
+                ),
+              );
+            }
+            return const SizedBox();
+          },
+        ),
         body: BlocBuilder<AnimeConcreteViewCubit, AnimeConcreteViewState>(
           builder: (context, state) {
             late final AnimeConcreteView concreteView;
