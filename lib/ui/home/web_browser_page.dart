@@ -30,49 +30,64 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
   final GlobalKey _webViewKey = GlobalKey();
   late InAppWebViewController _webView;
 
+  late final InAppWebViewGroupOptions options;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final def = getDefaultBrowserOption();
+    def.crossPlatform.preferredContentMode =
+        UserPreferredContentMode.RECOMMENDED;
+    options = def;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          InAppWebView(
-            key: _webViewKey,
-            initialOptions: getDefaultBrowserOption(),
-            initialUrlRequest:
-                URLRequest(url: Uri.parse(widget.data.config.pingUrl)),
-            onWebViewCreated: (controller) async {
-              _webView = controller;
-              controller.android.clearSslPreferences();
-            },
-          ),
-          Padding(
-            padding: const EdgeInsets.all(48.0),
-            child: ElevatedButton(
-                onPressed: () async {
-                  getHeaders(
-                      done: (headers) {
-                        if (!mounted) return;
-                        Navigator.of(context).pop(headers);
-                      },
-                      controller: _webView,
-                      pingUrl: widget.data.config.pingUrl);
-                },
-                style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all(AppColors.primary),
-                    shadowColor: MaterialStateProperty.all(
-                        AppColors.primary.withOpacity(0.35))),
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Text(
-                    S.current.web_browser_no_login_button,
-                    style: semibold(size: 16),
-                    textAlign: TextAlign.center,
-                  ),
-                )),
-          )
-        ],
+      body: Padding(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            InAppWebView(
+              key: _webViewKey,
+              initialOptions: options,
+              initialUrlRequest:
+                  URLRequest(url: Uri.parse(widget.data.config.pingUrl)),
+              onWebViewCreated: (controller) async {
+                _webView = controller;
+                controller.android.clearSslPreferences();
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.all(48.0),
+              child: ElevatedButton(
+                  onPressed: () async {
+                    getHeaders(
+                        done: (headers) {
+                          if (!mounted) return;
+                          Navigator.of(context).pop(headers);
+                        },
+                        controller: _webView,
+                        pingUrl: widget.data.config.pingUrl);
+                  },
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(AppColors.primary),
+                      shadowColor: MaterialStateProperty.all(
+                          AppColors.primary.withOpacity(0.35))),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Text(
+                      S.current.web_browser_no_login_button,
+                      style: semibold(size: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                  )),
+            )
+          ],
+        ),
       ),
     );
   }
