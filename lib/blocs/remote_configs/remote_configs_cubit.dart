@@ -1,4 +1,3 @@
-
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
@@ -49,6 +48,8 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
     ]).then((value) {
       emit(RemoteConfigsLoaded(
           mangaApiClients: value[0].cast(), animeApiClients: value[1].cast()));
+    }).catchError((err) {
+      emit(RemoteConfigsError(message: "Configs source error :c"));
     });
   }
 

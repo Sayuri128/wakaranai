@@ -90,9 +90,24 @@ class RemoteConfigPage extends StatelessWidget {
               builder: (context, state) {
                 if (state is RemoteConfigsError) {
                   return Center(
-                      child: Text(
-                    state.message,
-                    style: regular(size: 18, color: AppColors.red),
+                      child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          state.message,
+                          style: regular(size: 18, color: AppColors.red),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            context.read<RemoteConfigsCubit>().getConfigs();
+                          },
+                          icon: const Icon(Icons.refresh),
+                          splashRadius: 18,
+                        )
+                      ],
+                    ),
                   ));
                 } else if (state is RemoteConfigsLoading) {
                   return const Center(
