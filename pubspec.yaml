@@ -28,9 +28,7 @@ dependencies:
   photo_view: ^0.14.0
   cached_network_image: ^3.2.3
   flutter_cache_manager: 3.3.0
-  flutter_settings_ui: 2.0.1
   adaptive_dialog: ^1.8.2
-  shimmer: ^2.0.0
   wakascript:
     path: ../wakascript
   flutter_svg: ^2.0.0+1
