@@ -89,6 +89,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Left to right"),
         "navigation_bar_history_title":
             MessageLookupByLibrary.simpleMessage("History"),
+        "navigation_bar_library_title":
+            MessageLookupByLibrary.simpleMessage("Library"),
         "navigation_bar_settings_title":
             MessageLookupByLibrary.simpleMessage("Settings"),
         "navigation_bar_sources_title":

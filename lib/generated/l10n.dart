@@ -190,6 +190,16 @@ class S {
     );
   }
 
+  /// `Library`
+  String get navigation_bar_library_title {
+    return Intl.message(
+      'Library',
+      name: 'navigation_bar_library_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `History`
   String get navigation_bar_history_title {
     return Intl.message(

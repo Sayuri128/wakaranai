@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/ui/home/remote_configs_page.dart';
-import 'package:wakaranai/ui/home/settings_page.dart';
+import 'package:wakaranai/ui/home/configs_page/remote_configs_page.dart';
+import 'package:wakaranai/ui/home/library/library_page.dart';
+import 'package:wakaranai/ui/home/settings/settings_page.dart';
 import 'package:wakaranai/utils/app_colors.dart';
-import 'package:wakaranai/utils/text_styles.dart';
 
 class BottomNavigationItem {
   final int index;
@@ -33,20 +33,24 @@ class _HomeViewState extends State<HomeView> {
   int _currentPage = 0;
 
   final navigationItem = [
-    BottomNavigationItem(
-        index: 0,
-        title: S.current.navigation_bar_sources_title,
-        build: (context) => const RemoteConfigPage(),
-        icon: const Icon(
-          Icons.home_filled,
-        )),
-    BottomNavigationItem(
-        index: 1,
-        title: S.current.navigation_bar_settings_title,
-        build: (context) => SettingsPage(),
-        icon: const Icon(
-          Icons.settings,
-        ))
+    NavigationDestination(
+      label: S.current.navigation_bar_library_title,
+      icon: const Icon(
+        Icons.my_library_books
+      )
+    ),
+    NavigationDestination(
+      label: S.current.navigation_bar_sources_title,
+      icon: const Icon(
+        Icons.home_filled,
+      )
+    ),
+    NavigationDestination(
+      label: S.current.navigation_bar_settings_title,
+      icon: const Icon(
+        Icons.settings,
+      ),
+    )
   ];
 
   @override
@@ -54,28 +58,40 @@ class _HomeViewState extends State<HomeView> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       extendBodyBehindAppBar: true,
-      bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _currentPage,
-          elevation: 8,
-          selectedItemColor: AppColors.primary,
-          selectedLabelStyle: medium(size: 14, color: AppColors.primary),
-          selectedIconTheme: const IconThemeData(color: AppColors.primary),
-          showSelectedLabels: true,
-          unselectedLabelStyle: medium(size: 14, color: AppColors.mainWhite),
-          unselectedIconTheme: const IconThemeData(color: AppColors.mainWhite),
-          type: BottomNavigationBarType.shifting,
-          onTap: (i) {
-            _currentPage = i;
-            setState(() {});
-          },
-          items: navigationItem.map((e) => e.toBarItem()).toList()),
+      bottomNavigationBar: NavigationBar(
+        elevation: 4,
+        selectedIndex: _currentPage,
+        onDestinationSelected: (value) {
+          _currentPage = value;
+          setState(() {});
+        },
+        surfaceTintColor: AppColors.backgroundColor.withOpacity(0.4),
+        height: 70,
+        backgroundColor: AppColors.backgroundColor.withOpacity(0.4),
+        animationDuration: Duration(milliseconds: 400),
+        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+        shadowColor: AppColors.mainBlack.withOpacity(0.4),
+        destinations: navigationItem,
+      ),
       body: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           transitionBuilder: (child, animation) => FadeTransition(
                 opacity: animation,
                 child: child,
               ),
-          child: navigationItem[_currentPage].build(context)),
+          child: _buildBody()),
     );
+  }
+
+  Widget _buildBody() {
+    switch (_currentPage) {
+      case 0:
+        return LibraryPage();
+      case 1:
+        return RemoteConfigPage();
+      case 2:
+        return SettingsPage();
+    }
+    return const SizedBox();
   }
 }
