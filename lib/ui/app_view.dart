@@ -13,6 +13,7 @@ import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/manga_concrete
 import 'package:wakaranai/ui/manga_service_viewer/manga_service_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/splashscreen/splashscreen_view.dart';
+import 'package:wakaranai/utils/text_styles.dart';
 
 import '../main.dart';
 import '../utils/app_colors.dart';
@@ -33,6 +34,12 @@ class _AppViewState extends State<AppView> {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(
           useMaterial3: true,
+          navigationBarTheme: NavigationBarThemeData(
+              labelTextStyle: MaterialStateProperty.all(
+                  medium(size: 16, color: AppColors.mainWhite)),
+              indicatorColor: AppColors.primary.withOpacity(0.9),
+              iconTheme: MaterialStateProperty.all(
+                  IconThemeData(color: AppColors.mainWhite))),
           dialogTheme:
               const DialogTheme(surfaceTintColor: AppColors.backgroundColor),
           cardTheme:
