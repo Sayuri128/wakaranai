@@ -34,7 +34,7 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
       return;
     }
 
-    changeSource((await configsSourceService.getAll(ConfigsSourceItem.fromJson))
+    changeSource((await configsSourceService.getAll())
             .firstWhereOrNull((element) => element.id == defaultId) ??
         SettingsCubit.DefaultConfigsServiceItem);
   }

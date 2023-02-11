@@ -62,7 +62,7 @@ class _AppViewState extends State<AppView> {
       navigatorObservers: [_heroController],
       routes: {
         Routes.splashScreen: (context) => const SplashScreen(),
-        Routes.home: (context) => const HomeView()
+        Routes.home: (context) => HomeView()
       },
       onGenerateRoute: (settings) {
         final routes = <String, WidgetBuilder>{

@@ -7,7 +7,7 @@ import 'package:wakaranai/env.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/models/configs_source_item/configs_source_item.dart';
 import 'package:wakaranai/models/configs_source_type/configs_source_type.dart';
-import 'package:wakaranai/ui/home/add_configs_source_dialog.dart';
+import 'package:wakaranai/ui/home/configs_page/add_configs_source_dialog.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 

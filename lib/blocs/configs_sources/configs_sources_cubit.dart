@@ -13,8 +13,7 @@ class ConfigsSourcesCubit extends Cubit<ConfigsSourcesState> {
   void getSources() async {
     emit(ConfigsSourcesLoading());
     emit(ConfigsSourcesInitialized(
-        sources:
-            await _configsSourceService.getAll(ConfigsSourceItem.fromJson)));
+        sources: await _configsSourceService.getAll()));
   }
 
   void create(ConfigsSourceItem item) async {
@@ -23,10 +22,9 @@ class ConfigsSourcesCubit extends Cubit<ConfigsSourcesState> {
   }
 
   void delete(ConfigsSourceItem item) async {
-    if(item.id != null) {
+    if (item.id != null) {
       await _configsSourceService.delete(item.id!);
     }
     getSources();
   }
-
 }

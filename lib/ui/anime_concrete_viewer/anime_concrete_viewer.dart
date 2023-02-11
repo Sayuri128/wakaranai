@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/anime_concrete_viewer/anime_concrete_viewer_cubit.dart';
+import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/heroes.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_player_button.dart';
 import 'package:wakaranai/ui/anime_iframe_player/anime_iframe_player.dart';
+import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -20,138 +22,175 @@ class AnimeConcreteViewerData {
   final AnimeGalleryView galleryView;
   final AnimeApiClient client;
   final ConfigInfo configInfo;
+  final bool fromLibrary;
 
   const AnimeConcreteViewerData(
       {required this.uid,
       required this.galleryView,
       required this.client,
-      required this.configInfo});
+      required this.configInfo,
+      this.fromLibrary = false});
 }
 
 class AnimeConcreteViewer extends StatelessWidget {
-  const AnimeConcreteViewer({Key? key, required this.data}) : super(key: key);
+  AnimeConcreteViewer({Key? key, required this.data}) : super(key: key);
+
+  final GlobalKey _scaffoldKey = GlobalKey();
 
   final AnimeConcreteViewerData data;
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<AnimeConcreteViewCubit>(
-          create: (context) => AnimeConcreteViewCubit(
-              AnimeConcreteViewState(apiClient: data.client))
-            ..getConcrete(data.uid, data.galleryView),
-        ),
-      ],
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundColor,
-        extendBodyBehindAppBar: true,
-        floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-        floatingActionButton:
-            BlocBuilder<AnimeConcreteViewCubit, AnimeConcreteViewState>(
-          builder: (context, state) {
-            if (state is AnimeConcreteViewInitialized) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 24.0, right: 8.0),
-                child: ChangeOrderIconButton(
-                  state: state.order == AnimeConcreteViewOrder.DEFAULT,
-                  onTap: () {
-                    context.read<AnimeConcreteViewCubit>().changeOrder(
-                        state.order == AnimeConcreteViewOrder.DEFAULT
-                            ? AnimeConcreteViewOrder.DEFAULT_REVERSE
-                            : AnimeConcreteViewOrder.DEFAULT);
-                  },
-                ),
-              );
-            }
-            return const SizedBox();
-          },
-        ),
-        body: BlocBuilder<AnimeConcreteViewCubit, AnimeConcreteViewState>(
-          builder: (context, state) {
-            late final AnimeConcreteView concreteView;
-            int currentGroupIndex = -1;
+    if (data.fromLibrary) {
+      return WebBrowserWrapper(
+        configInfo: data.configInfo,
+        apiClient: data.client,
+        onInterceptorInitialized: () {
+          _scaffoldKey.currentContext
+              ?.read<AnimeConcreteViewCubit>()
+              .getConcrete(data.uid, data.galleryView);
+        },
+        builder: (context, completer) => MultiBlocProvider(providers: [
+          BlocProvider<AnimeConcreteViewCubit>(
+            create: (context) => AnimeConcreteViewCubit(
+                AnimeConcreteViewState(apiClient: data.client)),
+          ),
+          if (data.configInfo.protectorConfig?.inAppBrowserInterceptor ?? false)
+            BlocProvider<BrowserInterceptorCubit>(
+                lazy: false,
+                create: (context) {
+                  final cubit = BrowserInterceptorCubit()
+                    ..init(
+                        url: data.configInfo.protectorConfig!.pingUrl,
+                        initCompleter: completer);
+                  data.client
+                      .passWebBrowserInterceptorController(controller: cubit);
+                  return cubit;
+                })
+        ], child: _buildBody()),
+      );
+    } else {
+      return MultiBlocProvider(
+        providers: [
+          BlocProvider<AnimeConcreteViewCubit>(
+            create: (context) => AnimeConcreteViewCubit(
+                AnimeConcreteViewState(apiClient: data.client))
+              ..getConcrete(data.uid, data.galleryView),
+          ),
+        ],
+        child: _buildBody(),
+      );
+    }
+  }
 
-            if (state is AnimeConcreteViewInitialized) {
-              concreteView = state.concreteView;
-              currentGroupIndex = state.videoGroupIndex;
-            }
-            return ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: 1 +
-                  ((state is AnimeConcreteViewInitialized)
-                      ? (state.videoGroupIndex != -1
-                          ? concreteView
-                              .videoGroups[state.videoGroupIndex].videos.length
-                          : 0)
-                      : 0),
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: Column(
-                      children: [
-                        _buildCover(data.galleryView.cover, context),
-                        const SizedBox(height: 16.0),
-                        if (state is AnimeConcreteViewInitialized) ...[
-                          _buildTitle(concreteView),
-                          const SizedBox(height: 16.0),
-                          _buildTags(concreteView),
-                          const SizedBox(height: 16.0),
-                          _buildDescription(context, concreteView),
-                          const SizedBox(height: 16.0),
-                          const Divider(
-                            thickness: 1,
-                            color: AppColors.primary,
-                          ),
-                          const SizedBox(height: 16.0),
-                          _buildPlayerButtons(
-                              state, context, currentGroupIndex),
-                        ] else ...[
-                          const SizedBox(
-                            height: 32,
-                          ),
-                          const CircularProgressIndicator(
-                            color: AppColors.primary,
-                          ),
-                        ],
-                        const SizedBox(height: 16.0),
-                      ],
-                    ),
-                  );
-                } else {
-                  final animeVideo = concreteView
-                      .videoGroups[currentGroupIndex].videos[index - 1];
-
-                  return ListTile(
-                    onTap: () {
-                      Navigator.of(context).pushNamed(Routes.iframeAnimePlayer,
-                          arguments:
-                              AnimeIframePlayerData(src: animeVideo.src));
-                    },
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(animeVideo.title.trim()),
-                        if (animeVideo.timestamp != null) ...[
-                          const SizedBox(height: 8.0),
-                          Text(
-                            int.tryParse(animeVideo.timestamp ?? '') != null
-                                ? DateFormat(animeVideo.timestamp).format(
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                        int.tryParse(animeVideo.timestamp!)!))
-                                : animeVideo.timestamp ?? '',
-                            style: regular(color: AppColors.mainGrey, size: 12),
-                          )
-                        ]
-                      ],
-                    ),
-                  );
-                }
-              },
+  Scaffold _buildBody() {
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: AppColors.backgroundColor,
+      extendBodyBehindAppBar: true,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButton:
+          BlocBuilder<AnimeConcreteViewCubit, AnimeConcreteViewState>(
+        builder: (context, state) {
+          if (state is AnimeConcreteViewInitialized) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 24.0, right: 8.0),
+              child: ChangeOrderIconButton(
+                state: state.order == AnimeConcreteViewOrder.DEFAULT,
+                onTap: () {
+                  context.read<AnimeConcreteViewCubit>().changeOrder(
+                      state.order == AnimeConcreteViewOrder.DEFAULT
+                          ? AnimeConcreteViewOrder.DEFAULT_REVERSE
+                          : AnimeConcreteViewOrder.DEFAULT);
+                },
+              ),
             );
-          },
-        ),
+          }
+          return const SizedBox();
+        },
+      ),
+      body: BlocBuilder<AnimeConcreteViewCubit, AnimeConcreteViewState>(
+        builder: (context, state) {
+          late final AnimeConcreteView concreteView;
+          int currentGroupIndex = -1;
+
+          if (state is AnimeConcreteViewInitialized) {
+            concreteView = state.concreteView;
+            currentGroupIndex = state.videoGroupIndex;
+          }
+          return ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: 1 +
+                ((state is AnimeConcreteViewInitialized)
+                    ? (state.videoGroupIndex != -1
+                        ? concreteView
+                            .videoGroups[state.videoGroupIndex].videos.length
+                        : 0)
+                    : 0),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Column(
+                    children: [
+                      _buildCover(data.galleryView.cover, context),
+                      const SizedBox(height: 16.0),
+                      if (state is AnimeConcreteViewInitialized) ...[
+                        _buildTitle(concreteView),
+                        const SizedBox(height: 16.0),
+                        _buildTags(concreteView),
+                        const SizedBox(height: 16.0),
+                        _buildDescription(context, concreteView),
+                        const SizedBox(height: 16.0),
+                        const Divider(
+                          thickness: 1,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(height: 16.0),
+                        _buildPlayerButtons(state, context, currentGroupIndex),
+                      ] else ...[
+                        const SizedBox(
+                          height: 32,
+                        ),
+                        const CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      ],
+                      const SizedBox(height: 16.0),
+                    ],
+                  ),
+                );
+              } else {
+                final animeVideo = concreteView
+                    .videoGroups[currentGroupIndex].videos[index - 1];
+
+                return ListTile(
+                  onTap: () {
+                    Navigator.of(context).pushNamed(Routes.iframeAnimePlayer,
+                        arguments: AnimeIframePlayerData(src: animeVideo.src));
+                  },
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(animeVideo.title.trim()),
+                      if (animeVideo.timestamp != null) ...[
+                        const SizedBox(height: 8.0),
+                        Text(
+                          int.tryParse(animeVideo.timestamp ?? '') != null
+                              ? DateFormat(animeVideo.timestamp).format(
+                                  DateTime.fromMillisecondsSinceEpoch(
+                                      int.tryParse(animeVideo.timestamp!)!))
+                              : animeVideo.timestamp ?? '',
+                          style: regular(color: AppColors.mainGrey, size: 12),
+                        )
+                      ]
+                    ],
+                  ),
+                );
+              }
+            },
+          );
+        },
       ),
     );
   }

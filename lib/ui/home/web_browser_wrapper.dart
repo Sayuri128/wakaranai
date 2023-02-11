@@ -9,8 +9,8 @@ import 'package:wakascript/api_clients/api_client.dart';
 import 'package:wakascript/logger.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
 
-class ServiceViewer<T extends ApiClient> extends StatefulWidget {
-  const ServiceViewer(
+class WebBrowserWrapper<T extends ApiClient> extends StatefulWidget {
+  const WebBrowserWrapper(
       {Key? key,
       required this.builder,
       required this.onInterceptorInitialized,
@@ -18,7 +18,7 @@ class ServiceViewer<T extends ApiClient> extends StatefulWidget {
       required this.apiClient})
       : super(key: key);
 
-  final Widget Function(BuildContext context, bool initDone, Completer<bool>)
+  final Widget Function(BuildContext context, Completer<bool>)
       builder;
   final VoidCallback onInterceptorInitialized;
 
@@ -26,10 +26,10 @@ class ServiceViewer<T extends ApiClient> extends StatefulWidget {
   final ConfigInfo configInfo;
 
   @override
-  State<ServiceViewer> createState() => _ServiceViewerState();
+  State<WebBrowserWrapper> createState() => _WebBrowserWrapperState();
 }
 
-class _ServiceViewerState extends State<ServiceViewer> {
+class _WebBrowserWrapperState extends State<WebBrowserWrapper> {
   final Completer<bool> _interceptorInitCompleter = Completer();
   final Completer<bool> _protectorInitCompleter = Completer();
 
@@ -100,6 +100,6 @@ class _ServiceViewerState extends State<ServiceViewer> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.builder(context, _initDone, _interceptorInitCompleter);
+    return widget.builder(context, _interceptorInitCompleter);
   }
 }

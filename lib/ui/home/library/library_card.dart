@@ -4,14 +4,15 @@ import 'package:wakaranai/heroes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
-class GalleryViewCard extends StatelessWidget {
-  const GalleryViewCard(
+
+class LibraryCard extends StatelessWidget {
+  const LibraryCard(
       {Key? key,
-      this.onTap,
-      this.onLongPress,
-      required this.uid,
-      required this.cover,
-      required this.title})
+        this.onTap,
+        this.onLongPress,
+        required this.uid,
+        required this.cover,
+        required this.title})
       : super(key: key);
 
   final VoidCallback? onTap;
@@ -36,6 +37,7 @@ class GalleryViewCard extends StatelessWidget {
             child: Material(
               child: CachedNetworkImage(
                 imageUrl: cover,
+                alignment: Alignment.center,
                 height: MediaQuery.of(context).size.width * .5 / aspectRatio,
                 fit: BoxFit.cover,
               ),
@@ -49,9 +51,9 @@ class GalleryViewCard extends StatelessWidget {
                     begin: const Alignment(-1, 0),
                     end: const Alignment(-1, 1),
                     colors: [
-                  AppColors.mainBlack.withOpacity(0.0),
-                  AppColors.mainBlack.withOpacity(.8),
-                ])),
+                      AppColors.mainBlack.withOpacity(0.0),
+                      AppColors.mainBlack.withOpacity(.8),
+                    ])),
           ),
           SizedBox(
             height: MediaQuery.of(context).size.width * .5 / aspectRatio,

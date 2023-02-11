@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/api_client_controller/api_client_controller_cubit.dart';
 import 'package:wakaranai/ui/anime_service_viewer/anime_service_viewer.dart';
+import 'package:wakaranai/ui/home/configs_page/config_card.dart';
 import 'package:wakaranai/ui/manga_service_viewer/manga_service_viewer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -9,8 +10,7 @@ import 'package:wakascript/api_clients/anime_api_client.dart';
 import 'package:wakascript/api_clients/api_client.dart';
 import 'package:wakascript/api_clients/manga_api_client.dart';
 
-import '../routes.dart';
-import 'config_card.dart';
+import '../../routes.dart';
 
 class ConfigsGroup<T extends ApiClient> extends StatelessWidget {
   const ConfigsGroup({Key? key, required this.title, required this.apiClients})

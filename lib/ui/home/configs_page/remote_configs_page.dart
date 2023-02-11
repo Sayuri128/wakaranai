@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/ui/home/configs_group.dart';
-import 'package:wakaranai/ui/home/configs_source_dialog.dart';
+import 'package:wakaranai/ui/home/configs_page/configs_group.dart';
+import 'package:wakaranai/ui/home/configs_page/configs_source_dialog.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 

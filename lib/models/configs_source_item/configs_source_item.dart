@@ -5,7 +5,7 @@ import 'package:wakaranai/models/serializable_object.dart';
 part 'configs_source_item.g.dart';
 
 @JsonSerializable()
-class ConfigsSourceItem implements SerializableObject {
+class ConfigsSourceItem implements SqSerializableObject {
   factory ConfigsSourceItem.fromJson(Map<String, dynamic> json) =>
       _$ConfigsSourceItemFromJson(json);
 
@@ -24,5 +24,14 @@ class ConfigsSourceItem implements SerializableObject {
   });
 
   @override
-  Map<String, dynamic> toMap() => toJson();
+  Map<String, dynamic> toMap({bool lazy = true}) {
+    final res = toJson();
+    if(id == null || lazy) {
+      res.remove("id");
+    }
+    return res;
+  }
+
+  @override
+  int? getId() => id;
 }
