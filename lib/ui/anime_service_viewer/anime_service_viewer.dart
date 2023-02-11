@@ -1,18 +1,23 @@
 import 'dart:async';
 
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/anime_service_view/anime_service_view_cubit.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/models/data/library_item.dart';
+import 'package:wakaranai/models/data/local_api_client.dart';
+import 'package:wakaranai/models/data/local_gallery_view.dart';
+import 'package:wakaranai/services/library_service/library_service.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_concrete_viewer.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/manga_service_viewer/filters/filters_page.dart';
 import 'package:wakaranai/ui/routes.dart';
-import 'package:wakaranai/ui/service_viewer/service_viewer.dart';
+import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_clients/anime_api_client.dart';
@@ -59,8 +64,8 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
 
   @override
   Widget build(BuildContext context) {
-    return ServiceViewer<AnimeApiClient>(
-        builder: (context, initDone, interceptor) {
+    return WebBrowserWrapper<AnimeApiClient>(
+        builder: (context, interceptor) {
           return WillPopScope(
             onWillPop: () {
               Navigator.of(context)
@@ -69,16 +74,10 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
             },
             child: MultiBlocProvider(
               providers: [
-                BlocProvider<AnimeServiceViewCubit>(create: (context) {
-                  final cubit = AnimeServiceViewCubit(
-                      AnimeServiceViewInitial(client: widget.data.apiClient));
-
-                  if (initDone) {
-                    cubit.init();
-                  }
-
-                  return cubit;
-                }),
+                BlocProvider<AnimeServiceViewCubit>(
+                    create: (context) => AnimeServiceViewCubit(
+                        AnimeServiceViewInitial(
+                            client: widget.data.apiClient))),
                 if (widget.data.configInfo.protectorConfig
                         ?.inAppBrowserInterceptor ??
                     false)
@@ -180,11 +179,14 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                               onTap: () {
                                 _onGalleryViewClick(context, e);
                               },
+                              onLongPress: () {
+                                _onGalleryViewLongPress(context, e);
+                              },
                             );
                           },
                           itemCount: state.galleryViews.length,
                           gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
+                              const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
                                   childAspectRatio: GalleryViewCard.aspectRatio,
                                   crossAxisSpacing: 8,
@@ -293,7 +295,7 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                     cursorColor: AppColors.primary,
                     style: medium(size: 16),
                     decoration: InputDecoration(
-                        contentPadding: EdgeInsets.only(bottom: 4.0),
+                        contentPadding: const EdgeInsets.only(bottom: 4.0),
                         isCollapsed: true,
                         enabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: AppColors.primary)),
@@ -308,6 +310,35 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
           ],
         ),
       );
+
+  void _onGalleryViewLongPress(BuildContext context, AnimeGalleryView e) {
+    final service = context.read<LibraryService>();
+    service.checkExists(LibraryItemType.ANIME, e.uid).then((value) {
+      if (!mounted) {
+        return;
+      }
+      if (!value.value) {
+        service
+            .insert(LibraryItem(
+                localApiClient: LocalApiClient.fromApiClient(
+                    widget.apiClient, widget.configInfo),
+                localGalleryView: LocalAnimeGalleryView.fromRemote(e),
+                type: LibraryItemType.ANIME))
+            .then((value) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("${e.title} Added to library!")));
+        });
+      } else {
+        showConfirmationDialog(
+                context: context,
+                title:
+                    "Are you sure you want to delete ${e.title} from your library?")
+            .then((value) {
+          print(value);
+        });
+      }
+    });
+  }
 
   void _onGalleryViewClick(BuildContext context, AnimeGalleryView e) {
     Navigator.of(context).pushNamed(Routes.animeConcreteViewer,

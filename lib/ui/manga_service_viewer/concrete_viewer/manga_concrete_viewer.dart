@@ -2,8 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/manga_concrete_view/manga_concrete_view_cubit.dart';
 import 'package:wakaranai/heroes.dart';
+import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/manga_provider_button.dart';
@@ -23,123 +25,164 @@ class MangaConcreteViewerData {
   final MangaGalleryView galleryView;
   final MangaApiClient client;
   final ConfigInfo configInfo;
+  final bool fromLibrary;
 
   const MangaConcreteViewerData(
       {required this.uid,
       required this.galleryView,
       required this.client,
-      required this.configInfo});
+      required this.configInfo,
+      this.fromLibrary = false});
 }
 
 class MangaConcreteViewer extends StatelessWidget {
   static const String chapterDateFormat = 'yyyy-MM-dd HH:mm';
 
-  const MangaConcreteViewer({Key? key, required this.data}) : super(key: key);
+  MangaConcreteViewer({Key? key, required this.data}) : super(key: key);
+
+  final GlobalKey _scaffoldKey = GlobalKey();
 
   final MangaConcreteViewerData data;
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<MangaConcreteViewCubit>(
-          create: (context) => MangaConcreteViewCubit(
-              MangaConcreteViewState(apiClient: data.client))
-            ..getConcrete(data.uid, data.galleryView),
+    if (data.fromLibrary) {
+      return WebBrowserWrapper(
+        onInterceptorInitialized: () {
+          _scaffoldKey.currentContext
+              ?.read<MangaConcreteViewCubit>()
+              .getConcrete(data.uid, data.galleryView);
+        },
+        apiClient: data.client,
+        configInfo: data.configInfo,
+        builder: (context, completer) => MultiBlocProvider(
+          providers: [
+            BlocProvider<MangaConcreteViewCubit>(
+              create: (context) => MangaConcreteViewCubit(
+                  MangaConcreteViewState(apiClient: data.client)),
+            ),
+            if (data.configInfo.protectorConfig?.inAppBrowserInterceptor ??
+                false)
+              BlocProvider<BrowserInterceptorCubit>(
+                  lazy: false,
+                  create: (context) {
+                    final cubit = BrowserInterceptorCubit()
+                      ..init(
+                          url: data.configInfo.protectorConfig!.pingUrl,
+                          initCompleter: completer);
+                    data.client
+                        .passWebBrowserInterceptorController(controller: cubit);
+                    return cubit;
+                  })
+          ],
+          child: _buildBody(),
         ),
-      ],
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundColor,
-        extendBodyBehindAppBar: true,
-        floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-        floatingActionButton:
-            BlocBuilder<MangaConcreteViewCubit, MangaConcreteViewState>(
-          builder: (context, state) {
-            if (state is MangaConcreteViewInitialized) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 24.0, right: 8.0),
-                child: ChangeOrderIconButton(
-                  state: state.order == MangaConcreteViewOrder.DEFAULT,
-                  onTap: () {
-                    context.read<MangaConcreteViewCubit>().changeOrder(
-                        state.order == MangaConcreteViewOrder.DEFAULT
-                            ? MangaConcreteViewOrder.DEFAULT_REVERSE
-                            : MangaConcreteViewOrder.DEFAULT);
-                  },
-                ),
-              );
-            }
+      );
+    } else {
+      return MultiBlocProvider(
+        providers: [
+          BlocProvider<MangaConcreteViewCubit>(
+            create: (context) => MangaConcreteViewCubit(
+                MangaConcreteViewState(apiClient: data.client))
+              ..getConcrete(data.uid, data.galleryView),
+          ),
+        ],
+        child: _buildBody(),
+      );
+    }
+  }
 
-            return const SizedBox();
-          },
-        ),
-        body: BlocBuilder<MangaConcreteViewCubit, MangaConcreteViewState>(
-          builder: (context, state) {
-            late final MangaConcreteView concreteView;
-
-            int currentGroupsIndex = -1;
-            if (state is MangaConcreteViewInitialized) {
-              concreteView = state.concreteView;
-              currentGroupsIndex = state.currentGroupIndex;
-            }
-            return ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: 1 +
-                  ((state is MangaConcreteViewInitialized)
-                      ? state.currentGroupIndex != -1
-                          ? concreteView
-                              .chapterGroups[state.currentGroupIndex]
-                              .chapters
-                              .length
-                          : 0
-                      : 0),
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: Column(
-                      children: [
-                        _buildCover(data.galleryView.cover, context),
-                        const SizedBox(height: 16.0),
-                        if (state is MangaConcreteViewInitialized) ...[
-                          _buildPrettyTitle(concreteView),
-                          _buildOriginalTitle(concreteView),
-                          const SizedBox(height: 16.0),
-                          _buildTags(concreteView),
-                          const SizedBox(height: 16.0),
-                          _buildDescription(context, concreteView),
-                          const SizedBox(height: 16.0),
-                          _buildMangaProviderButtons(
-                              state, context, currentGroupsIndex),
-                          const Divider(
-                            thickness: 1,
-                            color: AppColors.secondary,
-                          ),
-                        ] else ...[
-                          const SizedBox(
-                            height: 32,
-                          ),
-                          const CircularProgressIndicator(
-                            color: AppColors.primary,
-                          ),
-                        ],
-                        const SizedBox(height: 16.0),
-                      ],
-                    ),
-                  );
-                } else {
-                  return _buildChapter(
-                      context,
-                      concreteView.chapterGroups[currentGroupsIndex]
-                          .chapters[index - 1],
-                      data.galleryView,
-                      concreteView.chapterGroups[currentGroupsIndex],
-                      data.configInfo);
-                }
-              },
+  Scaffold _buildBody() {
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: AppColors.backgroundColor,
+      extendBodyBehindAppBar: true,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButton:
+          BlocBuilder<MangaConcreteViewCubit, MangaConcreteViewState>(
+        builder: (context, state) {
+          if (state is MangaConcreteViewInitialized) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 24.0, right: 8.0),
+              child: ChangeOrderIconButton(
+                state: state.order == MangaConcreteViewOrder.DEFAULT,
+                onTap: () {
+                  context.read<MangaConcreteViewCubit>().changeOrder(
+                      state.order == MangaConcreteViewOrder.DEFAULT
+                          ? MangaConcreteViewOrder.DEFAULT_REVERSE
+                          : MangaConcreteViewOrder.DEFAULT);
+                },
+              ),
             );
-          },
-        ),
+          }
+
+          return const SizedBox();
+        },
+      ),
+      body: BlocBuilder<MangaConcreteViewCubit, MangaConcreteViewState>(
+        builder: (context, state) {
+          late final MangaConcreteView concreteView;
+
+          int currentGroupsIndex = -1;
+          if (state is MangaConcreteViewInitialized) {
+            concreteView = state.concreteView;
+            currentGroupsIndex = state.currentGroupIndex;
+          }
+          return ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: 1 +
+                ((state is MangaConcreteViewInitialized)
+                    ? state.currentGroupIndex != -1
+                        ? concreteView.chapterGroups[state.currentGroupIndex]
+                            .chapters.length
+                        : 0
+                    : 0),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Column(
+                    children: [
+                      _buildCover(data.galleryView.cover, context),
+                      const SizedBox(height: 16.0),
+                      if (state is MangaConcreteViewInitialized) ...[
+                        _buildPrettyTitle(concreteView),
+                        _buildOriginalTitle(concreteView),
+                        const SizedBox(height: 16.0),
+                        _buildTags(concreteView),
+                        const SizedBox(height: 16.0),
+                        _buildDescription(context, concreteView),
+                        const SizedBox(height: 16.0),
+                        _buildMangaProviderButtons(
+                            state, context, currentGroupsIndex),
+                        const Divider(
+                          thickness: 1,
+                          color: AppColors.secondary,
+                        ),
+                      ] else ...[
+                        const SizedBox(
+                          height: 32,
+                        ),
+                        const CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      ],
+                      const SizedBox(height: 16.0),
+                    ],
+                  ),
+                );
+              } else {
+                return _buildChapter(
+                    context,
+                    concreteView
+                        .chapterGroups[currentGroupsIndex].chapters[index - 1],
+                    data.galleryView,
+                    concreteView.chapterGroups[currentGroupsIndex],
+                    data.configInfo);
+              }
+            },
+          );
+        },
       ),
     );
   }

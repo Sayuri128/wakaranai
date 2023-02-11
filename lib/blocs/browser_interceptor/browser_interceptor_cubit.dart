@@ -132,7 +132,7 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
 
     if (res == null || res.error != null || res.value == null) {
       _jsAttempts++;
-      await Future.delayed(const Duration(milliseconds: 150));
+      await Future.delayed(const Duration(milliseconds: 400));
       return await executeJsScript(code);
     }
 

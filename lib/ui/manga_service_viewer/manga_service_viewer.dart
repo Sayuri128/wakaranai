@@ -1,17 +1,22 @@
 import 'dart:async';
 
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/manga_service_view/manga_service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/models/data/library_item.dart';
+import 'package:wakaranai/models/data/local_api_client.dart';
+import 'package:wakaranai/models/data/local_gallery_view.dart';
 import 'package:wakaranai/models/protector/protector_storage_item.dart';
+import 'package:wakaranai/services/library_service/library_service.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/manga_service_viewer/filters/filters_page.dart';
-import 'package:wakaranai/ui/service_viewer/service_viewer.dart';
+import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_clients/manga_api_client.dart';
@@ -48,7 +53,7 @@ class _MangaServiceViewState extends State<MangaServiceView> {
   final GlobalKey _scaffold = GlobalKey();
 
   final RefreshController _refreshController =
-  RefreshController(initialRefresh: false);
+      RefreshController(initialRefresh: false);
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -59,9 +64,9 @@ class _MangaServiceViewState extends State<MangaServiceView> {
 
   @override
   Widget build(BuildContext context) {
-    return ServiceViewer<MangaApiClient>(
+    return WebBrowserWrapper<MangaApiClient>(
         apiClient: widget.apiClient,
-        builder: (context, initDone, interceptorInitCompleter) {
+        builder: (context, interceptorInitCompleter) {
           return WillPopScope(
             onWillPop: () {
               Navigator.of(context)
@@ -70,18 +75,11 @@ class _MangaServiceViewState extends State<MangaServiceView> {
             },
             child: MultiBlocProvider(
               providers: [
-                BlocProvider<MangaServiceViewCubit>(create: (context) {
-                  final cubit = MangaServiceViewCubit(
-                      MangaServiceViewInitial(client: widget.apiClient));
-
-                  if (initDone) {
-                    cubit.init();
-                  }
-
-                  return cubit;
-                }),
+                BlocProvider<MangaServiceViewCubit>(
+                    create: (context) => MangaServiceViewCubit(
+                        MangaServiceViewInitial(client: widget.apiClient))),
                 if (widget
-                    .configInfo.protectorConfig?.inAppBrowserInterceptor ??
+                        .configInfo.protectorConfig?.inAppBrowserInterceptor ??
                     false)
                   BlocProvider<BrowserInterceptorCubit>(
                       lazy: false,
@@ -123,10 +121,7 @@ class _MangaServiceViewState extends State<MangaServiceView> {
           key: _scaffold,
           backgroundColor: AppColors.backgroundColor,
           appBar: PreferredSize(
-              preferredSize: Size(MediaQuery
-                  .of(context)
-                  .size
-                  .width,
+              preferredSize: Size(MediaQuery.of(context).size.width,
                   widget.configInfo.searchAvailable ? 80 : 60),
               child: _buildSearchableAppBar(context,
                   state is MangaServiceViewInitialized ? state : null)),
@@ -134,13 +129,13 @@ class _MangaServiceViewState extends State<MangaServiceView> {
             decoration: BoxDecoration(
                 color: AppColors.backgroundColor.withOpacity(0.90)),
             child: state is MangaServiceViewInitialized &&
-                state.configInfo.filters.isNotEmpty
+                    state.configInfo.filters.isNotEmpty
                 ? FiltersPage(
-                filters: state.configInfo.filters,
-                selectedFilters: state.selectedFilters)
+                    filters: state.configInfo.filters,
+                    selectedFilters: state.selectedFilters)
                 : const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
-            ),
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
           ),
           body: Stack(
             alignment: Alignment.center,
@@ -172,24 +167,27 @@ class _MangaServiceViewState extends State<MangaServiceView> {
                   },
                   child: state is MangaServiceViewInitialized
                       ? GridView.builder(
-                      itemBuilder: (context, index) {
-                        final e = state.galleryViews[index];
-                        return GalleryViewCard(
-                          cover: e.cover,
-                          uid: e.uid,
-                          title: e.title,
-                          onTap: () {
-                            _onGalleryViewClick(context, e);
+                          itemBuilder: (context, index) {
+                            final e = state.galleryViews[index];
+                            return GalleryViewCard(
+                              cover: e.cover,
+                              uid: e.uid,
+                              title: e.title,
+                              onLongPress: () {
+                                _onLongGalleryViewPress(context, e);
+                              },
+                              onTap: () {
+                                _onGalleryViewClick(context, e);
+                              },
+                            );
                           },
-                        );
-                      },
-                      itemCount: state.galleryViews.length,
-                      gridDelegate:
-                      SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: GalleryViewCard.aspectRatio,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8))
+                          itemCount: state.galleryViews.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  childAspectRatio: GalleryViewCard.aspectRatio,
+                                  crossAxisSpacing: 8,
+                                  mainAxisSpacing: 8))
                       : const SizedBox()),
               if (state is! MangaServiceViewInitialized &&
                   state is! MangaServiceViewError)
@@ -198,53 +196,52 @@ class _MangaServiceViewState extends State<MangaServiceView> {
                     color: AppColors.primary,
                   ),
                 )
-              else
-                if (state is MangaServiceViewError)
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              children: [
-                                IconButton(
-                                  onPressed: state.retry,
-                                  icon: const Icon(Icons.refresh),
-                                  splashRadius: 18,
-                                ),
-                                Text(
-                                  S.current.service_view_retry_button_title,
-                                  style: regular(
-                                      color: AppColors.mainWhite, size: 14),
-                                )
-                              ],
-                            ),
-                            Text(S.current.service_view_error,
+              else if (state is MangaServiceViewError)
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            children: [
+                              IconButton(
+                                onPressed: state.retry,
+                                icon: const Icon(Icons.refresh),
+                                splashRadius: 18,
+                              ),
+                              Text(
+                                S.current.service_view_retry_button_title,
                                 style: regular(
-                                    color: AppColors.mainWhite, size: 18)),
-                            Column(
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.webhook),
-                                  onPressed: _openWebView,
-                                  splashRadius: 18,
-                                ),
-                                Text(
-                                  S.current
-                                      .service_view_open_web_view_button_title,
-                                  style: regular(
-                                      color: AppColors.mainWhite, size: 14),
-                                )
-                              ],
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  )
+                                    color: AppColors.mainWhite, size: 14),
+                              )
+                            ],
+                          ),
+                          Text(S.current.service_view_error,
+                              style: regular(
+                                  color: AppColors.mainWhite, size: 18)),
+                          Column(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.webhook),
+                                onPressed: _openWebView,
+                                splashRadius: 18,
+                              ),
+                              Text(
+                                S.current
+                                    .service_view_open_web_view_button_title,
+                                style: regular(
+                                    color: AppColors.mainWhite, size: 14),
+                              )
+                            ],
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                )
             ],
           ),
         );
@@ -252,13 +249,39 @@ class _MangaServiceViewState extends State<MangaServiceView> {
     );
   }
 
-  Widget _buildSearchableAppBar(BuildContext context,
-      MangaServiceViewInitialized? state) =>
+  void _onLongGalleryViewPress(BuildContext context, MangaGalleryView e) {
+    final service = context.read<LibraryService>();
+    service.checkExists(LibraryItemType.MANGA, e.uid).then((value) {
+      if (!mounted) {
+        return;
+      }
+      if (!value.value) {
+        service
+            .insert(LibraryItem(
+                localApiClient: LocalApiClient.fromApiClient(
+                    widget.apiClient, widget.configInfo),
+                localGalleryView: LocalMangaGalleryView.fromRemote(e),
+                type: LibraryItemType.MANGA))
+            .then((value) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("${e.title} Added to library!")));
+        });
+      } else {
+        showConfirmationDialog(
+                context: context,
+                title:
+                    "Are you sure you want to delete ${e.title} from your library?")
+            .then((value) {
+          print(value);
+        });
+      }
+    });
+  }
+
+  Widget _buildSearchableAppBar(
+          BuildContext context, MangaServiceViewInitialized? state) =>
       Padding(
-        padding: EdgeInsets.only(top: MediaQuery
-            .of(context)
-            .padding
-            .top),
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         child: Container(
           child: Column(
             mainAxisSize: MainAxisSize.max,
@@ -281,7 +304,8 @@ class _MangaServiceViewState extends State<MangaServiceView> {
                             : Colors.transparent,
                       ),
                       onPressed: widget.configInfo.protectorConfig != null
-                          ? _openWebView : null)
+                          ? _openWebView
+                          : null)
                 ],
               ),
               if (state != null && widget.configInfo.searchAvailable)
@@ -298,14 +322,14 @@ class _MangaServiceViewState extends State<MangaServiceView> {
                       cursorColor: AppColors.primary,
                       style: medium(size: 16),
                       decoration: InputDecoration(
-                          contentPadding: EdgeInsets.only(bottom: 4.0),
+                          contentPadding: const EdgeInsets.only(bottom: 4.0),
                           isCollapsed: true,
                           enabledBorder: const UnderlineInputBorder(
                               borderSide: BorderSide(color: AppColors.primary)),
                           focusedBorder: const UnderlineInputBorder(
                               borderSide: BorderSide(color: AppColors.primary)),
                           hintText:
-                          S.current.service_viewer_search_field_hint_text,
+                              S.current.service_viewer_search_field_hint_text,
                           hintStyle: medium(size: 16)),
                     ),
                   ),
@@ -331,7 +355,7 @@ class _MangaServiceViewState extends State<MangaServiceView> {
         arguments: WebBrowserData(
             config: config.protectorConfig!,
             protectorStorageItem:
-            await ProtectorStorageService().getItem(uid: uid)));
+                await ProtectorStorageService().getItem(uid: uid)));
     if (result != null) {
       await widget.apiClient
           .passProtector(data: result as Map<String, dynamic>);

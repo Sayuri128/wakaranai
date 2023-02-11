@@ -3,12 +3,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:wakaranai/blocs/configs_sources/configs_sources_cubit.dart';
-import 'package:wakaranai/blocs/local_configs/local_configs_cubit.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
+import 'package:wakaranai/services/library_service/library_service.dart';
+import 'package:wakaranai/services/local_anime_gallery_view_service/local_anime_gallery_view_service.dart';
+import 'package:wakaranai/services/local_manga_gallery_view_service/local_manga_gallery_view_service.dart';
 import 'package:wakaranai/ui/app_view.dart';
+import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
+import 'package:wakaranai/ui/home/library/cubit/library_page_cubit.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
+import 'services/local_api_clients_service/local_api_clients_service.dart';
+import 'services/local_config_info_service/local_config_info_service.dart';
+import 'services/local_protector_config_service/local_protector_config_service.dart';
 
 final bool debug = true;
 
@@ -38,13 +45,41 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(providers: [
-      BlocProvider(lazy: false, create: (context) => AuthenticationCubit()),
+      RepositoryProvider<LocalMangaGalleryViewService>(
+        create: (context) => LocalMangaGalleryViewService(),
+      ),
+      RepositoryProvider<LocalAnimeGalleryViewService>(
+        create: (context) => LocalAnimeGalleryViewService(),
+      ),
+      RepositoryProvider<LocalProtectorConfigService>(
+          create: (context) => LocalProtectorConfigService()),
+      RepositoryProvider<LocalConfigInfoService>(
+          create: (context) => LocalConfigInfoService(
+              localProtectorConfigService:
+                  context.read<LocalProtectorConfigService>())),
+      RepositoryProvider<LocalApiClientsService>(
+          create: (context) => LocalApiClientsService(
+              localConfigInfoService: context.read<LocalConfigInfoService>())),
+      RepositoryProvider(
+          create: (context) => LibraryService(
+              localApiClientsService: context.read<LocalApiClientsService>(),
+              localAnimeGalleryViewService:
+                  context.read<LocalAnimeGalleryViewService>(),
+              localMangaGalleryViewService: LocalMangaGalleryViewService())),
+      BlocProvider<HomePageCubit>(create: (context) => HomePageCubit()),
+      BlocProvider<LibraryPageCubit>(
+        create: (context) =>
+            LibraryPageCubit(libraryService: context.read<LibraryService>())
+              ..init(),
+      ),
+      BlocProvider<AuthenticationCubit>(
+          lazy: false, create: (context) => AuthenticationCubit()),
       BlocProvider<RemoteConfigsCubit>(
         create: (context) => RemoteConfigsCubit()..init(),
       ),
-      BlocProvider(create: (context) => LocalConfigsCubit()..init()),
-      BlocProvider(create: (context) => ConfigsSourcesCubit()..getSources()),
-      BlocProvider(
+      BlocProvider<ConfigsSourcesCubit>(
+          create: (context) => ConfigsSourcesCubit()..getSources()),
+      BlocProvider<SettingsCubit>(
           create: (context) => SettingsCubit(
               remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
               sourcesCubit: context.read<ConfigsSourcesCubit>())
