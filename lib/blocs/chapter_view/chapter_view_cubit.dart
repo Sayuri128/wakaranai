@@ -29,12 +29,12 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       await apiClient.getPages(uid: data.chapter.uid, data: data.chapter.data)
     ];
 
-    final int chapterIndex = data.group.chapters
+    final int chapterIndex = data.group.elements
         .indexWhere((element) => element.uid == pagesS.last.chapterUid);
     final Pages currentPages = pagesS.last;
 
     final canGetPreviousPages = (chapterIndex - 1) >= 0;
-    final canGetNextPages = (chapterIndex + 1) < data.group.chapters.length;
+    final canGetNextPages = (chapterIndex + 1) < data.group.elements.length;
 
     emit(ChapterViewInitialized(
         pages: pagesS,
@@ -56,22 +56,22 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     if (state is ChapterViewInitialized) {
       final state = this.state as ChapterViewInitialized;
 
-      final int chapterIndex = state.group.chapters.indexWhere(
+      final int chapterIndex = state.group.elements.indexWhere(
               (element) => element.uid == state.currentPages.chapterUid) +
           (next ? 1 : -1);
 
       final bool canGetPreviousPages = chapterIndex > 0;
-      final bool canGetNextPages = chapterIndex < state.group.chapters.length;
+      final bool canGetNextPages = chapterIndex < state.group.elements.length;
 
       Pages? optionalLoadedPages = state.pages.firstWhereOrNull((element) =>
-          element.chapterUid == state.group.chapters[chapterIndex].uid);
+          element.chapterUid == state.group.elements[chapterIndex].uid);
 
       final List<Pages> newPages = [...state.pages];
 
       if (optionalLoadedPages == null) {
         optionalLoadedPages = await apiClient.getPages(
-            uid: state.group.chapters[chapterIndex].uid,
-            data: state.group.chapters[chapterIndex].data);
+            uid: state.group.elements[chapterIndex].uid,
+            data: state.group.elements[chapterIndex].data);
         if (next) {
           newPages.add(optionalLoadedPages);
         } else {

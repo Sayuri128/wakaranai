@@ -1,10 +1,13 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
-import 'package:wakaranai/blocs/manga_concrete_view/manga_concrete_view_cubit.dart';
+import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/heroes.dart';
+import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
@@ -50,45 +53,47 @@ class MangaConcreteViewer extends StatelessWidget {
       return WebBrowserWrapper(
         onInterceptorInitialized: () {
           _scaffoldKey.currentContext
-              ?.read<MangaConcreteViewCubit>()
+              ?.read<
+                  ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                      MangaGalleryView>>()
               .getConcrete(data.uid, data.galleryView);
         },
         apiClient: data.client,
         configInfo: data.configInfo,
-        builder: (context, completer) => MultiBlocProvider(
-          providers: [
-            BlocProvider<MangaConcreteViewCubit>(
-              create: (context) => MangaConcreteViewCubit(
-                  MangaConcreteViewState(apiClient: data.client)),
-            ),
-            if (data.configInfo.protectorConfig?.inAppBrowserInterceptor ??
-                false)
-              BlocProvider<BrowserInterceptorCubit>(
-                  lazy: false,
-                  create: (context) {
-                    final cubit = BrowserInterceptorCubit()
-                      ..init(
-                          url: data.configInfo.protectorConfig!.pingUrl,
-                          initCompleter: completer);
-                    data.client
-                        .passWebBrowserInterceptorController(controller: cubit);
-                    return cubit;
-                  })
-          ],
-          child: _buildBody(),
-        ),
+        builder: (context, completer) => _wrapWithBrowserInterceptorCubit(
+            child: _buildConcreteBody(false), completer: completer),
       );
     } else {
-      return MultiBlocProvider(
-        providers: [
-          BlocProvider<MangaConcreteViewCubit>(
-            create: (context) => MangaConcreteViewCubit(
-                MangaConcreteViewState(apiClient: data.client))
-              ..getConcrete(data.uid, data.galleryView),
-          ),
-        ],
-        child: _buildBody(),
-      );
+      return _buildConcreteBody(true);
+    }
+  }
+
+  Widget _buildConcreteBody(bool init) {
+    return ConcreteViewCubitWrapper<MangaApiClient, MangaConcreteView,
+        MangaGalleryView>(
+      client: data.client,
+      init: (cubit) {
+        cubit.getConcrete(data.uid, data.galleryView);
+      },
+      builder: (context, state) => _buildBody(),
+    );
+  }
+
+  Widget _wrapWithBrowserInterceptorCubit(
+      {required Widget child, required Completer<bool> completer}) {
+    if (data.configInfo.protectorConfig?.inAppBrowserInterceptor ?? false) {
+      return BlocProvider<BrowserInterceptorCubit>(
+          lazy: false,
+          create: (context) {
+            final cubit = BrowserInterceptorCubit()
+              ..init(
+                  url: data.configInfo.protectorConfig!.pingUrl,
+                  initCompleter: completer);
+            data.client.passWebBrowserInterceptorController(controller: cubit);
+            return cubit;
+          });
+    } else {
+      return child;
     }
   }
 
@@ -98,19 +103,26 @@ class MangaConcreteViewer extends StatelessWidget {
       backgroundColor: AppColors.backgroundColor,
       extendBodyBehindAppBar: true,
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      floatingActionButton:
-          BlocBuilder<MangaConcreteViewCubit, MangaConcreteViewState>(
+      floatingActionButton: BlocBuilder<
+          ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+              MangaGalleryView>,
+          ConcreteViewState<MangaApiClient, MangaConcreteView,
+              MangaGalleryView>>(
         builder: (context, state) {
-          if (state is MangaConcreteViewInitialized) {
+          if (state is ConcreteViewInitialized<MangaApiClient,
+              MangaConcreteView, MangaGalleryView>) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 24.0, right: 8.0),
               child: ChangeOrderIconButton(
-                state: state.order == MangaConcreteViewOrder.DEFAULT,
+                state: state.order == ConcreteViewOrder.DEFAULT,
                 onTap: () {
-                  context.read<MangaConcreteViewCubit>().changeOrder(
-                      state.order == MangaConcreteViewOrder.DEFAULT
-                          ? MangaConcreteViewOrder.DEFAULT_REVERSE
-                          : MangaConcreteViewOrder.DEFAULT);
+                  context
+                      .read<
+                          ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                              MangaGalleryView>>()
+                      .changeOrder(state.order == ConcreteViewOrder.DEFAULT
+                          ? ConcreteViewOrder.DEFAULT_REVERSE
+                          : ConcreteViewOrder.DEFAULT);
                 },
               ),
             );
@@ -119,22 +131,27 @@ class MangaConcreteViewer extends StatelessWidget {
           return const SizedBox();
         },
       ),
-      body: BlocBuilder<MangaConcreteViewCubit, MangaConcreteViewState>(
+      body: BlocBuilder<
+          ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+              MangaGalleryView>,
+          ConcreteViewState<MangaApiClient, MangaConcreteView,
+              MangaGalleryView>>(
         builder: (context, state) {
           late final MangaConcreteView concreteView;
 
           int currentGroupsIndex = -1;
-          if (state is MangaConcreteViewInitialized) {
+          if (state is ConcreteViewInitialized<MangaApiClient,
+              MangaConcreteView, MangaGalleryView>) {
             concreteView = state.concreteView;
-            currentGroupsIndex = state.currentGroupIndex;
+            currentGroupsIndex = state.groupIndex;
           }
           return ListView.builder(
             padding: EdgeInsets.zero,
             itemCount: 1 +
-                ((state is MangaConcreteViewInitialized)
-                    ? state.currentGroupIndex != -1
-                        ? concreteView.chapterGroups[state.currentGroupIndex]
-                            .chapters.length
+                ((state is ConcreteViewInitialized<MangaApiClient,
+                        MangaConcreteView, MangaGalleryView>)
+                    ? state.groupIndex != -1
+                        ? concreteView.groups[state.groupIndex].elements.length
                         : 0
                     : 0),
             itemBuilder: (context, index) {
@@ -145,7 +162,8 @@ class MangaConcreteViewer extends StatelessWidget {
                     children: [
                       _buildCover(data.galleryView.cover, context),
                       const SizedBox(height: 16.0),
-                      if (state is MangaConcreteViewInitialized) ...[
+                      if (state is ConcreteViewInitialized<MangaApiClient,
+                          MangaConcreteView, MangaGalleryView>) ...[
                         _buildTitle(concreteView),
                         const SizedBox(height: 16.0),
                         _buildTags(concreteView),
@@ -173,10 +191,9 @@ class MangaConcreteViewer extends StatelessWidget {
               } else {
                 return _buildChapter(
                     context,
-                    concreteView
-                        .chapterGroups[currentGroupsIndex].chapters[index - 1],
+                    concreteView.groups[currentGroupsIndex].elements[index - 1],
                     data.galleryView,
-                    concreteView.chapterGroups[currentGroupsIndex],
+                    concreteView.groups[currentGroupsIndex],
                     data.configInfo);
               }
             },
@@ -226,20 +243,25 @@ class MangaConcreteViewer extends StatelessWidget {
         : e.timestamp ?? '';
   }
 
-  Wrap _buildMangaProviderButtons(MangaConcreteViewInitialized state,
-      BuildContext context, int currentGroupIndex) {
+  Wrap _buildMangaProviderButtons(
+      ConcreteViewInitialized<MangaApiClient, MangaConcreteView,
+              MangaGalleryView>
+          state,
+      BuildContext context,
+      int currentGroupIndex) {
     return Wrap(
       alignment: WrapAlignment.center,
-      children: state.concreteView.chapterGroups.map((e) {
-        final elementVideoGroupIndex =
-            state.concreteView.chapterGroups.indexOf(e);
+      children: state.concreteView.groups.map((e) {
+        final elementVideoGroupIndex = state.concreteView.groups.indexOf(e);
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
           child: MangaProviderButton(
             title: e.title,
             onClick: () {
               context
-                  .read<MangaConcreteViewCubit>()
+                  .read<
+                      ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                          MangaGalleryView>>()
                   .changeGroup(elementVideoGroupIndex);
             },
             selected: currentGroupIndex == elementVideoGroupIndex,

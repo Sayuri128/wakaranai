@@ -1,12 +1,15 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:wakaranai/blocs/anime_concrete_viewer/anime_concrete_viewer_cubit.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
+import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/heroes.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_player_button.dart';
 import 'package:wakaranai/ui/anime_iframe_player/anime_iframe_player.dart';
+import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
@@ -47,39 +50,45 @@ class AnimeConcreteViewer extends StatelessWidget {
         apiClient: data.client,
         onInterceptorInitialized: () {
           _scaffoldKey.currentContext
-              ?.read<AnimeConcreteViewCubit>()
+              ?.read<
+                  ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
+                      AnimeGalleryView>>()
               .getConcrete(data.uid, data.galleryView);
         },
-        builder: (context, completer) => MultiBlocProvider(providers: [
-          BlocProvider<AnimeConcreteViewCubit>(
-            create: (context) => AnimeConcreteViewCubit(
-                AnimeConcreteViewState(apiClient: data.client)),
-          ),
-          if (data.configInfo.protectorConfig?.inAppBrowserInterceptor ?? false)
-            BlocProvider<BrowserInterceptorCubit>(
-                lazy: false,
-                create: (context) {
-                  final cubit = BrowserInterceptorCubit()
-                    ..init(
-                        url: data.configInfo.protectorConfig!.pingUrl,
-                        initCompleter: completer);
-                  data.client
-                      .passWebBrowserInterceptorController(controller: cubit);
-                  return cubit;
-                })
-        ], child: _buildBody()),
+        builder: (context, completer) => _wrapWithBrowserInterceptorCubit(
+            child: _buildConcreteBody(), completer: completer),
       );
     } else {
-      return MultiBlocProvider(
-        providers: [
-          BlocProvider<AnimeConcreteViewCubit>(
-            create: (context) => AnimeConcreteViewCubit(
-                AnimeConcreteViewState(apiClient: data.client))
-              ..getConcrete(data.uid, data.galleryView),
-          ),
-        ],
-        child: _buildBody(),
-      );
+      return _buildConcreteBody();
+    }
+  }
+
+  Widget _buildConcreteBody() {
+    return ConcreteViewCubitWrapper<AnimeApiClient, AnimeConcreteView,
+        AnimeGalleryView>(
+      client: data.client,
+      init: (cubit) {
+        cubit.getConcrete(data.uid, data.galleryView);
+      },
+      builder: (context, state) => _buildBody(),
+    );
+  }
+
+  Widget _wrapWithBrowserInterceptorCubit(
+      {required Widget child, required Completer<bool> completer}) {
+    if (data.configInfo.protectorConfig?.inAppBrowserInterceptor ?? false) {
+      return BlocProvider<BrowserInterceptorCubit>(
+          lazy: false,
+          create: (context) {
+            final cubit = BrowserInterceptorCubit()
+              ..init(
+                  url: data.configInfo.protectorConfig!.pingUrl,
+                  initCompleter: completer);
+            data.client.passWebBrowserInterceptorController(controller: cubit);
+            return cubit;
+          });
+    } else {
+      return child;
     }
   }
 
@@ -89,19 +98,26 @@ class AnimeConcreteViewer extends StatelessWidget {
       backgroundColor: AppColors.backgroundColor,
       extendBodyBehindAppBar: true,
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      floatingActionButton:
-          BlocBuilder<AnimeConcreteViewCubit, AnimeConcreteViewState>(
+      floatingActionButton: BlocBuilder<
+          ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
+              AnimeGalleryView>,
+          ConcreteViewState<AnimeApiClient, AnimeConcreteView,
+              AnimeGalleryView>>(
         builder: (context, state) {
-          if (state is AnimeConcreteViewInitialized) {
+          if (state is ConcreteViewInitialized<AnimeApiClient,
+              AnimeConcreteView, AnimeGalleryView>) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 24.0, right: 8.0),
               child: ChangeOrderIconButton(
-                state: state.order == AnimeConcreteViewOrder.DEFAULT,
+                state: state.order == ConcreteViewOrder.DEFAULT,
                 onTap: () {
-                  context.read<AnimeConcreteViewCubit>().changeOrder(
-                      state.order == AnimeConcreteViewOrder.DEFAULT
-                          ? AnimeConcreteViewOrder.DEFAULT_REVERSE
-                          : AnimeConcreteViewOrder.DEFAULT);
+                  context
+                      .read<
+                          ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
+                              AnimeGalleryView>>()
+                      .changeOrder(state.order == ConcreteViewOrder.DEFAULT
+                          ? ConcreteViewOrder.DEFAULT_REVERSE
+                          : ConcreteViewOrder.DEFAULT);
                 },
               ),
             );
@@ -109,22 +125,27 @@ class AnimeConcreteViewer extends StatelessWidget {
           return const SizedBox();
         },
       ),
-      body: BlocBuilder<AnimeConcreteViewCubit, AnimeConcreteViewState>(
+      body: BlocBuilder<
+          ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
+              AnimeGalleryView>,
+          ConcreteViewState<AnimeApiClient, AnimeConcreteView,
+              AnimeGalleryView>>(
         builder: (context, state) {
           late final AnimeConcreteView concreteView;
           int currentGroupIndex = -1;
 
-          if (state is AnimeConcreteViewInitialized) {
+          if (state is ConcreteViewInitialized<AnimeApiClient,
+              AnimeConcreteView, AnimeGalleryView>) {
             concreteView = state.concreteView;
-            currentGroupIndex = state.videoGroupIndex;
+            currentGroupIndex = state.groupIndex;
           }
           return ListView.builder(
             padding: EdgeInsets.zero,
             itemCount: 1 +
-                ((state is AnimeConcreteViewInitialized)
-                    ? (state.videoGroupIndex != -1
-                        ? concreteView
-                            .videoGroups[state.videoGroupIndex].videos.length
+                ((state is ConcreteViewInitialized<AnimeApiClient,
+                        AnimeConcreteView, AnimeGalleryView>)
+                    ? (state.groupIndex != -1
+                        ? concreteView.groups[state.groupIndex].elements.length
                         : 0)
                     : 0),
             itemBuilder: (context, index) {
@@ -135,7 +156,8 @@ class AnimeConcreteViewer extends StatelessWidget {
                     children: [
                       _buildCover(data.galleryView.cover, context),
                       const SizedBox(height: 16.0),
-                      if (state is AnimeConcreteViewInitialized) ...[
+                      if (state is ConcreteViewInitialized<AnimeApiClient,
+                          AnimeConcreteView, AnimeGalleryView>) ...[
                         _buildTitle(concreteView),
                         const SizedBox(height: 16.0),
                         _buildTags(concreteView),
@@ -161,8 +183,8 @@ class AnimeConcreteViewer extends StatelessWidget {
                   ),
                 );
               } else {
-                final animeVideo = concreteView
-                    .videoGroups[currentGroupIndex].videos[index - 1];
+                final animeVideo =
+                    concreteView.groups[currentGroupIndex].elements[index - 1];
 
                 return ListTile(
                   onTap: () {
@@ -195,20 +217,25 @@ class AnimeConcreteViewer extends StatelessWidget {
     );
   }
 
-  Wrap _buildPlayerButtons(AnimeConcreteViewInitialized state,
-      BuildContext context, int currentGroupIndex) {
+  Wrap _buildPlayerButtons(
+      ConcreteViewInitialized<AnimeApiClient, AnimeConcreteView,
+              AnimeGalleryView>
+          state,
+      BuildContext context,
+      int currentGroupIndex) {
     return Wrap(
       alignment: WrapAlignment.center,
-      children: state.concreteView.videoGroups.map((e) {
-        final elementVideoGroupIndex =
-            state.concreteView.videoGroups.indexOf(e);
+      children: state.concreteView.groups.map((e) {
+        final elementVideoGroupIndex = state.concreteView.groups.indexOf(e);
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
           child: AnimePlayerButton(
             title: e.title,
             onClick: () {
               context
-                  .read<AnimeConcreteViewCubit>()
+                  .read<
+                      ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
+                          AnimeGalleryView>>()
                   .changeGroup(elementVideoGroupIndex);
             },
             selected: currentGroupIndex == elementVideoGroupIndex,
