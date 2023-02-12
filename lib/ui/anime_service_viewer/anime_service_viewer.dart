@@ -8,13 +8,12 @@ import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.da
 import 'package:wakaranai/blocs/local_gallery_view_card/local_gallery_view_card_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/models/data/library_item.dart';
 import 'package:wakaranai/models/data/local_api_client.dart';
-import 'package:wakaranai/models/data/local_gallery_view.dart';
 import 'package:wakaranai/models/remote_config/remote_config.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_concrete_viewer.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
+import 'package:wakaranai/ui/home/home_view.dart';
 import 'package:wakaranai/ui/home/service_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/local_gallery_view_wrapper.dart';
@@ -80,7 +79,7 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                         _refreshController.loadComplete();
                       }
                     },
-                    child: _buildBody(apiClient),
+                    child: _buildBody(context, apiClient, state),
                   ),
                   apiClient: apiClient,
                   interceptorInitCompleter: interceptorInitCompleter),
@@ -120,166 +119,155 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
     }
   }
 
-  Widget _buildBody(AnimeApiClient apiClient) {
-    return BlocBuilder<ServiceViewCubit<AnimeApiClient, AnimeGalleryView>,
-        ServiceViewState<AnimeApiClient, AnimeGalleryView>>(
-      builder: (context, state) {
-        return Scaffold(
-          key: _scaffold,
-          backgroundColor: AppColors.backgroundColor,
-          appBar: PreferredSize(
-              preferredSize: Size(MediaQuery.of(context).size.width,
-                  widget.data.remoteConfig.config.searchAvailable ? 80 : 60),
-              child: _buildSearchableAppBar(
-                  context,
-                  state is ServiceViewInitialized<AnimeApiClient,
-                          AnimeGalleryView>
-                      ? state
-                      : null,
-                  apiClient)),
-          body: Stack(
-            alignment: Alignment.center,
-            children: [
-              SmartRefresher(
-                  enablePullUp: true,
-                  enablePullDown: false,
-                  footer: CustomFooter(
-                    builder: (context, mode) {
-                      if (mode == LoadStatus.loading) {
-                        return Column(
-                          children: const [
-                            SizedBox(
-                              height: 24,
-                            ),
-                            CircularProgressIndicator(color: AppColors.primary),
-                            SizedBox(
-                              height: 24,
-                            ),
-                          ],
-                        );
-                      }
-                      return const SizedBox();
-                    },
-                  ),
-                  controller: _refreshController,
-                  onLoading: () {
-                    if (state is! ServiceViewLoading<AnimeApiClient,
-                            AnimeGalleryView> ||
-                        (state is ServiceViewInitialized<AnimeApiClient,
-                                AnimeGalleryView> &&
-                            !(state as ServiceViewInitialized<AnimeApiClient,
-                                    AnimeGalleryView>)
-                                .loading)) {
-                      context
-                          .read<
-                              ServiceViewCubit<AnimeApiClient,
-                                  AnimeGalleryView>>()
-                          .getGallery();
-                    }
-                  },
-                  child: state is ServiceViewInitialized<AnimeApiClient,
-                          AnimeGalleryView>
-                      ? GridView.builder(
-                          itemBuilder: (context, index) {
-                            final galleryView = state.galleryViews[index];
-                            return LocalGalleryViewWrapper(
-                              uid: galleryView.uid,
-                              type: LibraryItemType.ANIME,
-                              builder: (context, state) => GalleryViewCard(
-                                inLibrary:
-                                    state is LocalGalleryViewCardLoaded &&
-                                        state.libraryItem != null,
-                                cover: galleryView.cover,
-                                uid: galleryView.uid,
-                                title: galleryView.title,
-                                onLongPress: () {
-                                  if (state is LocalGalleryViewCardInitial) {
-                                    return;
-                                  }
-                                  _onLongGalleryViewPress(context,
-                                      galleryView: galleryView,
-                                      apiClient: apiClient,
-                                      canAdd:
-                                          state is LocalGalleryViewCardLoaded &&
-                                              state.libraryItem == null);
-                                },
-                                onTap: () {
-                                  _onGalleryViewClick(
-                                      context, galleryView, apiClient);
-                                },
-                              ),
-                            );
-                          },
-                          itemCount: state.galleryViews.length,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  childAspectRatio: GalleryViewCard.aspectRatio,
-                                  crossAxisSpacing: 8,
-                                  mainAxisSpacing: 8))
-                      : const SizedBox()),
-              if (state is! ServiceViewInitialized<AnimeApiClient,
-                      AnimeGalleryView> &&
-                  state is! ServiceViewError<AnimeApiClient, AnimeGalleryView>)
-                const Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.primary,
-                  ),
-                )
-              else if (state
-                  is ServiceViewError<AnimeApiClient, AnimeGalleryView>)
-                Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Column(
-                            children: [
-                              IconButton(
-                                onPressed: state.retry,
-                                icon: const Icon(Icons.refresh),
-                                splashRadius: 18,
-                              ),
-                              Text(
-                                S.current.service_view_retry_button_title,
-                                style: regular(
-                                    color: AppColors.mainWhite, size: 14),
-                              )
-                            ],
+  Widget _buildBody(BuildContext context, AnimeApiClient apiClient,
+      ServiceViewState<AnimeApiClient, AnimeGalleryView> state) {
+    return Scaffold(
+      key: _scaffold,
+      backgroundColor: AppColors.backgroundColor,
+      appBar: PreferredSize(
+          preferredSize: Size(MediaQuery.of(context).size.width,
+              widget.data.remoteConfig.config.searchAvailable ? 80 : 60),
+          child: _buildSearchableAppBar(
+              context,
+              state is ServiceViewInitialized<AnimeApiClient, AnimeGalleryView>
+                  ? state
+                  : null,
+              apiClient)),
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          SmartRefresher(
+              enablePullUp: true,
+              enablePullDown: false,
+              footer: CustomFooter(
+                builder: (context, mode) {
+                  if (mode == LoadStatus.loading) {
+                    return Column(
+                      children: const [
+                        SizedBox(
+                          height: 24,
+                        ),
+                        CircularProgressIndicator(color: AppColors.primary),
+                        SizedBox(
+                          height: 24,
+                        ),
+                      ],
+                    );
+                  }
+                  return const SizedBox();
+                },
+              ),
+              controller: _refreshController,
+              onLoading: () {
+                if (state is! ServiceViewLoading<AnimeApiClient,
+                        AnimeGalleryView> ||
+                    (state is ServiceViewInitialized<AnimeApiClient,
+                            AnimeGalleryView> &&
+                        !(state as ServiceViewInitialized<AnimeApiClient,
+                                AnimeGalleryView>)
+                            .loading)) {
+                  context
+                      .read<
+                          ServiceViewCubit<AnimeApiClient, AnimeGalleryView>>()
+                      .getGallery();
+                }
+              },
+              child: state is ServiceViewInitialized<AnimeApiClient,
+                      AnimeGalleryView>
+                  ? GridView.builder(
+                      itemBuilder: (context, index) {
+                        final galleryView = state.galleryViews[index];
+                        return LocalGalleryViewWrapper(
+                          uid: galleryView.uid,
+                          type: LocalApiClientType.ANIME,
+                          builder: (context, state) => GalleryViewCard(
+                            inLibrary: state is LocalGalleryViewCardLoaded &&
+                                state.libraryItem != null,
+                            cover: galleryView.cover,
+                            uid: galleryView.uid,
+                            title: galleryView.title,
+                            onLongPress: () {
+                              if (state is LocalGalleryViewCardInitial) {
+                                return;
+                              }
+                              _onLongGalleryViewPress(context,
+                                  galleryView: galleryView,
+                                  apiClient: apiClient,
+                                  canAdd: state is LocalGalleryViewCardLoaded &&
+                                      state.libraryItem == null);
+                            },
+                            onTap: () {
+                              _onGalleryViewClick(
+                                  context, galleryView, apiClient);
+                            },
                           ),
-                          Text(S.current.service_view_error,
-                              style: regular(
-                                  color: AppColors.mainWhite, size: 18)),
-                          Column(
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.webhook),
-                                onPressed: () {
-                                  openWebView(context, apiClient,
-                                      widget.data.remoteConfig.config);
-                                },
-                                splashRadius: 18,
-                              ),
-                              Text(
-                                S.current
-                                    .service_view_open_web_view_button_title,
-                                style: regular(
-                                    color: AppColors.mainWhite, size: 14),
-                              )
-                            ],
+                        );
+                      },
+                      itemCount: state.galleryViews.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: GalleryViewCard.aspectRatio,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8))
+                  : const SizedBox()),
+          if (state is! ServiceViewInitialized<AnimeApiClient,
+                  AnimeGalleryView> &&
+              state is! ServiceViewError<AnimeApiClient, AnimeGalleryView>)
+            const Center(
+              child: CircularProgressIndicator(
+                color: AppColors.primary,
+              ),
+            )
+          else if (state is ServiceViewError<AnimeApiClient, AnimeGalleryView>)
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        children: [
+                          IconButton(
+                            onPressed: state.retry,
+                            icon: const Icon(Icons.refresh),
+                            splashRadius: 18,
+                          ),
+                          Text(
+                            S.current.service_view_retry_button_title,
+                            style:
+                                regular(color: AppColors.mainWhite, size: 14),
+                          )
+                        ],
+                      ),
+                      Text(S.current.service_view_error,
+                          style: regular(color: AppColors.mainWhite, size: 18)),
+                      Column(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.webhook),
+                            onPressed: () {
+                              openWebView(context, apiClient,
+                                  widget.data.remoteConfig.config);
+                            },
+                            splashRadius: 18,
+                          ),
+                          Text(
+                            S.current.service_view_open_web_view_button_title,
+                            style:
+                                regular(color: AppColors.mainWhite, size: 14),
                           )
                         ],
                       )
                     ],
-                  ),
-                )
-            ],
-          ),
-        );
-      },
+                  )
+                ],
+              ),
+            )
+        ],
+      ),
     );
   }
 
@@ -358,17 +346,16 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
       required bool canAdd}) {
     if (canAdd) {
       context.read<LocalGalleryViewCardCubit>().create(
-          LibraryItem(
-              localApiClient: LocalApiClient.fromApiClient(
-                  apiClient, widget.data.remoteConfig.config),
-              localGalleryView: LocalAnimeGalleryView.fromRemote(galleryView),
-              type: LibraryItemType.ANIME,
-              galleryViewId: galleryView.uid), () {
-        _showNotificationSnackBar(
-            context,
-            S.current.gallery_view_anime_item_added_to_library_notification(
-                galleryView.title));
-      });
+          type: LocalApiClientType.ANIME,
+          galleryView: galleryView,
+          remoteConfig: widget.data.remoteConfig,
+          client: apiClient,
+          onDone: () {
+            showNotificationSnackBar(
+                context,
+                S.current.gallery_view_anime_item_added_to_library_notification(
+                    galleryView.title));
+          });
     } else {
       showOkCancelAlertDialog(
               context: context,
@@ -383,7 +370,7 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
         if (value == OkCancelResult.ok) {
           context.read<LocalGalleryViewCardCubit>().delete(
             () {
-              _showNotificationSnackBar(
+              showNotificationSnackBar(
                   context,
                   S.current
                       .gallery_view_anime_item_deleted_from_library_notification(
@@ -393,15 +380,6 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
         }
       });
     }
-  }
-
-  void _showNotificationSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        backgroundColor: AppColors.backgroundColor,
-        content: Text(
-          message,
-          style: medium(size: 16),
-        )));
   }
 
   void _onGalleryViewClick(

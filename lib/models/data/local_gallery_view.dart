@@ -1,31 +1,34 @@
 import 'dart:convert';
 
-import 'package:wakaranai/models/serializable_object.dart';
+import 'package:wakaranai/model/wakaranai_db.dart';
 import 'package:wakascript/models/anime/anime_concrete_view/anime_status.dart';
 import 'package:wakascript/models/anime/anime_gallery_view/anime_gallery_view.dart';
+import 'package:wakascript/models/gallery_view.dart';
 import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
 
-abstract class LocalGalleryView extends SqSerializableObject {
-  int? id;
+abstract class LocalGalleryView extends GalleryView {
+  final int? id;
+  final int? libraryItemId;
 
-  LocalGalleryView(this.id);
+  LocalGalleryView(
+      this.id, this.libraryItemId, String uid, Map<String, dynamic> data)
+      : super(uid: uid, data: data);
 }
 
 class LocalAnimeGalleryView extends LocalGalleryView {
-  final String uid;
   final String cover;
   final String title;
-  final Map<String, dynamic> data;
   final AnimeStatus status;
 
   LocalAnimeGalleryView({
     int? id,
-    required this.uid,
+    int? libraryItemId,
+    required String uid,
     required this.cover,
     required this.title,
-    required this.data,
+    required Map<String, dynamic> data,
     required this.status,
-  }) : super(id);
+  }) : super(id, libraryItemId, uid, data);
 
   AnimeGalleryView asGalleryView() => AnimeGalleryView(
       uid: uid, cover: cover, title: title, data: data, status: status);
@@ -39,51 +42,44 @@ class LocalAnimeGalleryView extends LocalGalleryView {
           status: galleryView.status);
 
   @override
-  Map<String, dynamic> toMap({bool lazy = true}) {
-    return {
-      if (id != null) 'id': id,
-      'uid': uid,
-      'cover': cover,
-      'title': title,
-      'data': jsonEncode(data),
-      'status': status.index,
-    };
-  }
-
-  factory LocalAnimeGalleryView.fromMap(Map<String, dynamic> map) {
-    return LocalAnimeGalleryView(
-      id: map['id'] as int,
-      uid: map['uid'] as String,
-      cover: map['cover'] as String,
-      title: map['title'] as String,
-      data: jsonDecode(map['data']),
-      status: AnimeStatus.values.elementAt(map['status']),
-    );
+  callFunction(String name, {List? ordinalArguments}) {
+    throw UnimplementedError();
   }
 
   @override
-  int? getId() => id;
+  getField(String name) {
+    throw UnimplementedError();
+  }
+
+  @override
+  void setField(String name, value) {}
+
+  factory LocalAnimeGalleryView.fromDrift(DriftLocalAnimeGalleryView drift) =>
+      LocalAnimeGalleryView(
+          id: drift.id,
+          uid: drift.uid,
+          cover: drift.cover,
+          title: drift.title,
+          libraryItemId: drift.libraryItemId,
+          data: jsonDecode(drift.data),
+          status: drift.status);
 }
 
 class LocalMangaGalleryView extends LocalGalleryView {
-  final String uid;
   final String cover;
   final String title;
-  final Map<String, dynamic> data;
 
   LocalMangaGalleryView({
     int? id,
-    required this.uid,
+    int? libraryItemId,
+    required String uid,
     required this.cover,
     required this.title,
-    required this.data,
-  }) : super(id);
+    required Map<String, dynamic> data,
+  }) : super(id, libraryItemId, uid, data);
 
   MangaGalleryView asGalleryView() =>
       MangaGalleryView(uid: uid, cover: cover, title: title, data: data);
-
-  @override
-  int? getId() => id;
 
   factory LocalMangaGalleryView.fromRemote(MangaGalleryView galleryView) =>
       LocalMangaGalleryView(
@@ -92,24 +88,25 @@ class LocalMangaGalleryView extends LocalGalleryView {
           title: galleryView.title,
           data: galleryView.data);
 
+  factory LocalMangaGalleryView.fromDrift(DriftLocalMangaGalleryView drift) =>
+      LocalMangaGalleryView(
+          id: drift.id,
+          uid: drift.uid,
+          cover: drift.cover,
+          title: drift.title,
+          libraryItemId: drift.libraryItemId,
+          data: jsonDecode(drift.data));
+
   @override
-  Map<String, dynamic> toMap({bool lazy = true}) {
-    return {
-      if (id != null) 'id': id,
-      'uid': uid,
-      'cover': cover,
-      'title': title,
-      'data': jsonEncode(data),
-    };
+  callFunction(String name, {List? ordinalArguments}) {
+    throw UnimplementedError();
   }
 
-  factory LocalMangaGalleryView.fromMap(Map<String, dynamic> map) {
-    return LocalMangaGalleryView(
-      id: map['id'] as int,
-      uid: map['uid'] as String,
-      cover: map['cover'] as String,
-      title: map['title'] as String,
-      data: jsonDecode(map['data']),
-    );
+  @override
+  getField(String name) {
+    throw UnimplementedError();
   }
+
+  @override
+  void setField(String name, value) {}
 }

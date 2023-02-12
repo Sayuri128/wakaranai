@@ -8,12 +8,11 @@ import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.da
 import 'package:wakaranai/blocs/local_gallery_view_card/local_gallery_view_card_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/models/data/library_item.dart';
 import 'package:wakaranai/models/data/local_api_client.dart';
-import 'package:wakaranai/models/data/local_gallery_view.dart';
 import 'package:wakaranai/models/remote_config/remote_config.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
+import 'package:wakaranai/ui/home/home_view.dart';
 import 'package:wakaranai/ui/home/service_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/local_gallery_view_wrapper.dart';
@@ -82,7 +81,7 @@ class _MangaServiceViewState extends State<MangaServiceView> {
                         _refreshController.loadComplete();
                       }
                     },
-                    child: _buildBody(apiClient, state),
+                    child: _buildBody(context, apiClient, state),
                   ),
                   apiClient: apiClient,
                   interceptorInitCompleter: interceptorInitCompleter),
@@ -121,7 +120,7 @@ class _MangaServiceViewState extends State<MangaServiceView> {
     }
   }
 
-  Widget _buildBody(MangaApiClient apiClient,
+  Widget _buildBody(BuildContext context, MangaApiClient apiClient,
       ServiceViewState<MangaApiClient, MangaGalleryView> state) {
     return Scaffold(
       key: _scaffold,
@@ -177,7 +176,7 @@ class _MangaServiceViewState extends State<MangaServiceView> {
                         final galleryView = state.galleryViews[index];
                         return LocalGalleryViewWrapper(
                           uid: galleryView.uid,
-                          type: LibraryItemType.MANGA,
+                          type: LocalApiClientType.MANGA,
                           builder: (context, state) => GalleryViewCard(
                             inLibrary: state is LocalGalleryViewCardLoaded &&
                                 state.libraryItem != null,
@@ -275,17 +274,16 @@ class _MangaServiceViewState extends State<MangaServiceView> {
       required bool canAdd}) {
     if (canAdd) {
       context.read<LocalGalleryViewCardCubit>().create(
-          LibraryItem(
-              localApiClient: LocalApiClient.fromApiClient(
-                  apiClient, widget.data.remoteConfig.config),
-              localGalleryView: LocalMangaGalleryView.fromRemote(galleryView),
-              type: LibraryItemType.MANGA,
-              galleryViewId: galleryView.uid), () {
-        _showNotificationSnackBar(
-            context,
-            S.current.gallery_view_anime_item_added_to_library_notification(
-                galleryView.title));
-      });
+          type: LocalApiClientType.MANGA,
+          galleryView: galleryView,
+          remoteConfig: widget.data.remoteConfig,
+          client: apiClient,
+          onDone: () {
+            showNotificationSnackBar(
+                context,
+                S.current.gallery_view_anime_item_added_to_library_notification(
+                    galleryView.title));
+          });
     } else {
       showOkCancelAlertDialog(
               context: context,
@@ -300,7 +298,7 @@ class _MangaServiceViewState extends State<MangaServiceView> {
         if (value == OkCancelResult.ok) {
           context.read<LocalGalleryViewCardCubit>().delete(
             () {
-              _showNotificationSnackBar(
+              showNotificationSnackBar(
                   context,
                   S.current
                       .gallery_view_manga_item_deleted_from_library_notification(
@@ -310,15 +308,6 @@ class _MangaServiceViewState extends State<MangaServiceView> {
         }
       });
     }
-  }
-
-  void _showNotificationSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        backgroundColor: AppColors.backgroundColor,
-        content: Text(
-          message,
-          style: medium(size: 16),
-        )));
   }
 
   Widget _buildSearchableAppBar(

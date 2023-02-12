@@ -1,5 +1,4 @@
 import 'package:wakaranai/models/data/local_config_info.dart';
-import 'package:wakaranai/models/serializable_object.dart';
 import 'package:wakascript/api_clients/anime_api_client.dart';
 import 'package:wakascript/api_clients/api_client.dart';
 import 'package:wakascript/api_clients/manga_api_client.dart';
@@ -26,7 +25,7 @@ LocalApiClientType deserializeLocalApiClientType(int type) {
   throw Exception("Unknown LocalApiClientType $type");
 }
 
-class LocalApiClient extends SqSerializableObject {
+class LocalApiClient {
   int? id;
   final String code;
   final LocalApiClientType type;
@@ -39,26 +38,13 @@ class LocalApiClient extends SqSerializableObject {
     required this.localConfigInfo,
   });
 
-  ApiClient toApiClient() {
+  T toApiClient<T extends ApiClient>() {
     switch (type) {
       case LocalApiClientType.MANGA:
-        return MangaApiClient(code: code);
+        return MangaApiClient(code: code) as T;
       case LocalApiClientType.ANIME:
-        return AnimeApiClient(code: code);
+        return AnimeApiClient(code: code) as T;
     }
-  }
-
-  @override
-  Map<String, dynamic> toMap({bool lazy = true}) {
-    return {
-      if (id != null) 'id': id,
-      'code': code,
-      'type': serializeLocalApiClientType(type),
-      if (lazy)
-        'localConfigInfoId': localConfigInfo.getId()
-      else
-        'localConfigInfo': localConfigInfo.toMap(lazy: lazy)
-    };
   }
 
   factory LocalApiClient.fromApiClient(
@@ -79,31 +65,4 @@ class LocalApiClient extends SqSerializableObject {
         type: type);
   }
 
-  factory LocalApiClient.fromMap(Map<String, dynamic> map) {
-    return LocalApiClient(
-      id: map['id'] as int,
-      code: map['code'] as String,
-      type: deserializeLocalApiClientType(map['type']),
-      localConfigInfo: LocalConfigInfo.fromMap(map['localConfigInfo']),
-    );
-  }
-
-  @override
-  int? getId() {
-    return id;
-  }
-
-  LocalApiClient copyWith({
-    int? id,
-    String? code,
-    LocalApiClientType? type,
-    LocalConfigInfo? localConfigInfo,
-  }) {
-    return LocalApiClient(
-      id: id ?? this.id,
-      code: code ?? this.code,
-      type: type ?? this.type,
-      localConfigInfo: localConfigInfo ?? this.localConfigInfo,
-    );
-  }
 }

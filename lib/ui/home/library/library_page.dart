@@ -1,15 +1,18 @@
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/model/services/local_api_sources_service.dart';
 import 'package:wakaranai/models/data/library_item.dart';
+import 'package:wakaranai/models/data/local_api_client.dart';
 import 'package:wakaranai/models/data/local_gallery_view.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_concrete_viewer.dart';
+import 'package:wakaranai/ui/home/home_view.dart';
 import 'package:wakaranai/ui/home/library/cubit/library_page_cubit.dart';
 import 'package:wakaranai/ui/home/library/library_card.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
-import 'package:wakascript/api_clients/anime_api_client.dart';
-import 'package:wakascript/api_clients/manga_api_client.dart';
 
 class LibraryPage extends StatelessWidget {
   LibraryPage({Key? key}) : super(key: key);
@@ -28,8 +31,8 @@ class LibraryPage extends StatelessWidget {
             );
           } else if (state is LibraryPageLoaded) {
             return PageView(controller: _pageController, children: [
-              _buildPage(context, state.mangaItem, LibraryItemType.MANGA),
-              _buildPage(context, state.animeItems, LibraryItemType.ANIME),
+              _buildPage(context, state.mangaItem, LocalApiClientType.MANGA),
+              _buildPage(context, state.animeItems, LocalApiClientType.ANIME),
             ]);
           }
           return const SizedBox();
@@ -39,7 +42,7 @@ class LibraryPage extends StatelessWidget {
   }
 
   Widget _buildPage(
-      BuildContext context, List<LibraryItem> items, LibraryItemType type) {
+      BuildContext context, List<LibraryItem> items, LocalApiClientType type) {
     return RefreshIndicator(
       onRefresh: () {
         return Future.delayed(
@@ -63,43 +66,91 @@ class LibraryPage extends StatelessWidget {
           // TODO: create api client in isolate to prevent ui from freezes
           // TODO: save concrete views as well and do updates only on demand
           switch (item.type) {
-            case LibraryItemType.ANIME:
+            case LocalApiClientType.ANIME:
               final localAnimeGalleryView =
                   item.localGalleryView as LocalAnimeGalleryView;
               return LibraryCard(
                 uid: localAnimeGalleryView.uid,
                 cover: localAnimeGalleryView.cover,
                 title: localAnimeGalleryView.title,
+                onLongPress: () {
+                  showOkCancelAlertDialog(
+                          context: context,
+                          title: S.current
+                              .gallery_view_anime_item_delete_from_library_confirmation_title(
+                                  localAnimeGalleryView.title),
+                          okLabel: S.current
+                              .gallery_view_anime_item_delete_from_library_confirmation_ok_label,
+                          cancelLabel: S.current
+                              .gallery_view_anime_item_delete_from_library_confirmation_cancel_label)
+                      .then((value) {
+                    if (value == OkCancelResult.ok) {
+                      context.read<LibraryPageCubit>().delete(item, () {
+                        showNotificationSnackBar(
+                            context,
+                            S.current
+                                .gallery_view_anime_item_deleted_from_library_notification(
+                                    localAnimeGalleryView.title));
+                      });
+                    }
+                  });
+                },
                 onTap: () {
-                  Navigator.of(context).pushNamed(Routes.animeConcreteViewer,
-                      arguments: AnimeConcreteViewerData(
-                          client: item.localApiClient.toApiClient()
-                              as AnimeApiClient,
-                          uid: localAnimeGalleryView.uid,
-                          galleryView: localAnimeGalleryView.asGalleryView(),
-                          fromLibrary: true,
-                          configInfo: item.localApiClient.localConfigInfo
-                              .asConfigInfo()));
+                  LocalApiSourcesService.instance
+                      .get(item.localApiClientId)
+                      .then((value) {
+                    Navigator.of(context).pushNamed(Routes.animeConcreteViewer,
+                        arguments: AnimeConcreteViewerData(
+                            client: value.toApiClient(),
+                            uid: localAnimeGalleryView.uid,
+                            galleryView: localAnimeGalleryView.asGalleryView(),
+                            configInfo: value.localConfigInfo.asConfigInfo(),
+                            fromLibrary: true));
+                  });
                 },
               );
-            case LibraryItemType.MANGA:
+            case LocalApiClientType.MANGA:
               final localMangaGalleryView =
                   item.localGalleryView as LocalMangaGalleryView;
               return LibraryCard(
                 uid: localMangaGalleryView.uid,
                 cover: localMangaGalleryView.cover,
                 title: localMangaGalleryView.title,
+                onLongPress: () {
+                  showOkCancelAlertDialog(
+                          context: context,
+                          title: S.current
+                              .gallery_view_manga_item_delete_from_library_confirmation_title(
+                                  localMangaGalleryView.title),
+                          okLabel: S.current
+                              .gallery_view_manga_item_delete_from_library_confirmation_ok_label,
+                          cancelLabel: S.current
+                              .gallery_view_manga_item_delete_from_library_confirmation_cancel_label)
+                      .then((value) {
+                    if (value == OkCancelResult.ok) {
+                      context.read<LibraryPageCubit>().delete(item, () {
+                        showNotificationSnackBar(
+                            context,
+                            S.current
+                                .gallery_view_manga_item_deleted_from_library_notification(
+                                    localMangaGalleryView.title));
+                      });
+                    }
+                  });
+                },
                 onTap: () {
-                  final client =
-                      item.localApiClient.toApiClient() as MangaApiClient;
-                  Navigator.of(context).pushNamed(Routes.mangaConcreteViewer,
-                      arguments: MangaConcreteViewerData(
-                          client: client,
-                          uid: localMangaGalleryView.uid,
-                          galleryView: localMangaGalleryView.asGalleryView(),
-                          configInfo: item.localApiClient.localConfigInfo
-                              .asConfigInfo(),
-                          fromLibrary: true));
+                  // TODO
+                  LocalApiSourcesService.instance
+                      .get(item.localApiClientId)
+                      .then((value) {
+                    Navigator.of(context).pushNamed(Routes.mangaConcreteViewer,
+                        arguments: MangaConcreteViewerData(
+                            client: value.toApiClient(),
+                            uid: localMangaGalleryView.uid,
+                            galleryView: localMangaGalleryView.asGalleryView(),
+                            configInfo: value.localConfigInfo.asConfigInfo(),
+                            fromLibrary: true));
+                  });
                 },
               );
           }
