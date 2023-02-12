@@ -4,9 +4,9 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:wakaranai/blocs/anime_service_view/anime_service_view_cubit.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/local_gallery_view_card/local_gallery_view_card_cubit.dart';
+import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/models/data/library_item.dart';
 import 'package:wakaranai/models/data/local_api_client.dart';
@@ -15,9 +15,9 @@ import 'package:wakaranai/models/remote_config/remote_config.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_concrete_viewer.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
+import 'package:wakaranai/ui/home/service_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/local_gallery_view_wrapper.dart';
-import 'package:wakaranai/ui/manga_service_viewer/filters/filters_page.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -61,60 +61,68 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
 
   Widget _buildWidget(AnimeApiClient apiClient) {
     return WebBrowserWrapper<AnimeApiClient>(
-        builder: (context, interceptor) {
+        builder: (context, interceptorInitCompleter) {
           return WillPopScope(
             onWillPop: () {
               Navigator.of(context)
                   .pushNamedAndRemoveUntil(Routes.home, (route) => false);
               return Future.value(false);
             },
-            child: MultiBlocProvider(
-              providers: [
-                BlocProvider<AnimeServiceViewCubit>(
-                    create: (context) => AnimeServiceViewCubit(
-                        AnimeServiceViewInitial(client: apiClient))),
-                if (widget.data.remoteConfig.config.protectorConfig
-                        ?.inAppBrowserInterceptor ??
-                    false)
-                  BlocProvider<BrowserInterceptorCubit>(
-                      lazy: false,
-                      create: (context) {
-                        final cubit = BrowserInterceptorCubit()
-                          ..init(
-                              url: widget.data.remoteConfig.config
-                                  .protectorConfig!.pingUrl,
-                              initCompleter: interceptor);
-                        apiClient.passWebBrowserInterceptorController(
-                            controller: cubit);
-                        return cubit;
-                      })
-              ],
-              child: MultiBlocListener(
-                listeners: [
-                  BlocListener<AnimeServiceViewCubit, AnimeServiceViewState>(
+            child: ServiceViewCubitWrapper<AnimeApiClient, AnimeGalleryView>(
+              client: apiClient,
+              builder: (context, state) => _wrapBrowserInterceptor(
+                  child: BlocListener<
+                      ServiceViewCubit<AnimeApiClient, AnimeGalleryView>,
+                      ServiceViewState<AnimeApiClient, AnimeGalleryView>>(
                     listener: (context, state) {
-                      if (state is AnimeServiceViewInitialized) {
+                      if (state is ServiceViewInitialized<AnimeApiClient,
+                          AnimeGalleryView>) {
                         _refreshController.loadComplete();
                       }
                     },
+                    child: _buildBody(apiClient),
                   ),
-                ],
-                child: _buildBody(apiClient),
-              ),
+                  apiClient: apiClient,
+                  interceptorInitCompleter: interceptorInitCompleter),
             ),
           );
         },
         onInterceptorInitialized: () {
           _scaffold.currentContext
-              ?.read<AnimeServiceViewCubit>()
+              ?.read<ServiceViewCubit<AnimeApiClient, AnimeGalleryView>>()
               .init(widget.data.remoteConfig);
         },
         configInfo: widget.data.remoteConfig.config,
         apiClient: apiClient);
   }
 
+  Widget _wrapBrowserInterceptor(
+      {required Widget child,
+      required AnimeApiClient apiClient,
+      required Completer<bool> interceptorInitCompleter}) {
+    if (widget.data.remoteConfig.config.protectorConfig
+            ?.inAppBrowserInterceptor ??
+        false) {
+      return BlocProvider<BrowserInterceptorCubit>(
+        lazy: false,
+        create: (context) {
+          final cubit = BrowserInterceptorCubit()
+            ..init(
+                url: widget.data.remoteConfig.config.protectorConfig!.pingUrl,
+                initCompleter: interceptorInitCompleter);
+          apiClient.passWebBrowserInterceptorController(controller: cubit);
+          return cubit;
+        },
+        child: child,
+      );
+    } else {
+      return child;
+    }
+  }
+
   Widget _buildBody(AnimeApiClient apiClient) {
-    return BlocBuilder<AnimeServiceViewCubit, AnimeServiceViewState>(
+    return BlocBuilder<ServiceViewCubit<AnimeApiClient, AnimeGalleryView>,
+        ServiceViewState<AnimeApiClient, AnimeGalleryView>>(
       builder: (context, state) {
         return Scaffold(
           key: _scaffold,
@@ -124,20 +132,11 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                   widget.data.remoteConfig.config.searchAvailable ? 80 : 60),
               child: _buildSearchableAppBar(
                   context,
-                  state is AnimeServiceViewInitialized ? state : null,
+                  state is ServiceViewInitialized<AnimeApiClient,
+                          AnimeGalleryView>
+                      ? state
+                      : null,
                   apiClient)),
-          endDrawer: Container(
-            decoration: BoxDecoration(
-                color: AppColors.backgroundColor.withOpacity(0.90)),
-            child: state is AnimeServiceViewInitialized &&
-                    state.configInfo.filters.isNotEmpty
-                ? FiltersPage(
-                    filters: state.configInfo.filters,
-                    selectedFilters: state.selectedFilters)
-                : const Center(
-                    child: CircularProgressIndicator(color: AppColors.primary),
-                  ),
-          ),
           body: Stack(
             alignment: Alignment.center,
             children: [
@@ -164,9 +163,22 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                   ),
                   controller: _refreshController,
                   onLoading: () {
-                    context.read<AnimeServiceViewCubit>().getGallery();
+                    if (state is! ServiceViewLoading<AnimeApiClient,
+                            AnimeGalleryView> ||
+                        (state is ServiceViewInitialized<AnimeApiClient,
+                                AnimeGalleryView> &&
+                            !(state as ServiceViewInitialized<AnimeApiClient,
+                                    AnimeGalleryView>)
+                                .loading)) {
+                      context
+                          .read<
+                              ServiceViewCubit<AnimeApiClient,
+                                  AnimeGalleryView>>()
+                          .getGallery();
+                    }
                   },
-                  child: state is AnimeServiceViewInitialized
+                  child: state is ServiceViewInitialized<AnimeApiClient,
+                          AnimeGalleryView>
                       ? GridView.builder(
                           itemBuilder: (context, index) {
                             final galleryView = state.galleryViews[index];
@@ -206,14 +218,16 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                                   crossAxisSpacing: 8,
                                   mainAxisSpacing: 8))
                       : const SizedBox()),
-              if (state is! AnimeServiceViewInitialized &&
-                  state is! AnimeServiceViewError)
+              if (state is! ServiceViewInitialized<AnimeApiClient,
+                      AnimeGalleryView> &&
+                  state is! ServiceViewError<AnimeApiClient, AnimeGalleryView>)
                 const Center(
                   child: CircularProgressIndicator(
                     color: AppColors.primary,
                   ),
                 )
-              else if (state is AnimeServiceViewError)
+              else if (state
+                  is ServiceViewError<AnimeApiClient, AnimeGalleryView>)
                 Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -269,8 +283,10 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
     );
   }
 
-  Widget _buildSearchableAppBar(BuildContext context,
-          AnimeServiceViewInitialized? state, AnimeApiClient apiClient) =>
+  Widget _buildSearchableAppBar(
+          BuildContext context,
+          ServiceViewInitialized<AnimeApiClient, AnimeGalleryView>? state,
+          AnimeApiClient apiClient) =>
       Padding(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         child: Column(
@@ -312,7 +328,9 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                     controller: _searchController,
                     onSubmitted: (value) {
                       context
-                          .read<AnimeServiceViewCubit>()
+                          .read<
+                              ServiceViewCubit<AnimeApiClient,
+                                  AnimeGalleryView>>()
                           .search(_searchController.text);
                     },
                     cursorColor: AppColors.primary,
@@ -352,7 +370,7 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                 galleryView.title));
       });
     } else {
-      showConfirmationDialog(
+      showOkCancelAlertDialog(
               context: context,
               title: S.current
                   .gallery_view_anime_item_delete_from_library_confirmation_title(

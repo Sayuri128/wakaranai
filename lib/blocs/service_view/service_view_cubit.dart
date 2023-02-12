@@ -1,20 +1,20 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:wakaranai/models/remote_config/remote_config.dart';
-import 'package:wakascript/api_clients/manga_api_client.dart';
+import 'package:wakascript/api_clients/api_client.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
 import 'package:wakascript/models/manga/manga_gallery_view/filters/data/filters/filter_data.dart';
-import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
 
-part 'manga_service_view_state.dart';
+part 'service_view_state.dart';
 
-class MangaServiceViewCubit extends Cubit<MangaServiceViewState> {
-  MangaServiceViewCubit(initialState) : super(initialState);
+class ServiceViewCubit<T extends ApiClient, G>
+    extends Cubit<ServiceViewState<T, G>> {
+  ServiceViewCubit(initialState) : super(initialState);
 
   void init(RemoteConfig remoteConfig) async {
-    emit(MangaServiceViewLoading(client: state.client));
+    emit(ServiceViewLoading<T, G>(client: state.client));
 
-    final List<MangaGalleryView>? galleryViews = await _getGalleryViews(
+    final List<G>? galleryViews = await _getGalleryViews(
         page: 1,
         query: null,
         filters: null,
@@ -23,31 +23,37 @@ class MangaServiceViewCubit extends Cubit<MangaServiceViewState> {
         });
 
     if (galleryViews != null) {
-      emit(MangaServiceViewInitialized(
+      emit(ServiceViewInitialized<T, G>(
           client: state.client,
           searchQuery: '',
           configInfo: remoteConfig.config,
           galleryViews: galleryViews,
           currentPage: 1,
-          selectedFilters: {}));
+          selectedFilters: {},
+          loading: false));
     }
   }
 
-  Future<List<MangaGalleryView>?> _getGalleryViews(
+  Future<List<G>?> _getGalleryViews(
       {required int page,
       required String? query,
       required List<FilterData>? filters,
       required void Function() retry}) async {
-    List<MangaGalleryView>? galleryViews;
+    List<G>? galleryViews;
+
+    final client = state.client;
 
     try {
-      await state.client
+      // TODO: avoid dynamic.
+      // Will it be enough to add the getGallery method to the ApiClient interface??
+      // What about the services that will be added over time? Will they all support gallery view?
+      await (client as dynamic)
           .getGallery(page: page, query: query, filters: filters)
           .then((value) {
         galleryViews = value;
       });
     } catch (exception) {
-      emit(MangaServiceViewError(
+      emit(ServiceViewError<T, G>(
           message: exception.toString(), client: state.client, retry: retry));
     }
 
@@ -55,9 +61,12 @@ class MangaServiceViewCubit extends Cubit<MangaServiceViewState> {
   }
 
   void getGallery({String? query}) async {
-    if (state is MangaServiceViewInitialized) {
-      final state = this.state as MangaServiceViewInitialized;
-      List<MangaGalleryView> galleryViews = [];
+    if (state is ServiceViewInitialized<T, G>) {
+      final state = this.state as ServiceViewInitialized<T, G>;
+
+      emit(state.copyWith(loading: true));
+
+      List<G> galleryViews = [];
       int currentPage = 0;
 
       galleryViews = state.galleryViews;
@@ -72,27 +81,28 @@ class MangaServiceViewCubit extends Cubit<MangaServiceViewState> {
             getGallery(query: query);
           });
       if (newGalleryViews == null) {
+        emit(state.copyWith(loading: false));
         return;
       }
 
       galleryViews.addAll(newGalleryViews);
 
-      emit(
-          state.copyWith(galleryViews: galleryViews, currentPage: currentPage));
+      emit((this.state as ServiceViewInitialized<T, G>)
+          .copyWith(galleryViews: galleryViews, currentPage: currentPage));
     }
   }
 
   void search(String? query) async {
-    final state = this.state as MangaServiceViewInitialized;
+    final state = this.state as ServiceViewInitialized<T, G>;
 
-    emit(MangaServiceViewLoading(client: this.state.client));
+    emit(ServiceViewLoading<T, G>(client: this.state.client));
     if (query == null || query.isEmpty) {
       emit(state.copyWith(searchQuery: ""));
       getGallery(query: "");
       return;
     }
 
-    List<MangaGalleryView> galleryViews = [];
+    List<G> galleryViews = [];
     int currentPage = 0;
 
     final newGalleryViews = await _getGalleryViews(
@@ -116,8 +126,8 @@ class MangaServiceViewCubit extends Cubit<MangaServiceViewState> {
   }
 
   void removeFilter(String param) {
-    if (state is MangaServiceViewInitialized) {
-      final state = this.state as MangaServiceViewInitialized;
+    if (state is ServiceViewInitialized<T, G>) {
+      final state = this.state as ServiceViewInitialized<T, G>;
 
       final newFilters = Map.of(state.selectedFilters);
       newFilters.remove(param);
@@ -127,8 +137,8 @@ class MangaServiceViewCubit extends Cubit<MangaServiceViewState> {
   }
 
   void onFilterChanged(String param, FilterData data) {
-    if (state is MangaServiceViewInitialized) {
-      final state = this.state as MangaServiceViewInitialized;
+    if (state is ServiceViewInitialized<T, G>) {
+      final state = this.state as ServiceViewInitialized<T, G>;
 
       final newFilters = Map.of(state.selectedFilters);
 
