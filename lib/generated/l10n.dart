@@ -697,6 +697,36 @@ class S {
       args: [],
     );
   }
+
+  /// `No saved configs`
+  String get local_configs_0_length {
+    return Intl.message(
+      'No saved configs',
+      name: 'local_configs_0_length',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update`
+  String get local_configs_update_button {
+    return Intl.message(
+      'Update',
+      name: 'local_configs_update_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Latest`
+  String get local_configs_no_updates {
+    return Intl.message(
+      'Latest',
+      name: 'local_configs_no_updates',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

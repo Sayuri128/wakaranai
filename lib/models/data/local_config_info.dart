@@ -61,7 +61,7 @@ class LocalConfigInfo extends SqSerializableObject {
       'nsfw': nsfw ? 1 : 0,
       'language': language,
       'version': version,
-      if (lazy)
+      if (lazy && localProtectorConfig != null)
         'localProtectorConfigId': localProtectorConfig?.getId()
       else
         'localProtectorConfig': localProtectorConfig?.toMap(lazy: lazy),

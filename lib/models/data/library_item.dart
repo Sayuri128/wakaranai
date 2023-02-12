@@ -4,6 +4,15 @@ import 'package:wakaranai/models/serializable_object.dart';
 
 enum LibraryItemType { ANIME, MANGA }
 
+LibraryItemType fromLocalApiClientType(LocalApiClientType type) {
+  switch(type) {
+    case LocalApiClientType.MANGA:
+      return LibraryItemType.MANGA;
+    case LocalApiClientType.ANIME:
+      return LibraryItemType.ANIME;
+  }
+}
+
 class LibraryItem extends SqSerializableObject {
   int? id;
   final LocalApiClient localApiClient;

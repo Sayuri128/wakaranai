@@ -34,12 +34,16 @@ class _AppViewState extends State<AppView> {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(
           useMaterial3: true,
+          elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ButtonStyle(
+                  padding:
+                      MaterialStateProperty.all(const EdgeInsets.all(4.0)))),
           navigationBarTheme: NavigationBarThemeData(
               labelTextStyle: MaterialStateProperty.all(
                   medium(size: 16, color: AppColors.mainWhite)),
               indicatorColor: AppColors.primary.withOpacity(0.9),
               iconTheme: MaterialStateProperty.all(
-                  IconThemeData(color: AppColors.mainWhite))),
+                  const IconThemeData(color: AppColors.mainWhite))),
           dialogTheme:
               const DialogTheme(surfaceTintColor: AppColors.backgroundColor),
           cardTheme:

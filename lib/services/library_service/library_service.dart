@@ -1,5 +1,4 @@
 import 'package:wakaranai/models/data/library_item.dart';
-import 'package:wakaranai/models/data/local_api_client.dart';
 import 'package:wakaranai/models/data/local_gallery_view.dart';
 import 'package:wakaranai/services/local_anime_gallery_view_service/local_anime_gallery_view_service.dart';
 import 'package:wakaranai/services/local_api_clients_service/local_api_clients_service.dart';
@@ -19,7 +18,6 @@ class LibraryService extends SqfliteService<LibraryItem> {
   final LocalApiClientsService localApiClientsService;
   final LocalAnimeGalleryViewService localAnimeGalleryViewService;
   final LocalMangaGalleryViewService localMangaGalleryViewService;
-  final Map<int, LocalApiClient> cachedClients = {};
 
   static const String libraryTableName = 'library';
   static const String createLibraryTable = '''
@@ -33,6 +31,21 @@ class LibraryService extends SqfliteService<LibraryItem> {
             FOREIGN KEY(localApiClientId) REFERENCES ${LocalApiClientsService.apiConfigsTableName}(id)
           );
       ''';
+
+  @override
+  Future<int> update(LibraryItem item) async {
+    switch (item.type) {
+      case LibraryItemType.ANIME:
+        await localAnimeGalleryViewService
+            .update(item.localGalleryView as LocalAnimeGalleryView);
+        break;
+      case LibraryItemType.MANGA:
+        await localMangaGalleryViewService
+            .update(item.localGalleryView as LocalMangaGalleryView);
+        break;
+    }
+    return super.update(item);
+  }
 
   @override
   Future<void> delete(int id) async {
@@ -78,8 +91,6 @@ class LibraryService extends SqfliteService<LibraryItem> {
         break;
     }
 
-    cachedClients.putIfAbsent(
-        item.localApiClient.id!, () => item.localApiClient);
     return super.insert(item);
   }
 
@@ -89,13 +100,8 @@ class LibraryService extends SqfliteService<LibraryItem> {
 
     final id = map['localApiClientId'];
 
-    if (cachedClients[id] == null) {
-      final apiClient = await localApiClientsService.get(id);
-      res['localApiClient'] = apiClient.toMap(lazy: false);
-      cachedClients.putIfAbsent(apiClient.id!, () => apiClient);
-    } else {
-      res['localApiClient'] = cachedClients[id]!.toMap(lazy: false);
-    }
+    final apiClient = await localApiClientsService.get(id);
+    res['localApiClient'] = apiClient.toMap(lazy: false);
 
     final LibraryItemType type = LibraryItemType.values.elementAt(res['type']);
 
