@@ -69,5 +69,7 @@ class GitHubConfigsService implements ConfigsService {
 }
 
 Future<String> _downloadSourceCode(String url) async {
-  return (await http.get(Uri.parse(url))).body.replaceAll("\n", "\r\n");
+  return (await http.get(Uri.parse(url), headers: {
+    "max-age": "600"
+  })).body.replaceAll("\n", "\r\n");
 }

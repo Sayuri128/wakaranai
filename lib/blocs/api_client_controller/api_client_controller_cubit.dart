@@ -22,7 +22,7 @@ class ApiClientControllerCubit<T extends ApiClient>
   void buildApiClient() async {
     final RemoteScript remoteScript = await remoteConfigsCubit.configService
         .getRemoteScript(remoteConfig.path);
-    
+
     switch (remoteConfig.category) {
       case RemoteCategory.anime:
         compute<String, ApiClient>(

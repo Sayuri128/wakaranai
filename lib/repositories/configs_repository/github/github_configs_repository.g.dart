@@ -25,10 +25,12 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
     org,
     repo, {
     branch = 'master',
+    maxAge = 300,
   }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{r'ref': branch};
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'max-age': maxAge};
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<List<GithubRepositoryContent>>(Options(
@@ -55,10 +57,12 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
     org,
     repo, {
     branch = 'master',
+    maxAge = 300,
   }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{r'ref': branch};
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'max-age': maxAge};
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<List<GithubRepositoryContent>>(Options(
@@ -86,10 +90,12 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
     required repo,
     required directory,
     required concrete,
+    maxAge = 300,
   }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'max-age': maxAge};
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<List<GithubRepositoryContent>>(Options(
