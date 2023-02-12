@@ -50,9 +50,10 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
       emit(RemoteConfigsLoaded(
           mangaRemoteConfigs: value[0].cast(),
           animeRemoteConfigs: value[1].cast()));
-    }).catchError((err) {
-      emit(RemoteConfigsError(message: "Configs source error :c"));
     });
+        // .catchError((err) {
+      // emit(RemoteConfigsError(message: "Configs source error :c"));
+    // });
   }
 
   void changeSource(ConfigsSourceItem source) async {
