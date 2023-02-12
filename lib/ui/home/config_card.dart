@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
 
 class ConfigCard extends StatelessWidget {
@@ -45,7 +46,7 @@ class ConfigCard extends StatelessWidget {
                   },
                 ),
               const SizedBox(height: 8),
-              Text(configInfo.name)
+              Text(configInfo.name, style: medium(),)
             ],
           ),
         ),

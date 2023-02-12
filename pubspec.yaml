@@ -16,7 +16,7 @@ dependencies:
 
   path_provider: ^2.0.12
   cupertino_icons: ^1.0.5
-  flutter_bloc: ^8.1.1
+  flutter_bloc: ^8.1.2
   equatable: ^2.0.5
   json_serializable: ^6.6.1
   retrofit: ^3.3.1
@@ -28,9 +28,7 @@ dependencies:
   photo_view: ^0.14.0
   cached_network_image: ^3.2.3
   flutter_cache_manager: 3.3.0
-  flutter_settings_ui: 2.0.1
   adaptive_dialog: ^1.8.2
-  shimmer: ^2.0.0
   wakascript:
     path: ../wakascript
   flutter_svg: ^2.0.0+1
@@ -44,7 +42,8 @@ dependencies:
   shared_preferences: ^2.0.17
   sqflite: ^2.2.4+1
   flutter_inappwebview: ^5.7.2+3
-  flutter_secure_storage: ^7.0.1
+  flutter_secure_storage: ^8.0.0
+  flutter_isolate: ^2.0.4
 
 
 flutter_intl:
@@ -70,4 +69,16 @@ flutter:
 
   assets:
     - .env
+
+  fonts:
+    - family: Ubuntu mono
+      fonts:
+        - asset: fonts/Ubuntu-B.ttf
+        - asset: fonts/Ubuntu-C.ttf
+        - asset: fonts/Ubuntu-L.ttf
+        - asset: fonts/Ubuntu-M.ttf
+        - asset: fonts/Ubuntu-R.ttf
+        - asset: fonts/Ubuntu-Th.ttf
+        - asset: fonts/UbuntuMono-B.ttf
+        - asset: fonts/UbuntuMono-R.ttf
 

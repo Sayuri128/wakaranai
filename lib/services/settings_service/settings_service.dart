@@ -37,12 +37,8 @@ class SettingsService {
     return _prefs!.getInt(defaultConfigsSourceIdKey);
   }
 
-  Future<void> setDefaultConfigsSourceId(int? id) async {
+  Future<void> setDefaultConfigsSourceId(int id) async {
     _prefs ??= await SharedPreferences.getInstance();
-    if (id != null) {
-      _prefs!.setInt(defaultConfigsSourceIdKey, id);
-    } else {
-      _prefs!.remove(defaultConfigsSourceIdKey);
-    }
+    _prefs!.setInt(defaultConfigsSourceIdKey, id);
   }
 }
