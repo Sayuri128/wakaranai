@@ -23,6 +23,13 @@ class LocalApiClientsService extends SqfliteService<LocalApiClient> {
   ''';
 
   @override
+  Future<void> delete(int id) async {
+    final ref = await get(id);
+    await localConfigInfoService.delete(ref.localConfigInfo.id!);
+    return super.delete(id);
+  }
+
+  @override
   Future<LocalApiClient> mapConfig(Map<String, dynamic> map) async {
     final Map<String, dynamic> res = Map.from(map);
     res['localConfigInfo'] =
@@ -53,7 +60,7 @@ class LocalApiClientsService extends SqfliteService<LocalApiClient> {
 
   Future<SqfliteExistsCheckResult> checkExists(LocalApiClient client) async {
     final configExists = await localConfigInfoService.checkExists(
-        name: client.localConfigInfo.name,
+        uid: client.localConfigInfo.uid,
         version: client.localConfigInfo.version);
     Map<String, dynamic>? clientData;
     if (configExists.value) {

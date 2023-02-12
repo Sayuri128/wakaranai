@@ -5,45 +5,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
+import 'package:wakaranai/blocs/local_gallery_view_card/local_gallery_view_card_cubit.dart';
 import 'package:wakaranai/blocs/manga_service_view/manga_service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/models/data/library_item.dart';
 import 'package:wakaranai/models/data/local_api_client.dart';
 import 'package:wakaranai/models/data/local_gallery_view.dart';
-import 'package:wakaranai/models/protector/protector_storage_item.dart';
-import 'package:wakaranai/services/library_service/library_service.dart';
-import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
+import 'package:wakaranai/models/remote_config/remote_config.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
+import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
+import 'package:wakaranai/ui/local_gallery_view_wrapper.dart';
 import 'package:wakaranai/ui/manga_service_viewer/filters/filters_page.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_clients/manga_api_client.dart';
-import 'package:wakascript/models/config_info/config_info.dart';
 import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
 
 import '../routes.dart';
 import 'concrete_viewer/manga_concrete_viewer.dart';
 
 class MangaServiceViewData {
-  final MangaApiClient apiClient;
-  final ConfigInfo configInfo;
+  final RemoteConfig remoteConfig;
 
-  const MangaServiceViewData({
-    required this.apiClient,
-    required this.configInfo,
-  });
+  const MangaServiceViewData({required this.remoteConfig});
 }
 
 class MangaServiceView extends StatefulWidget {
   const MangaServiceView({Key? key, required this.data}) : super(key: key);
 
   final MangaServiceViewData data;
-
-  MangaApiClient get apiClient => data.apiClient;
-
-  ConfigInfo get configInfo => data.configInfo;
 
   @override
   State<MangaServiceView> createState() => _MangaServiceViewState();
@@ -64,8 +56,13 @@ class _MangaServiceViewState extends State<MangaServiceView> {
 
   @override
   Widget build(BuildContext context) {
+    return ApiControllerWrapper<MangaApiClient>(
+        remoteConfig: widget.data.remoteConfig, builder: _buildWidget);
+  }
+
+  Widget _buildWidget(MangaApiClient apiClient) {
     return WebBrowserWrapper<MangaApiClient>(
-        apiClient: widget.apiClient,
+        apiClient: apiClient,
         builder: (context, interceptorInitCompleter) {
           return WillPopScope(
             onWillPop: () {
@@ -77,18 +74,19 @@ class _MangaServiceViewState extends State<MangaServiceView> {
               providers: [
                 BlocProvider<MangaServiceViewCubit>(
                     create: (context) => MangaServiceViewCubit(
-                        MangaServiceViewInitial(client: widget.apiClient))),
-                if (widget
-                        .configInfo.protectorConfig?.inAppBrowserInterceptor ??
+                        MangaServiceViewInitial(client: apiClient))),
+                if (widget.data.remoteConfig.config.protectorConfig
+                        ?.inAppBrowserInterceptor ??
                     false)
                   BlocProvider<BrowserInterceptorCubit>(
                       lazy: false,
                       create: (context) {
                         final cubit = BrowserInterceptorCubit()
                           ..init(
-                              url: widget.configInfo.protectorConfig!.pingUrl,
+                              url: widget.data.remoteConfig.config
+                                  .protectorConfig!.pingUrl,
                               initCompleter: interceptorInitCompleter);
-                        widget.apiClient.passWebBrowserInterceptorController(
+                        apiClient.passWebBrowserInterceptorController(
                             controller: cubit);
                         return cubit;
                       })
@@ -103,28 +101,33 @@ class _MangaServiceViewState extends State<MangaServiceView> {
                     },
                   ),
                 ],
-                child: _buildBody(),
+                child: _buildBody(apiClient),
               ),
             ),
           );
         },
         onInterceptorInitialized: () {
-          _scaffold.currentContext?.read<MangaServiceViewCubit>().init();
+          _scaffold.currentContext
+              ?.read<MangaServiceViewCubit>()
+              .init(widget.data.remoteConfig);
         },
-        configInfo: widget.configInfo);
+        configInfo: widget.data.remoteConfig.config);
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(MangaApiClient apiClient) {
     return BlocBuilder<MangaServiceViewCubit, MangaServiceViewState>(
       builder: (context, state) {
         return Scaffold(
           key: _scaffold,
           backgroundColor: AppColors.backgroundColor,
+          extendBody: true,
           appBar: PreferredSize(
               preferredSize: Size(MediaQuery.of(context).size.width,
-                  widget.configInfo.searchAvailable ? 80 : 60),
-              child: _buildSearchableAppBar(context,
-                  state is MangaServiceViewInitialized ? state : null)),
+                  widget.data.remoteConfig.config.searchAvailable ? 80 : 60),
+              child: _buildSearchableAppBar(
+                  context,
+                  state is MangaServiceViewInitialized ? state : null,
+                  apiClient)),
           endDrawer: Container(
             decoration: BoxDecoration(
                 color: AppColors.backgroundColor.withOpacity(0.90)),
@@ -168,17 +171,33 @@ class _MangaServiceViewState extends State<MangaServiceView> {
                   child: state is MangaServiceViewInitialized
                       ? GridView.builder(
                           itemBuilder: (context, index) {
-                            final e = state.galleryViews[index];
-                            return GalleryViewCard(
-                              cover: e.cover,
-                              uid: e.uid,
-                              title: e.title,
-                              onLongPress: () {
-                                _onLongGalleryViewPress(context, e);
-                              },
-                              onTap: () {
-                                _onGalleryViewClick(context, e);
-                              },
+                            final galleryView = state.galleryViews[index];
+                            return LocalGalleryViewWrapper(
+                              uid: galleryView.uid,
+                              type: LibraryItemType.MANGA,
+                              builder: (context, state) => GalleryViewCard(
+                                inLibrary:
+                                    state is LocalGalleryViewCardLoaded &&
+                                        state.libraryItem != null,
+                                cover: galleryView.cover,
+                                uid: galleryView.uid,
+                                title: galleryView.title,
+                                onLongPress: () {
+                                  if (state is LocalGalleryViewCardInitial) {
+                                    return;
+                                  }
+                                  _onLongGalleryViewPress(context,
+                                      galleryView: galleryView,
+                                      apiClient: apiClient,
+                                      canAdd:
+                                          state is LocalGalleryViewCardLoaded &&
+                                              state.libraryItem == null);
+                                },
+                                onTap: () {
+                                  _onGalleryViewClick(
+                                      context, galleryView, apiClient);
+                                },
+                              ),
                             );
                           },
                           itemCount: state.galleryViews.length,
@@ -226,7 +245,10 @@ class _MangaServiceViewState extends State<MangaServiceView> {
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.webhook),
-                                onPressed: _openWebView,
+                                onPressed: () {
+                                  openWebView(context, apiClient,
+                                      widget.data.remoteConfig.config);
+                                },
                                 splashRadius: 18,
                               ),
                               Text(
@@ -249,120 +271,130 @@ class _MangaServiceViewState extends State<MangaServiceView> {
     );
   }
 
-  void _onLongGalleryViewPress(BuildContext context, MangaGalleryView e) {
-    final service = context.read<LibraryService>();
-    service.checkExists(LibraryItemType.MANGA, e.uid).then((value) {
-      if (!mounted) {
-        return;
-      }
-      if (!value.value) {
-        service
-            .insert(LibraryItem(
-                localApiClient: LocalApiClient.fromApiClient(
-                    widget.apiClient, widget.configInfo),
-                localGalleryView: LocalMangaGalleryView.fromRemote(e),
-                type: LibraryItemType.MANGA))
-            .then((value) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("${e.title} Added to library!")));
-        });
-      } else {
-        showConfirmationDialog(
-                context: context,
-                title:
-                    "Are you sure you want to delete ${e.title} from your library?")
-            .then((value) {
-          print(value);
-        });
-      }
-    });
+  void _onLongGalleryViewPress(BuildContext context,
+      {required MangaGalleryView galleryView,
+      required MangaApiClient apiClient,
+      required bool canAdd}) {
+    if (canAdd) {
+      context.read<LocalGalleryViewCardCubit>().create(
+          LibraryItem(
+              localApiClient: LocalApiClient.fromApiClient(
+                  apiClient, widget.data.remoteConfig.config),
+              localGalleryView: LocalMangaGalleryView.fromRemote(galleryView),
+              type: LibraryItemType.MANGA,
+              galleryViewId: galleryView.uid), () {
+        _showNotificationSnackBar(
+            context,
+            S.current.gallery_view_anime_item_added_to_library_notification(
+                galleryView.title));
+      });
+    } else {
+      showOkCancelAlertDialog(
+              context: context,
+              title: S.current
+                  .gallery_view_manga_item_delete_from_library_confirmation_title(
+                      galleryView.title),
+              okLabel: S.current
+                  .gallery_view_manga_item_delete_from_library_confirmation_ok_label,
+              cancelLabel: S.current
+                  .gallery_view_manga_item_delete_from_library_confirmation_cancel_label)
+          .then((value) {
+        if (value == OkCancelResult.ok) {
+          context.read<LocalGalleryViewCardCubit>().delete(
+            () {
+              _showNotificationSnackBar(
+                  context,
+                  S.current
+                      .gallery_view_manga_item_deleted_from_library_notification(
+                          galleryView.title));
+            },
+          );
+        }
+      });
+    }
   }
 
-  Widget _buildSearchableAppBar(
-          BuildContext context, MangaServiceViewInitialized? state) =>
+  void _showNotificationSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppColors.backgroundColor,
+        content: Text(
+          message,
+          style: medium(size: 16),
+        )));
+  }
+
+  Widget _buildSearchableAppBar(BuildContext context,
+          MangaServiceViewInitialized? state, MangaApiClient apiClient) =>
       Padding(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-        child: Container(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 12.0),
-                    child: Text(
-                      widget.configInfo.name,
-                      style: medium(size: 24),
-                    ),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 12.0),
+                  child: Text(
+                    widget.data.remoteConfig.config.name,
+                    style: medium(size: 24),
                   ),
-                  IconButton(
-                      icon: Icon(
-                        Icons.webhook,
-                        color: widget.configInfo.protectorConfig != null
-                            ? AppColors.mainWhite
-                            : Colors.transparent,
-                      ),
-                      onPressed: widget.configInfo.protectorConfig != null
-                          ? _openWebView
-                          : null)
-                ],
-              ),
-              if (state != null && widget.configInfo.searchAvailable)
-                Flexible(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: TextField(
-                      controller: _searchController,
-                      onSubmitted: (value) {
-                        context
-                            .read<MangaServiceViewCubit>()
-                            .search(_searchController.text);
-                      },
-                      cursorColor: AppColors.primary,
-                      style: medium(size: 16),
-                      decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.only(bottom: 4.0),
-                          isCollapsed: true,
-                          enabledBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(color: AppColors.primary)),
-                          focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(color: AppColors.primary)),
-                          hintText:
-                              S.current.service_viewer_search_field_hint_text,
-                          hintStyle: medium(size: 16)),
+                ),
+                IconButton(
+                    icon: Icon(
+                      Icons.webhook,
+                      color: widget.data.remoteConfig.config.protectorConfig !=
+                              null
+                          ? AppColors.mainWhite
+                          : Colors.transparent,
                     ),
+                    onPressed:
+                        widget.data.remoteConfig.config.protectorConfig != null
+                            ? () {
+                                openWebView(context, apiClient,
+                                    widget.data.remoteConfig.config);
+                              }
+                            : null)
+              ],
+            ),
+            if (state != null &&
+                widget.data.remoteConfig.config.searchAvailable)
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: TextField(
+                    controller: _searchController,
+                    onSubmitted: (value) {
+                      context
+                          .read<MangaServiceViewCubit>()
+                          .search(_searchController.text);
+                    },
+                    cursorColor: AppColors.primary,
+                    style: medium(size: 16),
+                    decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.only(bottom: 4.0),
+                        isCollapsed: true,
+                        enabledBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.primary)),
+                        focusedBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.primary)),
+                        hintText:
+                            S.current.service_viewer_search_field_hint_text,
+                        hintStyle: medium(size: 16)),
                   ),
-                )
-            ],
-          ),
+                ),
+              )
+          ],
         ),
       );
 
-  void _onGalleryViewClick(BuildContext context, MangaGalleryView e) {
+  void _onGalleryViewClick(
+      BuildContext context, MangaGalleryView e, MangaApiClient apiClient) {
     Navigator.of(context).pushNamed(Routes.mangaConcreteViewer,
         arguments: MangaConcreteViewerData(
-            client: widget.apiClient,
+            client: apiClient,
             uid: e.uid,
             galleryView: e,
-            configInfo: widget.configInfo));
-  }
-
-  Future<void> _openWebView() async {
-    final config = await widget.apiClient.getConfigInfo();
-    final uid = '${config.name}_${config.version}';
-    final result = await Navigator.of(context).pushNamed(Routes.webBrowser,
-        arguments: WebBrowserData(
-            config: config.protectorConfig!,
-            protectorStorageItem:
-                await ProtectorStorageService().getItem(uid: uid)));
-    if (result != null) {
-      await widget.apiClient
-          .passProtector(data: result as Map<String, dynamic>);
-      await ProtectorStorageService()
-          .saveItem(item: ProtectorStorageItem(uid: uid, headers: result));
-    } else {
-      return;
-    }
+            configInfo: widget.data.remoteConfig.config));
   }
 }

@@ -25,7 +25,21 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m1(name) => "Are you sure you want to delete ${name} source?";
 
-  static String m2(date) => "Last visit: ${date}";
+  static String m2(anime) => "${anime} Added to you library!";
+
+  static String m3(anime) =>
+      "Are you sure you want to delete \"${anime}\" from your library?";
+
+  static String m4(anime) => "${anime} Deleted from your library!";
+
+  static String m5(manga) => "${manga} Added to you library!";
+
+  static String m6(manga) =>
+      "Are you sure you want to delete \"${manga}\" from your library?";
+
+  static String m7(manga) => "${manga} Deleted from your library!";
+
+  static String m8(date) => "Last visit: ${date}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -79,9 +93,25 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Download again"),
         "fetching_mangas_configs_error": MessageLookupByLibrary.simpleMessage(
             "Error occurred during fetching manga configs"),
+        "gallery_view_anime_item_added_to_library_notification": m2,
+        "gallery_view_anime_item_delete_from_library_confirmation_cancel_label":
+            MessageLookupByLibrary.simpleMessage("Cancel"),
+        "gallery_view_anime_item_delete_from_library_confirmation_ok_label":
+            MessageLookupByLibrary.simpleMessage("Delete"),
+        "gallery_view_anime_item_delete_from_library_confirmation_title": m3,
+        "gallery_view_anime_item_deleted_from_library_notification": m4,
+        "gallery_view_item_in_library_title":
+            MessageLookupByLibrary.simpleMessage("In library"),
+        "gallery_view_manga_item_added_to_library_notification": m5,
+        "gallery_view_manga_item_delete_from_library_confirmation_cancel_label":
+            MessageLookupByLibrary.simpleMessage("Cancel"),
+        "gallery_view_manga_item_delete_from_library_confirmation_ok_label":
+            MessageLookupByLibrary.simpleMessage("Delete"),
+        "gallery_view_manga_item_delete_from_library_confirmation_title": m6,
+        "gallery_view_manga_item_deleted_from_library_notification": m7,
         "github_configs_source_type":
             MessageLookupByLibrary.simpleMessage("GitHub"),
-        "history_last_visit": m2,
+        "history_last_visit": m8,
         "history_page_title": MessageLookupByLibrary.simpleMessage("History"),
         "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Anime"),
         "home_manga_group_title": MessageLookupByLibrary.simpleMessage("Manga"),

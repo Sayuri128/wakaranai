@@ -8,12 +8,14 @@ class LibraryItem extends SqSerializableObject {
   int? id;
   final LocalApiClient localApiClient;
   final LocalGalleryView localGalleryView;
+  final String galleryViewId;
   final LibraryItemType type;
 
   LibraryItem(
       {this.id,
       required this.localApiClient,
       required this.localGalleryView,
+      required this.galleryViewId,
       required this.type});
 
   @override
@@ -21,6 +23,7 @@ class LibraryItem extends SqSerializableObject {
     return {
       if (id != null) 'id': id,
       'type': type.index,
+      'galleryViewId': galleryViewId,
       if (lazy)
         'localApiClientId': localApiClient.getId()
       else
@@ -47,6 +50,7 @@ class LibraryItem extends SqSerializableObject {
     return LibraryItem(
         id: map['id'] as int,
         type: type,
+        galleryViewId: map['galleryViewId'],
         localApiClient: LocalApiClient.fromMap(map['localApiClient']),
         localGalleryView: galleryView);
   }

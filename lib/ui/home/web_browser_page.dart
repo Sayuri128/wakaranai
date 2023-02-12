@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/models/protector/protector_storage_item.dart';
+import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
+import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/browser.dart';
 import 'package:wakaranai/utils/text_styles.dart';
+import 'package:wakascript/api_clients/api_client.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
 import 'package:wakascript/models/config_info/protector_config/protector_config.dart';
 
 class WebBrowserData {
@@ -109,4 +113,21 @@ Future<void> getHeaders(
     }),
     'cookies-raw': cookies
   });
+}
+
+Future<void> openWebView(
+    BuildContext context, ApiClient apiClient, ConfigInfo config) async {
+  final uid = '${config.name}_${config.version}';
+  final result = await Navigator.of(context).pushNamed(Routes.webBrowser,
+      arguments: WebBrowserData(
+          config: config.protectorConfig!,
+          protectorStorageItem:
+              await ProtectorStorageService().getItem(uid: uid)));
+  if (result != null) {
+    await apiClient.passProtector(data: result as Map<String, dynamic>);
+    await ProtectorStorageService()
+        .saveItem(item: ProtectorStorageItem(uid: uid, headers: result));
+  } else {
+    return;
+  }
 }

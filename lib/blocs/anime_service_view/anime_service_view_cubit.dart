@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:wakaranai/models/remote_config/remote_config.dart';
 import 'package:wakascript/api_clients/anime_api_client.dart';
 import 'package:wakascript/logger.dart';
 import 'package:wakascript/models/anime/anime_gallery_view/anime_gallery_view.dart';
@@ -11,7 +12,7 @@ part 'anime_service_view_state.dart';
 class AnimeServiceViewCubit extends Cubit<AnimeServiceViewState> {
   AnimeServiceViewCubit(initialState) : super(initialState);
 
-  void init() async {
+  void init(RemoteConfig remoteConfig) async {
     emit(AnimeServiceViewLoading(client: state.client));
 
     final List<AnimeGalleryView>? galleryViews = await _getGalleryViews(
@@ -19,14 +20,14 @@ class AnimeServiceViewCubit extends Cubit<AnimeServiceViewState> {
         query: null,
         filters: null,
         retry: () {
-          init();
+          init(remoteConfig);
         });
 
     if (galleryViews != null) {
       emit(AnimeServiceViewInitialized(
           client: state.client,
           searchQuery: '',
-          configInfo: await state.client.getConfigInfo(),
+          configInfo: remoteConfig.config,
           galleryViews: galleryViews,
           currentPage: 1,
           selectedFilters: {}));

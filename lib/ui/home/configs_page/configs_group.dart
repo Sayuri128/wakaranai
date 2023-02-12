@@ -1,23 +1,22 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/blocs/api_client_controller/api_client_controller_cubit.dart';
+import 'package:wakaranai/models/remote_config/remote_category.dart';
+import 'package:wakaranai/models/remote_config/remote_config.dart';
 import 'package:wakaranai/ui/anime_service_viewer/anime_service_viewer.dart';
 import 'package:wakaranai/ui/home/configs_page/config_card.dart';
 import 'package:wakaranai/ui/manga_service_viewer/manga_service_viewer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
-import 'package:wakascript/api_clients/anime_api_client.dart';
-import 'package:wakascript/api_clients/api_client.dart';
-import 'package:wakascript/api_clients/manga_api_client.dart';
 
 import '../../routes.dart';
 
-class ConfigsGroup<T extends ApiClient> extends StatelessWidget {
-  const ConfigsGroup({Key? key, required this.title, required this.apiClients})
+class ConfigsGroup extends StatelessWidget {
+  const ConfigsGroup(
+      {Key? key, required this.title, required this.remoteConfigs})
       : super(key: key);
 
   final String title;
-  final List<T> apiClients;
+  final List<RemoteConfig> remoteConfigs;
 
   @override
   Widget build(BuildContext context) {
@@ -36,25 +35,11 @@ class ConfigsGroup<T extends ApiClient> extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 6.0),
             child: Wrap(
               children: [
-                ...apiClients.map((e) =>
-                    BlocProvider<ApiClientControllerCubit<T>>(
-                        create: (context) =>
-                            ApiClientControllerCubit(apiClient: e)
-                              ..getConfigInfo(),
-                        child: BlocBuilder<ApiClientControllerCubit<T>,
-                            ApiClientControllerState>(
-                          builder: (context, state) {
-                            if (state is ApiClientControllerConfigInfo) {
-                              return ConfigCard(
-                                  configInfo: state.configInfo,
-                                  onTap: () {
-                                    _onCardClick(context, e, state);
-                                  });
-                            } else {
-                              return const SizedBox();
-                            }
-                          },
-                        ))),
+                ...remoteConfigs.map((e) => ConfigCard(
+                    configInfo: e.config,
+                    onTap: () {
+                      _onCardClick(context, e);
+                    })),
               ],
             ),
           ),
@@ -63,18 +48,15 @@ class ConfigsGroup<T extends ApiClient> extends StatelessWidget {
     );
   }
 
-  void _onCardClick(
-      BuildContext context, T e, ApiClientControllerConfigInfo state) async {
-    if (e is MangaApiClient) {
+  void _onCardClick(BuildContext context, RemoteConfig remoteConfig) async {
+    if (remoteConfig.category == RemoteCategory.manga) {
       Navigator.of(context).pushNamedAndRemoveUntil(
           Routes.mangaServiceViewer, (route) => false,
-          arguments:
-              MangaServiceViewData(apiClient: e, configInfo: state.configInfo));
-    } else if (e is AnimeApiClient) {
+          arguments: MangaServiceViewData(remoteConfig: remoteConfig));
+    } else if (remoteConfig.category == RemoteCategory.anime) {
       Navigator.of(context).pushNamedAndRemoveUntil(
           Routes.animeServiceViewer, (route) => false,
-          arguments: AnimeServiceViewerData(
-              apiClient: e, configInfo: state.configInfo));
+          arguments: AnimeServiceViewerData(remoteConfig: remoteConfig));
     }
   }
 }

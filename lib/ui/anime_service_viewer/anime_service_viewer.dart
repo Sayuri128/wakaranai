@@ -6,15 +6,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/anime_service_view/anime_service_view_cubit.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
+import 'package:wakaranai/blocs/local_gallery_view_card/local_gallery_view_card_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/models/data/library_item.dart';
 import 'package:wakaranai/models/data/local_api_client.dart';
 import 'package:wakaranai/models/data/local_gallery_view.dart';
-import 'package:wakaranai/services/library_service/library_service.dart';
-import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
+import 'package:wakaranai/models/remote_config/remote_config.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_concrete_viewer.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
+import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
+import 'package:wakaranai/ui/local_gallery_view_wrapper.dart';
 import 'package:wakaranai/ui/manga_service_viewer/filters/filters_page.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
@@ -22,28 +24,17 @@ import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_clients/anime_api_client.dart';
 import 'package:wakascript/models/anime/anime_gallery_view/anime_gallery_view.dart';
-import 'package:wakascript/models/config_info/config_info.dart';
-
-import '../../models/protector/protector_storage_item.dart';
 
 class AnimeServiceViewerData {
-  final AnimeApiClient apiClient;
-  final ConfigInfo configInfo;
+  final RemoteConfig remoteConfig;
 
-  const AnimeServiceViewerData({
-    required this.apiClient,
-    required this.configInfo,
-  });
+  const AnimeServiceViewerData({required this.remoteConfig});
 }
 
 class AnimeServiceViewer extends StatefulWidget {
   const AnimeServiceViewer({Key? key, required this.data}) : super(key: key);
 
   final AnimeServiceViewerData data;
-
-  AnimeApiClient get apiClient => data.apiClient;
-
-  ConfigInfo get configInfo => data.configInfo;
 
   @override
   State<AnimeServiceViewer> createState() => _AnimeServiceViewerState();
@@ -64,6 +55,11 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
 
   @override
   Widget build(BuildContext context) {
+    return ApiControllerWrapper<AnimeApiClient>(
+        remoteConfig: widget.data.remoteConfig, builder: _buildWidget);
+  }
+
+  Widget _buildWidget(AnimeApiClient apiClient) {
     return WebBrowserWrapper<AnimeApiClient>(
         builder: (context, interceptor) {
           return WillPopScope(
@@ -76,9 +72,8 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
               providers: [
                 BlocProvider<AnimeServiceViewCubit>(
                     create: (context) => AnimeServiceViewCubit(
-                        AnimeServiceViewInitial(
-                            client: widget.data.apiClient))),
-                if (widget.data.configInfo.protectorConfig
+                        AnimeServiceViewInitial(client: apiClient))),
+                if (widget.data.remoteConfig.config.protectorConfig
                         ?.inAppBrowserInterceptor ??
                     false)
                   BlocProvider<BrowserInterceptorCubit>(
@@ -86,12 +81,11 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                       create: (context) {
                         final cubit = BrowserInterceptorCubit()
                           ..init(
-                              url: widget
-                                  .data.configInfo.protectorConfig!.pingUrl,
+                              url: widget.data.remoteConfig.config
+                                  .protectorConfig!.pingUrl,
                               initCompleter: interceptor);
-                        widget.data.apiClient
-                            .passWebBrowserInterceptorController(
-                                controller: cubit);
+                        apiClient.passWebBrowserInterceptorController(
+                            controller: cubit);
                         return cubit;
                       })
               ],
@@ -105,19 +99,21 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                     },
                   ),
                 ],
-                child: _buildBody(),
+                child: _buildBody(apiClient),
               ),
             ),
           );
         },
         onInterceptorInitialized: () {
-          _scaffold.currentContext?.read<AnimeServiceViewCubit>().init();
+          _scaffold.currentContext
+              ?.read<AnimeServiceViewCubit>()
+              .init(widget.data.remoteConfig);
         },
-        configInfo: widget.data.configInfo,
-        apiClient: widget.data.apiClient);
+        configInfo: widget.data.remoteConfig.config,
+        apiClient: apiClient);
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(AnimeApiClient apiClient) {
     return BlocBuilder<AnimeServiceViewCubit, AnimeServiceViewState>(
       builder: (context, state) {
         return Scaffold(
@@ -125,9 +121,11 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
           backgroundColor: AppColors.backgroundColor,
           appBar: PreferredSize(
               preferredSize: Size(MediaQuery.of(context).size.width,
-                  widget.configInfo.searchAvailable ? 80 : 60),
-              child: _buildSearchableAppBar(context,
-                  state is AnimeServiceViewInitialized ? state : null)),
+                  widget.data.remoteConfig.config.searchAvailable ? 80 : 60),
+              child: _buildSearchableAppBar(
+                  context,
+                  state is AnimeServiceViewInitialized ? state : null,
+                  apiClient)),
           endDrawer: Container(
             decoration: BoxDecoration(
                 color: AppColors.backgroundColor.withOpacity(0.90)),
@@ -171,17 +169,33 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                   child: state is AnimeServiceViewInitialized
                       ? GridView.builder(
                           itemBuilder: (context, index) {
-                            final e = state.galleryViews[index];
-                            return GalleryViewCard(
-                              cover: e.cover,
-                              uid: e.uid,
-                              title: e.title,
-                              onTap: () {
-                                _onGalleryViewClick(context, e);
-                              },
-                              onLongPress: () {
-                                _onGalleryViewLongPress(context, e);
-                              },
+                            final galleryView = state.galleryViews[index];
+                            return LocalGalleryViewWrapper(
+                              uid: galleryView.uid,
+                              type: LibraryItemType.ANIME,
+                              builder: (context, state) => GalleryViewCard(
+                                inLibrary:
+                                    state is LocalGalleryViewCardLoaded &&
+                                        state.libraryItem != null,
+                                cover: galleryView.cover,
+                                uid: galleryView.uid,
+                                title: galleryView.title,
+                                onLongPress: () {
+                                  if (state is LocalGalleryViewCardInitial) {
+                                    return;
+                                  }
+                                  _onLongGalleryViewPress(context,
+                                      galleryView: galleryView,
+                                      apiClient: apiClient,
+                                      canAdd:
+                                          state is LocalGalleryViewCardLoaded &&
+                                              state.libraryItem == null);
+                                },
+                                onTap: () {
+                                  _onGalleryViewClick(
+                                      context, galleryView, apiClient);
+                                },
+                              ),
                             );
                           },
                           itemCount: state.galleryViews.length,
@@ -229,7 +243,10 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.webhook),
-                                onPressed: _openWebView,
+                                onPressed: () {
+                                  openWebView(context, apiClient,
+                                      widget.data.remoteConfig.config);
+                                },
                                 splashRadius: 18,
                               ),
                               Text(
@@ -252,8 +269,8 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
     );
   }
 
-  Widget _buildSearchableAppBar(
-          BuildContext context, AnimeServiceViewInitialized? state) =>
+  Widget _buildSearchableAppBar(BuildContext context,
+          AnimeServiceViewInitialized? state, AnimeApiClient apiClient) =>
       Padding(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         child: Column(
@@ -265,23 +282,29 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
                 Padding(
                   padding: const EdgeInsets.only(left: 12.0),
                   child: Text(
-                    widget.configInfo.name,
+                    widget.data.remoteConfig.config.name,
                     style: medium(size: 24),
                   ),
                 ),
                 IconButton(
                     icon: Icon(
                       Icons.webhook,
-                      color: widget.configInfo.protectorConfig != null
+                      color: widget.data.remoteConfig.config.protectorConfig !=
+                              null
                           ? AppColors.mainWhite
                           : Colors.transparent,
                     ),
-                    onPressed: widget.configInfo.protectorConfig != null
-                        ? _openWebView
-                        : null)
+                    onPressed:
+                        widget.data.remoteConfig.config.protectorConfig != null
+                            ? () {
+                                openWebView(context, apiClient,
+                                    widget.data.remoteConfig.config);
+                              }
+                            : null)
               ],
             ),
-            if (state != null && widget.data.configInfo.searchAvailable)
+            if (state != null &&
+                widget.data.remoteConfig.config.searchAvailable)
               Flexible(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -311,59 +334,65 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
         ),
       );
 
-  void _onGalleryViewLongPress(BuildContext context, AnimeGalleryView e) {
-    final service = context.read<LibraryService>();
-    service.checkExists(LibraryItemType.ANIME, e.uid).then((value) {
-      if (!mounted) {
-        return;
-      }
-      if (!value.value) {
-        service
-            .insert(LibraryItem(
-                localApiClient: LocalApiClient.fromApiClient(
-                    widget.apiClient, widget.configInfo),
-                localGalleryView: LocalAnimeGalleryView.fromRemote(e),
-                type: LibraryItemType.ANIME))
-            .then((value) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("${e.title} Added to library!")));
-        });
-      } else {
-        showConfirmationDialog(
-                context: context,
-                title:
-                    "Are you sure you want to delete ${e.title} from your library?")
-            .then((value) {
-          print(value);
-        });
-      }
-    });
+  void _onLongGalleryViewPress(BuildContext context,
+      {required AnimeGalleryView galleryView,
+      required AnimeApiClient apiClient,
+      required bool canAdd}) {
+    if (canAdd) {
+      context.read<LocalGalleryViewCardCubit>().create(
+          LibraryItem(
+              localApiClient: LocalApiClient.fromApiClient(
+                  apiClient, widget.data.remoteConfig.config),
+              localGalleryView: LocalAnimeGalleryView.fromRemote(galleryView),
+              type: LibraryItemType.ANIME,
+              galleryViewId: galleryView.uid), () {
+        _showNotificationSnackBar(
+            context,
+            S.current.gallery_view_anime_item_added_to_library_notification(
+                galleryView.title));
+      });
+    } else {
+      showConfirmationDialog(
+              context: context,
+              title: S.current
+                  .gallery_view_anime_item_delete_from_library_confirmation_title(
+                      galleryView.title),
+              okLabel: S.current
+                  .gallery_view_anime_item_delete_from_library_confirmation_ok_label,
+              cancelLabel: S.current
+                  .gallery_view_anime_item_delete_from_library_confirmation_cancel_label)
+          .then((value) {
+        if (value == OkCancelResult.ok) {
+          context.read<LocalGalleryViewCardCubit>().delete(
+            () {
+              _showNotificationSnackBar(
+                  context,
+                  S.current
+                      .gallery_view_anime_item_deleted_from_library_notification(
+                          galleryView.title));
+            },
+          );
+        }
+      });
+    }
   }
 
-  void _onGalleryViewClick(BuildContext context, AnimeGalleryView e) {
+  void _showNotificationSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppColors.backgroundColor,
+        content: Text(
+          message,
+          style: medium(size: 16),
+        )));
+  }
+
+  void _onGalleryViewClick(
+      BuildContext context, AnimeGalleryView e, AnimeApiClient apiClient) {
     Navigator.of(context).pushNamed(Routes.animeConcreteViewer,
         arguments: AnimeConcreteViewerData(
-            client: widget.apiClient,
+            client: apiClient,
             uid: e.uid,
             galleryView: e,
-            configInfo: widget.configInfo));
-  }
-
-  Future<void> _openWebView() async {
-    final config = await widget.data.apiClient.getConfigInfo();
-    final uid = '${config.name}_${config.version}';
-    final result = await Navigator.of(context).pushNamed(Routes.webBrowser,
-        arguments: WebBrowserData(
-            config: config.protectorConfig!,
-            protectorStorageItem:
-                await ProtectorStorageService().getItem(uid: uid)));
-    if (result != null) {
-      await widget.data.apiClient
-          .passProtector(data: result as Map<String, dynamic>);
-      await ProtectorStorageService()
-          .saveItem(item: ProtectorStorageItem(uid: uid, headers: result));
-    } else {
-      return;
-    }
+            configInfo: widget.data.remoteConfig.config));
   }
 }

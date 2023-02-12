@@ -5,6 +5,7 @@ import 'package:wakascript/models/config_info/config_info.dart';
 class LocalConfigInfo extends SqSerializableObject {
   int? id;
   final String name;
+  final String uid;
   final String logoUrl;
   final bool nsfw;
   final String language;
@@ -15,6 +16,7 @@ class LocalConfigInfo extends SqSerializableObject {
   LocalConfigInfo({
     this.id,
     required this.name,
+    required this.uid,
     required this.logoUrl,
     required this.nsfw,
     required this.language,
@@ -25,6 +27,7 @@ class LocalConfigInfo extends SqSerializableObject {
 
   ConfigInfo asConfigInfo() => ConfigInfo(
       name: name,
+      uid: uid,
       logoUrl: logoUrl,
       nsfw: nsfw,
       language: language,
@@ -36,6 +39,7 @@ class LocalConfigInfo extends SqSerializableObject {
   factory LocalConfigInfo.fromConfigInfo(ConfigInfo configInfo) =>
       LocalConfigInfo(
           name: configInfo.name,
+          uid: configInfo.uid,
           logoUrl: configInfo.logoUrl,
           nsfw: configInfo.nsfw,
           language: configInfo.language,
@@ -52,6 +56,7 @@ class LocalConfigInfo extends SqSerializableObject {
     return {
       if (id != null) 'id': id,
       'name': name,
+      'uid': uid,
       'logoUrl': logoUrl,
       'nsfw': nsfw ? 1 : 0,
       'language': language,
@@ -67,6 +72,7 @@ class LocalConfigInfo extends SqSerializableObject {
   factory LocalConfigInfo.fromMap(Map<String, dynamic> map) {
     return LocalConfigInfo(
       id: map['id'] as int,
+      uid: map['uid'] as String,
       name: map['name'] as String,
       logoUrl: map['logoUrl'] as String,
       nsfw: (map['nsfw'] as int) == 1,
