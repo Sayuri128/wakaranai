@@ -3,11 +3,12 @@ import 'package:meta/meta.dart';
 import 'package:wakaranai/models/remote_config/remote_config.dart';
 import 'package:wakascript/api_clients/api_client.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
+import 'package:wakascript/models/gallery_view.dart';
 import 'package:wakascript/models/manga/manga_gallery_view/filters/data/filters/filter_data.dart';
 
 part 'service_view_state.dart';
 
-class ServiceViewCubit<T extends ApiClient, G>
+class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
     extends Cubit<ServiceViewState<T, G>> {
   ServiceViewCubit(initialState) : super(initialState);
 

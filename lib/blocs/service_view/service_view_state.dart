@@ -1,7 +1,7 @@
 part of 'service_view_cubit.dart';
 
 @immutable
-abstract class ServiceViewState<T extends ApiClient, G> {
+abstract class ServiceViewState<T extends ApiClient, G extends GalleryView> {
   final T client;
 
   const ServiceViewState({
@@ -9,21 +9,22 @@ abstract class ServiceViewState<T extends ApiClient, G> {
   });
 }
 
-class ServiceViewInitial<T extends ApiClient, G>
+class ServiceViewInitial<T extends ApiClient, G extends GalleryView>
     extends ServiceViewState<T, G> {
   const ServiceViewInitial({
     required T client,
   }) : super(client: client);
 }
 
-class ServiceViewLoading<T extends ApiClient, G>
+class ServiceViewLoading<T extends ApiClient, G extends GalleryView>
     extends ServiceViewState<T, G> {
   const ServiceViewLoading({
     required T client,
   }) : super(client: client);
 }
 
-class ServiceViewError<T extends ApiClient, G> extends ServiceViewState<T, G> {
+class ServiceViewError<T extends ApiClient, G extends GalleryView>
+    extends ServiceViewState<T, G> {
   final String message;
   final void Function() retry;
 
@@ -32,7 +33,7 @@ class ServiceViewError<T extends ApiClient, G> extends ServiceViewState<T, G> {
       : super(client: client);
 }
 
-class ServiceViewInitialized<T extends ApiClient, G>
+class ServiceViewInitialized<T extends ApiClient, G extends GalleryView>
     extends ServiceViewState<T, G> {
   final String searchQuery;
   final ConfigInfo configInfo;
@@ -52,23 +53,21 @@ class ServiceViewInitialized<T extends ApiClient, G>
       required this.loading})
       : super(client: client);
 
-  ServiceViewInitialized<T, G> copyWith({
-    String? searchQuery,
-    T? client,
-    ConfigInfo? configInfo,
-    List<G>? galleryViews,
-    int? currentPage,
-    Map<String, FilterData>? selectedFilters,
-    bool? loading
-  }) {
+  ServiceViewInitialized<T, G> copyWith(
+      {String? searchQuery,
+      T? client,
+      ConfigInfo? configInfo,
+      List<G>? galleryViews,
+      int? currentPage,
+      Map<String, FilterData>? selectedFilters,
+      bool? loading}) {
     return ServiceViewInitialized(
-      searchQuery: searchQuery ?? this.searchQuery,
-      client: client ?? this.client,
-      configInfo: configInfo ?? this.configInfo,
-      galleryViews: galleryViews ?? this.galleryViews,
-      currentPage: currentPage ?? this.currentPage,
-      selectedFilters: selectedFilters ?? this.selectedFilters,
-      loading: loading ?? this.loading
-    );
+        searchQuery: searchQuery ?? this.searchQuery,
+        client: client ?? this.client,
+        configInfo: configInfo ?? this.configInfo,
+        galleryViews: galleryViews ?? this.galleryViews,
+        currentPage: currentPage ?? this.currentPage,
+        selectedFilters: selectedFilters ?? this.selectedFilters,
+        loading: loading ?? this.loading);
   }
 }

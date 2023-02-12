@@ -239,8 +239,14 @@ class _ChapterViewerState extends State<ChapterViewer>
               children: [
                 Flexible(
                   child: Container(
+                    decoration: BoxDecoration(boxShadow: [
+                      BoxShadow(
+                          color: AppColors.mainBlack.withOpacity(0.25),
+                          blurRadius: 24,
+                          spreadRadius: 24)
+                    ]),
                     child: Text(
-                        state.group.chapters
+                        state.group.elements
                             .firstWhere((element) =>
                                 element.uid == state.currentPages.chapterUid)
                             .title,
@@ -248,12 +254,6 @@ class _ChapterViewerState extends State<ChapterViewer>
                         maxLines: 4,
                         softWrap: true,
                         overflow: TextOverflow.ellipsis),
-                    decoration: BoxDecoration(boxShadow: [
-                      BoxShadow(
-                          color: AppColors.mainBlack.withOpacity(0.25),
-                          blurRadius: 24,
-                          spreadRadius: 24)
-                    ]),
                   ),
                 ),
                 const SizedBox(
