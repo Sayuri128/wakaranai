@@ -2457,6 +2457,334 @@ class LocalConfigsSourcesTableCompanion
   }
 }
 
+class $PagesReadTableTable extends PagesReadTable
+    with TableInfo<$PagesReadTableTable, DriftPagesRead> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PagesReadTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+      'uid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _readPagesMeta =
+      const VerificationMeta('readPages');
+  @override
+  late final GeneratedColumn<int> readPages = GeneratedColumn<int>(
+      'read_pages', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _totalPagesMeta =
+      const VerificationMeta('totalPages');
+  @override
+  late final GeneratedColumn<int> totalPages = GeneratedColumn<int>(
+      'total_pages', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _lastUpdatedMeta =
+      const VerificationMeta('lastUpdated');
+  @override
+  late final GeneratedColumn<DateTime> lastUpdated = GeneratedColumn<DateTime>(
+      'last_updated', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, uid, readPages, totalPages, created, lastUpdated];
+  @override
+  String get aliasedName => _alias ?? 'pages_read_table';
+  @override
+  String get actualTableName => 'pages_read_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<DriftPagesRead> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid']!, _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('read_pages')) {
+      context.handle(_readPagesMeta,
+          readPages.isAcceptableOrUnknown(data['read_pages']!, _readPagesMeta));
+    } else if (isInserting) {
+      context.missing(_readPagesMeta);
+    }
+    if (data.containsKey('total_pages')) {
+      context.handle(
+          _totalPagesMeta,
+          totalPages.isAcceptableOrUnknown(
+              data['total_pages']!, _totalPagesMeta));
+    } else if (isInserting) {
+      context.missing(_totalPagesMeta);
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
+    }
+    if (data.containsKey('last_updated')) {
+      context.handle(
+          _lastUpdatedMeta,
+          lastUpdated.isAcceptableOrUnknown(
+              data['last_updated']!, _lastUpdatedMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DriftPagesRead map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DriftPagesRead(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      uid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
+      readPages: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}read_pages'])!,
+      totalPages: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}total_pages'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
+      lastUpdated: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}last_updated']),
+    );
+  }
+
+  @override
+  $PagesReadTableTable createAlias(String alias) {
+    return $PagesReadTableTable(attachedDatabase, alias);
+  }
+}
+
+class DriftPagesRead extends DataClass implements Insertable<DriftPagesRead> {
+  final int id;
+  final String uid;
+  final int readPages;
+  final int totalPages;
+  final DateTime created;
+  final DateTime? lastUpdated;
+  const DriftPagesRead(
+      {required this.id,
+      required this.uid,
+      required this.readPages,
+      required this.totalPages,
+      required this.created,
+      this.lastUpdated});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['uid'] = Variable<String>(uid);
+    map['read_pages'] = Variable<int>(readPages);
+    map['total_pages'] = Variable<int>(totalPages);
+    map['created'] = Variable<DateTime>(created);
+    if (!nullToAbsent || lastUpdated != null) {
+      map['last_updated'] = Variable<DateTime>(lastUpdated);
+    }
+    return map;
+  }
+
+  PagesReadTableCompanion toCompanion(bool nullToAbsent) {
+    return PagesReadTableCompanion(
+      id: Value(id),
+      uid: Value(uid),
+      readPages: Value(readPages),
+      totalPages: Value(totalPages),
+      created: Value(created),
+      lastUpdated: lastUpdated == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastUpdated),
+    );
+  }
+
+  factory DriftPagesRead.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DriftPagesRead(
+      id: serializer.fromJson<int>(json['id']),
+      uid: serializer.fromJson<String>(json['uid']),
+      readPages: serializer.fromJson<int>(json['readPages']),
+      totalPages: serializer.fromJson<int>(json['totalPages']),
+      created: serializer.fromJson<DateTime>(json['created']),
+      lastUpdated: serializer.fromJson<DateTime?>(json['lastUpdated']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'uid': serializer.toJson<String>(uid),
+      'readPages': serializer.toJson<int>(readPages),
+      'totalPages': serializer.toJson<int>(totalPages),
+      'created': serializer.toJson<DateTime>(created),
+      'lastUpdated': serializer.toJson<DateTime?>(lastUpdated),
+    };
+  }
+
+  DriftPagesRead copyWith(
+          {int? id,
+          String? uid,
+          int? readPages,
+          int? totalPages,
+          DateTime? created,
+          Value<DateTime?> lastUpdated = const Value.absent()}) =>
+      DriftPagesRead(
+        id: id ?? this.id,
+        uid: uid ?? this.uid,
+        readPages: readPages ?? this.readPages,
+        totalPages: totalPages ?? this.totalPages,
+        created: created ?? this.created,
+        lastUpdated: lastUpdated.present ? lastUpdated.value : this.lastUpdated,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('DriftPagesRead(')
+          ..write('id: $id, ')
+          ..write('uid: $uid, ')
+          ..write('readPages: $readPages, ')
+          ..write('totalPages: $totalPages, ')
+          ..write('created: $created, ')
+          ..write('lastUpdated: $lastUpdated')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, uid, readPages, totalPages, created, lastUpdated);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DriftPagesRead &&
+          other.id == this.id &&
+          other.uid == this.uid &&
+          other.readPages == this.readPages &&
+          other.totalPages == this.totalPages &&
+          other.created == this.created &&
+          other.lastUpdated == this.lastUpdated);
+}
+
+class PagesReadTableCompanion extends UpdateCompanion<DriftPagesRead> {
+  final Value<int> id;
+  final Value<String> uid;
+  final Value<int> readPages;
+  final Value<int> totalPages;
+  final Value<DateTime> created;
+  final Value<DateTime?> lastUpdated;
+  const PagesReadTableCompanion({
+    this.id = const Value.absent(),
+    this.uid = const Value.absent(),
+    this.readPages = const Value.absent(),
+    this.totalPages = const Value.absent(),
+    this.created = const Value.absent(),
+    this.lastUpdated = const Value.absent(),
+  });
+  PagesReadTableCompanion.insert({
+    this.id = const Value.absent(),
+    required String uid,
+    required int readPages,
+    required int totalPages,
+    this.created = const Value.absent(),
+    this.lastUpdated = const Value.absent(),
+  })  : uid = Value(uid),
+        readPages = Value(readPages),
+        totalPages = Value(totalPages);
+  static Insertable<DriftPagesRead> custom({
+    Expression<int>? id,
+    Expression<String>? uid,
+    Expression<int>? readPages,
+    Expression<int>? totalPages,
+    Expression<DateTime>? created,
+    Expression<DateTime>? lastUpdated,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (uid != null) 'uid': uid,
+      if (readPages != null) 'read_pages': readPages,
+      if (totalPages != null) 'total_pages': totalPages,
+      if (created != null) 'created': created,
+      if (lastUpdated != null) 'last_updated': lastUpdated,
+    });
+  }
+
+  PagesReadTableCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? uid,
+      Value<int>? readPages,
+      Value<int>? totalPages,
+      Value<DateTime>? created,
+      Value<DateTime?>? lastUpdated}) {
+    return PagesReadTableCompanion(
+      id: id ?? this.id,
+      uid: uid ?? this.uid,
+      readPages: readPages ?? this.readPages,
+      totalPages: totalPages ?? this.totalPages,
+      created: created ?? this.created,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (readPages.present) {
+      map['read_pages'] = Variable<int>(readPages.value);
+    }
+    if (totalPages.present) {
+      map['total_pages'] = Variable<int>(totalPages.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
+    }
+    if (lastUpdated.present) {
+      map['last_updated'] = Variable<DateTime>(lastUpdated.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PagesReadTableCompanion(')
+          ..write('id: $id, ')
+          ..write('uid: $uid, ')
+          ..write('readPages: $readPages, ')
+          ..write('totalPages: $totalPages, ')
+          ..write('created: $created, ')
+          ..write('lastUpdated: $lastUpdated')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$WakaranaiDb extends GeneratedDatabase {
   _$WakaranaiDb(QueryExecutor e) : super(e);
   late final $LocalProtectorConfigTableTable localProtectorConfigTable =
@@ -2473,6 +2801,7 @@ abstract class _$WakaranaiDb extends GeneratedDatabase {
       $LocalAnimeGalleryViewTableTable(this);
   late final $LocalConfigsSourcesTableTable localConfigsSourcesTable =
       $LocalConfigsSourcesTableTable(this);
+  late final $PagesReadTableTable pagesReadTable = $PagesReadTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2484,6 +2813,7 @@ abstract class _$WakaranaiDb extends GeneratedDatabase {
         libraryItemTable,
         localMangaGalleryViewTable,
         localAnimeGalleryViewTable,
-        localConfigsSourcesTable
+        localConfigsSourcesTable,
+        pagesReadTable
       ];
 }

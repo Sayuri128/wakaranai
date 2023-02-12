@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_state.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
+import 'package:wakaranai/model/services/pages_read_service.dart';
+import 'package:wakaranai/models/data/pages_read.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakascript/api_clients/manga_api_client.dart';
@@ -14,8 +16,11 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       {required this.apiClient,
       required this.settingsCubit,
       required this.pageController,
-      required this.itemScrollController})
+      required this.itemScrollController,
+      required this.initialPage})
       : super(ChapterViewInit());
+
+  final PagesReadService _pagesReadService = PagesReadService.instance;
 
   final SettingsCubit settingsCubit;
 
@@ -23,6 +28,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
 
   final PageController pageController;
   final ItemScrollController itemScrollController;
+  final int initialPage;
 
   void init(ChapterViewerData data) async {
     final pagesS = [
@@ -36,10 +42,18 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     final canGetPreviousPages = (chapterIndex - 1) >= 0;
     final canGetNextPages = (chapterIndex + 1) < data.group.elements.length;
 
+    PagesRead? pagesRead = await _pagesReadService.getByUid(data.chapter.uid);
+
+    pagesRead ??= PagesRead(
+        uid: currentPages.chapterUid,
+        readPages: 1,
+        totalPages: currentPages.value.length);
+
     emit(ChapterViewInitialized(
         pages: pagesS,
+        pagesRead: pagesRead,
         currentPages: currentPages,
-        currentPage: 1,
+        currentPage: initialPage,
         totalPages: currentPages.value.length,
         controlsVisible: true,
         controlsEnabled: false,
@@ -88,7 +102,17 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
             .jumpToPage(next ? 0 : optionalLoadedPages.value.length - 1);
       }
 
+      PagesRead? pagesRead =
+          await _pagesReadService.getByUid(optionalLoadedPages.chapterUid);
+
+      pagesRead ??= PagesRead(
+          uid: optionalLoadedPages.chapterUid,
+          readPages: 1,
+          totalPages: newPages.length);
+      await _pagesReadService.update(pagesRead);
+
       emit(state.copyWith(
+          pagesRead: pagesRead,
           canGetNextPages: canGetNextPages,
           canGetPreviousPages: canGetPreviousPages,
           pages: newPages,
@@ -100,7 +124,16 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
 
   void onPageChanged(int index) {
     if (state is ChapterViewInitialized) {
-      emit((state as ChapterViewInitialized).copyWith(currentPage: index));
+      PagesRead pagesRead = (state as ChapterViewInitialized).pagesRead;
+      if (index > pagesRead.readPages) {
+        pagesRead = pagesRead.copyWith(
+            readPages: index,
+            totalPages: (state as ChapterViewInitialized).totalPages,
+            lastUpdated: DateTime.now());
+        _pagesReadService.update(pagesRead);
+      }
+      emit((state as ChapterViewInitialized)
+          .copyWith(currentPage: index, pagesRead: pagesRead));
     }
   }
 

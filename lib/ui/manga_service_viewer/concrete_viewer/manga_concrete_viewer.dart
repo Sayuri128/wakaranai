@@ -6,7 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
+import 'package:wakaranai/blocs/pages_read/pages_read_cubit.dart';
 import 'package:wakaranai/heroes.dart';
+import 'package:wakaranai/models/data/pages_read.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
@@ -20,6 +22,7 @@ import 'package:wakascript/models/manga/manga_concrete_view/chapter/chapter.dart
 import 'package:wakascript/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
 import 'package:wakascript/models/manga/manga_concrete_view/manga_concrete_view.dart';
 import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
+import 'package:collection/collection.dart';
 
 import '../../routes.dart';
 
@@ -75,7 +78,13 @@ class MangaConcreteViewer extends StatelessWidget {
       init: (cubit) {
         cubit.getConcrete(data.uid, data.galleryView);
       },
-      builder: (context, state) => _buildBody(),
+      builder: (context, state) => BlocProvider<PagesReadCubit>(
+        create: (context) => PagesReadCubit(
+            concreteViewCubit: context.read<
+                ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                    MangaGalleryView>>()),
+        child: _buildBody(),
+      ),
     );
   }
 
@@ -189,12 +198,24 @@ class MangaConcreteViewer extends StatelessWidget {
                   ),
                 );
               } else {
-                return _buildChapter(
-                    context,
-                    concreteView.groups[currentGroupsIndex].elements[index - 1],
-                    data.galleryView,
-                    concreteView.groups[currentGroupsIndex],
-                    data.configInfo);
+                if (state is ConcreteViewInitialized<MangaApiClient,
+                    MangaConcreteView, MangaGalleryView>) {
+                  return BlocBuilder<PagesReadCubit, PagesReadState>(
+                    builder: (context, pagesState) {
+                      return _buildChapter(
+                          context,
+                          concreteView
+                              .groups[currentGroupsIndex].elements[index - 1],
+                          data.galleryView,
+                          concreteView.groups[currentGroupsIndex],
+                          data.configInfo,
+                          pagesState,
+                          state);
+                    },
+                  );
+                } else {
+                  return const SizedBox();
+                }
               }
             },
           );
@@ -208,16 +229,36 @@ class MangaConcreteViewer extends StatelessWidget {
       Chapter e,
       MangaGalleryView galleryView,
       ChaptersGroup group,
-      ConfigInfo configInfo) {
+      ConfigInfo configInfo,
+      PagesReadState pagesReadState,
+      ConcreteViewInitialized<MangaApiClient, MangaConcreteView,
+              MangaGalleryView>
+          concreteViewInitialized) {
+    PagesRead? pagesRead;
+
+    if (pagesReadState is PagesReadInitialized) {
+      pagesRead = pagesReadState.pagesRead
+          .firstWhereOrNull((element) => element.uid == e.uid);
+    }
+
     return ListTile(
       onTap: () {
-        Navigator.of(context).pushNamed(Routes.chapterViewer,
-            arguments: ChapterViewerData(
-                apiClient: data.client,
-                chapter: e,
-                group: group,
-                galleryView: galleryView,
-                configInfo: configInfo));
+        Navigator.of(context)
+            .pushNamed(Routes.chapterViewer,
+                arguments: ChapterViewerData(
+                    initialPage: pagesRead != null ? pagesRead.readPages : 1,
+                    apiClient: data.client,
+                    chapter: e,
+                    group: group,
+                    galleryView: galleryView,
+                    configInfo: configInfo))
+            .then((_) {
+          context.read<PagesReadCubit>().init(concreteViewInitialized
+              .concreteView.groups
+              .expand((element) => element.elements)
+              .map((e) => e.uid)
+              .toList());
+        });
       },
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,6 +270,15 @@ class MangaConcreteViewer extends StatelessWidget {
             Text(
               formatTimestamp(e),
               style: regular(color: AppColors.mainGrey, size: 12),
+            )
+          ],
+          if (pagesReadState is PagesReadInitialized && pagesRead != null) ...[
+            const SizedBox(
+              height: 8.0,
+            ),
+            Text(
+              "${pagesRead.readPages} / ${pagesRead.totalPages}",
+              style: medium(color: AppColors.mainGrey),
             )
           ]
         ],

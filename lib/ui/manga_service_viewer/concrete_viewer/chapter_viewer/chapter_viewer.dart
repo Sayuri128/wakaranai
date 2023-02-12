@@ -30,14 +30,15 @@ class ChapterViewerData {
   final ChaptersGroup group;
   final MangaGalleryView galleryView;
   final Chapter chapter;
+  final int initialPage;
 
-  const ChapterViewerData({
-    required this.apiClient,
-    required this.configInfo,
-    required this.group,
-    required this.galleryView,
-    required this.chapter,
-  });
+  const ChapterViewerData(
+      {required this.apiClient,
+      required this.configInfo,
+      required this.group,
+      required this.galleryView,
+      required this.chapter,
+      this.initialPage = 1});
 }
 
 class ChapterViewer extends StatefulWidget {
@@ -53,7 +54,7 @@ class _ChapterViewerState extends State<ChapterViewer>
     with TickerProviderStateMixin {
   final GlobalKey _key = GlobalKey();
 
-  final PageController _pageController = PageController(initialPage: 0);
+  late final PageController _pageController;
   final ItemScrollController _itemScrollController = ItemScrollController();
 
   bool _showGestureOverlay = false;
@@ -66,6 +67,8 @@ class _ChapterViewerState extends State<ChapterViewer>
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: widget.data.initialPage);
+
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -88,6 +91,7 @@ class _ChapterViewerState extends State<ChapterViewer>
       body: BlocProvider<ChapterViewCubit>(
         create: (context) => ChapterViewCubit(
             apiClient: widget.data.apiClient,
+            initialPage: widget.data.initialPage,
             settingsCubit: context.read<SettingsCubit>(),
             pageController: _pageController,
             itemScrollController: _itemScrollController)
@@ -133,7 +137,7 @@ class _ChapterViewerState extends State<ChapterViewer>
               GestureDetector(
                 onTap: () {
                   _pageController.animateToPage(max(0, state.currentPage - 2),
-                      duration: Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 200),
                       curve: Curves.ease);
                 },
                 // behavior: HitTestBehavior.translucent,
@@ -170,7 +174,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                   _pageController.animateToPage(
                       min(state.currentPages.value.length - 1,
                           state.currentPage),
-                      duration: Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 200),
                       curve: Curves.ease);
                 },
                 child: AnimatedContainer(
@@ -387,7 +391,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                             onTap: () {
                               _showBottomSheetSettings(context, state);
                             },
-                            icon: Icon(Icons.chrome_reader_mode))
+                            icon: const Icon(Icons.chrome_reader_mode))
                       ],
                       child: Container(
                         width: 48,
@@ -503,6 +507,7 @@ class _ChapterViewerState extends State<ChapterViewer>
           },
           child: ScrollablePositionedList.builder(
               itemScrollController: _itemScrollController,
+              initialScrollIndex: state.currentPage,
               physics: const AlwaysScrollableScrollPhysics(
                   parent: BouncingScrollPhysics()),
               itemCount: state.currentPages.value.length,

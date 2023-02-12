@@ -1,3 +1,4 @@
+import 'package:wakaranai/models/data/pages_read.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakascript/models/manga/manga_concrete_view/chapter/pages/pages.dart';
 import 'package:wakascript/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
@@ -27,6 +28,8 @@ class ChapterViewInitialized extends ChapterViewState {
   final bool canGetNextPages;
   final bool canGetPreviousPages;
 
+  final PagesRead pagesRead;
+
   const ChapterViewInitialized({
     required this.pages,
     required this.currentPages,
@@ -39,6 +42,7 @@ class ChapterViewInitialized extends ChapterViewState {
     required this.controlsEnabled,
     required this.canGetNextPages,
     required this.canGetPreviousPages,
+    required this.pagesRead
   });
 
   ChapterViewInitialized copyWith({
@@ -55,6 +59,7 @@ class ChapterViewInitialized extends ChapterViewState {
     bool? controlsEnabled,
     bool? canGetNextPages,
     bool? canGetPreviousPages,
+    PagesRead? pagesRead
   }) {
     return ChapterViewInitialized(
       pages: pages ?? this.pages,
@@ -68,6 +73,7 @@ class ChapterViewInitialized extends ChapterViewState {
       controlsEnabled: controlsEnabled ?? this.controlsEnabled,
       canGetNextPages: canGetNextPages ?? this.canGetNextPages,
       canGetPreviousPages: canGetPreviousPages ?? this.canGetPreviousPages,
+      pagesRead: pagesRead ?? this.pagesRead
     );
   }
 }
