@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/ui/home/configs_page/remote_configs_page.dart';
+import 'package:wakaranai/ui/home/configs_page/configs_page.dart';
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
 import 'package:wakaranai/ui/home/library/library_page.dart';
 import 'package:wakaranai/ui/home/settings/settings_page.dart';
@@ -66,7 +66,7 @@ class HomeView extends StatelessWidget {
       case 0:
         return LibraryPage();
       case 1:
-        return RemoteConfigPage();
+        return ConfigPage();
       case 2:
         return SettingsPage();
     }

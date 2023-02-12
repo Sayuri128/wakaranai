@@ -27,6 +27,15 @@ class LocalConfigInfoService extends SqfliteService<LocalConfigInfo> {
   ''';
 
   @override
+  Future<int> update(LocalConfigInfo item) async {
+    if (item.localProtectorConfig != null) {
+      await localProtectorConfigService.update(item.localProtectorConfig!);
+    }
+
+    return super.update(item);
+  }
+
+  @override
   Future<void> delete(int id) async {
     final ref = await get(id);
     if (ref.localProtectorConfig != null) {

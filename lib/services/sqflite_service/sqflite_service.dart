@@ -49,6 +49,21 @@ abstract class SqfliteService<T extends SqSerializableObject> {
     return _db!;
   }
 
+  Future<int> update(T item) async {
+    _db ??= await _open();
+
+    return _db!.update(tableName, item.toMap(),
+        where: 'id = ?', whereArgs: [item.getId()]);
+  }
+
+  Future<int> updateQuery(T item,
+      {List<SqfliteQueryItem> query = const []}) async {
+    _db ??= await _open();
+
+    return _db!.update(tableName, item.toMap(),
+        where: _buildWhere(query), whereArgs: _buildWhereArgs(query));
+  }
+
   Future<int> insert(T item) async {
     _db ??= await _open();
 
@@ -56,9 +71,9 @@ abstract class SqfliteService<T extends SqSerializableObject> {
   }
 
   Future<int> count({List<SqfliteQueryItem> query = const []}) async {
-    final db = await _open();
+    _db ??= await _open();
 
-    return Sqflite.firstIntValue(await db
+    return Sqflite.firstIntValue(await _db!
         .rawQuery("SELECT COUNT(*) FROM $tableName WHERE ${query.map((e) {
       if (e is SqfliteQueryKeyValueItem) {
         return "${e.key} ${serializeSqfliteComparisonOperator(e.operator)} ${e.value}";
@@ -73,25 +88,33 @@ abstract class SqfliteService<T extends SqSerializableObject> {
       {List<SqfliteQueryItem> query = const [],
       int limit = 1,
       int? offset}) async {
-    final db = await _open();
+    _db ??= await _open();
 
-    return db.query(tableName,
+    return _db!.query(tableName,
         limit: limit,
         distinct: true,
         offset: offset,
-        where: query.map((e) {
-          if (e is SqfliteQueryKeyValueItem) {
-            return "${e.key} ${serializeSqfliteComparisonOperator(e.operator)} ?";
-          } else if (e is SqfliteQueryOperatorItem) {
-            return serializeSqfliteOperator(e.operator);
-          }
-          return "";
-        }).join(" "),
-        whereArgs: query
-            .whereType<SqfliteQueryKeyValueItem>()
-            .cast<SqfliteQueryKeyValueItem>()
-            .map((e) => e.value)
-            .toList());
+        where: _buildWhere(query),
+        whereArgs: _buildWhereArgs(query));
+  }
+
+  List<dynamic> _buildWhereArgs(List<SqfliteQueryItem> query) {
+    return query
+        .whereType<SqfliteQueryKeyValueItem>()
+        .cast<SqfliteQueryKeyValueItem>()
+        .map((e) => e.value)
+        .toList();
+  }
+
+  String _buildWhere(List<SqfliteQueryItem> query) {
+    return query.map((e) {
+      if (e is SqfliteQueryKeyValueItem) {
+        return "${e.key} ${serializeSqfliteComparisonOperator(e.operator)} ?";
+      } else if (e is SqfliteQueryOperatorItem) {
+        return serializeSqfliteOperator(e.operator);
+      }
+      return "";
+    }).join(" ");
   }
 
   Future<List<T>> query(
@@ -116,9 +139,9 @@ abstract class SqfliteService<T extends SqSerializableObject> {
   }
 
   Future<Map<String, dynamic>> getMap(int id) async {
-    final db = await _open();
+    _db ??= await _open();
     final List<Map<String, dynamic>> maps =
-        await db.query(tableName, where: 'id = ?', whereArgs: [id]);
+        await _db!.query(tableName, where: 'id = ?', whereArgs: [id]);
 
     if (maps.isEmpty) {
       throw Exception("Api config with id $id does not exist");
@@ -142,8 +165,8 @@ abstract class SqfliteService<T extends SqSerializableObject> {
   }
 
   Future<List<Map<String, dynamic>>> getAllMaps() async {
-    final db = await _open();
-    return (await db.query(tableName)).toList();
+    _db ??= await _open();
+    return (await _db!.query(tableName)).toList();
   }
 
   Future<void> clear() async {
@@ -153,20 +176,8 @@ abstract class SqfliteService<T extends SqSerializableObject> {
   }
 
   Future<void> deleteQuery({List<SqfliteQueryItem> query = const []}) async {
-    final db = await _open();
-    db.delete(tableName,
-        where: query.map((e) {
-          if (e is SqfliteQueryKeyValueItem) {
-            return "${e.key} ${serializeSqfliteComparisonOperator(e.operator)} ?";
-          } else if (e is SqfliteQueryOperatorItem) {
-            return serializeSqfliteOperator(e.operator);
-          }
-          return "";
-        }).join(" "),
-        whereArgs: query
-            .whereType<SqfliteQueryKeyValueItem>()
-            .cast<SqfliteQueryKeyValueItem>()
-            .map((e) => e.value)
-            .toList());
+    _db ??= await _open();
+    _db!.delete(tableName,
+        where: _buildWhere(query), whereArgs: _buildWhereArgs(query));
   }
 }

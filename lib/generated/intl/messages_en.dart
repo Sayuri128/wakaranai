@@ -117,6 +117,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "home_manga_group_title": MessageLookupByLibrary.simpleMessage("Manga"),
         "left_to_right_read_mode":
             MessageLookupByLibrary.simpleMessage("Left to right"),
+        "local_configs_0_length":
+            MessageLookupByLibrary.simpleMessage("No saved configs"),
+        "local_configs_no_updates":
+            MessageLookupByLibrary.simpleMessage("Latest"),
+        "local_configs_update_button":
+            MessageLookupByLibrary.simpleMessage("Update"),
         "navigation_bar_history_title":
             MessageLookupByLibrary.simpleMessage("History"),
         "navigation_bar_library_title":

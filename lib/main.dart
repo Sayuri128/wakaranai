@@ -18,7 +18,7 @@ import 'services/local_api_clients_service/local_api_clients_service.dart';
 import 'services/local_config_info_service/local_config_info_service.dart';
 import 'services/local_protector_config_service/local_protector_config_service.dart';
 
-final bool debug = true;
+const bool debug = true;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -76,11 +76,14 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
       BlocProvider<AuthenticationCubit>(
           lazy: false, create: (context) => AuthenticationCubit()),
       BlocProvider<RemoteConfigsCubit>(
+        lazy: false,
         create: (context) => RemoteConfigsCubit()..init(),
       ),
       BlocProvider<LocalConfigsCubit>(
           create: (context) => LocalConfigsCubit(
-              localApiClientsService: context.read<LocalApiClientsService>())
+              localApiClientsService: context.read<LocalApiClientsService>(),
+              remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
+              libraryPageCubit: context.read<LibraryPageCubit>())
             ..init()),
       BlocProvider<ConfigsSourcesCubit>(
           create: (context) => ConfigsSourcesCubit()..getSources()),

@@ -23,6 +23,12 @@ class LocalApiClientsService extends SqfliteService<LocalApiClient> {
   ''';
 
   @override
+  Future<int> update(LocalApiClient item) async {
+    await localConfigInfoService.update(item.localConfigInfo);
+    return super.update(item);
+  }
+
+  @override
   Future<void> delete(int id) async {
     final ref = await get(id);
     await localConfigInfoService.delete(ref.localConfigInfo.id!);
@@ -33,7 +39,8 @@ class LocalApiClientsService extends SqfliteService<LocalApiClient> {
   Future<LocalApiClient> mapConfig(Map<String, dynamic> map) async {
     final Map<String, dynamic> res = Map.from(map);
     res['localConfigInfo'] =
-        (await localConfigInfoService.get(map['localConfigInfoId'])).toMap(lazy: false);
+        (await localConfigInfoService.get(map['localConfigInfoId']))
+            .toMap(lazy: false);
 
     return LocalApiClient.fromMap(res);
   }

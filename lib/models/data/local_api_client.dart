@@ -92,4 +92,18 @@ class LocalApiClient extends SqSerializableObject {
   int? getId() {
     return id;
   }
+
+  LocalApiClient copyWith({
+    int? id,
+    String? code,
+    LocalApiClientType? type,
+    LocalConfigInfo? localConfigInfo,
+  }) {
+    return LocalApiClient(
+      id: id ?? this.id,
+      code: code ?? this.code,
+      type: type ?? this.type,
+      localConfigInfo: localConfigInfo ?? this.localConfigInfo,
+    );
+  }
 }

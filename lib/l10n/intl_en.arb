@@ -62,5 +62,8 @@
   "gallery_view_anime_item_delete_from_library_confirmation_title": "Are you sure you want to delete \"{anime}\" from your library?",
   "gallery_view_anime_item_delete_from_library_confirmation_ok_label": "Delete",
   "gallery_view_anime_item_delete_from_library_confirmation_cancel_label": "Cancel",
-  "gallery_view_item_in_library_title": "In library"
+  "gallery_view_item_in_library_title": "In library",
+  "local_configs_0_length": "No saved configs",
+  "local_configs_update_button": "Update",
+  "local_configs_no_updates": "Latest"
 }
