@@ -14,7 +14,7 @@ class ConcreteViewCubit<
     G extends GalleryView> extends Cubit<ConcreteViewState<T, C, G>> {
   ConcreteViewCubit(initialState) : super(initialState);
 
-  void getConcrete(String uid, G galleryView) async {
+  Future<void> getConcrete(String uid, G galleryView) async {
     final ConcreteView<GroupOfConcrete<dynamic>> concreteView =
         await (state.apiClient as dynamic) // TODO: avoid dynamic
             .getConcrete(uid: uid, data: galleryView.data);
@@ -29,7 +29,7 @@ class ConcreteViewCubit<
   void changeGroup(int index) async {
     if (state is ConcreteViewInitialized<T, C, G>) {
       emit((state as ConcreteViewInitialized<T, C, G>)
-          .copyWith(videoGroupIndex: index));
+          .copyWith(groupIndex: index));
     }
   }
 

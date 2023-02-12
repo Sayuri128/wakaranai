@@ -31,14 +31,14 @@ class ConcreteViewInitialized<
   ConcreteViewInitialized<T, C, G> copyWith(
       {C? concreteView,
       G? galleryView,
-      int? videoGroupIndex,
+      int? groupIndex,
       ConcreteViewOrder? order,
       T? apiClient}) {
     return ConcreteViewInitialized<T, C, G>(
       concreteView: concreteView ?? this.concreteView,
       galleryView: galleryView ?? this.galleryView,
       order: order ?? this.order,
-      groupIndex: videoGroupIndex ?? this.groupIndex,
+      groupIndex: groupIndex ?? this.groupIndex,
       apiClient: apiClient ?? this.apiClient,
     );
   }
