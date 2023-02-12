@@ -56,6 +56,7 @@ class _HomeViewState extends State<HomeView> {
       extendBodyBehindAppBar: true,
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentPage,
+          elevation: 8,
           selectedItemColor: AppColors.primary,
           selectedLabelStyle: medium(size: 14, color: AppColors.primary),
           selectedIconTheme: const IconThemeData(color: AppColors.primary),

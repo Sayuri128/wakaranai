@@ -8,14 +8,17 @@ import 'package:wakaranai/services/protector_storage/protector_storage_service.d
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
+import 'package:wakascript/logger.dart';
 
 // TODO: improve settings UI
 class SettingsPage extends StatelessWidget {
   SettingsPage({Key? key}) : super(key: key);
 
-  final DropdownMenuItem<int?> _defaultConfigsSourceDropdownMenuItem =
-      DropdownMenuItem<int?>(
-          value: null,
+  static const int DefaultConfigsSourceId = -1;
+
+  final DropdownMenuItem<int> _defaultConfigsSourceDropdownMenuItem =
+      DropdownMenuItem<int>(
+          value: DefaultConfigsSourceId,
           child: Center(
               child:
                   Text(S.current.official_github_configs_source_repository)));
@@ -50,19 +53,7 @@ class SettingsPage extends StatelessWidget {
                       // borderRadius: BorderRadius.circular(16.0),
                       style: medium(),
                       icon: const Icon(Icons.arrow_drop_down_rounded),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                                  const BorderSide(color: Colors.transparent)),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                                  const BorderSide(color: Colors.transparent)),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                                  const BorderSide(color: Colors.transparent))),
+                      decoration: _dropdownDecoration(),
                       items: ChapterViewMode.values
                           .map((e) => DropdownMenuItem(
                                 value: e,
@@ -91,38 +82,26 @@ class SettingsPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 16.0, vertical: 8.0),
                   child: Text(
-                    "Default configs source",
+                    S.current.settings_default_configs_source_title,
                     style: semibold(size: 18),
                   ),
                 ),
                 BlocBuilder<ConfigsSourcesCubit, ConfigsSourcesState>(
                   builder: (context, configsState) {
                     if (configsState is ConfigsSourcesInitialized) {
+                      logger.d(configsState.sources.map((e) => e.toJson()));
                       return SizedBox(
                         width: double.maxFinite,
-                        child: DropdownButtonFormField<int?>(
+                        child: DropdownButtonFormField<int>(
                             value: configsState.sources
                                     .where((e) =>
                                         e.id == state.defaultConfigsSourceId)
                                     .isNotEmpty
                                 ? state.defaultConfigsSourceId
-                                : null,
-                            borderRadius: BorderRadius.circular(16.0),
+                                : SettingsPage.DefaultConfigsSourceId,
                             style: medium(),
                             icon: const Icon(Icons.arrow_drop_down_rounded),
-                            decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16.0),
-                                    borderSide: const BorderSide(
-                                        color: Colors.transparent)),
-                                focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16.0),
-                                    borderSide: const BorderSide(
-                                        color: Colors.transparent)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16.0),
-                                    borderSide: const BorderSide(
-                                        color: Colors.transparent))),
+                            decoration: _dropdownDecoration(),
                             items: [
                               _defaultConfigsSourceDropdownMenuItem,
                               ...configsState.sources
@@ -184,5 +163,19 @@ class SettingsPage extends StatelessWidget {
         },
       ),
     );
+  }
+
+  InputDecoration _dropdownDecoration() {
+    return InputDecoration(
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16.0),
+            borderSide: const BorderSide(color: Colors.transparent)),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16.0),
+            borderSide: const BorderSide(color: Colors.transparent)),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16.0),
+            borderSide: const BorderSide(color: Colors.transparent)));
   }
 }

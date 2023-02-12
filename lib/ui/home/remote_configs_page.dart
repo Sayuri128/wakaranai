@@ -18,12 +18,15 @@ class RemoteConfigPage extends StatelessWidget {
         alignment: Alignment.topCenter,
         children: [
           Padding(
-            padding: EdgeInsets.only(top: 80),
+            padding: EdgeInsets.only(top: 60),
             child: BlocBuilder<RemoteConfigsCubit, RemoteConfigsState>(
               builder: (context, state) {
                 if (state is RemoteConfigsLoaded) {
                   return ListView(
                     children: [
+                      const SizedBox(
+                        height: 12,
+                      ),
                       ConfigsGroup(
                         title: S.current.home_manga_group_title,
                         apiClients: state.mangaApiClients,
@@ -44,26 +47,24 @@ class RemoteConfigPage extends StatelessWidget {
           Align(
               alignment: Alignment.topCenter,
               child: Container(
-                height: 100,
+                height: 60 + MediaQuery.of(context).padding.top,
                 decoration:
-                BoxDecoration(color: AppColors.backgroundColor, boxShadow: [
+                    BoxDecoration(color: AppColors.backgroundColor, boxShadow: [
                   BoxShadow(
                       color: AppColors.mainBlack.withOpacity(0.5),
                       blurRadius: 8,
                       spreadRadius: 2)
                 ]),
                 child: Padding(
-                  padding: EdgeInsets.only(
-                      top: MediaQuery
-                          .of(context)
-                          .padding
-                          .top + 12, bottom: 12),
+                  padding:
+                      EdgeInsets.only(top: MediaQuery.of(context).padding.top),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
                       Align(
                         alignment: Alignment.center,
-                        child: Text("Configs", style: medium(size: 24)),
+                        child: Text(S.current.remote_configs_page_appbar_title,
+                            style: medium(size: 24)),
                       ),
                       Align(
                         alignment: Alignment.centerRight,
@@ -72,7 +73,7 @@ class RemoteConfigPage extends StatelessWidget {
                               showDialog(
                                   context: context,
                                   builder: (context) =>
-                                  const ConfigsSourceDialog());
+                                      const ConfigsSourceDialog());
                             },
                             icon: const Icon(
                               Icons.filter_list_rounded,
@@ -89,10 +90,25 @@ class RemoteConfigPage extends StatelessWidget {
               builder: (context, state) {
                 if (state is RemoteConfigsError) {
                   return Center(
-                      child: Text(
-                        state.message,
-                        style: regular(size: 18, color: AppColors.red),
-                      ));
+                      child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          state.message,
+                          style: regular(size: 18, color: AppColors.red),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            context.read<RemoteConfigsCubit>().getConfigs();
+                          },
+                          icon: const Icon(Icons.refresh),
+                          splashRadius: 18,
+                        )
+                      ],
+                    ),
+                  ));
                 } else if (state is RemoteConfigsLoading) {
                   return const Center(
                     child: CircularProgressIndicator(

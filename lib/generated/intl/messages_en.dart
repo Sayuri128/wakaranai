@@ -34,6 +34,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "app_name": MessageLookupByLibrary.simpleMessage("Wakaranai"),
         "change_configs_source_dialog":
             MessageLookupByLibrary.simpleMessage("Change configs source"),
+        "chapter_viewer_bottom_modal_settings_reading_mode_title":
+            MessageLookupByLibrary.simpleMessage("Reading Mode"),
+        "chapter_viewer_bottom_modal_settings_tap_controls":
+            MessageLookupByLibrary.simpleMessage("Enable tap controls"),
+        "chapter_viewer_next_chapter_button_title":
+            MessageLookupByLibrary.simpleMessage("Next"),
+        "chapter_viewer_previous_chapter_button_title":
+            MessageLookupByLibrary.simpleMessage("Previous"),
         "clear_cookies_cache":
             MessageLookupByLibrary.simpleMessage("Clear cookies cache"),
         "clear_cookies_cache_dialog_confirmation_cancel_label":
@@ -95,6 +103,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Name is required"),
         "official_github_configs_source_repository":
             MessageLookupByLibrary.simpleMessage("Wakaranai GitHub"),
+        "remote_configs_page_appbar_title":
+            MessageLookupByLibrary.simpleMessage("Configs"),
         "rest_configs_source_type":
             MessageLookupByLibrary.simpleMessage("REST"),
         "right_to_left_read_mode":
@@ -110,6 +120,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Search"),
         "settings_clear_history_title":
             MessageLookupByLibrary.simpleMessage("Clear history"),
+        "settings_default_configs_source_title":
+            MessageLookupByLibrary.simpleMessage("Default configs source"),
         "settings_default_reader_mode_title":
             MessageLookupByLibrary.simpleMessage("Default reader mode"),
         "web_browser_no_login_button":

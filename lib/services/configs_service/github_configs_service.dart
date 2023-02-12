@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:wakaranai/repositories/configs_repository/github/github_configs_repository.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
@@ -11,25 +12,38 @@ class GitHubConfigsService implements ConfigsService {
 
   final GithubConfigsRepository _repository = GithubConfigsRepository(Dio());
 
-
   GitHubConfigsService(this.ORG, this.REPOSITORY);
 
-  Future<String> _downloadSourceCode(String url) async {
-    return (await http.get(Uri.parse(url))).body;
-  }
 
   @override
   Future<List<MangaApiClient>> getMangaConfigs() async {
-    return await Future.wait(
-        (await _repository.getMangaConfigs(ORG, REPOSITORY)).map((e) async =>
-            MangaApiClient(code: await _downloadSourceCode(e.download_url))));
+    final urls = (await _repository.getMangaConfigs(ORG, REPOSITORY)).map((e) => e.download_url);
+    return await compute<String, List<MangaApiClient>>(_getMangaConfigs, urls.join(" | "));
   }
 
   @override
   Future<List<AnimeApiClient>> getAnimeConfigs() async {
-    return await Future.wait(
-        (await _repository.getAnimeConfigs(ORG, REPOSITORY)).map((e) async =>
-        AnimeApiClient(code: await _downloadSourceCode(e.download_url))));
+    final urls = (await _repository.getAnimeConfigs(ORG, REPOSITORY)).map((e) => e.download_url);
+    return await compute<String, List<AnimeApiClient>>(_getAnimeConfigs, urls.join(" | "));
   }
+}
 
+Future<String> _downloadSourceCode(String url) async {
+  return (await http.get(Uri.parse(url))).body.replaceAll("\n", "\r\n");
+}
+
+Future<List<MangaApiClient>> _getMangaConfigs(String url) async {
+  return await Future.wait(
+      (url.split(" | ")).map((e) async {
+        final code = await _downloadSourceCode(e);
+        return MangaApiClient(code: code);
+      }));
+}
+
+Future<List<AnimeApiClient>> _getAnimeConfigs(String url) async {
+  return await Future.wait(
+      (url.split(" | ")).map((e) async {
+        final code = await _downloadSourceCode(e);
+        return AnimeApiClient(code: code);
+      }));
 }

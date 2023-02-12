@@ -8,14 +8,11 @@ abstract class SettingsState {
 class SettingsInitial extends SettingsState {}
 
 class SettingsInitialized extends SettingsState {
-
   final ChapterViewMode defaultMode;
   final int? defaultConfigsSourceId;
 
-  const SettingsInitialized({
-    required this.defaultMode,
-    this.defaultConfigsSourceId
-  });
+  const SettingsInitialized(
+      {required this.defaultMode, this.defaultConfigsSourceId});
 
   SettingsInitialized copyWith({
     ChapterViewMode? defaultMode,

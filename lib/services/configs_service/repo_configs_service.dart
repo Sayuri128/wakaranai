@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:wakaranai/env.dart';
 import 'package:wakaranai/repositories/configs_repository/local/local_configs_repository.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
@@ -23,7 +24,8 @@ class RepoConfigsService implements ConfigsService {
         .scripts
         .map((e) async {
       logger.d(e);
-      return MangaApiClient(code: e);
+      return compute<String, MangaApiClient>(
+          (String code) => MangaApiClient(code: code), e);
     }));
   }
 
@@ -34,6 +36,10 @@ class RepoConfigsService implements ConfigsService {
         .where((e) => e.category == 'anime')
         .first
         .scripts
-        .map((e) async => AnimeApiClient(code: e)));
+        .map((e) async {
+      logger.d(e);
+      return compute<String, AnimeApiClient>(
+          (code) => AnimeApiClient(code: code), e);
+    }));
   }
 }
