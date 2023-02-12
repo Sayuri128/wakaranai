@@ -8,12 +8,13 @@ part of 'repo_configs_response.dart';
 
 RepoConfigsResponse _$RepoConfigsResponseFromJson(Map json) =>
     RepoConfigsResponse(
-      status: json['status'] as num,
+      status: json['status'] as int,
       availableCategories: (json['availableCategories'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
-      scripts: (json['scripts'] as List<dynamic>)
-          .map((e) => ScriptsBean.fromJson(Map<String, dynamic>.from(e as Map)))
+      configs: (json['configs'] as List<dynamic>)
+          .map(
+              (e) => RemoteConfig.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
     );
 
@@ -22,17 +23,5 @@ Map<String, dynamic> _$RepoConfigsResponseToJson(
     <String, dynamic>{
       'status': instance.status,
       'availableCategories': instance.availableCategories,
-      'scripts': instance.scripts.map((e) => e.toJson()).toList(),
-    };
-
-ScriptsBean _$ScriptsBeanFromJson(Map json) => ScriptsBean(
-      category: json['category'] as String,
-      scripts:
-          (json['scripts'] as List<dynamic>).map((e) => e as String).toList(),
-    );
-
-Map<String, dynamic> _$ScriptsBeanToJson(ScriptsBean instance) =>
-    <String, dynamic>{
-      'category': instance.category,
-      'scripts': instance.scripts,
+      'configs': instance.configs.map((e) => e.toJson()).toList(),
     };

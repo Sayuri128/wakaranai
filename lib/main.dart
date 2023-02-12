@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:wakaranai/blocs/configs_sources/configs_sources_cubit.dart';
+import 'package:wakaranai/blocs/local_configs/local_configs_cubit.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/services/library_service/library_service.dart';
@@ -77,6 +78,10 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
       BlocProvider<RemoteConfigsCubit>(
         create: (context) => RemoteConfigsCubit()..init(),
       ),
+      BlocProvider<LocalConfigsCubit>(
+          create: (context) => LocalConfigsCubit(
+              localApiClientsService: context.read<LocalApiClientsService>())
+            ..init()),
       BlocProvider<ConfigsSourcesCubit>(
           create: (context) => ConfigsSourcesCubit()..getSources()),
       BlocProvider<SettingsCubit>(

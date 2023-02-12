@@ -7,12 +7,12 @@ class RemoteConfigsLoading extends RemoteConfigsState {}
 
 class RemoteConfigsLoaded extends RemoteConfigsState {
 
-  final List<MangaApiClient> mangaApiClients;
-  final List<AnimeApiClient> animeApiClients;
+  final List<RemoteConfig> mangaRemoteConfigs;
+  final List<RemoteConfig> animeRemoteConfigs;
 
   RemoteConfigsLoaded({
-    required this.mangaApiClients,
-    required this.animeApiClients
+    required this.mangaRemoteConfigs,
+    required this.animeRemoteConfigs
   });
 }
 

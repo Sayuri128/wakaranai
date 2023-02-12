@@ -151,4 +151,22 @@ abstract class SqfliteService<T extends SqSerializableObject> {
 
     await _db!.delete(tableName);
   }
+
+  Future<void> deleteQuery({List<SqfliteQueryItem> query = const []}) async {
+    final db = await _open();
+    db.delete(tableName,
+        where: query.map((e) {
+          if (e is SqfliteQueryKeyValueItem) {
+            return "${e.key} ${serializeSqfliteComparisonOperator(e.operator)} ?";
+          } else if (e is SqfliteQueryOperatorItem) {
+            return serializeSqfliteOperator(e.operator);
+          }
+          return "";
+        }).join(" "),
+        whereArgs: query
+            .whereType<SqfliteQueryKeyValueItem>()
+            .cast<SqfliteQueryKeyValueItem>()
+            .map((e) => e.value)
+            .toList());
+  }
 }

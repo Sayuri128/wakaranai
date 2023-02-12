@@ -27,11 +27,34 @@ class LibraryService extends SqfliteService<LibraryItem> {
             id integer PRIMARY KEY AUTOINCREMENT,
             localApiClientId integer NOT NULL,
             localGalleryViewId integer NOT NULL,
+            galleryViewId text NOT NULL,
             type integer NOT NULL,
             created DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(localApiClientId) REFERENCES ${LocalApiClientsService.apiConfigsTableName}(id)
           );
       ''';
+
+  @override
+  Future<void> delete(int id) async {
+    final ref = await get(id);
+    switch (ref.type) {
+      case LibraryItemType.ANIME:
+        await localAnimeGalleryViewService.delete(ref.localGalleryView.id!);
+        break;
+      case LibraryItemType.MANGA:
+        await localMangaGalleryViewService.delete(ref.localGalleryView.id!);
+        break;
+    }
+    await super.delete(id);
+
+    final libraryWithTheSameApiClient = await query(query: [
+      SqfliteQueryKeyValueItem(
+          key: 'localApiClientId', value: ref.localApiClient.id)
+    ]);
+    if (libraryWithTheSameApiClient.isEmpty) {
+      await localApiClientsService.delete(ref.localApiClient.id!);
+    }
+  }
 
   @override
   Future<int> insert(LibraryItem item) async {

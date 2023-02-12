@@ -146,8 +146,7 @@ class MangaConcreteViewer extends StatelessWidget {
                       _buildCover(data.galleryView.cover, context),
                       const SizedBox(height: 16.0),
                       if (state is MangaConcreteViewInitialized) ...[
-                        _buildPrettyTitle(concreteView),
-                        _buildOriginalTitle(concreteView),
+                        _buildTitle(concreteView),
                         const SizedBox(height: 16.0),
                         _buildTags(concreteView),
                         const SizedBox(height: 16.0),
@@ -227,17 +226,6 @@ class MangaConcreteViewer extends StatelessWidget {
         : e.timestamp ?? '';
   }
 
-  Widget _buildPrettyTitle(MangaConcreteView concreteView) {
-    if (concreteView.title.pretty.isEmpty) {
-      return const SizedBox();
-    }
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: Text(concreteView.title.pretty,
-          textAlign: TextAlign.center, style: semibold(size: 18)),
-    );
-  }
-
   Wrap _buildMangaProviderButtons(MangaConcreteViewInitialized state,
       BuildContext context, int currentGroupIndex) {
     return Wrap(
@@ -261,14 +249,11 @@ class MangaConcreteViewer extends StatelessWidget {
     );
   }
 
-  Widget _buildOriginalTitle(MangaConcreteView concreteView) {
-    if (concreteView.title.original.isEmpty) {
-      return const SizedBox();
-    }
+  Widget _buildTitle(MangaConcreteView concreteView) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Text(
-        concreteView.title.original,
+        concreteView.title,
         textAlign: TextAlign.center,
         style: semibold(size: 18),
       ),

@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:wakaranai/models/remote_config/remote_config.dart';
 import 'package:wakascript/api_clients/manga_api_client.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
 import 'package:wakascript/models/manga/manga_gallery_view/filters/data/filters/filter_data.dart';
@@ -10,7 +11,7 @@ part 'manga_service_view_state.dart';
 class MangaServiceViewCubit extends Cubit<MangaServiceViewState> {
   MangaServiceViewCubit(initialState) : super(initialState);
 
-  void init() async {
+  void init(RemoteConfig remoteConfig) async {
     emit(MangaServiceViewLoading(client: state.client));
 
     final List<MangaGalleryView>? galleryViews = await _getGalleryViews(
@@ -18,14 +19,14 @@ class MangaServiceViewCubit extends Cubit<MangaServiceViewState> {
         query: null,
         filters: null,
         retry: () {
-          init();
+          init(remoteConfig);
         });
 
     if (galleryViews != null) {
       emit(MangaServiceViewInitialized(
           client: state.client,
           searchQuery: '',
-          configInfo: await state.client.getConfigInfo(),
+          configInfo: remoteConfig.config,
           galleryViews: galleryViews,
           currentPage: 1,
           selectedFilters: {}));

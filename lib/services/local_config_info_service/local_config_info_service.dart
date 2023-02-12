@@ -14,6 +14,7 @@ class LocalConfigInfoService extends SqfliteService<LocalConfigInfo> {
   static const String createLocalConfigInfoTable = '''
     create table $localConfigInfoTableName (
       id integer PRIMARY KEY AUTOINCREMENT,
+      uid text NOT NULL,
       name text NOT NULL,
       logoUrl text NOT NULL,
       nsfw boolean NOT NULL,
@@ -24,6 +25,17 @@ class LocalConfigInfoService extends SqfliteService<LocalConfigInfo> {
       FOREIGN KEY(localProtectorConfigId) REFERENCES ${LocalProtectorConfigService.localProtectorConfigTableName}(id)
     );
   ''';
+
+  @override
+  Future<void> delete(int id) async {
+    final ref = await get(id);
+    if (ref.localProtectorConfig != null) {
+      await localProtectorConfigService.deleteQuery(query: [
+        SqfliteQueryKeyValueItem(key: 'id', value: ref.localProtectorConfig!.id)
+      ]);
+    }
+    return super.delete(id);
+  }
 
   @override
   Future<LocalConfigInfo> mapConfig(Map<String, dynamic> map) async {
@@ -47,9 +59,9 @@ class LocalConfigInfoService extends SqfliteService<LocalConfigInfo> {
   }
 
   Future<SqfliteExistsCheckResult> checkExists(
-      {required String name, required int version}) async {
+      {required String uid, required int version}) async {
     final exists = await super.queryMap(query: [
-      SqfliteQueryKeyValueItem(key: "name", value: name),
+      SqfliteQueryKeyValueItem(key: "uid", value: uid),
       const SqfliteQueryOperatorItem(operator: SqfliteOperator.AND),
       SqfliteQueryKeyValueItem(key: "version", value: version)
     ]);

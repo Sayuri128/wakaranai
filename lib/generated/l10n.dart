@@ -579,6 +579,124 @@ class S {
       args: [],
     );
   }
+
+  /// `{manga} Added to you library!`
+  String gallery_view_manga_item_added_to_library_notification(Object manga) {
+    return Intl.message(
+      '$manga Added to you library!',
+      name: 'gallery_view_manga_item_added_to_library_notification',
+      desc: '',
+      args: [manga],
+    );
+  }
+
+  /// `{anime} Added to you library!`
+  String gallery_view_anime_item_added_to_library_notification(Object anime) {
+    return Intl.message(
+      '$anime Added to you library!',
+      name: 'gallery_view_anime_item_added_to_library_notification',
+      desc: '',
+      args: [anime],
+    );
+  }
+
+  /// `{manga} Deleted from your library!`
+  String gallery_view_manga_item_deleted_from_library_notification(
+      Object manga) {
+    return Intl.message(
+      '$manga Deleted from your library!',
+      name: 'gallery_view_manga_item_deleted_from_library_notification',
+      desc: '',
+      args: [manga],
+    );
+  }
+
+  /// `{anime} Deleted from your library!`
+  String gallery_view_anime_item_deleted_from_library_notification(
+      Object anime) {
+    return Intl.message(
+      '$anime Deleted from your library!',
+      name: 'gallery_view_anime_item_deleted_from_library_notification',
+      desc: '',
+      args: [anime],
+    );
+  }
+
+  /// `Are you sure you want to delete "{manga}" from your library?`
+  String gallery_view_manga_item_delete_from_library_confirmation_title(
+      Object manga) {
+    return Intl.message(
+      'Are you sure you want to delete "$manga" from your library?',
+      name: 'gallery_view_manga_item_delete_from_library_confirmation_title',
+      desc: '',
+      args: [manga],
+    );
+  }
+
+  /// `Delete`
+  String get gallery_view_manga_item_delete_from_library_confirmation_ok_label {
+    return Intl.message(
+      'Delete',
+      name: 'gallery_view_manga_item_delete_from_library_confirmation_ok_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String
+      get gallery_view_manga_item_delete_from_library_confirmation_cancel_label {
+    return Intl.message(
+      'Cancel',
+      name:
+          'gallery_view_manga_item_delete_from_library_confirmation_cancel_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to delete "{anime}" from your library?`
+  String gallery_view_anime_item_delete_from_library_confirmation_title(
+      Object anime) {
+    return Intl.message(
+      'Are you sure you want to delete "$anime" from your library?',
+      name: 'gallery_view_anime_item_delete_from_library_confirmation_title',
+      desc: '',
+      args: [anime],
+    );
+  }
+
+  /// `Delete`
+  String get gallery_view_anime_item_delete_from_library_confirmation_ok_label {
+    return Intl.message(
+      'Delete',
+      name: 'gallery_view_anime_item_delete_from_library_confirmation_ok_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String
+      get gallery_view_anime_item_delete_from_library_confirmation_cancel_label {
+    return Intl.message(
+      'Cancel',
+      name:
+          'gallery_view_anime_item_delete_from_library_confirmation_cancel_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `In library`
+  String get gallery_view_item_in_library_title {
+    return Intl.message(
+      'In library',
+      name: 'gallery_view_item_in_library_title',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
