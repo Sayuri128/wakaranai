@@ -1,17 +1,17 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:wakaranai/model/wakaranai_db.dart';
 import 'package:wakaranai/models/configs_source_type/configs_source_type.dart';
-import 'package:wakaranai/models/serializable_object.dart';
 
 part 'configs_source_item.g.dart';
 
 @JsonSerializable()
-class ConfigsSourceItem implements SqSerializableObject {
+class ConfigsSourceItem {
   factory ConfigsSourceItem.fromJson(Map<String, dynamic> json) =>
       _$ConfigsSourceItemFromJson(json);
 
   Map<String, dynamic> toJson() => _$ConfigsSourceItemToJson(this);
 
-  int? id;
+  final int? id;
   final String baseUrl;
   final String name;
   final ConfigsSourceType type;
@@ -23,15 +23,7 @@ class ConfigsSourceItem implements SqSerializableObject {
     required this.type,
   });
 
-  @override
-  Map<String, dynamic> toMap({bool lazy = true}) {
-    final res = toJson();
-    if(id == null || lazy) {
-      res.remove("id");
-    }
-    return res;
-  }
-
-  @override
-  int? getId() => id;
+  factory ConfigsSourceItem.fromDrift(DriftLocalConfigsSource item) =>
+      ConfigsSourceItem(
+          id: item.id, baseUrl: item.baseUrl, name: item.name, type: item.type);
 }

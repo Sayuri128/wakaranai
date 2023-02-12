@@ -1,36 +1,65 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:wakaranai/model/services/library_items_service.dart';
+import 'package:wakaranai/model/services/local_anime_gallery_view_service.dart';
+import 'package:wakaranai/model/services/local_manga_gallery_view_service.dart';
 import 'package:wakaranai/models/data/library_item.dart';
-import 'package:wakaranai/services/library_service/library_service.dart';
-import 'package:wakaranai/services/sqflite_service/query_item.dart';
+import 'package:wakaranai/models/data/local_api_client.dart';
+import 'package:wakaranai/models/data/local_gallery_view.dart';
+import 'package:wakaranai/models/remote_config/remote_config.dart';
+import 'package:wakascript/api_clients/api_client.dart';
+import 'package:wakascript/models/gallery_view.dart';
 
 part 'local_gallery_view_card_state.dart';
 
 class LocalGalleryViewCardCubit extends Cubit<LocalGalleryViewCardState> {
-  LocalGalleryViewCardCubit(
-      {required this.uid, required this.type, required this.libraryService})
+  LocalGalleryViewCardCubit({required this.uid, required this.type})
       : super(LocalGalleryViewCardInitial());
 
-  final LibraryService libraryService;
+  final LibraryItemsService _libraryItemsService = LibraryItemsService.instance;
+
+  final LocalAnimeGalleryViewService _localAnimeGalleryViewService =
+      LocalAnimeGalleryViewService();
+  final LocalMangaGalleryViewService _localMangaGalleryViewService =
+      LocalMangaGalleryViewService();
 
   final String uid;
-  final LibraryItemType type;
+  final LocalApiClientType type;
 
   void init() async {
-    libraryService.query(query: [
-      SqfliteQueryKeyValueItem(key: 'galleryViewId', value: uid)
-    ]).then((value) {
-      if (value.isNotEmpty) {
-        emit(LocalGalleryViewCardLoaded(libraryItem: value.first));
-      } else {
-        emit(LocalGalleryViewCardLoaded(libraryItem: null));
+    late final LocalGalleryView localGalleryView;
+
+    try {
+      switch (type) {
+        case LocalApiClientType.MANGA:
+          localGalleryView = await _localMangaGalleryViewService.getByUid(uid);
+          break;
+        case LocalApiClientType.ANIME:
+          localGalleryView = await _localAnimeGalleryViewService.getByUid(uid);
+          break;
       }
-    });
+
+      final LibraryItem item =
+          await _libraryItemsService.get(localGalleryView.libraryItemId!);
+      emit(LocalGalleryViewCardLoaded(libraryItem: item));
+    } on Exception {
+      emit(LocalGalleryViewCardLoaded(libraryItem: null));
+    }
   }
 
-  void create(LibraryItem item, VoidCallback onDone) async {
-    item.id = await libraryService.insert(item);
-    emit(LocalGalleryViewCardLoaded(libraryItem: item));
+  void create(
+      {required ApiClient client,
+      required GalleryView galleryView,
+      required RemoteConfig remoteConfig,
+      required LocalApiClientType type,
+      required VoidCallback onDone}) async {
+    final id = await _libraryItemsService.add(
+        client: client,
+        galleryView: galleryView,
+        remoteConfig: remoteConfig,
+        type: type);
+    emit(LocalGalleryViewCardLoaded(
+        libraryItem: await _libraryItemsService.get(id)));
     onDone();
   }
 
@@ -40,7 +69,7 @@ class LocalGalleryViewCardCubit extends Cubit<LocalGalleryViewCardState> {
       if (item == null) {
         return;
       }
-      await libraryService.delete(item.id!);
+      await _libraryItemsService.delete(item.id!);
       emit(LocalGalleryViewCardLoaded(libraryItem: null));
       onDone();
     }

@@ -2,8 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:wakaranai/blocs/configs_sources/configs_sources_cubit.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
-import 'package:wakaranai/env.dart';
-import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/models/configs_source_item/configs_source_item.dart';
 import 'package:wakaranai/models/configs_source_type/configs_source_type.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
@@ -16,11 +14,15 @@ class SettingsCubit extends Cubit<SettingsState> {
   SettingsCubit({required this.sourcesCubit, required this.remoteConfigsCubit})
       : super(SettingsInitial());
 
+  // static final DefaultConfigsServiceItem = ConfigsSourceItem(
+  //     baseUrl:
+  //         '${Env.OFFICIAL_GITHUB_CONFIGS_SOURCE_ORG}/${Env.OFFICIAL_GITHUB_CONFIGS_SOURCE_REPOSITORY}',
+  //     name: S.current.github_configs_source_type,
+  //     type: ConfigsSourceType.GIT_HUB);
   static final DefaultConfigsServiceItem = ConfigsSourceItem(
-      baseUrl:
-          '${Env.OFFICIAL_GITHUB_CONFIGS_SOURCE_ORG}/${Env.OFFICIAL_GITHUB_CONFIGS_SOURCE_REPOSITORY}',
-      name: S.current.github_configs_source_type,
-      type: ConfigsSourceType.GIT_HUB);
+      baseUrl: "http://192.168.31.208:3000",
+      name: "LOCAL REST",
+      type: ConfigsSourceType.REST);
 
   final ConfigsSourcesCubit sourcesCubit;
   final RemoteConfigsCubit remoteConfigsCubit;

@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/configs_sources/configs_sources_cubit.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
-import 'package:wakaranai/env.dart';
+import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/models/configs_source_item/configs_source_item.dart';
-import 'package:wakaranai/models/configs_source_type/configs_source_type.dart';
 import 'package:wakaranai/ui/home/configs_page/add_configs_source_dialog.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -38,11 +36,9 @@ class ConfigsSourceDialog extends StatelessWidget {
           ),
           ListTile(
             onTap: () {
-              context.read<RemoteConfigsCubit>().changeSource(ConfigsSourceItem(
-                  baseUrl:
-                      '${Env.OFFICIAL_GITHUB_CONFIGS_SOURCE_ORG}/${Env.OFFICIAL_GITHUB_CONFIGS_SOURCE_REPOSITORY}',
-                  type: ConfigsSourceType.GIT_HUB,
-                  name: S.current.official_github_configs_source_repository));
+              context
+                  .read<RemoteConfigsCubit>()
+                  .changeSource(SettingsCubit.DefaultConfigsServiceItem);
               Navigator.of(context).pop();
             },
             title: Text(S.current.official_github_configs_source_repository),

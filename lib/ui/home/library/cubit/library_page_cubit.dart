@@ -1,31 +1,32 @@
+import 'dart:ui';
+
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:wakaranai/model/services/library_items_service.dart';
 import 'package:wakaranai/models/data/library_item.dart';
-import 'package:wakaranai/services/library_service/library_service.dart';
-import 'package:wakaranai/services/sqflite_service/query_item.dart';
+import 'package:wakaranai/models/data/local_api_client.dart';
 
 part 'library_page_state.dart';
 
 class LibraryPageCubit extends Cubit<LibraryPageState> {
-  LibraryPageCubit({required this.libraryService})
-      : super(LibraryPageInitial());
+  LibraryPageCubit() : super(LibraryPageInitial());
+
+  final LibraryItemsService _libraryItemsService = LibraryItemsService.instance;
 
   static const libraryPageLimit = 20;
-  static final mangaQuery =
-      SqfliteQueryKeyValueItem(key: 'type', value: LibraryItemType.MANGA.index);
-  static final animeQuery =
-      SqfliteQueryKeyValueItem(key: 'type', value: LibraryItemType.ANIME.index);
-
-  final LibraryService libraryService;
 
   void init() async {
     emit(LibraryPageLoading());
-    final int mangaTotal = await libraryService.count(query: [mangaQuery]);
-    final int animeTotal = await libraryService.count(query: [animeQuery]);
-    final List<LibraryItem> initialMangaItems = await libraryService
-        .query(query: [mangaQuery], limit: libraryPageLimit, offset: 0);
-    final List<LibraryItem> initialAnimeItems = await libraryService
-        .query(query: [animeQuery], limit: libraryPageLimit, offset: 0);
+    final int mangaTotal =
+        await _libraryItemsService.count(type: LocalApiClientType.MANGA);
+    final int animeTotal =
+        await _libraryItemsService.count(type: LocalApiClientType.ANIME);
+    final List<LibraryItem> initialMangaItems =
+        await _libraryItemsService.query(
+            limit: libraryPageLimit, offset: 0, type: LocalApiClientType.MANGA);
+    final List<LibraryItem> initialAnimeItems =
+        await _libraryItemsService.query(
+            limit: libraryPageLimit, offset: 0, type: LocalApiClientType.ANIME);
 
     emit(LibraryPageLoaded(
         animeItems: initialAnimeItems,
@@ -34,25 +35,21 @@ class LibraryPageCubit extends Cubit<LibraryPageState> {
         mangaTotalCount: mangaTotal));
   }
 
-  void reloadPage(LibraryItemType type) async {
+  void reloadPage(LocalApiClientType type) async {
     Future.wait([
-      libraryService.count(
-          query: [SqfliteQueryKeyValueItem(key: 'type', value: type.index)]),
-      libraryService.query(
-          query: [SqfliteQueryKeyValueItem(key: 'type', value: type.index)],
-          limit: libraryPageLimit,
-          offset: 0)
+      _libraryItemsService.count(type: type),
+      _libraryItemsService.query(limit: libraryPageLimit, offset: 0, type: type)
     ]).then((value) {
       switch (type) {
-        case LibraryItemType.ANIME:
+        case LocalApiClientType.ANIME:
           emit((state as LibraryPageLoaded).copyWith(
               animeTotalCount: value[0] as int,
               animeItems: value[1] as List<LibraryItem>));
           break;
-        case LibraryItemType.MANGA:
+        case LocalApiClientType.MANGA:
           emit((state as LibraryPageLoaded).copyWith(
               mangaTotalCount: value[0] as int,
-              mangaItem: value[1] as List<LibraryItem>));
+              mangaItems: value[1] as List<LibraryItem>));
           break;
       }
     });
@@ -61,16 +58,16 @@ class LibraryPageCubit extends Cubit<LibraryPageState> {
   void _loadNextPage(
       {required List<LibraryItem> currentList,
       required int total,
-      required LibraryItemType type,
+      required LocalApiClientType type,
       required void Function(List<LibraryItem>) onLoaded}) async {
     if (currentList.length >= total) {
       return;
     }
-
-    libraryService.query(
-        query: [SqfliteQueryKeyValueItem(key: 'type', value: type.index)],
-        limit: libraryPageLimit,
-        offset: currentList.length).then(onLoaded);
+    await _libraryItemsService
+        .query(limit: libraryPageLimit, offset: currentList.length, type: type)
+        .then((value) {
+      onLoaded(value);
+    });
   }
 
   void loadNextMangaPage() async {
@@ -78,9 +75,9 @@ class LibraryPageCubit extends Cubit<LibraryPageState> {
       _loadNextPage(
         currentList: (state as LibraryPageLoaded).mangaItem,
         total: (state as LibraryPageLoaded).mangaTotalCount,
-        type: LibraryItemType.MANGA,
+        type: LocalApiClientType.MANGA,
         onLoaded: (newItems) {
-          emit((state as LibraryPageLoaded).copyWith(mangaItem: [
+          emit((state as LibraryPageLoaded).copyWith(mangaItems: [
             ...(state as LibraryPageLoaded).mangaItem,
             ...newItems
           ]));
@@ -94,7 +91,7 @@ class LibraryPageCubit extends Cubit<LibraryPageState> {
       _loadNextPage(
         currentList: (state as LibraryPageLoaded).animeItems,
         total: (state as LibraryPageLoaded).animeTotalCount,
-        type: LibraryItemType.ANIME,
+        type: LocalApiClientType.ANIME,
         onLoaded: (newItems) {
           emit((state as LibraryPageLoaded).copyWith(animeItems: [
             ...(state as LibraryPageLoaded).mangaItem,
@@ -103,5 +100,24 @@ class LibraryPageCubit extends Cubit<LibraryPageState> {
         },
       );
     }
+  }
+
+  void delete(LibraryItem item, VoidCallback onDone) async {
+    await _libraryItemsService.delete(item.id!);
+
+    switch (item.type) {
+      case LocalApiClientType.MANGA:
+        emit((state as LibraryPageLoaded).copyWith(
+            mangaItems: (state as LibraryPageLoaded).mangaItem..remove(item),
+            mangaTotalCount: (state as LibraryPageLoaded).mangaTotalCount - 1));
+        break;
+      case LocalApiClientType.ANIME:
+        emit((state as LibraryPageLoaded).copyWith(
+            animeItems: (state as LibraryPageLoaded).animeItems..remove(item),
+            animeTotalCount: (state as LibraryPageLoaded).animeTotalCount - 1));
+        break;
+    }
+
+    onDone();
   }
 }

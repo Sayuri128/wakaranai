@@ -132,7 +132,7 @@ class ConfigPage extends StatelessWidget {
               onRefresh: () {
                 return Future.delayed(
                   const Duration(milliseconds: 250),
-                  () {
+                      () {
                     context.read<LocalConfigsCubit>().init();
                   },
                 );

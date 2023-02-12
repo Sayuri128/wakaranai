@@ -25,13 +25,13 @@ class LibraryPageLoaded extends LibraryPageState {
   });
 
   LibraryPageLoaded copyWith({
-    List<LibraryItem>? mangaItem,
+    List<LibraryItem>? mangaItems,
     int? mangaTotalCount,
     List<LibraryItem>? animeItems,
     int? animeTotalCount,
   }) {
     return LibraryPageLoaded(
-      mangaItem: mangaItem ?? this.mangaItem,
+      mangaItem: mangaItems ?? this.mangaItem,
       mangaTotalCount: mangaTotalCount ?? this.mangaTotalCount,
       animeItems: animeItems ?? this.animeItems,
       animeTotalCount: animeTotalCount ?? this.animeTotalCount,
