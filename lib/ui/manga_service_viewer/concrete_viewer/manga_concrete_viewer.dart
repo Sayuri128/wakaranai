@@ -267,20 +267,25 @@ class MangaConcreteViewer extends StatelessWidget {
           Text(e.title.trim(), style: medium(size: 18)),
           if (e.timestamp != null && formatTimestamp(e).isNotEmpty) ...[
             const SizedBox(height: 8.0),
-            Text(
-              formatTimestamp(e),
-              style: regular(color: AppColors.mainGrey, size: 12),
+            Row(
+              children: [
+                Text(
+                  formatTimestamp(e),
+                  style: regular(color: AppColors.mainGrey, size: 12),
+                ),
+                if (pagesReadState is PagesReadInitialized &&
+                    pagesRead != null) ...[
+                  const SizedBox(
+                    width: 8.0,
+                  ),
+                  Text(
+                    "${pagesRead.readPages} / ${pagesRead.totalPages}",
+                    style: medium(color: AppColors.mainGrey, size: 12),
+                  )
+                ]
+              ],
             )
           ],
-          if (pagesReadState is PagesReadInitialized && pagesRead != null) ...[
-            const SizedBox(
-              height: 8.0,
-            ),
-            Text(
-              "${pagesRead.readPages} / ${pagesRead.totalPages}",
-              style: medium(color: AppColors.mainGrey),
-            )
-          ]
         ],
       ),
     );

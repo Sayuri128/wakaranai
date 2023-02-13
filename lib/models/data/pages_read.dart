@@ -42,4 +42,9 @@ class PagesRead {
       lastUpdated: lastUpdated ?? this.lastUpdated,
     );
   }
+
+  @override
+  String toString() {
+    return 'PagesRead{id: $id, uid: $uid, readPages: $readPages, totalPages: $totalPages, created: $created, lastUpdated: $lastUpdated}';
+  }
 }
