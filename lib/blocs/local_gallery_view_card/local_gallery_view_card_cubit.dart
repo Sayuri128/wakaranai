@@ -4,10 +4,9 @@ import 'package:wakaranai/model/services/library_items_service.dart';
 import 'package:wakaranai/model/services/local_anime_gallery_view_service.dart';
 import 'package:wakaranai/model/services/local_manga_gallery_view_service.dart';
 import 'package:wakaranai/models/data/library_item.dart';
-import 'package:wakaranai/models/data/local_api_client.dart';
 import 'package:wakaranai/models/data/local_gallery_view.dart';
-import 'package:wakaranai/models/remote_config/remote_config.dart';
 import 'package:wakascript/api_clients/api_client.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
 import 'package:wakascript/models/gallery_view.dart';
 
 part 'local_gallery_view_card_state.dart';
@@ -24,17 +23,17 @@ class LocalGalleryViewCardCubit extends Cubit<LocalGalleryViewCardState> {
       LocalMangaGalleryViewService();
 
   final String uid;
-  final LocalApiClientType type;
+  final ConfigInfoType type;
 
   void init() async {
     late final LocalGalleryView localGalleryView;
 
     try {
       switch (type) {
-        case LocalApiClientType.MANGA:
+        case ConfigInfoType.MANGA:
           localGalleryView = await _localMangaGalleryViewService.getByUid(uid);
           break;
-        case LocalApiClientType.ANIME:
+        case ConfigInfoType.ANIME:
           localGalleryView = await _localAnimeGalleryViewService.getByUid(uid);
           break;
       }
@@ -50,13 +49,13 @@ class LocalGalleryViewCardCubit extends Cubit<LocalGalleryViewCardState> {
   void create(
       {required ApiClient client,
       required GalleryView galleryView,
-      required RemoteConfig remoteConfig,
-      required LocalApiClientType type,
+      required ConfigInfo configInfo,
+      required ConfigInfoType type,
       required VoidCallback onDone}) async {
     final id = await _libraryItemsService.add(
         client: client,
         galleryView: galleryView,
-        remoteConfig: remoteConfig,
+        configInfo: configInfo,
         type: type);
     emit(LocalGalleryViewCardLoaded(
         libraryItem: await _libraryItemsService.get(id)));

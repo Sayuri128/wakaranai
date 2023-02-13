@@ -1,11 +1,11 @@
-import 'package:wakaranai/models/data/local_api_client.dart';
 import 'package:wakaranai/models/data/local_gallery_view.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
 
 class LibraryItem {
   final int? id;
   final int localApiClientId;
   final LocalGalleryView localGalleryView;
-  final LocalApiClientType type;
+  final ConfigInfoType type;
 
   LibraryItem(
       {this.id,

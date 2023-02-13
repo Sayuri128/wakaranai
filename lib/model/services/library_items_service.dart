@@ -5,11 +5,10 @@ import 'package:wakaranai/model/services/local_api_sources_service.dart';
 import 'package:wakaranai/model/services/local_manga_gallery_view_service.dart';
 import 'package:wakaranai/model/wakaranai_db.dart';
 import 'package:wakaranai/models/data/library_item.dart';
-import 'package:wakaranai/models/data/local_api_client.dart';
 import 'package:wakaranai/models/data/local_gallery_view.dart';
-import 'package:wakaranai/models/remote_config/remote_config.dart';
 import 'package:wakascript/api_clients/api_client.dart';
 import 'package:wakascript/models/anime/anime_gallery_view/anime_gallery_view.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
 import 'package:wakascript/models/gallery_view.dart';
 import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
 
@@ -24,10 +23,10 @@ class LibraryItemsService {
     final item = await get(id);
 
     switch (item.type) {
-      case LocalApiClientType.MANGA:
+      case ConfigInfoType.MANGA:
         await LocalMangaGalleryViewService.instance.deleteByLibraryId(item.id!);
         break;
-      case LocalApiClientType.ANIME:
+      case ConfigInfoType.ANIME:
         await LocalMangaGalleryViewService.instance.deleteByLibraryId(item.id!);
         break;
     }
@@ -48,7 +47,7 @@ class LibraryItemsService {
     }
   }
 
-  Future<int> count({required LocalApiClientType type}) async {
+  Future<int> count({required ConfigInfoType type}) async {
     final res = await (waka.selectOnly(waka.libraryItemTable)
           ..addColumns([waka.libraryItemTable.type])
           ..where(waka.libraryItemTable.type.equals(type.index)))
@@ -59,17 +58,17 @@ class LibraryItemsService {
   Future<List<LibraryItem>> query(
       {required int limit,
       required int offset,
-      required LocalApiClientType type}) async {
+      required ConfigInfoType type}) async {
     final res = await (waka.select(waka.libraryItemTable)
           ..where((tbl) => tbl.type.equals(type.index))
           ..limit(limit, offset: offset))
         .join([
-      if (type == LocalApiClientType.ANIME)
+      if (type == ConfigInfoType.ANIME)
         leftOuterJoin(
             waka.localAnimeGalleryViewTable,
             waka.localAnimeGalleryViewTable.libraryItemId
                 .equalsExp(waka.libraryItemTable.id))
-      else if (type == LocalApiClientType.MANGA)
+      else if (type == ConfigInfoType.MANGA)
         leftOuterJoin(
             waka.localMangaGalleryViewTable,
             waka.localMangaGalleryViewTable.libraryItemId
@@ -78,7 +77,7 @@ class LibraryItemsService {
 
     return res.map((element) {
       switch (type) {
-        case LocalApiClientType.MANGA:
+        case ConfigInfoType.MANGA:
           return LibraryItem(
               id: element.readTable(waka.libraryItemTable).id,
               localApiClientId:
@@ -86,7 +85,7 @@ class LibraryItemsService {
               localGalleryView: LocalMangaGalleryView.fromDrift(
                   element.readTable(waka.localMangaGalleryViewTable)),
               type: type);
-        case LocalApiClientType.ANIME:
+        case ConfigInfoType.ANIME:
           return LibraryItem(
               id: element.readTable(waka.libraryItemTable).id,
               localApiClientId:
@@ -110,11 +109,11 @@ class LibraryItemsService {
     late final LocalGalleryView localGalleryView;
 
     switch (libRes.first.type) {
-      case LocalApiClientType.MANGA:
+      case ConfigInfoType.MANGA:
         localGalleryView = await LocalMangaGalleryViewService.instance
             .getByLibraryId(libRes.first.id);
         break;
-      case LocalApiClientType.ANIME:
+      case ConfigInfoType.ANIME:
         localGalleryView = await LocalAnimeGalleryViewService.instance
             .getByLibraryId(libRes.first.id);
         break;
@@ -130,20 +129,20 @@ class LibraryItemsService {
   Future<int> add(
       {required ApiClient client,
       required GalleryView galleryView,
-      required RemoteConfig remoteConfig,
-      required LocalApiClientType type}) async {
+  required ConfigInfo configInfo,
+      required ConfigInfoType type}) async {
     return (await waka.transaction(() async {
       int? apiId;
 
       final existingConfig = await (waka.select(waka.localConfigInfoTable)
-            ..where((tbl) => tbl.uid.equals(remoteConfig.config.uid)))
+            ..where((tbl) => tbl.uid.equals(configInfo.uid)))
           .get();
 
       if (existingConfig.isEmpty) {
         apiId = await LocalApiSourcesService.instance.add(
             code: client.parser.code,
             type: type,
-            configInfo: remoteConfig.config);
+            configInfo: configInfo);
       } else {
         final existingApi = await (waka.selectOnly(waka.localApiSourceTable)
               ..addColumns([waka.localApiSourceTable.id])
@@ -161,7 +160,7 @@ class LibraryItemsService {
           ));
 
       switch (type) {
-        case LocalApiClientType.MANGA:
+        case ConfigInfoType.MANGA:
           await LocalMangaGalleryViewService.instance.add(LocalMangaGalleryView(
               uid: (galleryView as MangaGalleryView).uid,
               cover: galleryView.cover,
@@ -169,7 +168,7 @@ class LibraryItemsService {
               data: galleryView.data,
               libraryItemId: libraryId));
           break;
-        case LocalApiClientType.ANIME:
+        case ConfigInfoType.ANIME:
           await LocalAnimeGalleryViewService.instance.add(LocalAnimeGalleryView(
               uid: (galleryView as AnimeGalleryView).uid,
               cover: galleryView.cover,

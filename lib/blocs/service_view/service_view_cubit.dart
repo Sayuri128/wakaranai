@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:wakaranai/models/remote_config/remote_config.dart';
 import 'package:wakascript/api_clients/api_client.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
 import 'package:wakascript/models/gallery_view.dart';
@@ -12,7 +11,7 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
     extends Cubit<ServiceViewState<T, G>> {
   ServiceViewCubit(initialState) : super(initialState);
 
-  void init(RemoteConfig remoteConfig) async {
+  void init(ConfigInfo configInfo) async {
     emit(ServiceViewLoading<T, G>(client: state.client));
 
     final List<G>? galleryViews = await _getGalleryViews(
@@ -20,14 +19,14 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
         query: null,
         filters: null,
         retry: () {
-          init(remoteConfig);
+          init(configInfo);
         });
 
     if (galleryViews != null) {
       emit(ServiceViewInitialized<T, G>(
           client: state.client,
           searchQuery: '',
-          configInfo: remoteConfig.config,
+          configInfo: configInfo,
           galleryViews: galleryViews,
           currentPage: 1,
           selectedFilters: {},

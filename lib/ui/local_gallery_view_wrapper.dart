@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/local_gallery_view_card/local_gallery_view_card_cubit.dart';
-import 'package:wakaranai/models/data/local_api_client.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
 
 class LocalGalleryViewWrapper extends StatelessWidget {
   const LocalGalleryViewWrapper(
       {Key? key, required this.type, required this.uid, required this.builder})
       : super(key: key);
 
-  final LocalApiClientType type;
+  final ConfigInfoType type;
   final String uid;
   final Widget Function(BuildContext context, LocalGalleryViewCardState state) builder;
 

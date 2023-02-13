@@ -4,6 +4,15 @@ import 'package:wakascript/models/config_info/config_info.dart';
 
 part 'remote_config.g.dart';
 
+ConfigInfoType remoteCategoryToConfigInfoType(RemoteCategory remoteCategory) {
+  switch(remoteCategory) {
+    case RemoteCategory.anime:
+      return ConfigInfoType.ANIME;
+    case RemoteCategory.manga:
+      return ConfigInfoType.MANGA;
+  }
+}
+
 @JsonSerializable()
 class RemoteConfig {
 

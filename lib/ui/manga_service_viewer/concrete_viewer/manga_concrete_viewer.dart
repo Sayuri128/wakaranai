@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -11,9 +12,9 @@ import 'package:wakaranai/heroes.dart';
 import 'package:wakaranai/models/data/pages_read.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
-import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/manga_provider_button.dart';
+import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakascript/api_clients/manga_api_client.dart';
@@ -22,7 +23,6 @@ import 'package:wakascript/models/manga/manga_concrete_view/chapter/chapter.dart
 import 'package:wakascript/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
 import 'package:wakascript/models/manga/manga_concrete_view/manga_concrete_view.dart';
 import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
-import 'package:collection/collection.dart';
 
 import '../../routes.dart';
 

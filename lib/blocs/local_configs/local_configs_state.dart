@@ -10,17 +10,17 @@ class LocalConfigsInitial extends LocalConfigsState {}
 class LocalConfigsLoading extends LocalConfigsState {}
 
 class LocalConfigsLoaded extends LocalConfigsState {
-  final List<LocalApiClient> localApiClients;
+  final List<LocalConfigInfo> localConfigsInfo;
 
   const LocalConfigsLoaded({
-    required this.localApiClients,
+    required this.localConfigsInfo,
   });
 
   LocalConfigsLoaded copyWith({
-    List<LocalApiClient>? localApiClients,
+    List<LocalConfigInfo>? localConfigsInfo,
   }) {
     return LocalConfigsLoaded(
-      localApiClients: localApiClients ?? this.localApiClients,
+      localConfigsInfo: localConfigsInfo ?? this.localConfigsInfo,
     );
   }
 }

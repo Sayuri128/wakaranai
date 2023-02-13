@@ -32,7 +32,7 @@ class LocalApiSourcesService {
 
   Future<int> add(
       {required String code,
-      required LocalApiClientType type,
+      required ConfigInfoType type,
       required ConfigInfo configInfo}) async {
     return await (waka.into(waka.localApiSourceTable).insert(
         LocalApiSourceTableCompanion.insert(
@@ -65,6 +65,23 @@ class LocalApiSourcesService {
               await LocalConfigsInfoService.instance.get(e.localConfigInfoId),
           id: e.id);
     }));
+  }
+
+  Future<LocalApiClient> getByConfigUid(int id) async {
+    final res = await (waka.select(waka.localApiSourceTable)
+          ..where((tbl) => tbl.localConfigInfoId.equals(id)))
+        .get();
+
+    if (res.isEmpty) {
+      throw Exception("LocalApiClient with config info id $id does not exist");
+    }
+
+    return LocalApiClient(
+        id: res.first.id,
+        code: res.first.code,
+        type: res.first.type,
+        localConfigInfo: await LocalConfigsInfoService.instance
+            .get(res.first.localConfigInfoId));
   }
 
   Future<LocalApiClient> get(int id) async {

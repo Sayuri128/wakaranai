@@ -4,31 +4,12 @@ import 'package:wakascript/api_clients/api_client.dart';
 import 'package:wakascript/api_clients/manga_api_client.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
 
-enum LocalApiClientType { MANGA, ANIME }
 
-int serializeLocalApiClientType(LocalApiClientType type) {
-  switch (type) {
-    case LocalApiClientType.MANGA:
-      return 0;
-    case LocalApiClientType.ANIME:
-      return 1;
-  }
-}
-
-LocalApiClientType deserializeLocalApiClientType(int type) {
-  switch (type) {
-    case 0:
-      return LocalApiClientType.MANGA;
-    case 1:
-      return LocalApiClientType.ANIME;
-  }
-  throw Exception("Unknown LocalApiClientType $type");
-}
 
 class LocalApiClient {
   int? id;
   final String code;
-  final LocalApiClientType type;
+  final ConfigInfoType type;
   final LocalConfigInfo localConfigInfo;
 
   LocalApiClient({
@@ -40,21 +21,21 @@ class LocalApiClient {
 
   T toApiClient<T extends ApiClient>() {
     switch (type) {
-      case LocalApiClientType.MANGA:
+      case ConfigInfoType.MANGA:
         return MangaApiClient(code: code) as T;
-      case LocalApiClientType.ANIME:
+      case ConfigInfoType.ANIME:
         return AnimeApiClient(code: code) as T;
     }
   }
 
   factory LocalApiClient.fromApiClient(
       ApiClient apiClient, ConfigInfo configInfo) {
-    late LocalApiClientType type;
+    late ConfigInfoType type;
 
     if (apiClient is AnimeApiClient) {
-      type = LocalApiClientType.ANIME;
+      type = ConfigInfoType.ANIME;
     } else if (apiClient is MangaApiClient) {
-      type = LocalApiClientType.MANGA;
+      type = ConfigInfoType.MANGA;
     } else {
       throw Exception("Unknown api client");
     }
