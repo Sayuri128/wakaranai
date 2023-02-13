@@ -1,3 +1,4 @@
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,7 +31,11 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
   final ItemScrollController itemScrollController;
   final int initialPage;
 
-  void init(ChapterViewerData data) async {
+  ChapterViewInitialized get stateInitialized =>
+      state as ChapterViewInitialized;
+
+  void init(ChapterViewerData data,
+      {void Function(int page, int totalPage)? pagesLoaded}) async {
     final pagesS = [
       await apiClient.getPages(uid: data.chapter.uid, data: data.chapter.data)
     ];
@@ -49,6 +54,8 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         readPages: 1,
         totalPages: currentPages.value.length);
 
+    pagesLoaded?.call(pagesRead.readPages, pagesRead.totalPages);
+
     emit(ChapterViewInitialized(
         pages: pagesS,
         pagesRead: pagesRead,
@@ -66,19 +73,24 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         canGetNextPages: canGetNextPages));
   }
 
-  void onPagesChanged({required bool next}) async {
+  void onPagesChanged({required bool next, VoidCallback? onDone}) async {
     if (state is ChapterViewInitialized) {
       final state = this.state as ChapterViewInitialized;
+      emit(ChapterViewInit());
 
       final int chapterIndex = state.group.elements.indexWhere(
-              (element) => element.uid == state.currentPages.chapterUid) +
+              (element) =>
+                  element.uid == state.currentPages.chapterUid) +
           (next ? 1 : -1);
 
       final bool canGetPreviousPages = chapterIndex > 0;
-      final bool canGetNextPages = chapterIndex < state.group.elements.length;
+      final bool canGetNextPages =
+          chapterIndex < state.group.elements.length - 1;
 
-      Pages? optionalLoadedPages = state.pages.firstWhereOrNull((element) =>
-          element.chapterUid == state.group.elements[chapterIndex].uid);
+      Pages? optionalLoadedPages = state.pages.firstWhereOrNull(
+          (element) =>
+              element.chapterUid ==
+                  state.group.elements[chapterIndex].uid);
 
       final List<Pages> newPages = [...state.pages];
 
@@ -93,15 +105,6 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         }
       }
 
-      if (state.mode == ChapterViewMode.WEBTOON) {
-        itemScrollController.jumpTo(
-            index: next ? 0 : optionalLoadedPages.value.length - 1,
-            alignment: 0);
-      } else {
-        pageController
-            .jumpToPage(next ? 0 : optionalLoadedPages.value.length - 1);
-      }
-
       PagesRead? pagesRead =
           await _pagesReadService.getByUid(optionalLoadedPages.chapterUid);
 
@@ -109,7 +112,8 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
           uid: optionalLoadedPages.chapterUid,
           readPages: 1,
           totalPages: newPages.length);
-      await _pagesReadService.update(pagesRead);
+      pagesRead =
+          pagesRead.copyWith(id: await _pagesReadService.update(pagesRead));
 
       emit(state.copyWith(
           pagesRead: pagesRead,
@@ -119,23 +123,28 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
           totalPages: optionalLoadedPages.value.length,
           currentPage: next ? 1 : optionalLoadedPages.value.length,
           currentPages: optionalLoadedPages));
+
+      onDone?.call();
     }
   }
 
-  void onPageChanged(int index) {
-    if (state is ChapterViewInitialized) {
-      PagesRead pagesRead = (state as ChapterViewInitialized).pagesRead;
+  void onPageChanged(int index, Pages currentPages, {void Function(Pages)? onDone}) async {
+    if (state is ChapterViewInitialized &&
+        currentPages.chapterUid == stateInitialized.currentPages.chapterUid) {
+      PagesRead pagesRead = stateInitialized.pagesRead;
+      int? newId;
       if (index > pagesRead.readPages) {
         pagesRead = pagesRead.copyWith(
             readPages: index,
-            totalPages: (state as ChapterViewInitialized).totalPages,
+            totalPages: stateInitialized.totalPages,
             lastUpdated: DateTime.now());
-        _pagesReadService.update(pagesRead);
+        newId = await _pagesReadService.update(pagesRead);
       }
-      emit((state as ChapterViewInitialized)
-          .copyWith(currentPage: index, pagesRead: pagesRead));
-    }
-  }
+
+      onDone?.call(stateInitialized.currentPages);
+      emit(stateInitialized.copyWith(
+          currentPage: index, pagesRead: pagesRead.copyWith(id: newId)));
+    }   }
 
   void onSetControls(bool value) {
     if (state is ChapterViewInitialized) {

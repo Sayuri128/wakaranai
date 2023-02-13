@@ -8,7 +8,6 @@ import 'package:wakaranai/services/protector_storage/protector_storage_service.d
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
-import 'package:wakascript/logger.dart';
 
 // TODO: improve settings UI
 class SettingsPage extends StatelessWidget {
@@ -89,7 +88,6 @@ class SettingsPage extends StatelessWidget {
                 BlocBuilder<ConfigsSourcesCubit, ConfigsSourcesState>(
                   builder: (context, configsState) {
                     if (configsState is ConfigsSourcesInitialized) {
-                      logger.d(configsState.sources.map((e) => e.toJson()));
                       return SizedBox(
                         width: double.maxFinite,
                         child: DropdownButtonFormField<int>(
