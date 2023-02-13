@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:wakaranai/models/remote_config/remote_category.dart';
 import 'package:wakaranai/models/remote_config/remote_config.dart';

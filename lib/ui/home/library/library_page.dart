@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/model/services/local_api_sources_service.dart';
 import 'package:wakaranai/models/data/library_item.dart';
-import 'package:wakaranai/models/data/local_api_client.dart';
 import 'package:wakaranai/models/data/local_gallery_view.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_concrete_viewer.dart';
 import 'package:wakaranai/ui/home/home_view.dart';
@@ -13,6 +12,7 @@ import 'package:wakaranai/ui/home/library/library_card.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
 
 class LibraryPage extends StatelessWidget {
   LibraryPage({Key? key}) : super(key: key);
@@ -31,8 +31,8 @@ class LibraryPage extends StatelessWidget {
             );
           } else if (state is LibraryPageLoaded) {
             return PageView(controller: _pageController, children: [
-              _buildPage(context, state.mangaItem, LocalApiClientType.MANGA),
-              _buildPage(context, state.animeItems, LocalApiClientType.ANIME),
+              _buildPage(context, state.mangaItem, ConfigInfoType.MANGA),
+              _buildPage(context, state.animeItems, ConfigInfoType.ANIME),
             ]);
           }
           return const SizedBox();
@@ -42,7 +42,7 @@ class LibraryPage extends StatelessWidget {
   }
 
   Widget _buildPage(
-      BuildContext context, List<LibraryItem> items, LocalApiClientType type) {
+      BuildContext context, List<LibraryItem> items, ConfigInfoType type) {
     return RefreshIndicator(
       onRefresh: () {
         return Future.delayed(
@@ -66,7 +66,7 @@ class LibraryPage extends StatelessWidget {
           // TODO: create api client in isolate to prevent ui from freezes
           // TODO: save concrete views as well and do updates only on demand
           switch (item.type) {
-            case LocalApiClientType.ANIME:
+            case ConfigInfoType.ANIME:
               final localAnimeGalleryView =
                   item.localGalleryView as LocalAnimeGalleryView;
               return LibraryCard(
@@ -109,7 +109,7 @@ class LibraryPage extends StatelessWidget {
                   });
                 },
               );
-            case LocalApiClientType.MANGA:
+            case ConfigInfoType.MANGA:
               final localMangaGalleryView =
                   item.localGalleryView as LocalMangaGalleryView;
               return LibraryCard(

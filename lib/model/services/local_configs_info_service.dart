@@ -48,6 +48,7 @@ class LocalConfigsInfoService {
             logoUrl: configInfo.logoUrl,
             language: configInfo.language,
             nsfw: configInfo.nsfw,
+            type: configInfo.type,
             version: configInfo.version,
             searchAvailable: configInfo.searchAvailable,
             localProtectorConfigId: Value(configInfo.localProtectorConfig?.id)),
@@ -63,6 +64,7 @@ class LocalConfigsInfoService {
             name: configInfo.name,
             logoUrl: configInfo.logoUrl,
             nsfw: configInfo.nsfw,
+            type: configInfo.type,
             language: configInfo.language,
             version: configInfo.version,
             localProtectorConfigId: Value(await LocalProtectorConfigService
@@ -79,10 +81,36 @@ class LocalConfigsInfoService {
           name: configInfo.name,
           logoUrl: configInfo.logoUrl,
           nsfw: configInfo.nsfw,
+          type: configInfo.type,
           version: configInfo.version,
           searchAvailable: configInfo.searchAvailable,
           language: configInfo.language,
         ));
+  }
+
+  Future<List<LocalConfigInfo>> getAll() async {
+    final res = await (waka.select(waka.localConfigInfoTable)).get();
+
+    return Future.wait(res.map((e) async {
+      LocalProtectorConfig? localProtectorConfig;
+
+      if (e.localProtectorConfigId != null) {
+        localProtectorConfig = await LocalProtectorConfigService.instance
+            .get(e.localProtectorConfigId!);
+      }
+
+      return LocalConfigInfo(
+          id: e.id,
+          name: e.name,
+          uid: e.uid,
+          logoUrl: e.logoUrl,
+          nsfw: e.nsfw,
+          type: e.type,
+          language: e.language,
+          version: e.version,
+          searchAvailable: e.searchAvailable,
+          localProtectorConfig: localProtectorConfig);
+    }));
   }
 
   Future<LocalConfigInfo> get(int id) async {
@@ -107,6 +135,7 @@ class LocalConfigsInfoService {
         uid: res.first.uid,
         logoUrl: res.first.logoUrl,
         nsfw: res.first.nsfw,
+        type: res.first.type,
         language: res.first.language,
         version: res.first.version,
         searchAvailable: res.first.searchAvailable,

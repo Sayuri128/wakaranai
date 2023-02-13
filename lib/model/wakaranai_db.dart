@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:wakaranai/model/library_item_table.dart';
 import 'package:wakaranai/model/local_anime_gallery_view_table.dart';
@@ -10,11 +11,10 @@ import 'package:wakaranai/model/local_config_info_table.dart';
 import 'package:wakaranai/model/local_configs_sources_table.dart';
 import 'package:wakaranai/model/local_manga_gallery_view_table.dart';
 import 'package:wakaranai/model/local_protector_config_table.dart';
-import 'package:path/path.dart' as path;
 import 'package:wakaranai/model/pages_read_table.dart';
 import 'package:wakaranai/models/configs_source_type/configs_source_type.dart';
-import 'package:wakaranai/models/data/local_api_client.dart';
 import 'package:wakascript/models/anime/anime_concrete_view/anime_status.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
 
 part 'wakaranai_db.g.dart';
 
@@ -32,20 +32,30 @@ class WakaranaiDb extends _$WakaranaiDb {
   WakaranaiDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 1;
+
+  Future<void> hardReset() async {
+    return transaction(() async {
+      await delete(localProtectorConfigTable).go();
+      await delete(localConfigInfoTable).go();
+      await delete(localApiSourceTable).go();
+      await delete(libraryItemTable).go();
+      await delete(localMangaGalleryViewTable).go();
+      await delete(localAnimeGalleryViewTable).go();
+      await delete(localConfigInfoTable).go();
+      await delete(pagesReadTable).go();
+    });
+  }
 
   @override
-  MigrationStrategy get migration => MigrationStrategy(
-        onUpgrade: (m, from, to) async {
-          for (int step = from + 1; step <= to; step++) {
-            switch (step) {
-              case 2:
-                await m.createTable(pagesReadTable);
-                break;
-            }
+  MigrationStrategy get migration =>
+      MigrationStrategy(onUpgrade: (m, from, to) async {
+        for (int step = from + 1; step <= to; step++) {
+          switch (step) {
+
           }
-        },
-      );
+        }
+      });
 }
 
 LazyDatabase _openConnection() {

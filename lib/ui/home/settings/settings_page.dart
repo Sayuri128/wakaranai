@@ -2,9 +2,12 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/configs_sources/configs_sources_cubit.dart';
+import 'package:wakaranai/blocs/local_configs/local_configs_cubit.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/model/wakaranai_db.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
+import 'package:wakaranai/ui/home/library/cubit/library_page_cubit.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -153,6 +156,26 @@ class SettingsPage extends StatelessWidget {
                   title: Text(S.current.clear_cookies_cache,
                       style: medium(size: 16)),
                 ),
+                ListTile(
+                  onTap: () {
+                    showOkCancelAlertDialog(
+                            context: context,
+                            title:
+                                "Are you sure you want to delete all your data?")
+                        .then((value) {
+                      if (value == OkCancelResult.ok) {
+                        wakaranaiDb.hardReset().then((value) {
+                          context.read<LocalConfigsCubit>().init();
+                          context.read<LibraryPageCubit>().init();
+                        });
+                      }
+                    });
+                  },
+                  title: Text(
+                    "Hard reset",
+                    style: medium(size: 16),
+                  ),
+                )
               ],
             );
           }

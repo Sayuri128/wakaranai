@@ -367,6 +367,13 @@ class $LocalConfigInfoTableTable extends LocalConfigInfoTable
             SqlDialect.mysql: '',
             SqlDialect.postgres: '',
           }));
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumnWithTypeConverter<ConfigInfoType, int> type =
+      GeneratedColumn<int>('type', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<ConfigInfoType>(
+              $LocalConfigInfoTableTable.$convertertype);
   static const VerificationMeta _versionMeta =
       const VerificationMeta('version');
   @override
@@ -410,6 +417,7 @@ class $LocalConfigInfoTableTable extends LocalConfigInfoTable
         logoUrl,
         language,
         nsfw,
+        type,
         version,
         localProtectorConfigId,
         searchAvailable,
@@ -458,6 +466,7 @@ class $LocalConfigInfoTableTable extends LocalConfigInfoTable
     } else if (isInserting) {
       context.missing(_nsfwMeta);
     }
+    context.handle(_typeMeta, const VerificationResult.success());
     if (data.containsKey('version')) {
       context.handle(_versionMeta,
           version.isAcceptableOrUnknown(data['version']!, _versionMeta));
@@ -503,6 +512,9 @@ class $LocalConfigInfoTableTable extends LocalConfigInfoTable
           .read(DriftSqlType.string, data['${effectivePrefix}language'])!,
       nsfw: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}nsfw'])!,
+      type: $LocalConfigInfoTableTable.$convertertype.fromSql(attachedDatabase
+          .typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}type'])!),
       version: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}version'])!,
       localProtectorConfigId: attachedDatabase.typeMapping.read(
@@ -519,6 +531,9 @@ class $LocalConfigInfoTableTable extends LocalConfigInfoTable
   $LocalConfigInfoTableTable createAlias(String alias) {
     return $LocalConfigInfoTableTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<ConfigInfoType, int, int> $convertertype =
+      const EnumIndexConverter<ConfigInfoType>(ConfigInfoType.values);
 }
 
 class DriftLocalConfigInfo extends DataClass
@@ -529,6 +544,7 @@ class DriftLocalConfigInfo extends DataClass
   final String logoUrl;
   final String language;
   final bool nsfw;
+  final ConfigInfoType type;
   final int version;
   final int? localProtectorConfigId;
   final bool searchAvailable;
@@ -540,6 +556,7 @@ class DriftLocalConfigInfo extends DataClass
       required this.logoUrl,
       required this.language,
       required this.nsfw,
+      required this.type,
       required this.version,
       this.localProtectorConfigId,
       required this.searchAvailable,
@@ -553,6 +570,10 @@ class DriftLocalConfigInfo extends DataClass
     map['logo_url'] = Variable<String>(logoUrl);
     map['language'] = Variable<String>(language);
     map['nsfw'] = Variable<bool>(nsfw);
+    {
+      final converter = $LocalConfigInfoTableTable.$convertertype;
+      map['type'] = Variable<int>(converter.toSql(type));
+    }
     map['version'] = Variable<int>(version);
     if (!nullToAbsent || localProtectorConfigId != null) {
       map['local_protector_config_id'] = Variable<int>(localProtectorConfigId);
@@ -570,6 +591,7 @@ class DriftLocalConfigInfo extends DataClass
       logoUrl: Value(logoUrl),
       language: Value(language),
       nsfw: Value(nsfw),
+      type: Value(type),
       version: Value(version),
       localProtectorConfigId: localProtectorConfigId == null && nullToAbsent
           ? const Value.absent()
@@ -589,6 +611,8 @@ class DriftLocalConfigInfo extends DataClass
       logoUrl: serializer.fromJson<String>(json['logoUrl']),
       language: serializer.fromJson<String>(json['language']),
       nsfw: serializer.fromJson<bool>(json['nsfw']),
+      type: $LocalConfigInfoTableTable.$convertertype
+          .fromJson(serializer.fromJson<int>(json['type'])),
       version: serializer.fromJson<int>(json['version']),
       localProtectorConfigId:
           serializer.fromJson<int?>(json['localProtectorConfigId']),
@@ -606,6 +630,8 @@ class DriftLocalConfigInfo extends DataClass
       'logoUrl': serializer.toJson<String>(logoUrl),
       'language': serializer.toJson<String>(language),
       'nsfw': serializer.toJson<bool>(nsfw),
+      'type': serializer
+          .toJson<int>($LocalConfigInfoTableTable.$convertertype.toJson(type)),
       'version': serializer.toJson<int>(version),
       'localProtectorConfigId': serializer.toJson<int?>(localProtectorConfigId),
       'searchAvailable': serializer.toJson<bool>(searchAvailable),
@@ -620,6 +646,7 @@ class DriftLocalConfigInfo extends DataClass
           String? logoUrl,
           String? language,
           bool? nsfw,
+          ConfigInfoType? type,
           int? version,
           Value<int?> localProtectorConfigId = const Value.absent(),
           bool? searchAvailable,
@@ -631,6 +658,7 @@ class DriftLocalConfigInfo extends DataClass
         logoUrl: logoUrl ?? this.logoUrl,
         language: language ?? this.language,
         nsfw: nsfw ?? this.nsfw,
+        type: type ?? this.type,
         version: version ?? this.version,
         localProtectorConfigId: localProtectorConfigId.present
             ? localProtectorConfigId.value
@@ -647,6 +675,7 @@ class DriftLocalConfigInfo extends DataClass
           ..write('logoUrl: $logoUrl, ')
           ..write('language: $language, ')
           ..write('nsfw: $nsfw, ')
+          ..write('type: $type, ')
           ..write('version: $version, ')
           ..write('localProtectorConfigId: $localProtectorConfigId, ')
           ..write('searchAvailable: $searchAvailable, ')
@@ -656,7 +685,7 @@ class DriftLocalConfigInfo extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, uid, name, logoUrl, language, nsfw,
+  int get hashCode => Object.hash(id, uid, name, logoUrl, language, nsfw, type,
       version, localProtectorConfigId, searchAvailable, created);
   @override
   bool operator ==(Object other) =>
@@ -668,6 +697,7 @@ class DriftLocalConfigInfo extends DataClass
           other.logoUrl == this.logoUrl &&
           other.language == this.language &&
           other.nsfw == this.nsfw &&
+          other.type == this.type &&
           other.version == this.version &&
           other.localProtectorConfigId == this.localProtectorConfigId &&
           other.searchAvailable == this.searchAvailable &&
@@ -682,6 +712,7 @@ class LocalConfigInfoTableCompanion
   final Value<String> logoUrl;
   final Value<String> language;
   final Value<bool> nsfw;
+  final Value<ConfigInfoType> type;
   final Value<int> version;
   final Value<int?> localProtectorConfigId;
   final Value<bool> searchAvailable;
@@ -693,6 +724,7 @@ class LocalConfigInfoTableCompanion
     this.logoUrl = const Value.absent(),
     this.language = const Value.absent(),
     this.nsfw = const Value.absent(),
+    this.type = const Value.absent(),
     this.version = const Value.absent(),
     this.localProtectorConfigId = const Value.absent(),
     this.searchAvailable = const Value.absent(),
@@ -705,6 +737,7 @@ class LocalConfigInfoTableCompanion
     required String logoUrl,
     required String language,
     required bool nsfw,
+    required ConfigInfoType type,
     required int version,
     this.localProtectorConfigId = const Value.absent(),
     required bool searchAvailable,
@@ -714,6 +747,7 @@ class LocalConfigInfoTableCompanion
         logoUrl = Value(logoUrl),
         language = Value(language),
         nsfw = Value(nsfw),
+        type = Value(type),
         version = Value(version),
         searchAvailable = Value(searchAvailable);
   static Insertable<DriftLocalConfigInfo> custom({
@@ -723,6 +757,7 @@ class LocalConfigInfoTableCompanion
     Expression<String>? logoUrl,
     Expression<String>? language,
     Expression<bool>? nsfw,
+    Expression<int>? type,
     Expression<int>? version,
     Expression<int>? localProtectorConfigId,
     Expression<bool>? searchAvailable,
@@ -735,6 +770,7 @@ class LocalConfigInfoTableCompanion
       if (logoUrl != null) 'logo_url': logoUrl,
       if (language != null) 'language': language,
       if (nsfw != null) 'nsfw': nsfw,
+      if (type != null) 'type': type,
       if (version != null) 'version': version,
       if (localProtectorConfigId != null)
         'local_protector_config_id': localProtectorConfigId,
@@ -750,6 +786,7 @@ class LocalConfigInfoTableCompanion
       Value<String>? logoUrl,
       Value<String>? language,
       Value<bool>? nsfw,
+      Value<ConfigInfoType>? type,
       Value<int>? version,
       Value<int?>? localProtectorConfigId,
       Value<bool>? searchAvailable,
@@ -761,6 +798,7 @@ class LocalConfigInfoTableCompanion
       logoUrl: logoUrl ?? this.logoUrl,
       language: language ?? this.language,
       nsfw: nsfw ?? this.nsfw,
+      type: type ?? this.type,
       version: version ?? this.version,
       localProtectorConfigId:
           localProtectorConfigId ?? this.localProtectorConfigId,
@@ -790,6 +828,10 @@ class LocalConfigInfoTableCompanion
     if (nsfw.present) {
       map['nsfw'] = Variable<bool>(nsfw.value);
     }
+    if (type.present) {
+      final converter = $LocalConfigInfoTableTable.$convertertype;
+      map['type'] = Variable<int>(converter.toSql(type.value));
+    }
     if (version.present) {
       map['version'] = Variable<int>(version.value);
     }
@@ -815,6 +857,7 @@ class LocalConfigInfoTableCompanion
           ..write('logoUrl: $logoUrl, ')
           ..write('language: $language, ')
           ..write('nsfw: $nsfw, ')
+          ..write('type: $type, ')
           ..write('version: $version, ')
           ..write('localProtectorConfigId: $localProtectorConfigId, ')
           ..write('searchAvailable: $searchAvailable, ')
@@ -846,10 +889,10 @@ class $LocalApiSourceTableTable extends LocalApiSourceTable
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
-  late final GeneratedColumnWithTypeConverter<LocalApiClientType, int> type =
+  late final GeneratedColumnWithTypeConverter<ConfigInfoType, int> type =
       GeneratedColumn<int>('type', aliasedName, false,
               type: DriftSqlType.int, requiredDuringInsert: true)
-          .withConverter<LocalApiClientType>(
+          .withConverter<ConfigInfoType>(
               $LocalApiSourceTableTable.$convertertype);
   static const VerificationMeta _localConfigInfoIdMeta =
       const VerificationMeta('localConfigInfoId');
@@ -931,15 +974,15 @@ class $LocalApiSourceTableTable extends LocalApiSourceTable
     return $LocalApiSourceTableTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<LocalApiClientType, int, int> $convertertype =
-      const EnumIndexConverter<LocalApiClientType>(LocalApiClientType.values);
+  static JsonTypeConverter2<ConfigInfoType, int, int> $convertertype =
+      const EnumIndexConverter<ConfigInfoType>(ConfigInfoType.values);
 }
 
 class DriftLocalApiSource extends DataClass
     implements Insertable<DriftLocalApiSource> {
   final int id;
   final String code;
-  final LocalApiClientType type;
+  final ConfigInfoType type;
   final int localConfigInfoId;
   final DateTime created;
   const DriftLocalApiSource(
@@ -1000,7 +1043,7 @@ class DriftLocalApiSource extends DataClass
   DriftLocalApiSource copyWith(
           {int? id,
           String? code,
-          LocalApiClientType? type,
+          ConfigInfoType? type,
           int? localConfigInfoId,
           DateTime? created}) =>
       DriftLocalApiSource(
@@ -1039,7 +1082,7 @@ class LocalApiSourceTableCompanion
     extends UpdateCompanion<DriftLocalApiSource> {
   final Value<int> id;
   final Value<String> code;
-  final Value<LocalApiClientType> type;
+  final Value<ConfigInfoType> type;
   final Value<int> localConfigInfoId;
   final Value<DateTime> created;
   const LocalApiSourceTableCompanion({
@@ -1052,7 +1095,7 @@ class LocalApiSourceTableCompanion
   LocalApiSourceTableCompanion.insert({
     this.id = const Value.absent(),
     required String code,
-    required LocalApiClientType type,
+    required ConfigInfoType type,
     required int localConfigInfoId,
     this.created = const Value.absent(),
   })  : code = Value(code),
@@ -1077,7 +1120,7 @@ class LocalApiSourceTableCompanion
   LocalApiSourceTableCompanion copyWith(
       {Value<int>? id,
       Value<String>? code,
-      Value<LocalApiClientType>? type,
+      Value<ConfigInfoType>? type,
       Value<int>? localConfigInfoId,
       Value<DateTime>? created}) {
     return LocalApiSourceTableCompanion(
@@ -1150,11 +1193,10 @@ class $LibraryItemTableTable extends LibraryItemTable
           'REFERENCES local_api_source_table (id)'));
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
-  late final GeneratedColumnWithTypeConverter<LocalApiClientType, int> type =
+  late final GeneratedColumnWithTypeConverter<ConfigInfoType, int> type =
       GeneratedColumn<int>('type', aliasedName, false,
               type: DriftSqlType.int, requiredDuringInsert: true)
-          .withConverter<LocalApiClientType>(
-              $LibraryItemTableTable.$convertertype);
+          .withConverter<ConfigInfoType>($LibraryItemTableTable.$convertertype);
   static const VerificationMeta _createdMeta =
       const VerificationMeta('created');
   @override
@@ -1216,15 +1258,15 @@ class $LibraryItemTableTable extends LibraryItemTable
     return $LibraryItemTableTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<LocalApiClientType, int, int> $convertertype =
-      const EnumIndexConverter<LocalApiClientType>(LocalApiClientType.values);
+  static JsonTypeConverter2<ConfigInfoType, int, int> $convertertype =
+      const EnumIndexConverter<ConfigInfoType>(ConfigInfoType.values);
 }
 
 class DriftLibraryItem extends DataClass
     implements Insertable<DriftLibraryItem> {
   final int id;
   final int localApiClientId;
-  final LocalApiClientType type;
+  final ConfigInfoType type;
   final DateTime created;
   const DriftLibraryItem(
       {required this.id,
@@ -1279,7 +1321,7 @@ class DriftLibraryItem extends DataClass
   DriftLibraryItem copyWith(
           {int? id,
           int? localApiClientId,
-          LocalApiClientType? type,
+          ConfigInfoType? type,
           DateTime? created}) =>
       DriftLibraryItem(
         id: id ?? this.id,
@@ -1313,7 +1355,7 @@ class DriftLibraryItem extends DataClass
 class LibraryItemTableCompanion extends UpdateCompanion<DriftLibraryItem> {
   final Value<int> id;
   final Value<int> localApiClientId;
-  final Value<LocalApiClientType> type;
+  final Value<ConfigInfoType> type;
   final Value<DateTime> created;
   const LibraryItemTableCompanion({
     this.id = const Value.absent(),
@@ -1324,7 +1366,7 @@ class LibraryItemTableCompanion extends UpdateCompanion<DriftLibraryItem> {
   LibraryItemTableCompanion.insert({
     this.id = const Value.absent(),
     required int localApiClientId,
-    required LocalApiClientType type,
+    required ConfigInfoType type,
     this.created = const Value.absent(),
   })  : localApiClientId = Value(localApiClientId),
         type = Value(type);
@@ -1345,7 +1387,7 @@ class LibraryItemTableCompanion extends UpdateCompanion<DriftLibraryItem> {
   LibraryItemTableCompanion copyWith(
       {Value<int>? id,
       Value<int>? localApiClientId,
-      Value<LocalApiClientType>? type,
+      Value<ConfigInfoType>? type,
       Value<DateTime>? created}) {
     return LibraryItemTableCompanion(
       id: id ?? this.id,

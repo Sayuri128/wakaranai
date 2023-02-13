@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:wakaranai/model/local_protector_config_table.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
 
 @DataClassName("DriftLocalConfigInfo")
 class LocalConfigInfoTable extends Table {
@@ -14,6 +15,8 @@ class LocalConfigInfoTable extends Table {
   TextColumn get language => text()();
 
   BoolColumn get nsfw => boolean()();
+
+  IntColumn get type => intEnum<ConfigInfoType>()();
 
   IntColumn get version => integer()();
 

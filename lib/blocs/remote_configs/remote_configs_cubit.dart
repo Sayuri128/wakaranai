@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
@@ -10,7 +11,6 @@ import 'package:wakaranai/services/configs_service/configs_service.dart';
 import 'package:wakaranai/services/configs_service/github_configs_service.dart';
 import 'package:wakaranai/services/configs_service/repo_configs_service.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
-import 'package:collection/collection.dart';
 
 part 'remote_configs_state.dart';
 

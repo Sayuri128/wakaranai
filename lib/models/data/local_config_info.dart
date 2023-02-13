@@ -7,6 +7,7 @@ class LocalConfigInfo {
   final String uid;
   final String logoUrl;
   final bool nsfw;
+  final ConfigInfoType type;
   final String language;
   final int version;
   final LocalProtectorConfig? localProtectorConfig;
@@ -18,23 +19,24 @@ class LocalConfigInfo {
     required this.uid,
     required this.logoUrl,
     required this.nsfw,
+    required this.type,
     required this.language,
     required this.version,
     this.localProtectorConfig,
     required this.searchAvailable,
   });
 
-  ConfigInfo asConfigInfo() =>
-      ConfigInfo(
-          name: name,
-          uid: uid,
-          logoUrl: logoUrl,
-          nsfw: nsfw,
-          language: language,
-          version: version,
-          filters: [],
-          searchAvailable: searchAvailable,
-          protectorConfig: localProtectorConfig?.asProtectorConfig());
+  ConfigInfo asConfigInfo() => ConfigInfo(
+      name: name,
+      uid: uid,
+      logoUrl: logoUrl,
+      nsfw: nsfw,
+      language: language,
+      version: version,
+      filters: [],
+      searchAvailable: searchAvailable,
+      protectorConfig: localProtectorConfig?.asProtectorConfig(),
+      type: type);
 
   factory LocalConfigInfo.fromConfigInfo(ConfigInfo configInfo) =>
       LocalConfigInfo(
@@ -42,12 +44,12 @@ class LocalConfigInfo {
           uid: configInfo.uid,
           logoUrl: configInfo.logoUrl,
           nsfw: configInfo.nsfw,
+          type: configInfo.type,
           language: configInfo.language,
           version: configInfo.version,
           searchAvailable: configInfo.searchAvailable,
           localProtectorConfig: configInfo.protectorConfig != null
               ? LocalProtectorConfig.fromProtectorConfig(
-              configInfo.protectorConfig!)
+                  configInfo.protectorConfig!)
               : null);
-
 }

@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:wakaranai/model/local_api_source_table.dart';
-import 'package:wakaranai/models/data/local_api_client.dart';
+import 'package:wakascript/models/config_info/config_info.dart';
 
 @DataClassName("DriftLibraryItem")
 class LibraryItemTable extends Table {
@@ -9,7 +9,7 @@ class LibraryItemTable extends Table {
   IntColumn get localApiClientId =>
       integer().references(LocalApiSourceTable, #id)();
 
-  IntColumn get type => intEnum<LocalApiClientType>()();
+  IntColumn get type => intEnum<ConfigInfoType>()();
 
   DateTimeColumn get created => dateTime().withDefault(currentDateAndTime)();
 }
