@@ -16,9 +16,8 @@ class LocalAnimeGalleryViewService
       : super(
             idCol: wakaranaiDb.localAnimeGalleryViewTable.id,
             uidCol: wakaranaiDb.localAnimeGalleryViewTable.uid,
-            libraryItemId: wakaranaiDb.localAnimeGalleryViewTable.libraryItemId,
             select: () => wakaranaiDb.localAnimeGalleryViewTable.select(),
-            delete: () => wakaranaiDb.localAnimeGalleryViewTable.delete(),
+            del: () => wakaranaiDb.localAnimeGalleryViewTable.delete(),
             insert: () =>
                 wakaranaiDb.into(wakaranaiDb.localAnimeGalleryViewTable),
             fromDrift: (dynamic element) =>
@@ -29,6 +28,5 @@ class LocalAnimeGalleryViewService
                     cover: element.cover,
                     title: element.title,
                     data: jsonEncode(element.data),
-                    status: element.status,
-                    libraryItemId: element.libraryItemId!));
+                    status: element.status));
 }

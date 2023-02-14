@@ -5,6 +5,8 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/local_gallery_view_card/local_gallery_view_card_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/models/data/library_manga_item.dart';
+import 'package:wakaranai/models/data/local_gallery_view.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
 import 'package:wakaranai/ui/home/home_view.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
@@ -97,22 +99,27 @@ class MangaServiceViewBody extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final galleryView =
                             stateInitialized.galleryViews[index];
-                        return LocalGalleryViewWrapper(
+                        return LocalGalleryViewWrapper<LibraryMangaItem,
+                            LocalMangaGalleryView>(
                           uid: galleryView.uid,
                           type: ConfigInfoType.MANGA,
                           builder: (context, state) => GalleryViewCard(
-                            inLibrary: state is LocalGalleryViewCardLoaded &&
+                            inLibrary: state is LocalGalleryViewCardLoaded<
+                                    LibraryMangaItem, LocalMangaGalleryView> &&
                                 state.libraryItem != null,
                             cover: galleryView.cover,
                             uid: galleryView.uid,
                             title: galleryView.title,
                             onLongPress: () {
-                              if (state is LocalGalleryViewCardInitial) {
+                              if (state is LocalGalleryViewCardInitial<
+                                  LibraryMangaItem, LocalMangaGalleryView>) {
                                 return;
                               }
                               _onLongGalleryViewPress(context,
                                   galleryView: galleryView,
-                                  canAdd: state is LocalGalleryViewCardLoaded &&
+                                  canAdd: state is LocalGalleryViewCardLoaded<
+                                          LibraryMangaItem,
+                                          LocalMangaGalleryView> &&
                                       state.libraryItem == null);
                             },
                             onTap: () {
@@ -191,17 +198,21 @@ class MangaServiceViewBody extends StatelessWidget {
   void _onLongGalleryViewPress(BuildContext context,
       {required MangaGalleryView galleryView, required bool canAdd}) {
     if (canAdd) {
-      context.read<LocalGalleryViewCardCubit>().create(
-          type: ConfigInfoType.MANGA,
-          galleryView: galleryView,
-          configInfo: configInfo,
-          client: apiClient,
-          onDone: () {
-            showNotificationSnackBar(
-                context,
-                S.current.gallery_view_anime_item_added_to_library_notification(
-                    galleryView.title));
-          });
+      context
+          .read<
+              LocalGalleryViewCardCubit<LibraryMangaItem,
+                  LocalMangaGalleryView>>()
+          .create(
+              galleryView: galleryView,
+              configInfo: configInfo,
+              client: apiClient,
+              onDone: () {
+                showNotificationSnackBar(
+                    context,
+                    S.current
+                        .gallery_view_anime_item_added_to_library_notification(
+                            galleryView.title));
+              });
     } else {
       showOkCancelAlertDialog(
               context: context,
@@ -214,7 +225,11 @@ class MangaServiceViewBody extends StatelessWidget {
                   .gallery_view_manga_item_delete_from_library_confirmation_cancel_label)
           .then((value) {
         if (value == OkCancelResult.ok) {
-          context.read<LocalGalleryViewCardCubit>().delete(
+          context
+              .read<
+                  LocalGalleryViewCardCubit<LibraryMangaItem,
+                      LocalMangaGalleryView>>()
+              .delete(
             () {
               showNotificationSnackBar(
                   context,

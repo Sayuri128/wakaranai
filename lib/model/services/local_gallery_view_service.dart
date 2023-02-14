@@ -3,10 +3,9 @@ import 'package:wakaranai/models/data/local_gallery_view.dart';
 
 abstract class LocalGalleryViewService<T extends LocalGalleryView> {
   final SimpleSelectStatement Function() select;
-  final DeleteStatement Function() delete;
+  final DeleteStatement Function() del;
   final InsertStatement Function() insert;
   final GeneratedColumn<int> idCol;
-  final GeneratedColumn<int> libraryItemId;
   final GeneratedColumn<String> uidCol;
   final dynamic Function(T element) buildInsert;
   final T Function(dynamic element) fromDrift;
@@ -15,15 +14,11 @@ abstract class LocalGalleryViewService<T extends LocalGalleryView> {
       {required this.idCol,
       required this.uidCol,
       required this.select,
-      required this.delete,
+      required this.del,
       required this.insert,
       required this.buildInsert,
-      required this.fromDrift,
-      required this.libraryItemId});
+      required this.fromDrift});
 
-  Future<void> deleteByLibraryId(int id) async {
-    await (delete()..where((tbl) => libraryItemId.equals(id))).go();
-  }
 
   Future<T> get(int id) async {
     final res = await (select()..where((tbl) => idCol.equals(id))).get();
@@ -39,18 +34,10 @@ abstract class LocalGalleryViewService<T extends LocalGalleryView> {
       throw Exception("Local magna gallery view with uid: $uid not found");
     }
     return fromDrift(res.first);
-
   }
 
-  Future<T> getByLibraryId(int libraryId) async {
-    final res =
-        await (select()..where((tbl) => libraryItemId.equals(libraryId))).get();
-    if (res.isEmpty) {
-      throw Exception(
-          "Local magna gallery view with libraryId: $libraryItemId not found");
-    }
-    return fromDrift(res.first);
-
+  Future<void> delete(int id) async {
+    await (del()..where((tbl) => idCol.equals(id))).go();
   }
 
   Future<int> add(T element) async {

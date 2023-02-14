@@ -11,10 +11,10 @@ class LibraryPageLoading extends LibraryPageState {}
 
 class LibraryPageLoaded extends LibraryPageState {
 
-  final List<LibraryItem> mangaItem;
+  final List<LibraryMangaItem> mangaItem;
   final int mangaTotalCount;
 
-  final List<LibraryItem> animeItems;
+  final List<LibraryAnimeItem> animeItems;
   final int animeTotalCount;
 
   const LibraryPageLoaded({
@@ -25,9 +25,9 @@ class LibraryPageLoaded extends LibraryPageState {
   });
 
   LibraryPageLoaded copyWith({
-    List<LibraryItem>? mangaItems,
+    List<LibraryMangaItem>? mangaItems,
     int? mangaTotalCount,
-    List<LibraryItem>? animeItems,
+    List<LibraryAnimeItem>? animeItems,
     int? animeTotalCount,
   }) {
     return LibraryPageLoaded(
