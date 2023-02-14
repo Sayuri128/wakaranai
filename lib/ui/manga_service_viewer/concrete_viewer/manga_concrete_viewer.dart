@@ -118,11 +118,20 @@ class MangaConcreteViewer extends StatelessWidget {
       backgroundColor: AppColors.backgroundColor,
       extendBodyBehindAppBar: true,
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      body: BlocBuilder<
+      body: BlocConsumer<
           ConcreteViewCubit<MangaApiClient, MangaConcreteView,
               MangaGalleryView>,
           ConcreteViewState<MangaApiClient, MangaConcreteView,
               MangaGalleryView>>(
+        listener: (context, state) {
+          if (state is ConcreteViewInitialized<MangaApiClient,
+              MangaConcreteView, MangaGalleryView>) {
+            context.read<PagesReadCubit>().init(state.concreteView.groups
+                .expand((element) => element.elements)
+                .map((e) => e.uid)
+                .toList());
+          }
+        },
         builder: (context, state) {
           late final MangaConcreteView concreteView;
 
