@@ -36,12 +36,30 @@ class PagesReadCubit extends Cubit<PagesReadState> {
     }
   }
 
-  void init(List<String> chapterUid) async {
+  Future<PagesReadCubit> markAsRead(List<String> chapters) async {
+    for (String element in chapters) {
+      await _pagesReadService
+          .add(PagesRead(uid: element, readPages: 1, totalPages: 1));
+    }
+    return this;
+  }
+
+  Future<PagesReadCubit> deleteBuild(List<String> chapters) async {
+    await _pagesReadService.deleteBulkByUid(chapters);
+    return this;
+  }
+
+  void delete(String uid) async {
+    await _pagesReadService.deleteByUid(uid);
+  }
+
+  Future<PagesReadCubit> init(List<String> chapterUid) async {
     emit(PagesReadInitialized(
         pagesRead: (await Future.wait(chapterUid
                 .map((e) async => await _pagesReadService.getByUid(e))))
             .where((element) => element != null)
             .toList()
             .cast()));
+    return this;
   }
 }
