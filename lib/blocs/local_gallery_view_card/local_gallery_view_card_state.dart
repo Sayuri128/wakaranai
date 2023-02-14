@@ -1,12 +1,15 @@
 part of 'local_gallery_view_card_cubit.dart';
 
 @immutable
-abstract class LocalGalleryViewCardState {}
+abstract class LocalGalleryViewCardState<I extends LibraryItem<G>,
+    G extends LocalGalleryView> {}
 
-class LocalGalleryViewCardInitial extends LocalGalleryViewCardState {}
+class LocalGalleryViewCardInitial<I extends LibraryItem<G>, G extends LocalGalleryView>
+    extends LocalGalleryViewCardState<I, G> {}
 
-class LocalGalleryViewCardLoaded extends LocalGalleryViewCardState {
-  final LibraryItem? libraryItem;
+class LocalGalleryViewCardLoaded<I extends LibraryItem<G>, G extends LocalGalleryView>
+    extends LocalGalleryViewCardState<I, G> {
+  final I? libraryItem;
 
   LocalGalleryViewCardLoaded({
     this.libraryItem,

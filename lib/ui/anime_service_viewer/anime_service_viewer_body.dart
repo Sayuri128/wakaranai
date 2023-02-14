@@ -5,6 +5,8 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/local_gallery_view_card/local_gallery_view_card_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/models/data/library_anime_item.dart';
+import 'package:wakaranai/models/data/local_gallery_view.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_concrete_viewer.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
 import 'package:wakaranai/ui/home/home_view.dart';
@@ -100,11 +102,13 @@ class AnimeServiceViewerBody extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final galleryView =
                             stateInitialized.galleryViews[index];
-                        return LocalGalleryViewWrapper(
+                        return LocalGalleryViewWrapper<LibraryAnimeItem,
+                            LocalAnimeGalleryView>(
                           uid: galleryView.uid,
                           type: ConfigInfoType.ANIME,
                           builder: (context, state) => GalleryViewCard(
-                            inLibrary: state is LocalGalleryViewCardLoaded &&
+                            inLibrary: state is LocalGalleryViewCardLoaded<
+                                    LibraryAnimeItem, LocalAnimeGalleryView> &&
                                 state.libraryItem != null,
                             cover: galleryView.cover,
                             uid: galleryView.uid,
@@ -115,7 +119,9 @@ class AnimeServiceViewerBody extends StatelessWidget {
                               }
                               _onLongGalleryViewPress(context,
                                   galleryView: galleryView,
-                                  canAdd: state is LocalGalleryViewCardLoaded &&
+                                  canAdd: state is LocalGalleryViewCardLoaded<
+                                          LibraryAnimeItem,
+                                          LocalAnimeGalleryView> &&
                                       state.libraryItem == null);
                             },
                             onTap: () {
@@ -257,17 +263,21 @@ class AnimeServiceViewerBody extends StatelessWidget {
   void _onLongGalleryViewPress(BuildContext context,
       {required AnimeGalleryView galleryView, required bool canAdd}) {
     if (canAdd) {
-      context.read<LocalGalleryViewCardCubit>().create(
-          type: ConfigInfoType.ANIME,
-          galleryView: galleryView,
-          configInfo: configInfo,
-          client: apiClient,
-          onDone: () {
-            showNotificationSnackBar(
-                context,
-                S.current.gallery_view_anime_item_added_to_library_notification(
-                    galleryView.title));
-          });
+      context
+          .read<
+              LocalGalleryViewCardCubit<LibraryAnimeItem,
+                  LocalAnimeGalleryView>>()
+          .create(
+              galleryView: galleryView,
+              configInfo: configInfo,
+              client: apiClient,
+              onDone: () {
+                showNotificationSnackBar(
+                    context,
+                    S.current
+                        .gallery_view_anime_item_added_to_library_notification(
+                            galleryView.title));
+              });
     } else {
       showOkCancelAlertDialog(
               context: context,
@@ -280,7 +290,11 @@ class AnimeServiceViewerBody extends StatelessWidget {
                   .gallery_view_anime_item_delete_from_library_confirmation_cancel_label)
           .then((value) {
         if (value == OkCancelResult.ok) {
-          context.read<LocalGalleryViewCardCubit>().delete(
+          context
+              .read<
+                  LocalGalleryViewCardCubit<LibraryAnimeItem,
+                      LocalAnimeGalleryView>>()
+              .delete(
             () {
               showNotificationSnackBar(
                   context,

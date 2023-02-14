@@ -65,7 +65,7 @@ class LibraryPage extends StatelessWidget {
 
           // TODO: create api client in isolate to prevent ui from freezes
           // TODO: save concrete views as well and do updates only on demand
-          switch (item.type) {
+          switch (type) {
             case ConfigInfoType.ANIME:
               final localAnimeGalleryView =
                   item.localGalleryView as LocalAnimeGalleryView;

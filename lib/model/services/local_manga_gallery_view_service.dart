@@ -16,9 +16,8 @@ class LocalMangaGalleryViewService
       : super(
             idCol: wakaranaiDb.localMangaGalleryViewTable.id,
             uidCol: wakaranaiDb.localMangaGalleryViewTable.uid,
-            libraryItemId: wakaranaiDb.localMangaGalleryViewTable.libraryItemId,
             select: () => wakaranaiDb.localMangaGalleryViewTable.select(),
-            delete: () => wakaranaiDb.localMangaGalleryViewTable.delete(),
+            del: () => wakaranaiDb.localMangaGalleryViewTable.delete(),
             insert: () =>
                 wakaranaiDb.into(wakaranaiDb.localMangaGalleryViewTable),
             fromDrift: (dynamic element) =>
@@ -28,6 +27,5 @@ class LocalMangaGalleryViewService
                     uid: element.uid,
                     cover: element.cover,
                     title: element.title,
-                    data: jsonEncode(element.data),
-                    libraryItemId: element.libraryItemId!));
+                    data: jsonEncode(element.data)));
 }

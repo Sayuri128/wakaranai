@@ -4,7 +4,8 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:wakaranai/model/library_item_table.dart';
+import 'package:wakaranai/model/library_anime_item_table.dart';
+import 'package:wakaranai/model/library_manga_item_table.dart';
 import 'package:wakaranai/model/local_anime_gallery_view_table.dart';
 import 'package:wakaranai/model/local_api_source_table.dart';
 import 'package:wakaranai/model/local_config_info_table.dart';
@@ -22,28 +23,30 @@ part 'wakaranai_db.g.dart';
   LocalProtectorConfigTable,
   LocalConfigInfoTable,
   LocalApiSourceTable,
-  LibraryItemTable,
+  MangaLibraryItemTable,
+  AnimeLibraryItemTable,
   LocalMangaGalleryViewTable,
   LocalAnimeGalleryViewTable,
   LocalConfigsSourcesTable,
-  PagesReadTable
+  PagesReadTable,
 ])
 class WakaranaiDb extends _$WakaranaiDb {
   WakaranaiDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   Future<void> hardReset() async {
     return transaction(() async {
       await delete(localProtectorConfigTable).go();
       await delete(localConfigInfoTable).go();
       await delete(localApiSourceTable).go();
-      await delete(libraryItemTable).go();
-      await delete(localMangaGalleryViewTable).go();
-      await delete(localAnimeGalleryViewTable).go();
       await delete(localConfigInfoTable).go();
       await delete(pagesReadTable).go();
+      await delete(animeLibraryItemTable).go();
+      await delete(localAnimeGalleryViewTable).go();
+      await delete(mangaLibraryItemTable).go();
+      await delete(localMangaGalleryViewTable).go();
     });
   }
 

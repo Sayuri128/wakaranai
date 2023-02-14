@@ -8,10 +8,9 @@ import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.da
 
 abstract class LocalGalleryView extends GalleryView {
   final int? id;
-  final int? libraryItemId;
 
   LocalGalleryView(
-      this.id, this.libraryItemId, String uid, Map<String, dynamic> data)
+      this.id, String uid, Map<String, dynamic> data)
       : super(uid: uid, data: data);
 }
 
@@ -22,13 +21,12 @@ class LocalAnimeGalleryView extends LocalGalleryView {
 
   LocalAnimeGalleryView({
     int? id,
-    int? libraryItemId,
     required String uid,
     required this.cover,
     required this.title,
     required Map<String, dynamic> data,
     required this.status,
-  }) : super(id, libraryItemId, uid, data);
+  }) : super(id, uid, data);
 
   AnimeGalleryView asGalleryView() => AnimeGalleryView(
       uid: uid, cover: cover, title: title, data: data, status: status);
@@ -60,7 +58,6 @@ class LocalAnimeGalleryView extends LocalGalleryView {
           uid: drift.uid,
           cover: drift.cover,
           title: drift.title,
-          libraryItemId: drift.libraryItemId,
           data: jsonDecode(drift.data),
           status: drift.status);
 }
@@ -71,12 +68,11 @@ class LocalMangaGalleryView extends LocalGalleryView {
 
   LocalMangaGalleryView({
     int? id,
-    int? libraryItemId,
     required String uid,
     required this.cover,
     required this.title,
     required Map<String, dynamic> data,
-  }) : super(id, libraryItemId, uid, data);
+  }) : super(id, uid, data);
 
   MangaGalleryView asGalleryView() =>
       MangaGalleryView(uid: uid, cover: cover, title: title, data: data);
@@ -94,7 +90,6 @@ class LocalMangaGalleryView extends LocalGalleryView {
           uid: drift.uid,
           cover: drift.cover,
           title: drift.title,
-          libraryItemId: drift.libraryItemId,
           data: jsonDecode(drift.data));
 
   @override

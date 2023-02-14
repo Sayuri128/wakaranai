@@ -1,17 +1,14 @@
 import 'package:wakaranai/models/data/local_gallery_view.dart';
-import 'package:wakascript/models/config_info/config_info.dart';
 
-class LibraryItem {
+class LibraryItem<G extends LocalGalleryView> {
   final int? id;
   final int localApiClientId;
-  final LocalGalleryView localGalleryView;
-  final ConfigInfoType type;
+  final G localGalleryView;
 
   LibraryItem(
       {this.id,
       required this.localApiClientId,
-      required this.localGalleryView,
-      required this.type});
+      required this.localGalleryView});
 
   @override
   bool operator ==(Object other) =>
