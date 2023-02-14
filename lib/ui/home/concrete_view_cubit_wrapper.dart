@@ -6,17 +6,15 @@ import 'package:wakascript/models/concrete_view.dart';
 import 'package:wakascript/models/gallery_view.dart';
 
 class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
-G extends GalleryView> extends StatelessWidget {
-  const ConcreteViewCubitWrapper({Key? key,
-    required this.client,
-    required this.builder,
-    this.init})
+    G extends GalleryView> extends StatelessWidget {
+  const ConcreteViewCubitWrapper(
+      {Key? key, required this.client, required this.builder, this.init})
       : super(key: key);
 
   final void Function(ConcreteViewCubit<T, C, G>)? init;
   final T client;
   final Widget Function(BuildContext context, ConcreteViewState<T, C, G> state)
-  builder;
+      builder;
 
   @override
   Widget build(BuildContext context) {
@@ -25,14 +23,14 @@ G extends GalleryView> extends StatelessWidget {
         final cubit = ConcreteViewCubit<T, C, G>(
             ConcreteViewState<T, C, G>(apiClient: client));
 
-        if(init != null) {
+        if (init != null) {
           init!(cubit);
         }
 
         return cubit;
       },
       child:
-      BlocBuilder<ConcreteViewCubit<T, C, G>, ConcreteViewState<T, C, G>>(
+          BlocBuilder<ConcreteViewCubit<T, C, G>, ConcreteViewState<T, C, G>>(
         builder: (context, state) => builder(context, state),
       ),
     );
