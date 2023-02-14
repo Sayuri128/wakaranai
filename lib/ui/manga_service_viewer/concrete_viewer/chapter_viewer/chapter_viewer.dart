@@ -83,7 +83,8 @@ class _ChapterViewerState extends State<ChapterViewer>
   @override
   void dispose() {
     super.dispose();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]);
   }
 
   @override
