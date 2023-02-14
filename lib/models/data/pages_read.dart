@@ -17,6 +17,8 @@ class PagesRead {
     this.lastUpdated,
   });
 
+  bool get isRead => readPages == totalPages;
+
   factory PagesRead.fromDrift(DriftPagesRead drift) => PagesRead(
       id: drift.id,
       uid: drift.uid,
