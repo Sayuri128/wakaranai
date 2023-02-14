@@ -96,15 +96,17 @@ class MangaConcreteViewer extends StatelessWidget {
       {required Widget child, required Completer<bool> completer}) {
     if (data.configInfo.protectorConfig?.inAppBrowserInterceptor ?? false) {
       return BlocProvider<BrowserInterceptorCubit>(
-          lazy: false,
-          create: (context) {
-            final cubit = BrowserInterceptorCubit()
-              ..init(
-                  url: data.configInfo.protectorConfig!.pingUrl,
-                  initCompleter: completer);
-            data.client.passWebBrowserInterceptorController(controller: cubit);
-            return cubit;
-          });
+        lazy: false,
+        create: (context) {
+          final cubit = BrowserInterceptorCubit()
+            ..init(
+                url: data.configInfo.protectorConfig!.pingUrl,
+                initCompleter: completer);
+          data.client.passWebBrowserInterceptorController(controller: cubit);
+          return cubit;
+        },
+        child: child,
+      );
     } else {
       return child;
     }
