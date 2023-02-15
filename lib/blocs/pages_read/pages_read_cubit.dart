@@ -4,7 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
-import 'package:wakaranai/model/services/pages_read_service.dart';
+import 'package:wakaranai/model/services/concrete/manga/pages_read_service.dart';
 import 'package:wakaranai/models/data/pages_read.dart';
 import 'package:wakascript/api_clients/manga_api_client.dart';
 import 'package:wakascript/models/manga/manga_concrete_view/manga_concrete_view.dart';

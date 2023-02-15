@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_state.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
-import 'package:wakaranai/model/services/pages_read_service.dart';
+import 'package:wakaranai/model/services/concrete/manga/pages_read_service.dart';
 import 'package:wakaranai/models/data/pages_read.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';

@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
-import 'package:wakaranai/model/services/local_api_sources_service.dart';
-import 'package:wakaranai/model/services/local_configs_info_service.dart';
+import 'package:wakaranai/model/services/configs/local_api_sources_service.dart';
+import 'package:wakaranai/model/services/configs/local_configs_info_service.dart';
 import 'package:wakaranai/models/data/local_api_client.dart';
 import 'package:wakaranai/models/data/local_config_info.dart';
 import 'package:wakaranai/models/data/local_protector_config.dart';

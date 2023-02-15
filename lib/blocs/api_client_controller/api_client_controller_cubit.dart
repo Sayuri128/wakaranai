@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
-import 'package:wakaranai/model/services/local_api_sources_service.dart';
+import 'package:wakaranai/model/services/configs/local_api_sources_service.dart';
 import 'package:wakaranai/models/data/local_config_info.dart';
 import 'package:wakaranai/models/remote_config/remote_category.dart';
 import 'package:wakaranai/models/remote_config/remote_config.dart';

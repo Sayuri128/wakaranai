@@ -2,11 +2,11 @@ import 'dart:ui';
 
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:wakaranai/model/services/library_anime_items_service.dart';
-import 'package:wakaranai/model/services/library_manga_items_service.dart';
-import 'package:wakaranai/models/data/library_anime_item.dart';
-import 'package:wakaranai/models/data/library_item.dart';
-import 'package:wakaranai/models/data/library_manga_item.dart';
+import 'package:wakaranai/model/services/library/library_anime_items_service.dart';
+import 'package:wakaranai/model/services/library/library_manga_items_service.dart';
+import 'package:wakaranai/models/data/library/library_anime_item.dart';
+import 'package:wakaranai/models/data/library/library_item.dart';
+import 'package:wakaranai/models/data/library/library_manga_item.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
 
 part 'library_page_state.dart';

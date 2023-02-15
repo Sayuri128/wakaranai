@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:wakaranai/model/services/local_configs_sources_service.dart';
+import 'package:wakaranai/model/services/sources/local_configs_sources_service.dart';
 import 'package:wakaranai/models/configs_source_item/configs_source_item.dart';
 
 part 'configs_sources_state.dart';
