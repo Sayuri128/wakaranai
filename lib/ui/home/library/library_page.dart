@@ -2,9 +2,10 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/model/services/local_api_sources_service.dart';
-import 'package:wakaranai/models/data/library_item.dart';
-import 'package:wakaranai/models/data/local_gallery_view.dart';
+import 'package:wakaranai/model/services/configs/local_api_sources_service.dart';
+import 'package:wakaranai/models/data/gallery/local_anime_gallery_view.dart';
+import 'package:wakaranai/models/data/gallery/local_manga_gallery_view.dart';
+import 'package:wakaranai/models/data/library/library_item.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_concrete_viewer.dart';
 import 'package:wakaranai/ui/home/home_view.dart';
 import 'package:wakaranai/ui/home/library/cubit/library_page_cubit.dart';
@@ -64,7 +65,6 @@ class LibraryPage extends StatelessWidget {
           final item = items[index];
 
           // TODO: create api client in isolate to prevent ui from freezes
-          // TODO: save concrete views as well and do updates only on demand
           switch (type) {
             case ConfigInfoType.ANIME:
               final localAnimeGalleryView =

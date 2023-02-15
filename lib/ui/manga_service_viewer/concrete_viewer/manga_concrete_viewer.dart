@@ -77,8 +77,11 @@ class MangaConcreteViewer extends StatelessWidget {
     return ConcreteViewCubitWrapper<MangaApiClient, MangaConcreteView,
         MangaGalleryView>(
       client: data.client,
+      tryLoadFromDb: data.fromLibrary,
       init: (cubit) {
-        cubit.getConcrete(data.uid, data.galleryView);
+        if (init) {
+          cubit.getConcrete(data.uid, data.galleryView);
+        }
       },
       builder: (context, state) => MultiBlocProvider(providers: [
         BlocProvider<PagesReadCubit>(
@@ -152,70 +155,89 @@ class MangaConcreteViewer extends StatelessWidget {
             builder: (context, multiSelect) => Stack(
               alignment: Alignment.center,
               children: [
-                ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: 1 + groupSize + 1,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: Column(
-                          children: [
-                            _buildCover(data.galleryView.cover, context),
-                            const SizedBox(height: 16.0),
-                            if (state is ConcreteViewInitialized<MangaApiClient,
-                                MangaConcreteView, MangaGalleryView>) ...[
-                              _buildTitle(concreteView),
-                              const SizedBox(height: 16.0),
-                              _buildTags(concreteView),
-                              const SizedBox(height: 16.0),
-                              _buildDescription(context, concreteView),
-                              const SizedBox(height: 16.0),
-                              _buildMangaProviderButtons(
-                                  state, context, currentGroupsIndex),
-                              const Divider(
-                                thickness: 1,
-                                color: AppColors.secondary,
-                              ),
-                            ] else ...[
-                              const SizedBox(
-                                height: 32,
-                              ),
-                              const CircularProgressIndicator(
-                                color: AppColors.primary,
-                              ),
-                            ],
-                            const SizedBox(height: 16.0),
-                          ],
-                        ),
-                      );
-                    } else if (index == 1 + groupSize) {
-                      return const SizedBox(height: 48);
-                    } else {
-                      if (state is ConcreteViewInitialized<MangaApiClient,
-                          MangaConcreteView, MangaGalleryView>) {
-                        return BlocBuilder<PagesReadCubit, PagesReadState>(
-                          builder: (context, pagesState) {
-                            final chapter = concreteView
-                                .groups[currentGroupsIndex].elements[index - 1];
-                            return _buildChapter(
-                                context: context,
-                                chapter: chapter,
-                                galleryView: data.galleryView,
-                                group: concreteView.groups[currentGroupsIndex],
-                                configInfo: data.configInfo,
-                                pagesReadState: pagesState,
-                                isSelected:
-                                    multiSelect.items.contains(chapter.uid),
-                                multiselect: multiSelect.items.isNotEmpty,
-                                concreteViewInitialized: state);
-                          },
-                        );
-                      } else {
-                        return const SizedBox();
-                      }
-                    }
+                RefreshIndicator(
+                  onRefresh: () {
+                    return Future.delayed(
+                      Duration(milliseconds: 150),
+                      () {
+                        context
+                            .read<
+                                ConcreteViewCubit<MangaApiClient,
+                                    MangaConcreteView, MangaGalleryView>>()
+                            .getConcrete(data.uid, data.galleryView,
+                                forceRemote: true);
+                      },
+                    );
                   },
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    itemCount: 1 + groupSize + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          child: Column(
+                            children: [
+                              _buildCover(data.galleryView.cover, context),
+                              const SizedBox(height: 16.0),
+                              if (state is ConcreteViewInitialized<
+                                  MangaApiClient,
+                                  MangaConcreteView,
+                                  MangaGalleryView>) ...[
+                                _buildTitle(concreteView),
+                                const SizedBox(height: 16.0),
+                                _buildTags(concreteView),
+                                const SizedBox(height: 16.0),
+                                _buildDescription(context, concreteView),
+                                const SizedBox(height: 16.0),
+                                _buildMangaProviderButtons(
+                                    state, context, currentGroupsIndex),
+                                const Divider(
+                                  thickness: 1,
+                                  color: AppColors.secondary,
+                                ),
+                              ] else ...[
+                                const SizedBox(
+                                  height: 32,
+                                ),
+                                const CircularProgressIndicator(
+                                  color: AppColors.primary,
+                                ),
+                              ],
+                              const SizedBox(height: 16.0),
+                            ],
+                          ),
+                        );
+                      } else if (index == 1 + groupSize) {
+                        return const SizedBox(height: 48);
+                      } else {
+                        if (state is ConcreteViewInitialized<MangaApiClient,
+                            MangaConcreteView, MangaGalleryView>) {
+                          return BlocBuilder<PagesReadCubit, PagesReadState>(
+                            builder: (context, pagesState) {
+                              final chapter = concreteView
+                                  .groups[currentGroupsIndex]
+                                  .elements[index - 1];
+                              return _buildChapter(
+                                  context: context,
+                                  chapter: chapter,
+                                  galleryView: data.galleryView,
+                                  group:
+                                      concreteView.groups[currentGroupsIndex],
+                                  configInfo: data.configInfo,
+                                  pagesReadState: pagesState,
+                                  isSelected:
+                                      multiSelect.items.contains(chapter.uid),
+                                  multiselect: multiSelect.items.isNotEmpty,
+                                  concreteViewInitialized: state);
+                            },
+                          );
+                        } else {
+                          return const SizedBox();
+                        }
+                      }
+                    },
+                  ),
                 ),
                 if (state is ConcreteViewInitialized<MangaApiClient,
                     MangaConcreteView, MangaGalleryView>)

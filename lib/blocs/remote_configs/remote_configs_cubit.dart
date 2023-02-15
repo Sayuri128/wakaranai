@@ -3,7 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/model/services/local_configs_sources_service.dart';
+import 'package:wakaranai/model/services/sources/local_configs_sources_service.dart';
 import 'package:wakaranai/models/configs_source_item/configs_source_item.dart';
 import 'package:wakaranai/models/configs_source_type/configs_source_type.dart';
 import 'package:wakaranai/models/remote_config/remote_config.dart';

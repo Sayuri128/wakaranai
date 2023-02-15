@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/local_gallery_view_card/local_gallery_view_card_cubit.dart';
-import 'package:wakaranai/models/data/library_item.dart';
-import 'package:wakaranai/models/data/local_gallery_view.dart';
+import 'package:wakaranai/models/data/gallery/local_gallery_view.dart';
+import 'package:wakaranai/models/data/library/library_item.dart';
 import 'package:wakascript/models/config_info/config_info.dart';
 
 class LocalGalleryViewWrapper<I extends LibraryItem<G>,

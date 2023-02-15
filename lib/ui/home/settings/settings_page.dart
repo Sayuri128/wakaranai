@@ -164,7 +164,7 @@ class SettingsPage extends StatelessWidget {
                                 "Are you sure you want to delete all your data?")
                         .then((value) {
                       if (value == OkCancelResult.ok) {
-                        wakaranaiDb.hardReset().then((value) {
+                        waka.hardReset().then((value) {
                           context.read<LocalConfigsCubit>().init();
                           context.read<LibraryPageCubit>().init();
                         });

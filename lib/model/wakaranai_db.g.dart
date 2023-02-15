@@ -18,6 +18,14 @@ class $LocalProtectorConfigTableTable extends LocalProtectorConfigTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   static const VerificationMeta _pingUrlMeta =
       const VerificationMeta('pingUrl');
   @override
@@ -48,17 +56,9 @@ class $LocalProtectorConfigTableTable extends LocalProtectorConfigTable
             SqlDialect.mysql: '',
             SqlDialect.postgres: '',
           }));
-  static const VerificationMeta _createdMeta =
-      const VerificationMeta('created');
-  @override
-  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
-      'created', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, pingUrl, needToLogin, inAppBrowserInterceptor, created];
+      [id, created, pingUrl, needToLogin, inAppBrowserInterceptor];
   @override
   String get aliasedName => _alias ?? 'local_protector_config_table';
   @override
@@ -71,6 +71,10 @@ class $LocalProtectorConfigTableTable extends LocalProtectorConfigTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
     }
     if (data.containsKey('ping_url')) {
       context.handle(_pingUrlMeta,
@@ -95,10 +99,6 @@ class $LocalProtectorConfigTableTable extends LocalProtectorConfigTable
     } else if (isInserting) {
       context.missing(_inAppBrowserInterceptorMeta);
     }
-    if (data.containsKey('created')) {
-      context.handle(_createdMeta,
-          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
-    }
     return context;
   }
 
@@ -111,6 +111,8 @@ class $LocalProtectorConfigTableTable extends LocalProtectorConfigTable
     return DriftLocalProtectorConfig(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
       pingUrl: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}ping_url'])!,
       needToLogin: attachedDatabase.typeMapping
@@ -118,8 +120,6 @@ class $LocalProtectorConfigTableTable extends LocalProtectorConfigTable
       inAppBrowserInterceptor: attachedDatabase.typeMapping.read(
           DriftSqlType.bool,
           data['${effectivePrefix}in_app_browser_interceptor'])!,
-      created: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
     );
   }
 
@@ -132,34 +132,34 @@ class $LocalProtectorConfigTableTable extends LocalProtectorConfigTable
 class DriftLocalProtectorConfig extends DataClass
     implements Insertable<DriftLocalProtectorConfig> {
   final int id;
+  final DateTime created;
   final String pingUrl;
   final bool needToLogin;
   final bool inAppBrowserInterceptor;
-  final DateTime created;
   const DriftLocalProtectorConfig(
       {required this.id,
+      required this.created,
       required this.pingUrl,
       required this.needToLogin,
-      required this.inAppBrowserInterceptor,
-      required this.created});
+      required this.inAppBrowserInterceptor});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
     map['ping_url'] = Variable<String>(pingUrl);
     map['need_to_login'] = Variable<bool>(needToLogin);
     map['in_app_browser_interceptor'] = Variable<bool>(inAppBrowserInterceptor);
-    map['created'] = Variable<DateTime>(created);
     return map;
   }
 
   LocalProtectorConfigTableCompanion toCompanion(bool nullToAbsent) {
     return LocalProtectorConfigTableCompanion(
       id: Value(id),
+      created: Value(created),
       pingUrl: Value(pingUrl),
       needToLogin: Value(needToLogin),
       inAppBrowserInterceptor: Value(inAppBrowserInterceptor),
-      created: Value(created),
     );
   }
 
@@ -168,11 +168,11 @@ class DriftLocalProtectorConfig extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return DriftLocalProtectorConfig(
       id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
       pingUrl: serializer.fromJson<String>(json['pingUrl']),
       needToLogin: serializer.fromJson<bool>(json['needToLogin']),
       inAppBrowserInterceptor:
           serializer.fromJson<bool>(json['inAppBrowserInterceptor']),
-      created: serializer.fromJson<DateTime>(json['created']),
     );
   }
   @override
@@ -180,107 +180,107 @@ class DriftLocalProtectorConfig extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
       'pingUrl': serializer.toJson<String>(pingUrl),
       'needToLogin': serializer.toJson<bool>(needToLogin),
       'inAppBrowserInterceptor':
           serializer.toJson<bool>(inAppBrowserInterceptor),
-      'created': serializer.toJson<DateTime>(created),
     };
   }
 
   DriftLocalProtectorConfig copyWith(
           {int? id,
+          DateTime? created,
           String? pingUrl,
           bool? needToLogin,
-          bool? inAppBrowserInterceptor,
-          DateTime? created}) =>
+          bool? inAppBrowserInterceptor}) =>
       DriftLocalProtectorConfig(
         id: id ?? this.id,
+        created: created ?? this.created,
         pingUrl: pingUrl ?? this.pingUrl,
         needToLogin: needToLogin ?? this.needToLogin,
         inAppBrowserInterceptor:
             inAppBrowserInterceptor ?? this.inAppBrowserInterceptor,
-        created: created ?? this.created,
       );
   @override
   String toString() {
     return (StringBuffer('DriftLocalProtectorConfig(')
           ..write('id: $id, ')
+          ..write('created: $created, ')
           ..write('pingUrl: $pingUrl, ')
           ..write('needToLogin: $needToLogin, ')
-          ..write('inAppBrowserInterceptor: $inAppBrowserInterceptor, ')
-          ..write('created: $created')
+          ..write('inAppBrowserInterceptor: $inAppBrowserInterceptor')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(id, pingUrl, needToLogin, inAppBrowserInterceptor, created);
+      Object.hash(id, created, pingUrl, needToLogin, inAppBrowserInterceptor);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DriftLocalProtectorConfig &&
           other.id == this.id &&
+          other.created == this.created &&
           other.pingUrl == this.pingUrl &&
           other.needToLogin == this.needToLogin &&
-          other.inAppBrowserInterceptor == this.inAppBrowserInterceptor &&
-          other.created == this.created);
+          other.inAppBrowserInterceptor == this.inAppBrowserInterceptor);
 }
 
 class LocalProtectorConfigTableCompanion
     extends UpdateCompanion<DriftLocalProtectorConfig> {
   final Value<int> id;
+  final Value<DateTime> created;
   final Value<String> pingUrl;
   final Value<bool> needToLogin;
   final Value<bool> inAppBrowserInterceptor;
-  final Value<DateTime> created;
   const LocalProtectorConfigTableCompanion({
     this.id = const Value.absent(),
+    this.created = const Value.absent(),
     this.pingUrl = const Value.absent(),
     this.needToLogin = const Value.absent(),
     this.inAppBrowserInterceptor = const Value.absent(),
-    this.created = const Value.absent(),
   });
   LocalProtectorConfigTableCompanion.insert({
     this.id = const Value.absent(),
+    this.created = const Value.absent(),
     required String pingUrl,
     required bool needToLogin,
     required bool inAppBrowserInterceptor,
-    this.created = const Value.absent(),
   })  : pingUrl = Value(pingUrl),
         needToLogin = Value(needToLogin),
         inAppBrowserInterceptor = Value(inAppBrowserInterceptor);
   static Insertable<DriftLocalProtectorConfig> custom({
     Expression<int>? id,
+    Expression<DateTime>? created,
     Expression<String>? pingUrl,
     Expression<bool>? needToLogin,
     Expression<bool>? inAppBrowserInterceptor,
-    Expression<DateTime>? created,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (created != null) 'created': created,
       if (pingUrl != null) 'ping_url': pingUrl,
       if (needToLogin != null) 'need_to_login': needToLogin,
       if (inAppBrowserInterceptor != null)
         'in_app_browser_interceptor': inAppBrowserInterceptor,
-      if (created != null) 'created': created,
     });
   }
 
   LocalProtectorConfigTableCompanion copyWith(
       {Value<int>? id,
+      Value<DateTime>? created,
       Value<String>? pingUrl,
       Value<bool>? needToLogin,
-      Value<bool>? inAppBrowserInterceptor,
-      Value<DateTime>? created}) {
+      Value<bool>? inAppBrowserInterceptor}) {
     return LocalProtectorConfigTableCompanion(
       id: id ?? this.id,
+      created: created ?? this.created,
       pingUrl: pingUrl ?? this.pingUrl,
       needToLogin: needToLogin ?? this.needToLogin,
       inAppBrowserInterceptor:
           inAppBrowserInterceptor ?? this.inAppBrowserInterceptor,
-      created: created ?? this.created,
     );
   }
 
@@ -289,6 +289,9 @@ class LocalProtectorConfigTableCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
     }
     if (pingUrl.present) {
       map['ping_url'] = Variable<String>(pingUrl.value);
@@ -300,9 +303,6 @@ class LocalProtectorConfigTableCompanion
       map['in_app_browser_interceptor'] =
           Variable<bool>(inAppBrowserInterceptor.value);
     }
-    if (created.present) {
-      map['created'] = Variable<DateTime>(created.value);
-    }
     return map;
   }
 
@@ -310,10 +310,10 @@ class LocalProtectorConfigTableCompanion
   String toString() {
     return (StringBuffer('LocalProtectorConfigTableCompanion(')
           ..write('id: $id, ')
+          ..write('created: $created, ')
           ..write('pingUrl: $pingUrl, ')
           ..write('needToLogin: $needToLogin, ')
-          ..write('inAppBrowserInterceptor: $inAppBrowserInterceptor, ')
-          ..write('created: $created')
+          ..write('inAppBrowserInterceptor: $inAppBrowserInterceptor')
           ..write(')'))
         .toString();
   }
@@ -334,6 +334,14 @@ class $LocalConfigInfoTableTable extends LocalConfigInfoTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   static const VerificationMeta _uidMeta = const VerificationMeta('uid');
   @override
   late final GeneratedColumn<String> uid = GeneratedColumn<String>(
@@ -401,17 +409,10 @@ class $LocalConfigInfoTableTable extends LocalConfigInfoTable
             SqlDialect.mysql: '',
             SqlDialect.postgres: '',
           }));
-  static const VerificationMeta _createdMeta =
-      const VerificationMeta('created');
-  @override
-  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
-      'created', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        created,
         uid,
         name,
         logoUrl,
@@ -420,8 +421,7 @@ class $LocalConfigInfoTableTable extends LocalConfigInfoTable
         type,
         version,
         localProtectorConfigId,
-        searchAvailable,
-        created
+        searchAvailable
       ];
   @override
   String get aliasedName => _alias ?? 'local_config_info_table';
@@ -435,6 +435,10 @@ class $LocalConfigInfoTableTable extends LocalConfigInfoTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
     }
     if (data.containsKey('uid')) {
       context.handle(
@@ -487,10 +491,6 @@ class $LocalConfigInfoTableTable extends LocalConfigInfoTable
     } else if (isInserting) {
       context.missing(_searchAvailableMeta);
     }
-    if (data.containsKey('created')) {
-      context.handle(_createdMeta,
-          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
-    }
     return context;
   }
 
@@ -502,6 +502,8 @@ class $LocalConfigInfoTableTable extends LocalConfigInfoTable
     return DriftLocalConfigInfo(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
       uid: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
       name: attachedDatabase.typeMapping
@@ -522,8 +524,6 @@ class $LocalConfigInfoTableTable extends LocalConfigInfoTable
           data['${effectivePrefix}local_protector_config_id']),
       searchAvailable: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}search_available'])!,
-      created: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
     );
   }
 
@@ -539,6 +539,7 @@ class $LocalConfigInfoTableTable extends LocalConfigInfoTable
 class DriftLocalConfigInfo extends DataClass
     implements Insertable<DriftLocalConfigInfo> {
   final int id;
+  final DateTime created;
   final String uid;
   final String name;
   final String logoUrl;
@@ -548,9 +549,9 @@ class DriftLocalConfigInfo extends DataClass
   final int version;
   final int? localProtectorConfigId;
   final bool searchAvailable;
-  final DateTime created;
   const DriftLocalConfigInfo(
       {required this.id,
+      required this.created,
       required this.uid,
       required this.name,
       required this.logoUrl,
@@ -559,12 +560,12 @@ class DriftLocalConfigInfo extends DataClass
       required this.type,
       required this.version,
       this.localProtectorConfigId,
-      required this.searchAvailable,
-      required this.created});
+      required this.searchAvailable});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
     map['uid'] = Variable<String>(uid);
     map['name'] = Variable<String>(name);
     map['logo_url'] = Variable<String>(logoUrl);
@@ -579,13 +580,13 @@ class DriftLocalConfigInfo extends DataClass
       map['local_protector_config_id'] = Variable<int>(localProtectorConfigId);
     }
     map['search_available'] = Variable<bool>(searchAvailable);
-    map['created'] = Variable<DateTime>(created);
     return map;
   }
 
   LocalConfigInfoTableCompanion toCompanion(bool nullToAbsent) {
     return LocalConfigInfoTableCompanion(
       id: Value(id),
+      created: Value(created),
       uid: Value(uid),
       name: Value(name),
       logoUrl: Value(logoUrl),
@@ -597,7 +598,6 @@ class DriftLocalConfigInfo extends DataClass
           ? const Value.absent()
           : Value(localProtectorConfigId),
       searchAvailable: Value(searchAvailable),
-      created: Value(created),
     );
   }
 
@@ -606,6 +606,7 @@ class DriftLocalConfigInfo extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return DriftLocalConfigInfo(
       id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
       uid: serializer.fromJson<String>(json['uid']),
       name: serializer.fromJson<String>(json['name']),
       logoUrl: serializer.fromJson<String>(json['logoUrl']),
@@ -617,7 +618,6 @@ class DriftLocalConfigInfo extends DataClass
       localProtectorConfigId:
           serializer.fromJson<int?>(json['localProtectorConfigId']),
       searchAvailable: serializer.fromJson<bool>(json['searchAvailable']),
-      created: serializer.fromJson<DateTime>(json['created']),
     );
   }
   @override
@@ -625,6 +625,7 @@ class DriftLocalConfigInfo extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
       'uid': serializer.toJson<String>(uid),
       'name': serializer.toJson<String>(name),
       'logoUrl': serializer.toJson<String>(logoUrl),
@@ -635,12 +636,12 @@ class DriftLocalConfigInfo extends DataClass
       'version': serializer.toJson<int>(version),
       'localProtectorConfigId': serializer.toJson<int?>(localProtectorConfigId),
       'searchAvailable': serializer.toJson<bool>(searchAvailable),
-      'created': serializer.toJson<DateTime>(created),
     };
   }
 
   DriftLocalConfigInfo copyWith(
           {int? id,
+          DateTime? created,
           String? uid,
           String? name,
           String? logoUrl,
@@ -649,10 +650,10 @@ class DriftLocalConfigInfo extends DataClass
           ConfigInfoType? type,
           int? version,
           Value<int?> localProtectorConfigId = const Value.absent(),
-          bool? searchAvailable,
-          DateTime? created}) =>
+          bool? searchAvailable}) =>
       DriftLocalConfigInfo(
         id: id ?? this.id,
+        created: created ?? this.created,
         uid: uid ?? this.uid,
         name: name ?? this.name,
         logoUrl: logoUrl ?? this.logoUrl,
@@ -664,12 +665,12 @@ class DriftLocalConfigInfo extends DataClass
             ? localProtectorConfigId.value
             : this.localProtectorConfigId,
         searchAvailable: searchAvailable ?? this.searchAvailable,
-        created: created ?? this.created,
       );
   @override
   String toString() {
     return (StringBuffer('DriftLocalConfigInfo(')
           ..write('id: $id, ')
+          ..write('created: $created, ')
           ..write('uid: $uid, ')
           ..write('name: $name, ')
           ..write('logoUrl: $logoUrl, ')
@@ -678,20 +679,20 @@ class DriftLocalConfigInfo extends DataClass
           ..write('type: $type, ')
           ..write('version: $version, ')
           ..write('localProtectorConfigId: $localProtectorConfigId, ')
-          ..write('searchAvailable: $searchAvailable, ')
-          ..write('created: $created')
+          ..write('searchAvailable: $searchAvailable')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, uid, name, logoUrl, language, nsfw, type,
-      version, localProtectorConfigId, searchAvailable, created);
+  int get hashCode => Object.hash(id, created, uid, name, logoUrl, language,
+      nsfw, type, version, localProtectorConfigId, searchAvailable);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DriftLocalConfigInfo &&
           other.id == this.id &&
+          other.created == this.created &&
           other.uid == this.uid &&
           other.name == this.name &&
           other.logoUrl == this.logoUrl &&
@@ -700,13 +701,13 @@ class DriftLocalConfigInfo extends DataClass
           other.type == this.type &&
           other.version == this.version &&
           other.localProtectorConfigId == this.localProtectorConfigId &&
-          other.searchAvailable == this.searchAvailable &&
-          other.created == this.created);
+          other.searchAvailable == this.searchAvailable);
 }
 
 class LocalConfigInfoTableCompanion
     extends UpdateCompanion<DriftLocalConfigInfo> {
   final Value<int> id;
+  final Value<DateTime> created;
   final Value<String> uid;
   final Value<String> name;
   final Value<String> logoUrl;
@@ -716,9 +717,9 @@ class LocalConfigInfoTableCompanion
   final Value<int> version;
   final Value<int?> localProtectorConfigId;
   final Value<bool> searchAvailable;
-  final Value<DateTime> created;
   const LocalConfigInfoTableCompanion({
     this.id = const Value.absent(),
+    this.created = const Value.absent(),
     this.uid = const Value.absent(),
     this.name = const Value.absent(),
     this.logoUrl = const Value.absent(),
@@ -728,10 +729,10 @@ class LocalConfigInfoTableCompanion
     this.version = const Value.absent(),
     this.localProtectorConfigId = const Value.absent(),
     this.searchAvailable = const Value.absent(),
-    this.created = const Value.absent(),
   });
   LocalConfigInfoTableCompanion.insert({
     this.id = const Value.absent(),
+    this.created = const Value.absent(),
     required String uid,
     required String name,
     required String logoUrl,
@@ -741,7 +742,6 @@ class LocalConfigInfoTableCompanion
     required int version,
     this.localProtectorConfigId = const Value.absent(),
     required bool searchAvailable,
-    this.created = const Value.absent(),
   })  : uid = Value(uid),
         name = Value(name),
         logoUrl = Value(logoUrl),
@@ -752,6 +752,7 @@ class LocalConfigInfoTableCompanion
         searchAvailable = Value(searchAvailable);
   static Insertable<DriftLocalConfigInfo> custom({
     Expression<int>? id,
+    Expression<DateTime>? created,
     Expression<String>? uid,
     Expression<String>? name,
     Expression<String>? logoUrl,
@@ -761,10 +762,10 @@ class LocalConfigInfoTableCompanion
     Expression<int>? version,
     Expression<int>? localProtectorConfigId,
     Expression<bool>? searchAvailable,
-    Expression<DateTime>? created,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (created != null) 'created': created,
       if (uid != null) 'uid': uid,
       if (name != null) 'name': name,
       if (logoUrl != null) 'logo_url': logoUrl,
@@ -775,12 +776,12 @@ class LocalConfigInfoTableCompanion
       if (localProtectorConfigId != null)
         'local_protector_config_id': localProtectorConfigId,
       if (searchAvailable != null) 'search_available': searchAvailable,
-      if (created != null) 'created': created,
     });
   }
 
   LocalConfigInfoTableCompanion copyWith(
       {Value<int>? id,
+      Value<DateTime>? created,
       Value<String>? uid,
       Value<String>? name,
       Value<String>? logoUrl,
@@ -789,10 +790,10 @@ class LocalConfigInfoTableCompanion
       Value<ConfigInfoType>? type,
       Value<int>? version,
       Value<int?>? localProtectorConfigId,
-      Value<bool>? searchAvailable,
-      Value<DateTime>? created}) {
+      Value<bool>? searchAvailable}) {
     return LocalConfigInfoTableCompanion(
       id: id ?? this.id,
+      created: created ?? this.created,
       uid: uid ?? this.uid,
       name: name ?? this.name,
       logoUrl: logoUrl ?? this.logoUrl,
@@ -803,7 +804,6 @@ class LocalConfigInfoTableCompanion
       localProtectorConfigId:
           localProtectorConfigId ?? this.localProtectorConfigId,
       searchAvailable: searchAvailable ?? this.searchAvailable,
-      created: created ?? this.created,
     );
   }
 
@@ -812,6 +812,9 @@ class LocalConfigInfoTableCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
     }
     if (uid.present) {
       map['uid'] = Variable<String>(uid.value);
@@ -842,9 +845,6 @@ class LocalConfigInfoTableCompanion
     if (searchAvailable.present) {
       map['search_available'] = Variable<bool>(searchAvailable.value);
     }
-    if (created.present) {
-      map['created'] = Variable<DateTime>(created.value);
-    }
     return map;
   }
 
@@ -852,6 +852,7 @@ class LocalConfigInfoTableCompanion
   String toString() {
     return (StringBuffer('LocalConfigInfoTableCompanion(')
           ..write('id: $id, ')
+          ..write('created: $created, ')
           ..write('uid: $uid, ')
           ..write('name: $name, ')
           ..write('logoUrl: $logoUrl, ')
@@ -860,8 +861,7 @@ class LocalConfigInfoTableCompanion
           ..write('type: $type, ')
           ..write('version: $version, ')
           ..write('localProtectorConfigId: $localProtectorConfigId, ')
-          ..write('searchAvailable: $searchAvailable, ')
-          ..write('created: $created')
+          ..write('searchAvailable: $searchAvailable')
           ..write(')'))
         .toString();
   }
@@ -882,6 +882,14 @@ class $LocalApiSourceTableTable extends LocalApiSourceTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   static const VerificationMeta _codeMeta = const VerificationMeta('code');
   @override
   late final GeneratedColumn<String> code = GeneratedColumn<String>(
@@ -903,17 +911,9 @@ class $LocalApiSourceTableTable extends LocalApiSourceTable
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES local_config_info_table (id)'));
-  static const VerificationMeta _createdMeta =
-      const VerificationMeta('created');
-  @override
-  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
-      'created', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, code, type, localConfigInfoId, created];
+      [id, created, code, type, localConfigInfoId];
   @override
   String get aliasedName => _alias ?? 'local_api_source_table';
   @override
@@ -926,6 +926,10 @@ class $LocalApiSourceTableTable extends LocalApiSourceTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
     }
     if (data.containsKey('code')) {
       context.handle(
@@ -942,10 +946,6 @@ class $LocalApiSourceTableTable extends LocalApiSourceTable
     } else if (isInserting) {
       context.missing(_localConfigInfoIdMeta);
     }
-    if (data.containsKey('created')) {
-      context.handle(_createdMeta,
-          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
-    }
     return context;
   }
 
@@ -957,6 +957,8 @@ class $LocalApiSourceTableTable extends LocalApiSourceTable
     return DriftLocalApiSource(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
       code: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}code'])!,
       type: $LocalApiSourceTableTable.$convertertype.fromSql(attachedDatabase
@@ -964,8 +966,6 @@ class $LocalApiSourceTableTable extends LocalApiSourceTable
           .read(DriftSqlType.int, data['${effectivePrefix}type'])!),
       localConfigInfoId: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}local_config_info_id'])!,
-      created: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
     );
   }
 
@@ -981,37 +981,37 @@ class $LocalApiSourceTableTable extends LocalApiSourceTable
 class DriftLocalApiSource extends DataClass
     implements Insertable<DriftLocalApiSource> {
   final int id;
+  final DateTime created;
   final String code;
   final ConfigInfoType type;
   final int localConfigInfoId;
-  final DateTime created;
   const DriftLocalApiSource(
       {required this.id,
+      required this.created,
       required this.code,
       required this.type,
-      required this.localConfigInfoId,
-      required this.created});
+      required this.localConfigInfoId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
     map['code'] = Variable<String>(code);
     {
       final converter = $LocalApiSourceTableTable.$convertertype;
       map['type'] = Variable<int>(converter.toSql(type));
     }
     map['local_config_info_id'] = Variable<int>(localConfigInfoId);
-    map['created'] = Variable<DateTime>(created);
     return map;
   }
 
   LocalApiSourceTableCompanion toCompanion(bool nullToAbsent) {
     return LocalApiSourceTableCompanion(
       id: Value(id),
+      created: Value(created),
       code: Value(code),
       type: Value(type),
       localConfigInfoId: Value(localConfigInfoId),
-      created: Value(created),
     );
   }
 
@@ -1020,11 +1020,11 @@ class DriftLocalApiSource extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return DriftLocalApiSource(
       id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
       code: serializer.fromJson<String>(json['code']),
       type: $LocalApiSourceTableTable.$convertertype
           .fromJson(serializer.fromJson<int>(json['type'])),
       localConfigInfoId: serializer.fromJson<int>(json['localConfigInfoId']),
-      created: serializer.fromJson<DateTime>(json['created']),
     );
   }
   @override
@@ -1032,103 +1032,103 @@ class DriftLocalApiSource extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
       'code': serializer.toJson<String>(code),
       'type': serializer
           .toJson<int>($LocalApiSourceTableTable.$convertertype.toJson(type)),
       'localConfigInfoId': serializer.toJson<int>(localConfigInfoId),
-      'created': serializer.toJson<DateTime>(created),
     };
   }
 
   DriftLocalApiSource copyWith(
           {int? id,
+          DateTime? created,
           String? code,
           ConfigInfoType? type,
-          int? localConfigInfoId,
-          DateTime? created}) =>
+          int? localConfigInfoId}) =>
       DriftLocalApiSource(
         id: id ?? this.id,
+        created: created ?? this.created,
         code: code ?? this.code,
         type: type ?? this.type,
         localConfigInfoId: localConfigInfoId ?? this.localConfigInfoId,
-        created: created ?? this.created,
       );
   @override
   String toString() {
     return (StringBuffer('DriftLocalApiSource(')
           ..write('id: $id, ')
+          ..write('created: $created, ')
           ..write('code: $code, ')
           ..write('type: $type, ')
-          ..write('localConfigInfoId: $localConfigInfoId, ')
-          ..write('created: $created')
+          ..write('localConfigInfoId: $localConfigInfoId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, code, type, localConfigInfoId, created);
+  int get hashCode => Object.hash(id, created, code, type, localConfigInfoId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DriftLocalApiSource &&
           other.id == this.id &&
+          other.created == this.created &&
           other.code == this.code &&
           other.type == this.type &&
-          other.localConfigInfoId == this.localConfigInfoId &&
-          other.created == this.created);
+          other.localConfigInfoId == this.localConfigInfoId);
 }
 
 class LocalApiSourceTableCompanion
     extends UpdateCompanion<DriftLocalApiSource> {
   final Value<int> id;
+  final Value<DateTime> created;
   final Value<String> code;
   final Value<ConfigInfoType> type;
   final Value<int> localConfigInfoId;
-  final Value<DateTime> created;
   const LocalApiSourceTableCompanion({
     this.id = const Value.absent(),
+    this.created = const Value.absent(),
     this.code = const Value.absent(),
     this.type = const Value.absent(),
     this.localConfigInfoId = const Value.absent(),
-    this.created = const Value.absent(),
   });
   LocalApiSourceTableCompanion.insert({
     this.id = const Value.absent(),
+    this.created = const Value.absent(),
     required String code,
     required ConfigInfoType type,
     required int localConfigInfoId,
-    this.created = const Value.absent(),
   })  : code = Value(code),
         type = Value(type),
         localConfigInfoId = Value(localConfigInfoId);
   static Insertable<DriftLocalApiSource> custom({
     Expression<int>? id,
+    Expression<DateTime>? created,
     Expression<String>? code,
     Expression<int>? type,
     Expression<int>? localConfigInfoId,
-    Expression<DateTime>? created,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (created != null) 'created': created,
       if (code != null) 'code': code,
       if (type != null) 'type': type,
       if (localConfigInfoId != null) 'local_config_info_id': localConfigInfoId,
-      if (created != null) 'created': created,
     });
   }
 
   LocalApiSourceTableCompanion copyWith(
       {Value<int>? id,
+      Value<DateTime>? created,
       Value<String>? code,
       Value<ConfigInfoType>? type,
-      Value<int>? localConfigInfoId,
-      Value<DateTime>? created}) {
+      Value<int>? localConfigInfoId}) {
     return LocalApiSourceTableCompanion(
       id: id ?? this.id,
+      created: created ?? this.created,
       code: code ?? this.code,
       type: type ?? this.type,
       localConfigInfoId: localConfigInfoId ?? this.localConfigInfoId,
-      created: created ?? this.created,
     );
   }
 
@@ -1137,6 +1137,9 @@ class LocalApiSourceTableCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
     }
     if (code.present) {
       map['code'] = Variable<String>(code.value);
@@ -1148,9 +1151,6 @@ class LocalApiSourceTableCompanion
     if (localConfigInfoId.present) {
       map['local_config_info_id'] = Variable<int>(localConfigInfoId.value);
     }
-    if (created.present) {
-      map['created'] = Variable<DateTime>(created.value);
-    }
     return map;
   }
 
@@ -1158,10 +1158,10 @@ class LocalApiSourceTableCompanion
   String toString() {
     return (StringBuffer('LocalApiSourceTableCompanion(')
           ..write('id: $id, ')
+          ..write('created: $created, ')
           ..write('code: $code, ')
           ..write('type: $type, ')
-          ..write('localConfigInfoId: $localConfigInfoId, ')
-          ..write('created: $created')
+          ..write('localConfigInfoId: $localConfigInfoId')
           ..write(')'))
         .toString();
   }
@@ -1184,6 +1184,14 @@ class $LocalMangaGalleryViewTableTable extends LocalMangaGalleryViewTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   static const VerificationMeta _uidMeta = const VerificationMeta('uid');
   @override
   late final GeneratedColumn<String> uid = GeneratedColumn<String>(
@@ -1204,16 +1212,8 @@ class $LocalMangaGalleryViewTableTable extends LocalMangaGalleryViewTable
   late final GeneratedColumn<String> data = GeneratedColumn<String>(
       'data', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _createdMeta =
-      const VerificationMeta('created');
   @override
-  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
-      'created', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
-  @override
-  List<GeneratedColumn> get $columns => [id, uid, cover, title, data, created];
+  List<GeneratedColumn> get $columns => [id, created, uid, cover, title, data];
   @override
   String get aliasedName => _alias ?? 'local_manga_gallery_view_table';
   @override
@@ -1226,6 +1226,10 @@ class $LocalMangaGalleryViewTableTable extends LocalMangaGalleryViewTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
     }
     if (data.containsKey('uid')) {
       context.handle(
@@ -1251,10 +1255,6 @@ class $LocalMangaGalleryViewTableTable extends LocalMangaGalleryViewTable
     } else if (isInserting) {
       context.missing(_dataMeta);
     }
-    if (data.containsKey('created')) {
-      context.handle(_createdMeta,
-          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
-    }
     return context;
   }
 
@@ -1267,6 +1267,8 @@ class $LocalMangaGalleryViewTableTable extends LocalMangaGalleryViewTable
     return DriftLocalMangaGalleryView(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
       uid: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
       cover: attachedDatabase.typeMapping
@@ -1275,8 +1277,6 @@ class $LocalMangaGalleryViewTableTable extends LocalMangaGalleryViewTable
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       data: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}data'])!,
-      created: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
     );
   }
 
@@ -1289,38 +1289,38 @@ class $LocalMangaGalleryViewTableTable extends LocalMangaGalleryViewTable
 class DriftLocalMangaGalleryView extends DataClass
     implements Insertable<DriftLocalMangaGalleryView> {
   final int id;
+  final DateTime created;
   final String uid;
   final String cover;
   final String title;
   final String data;
-  final DateTime created;
   const DriftLocalMangaGalleryView(
       {required this.id,
+      required this.created,
       required this.uid,
       required this.cover,
       required this.title,
-      required this.data,
-      required this.created});
+      required this.data});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
     map['uid'] = Variable<String>(uid);
     map['cover'] = Variable<String>(cover);
     map['title'] = Variable<String>(title);
     map['data'] = Variable<String>(data);
-    map['created'] = Variable<DateTime>(created);
     return map;
   }
 
   LocalMangaGalleryViewTableCompanion toCompanion(bool nullToAbsent) {
     return LocalMangaGalleryViewTableCompanion(
       id: Value(id),
+      created: Value(created),
       uid: Value(uid),
       cover: Value(cover),
       title: Value(title),
       data: Value(data),
-      created: Value(created),
     );
   }
 
@@ -1329,11 +1329,11 @@ class DriftLocalMangaGalleryView extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return DriftLocalMangaGalleryView(
       id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
       uid: serializer.fromJson<String>(json['uid']),
       cover: serializer.fromJson<String>(json['cover']),
       title: serializer.fromJson<String>(json['title']),
       data: serializer.fromJson<String>(json['data']),
-      created: serializer.fromJson<DateTime>(json['created']),
     );
   }
   @override
@@ -1341,115 +1341,115 @@ class DriftLocalMangaGalleryView extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
       'uid': serializer.toJson<String>(uid),
       'cover': serializer.toJson<String>(cover),
       'title': serializer.toJson<String>(title),
       'data': serializer.toJson<String>(data),
-      'created': serializer.toJson<DateTime>(created),
     };
   }
 
   DriftLocalMangaGalleryView copyWith(
           {int? id,
+          DateTime? created,
           String? uid,
           String? cover,
           String? title,
-          String? data,
-          DateTime? created}) =>
+          String? data}) =>
       DriftLocalMangaGalleryView(
         id: id ?? this.id,
+        created: created ?? this.created,
         uid: uid ?? this.uid,
         cover: cover ?? this.cover,
         title: title ?? this.title,
         data: data ?? this.data,
-        created: created ?? this.created,
       );
   @override
   String toString() {
     return (StringBuffer('DriftLocalMangaGalleryView(')
           ..write('id: $id, ')
+          ..write('created: $created, ')
           ..write('uid: $uid, ')
           ..write('cover: $cover, ')
           ..write('title: $title, ')
-          ..write('data: $data, ')
-          ..write('created: $created')
+          ..write('data: $data')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, uid, cover, title, data, created);
+  int get hashCode => Object.hash(id, created, uid, cover, title, data);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DriftLocalMangaGalleryView &&
           other.id == this.id &&
+          other.created == this.created &&
           other.uid == this.uid &&
           other.cover == this.cover &&
           other.title == this.title &&
-          other.data == this.data &&
-          other.created == this.created);
+          other.data == this.data);
 }
 
 class LocalMangaGalleryViewTableCompanion
     extends UpdateCompanion<DriftLocalMangaGalleryView> {
   final Value<int> id;
+  final Value<DateTime> created;
   final Value<String> uid;
   final Value<String> cover;
   final Value<String> title;
   final Value<String> data;
-  final Value<DateTime> created;
   const LocalMangaGalleryViewTableCompanion({
     this.id = const Value.absent(),
+    this.created = const Value.absent(),
     this.uid = const Value.absent(),
     this.cover = const Value.absent(),
     this.title = const Value.absent(),
     this.data = const Value.absent(),
-    this.created = const Value.absent(),
   });
   LocalMangaGalleryViewTableCompanion.insert({
     this.id = const Value.absent(),
+    this.created = const Value.absent(),
     required String uid,
     required String cover,
     required String title,
     required String data,
-    this.created = const Value.absent(),
   })  : uid = Value(uid),
         cover = Value(cover),
         title = Value(title),
         data = Value(data);
   static Insertable<DriftLocalMangaGalleryView> custom({
     Expression<int>? id,
+    Expression<DateTime>? created,
     Expression<String>? uid,
     Expression<String>? cover,
     Expression<String>? title,
     Expression<String>? data,
-    Expression<DateTime>? created,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (created != null) 'created': created,
       if (uid != null) 'uid': uid,
       if (cover != null) 'cover': cover,
       if (title != null) 'title': title,
       if (data != null) 'data': data,
-      if (created != null) 'created': created,
     });
   }
 
   LocalMangaGalleryViewTableCompanion copyWith(
       {Value<int>? id,
+      Value<DateTime>? created,
       Value<String>? uid,
       Value<String>? cover,
       Value<String>? title,
-      Value<String>? data,
-      Value<DateTime>? created}) {
+      Value<String>? data}) {
     return LocalMangaGalleryViewTableCompanion(
       id: id ?? this.id,
+      created: created ?? this.created,
       uid: uid ?? this.uid,
       cover: cover ?? this.cover,
       title: title ?? this.title,
       data: data ?? this.data,
-      created: created ?? this.created,
     );
   }
 
@@ -1458,6 +1458,9 @@ class LocalMangaGalleryViewTableCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
     }
     if (uid.present) {
       map['uid'] = Variable<String>(uid.value);
@@ -1471,9 +1474,6 @@ class LocalMangaGalleryViewTableCompanion
     if (data.present) {
       map['data'] = Variable<String>(data.value);
     }
-    if (created.present) {
-      map['created'] = Variable<DateTime>(created.value);
-    }
     return map;
   }
 
@@ -1481,11 +1481,11 @@ class LocalMangaGalleryViewTableCompanion
   String toString() {
     return (StringBuffer('LocalMangaGalleryViewTableCompanion(')
           ..write('id: $id, ')
+          ..write('created: $created, ')
           ..write('uid: $uid, ')
           ..write('cover: $cover, ')
           ..write('title: $title, ')
-          ..write('data: $data, ')
-          ..write('created: $created')
+          ..write('data: $data')
           ..write(')'))
         .toString();
   }
@@ -1497,15 +1497,6 @@ class $MangaLibraryItemTableTable extends MangaLibraryItemTable
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $MangaLibraryItemTableTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _localApiClientIdMeta =
       const VerificationMeta('localApiClientId');
   @override
@@ -1515,6 +1506,15 @@ class $MangaLibraryItemTableTable extends MangaLibraryItemTable
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES local_api_source_table (id)'));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _createdMeta =
       const VerificationMeta('created');
   @override
@@ -1534,7 +1534,7 @@ class $MangaLibraryItemTableTable extends MangaLibraryItemTable
               'REFERENCES local_manga_gallery_view_table (id)'));
   @override
   List<GeneratedColumn> get $columns =>
-      [id, localApiClientId, created, localMangaGalleryViewId];
+      [localApiClientId, id, created, localMangaGalleryViewId];
   @override
   String get aliasedName => _alias ?? 'manga_library_item_table';
   @override
@@ -1545,9 +1545,6 @@ class $MangaLibraryItemTableTable extends MangaLibraryItemTable
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
     if (data.containsKey('local_api_client_id')) {
       context.handle(
           _localApiClientIdMeta,
@@ -1555,6 +1552,9 @@ class $MangaLibraryItemTableTable extends MangaLibraryItemTable
               data['local_api_client_id']!, _localApiClientIdMeta));
     } else if (isInserting) {
       context.missing(_localApiClientIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('created')) {
       context.handle(_createdMeta,
@@ -1578,10 +1578,10 @@ class $MangaLibraryItemTableTable extends MangaLibraryItemTable
   DriftMangaLibraryItem map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return DriftMangaLibraryItem(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       localApiClientId: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}local_api_client_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       created: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
       localMangaGalleryViewId: attachedDatabase.typeMapping.read(
@@ -1598,20 +1598,20 @@ class $MangaLibraryItemTableTable extends MangaLibraryItemTable
 
 class DriftMangaLibraryItem extends DataClass
     implements Insertable<DriftMangaLibraryItem> {
-  final int id;
   final int localApiClientId;
+  final int id;
   final DateTime created;
   final int localMangaGalleryViewId;
   const DriftMangaLibraryItem(
-      {required this.id,
-      required this.localApiClientId,
+      {required this.localApiClientId,
+      required this.id,
       required this.created,
       required this.localMangaGalleryViewId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
     map['local_api_client_id'] = Variable<int>(localApiClientId);
+    map['id'] = Variable<int>(id);
     map['created'] = Variable<DateTime>(created);
     map['local_manga_gallery_view_id'] = Variable<int>(localMangaGalleryViewId);
     return map;
@@ -1619,8 +1619,8 @@ class DriftMangaLibraryItem extends DataClass
 
   MangaLibraryItemTableCompanion toCompanion(bool nullToAbsent) {
     return MangaLibraryItemTableCompanion(
-      id: Value(id),
       localApiClientId: Value(localApiClientId),
+      id: Value(id),
       created: Value(created),
       localMangaGalleryViewId: Value(localMangaGalleryViewId),
     );
@@ -1630,8 +1630,8 @@ class DriftMangaLibraryItem extends DataClass
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return DriftMangaLibraryItem(
-      id: serializer.fromJson<int>(json['id']),
       localApiClientId: serializer.fromJson<int>(json['localApiClientId']),
+      id: serializer.fromJson<int>(json['id']),
       created: serializer.fromJson<DateTime>(json['created']),
       localMangaGalleryViewId:
           serializer.fromJson<int>(json['localMangaGalleryViewId']),
@@ -1641,8 +1641,8 @@ class DriftMangaLibraryItem extends DataClass
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
       'localApiClientId': serializer.toJson<int>(localApiClientId),
+      'id': serializer.toJson<int>(id),
       'created': serializer.toJson<DateTime>(created),
       'localMangaGalleryViewId':
           serializer.toJson<int>(localMangaGalleryViewId),
@@ -1650,13 +1650,13 @@ class DriftMangaLibraryItem extends DataClass
   }
 
   DriftMangaLibraryItem copyWith(
-          {int? id,
-          int? localApiClientId,
+          {int? localApiClientId,
+          int? id,
           DateTime? created,
           int? localMangaGalleryViewId}) =>
       DriftMangaLibraryItem(
-        id: id ?? this.id,
         localApiClientId: localApiClientId ?? this.localApiClientId,
+        id: id ?? this.id,
         created: created ?? this.created,
         localMangaGalleryViewId:
             localMangaGalleryViewId ?? this.localMangaGalleryViewId,
@@ -1664,8 +1664,8 @@ class DriftMangaLibraryItem extends DataClass
   @override
   String toString() {
     return (StringBuffer('DriftMangaLibraryItem(')
-          ..write('id: $id, ')
           ..write('localApiClientId: $localApiClientId, ')
+          ..write('id: $id, ')
           ..write('created: $created, ')
           ..write('localMangaGalleryViewId: $localMangaGalleryViewId')
           ..write(')'))
@@ -1674,45 +1674,45 @@ class DriftMangaLibraryItem extends DataClass
 
   @override
   int get hashCode =>
-      Object.hash(id, localApiClientId, created, localMangaGalleryViewId);
+      Object.hash(localApiClientId, id, created, localMangaGalleryViewId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DriftMangaLibraryItem &&
-          other.id == this.id &&
           other.localApiClientId == this.localApiClientId &&
+          other.id == this.id &&
           other.created == this.created &&
           other.localMangaGalleryViewId == this.localMangaGalleryViewId);
 }
 
 class MangaLibraryItemTableCompanion
     extends UpdateCompanion<DriftMangaLibraryItem> {
-  final Value<int> id;
   final Value<int> localApiClientId;
+  final Value<int> id;
   final Value<DateTime> created;
   final Value<int> localMangaGalleryViewId;
   const MangaLibraryItemTableCompanion({
-    this.id = const Value.absent(),
     this.localApiClientId = const Value.absent(),
+    this.id = const Value.absent(),
     this.created = const Value.absent(),
     this.localMangaGalleryViewId = const Value.absent(),
   });
   MangaLibraryItemTableCompanion.insert({
-    this.id = const Value.absent(),
     required int localApiClientId,
+    this.id = const Value.absent(),
     this.created = const Value.absent(),
     required int localMangaGalleryViewId,
   })  : localApiClientId = Value(localApiClientId),
         localMangaGalleryViewId = Value(localMangaGalleryViewId);
   static Insertable<DriftMangaLibraryItem> custom({
-    Expression<int>? id,
     Expression<int>? localApiClientId,
+    Expression<int>? id,
     Expression<DateTime>? created,
     Expression<int>? localMangaGalleryViewId,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (localApiClientId != null) 'local_api_client_id': localApiClientId,
+      if (id != null) 'id': id,
       if (created != null) 'created': created,
       if (localMangaGalleryViewId != null)
         'local_manga_gallery_view_id': localMangaGalleryViewId,
@@ -1720,13 +1720,13 @@ class MangaLibraryItemTableCompanion
   }
 
   MangaLibraryItemTableCompanion copyWith(
-      {Value<int>? id,
-      Value<int>? localApiClientId,
+      {Value<int>? localApiClientId,
+      Value<int>? id,
       Value<DateTime>? created,
       Value<int>? localMangaGalleryViewId}) {
     return MangaLibraryItemTableCompanion(
-      id: id ?? this.id,
       localApiClientId: localApiClientId ?? this.localApiClientId,
+      id: id ?? this.id,
       created: created ?? this.created,
       localMangaGalleryViewId:
           localMangaGalleryViewId ?? this.localMangaGalleryViewId,
@@ -1736,11 +1736,11 @@ class MangaLibraryItemTableCompanion
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
     if (localApiClientId.present) {
       map['local_api_client_id'] = Variable<int>(localApiClientId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
     }
     if (created.present) {
       map['created'] = Variable<DateTime>(created.value);
@@ -1755,8 +1755,8 @@ class MangaLibraryItemTableCompanion
   @override
   String toString() {
     return (StringBuffer('MangaLibraryItemTableCompanion(')
-          ..write('id: $id, ')
           ..write('localApiClientId: $localApiClientId, ')
+          ..write('id: $id, ')
           ..write('created: $created, ')
           ..write('localMangaGalleryViewId: $localMangaGalleryViewId')
           ..write(')'))
@@ -1781,6 +1781,14 @@ class $LocalAnimeGalleryViewTableTable extends LocalAnimeGalleryViewTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   static const VerificationMeta _uidMeta = const VerificationMeta('uid');
   @override
   late final GeneratedColumn<String> uid = GeneratedColumn<String>(
@@ -1808,17 +1816,9 @@ class $LocalAnimeGalleryViewTableTable extends LocalAnimeGalleryViewTable
               type: DriftSqlType.int, requiredDuringInsert: true)
           .withConverter<AnimeStatus>(
               $LocalAnimeGalleryViewTableTable.$converterstatus);
-  static const VerificationMeta _createdMeta =
-      const VerificationMeta('created');
-  @override
-  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
-      'created', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, uid, cover, title, data, status, created];
+      [id, created, uid, cover, title, data, status];
   @override
   String get aliasedName => _alias ?? 'local_anime_gallery_view_table';
   @override
@@ -1831,6 +1831,10 @@ class $LocalAnimeGalleryViewTableTable extends LocalAnimeGalleryViewTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
     }
     if (data.containsKey('uid')) {
       context.handle(
@@ -1857,10 +1861,6 @@ class $LocalAnimeGalleryViewTableTable extends LocalAnimeGalleryViewTable
       context.missing(_dataMeta);
     }
     context.handle(_statusMeta, const VerificationResult.success());
-    if (data.containsKey('created')) {
-      context.handle(_createdMeta,
-          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
-    }
     return context;
   }
 
@@ -1873,6 +1873,8 @@ class $LocalAnimeGalleryViewTableTable extends LocalAnimeGalleryViewTable
     return DriftLocalAnimeGalleryView(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
       uid: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
       cover: attachedDatabase.typeMapping
@@ -1884,8 +1886,6 @@ class $LocalAnimeGalleryViewTableTable extends LocalAnimeGalleryViewTable
       status: $LocalAnimeGalleryViewTableTable.$converterstatus.fromSql(
           attachedDatabase.typeMapping
               .read(DriftSqlType.int, data['${effectivePrefix}status'])!),
-      created: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
     );
   }
 
@@ -1901,24 +1901,25 @@ class $LocalAnimeGalleryViewTableTable extends LocalAnimeGalleryViewTable
 class DriftLocalAnimeGalleryView extends DataClass
     implements Insertable<DriftLocalAnimeGalleryView> {
   final int id;
+  final DateTime created;
   final String uid;
   final String cover;
   final String title;
   final String data;
   final AnimeStatus status;
-  final DateTime created;
   const DriftLocalAnimeGalleryView(
       {required this.id,
+      required this.created,
       required this.uid,
       required this.cover,
       required this.title,
       required this.data,
-      required this.status,
-      required this.created});
+      required this.status});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
     map['uid'] = Variable<String>(uid);
     map['cover'] = Variable<String>(cover);
     map['title'] = Variable<String>(title);
@@ -1927,19 +1928,18 @@ class DriftLocalAnimeGalleryView extends DataClass
       final converter = $LocalAnimeGalleryViewTableTable.$converterstatus;
       map['status'] = Variable<int>(converter.toSql(status));
     }
-    map['created'] = Variable<DateTime>(created);
     return map;
   }
 
   LocalAnimeGalleryViewTableCompanion toCompanion(bool nullToAbsent) {
     return LocalAnimeGalleryViewTableCompanion(
       id: Value(id),
+      created: Value(created),
       uid: Value(uid),
       cover: Value(cover),
       title: Value(title),
       data: Value(data),
       status: Value(status),
-      created: Value(created),
     );
   }
 
@@ -1948,13 +1948,13 @@ class DriftLocalAnimeGalleryView extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return DriftLocalAnimeGalleryView(
       id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
       uid: serializer.fromJson<String>(json['uid']),
       cover: serializer.fromJson<String>(json['cover']),
       title: serializer.fromJson<String>(json['title']),
       data: serializer.fromJson<String>(json['data']),
       status: $LocalAnimeGalleryViewTableTable.$converterstatus
           .fromJson(serializer.fromJson<int>(json['status'])),
-      created: serializer.fromJson<DateTime>(json['created']),
     );
   }
   @override
@@ -1962,88 +1962,88 @@ class DriftLocalAnimeGalleryView extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
       'uid': serializer.toJson<String>(uid),
       'cover': serializer.toJson<String>(cover),
       'title': serializer.toJson<String>(title),
       'data': serializer.toJson<String>(data),
       'status': serializer.toJson<int>(
           $LocalAnimeGalleryViewTableTable.$converterstatus.toJson(status)),
-      'created': serializer.toJson<DateTime>(created),
     };
   }
 
   DriftLocalAnimeGalleryView copyWith(
           {int? id,
+          DateTime? created,
           String? uid,
           String? cover,
           String? title,
           String? data,
-          AnimeStatus? status,
-          DateTime? created}) =>
+          AnimeStatus? status}) =>
       DriftLocalAnimeGalleryView(
         id: id ?? this.id,
+        created: created ?? this.created,
         uid: uid ?? this.uid,
         cover: cover ?? this.cover,
         title: title ?? this.title,
         data: data ?? this.data,
         status: status ?? this.status,
-        created: created ?? this.created,
       );
   @override
   String toString() {
     return (StringBuffer('DriftLocalAnimeGalleryView(')
           ..write('id: $id, ')
+          ..write('created: $created, ')
           ..write('uid: $uid, ')
           ..write('cover: $cover, ')
           ..write('title: $title, ')
           ..write('data: $data, ')
-          ..write('status: $status, ')
-          ..write('created: $created')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, uid, cover, title, data, status, created);
+  int get hashCode => Object.hash(id, created, uid, cover, title, data, status);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DriftLocalAnimeGalleryView &&
           other.id == this.id &&
+          other.created == this.created &&
           other.uid == this.uid &&
           other.cover == this.cover &&
           other.title == this.title &&
           other.data == this.data &&
-          other.status == this.status &&
-          other.created == this.created);
+          other.status == this.status);
 }
 
 class LocalAnimeGalleryViewTableCompanion
     extends UpdateCompanion<DriftLocalAnimeGalleryView> {
   final Value<int> id;
+  final Value<DateTime> created;
   final Value<String> uid;
   final Value<String> cover;
   final Value<String> title;
   final Value<String> data;
   final Value<AnimeStatus> status;
-  final Value<DateTime> created;
   const LocalAnimeGalleryViewTableCompanion({
     this.id = const Value.absent(),
+    this.created = const Value.absent(),
     this.uid = const Value.absent(),
     this.cover = const Value.absent(),
     this.title = const Value.absent(),
     this.data = const Value.absent(),
     this.status = const Value.absent(),
-    this.created = const Value.absent(),
   });
   LocalAnimeGalleryViewTableCompanion.insert({
     this.id = const Value.absent(),
+    this.created = const Value.absent(),
     required String uid,
     required String cover,
     required String title,
     required String data,
     required AnimeStatus status,
-    this.created = const Value.absent(),
   })  : uid = Value(uid),
         cover = Value(cover),
         title = Value(title),
@@ -2051,40 +2051,40 @@ class LocalAnimeGalleryViewTableCompanion
         status = Value(status);
   static Insertable<DriftLocalAnimeGalleryView> custom({
     Expression<int>? id,
+    Expression<DateTime>? created,
     Expression<String>? uid,
     Expression<String>? cover,
     Expression<String>? title,
     Expression<String>? data,
     Expression<int>? status,
-    Expression<DateTime>? created,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (created != null) 'created': created,
       if (uid != null) 'uid': uid,
       if (cover != null) 'cover': cover,
       if (title != null) 'title': title,
       if (data != null) 'data': data,
       if (status != null) 'status': status,
-      if (created != null) 'created': created,
     });
   }
 
   LocalAnimeGalleryViewTableCompanion copyWith(
       {Value<int>? id,
+      Value<DateTime>? created,
       Value<String>? uid,
       Value<String>? cover,
       Value<String>? title,
       Value<String>? data,
-      Value<AnimeStatus>? status,
-      Value<DateTime>? created}) {
+      Value<AnimeStatus>? status}) {
     return LocalAnimeGalleryViewTableCompanion(
       id: id ?? this.id,
+      created: created ?? this.created,
       uid: uid ?? this.uid,
       cover: cover ?? this.cover,
       title: title ?? this.title,
       data: data ?? this.data,
       status: status ?? this.status,
-      created: created ?? this.created,
     );
   }
 
@@ -2093,6 +2093,9 @@ class LocalAnimeGalleryViewTableCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
     }
     if (uid.present) {
       map['uid'] = Variable<String>(uid.value);
@@ -2110,9 +2113,6 @@ class LocalAnimeGalleryViewTableCompanion
       final converter = $LocalAnimeGalleryViewTableTable.$converterstatus;
       map['status'] = Variable<int>(converter.toSql(status.value));
     }
-    if (created.present) {
-      map['created'] = Variable<DateTime>(created.value);
-    }
     return map;
   }
 
@@ -2120,12 +2120,1629 @@ class LocalAnimeGalleryViewTableCompanion
   String toString() {
     return (StringBuffer('LocalAnimeGalleryViewTableCompanion(')
           ..write('id: $id, ')
+          ..write('created: $created, ')
           ..write('uid: $uid, ')
           ..write('cover: $cover, ')
           ..write('title: $title, ')
           ..write('data: $data, ')
-          ..write('status: $status, ')
-          ..write('created: $created')
+          ..write('status: $status')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalMangaConcreteViewTableTable extends LocalMangaConcreteViewTable
+    with
+        TableInfo<$LocalMangaConcreteViewTableTable,
+            DriftLocalMangaConcreteView> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalMangaConcreteViewTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+      'uid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _galleryViewIdMeta =
+      const VerificationMeta('galleryViewId');
+  @override
+  late final GeneratedColumn<int> galleryViewId = GeneratedColumn<int>(
+      'gallery_view_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES local_anime_gallery_view_table (id)'));
+  static const VerificationMeta _coverMeta = const VerificationMeta('cover');
+  @override
+  late final GeneratedColumn<String> cover = GeneratedColumn<String>(
+      'cover', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _alternativeTitlesMeta =
+      const VerificationMeta('alternativeTitles');
+  @override
+  late final GeneratedColumn<String> alternativeTitles =
+      GeneratedColumn<String>('alternative_titles', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+      'tags', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumnWithTypeConverter<MangaStatus, int> status =
+      GeneratedColumn<int>('status', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<MangaStatus>(
+              $LocalMangaConcreteViewTableTable.$converterstatus);
+  @override
+  List<GeneratedColumn> get $columns => [
+        uid,
+        id,
+        created,
+        galleryViewId,
+        cover,
+        title,
+        alternativeTitles,
+        tags,
+        description,
+        status
+      ];
+  @override
+  String get aliasedName => _alias ?? 'local_manga_concrete_view_table';
+  @override
+  String get actualTableName => 'local_manga_concrete_view_table';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<DriftLocalMangaConcreteView> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid']!, _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
+    }
+    if (data.containsKey('gallery_view_id')) {
+      context.handle(
+          _galleryViewIdMeta,
+          galleryViewId.isAcceptableOrUnknown(
+              data['gallery_view_id']!, _galleryViewIdMeta));
+    } else if (isInserting) {
+      context.missing(_galleryViewIdMeta);
+    }
+    if (data.containsKey('cover')) {
+      context.handle(
+          _coverMeta, cover.isAcceptableOrUnknown(data['cover']!, _coverMeta));
+    } else if (isInserting) {
+      context.missing(_coverMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('alternative_titles')) {
+      context.handle(
+          _alternativeTitlesMeta,
+          alternativeTitles.isAcceptableOrUnknown(
+              data['alternative_titles']!, _alternativeTitlesMeta));
+    } else if (isInserting) {
+      context.missing(_alternativeTitlesMeta);
+    }
+    if (data.containsKey('tags')) {
+      context.handle(
+          _tagsMeta, tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta));
+    } else if (isInserting) {
+      context.missing(_tagsMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    context.handle(_statusMeta, const VerificationResult.success());
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DriftLocalMangaConcreteView map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DriftLocalMangaConcreteView(
+      uid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
+      galleryViewId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}gallery_view_id'])!,
+      cover: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      alternativeTitles: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}alternative_titles'])!,
+      tags: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tags'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      status: $LocalMangaConcreteViewTableTable.$converterstatus.fromSql(
+          attachedDatabase.typeMapping
+              .read(DriftSqlType.int, data['${effectivePrefix}status'])!),
+    );
+  }
+
+  @override
+  $LocalMangaConcreteViewTableTable createAlias(String alias) {
+    return $LocalMangaConcreteViewTableTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<MangaStatus, int, int> $converterstatus =
+      const EnumIndexConverter<MangaStatus>(MangaStatus.values);
+}
+
+class DriftLocalMangaConcreteView extends DataClass
+    implements Insertable<DriftLocalMangaConcreteView> {
+  final String uid;
+  final int id;
+  final DateTime created;
+  final int galleryViewId;
+  final String cover;
+  final String title;
+  final String alternativeTitles;
+  final String tags;
+  final String description;
+  final MangaStatus status;
+  const DriftLocalMangaConcreteView(
+      {required this.uid,
+      required this.id,
+      required this.created,
+      required this.galleryViewId,
+      required this.cover,
+      required this.title,
+      required this.alternativeTitles,
+      required this.tags,
+      required this.description,
+      required this.status});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['uid'] = Variable<String>(uid);
+    map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
+    map['gallery_view_id'] = Variable<int>(galleryViewId);
+    map['cover'] = Variable<String>(cover);
+    map['title'] = Variable<String>(title);
+    map['alternative_titles'] = Variable<String>(alternativeTitles);
+    map['tags'] = Variable<String>(tags);
+    map['description'] = Variable<String>(description);
+    {
+      final converter = $LocalMangaConcreteViewTableTable.$converterstatus;
+      map['status'] = Variable<int>(converter.toSql(status));
+    }
+    return map;
+  }
+
+  LocalMangaConcreteViewTableCompanion toCompanion(bool nullToAbsent) {
+    return LocalMangaConcreteViewTableCompanion(
+      uid: Value(uid),
+      id: Value(id),
+      created: Value(created),
+      galleryViewId: Value(galleryViewId),
+      cover: Value(cover),
+      title: Value(title),
+      alternativeTitles: Value(alternativeTitles),
+      tags: Value(tags),
+      description: Value(description),
+      status: Value(status),
+    );
+  }
+
+  factory DriftLocalMangaConcreteView.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DriftLocalMangaConcreteView(
+      uid: serializer.fromJson<String>(json['uid']),
+      id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
+      galleryViewId: serializer.fromJson<int>(json['galleryViewId']),
+      cover: serializer.fromJson<String>(json['cover']),
+      title: serializer.fromJson<String>(json['title']),
+      alternativeTitles: serializer.fromJson<String>(json['alternativeTitles']),
+      tags: serializer.fromJson<String>(json['tags']),
+      description: serializer.fromJson<String>(json['description']),
+      status: $LocalMangaConcreteViewTableTable.$converterstatus
+          .fromJson(serializer.fromJson<int>(json['status'])),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'uid': serializer.toJson<String>(uid),
+      'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
+      'galleryViewId': serializer.toJson<int>(galleryViewId),
+      'cover': serializer.toJson<String>(cover),
+      'title': serializer.toJson<String>(title),
+      'alternativeTitles': serializer.toJson<String>(alternativeTitles),
+      'tags': serializer.toJson<String>(tags),
+      'description': serializer.toJson<String>(description),
+      'status': serializer.toJson<int>(
+          $LocalMangaConcreteViewTableTable.$converterstatus.toJson(status)),
+    };
+  }
+
+  DriftLocalMangaConcreteView copyWith(
+          {String? uid,
+          int? id,
+          DateTime? created,
+          int? galleryViewId,
+          String? cover,
+          String? title,
+          String? alternativeTitles,
+          String? tags,
+          String? description,
+          MangaStatus? status}) =>
+      DriftLocalMangaConcreteView(
+        uid: uid ?? this.uid,
+        id: id ?? this.id,
+        created: created ?? this.created,
+        galleryViewId: galleryViewId ?? this.galleryViewId,
+        cover: cover ?? this.cover,
+        title: title ?? this.title,
+        alternativeTitles: alternativeTitles ?? this.alternativeTitles,
+        tags: tags ?? this.tags,
+        description: description ?? this.description,
+        status: status ?? this.status,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('DriftLocalMangaConcreteView(')
+          ..write('uid: $uid, ')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('galleryViewId: $galleryViewId, ')
+          ..write('cover: $cover, ')
+          ..write('title: $title, ')
+          ..write('alternativeTitles: $alternativeTitles, ')
+          ..write('tags: $tags, ')
+          ..write('description: $description, ')
+          ..write('status: $status')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(uid, id, created, galleryViewId, cover, title,
+      alternativeTitles, tags, description, status);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DriftLocalMangaConcreteView &&
+          other.uid == this.uid &&
+          other.id == this.id &&
+          other.created == this.created &&
+          other.galleryViewId == this.galleryViewId &&
+          other.cover == this.cover &&
+          other.title == this.title &&
+          other.alternativeTitles == this.alternativeTitles &&
+          other.tags == this.tags &&
+          other.description == this.description &&
+          other.status == this.status);
+}
+
+class LocalMangaConcreteViewTableCompanion
+    extends UpdateCompanion<DriftLocalMangaConcreteView> {
+  final Value<String> uid;
+  final Value<int> id;
+  final Value<DateTime> created;
+  final Value<int> galleryViewId;
+  final Value<String> cover;
+  final Value<String> title;
+  final Value<String> alternativeTitles;
+  final Value<String> tags;
+  final Value<String> description;
+  final Value<MangaStatus> status;
+  const LocalMangaConcreteViewTableCompanion({
+    this.uid = const Value.absent(),
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    this.galleryViewId = const Value.absent(),
+    this.cover = const Value.absent(),
+    this.title = const Value.absent(),
+    this.alternativeTitles = const Value.absent(),
+    this.tags = const Value.absent(),
+    this.description = const Value.absent(),
+    this.status = const Value.absent(),
+  });
+  LocalMangaConcreteViewTableCompanion.insert({
+    required String uid,
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    required int galleryViewId,
+    required String cover,
+    required String title,
+    required String alternativeTitles,
+    required String tags,
+    required String description,
+    required MangaStatus status,
+  })  : uid = Value(uid),
+        galleryViewId = Value(galleryViewId),
+        cover = Value(cover),
+        title = Value(title),
+        alternativeTitles = Value(alternativeTitles),
+        tags = Value(tags),
+        description = Value(description),
+        status = Value(status);
+  static Insertable<DriftLocalMangaConcreteView> custom({
+    Expression<String>? uid,
+    Expression<int>? id,
+    Expression<DateTime>? created,
+    Expression<int>? galleryViewId,
+    Expression<String>? cover,
+    Expression<String>? title,
+    Expression<String>? alternativeTitles,
+    Expression<String>? tags,
+    Expression<String>? description,
+    Expression<int>? status,
+  }) {
+    return RawValuesInsertable({
+      if (uid != null) 'uid': uid,
+      if (id != null) 'id': id,
+      if (created != null) 'created': created,
+      if (galleryViewId != null) 'gallery_view_id': galleryViewId,
+      if (cover != null) 'cover': cover,
+      if (title != null) 'title': title,
+      if (alternativeTitles != null) 'alternative_titles': alternativeTitles,
+      if (tags != null) 'tags': tags,
+      if (description != null) 'description': description,
+      if (status != null) 'status': status,
+    });
+  }
+
+  LocalMangaConcreteViewTableCompanion copyWith(
+      {Value<String>? uid,
+      Value<int>? id,
+      Value<DateTime>? created,
+      Value<int>? galleryViewId,
+      Value<String>? cover,
+      Value<String>? title,
+      Value<String>? alternativeTitles,
+      Value<String>? tags,
+      Value<String>? description,
+      Value<MangaStatus>? status}) {
+    return LocalMangaConcreteViewTableCompanion(
+      uid: uid ?? this.uid,
+      id: id ?? this.id,
+      created: created ?? this.created,
+      galleryViewId: galleryViewId ?? this.galleryViewId,
+      cover: cover ?? this.cover,
+      title: title ?? this.title,
+      alternativeTitles: alternativeTitles ?? this.alternativeTitles,
+      tags: tags ?? this.tags,
+      description: description ?? this.description,
+      status: status ?? this.status,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
+    }
+    if (galleryViewId.present) {
+      map['gallery_view_id'] = Variable<int>(galleryViewId.value);
+    }
+    if (cover.present) {
+      map['cover'] = Variable<String>(cover.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (alternativeTitles.present) {
+      map['alternative_titles'] = Variable<String>(alternativeTitles.value);
+    }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (status.present) {
+      final converter = $LocalMangaConcreteViewTableTable.$converterstatus;
+      map['status'] = Variable<int>(converter.toSql(status.value));
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalMangaConcreteViewTableCompanion(')
+          ..write('uid: $uid, ')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('galleryViewId: $galleryViewId, ')
+          ..write('cover: $cover, ')
+          ..write('title: $title, ')
+          ..write('alternativeTitles: $alternativeTitles, ')
+          ..write('tags: $tags, ')
+          ..write('description: $description, ')
+          ..write('status: $status')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalChaptersGroupTableTable extends LocalChaptersGroupTable
+    with TableInfo<$LocalChaptersGroupTableTable, DriftLocalChaptersGroup> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalChaptersGroupTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+      'data', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _mangaConcreteIdMeta =
+      const VerificationMeta('mangaConcreteId');
+  @override
+  late final GeneratedColumn<int> mangaConcreteId = GeneratedColumn<int>(
+      'manga_concrete_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES local_manga_concrete_view_table (id)'));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [title, data, id, created, mangaConcreteId];
+  @override
+  String get aliasedName => _alias ?? 'local_chapters_group_table';
+  @override
+  String get actualTableName => 'local_chapters_group_table';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<DriftLocalChaptersGroup> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('data')) {
+      context.handle(
+          _dataMeta, this.data.isAcceptableOrUnknown(data['data']!, _dataMeta));
+    } else if (isInserting) {
+      context.missing(_dataMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
+    }
+    if (data.containsKey('manga_concrete_id')) {
+      context.handle(
+          _mangaConcreteIdMeta,
+          mangaConcreteId.isAcceptableOrUnknown(
+              data['manga_concrete_id']!, _mangaConcreteIdMeta));
+    } else if (isInserting) {
+      context.missing(_mangaConcreteIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DriftLocalChaptersGroup map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DriftLocalChaptersGroup(
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      data: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}data'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
+      mangaConcreteId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}manga_concrete_id'])!,
+    );
+  }
+
+  @override
+  $LocalChaptersGroupTableTable createAlias(String alias) {
+    return $LocalChaptersGroupTableTable(attachedDatabase, alias);
+  }
+}
+
+class DriftLocalChaptersGroup extends DataClass
+    implements Insertable<DriftLocalChaptersGroup> {
+  final String title;
+  final String data;
+  final int id;
+  final DateTime created;
+  final int mangaConcreteId;
+  const DriftLocalChaptersGroup(
+      {required this.title,
+      required this.data,
+      required this.id,
+      required this.created,
+      required this.mangaConcreteId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['title'] = Variable<String>(title);
+    map['data'] = Variable<String>(data);
+    map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
+    map['manga_concrete_id'] = Variable<int>(mangaConcreteId);
+    return map;
+  }
+
+  LocalChaptersGroupTableCompanion toCompanion(bool nullToAbsent) {
+    return LocalChaptersGroupTableCompanion(
+      title: Value(title),
+      data: Value(data),
+      id: Value(id),
+      created: Value(created),
+      mangaConcreteId: Value(mangaConcreteId),
+    );
+  }
+
+  factory DriftLocalChaptersGroup.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DriftLocalChaptersGroup(
+      title: serializer.fromJson<String>(json['title']),
+      data: serializer.fromJson<String>(json['data']),
+      id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
+      mangaConcreteId: serializer.fromJson<int>(json['mangaConcreteId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'title': serializer.toJson<String>(title),
+      'data': serializer.toJson<String>(data),
+      'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
+      'mangaConcreteId': serializer.toJson<int>(mangaConcreteId),
+    };
+  }
+
+  DriftLocalChaptersGroup copyWith(
+          {String? title,
+          String? data,
+          int? id,
+          DateTime? created,
+          int? mangaConcreteId}) =>
+      DriftLocalChaptersGroup(
+        title: title ?? this.title,
+        data: data ?? this.data,
+        id: id ?? this.id,
+        created: created ?? this.created,
+        mangaConcreteId: mangaConcreteId ?? this.mangaConcreteId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('DriftLocalChaptersGroup(')
+          ..write('title: $title, ')
+          ..write('data: $data, ')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('mangaConcreteId: $mangaConcreteId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(title, data, id, created, mangaConcreteId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DriftLocalChaptersGroup &&
+          other.title == this.title &&
+          other.data == this.data &&
+          other.id == this.id &&
+          other.created == this.created &&
+          other.mangaConcreteId == this.mangaConcreteId);
+}
+
+class LocalChaptersGroupTableCompanion
+    extends UpdateCompanion<DriftLocalChaptersGroup> {
+  final Value<String> title;
+  final Value<String> data;
+  final Value<int> id;
+  final Value<DateTime> created;
+  final Value<int> mangaConcreteId;
+  const LocalChaptersGroupTableCompanion({
+    this.title = const Value.absent(),
+    this.data = const Value.absent(),
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    this.mangaConcreteId = const Value.absent(),
+  });
+  LocalChaptersGroupTableCompanion.insert({
+    required String title,
+    required String data,
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    required int mangaConcreteId,
+  })  : title = Value(title),
+        data = Value(data),
+        mangaConcreteId = Value(mangaConcreteId);
+  static Insertable<DriftLocalChaptersGroup> custom({
+    Expression<String>? title,
+    Expression<String>? data,
+    Expression<int>? id,
+    Expression<DateTime>? created,
+    Expression<int>? mangaConcreteId,
+  }) {
+    return RawValuesInsertable({
+      if (title != null) 'title': title,
+      if (data != null) 'data': data,
+      if (id != null) 'id': id,
+      if (created != null) 'created': created,
+      if (mangaConcreteId != null) 'manga_concrete_id': mangaConcreteId,
+    });
+  }
+
+  LocalChaptersGroupTableCompanion copyWith(
+      {Value<String>? title,
+      Value<String>? data,
+      Value<int>? id,
+      Value<DateTime>? created,
+      Value<int>? mangaConcreteId}) {
+    return LocalChaptersGroupTableCompanion(
+      title: title ?? this.title,
+      data: data ?? this.data,
+      id: id ?? this.id,
+      created: created ?? this.created,
+      mangaConcreteId: mangaConcreteId ?? this.mangaConcreteId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
+    }
+    if (mangaConcreteId.present) {
+      map['manga_concrete_id'] = Variable<int>(mangaConcreteId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalChaptersGroupTableCompanion(')
+          ..write('title: $title, ')
+          ..write('data: $data, ')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('mangaConcreteId: $mangaConcreteId')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalChapterTableTable extends LocalChapterTable
+    with TableInfo<$LocalChapterTableTable, DriftLocalChapter> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalChapterTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+      'uid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+      'data', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _chaptersGroupIdMeta =
+      const VerificationMeta('chaptersGroupId');
+  @override
+  late final GeneratedColumn<int> chaptersGroupId = GeneratedColumn<int>(
+      'chapters_group_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES local_chapters_group_table (id)'));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [uid, title, data, id, created, chaptersGroupId];
+  @override
+  String get aliasedName => _alias ?? 'local_chapter_table';
+  @override
+  String get actualTableName => 'local_chapter_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<DriftLocalChapter> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid']!, _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('data')) {
+      context.handle(
+          _dataMeta, this.data.isAcceptableOrUnknown(data['data']!, _dataMeta));
+    } else if (isInserting) {
+      context.missing(_dataMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
+    }
+    if (data.containsKey('chapters_group_id')) {
+      context.handle(
+          _chaptersGroupIdMeta,
+          chaptersGroupId.isAcceptableOrUnknown(
+              data['chapters_group_id']!, _chaptersGroupIdMeta));
+    } else if (isInserting) {
+      context.missing(_chaptersGroupIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DriftLocalChapter map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DriftLocalChapter(
+      uid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      data: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}data'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
+      chaptersGroupId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}chapters_group_id'])!,
+    );
+  }
+
+  @override
+  $LocalChapterTableTable createAlias(String alias) {
+    return $LocalChapterTableTable(attachedDatabase, alias);
+  }
+}
+
+class DriftLocalChapter extends DataClass
+    implements Insertable<DriftLocalChapter> {
+  final String uid;
+  final String title;
+  final String data;
+  final int id;
+  final DateTime created;
+  final int chaptersGroupId;
+  const DriftLocalChapter(
+      {required this.uid,
+      required this.title,
+      required this.data,
+      required this.id,
+      required this.created,
+      required this.chaptersGroupId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['uid'] = Variable<String>(uid);
+    map['title'] = Variable<String>(title);
+    map['data'] = Variable<String>(data);
+    map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
+    map['chapters_group_id'] = Variable<int>(chaptersGroupId);
+    return map;
+  }
+
+  LocalChapterTableCompanion toCompanion(bool nullToAbsent) {
+    return LocalChapterTableCompanion(
+      uid: Value(uid),
+      title: Value(title),
+      data: Value(data),
+      id: Value(id),
+      created: Value(created),
+      chaptersGroupId: Value(chaptersGroupId),
+    );
+  }
+
+  factory DriftLocalChapter.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DriftLocalChapter(
+      uid: serializer.fromJson<String>(json['uid']),
+      title: serializer.fromJson<String>(json['title']),
+      data: serializer.fromJson<String>(json['data']),
+      id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
+      chaptersGroupId: serializer.fromJson<int>(json['chaptersGroupId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'uid': serializer.toJson<String>(uid),
+      'title': serializer.toJson<String>(title),
+      'data': serializer.toJson<String>(data),
+      'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
+      'chaptersGroupId': serializer.toJson<int>(chaptersGroupId),
+    };
+  }
+
+  DriftLocalChapter copyWith(
+          {String? uid,
+          String? title,
+          String? data,
+          int? id,
+          DateTime? created,
+          int? chaptersGroupId}) =>
+      DriftLocalChapter(
+        uid: uid ?? this.uid,
+        title: title ?? this.title,
+        data: data ?? this.data,
+        id: id ?? this.id,
+        created: created ?? this.created,
+        chaptersGroupId: chaptersGroupId ?? this.chaptersGroupId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('DriftLocalChapter(')
+          ..write('uid: $uid, ')
+          ..write('title: $title, ')
+          ..write('data: $data, ')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('chaptersGroupId: $chaptersGroupId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(uid, title, data, id, created, chaptersGroupId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DriftLocalChapter &&
+          other.uid == this.uid &&
+          other.title == this.title &&
+          other.data == this.data &&
+          other.id == this.id &&
+          other.created == this.created &&
+          other.chaptersGroupId == this.chaptersGroupId);
+}
+
+class LocalChapterTableCompanion extends UpdateCompanion<DriftLocalChapter> {
+  final Value<String> uid;
+  final Value<String> title;
+  final Value<String> data;
+  final Value<int> id;
+  final Value<DateTime> created;
+  final Value<int> chaptersGroupId;
+  const LocalChapterTableCompanion({
+    this.uid = const Value.absent(),
+    this.title = const Value.absent(),
+    this.data = const Value.absent(),
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    this.chaptersGroupId = const Value.absent(),
+  });
+  LocalChapterTableCompanion.insert({
+    required String uid,
+    required String title,
+    required String data,
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    required int chaptersGroupId,
+  })  : uid = Value(uid),
+        title = Value(title),
+        data = Value(data),
+        chaptersGroupId = Value(chaptersGroupId);
+  static Insertable<DriftLocalChapter> custom({
+    Expression<String>? uid,
+    Expression<String>? title,
+    Expression<String>? data,
+    Expression<int>? id,
+    Expression<DateTime>? created,
+    Expression<int>? chaptersGroupId,
+  }) {
+    return RawValuesInsertable({
+      if (uid != null) 'uid': uid,
+      if (title != null) 'title': title,
+      if (data != null) 'data': data,
+      if (id != null) 'id': id,
+      if (created != null) 'created': created,
+      if (chaptersGroupId != null) 'chapters_group_id': chaptersGroupId,
+    });
+  }
+
+  LocalChapterTableCompanion copyWith(
+      {Value<String>? uid,
+      Value<String>? title,
+      Value<String>? data,
+      Value<int>? id,
+      Value<DateTime>? created,
+      Value<int>? chaptersGroupId}) {
+    return LocalChapterTableCompanion(
+      uid: uid ?? this.uid,
+      title: title ?? this.title,
+      data: data ?? this.data,
+      id: id ?? this.id,
+      created: created ?? this.created,
+      chaptersGroupId: chaptersGroupId ?? this.chaptersGroupId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
+    }
+    if (chaptersGroupId.present) {
+      map['chapters_group_id'] = Variable<int>(chaptersGroupId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalChapterTableCompanion(')
+          ..write('uid: $uid, ')
+          ..write('title: $title, ')
+          ..write('data: $data, ')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('chaptersGroupId: $chaptersGroupId')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalPagesTableTable extends LocalPagesTable
+    with TableInfo<$LocalPagesTableTable, DriftLocalPages> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalPagesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _chapterUidMeta =
+      const VerificationMeta('chapterUid');
+  @override
+  late final GeneratedColumn<String> chapterUid = GeneratedColumn<String>(
+      'chapter_uid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _chapterIdMeta =
+      const VerificationMeta('chapterId');
+  @override
+  late final GeneratedColumn<int> chapterId = GeneratedColumn<int>(
+      'chapter_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES local_chapter_table (id)'));
+  @override
+  List<GeneratedColumn> get $columns => [id, created, chapterUid, chapterId];
+  @override
+  String get aliasedName => _alias ?? 'local_pages_table';
+  @override
+  String get actualTableName => 'local_pages_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<DriftLocalPages> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
+    }
+    if (data.containsKey('chapter_uid')) {
+      context.handle(
+          _chapterUidMeta,
+          chapterUid.isAcceptableOrUnknown(
+              data['chapter_uid']!, _chapterUidMeta));
+    } else if (isInserting) {
+      context.missing(_chapterUidMeta);
+    }
+    if (data.containsKey('chapter_id')) {
+      context.handle(_chapterIdMeta,
+          chapterId.isAcceptableOrUnknown(data['chapter_id']!, _chapterIdMeta));
+    } else if (isInserting) {
+      context.missing(_chapterIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DriftLocalPages map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DriftLocalPages(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
+      chapterUid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}chapter_uid'])!,
+      chapterId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}chapter_id'])!,
+    );
+  }
+
+  @override
+  $LocalPagesTableTable createAlias(String alias) {
+    return $LocalPagesTableTable(attachedDatabase, alias);
+  }
+}
+
+class DriftLocalPages extends DataClass implements Insertable<DriftLocalPages> {
+  final int id;
+  final DateTime created;
+  final String chapterUid;
+  final int chapterId;
+  const DriftLocalPages(
+      {required this.id,
+      required this.created,
+      required this.chapterUid,
+      required this.chapterId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
+    map['chapter_uid'] = Variable<String>(chapterUid);
+    map['chapter_id'] = Variable<int>(chapterId);
+    return map;
+  }
+
+  LocalPagesTableCompanion toCompanion(bool nullToAbsent) {
+    return LocalPagesTableCompanion(
+      id: Value(id),
+      created: Value(created),
+      chapterUid: Value(chapterUid),
+      chapterId: Value(chapterId),
+    );
+  }
+
+  factory DriftLocalPages.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DriftLocalPages(
+      id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
+      chapterUid: serializer.fromJson<String>(json['chapterUid']),
+      chapterId: serializer.fromJson<int>(json['chapterId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
+      'chapterUid': serializer.toJson<String>(chapterUid),
+      'chapterId': serializer.toJson<int>(chapterId),
+    };
+  }
+
+  DriftLocalPages copyWith(
+          {int? id, DateTime? created, String? chapterUid, int? chapterId}) =>
+      DriftLocalPages(
+        id: id ?? this.id,
+        created: created ?? this.created,
+        chapterUid: chapterUid ?? this.chapterUid,
+        chapterId: chapterId ?? this.chapterId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('DriftLocalPages(')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('chapterUid: $chapterUid, ')
+          ..write('chapterId: $chapterId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, created, chapterUid, chapterId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DriftLocalPages &&
+          other.id == this.id &&
+          other.created == this.created &&
+          other.chapterUid == this.chapterUid &&
+          other.chapterId == this.chapterId);
+}
+
+class LocalPagesTableCompanion extends UpdateCompanion<DriftLocalPages> {
+  final Value<int> id;
+  final Value<DateTime> created;
+  final Value<String> chapterUid;
+  final Value<int> chapterId;
+  const LocalPagesTableCompanion({
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    this.chapterUid = const Value.absent(),
+    this.chapterId = const Value.absent(),
+  });
+  LocalPagesTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    required String chapterUid,
+    required int chapterId,
+  })  : chapterUid = Value(chapterUid),
+        chapterId = Value(chapterId);
+  static Insertable<DriftLocalPages> custom({
+    Expression<int>? id,
+    Expression<DateTime>? created,
+    Expression<String>? chapterUid,
+    Expression<int>? chapterId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (created != null) 'created': created,
+      if (chapterUid != null) 'chapter_uid': chapterUid,
+      if (chapterId != null) 'chapter_id': chapterId,
+    });
+  }
+
+  LocalPagesTableCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime>? created,
+      Value<String>? chapterUid,
+      Value<int>? chapterId}) {
+    return LocalPagesTableCompanion(
+      id: id ?? this.id,
+      created: created ?? this.created,
+      chapterUid: chapterUid ?? this.chapterUid,
+      chapterId: chapterId ?? this.chapterId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
+    }
+    if (chapterUid.present) {
+      map['chapter_uid'] = Variable<String>(chapterUid.value);
+    }
+    if (chapterId.present) {
+      map['chapter_id'] = Variable<int>(chapterId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalPagesTableCompanion(')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('chapterUid: $chapterUid, ')
+          ..write('chapterId: $chapterId')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalPageTableTable extends LocalPageTable
+    with TableInfo<$LocalPageTableTable, DriftLocalPage> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalPageTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _urlMeta = const VerificationMeta('url');
+  @override
+  late final GeneratedColumn<String> url = GeneratedColumn<String>(
+      'url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _pagesIdMeta =
+      const VerificationMeta('pagesId');
+  @override
+  late final GeneratedColumn<int> pagesId = GeneratedColumn<int>(
+      'pages_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES local_pages_table (id)'));
+  @override
+  List<GeneratedColumn> get $columns => [id, created, url, pagesId];
+  @override
+  String get aliasedName => _alias ?? 'local_page_table';
+  @override
+  String get actualTableName => 'local_page_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<DriftLocalPage> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
+    }
+    if (data.containsKey('url')) {
+      context.handle(
+          _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
+    } else if (isInserting) {
+      context.missing(_urlMeta);
+    }
+    if (data.containsKey('pages_id')) {
+      context.handle(_pagesIdMeta,
+          pagesId.isAcceptableOrUnknown(data['pages_id']!, _pagesIdMeta));
+    } else if (isInserting) {
+      context.missing(_pagesIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DriftLocalPage map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DriftLocalPage(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
+      url: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}url'])!,
+      pagesId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}pages_id'])!,
+    );
+  }
+
+  @override
+  $LocalPageTableTable createAlias(String alias) {
+    return $LocalPageTableTable(attachedDatabase, alias);
+  }
+}
+
+class DriftLocalPage extends DataClass implements Insertable<DriftLocalPage> {
+  final int id;
+  final DateTime created;
+  final String url;
+  final int pagesId;
+  const DriftLocalPage(
+      {required this.id,
+      required this.created,
+      required this.url,
+      required this.pagesId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
+    map['url'] = Variable<String>(url);
+    map['pages_id'] = Variable<int>(pagesId);
+    return map;
+  }
+
+  LocalPageTableCompanion toCompanion(bool nullToAbsent) {
+    return LocalPageTableCompanion(
+      id: Value(id),
+      created: Value(created),
+      url: Value(url),
+      pagesId: Value(pagesId),
+    );
+  }
+
+  factory DriftLocalPage.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DriftLocalPage(
+      id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
+      url: serializer.fromJson<String>(json['url']),
+      pagesId: serializer.fromJson<int>(json['pagesId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
+      'url': serializer.toJson<String>(url),
+      'pagesId': serializer.toJson<int>(pagesId),
+    };
+  }
+
+  DriftLocalPage copyWith(
+          {int? id, DateTime? created, String? url, int? pagesId}) =>
+      DriftLocalPage(
+        id: id ?? this.id,
+        created: created ?? this.created,
+        url: url ?? this.url,
+        pagesId: pagesId ?? this.pagesId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('DriftLocalPage(')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('url: $url, ')
+          ..write('pagesId: $pagesId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, created, url, pagesId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DriftLocalPage &&
+          other.id == this.id &&
+          other.created == this.created &&
+          other.url == this.url &&
+          other.pagesId == this.pagesId);
+}
+
+class LocalPageTableCompanion extends UpdateCompanion<DriftLocalPage> {
+  final Value<int> id;
+  final Value<DateTime> created;
+  final Value<String> url;
+  final Value<int> pagesId;
+  const LocalPageTableCompanion({
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    this.url = const Value.absent(),
+    this.pagesId = const Value.absent(),
+  });
+  LocalPageTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    required String url,
+    required int pagesId,
+  })  : url = Value(url),
+        pagesId = Value(pagesId);
+  static Insertable<DriftLocalPage> custom({
+    Expression<int>? id,
+    Expression<DateTime>? created,
+    Expression<String>? url,
+    Expression<int>? pagesId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (created != null) 'created': created,
+      if (url != null) 'url': url,
+      if (pagesId != null) 'pages_id': pagesId,
+    });
+  }
+
+  LocalPageTableCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime>? created,
+      Value<String>? url,
+      Value<int>? pagesId}) {
+    return LocalPageTableCompanion(
+      id: id ?? this.id,
+      created: created ?? this.created,
+      url: url ?? this.url,
+      pagesId: pagesId ?? this.pagesId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
+    }
+    if (url.present) {
+      map['url'] = Variable<String>(url.value);
+    }
+    if (pagesId.present) {
+      map['pages_id'] = Variable<int>(pagesId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalPageTableCompanion(')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('url: $url, ')
+          ..write('pagesId: $pagesId')
           ..write(')'))
         .toString();
   }
@@ -2137,15 +3754,6 @@ class $AnimeLibraryItemTableTable extends AnimeLibraryItemTable
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $AnimeLibraryItemTableTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _localApiClientIdMeta =
       const VerificationMeta('localApiClientId');
   @override
@@ -2155,6 +3763,15 @@ class $AnimeLibraryItemTableTable extends AnimeLibraryItemTable
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES local_api_source_table (id)'));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _createdMeta =
       const VerificationMeta('created');
   @override
@@ -2174,7 +3791,7 @@ class $AnimeLibraryItemTableTable extends AnimeLibraryItemTable
               'REFERENCES local_anime_gallery_view_table (id)'));
   @override
   List<GeneratedColumn> get $columns =>
-      [id, localApiClientId, created, localAnimeGalleryViewId];
+      [localApiClientId, id, created, localAnimeGalleryViewId];
   @override
   String get aliasedName => _alias ?? 'anime_library_item_table';
   @override
@@ -2185,9 +3802,6 @@ class $AnimeLibraryItemTableTable extends AnimeLibraryItemTable
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
     if (data.containsKey('local_api_client_id')) {
       context.handle(
           _localApiClientIdMeta,
@@ -2195,6 +3809,9 @@ class $AnimeLibraryItemTableTable extends AnimeLibraryItemTable
               data['local_api_client_id']!, _localApiClientIdMeta));
     } else if (isInserting) {
       context.missing(_localApiClientIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('created')) {
       context.handle(_createdMeta,
@@ -2218,10 +3835,10 @@ class $AnimeLibraryItemTableTable extends AnimeLibraryItemTable
   DriftAnimeLibraryItem map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return DriftAnimeLibraryItem(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       localApiClientId: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}local_api_client_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       created: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
       localAnimeGalleryViewId: attachedDatabase.typeMapping.read(
@@ -2238,20 +3855,20 @@ class $AnimeLibraryItemTableTable extends AnimeLibraryItemTable
 
 class DriftAnimeLibraryItem extends DataClass
     implements Insertable<DriftAnimeLibraryItem> {
-  final int id;
   final int localApiClientId;
+  final int id;
   final DateTime created;
   final int localAnimeGalleryViewId;
   const DriftAnimeLibraryItem(
-      {required this.id,
-      required this.localApiClientId,
+      {required this.localApiClientId,
+      required this.id,
       required this.created,
       required this.localAnimeGalleryViewId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
     map['local_api_client_id'] = Variable<int>(localApiClientId);
+    map['id'] = Variable<int>(id);
     map['created'] = Variable<DateTime>(created);
     map['local_anime_gallery_view_id'] = Variable<int>(localAnimeGalleryViewId);
     return map;
@@ -2259,8 +3876,8 @@ class DriftAnimeLibraryItem extends DataClass
 
   AnimeLibraryItemTableCompanion toCompanion(bool nullToAbsent) {
     return AnimeLibraryItemTableCompanion(
-      id: Value(id),
       localApiClientId: Value(localApiClientId),
+      id: Value(id),
       created: Value(created),
       localAnimeGalleryViewId: Value(localAnimeGalleryViewId),
     );
@@ -2270,8 +3887,8 @@ class DriftAnimeLibraryItem extends DataClass
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return DriftAnimeLibraryItem(
-      id: serializer.fromJson<int>(json['id']),
       localApiClientId: serializer.fromJson<int>(json['localApiClientId']),
+      id: serializer.fromJson<int>(json['id']),
       created: serializer.fromJson<DateTime>(json['created']),
       localAnimeGalleryViewId:
           serializer.fromJson<int>(json['localAnimeGalleryViewId']),
@@ -2281,8 +3898,8 @@ class DriftAnimeLibraryItem extends DataClass
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
       'localApiClientId': serializer.toJson<int>(localApiClientId),
+      'id': serializer.toJson<int>(id),
       'created': serializer.toJson<DateTime>(created),
       'localAnimeGalleryViewId':
           serializer.toJson<int>(localAnimeGalleryViewId),
@@ -2290,13 +3907,13 @@ class DriftAnimeLibraryItem extends DataClass
   }
 
   DriftAnimeLibraryItem copyWith(
-          {int? id,
-          int? localApiClientId,
+          {int? localApiClientId,
+          int? id,
           DateTime? created,
           int? localAnimeGalleryViewId}) =>
       DriftAnimeLibraryItem(
-        id: id ?? this.id,
         localApiClientId: localApiClientId ?? this.localApiClientId,
+        id: id ?? this.id,
         created: created ?? this.created,
         localAnimeGalleryViewId:
             localAnimeGalleryViewId ?? this.localAnimeGalleryViewId,
@@ -2304,8 +3921,8 @@ class DriftAnimeLibraryItem extends DataClass
   @override
   String toString() {
     return (StringBuffer('DriftAnimeLibraryItem(')
-          ..write('id: $id, ')
           ..write('localApiClientId: $localApiClientId, ')
+          ..write('id: $id, ')
           ..write('created: $created, ')
           ..write('localAnimeGalleryViewId: $localAnimeGalleryViewId')
           ..write(')'))
@@ -2314,45 +3931,45 @@ class DriftAnimeLibraryItem extends DataClass
 
   @override
   int get hashCode =>
-      Object.hash(id, localApiClientId, created, localAnimeGalleryViewId);
+      Object.hash(localApiClientId, id, created, localAnimeGalleryViewId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DriftAnimeLibraryItem &&
-          other.id == this.id &&
           other.localApiClientId == this.localApiClientId &&
+          other.id == this.id &&
           other.created == this.created &&
           other.localAnimeGalleryViewId == this.localAnimeGalleryViewId);
 }
 
 class AnimeLibraryItemTableCompanion
     extends UpdateCompanion<DriftAnimeLibraryItem> {
-  final Value<int> id;
   final Value<int> localApiClientId;
+  final Value<int> id;
   final Value<DateTime> created;
   final Value<int> localAnimeGalleryViewId;
   const AnimeLibraryItemTableCompanion({
-    this.id = const Value.absent(),
     this.localApiClientId = const Value.absent(),
+    this.id = const Value.absent(),
     this.created = const Value.absent(),
     this.localAnimeGalleryViewId = const Value.absent(),
   });
   AnimeLibraryItemTableCompanion.insert({
-    this.id = const Value.absent(),
     required int localApiClientId,
+    this.id = const Value.absent(),
     this.created = const Value.absent(),
     required int localAnimeGalleryViewId,
   })  : localApiClientId = Value(localApiClientId),
         localAnimeGalleryViewId = Value(localAnimeGalleryViewId);
   static Insertable<DriftAnimeLibraryItem> custom({
-    Expression<int>? id,
     Expression<int>? localApiClientId,
+    Expression<int>? id,
     Expression<DateTime>? created,
     Expression<int>? localAnimeGalleryViewId,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (localApiClientId != null) 'local_api_client_id': localApiClientId,
+      if (id != null) 'id': id,
       if (created != null) 'created': created,
       if (localAnimeGalleryViewId != null)
         'local_anime_gallery_view_id': localAnimeGalleryViewId,
@@ -2360,13 +3977,13 @@ class AnimeLibraryItemTableCompanion
   }
 
   AnimeLibraryItemTableCompanion copyWith(
-      {Value<int>? id,
-      Value<int>? localApiClientId,
+      {Value<int>? localApiClientId,
+      Value<int>? id,
       Value<DateTime>? created,
       Value<int>? localAnimeGalleryViewId}) {
     return AnimeLibraryItemTableCompanion(
-      id: id ?? this.id,
       localApiClientId: localApiClientId ?? this.localApiClientId,
+      id: id ?? this.id,
       created: created ?? this.created,
       localAnimeGalleryViewId:
           localAnimeGalleryViewId ?? this.localAnimeGalleryViewId,
@@ -2376,11 +3993,11 @@ class AnimeLibraryItemTableCompanion
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
     if (localApiClientId.present) {
       map['local_api_client_id'] = Variable<int>(localApiClientId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
     }
     if (created.present) {
       map['created'] = Variable<DateTime>(created.value);
@@ -2395,10 +4012,1208 @@ class AnimeLibraryItemTableCompanion
   @override
   String toString() {
     return (StringBuffer('AnimeLibraryItemTableCompanion(')
-          ..write('id: $id, ')
           ..write('localApiClientId: $localApiClientId, ')
+          ..write('id: $id, ')
           ..write('created: $created, ')
           ..write('localAnimeGalleryViewId: $localAnimeGalleryViewId')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalAnimeConcreteViewTableTable extends LocalAnimeConcreteViewTable
+    with
+        TableInfo<$LocalAnimeConcreteViewTableTable,
+            DriftLocalAnimeConcreteView> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalAnimeConcreteViewTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+      'uid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _galleryViewIdMeta =
+      const VerificationMeta('galleryViewId');
+  @override
+  late final GeneratedColumn<int> galleryViewId = GeneratedColumn<int>(
+      'gallery_view_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES local_manga_gallery_view_table (id)'));
+  static const VerificationMeta _coverMeta = const VerificationMeta('cover');
+  @override
+  late final GeneratedColumn<String> cover = GeneratedColumn<String>(
+      'cover', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _alternativeTitlesMeta =
+      const VerificationMeta('alternativeTitles');
+  @override
+  late final GeneratedColumn<String> alternativeTitles =
+      GeneratedColumn<String>('alternative_titles', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+      'tags', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumnWithTypeConverter<AnimeStatus, int> status =
+      GeneratedColumn<int>('status', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<AnimeStatus>(
+              $LocalAnimeConcreteViewTableTable.$converterstatus);
+  @override
+  List<GeneratedColumn> get $columns => [
+        uid,
+        id,
+        created,
+        galleryViewId,
+        cover,
+        title,
+        alternativeTitles,
+        tags,
+        description,
+        status
+      ];
+  @override
+  String get aliasedName => _alias ?? 'local_anime_concrete_view_table';
+  @override
+  String get actualTableName => 'local_anime_concrete_view_table';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<DriftLocalAnimeConcreteView> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid']!, _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
+    }
+    if (data.containsKey('gallery_view_id')) {
+      context.handle(
+          _galleryViewIdMeta,
+          galleryViewId.isAcceptableOrUnknown(
+              data['gallery_view_id']!, _galleryViewIdMeta));
+    } else if (isInserting) {
+      context.missing(_galleryViewIdMeta);
+    }
+    if (data.containsKey('cover')) {
+      context.handle(
+          _coverMeta, cover.isAcceptableOrUnknown(data['cover']!, _coverMeta));
+    } else if (isInserting) {
+      context.missing(_coverMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('alternative_titles')) {
+      context.handle(
+          _alternativeTitlesMeta,
+          alternativeTitles.isAcceptableOrUnknown(
+              data['alternative_titles']!, _alternativeTitlesMeta));
+    } else if (isInserting) {
+      context.missing(_alternativeTitlesMeta);
+    }
+    if (data.containsKey('tags')) {
+      context.handle(
+          _tagsMeta, tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta));
+    } else if (isInserting) {
+      context.missing(_tagsMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    context.handle(_statusMeta, const VerificationResult.success());
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DriftLocalAnimeConcreteView map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DriftLocalAnimeConcreteView(
+      uid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
+      galleryViewId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}gallery_view_id'])!,
+      cover: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      alternativeTitles: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}alternative_titles'])!,
+      tags: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tags'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      status: $LocalAnimeConcreteViewTableTable.$converterstatus.fromSql(
+          attachedDatabase.typeMapping
+              .read(DriftSqlType.int, data['${effectivePrefix}status'])!),
+    );
+  }
+
+  @override
+  $LocalAnimeConcreteViewTableTable createAlias(String alias) {
+    return $LocalAnimeConcreteViewTableTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<AnimeStatus, int, int> $converterstatus =
+      const EnumIndexConverter<AnimeStatus>(AnimeStatus.values);
+}
+
+class DriftLocalAnimeConcreteView extends DataClass
+    implements Insertable<DriftLocalAnimeConcreteView> {
+  final String uid;
+  final int id;
+  final DateTime created;
+  final int galleryViewId;
+  final String cover;
+  final String title;
+  final String alternativeTitles;
+  final String tags;
+  final String description;
+  final AnimeStatus status;
+  const DriftLocalAnimeConcreteView(
+      {required this.uid,
+      required this.id,
+      required this.created,
+      required this.galleryViewId,
+      required this.cover,
+      required this.title,
+      required this.alternativeTitles,
+      required this.tags,
+      required this.description,
+      required this.status});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['uid'] = Variable<String>(uid);
+    map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
+    map['gallery_view_id'] = Variable<int>(galleryViewId);
+    map['cover'] = Variable<String>(cover);
+    map['title'] = Variable<String>(title);
+    map['alternative_titles'] = Variable<String>(alternativeTitles);
+    map['tags'] = Variable<String>(tags);
+    map['description'] = Variable<String>(description);
+    {
+      final converter = $LocalAnimeConcreteViewTableTable.$converterstatus;
+      map['status'] = Variable<int>(converter.toSql(status));
+    }
+    return map;
+  }
+
+  LocalAnimeConcreteViewTableCompanion toCompanion(bool nullToAbsent) {
+    return LocalAnimeConcreteViewTableCompanion(
+      uid: Value(uid),
+      id: Value(id),
+      created: Value(created),
+      galleryViewId: Value(galleryViewId),
+      cover: Value(cover),
+      title: Value(title),
+      alternativeTitles: Value(alternativeTitles),
+      tags: Value(tags),
+      description: Value(description),
+      status: Value(status),
+    );
+  }
+
+  factory DriftLocalAnimeConcreteView.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DriftLocalAnimeConcreteView(
+      uid: serializer.fromJson<String>(json['uid']),
+      id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
+      galleryViewId: serializer.fromJson<int>(json['galleryViewId']),
+      cover: serializer.fromJson<String>(json['cover']),
+      title: serializer.fromJson<String>(json['title']),
+      alternativeTitles: serializer.fromJson<String>(json['alternativeTitles']),
+      tags: serializer.fromJson<String>(json['tags']),
+      description: serializer.fromJson<String>(json['description']),
+      status: $LocalAnimeConcreteViewTableTable.$converterstatus
+          .fromJson(serializer.fromJson<int>(json['status'])),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'uid': serializer.toJson<String>(uid),
+      'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
+      'galleryViewId': serializer.toJson<int>(galleryViewId),
+      'cover': serializer.toJson<String>(cover),
+      'title': serializer.toJson<String>(title),
+      'alternativeTitles': serializer.toJson<String>(alternativeTitles),
+      'tags': serializer.toJson<String>(tags),
+      'description': serializer.toJson<String>(description),
+      'status': serializer.toJson<int>(
+          $LocalAnimeConcreteViewTableTable.$converterstatus.toJson(status)),
+    };
+  }
+
+  DriftLocalAnimeConcreteView copyWith(
+          {String? uid,
+          int? id,
+          DateTime? created,
+          int? galleryViewId,
+          String? cover,
+          String? title,
+          String? alternativeTitles,
+          String? tags,
+          String? description,
+          AnimeStatus? status}) =>
+      DriftLocalAnimeConcreteView(
+        uid: uid ?? this.uid,
+        id: id ?? this.id,
+        created: created ?? this.created,
+        galleryViewId: galleryViewId ?? this.galleryViewId,
+        cover: cover ?? this.cover,
+        title: title ?? this.title,
+        alternativeTitles: alternativeTitles ?? this.alternativeTitles,
+        tags: tags ?? this.tags,
+        description: description ?? this.description,
+        status: status ?? this.status,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('DriftLocalAnimeConcreteView(')
+          ..write('uid: $uid, ')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('galleryViewId: $galleryViewId, ')
+          ..write('cover: $cover, ')
+          ..write('title: $title, ')
+          ..write('alternativeTitles: $alternativeTitles, ')
+          ..write('tags: $tags, ')
+          ..write('description: $description, ')
+          ..write('status: $status')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(uid, id, created, galleryViewId, cover, title,
+      alternativeTitles, tags, description, status);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DriftLocalAnimeConcreteView &&
+          other.uid == this.uid &&
+          other.id == this.id &&
+          other.created == this.created &&
+          other.galleryViewId == this.galleryViewId &&
+          other.cover == this.cover &&
+          other.title == this.title &&
+          other.alternativeTitles == this.alternativeTitles &&
+          other.tags == this.tags &&
+          other.description == this.description &&
+          other.status == this.status);
+}
+
+class LocalAnimeConcreteViewTableCompanion
+    extends UpdateCompanion<DriftLocalAnimeConcreteView> {
+  final Value<String> uid;
+  final Value<int> id;
+  final Value<DateTime> created;
+  final Value<int> galleryViewId;
+  final Value<String> cover;
+  final Value<String> title;
+  final Value<String> alternativeTitles;
+  final Value<String> tags;
+  final Value<String> description;
+  final Value<AnimeStatus> status;
+  const LocalAnimeConcreteViewTableCompanion({
+    this.uid = const Value.absent(),
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    this.galleryViewId = const Value.absent(),
+    this.cover = const Value.absent(),
+    this.title = const Value.absent(),
+    this.alternativeTitles = const Value.absent(),
+    this.tags = const Value.absent(),
+    this.description = const Value.absent(),
+    this.status = const Value.absent(),
+  });
+  LocalAnimeConcreteViewTableCompanion.insert({
+    required String uid,
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    required int galleryViewId,
+    required String cover,
+    required String title,
+    required String alternativeTitles,
+    required String tags,
+    required String description,
+    required AnimeStatus status,
+  })  : uid = Value(uid),
+        galleryViewId = Value(galleryViewId),
+        cover = Value(cover),
+        title = Value(title),
+        alternativeTitles = Value(alternativeTitles),
+        tags = Value(tags),
+        description = Value(description),
+        status = Value(status);
+  static Insertable<DriftLocalAnimeConcreteView> custom({
+    Expression<String>? uid,
+    Expression<int>? id,
+    Expression<DateTime>? created,
+    Expression<int>? galleryViewId,
+    Expression<String>? cover,
+    Expression<String>? title,
+    Expression<String>? alternativeTitles,
+    Expression<String>? tags,
+    Expression<String>? description,
+    Expression<int>? status,
+  }) {
+    return RawValuesInsertable({
+      if (uid != null) 'uid': uid,
+      if (id != null) 'id': id,
+      if (created != null) 'created': created,
+      if (galleryViewId != null) 'gallery_view_id': galleryViewId,
+      if (cover != null) 'cover': cover,
+      if (title != null) 'title': title,
+      if (alternativeTitles != null) 'alternative_titles': alternativeTitles,
+      if (tags != null) 'tags': tags,
+      if (description != null) 'description': description,
+      if (status != null) 'status': status,
+    });
+  }
+
+  LocalAnimeConcreteViewTableCompanion copyWith(
+      {Value<String>? uid,
+      Value<int>? id,
+      Value<DateTime>? created,
+      Value<int>? galleryViewId,
+      Value<String>? cover,
+      Value<String>? title,
+      Value<String>? alternativeTitles,
+      Value<String>? tags,
+      Value<String>? description,
+      Value<AnimeStatus>? status}) {
+    return LocalAnimeConcreteViewTableCompanion(
+      uid: uid ?? this.uid,
+      id: id ?? this.id,
+      created: created ?? this.created,
+      galleryViewId: galleryViewId ?? this.galleryViewId,
+      cover: cover ?? this.cover,
+      title: title ?? this.title,
+      alternativeTitles: alternativeTitles ?? this.alternativeTitles,
+      tags: tags ?? this.tags,
+      description: description ?? this.description,
+      status: status ?? this.status,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
+    }
+    if (galleryViewId.present) {
+      map['gallery_view_id'] = Variable<int>(galleryViewId.value);
+    }
+    if (cover.present) {
+      map['cover'] = Variable<String>(cover.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (alternativeTitles.present) {
+      map['alternative_titles'] = Variable<String>(alternativeTitles.value);
+    }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (status.present) {
+      final converter = $LocalAnimeConcreteViewTableTable.$converterstatus;
+      map['status'] = Variable<int>(converter.toSql(status.value));
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalAnimeConcreteViewTableCompanion(')
+          ..write('uid: $uid, ')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('galleryViewId: $galleryViewId, ')
+          ..write('cover: $cover, ')
+          ..write('title: $title, ')
+          ..write('alternativeTitles: $alternativeTitles, ')
+          ..write('tags: $tags, ')
+          ..write('description: $description, ')
+          ..write('status: $status')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalAnimeVideosGroupTableTable extends LocalAnimeVideosGroupTable
+    with
+        TableInfo<$LocalAnimeVideosGroupTableTable,
+            DriftLocalAnimeVideosGroup> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalAnimeVideosGroupTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+      'data', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _animeConcreteIdMeta =
+      const VerificationMeta('animeConcreteId');
+  @override
+  late final GeneratedColumn<int> animeConcreteId = GeneratedColumn<int>(
+      'anime_concrete_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES local_anime_concrete_view_table (id)'));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [title, data, id, created, animeConcreteId];
+  @override
+  String get aliasedName => _alias ?? 'local_anime_videos_group_table';
+  @override
+  String get actualTableName => 'local_anime_videos_group_table';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<DriftLocalAnimeVideosGroup> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('data')) {
+      context.handle(
+          _dataMeta, this.data.isAcceptableOrUnknown(data['data']!, _dataMeta));
+    } else if (isInserting) {
+      context.missing(_dataMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
+    }
+    if (data.containsKey('anime_concrete_id')) {
+      context.handle(
+          _animeConcreteIdMeta,
+          animeConcreteId.isAcceptableOrUnknown(
+              data['anime_concrete_id']!, _animeConcreteIdMeta));
+    } else if (isInserting) {
+      context.missing(_animeConcreteIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DriftLocalAnimeVideosGroup map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DriftLocalAnimeVideosGroup(
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      data: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}data'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
+      animeConcreteId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}anime_concrete_id'])!,
+    );
+  }
+
+  @override
+  $LocalAnimeVideosGroupTableTable createAlias(String alias) {
+    return $LocalAnimeVideosGroupTableTable(attachedDatabase, alias);
+  }
+}
+
+class DriftLocalAnimeVideosGroup extends DataClass
+    implements Insertable<DriftLocalAnimeVideosGroup> {
+  final String title;
+  final String data;
+  final int id;
+  final DateTime created;
+  final int animeConcreteId;
+  const DriftLocalAnimeVideosGroup(
+      {required this.title,
+      required this.data,
+      required this.id,
+      required this.created,
+      required this.animeConcreteId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['title'] = Variable<String>(title);
+    map['data'] = Variable<String>(data);
+    map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
+    map['anime_concrete_id'] = Variable<int>(animeConcreteId);
+    return map;
+  }
+
+  LocalAnimeVideosGroupTableCompanion toCompanion(bool nullToAbsent) {
+    return LocalAnimeVideosGroupTableCompanion(
+      title: Value(title),
+      data: Value(data),
+      id: Value(id),
+      created: Value(created),
+      animeConcreteId: Value(animeConcreteId),
+    );
+  }
+
+  factory DriftLocalAnimeVideosGroup.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DriftLocalAnimeVideosGroup(
+      title: serializer.fromJson<String>(json['title']),
+      data: serializer.fromJson<String>(json['data']),
+      id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
+      animeConcreteId: serializer.fromJson<int>(json['animeConcreteId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'title': serializer.toJson<String>(title),
+      'data': serializer.toJson<String>(data),
+      'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
+      'animeConcreteId': serializer.toJson<int>(animeConcreteId),
+    };
+  }
+
+  DriftLocalAnimeVideosGroup copyWith(
+          {String? title,
+          String? data,
+          int? id,
+          DateTime? created,
+          int? animeConcreteId}) =>
+      DriftLocalAnimeVideosGroup(
+        title: title ?? this.title,
+        data: data ?? this.data,
+        id: id ?? this.id,
+        created: created ?? this.created,
+        animeConcreteId: animeConcreteId ?? this.animeConcreteId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('DriftLocalAnimeVideosGroup(')
+          ..write('title: $title, ')
+          ..write('data: $data, ')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('animeConcreteId: $animeConcreteId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(title, data, id, created, animeConcreteId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DriftLocalAnimeVideosGroup &&
+          other.title == this.title &&
+          other.data == this.data &&
+          other.id == this.id &&
+          other.created == this.created &&
+          other.animeConcreteId == this.animeConcreteId);
+}
+
+class LocalAnimeVideosGroupTableCompanion
+    extends UpdateCompanion<DriftLocalAnimeVideosGroup> {
+  final Value<String> title;
+  final Value<String> data;
+  final Value<int> id;
+  final Value<DateTime> created;
+  final Value<int> animeConcreteId;
+  const LocalAnimeVideosGroupTableCompanion({
+    this.title = const Value.absent(),
+    this.data = const Value.absent(),
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    this.animeConcreteId = const Value.absent(),
+  });
+  LocalAnimeVideosGroupTableCompanion.insert({
+    required String title,
+    required String data,
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    required int animeConcreteId,
+  })  : title = Value(title),
+        data = Value(data),
+        animeConcreteId = Value(animeConcreteId);
+  static Insertable<DriftLocalAnimeVideosGroup> custom({
+    Expression<String>? title,
+    Expression<String>? data,
+    Expression<int>? id,
+    Expression<DateTime>? created,
+    Expression<int>? animeConcreteId,
+  }) {
+    return RawValuesInsertable({
+      if (title != null) 'title': title,
+      if (data != null) 'data': data,
+      if (id != null) 'id': id,
+      if (created != null) 'created': created,
+      if (animeConcreteId != null) 'anime_concrete_id': animeConcreteId,
+    });
+  }
+
+  LocalAnimeVideosGroupTableCompanion copyWith(
+      {Value<String>? title,
+      Value<String>? data,
+      Value<int>? id,
+      Value<DateTime>? created,
+      Value<int>? animeConcreteId}) {
+    return LocalAnimeVideosGroupTableCompanion(
+      title: title ?? this.title,
+      data: data ?? this.data,
+      id: id ?? this.id,
+      created: created ?? this.created,
+      animeConcreteId: animeConcreteId ?? this.animeConcreteId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
+    }
+    if (animeConcreteId.present) {
+      map['anime_concrete_id'] = Variable<int>(animeConcreteId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalAnimeVideosGroupTableCompanion(')
+          ..write('title: $title, ')
+          ..write('data: $data, ')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('animeConcreteId: $animeConcreteId')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalAnimeVideoTableTable extends LocalAnimeVideoTable
+    with TableInfo<$LocalAnimeVideoTableTable, DriftLocalAnimeVideo> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalAnimeVideoTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+      'uid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+      'data', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _animeVideosGroupIdMeta =
+      const VerificationMeta('animeVideosGroupId');
+  @override
+  late final GeneratedColumn<int> animeVideosGroupId = GeneratedColumn<int>(
+      'anime_videos_group_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES local_anime_videos_group_table (id)'));
+  static const VerificationMeta _srcMeta = const VerificationMeta('src');
+  @override
+  late final GeneratedColumn<String> src = GeneratedColumn<String>(
+      'src', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumnWithTypeConverter<AnimeVideoType, int> type =
+      GeneratedColumn<int>('type', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<AnimeVideoType>(
+              $LocalAnimeVideoTableTable.$convertertype);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [uid, title, data, id, created, animeVideosGroupId, src, type];
+  @override
+  String get aliasedName => _alias ?? 'local_anime_video_table';
+  @override
+  String get actualTableName => 'local_anime_video_table';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<DriftLocalAnimeVideo> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid']!, _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('data')) {
+      context.handle(
+          _dataMeta, this.data.isAcceptableOrUnknown(data['data']!, _dataMeta));
+    } else if (isInserting) {
+      context.missing(_dataMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
+    }
+    if (data.containsKey('anime_videos_group_id')) {
+      context.handle(
+          _animeVideosGroupIdMeta,
+          animeVideosGroupId.isAcceptableOrUnknown(
+              data['anime_videos_group_id']!, _animeVideosGroupIdMeta));
+    } else if (isInserting) {
+      context.missing(_animeVideosGroupIdMeta);
+    }
+    if (data.containsKey('src')) {
+      context.handle(
+          _srcMeta, src.isAcceptableOrUnknown(data['src']!, _srcMeta));
+    } else if (isInserting) {
+      context.missing(_srcMeta);
+    }
+    context.handle(_typeMeta, const VerificationResult.success());
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DriftLocalAnimeVideo map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DriftLocalAnimeVideo(
+      uid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      data: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}data'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
+      animeVideosGroupId: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}anime_videos_group_id'])!,
+      src: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}src'])!,
+      type: $LocalAnimeVideoTableTable.$convertertype.fromSql(attachedDatabase
+          .typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}type'])!),
+    );
+  }
+
+  @override
+  $LocalAnimeVideoTableTable createAlias(String alias) {
+    return $LocalAnimeVideoTableTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<AnimeVideoType, int, int> $convertertype =
+      const EnumIndexConverter<AnimeVideoType>(AnimeVideoType.values);
+}
+
+class DriftLocalAnimeVideo extends DataClass
+    implements Insertable<DriftLocalAnimeVideo> {
+  final String uid;
+  final String title;
+  final String data;
+  final int id;
+  final DateTime created;
+  final int animeVideosGroupId;
+  final String src;
+  final AnimeVideoType type;
+  const DriftLocalAnimeVideo(
+      {required this.uid,
+      required this.title,
+      required this.data,
+      required this.id,
+      required this.created,
+      required this.animeVideosGroupId,
+      required this.src,
+      required this.type});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['uid'] = Variable<String>(uid);
+    map['title'] = Variable<String>(title);
+    map['data'] = Variable<String>(data);
+    map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
+    map['anime_videos_group_id'] = Variable<int>(animeVideosGroupId);
+    map['src'] = Variable<String>(src);
+    {
+      final converter = $LocalAnimeVideoTableTable.$convertertype;
+      map['type'] = Variable<int>(converter.toSql(type));
+    }
+    return map;
+  }
+
+  LocalAnimeVideoTableCompanion toCompanion(bool nullToAbsent) {
+    return LocalAnimeVideoTableCompanion(
+      uid: Value(uid),
+      title: Value(title),
+      data: Value(data),
+      id: Value(id),
+      created: Value(created),
+      animeVideosGroupId: Value(animeVideosGroupId),
+      src: Value(src),
+      type: Value(type),
+    );
+  }
+
+  factory DriftLocalAnimeVideo.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DriftLocalAnimeVideo(
+      uid: serializer.fromJson<String>(json['uid']),
+      title: serializer.fromJson<String>(json['title']),
+      data: serializer.fromJson<String>(json['data']),
+      id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
+      animeVideosGroupId: serializer.fromJson<int>(json['animeVideosGroupId']),
+      src: serializer.fromJson<String>(json['src']),
+      type: $LocalAnimeVideoTableTable.$convertertype
+          .fromJson(serializer.fromJson<int>(json['type'])),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'uid': serializer.toJson<String>(uid),
+      'title': serializer.toJson<String>(title),
+      'data': serializer.toJson<String>(data),
+      'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
+      'animeVideosGroupId': serializer.toJson<int>(animeVideosGroupId),
+      'src': serializer.toJson<String>(src),
+      'type': serializer
+          .toJson<int>($LocalAnimeVideoTableTable.$convertertype.toJson(type)),
+    };
+  }
+
+  DriftLocalAnimeVideo copyWith(
+          {String? uid,
+          String? title,
+          String? data,
+          int? id,
+          DateTime? created,
+          int? animeVideosGroupId,
+          String? src,
+          AnimeVideoType? type}) =>
+      DriftLocalAnimeVideo(
+        uid: uid ?? this.uid,
+        title: title ?? this.title,
+        data: data ?? this.data,
+        id: id ?? this.id,
+        created: created ?? this.created,
+        animeVideosGroupId: animeVideosGroupId ?? this.animeVideosGroupId,
+        src: src ?? this.src,
+        type: type ?? this.type,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('DriftLocalAnimeVideo(')
+          ..write('uid: $uid, ')
+          ..write('title: $title, ')
+          ..write('data: $data, ')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('animeVideosGroupId: $animeVideosGroupId, ')
+          ..write('src: $src, ')
+          ..write('type: $type')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(uid, title, data, id, created, animeVideosGroupId, src, type);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DriftLocalAnimeVideo &&
+          other.uid == this.uid &&
+          other.title == this.title &&
+          other.data == this.data &&
+          other.id == this.id &&
+          other.created == this.created &&
+          other.animeVideosGroupId == this.animeVideosGroupId &&
+          other.src == this.src &&
+          other.type == this.type);
+}
+
+class LocalAnimeVideoTableCompanion
+    extends UpdateCompanion<DriftLocalAnimeVideo> {
+  final Value<String> uid;
+  final Value<String> title;
+  final Value<String> data;
+  final Value<int> id;
+  final Value<DateTime> created;
+  final Value<int> animeVideosGroupId;
+  final Value<String> src;
+  final Value<AnimeVideoType> type;
+  const LocalAnimeVideoTableCompanion({
+    this.uid = const Value.absent(),
+    this.title = const Value.absent(),
+    this.data = const Value.absent(),
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    this.animeVideosGroupId = const Value.absent(),
+    this.src = const Value.absent(),
+    this.type = const Value.absent(),
+  });
+  LocalAnimeVideoTableCompanion.insert({
+    required String uid,
+    required String title,
+    required String data,
+    this.id = const Value.absent(),
+    this.created = const Value.absent(),
+    required int animeVideosGroupId,
+    required String src,
+    required AnimeVideoType type,
+  })  : uid = Value(uid),
+        title = Value(title),
+        data = Value(data),
+        animeVideosGroupId = Value(animeVideosGroupId),
+        src = Value(src),
+        type = Value(type);
+  static Insertable<DriftLocalAnimeVideo> custom({
+    Expression<String>? uid,
+    Expression<String>? title,
+    Expression<String>? data,
+    Expression<int>? id,
+    Expression<DateTime>? created,
+    Expression<int>? animeVideosGroupId,
+    Expression<String>? src,
+    Expression<int>? type,
+  }) {
+    return RawValuesInsertable({
+      if (uid != null) 'uid': uid,
+      if (title != null) 'title': title,
+      if (data != null) 'data': data,
+      if (id != null) 'id': id,
+      if (created != null) 'created': created,
+      if (animeVideosGroupId != null)
+        'anime_videos_group_id': animeVideosGroupId,
+      if (src != null) 'src': src,
+      if (type != null) 'type': type,
+    });
+  }
+
+  LocalAnimeVideoTableCompanion copyWith(
+      {Value<String>? uid,
+      Value<String>? title,
+      Value<String>? data,
+      Value<int>? id,
+      Value<DateTime>? created,
+      Value<int>? animeVideosGroupId,
+      Value<String>? src,
+      Value<AnimeVideoType>? type}) {
+    return LocalAnimeVideoTableCompanion(
+      uid: uid ?? this.uid,
+      title: title ?? this.title,
+      data: data ?? this.data,
+      id: id ?? this.id,
+      created: created ?? this.created,
+      animeVideosGroupId: animeVideosGroupId ?? this.animeVideosGroupId,
+      src: src ?? this.src,
+      type: type ?? this.type,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
+    }
+    if (animeVideosGroupId.present) {
+      map['anime_videos_group_id'] = Variable<int>(animeVideosGroupId.value);
+    }
+    if (src.present) {
+      map['src'] = Variable<String>(src.value);
+    }
+    if (type.present) {
+      final converter = $LocalAnimeVideoTableTable.$convertertype;
+      map['type'] = Variable<int>(converter.toSql(type.value));
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalAnimeVideoTableCompanion(')
+          ..write('uid: $uid, ')
+          ..write('title: $title, ')
+          ..write('data: $data, ')
+          ..write('id: $id, ')
+          ..write('created: $created, ')
+          ..write('animeVideosGroupId: $animeVideosGroupId, ')
+          ..write('src: $src, ')
+          ..write('type: $type')
           ..write(')'))
         .toString();
   }
@@ -2419,6 +5234,14 @@ class $LocalConfigsSourcesTableTable extends LocalConfigsSourcesTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   static const VerificationMeta _baseUrlMeta =
       const VerificationMeta('baseUrl');
   @override
@@ -2437,16 +5260,8 @@ class $LocalConfigsSourcesTableTable extends LocalConfigsSourcesTable
               type: DriftSqlType.int, requiredDuringInsert: true)
           .withConverter<ConfigsSourceType>(
               $LocalConfigsSourcesTableTable.$convertertype);
-  static const VerificationMeta _createdMeta =
-      const VerificationMeta('created');
   @override
-  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
-      'created', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
-  @override
-  List<GeneratedColumn> get $columns => [id, baseUrl, name, type, created];
+  List<GeneratedColumn> get $columns => [id, created, baseUrl, name, type];
   @override
   String get aliasedName => _alias ?? 'local_configs_sources_table';
   @override
@@ -2459,6 +5274,10 @@ class $LocalConfigsSourcesTableTable extends LocalConfigsSourcesTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
     }
     if (data.containsKey('base_url')) {
       context.handle(_baseUrlMeta,
@@ -2473,10 +5292,6 @@ class $LocalConfigsSourcesTableTable extends LocalConfigsSourcesTable
       context.missing(_nameMeta);
     }
     context.handle(_typeMeta, const VerificationResult.success());
-    if (data.containsKey('created')) {
-      context.handle(_createdMeta,
-          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
-    }
     return context;
   }
 
@@ -2489,6 +5304,8 @@ class $LocalConfigsSourcesTableTable extends LocalConfigsSourcesTable
     return DriftLocalConfigsSource(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
       baseUrl: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}base_url'])!,
       name: attachedDatabase.typeMapping
@@ -2496,8 +5313,6 @@ class $LocalConfigsSourcesTableTable extends LocalConfigsSourcesTable
       type: $LocalConfigsSourcesTableTable.$convertertype.fromSql(
           attachedDatabase.typeMapping
               .read(DriftSqlType.int, data['${effectivePrefix}type'])!),
-      created: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
     );
   }
 
@@ -2513,37 +5328,37 @@ class $LocalConfigsSourcesTableTable extends LocalConfigsSourcesTable
 class DriftLocalConfigsSource extends DataClass
     implements Insertable<DriftLocalConfigsSource> {
   final int id;
+  final DateTime created;
   final String baseUrl;
   final String name;
   final ConfigsSourceType type;
-  final DateTime created;
   const DriftLocalConfigsSource(
       {required this.id,
+      required this.created,
       required this.baseUrl,
       required this.name,
-      required this.type,
-      required this.created});
+      required this.type});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
     map['base_url'] = Variable<String>(baseUrl);
     map['name'] = Variable<String>(name);
     {
       final converter = $LocalConfigsSourcesTableTable.$convertertype;
       map['type'] = Variable<int>(converter.toSql(type));
     }
-    map['created'] = Variable<DateTime>(created);
     return map;
   }
 
   LocalConfigsSourcesTableCompanion toCompanion(bool nullToAbsent) {
     return LocalConfigsSourcesTableCompanion(
       id: Value(id),
+      created: Value(created),
       baseUrl: Value(baseUrl),
       name: Value(name),
       type: Value(type),
-      created: Value(created),
     );
   }
 
@@ -2552,11 +5367,11 @@ class DriftLocalConfigsSource extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return DriftLocalConfigsSource(
       id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
       baseUrl: serializer.fromJson<String>(json['baseUrl']),
       name: serializer.fromJson<String>(json['name']),
       type: $LocalConfigsSourcesTableTable.$convertertype
           .fromJson(serializer.fromJson<int>(json['type'])),
-      created: serializer.fromJson<DateTime>(json['created']),
     );
   }
   @override
@@ -2564,103 +5379,103 @@ class DriftLocalConfigsSource extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
       'baseUrl': serializer.toJson<String>(baseUrl),
       'name': serializer.toJson<String>(name),
       'type': serializer.toJson<int>(
           $LocalConfigsSourcesTableTable.$convertertype.toJson(type)),
-      'created': serializer.toJson<DateTime>(created),
     };
   }
 
   DriftLocalConfigsSource copyWith(
           {int? id,
+          DateTime? created,
           String? baseUrl,
           String? name,
-          ConfigsSourceType? type,
-          DateTime? created}) =>
+          ConfigsSourceType? type}) =>
       DriftLocalConfigsSource(
         id: id ?? this.id,
+        created: created ?? this.created,
         baseUrl: baseUrl ?? this.baseUrl,
         name: name ?? this.name,
         type: type ?? this.type,
-        created: created ?? this.created,
       );
   @override
   String toString() {
     return (StringBuffer('DriftLocalConfigsSource(')
           ..write('id: $id, ')
+          ..write('created: $created, ')
           ..write('baseUrl: $baseUrl, ')
           ..write('name: $name, ')
-          ..write('type: $type, ')
-          ..write('created: $created')
+          ..write('type: $type')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, baseUrl, name, type, created);
+  int get hashCode => Object.hash(id, created, baseUrl, name, type);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DriftLocalConfigsSource &&
           other.id == this.id &&
+          other.created == this.created &&
           other.baseUrl == this.baseUrl &&
           other.name == this.name &&
-          other.type == this.type &&
-          other.created == this.created);
+          other.type == this.type);
 }
 
 class LocalConfigsSourcesTableCompanion
     extends UpdateCompanion<DriftLocalConfigsSource> {
   final Value<int> id;
+  final Value<DateTime> created;
   final Value<String> baseUrl;
   final Value<String> name;
   final Value<ConfigsSourceType> type;
-  final Value<DateTime> created;
   const LocalConfigsSourcesTableCompanion({
     this.id = const Value.absent(),
+    this.created = const Value.absent(),
     this.baseUrl = const Value.absent(),
     this.name = const Value.absent(),
     this.type = const Value.absent(),
-    this.created = const Value.absent(),
   });
   LocalConfigsSourcesTableCompanion.insert({
     this.id = const Value.absent(),
+    this.created = const Value.absent(),
     required String baseUrl,
     required String name,
     required ConfigsSourceType type,
-    this.created = const Value.absent(),
   })  : baseUrl = Value(baseUrl),
         name = Value(name),
         type = Value(type);
   static Insertable<DriftLocalConfigsSource> custom({
     Expression<int>? id,
+    Expression<DateTime>? created,
     Expression<String>? baseUrl,
     Expression<String>? name,
     Expression<int>? type,
-    Expression<DateTime>? created,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (created != null) 'created': created,
       if (baseUrl != null) 'base_url': baseUrl,
       if (name != null) 'name': name,
       if (type != null) 'type': type,
-      if (created != null) 'created': created,
     });
   }
 
   LocalConfigsSourcesTableCompanion copyWith(
       {Value<int>? id,
+      Value<DateTime>? created,
       Value<String>? baseUrl,
       Value<String>? name,
-      Value<ConfigsSourceType>? type,
-      Value<DateTime>? created}) {
+      Value<ConfigsSourceType>? type}) {
     return LocalConfigsSourcesTableCompanion(
       id: id ?? this.id,
+      created: created ?? this.created,
       baseUrl: baseUrl ?? this.baseUrl,
       name: name ?? this.name,
       type: type ?? this.type,
-      created: created ?? this.created,
     );
   }
 
@@ -2669,6 +5484,9 @@ class LocalConfigsSourcesTableCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
     }
     if (baseUrl.present) {
       map['base_url'] = Variable<String>(baseUrl.value);
@@ -2680,9 +5498,6 @@ class LocalConfigsSourcesTableCompanion
       final converter = $LocalConfigsSourcesTableTable.$convertertype;
       map['type'] = Variable<int>(converter.toSql(type.value));
     }
-    if (created.present) {
-      map['created'] = Variable<DateTime>(created.value);
-    }
     return map;
   }
 
@@ -2690,10 +5505,10 @@ class LocalConfigsSourcesTableCompanion
   String toString() {
     return (StringBuffer('LocalConfigsSourcesTableCompanion(')
           ..write('id: $id, ')
+          ..write('created: $created, ')
           ..write('baseUrl: $baseUrl, ')
           ..write('name: $name, ')
-          ..write('type: $type, ')
-          ..write('created: $created')
+          ..write('type: $type')
           ..write(')'))
         .toString();
   }
@@ -2714,6 +5529,14 @@ class $PagesReadTableTable extends PagesReadTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdMeta =
+      const VerificationMeta('created');
+  @override
+  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
+      'created', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   static const VerificationMeta _uidMeta = const VerificationMeta('uid');
   @override
   late final GeneratedColumn<String> uid = GeneratedColumn<String>(
@@ -2731,14 +5554,6 @@ class $PagesReadTableTable extends PagesReadTable
   late final GeneratedColumn<int> totalPages = GeneratedColumn<int>(
       'total_pages', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _createdMeta =
-      const VerificationMeta('created');
-  @override
-  late final GeneratedColumn<DateTime> created = GeneratedColumn<DateTime>(
-      'created', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
   static const VerificationMeta _lastUpdatedMeta =
       const VerificationMeta('lastUpdated');
   @override
@@ -2747,7 +5562,7 @@ class $PagesReadTableTable extends PagesReadTable
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, uid, readPages, totalPages, created, lastUpdated];
+      [id, created, uid, readPages, totalPages, lastUpdated];
   @override
   String get aliasedName => _alias ?? 'pages_read_table';
   @override
@@ -2759,6 +5574,10 @@ class $PagesReadTableTable extends PagesReadTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
     }
     if (data.containsKey('uid')) {
       context.handle(
@@ -2780,10 +5599,6 @@ class $PagesReadTableTable extends PagesReadTable
     } else if (isInserting) {
       context.missing(_totalPagesMeta);
     }
-    if (data.containsKey('created')) {
-      context.handle(_createdMeta,
-          created.isAcceptableOrUnknown(data['created']!, _createdMeta));
-    }
     if (data.containsKey('last_updated')) {
       context.handle(
           _lastUpdatedMeta,
@@ -2801,14 +5616,14 @@ class $PagesReadTableTable extends PagesReadTable
     return DriftPagesRead(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      created: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
       uid: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
       readPages: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}read_pages'])!,
       totalPages: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}total_pages'])!,
-      created: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created'])!,
       lastUpdated: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}last_updated']),
     );
@@ -2822,26 +5637,26 @@ class $PagesReadTableTable extends PagesReadTable
 
 class DriftPagesRead extends DataClass implements Insertable<DriftPagesRead> {
   final int id;
+  final DateTime created;
   final String uid;
   final int readPages;
   final int totalPages;
-  final DateTime created;
   final DateTime? lastUpdated;
   const DriftPagesRead(
       {required this.id,
+      required this.created,
       required this.uid,
       required this.readPages,
       required this.totalPages,
-      required this.created,
       this.lastUpdated});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['created'] = Variable<DateTime>(created);
     map['uid'] = Variable<String>(uid);
     map['read_pages'] = Variable<int>(readPages);
     map['total_pages'] = Variable<int>(totalPages);
-    map['created'] = Variable<DateTime>(created);
     if (!nullToAbsent || lastUpdated != null) {
       map['last_updated'] = Variable<DateTime>(lastUpdated);
     }
@@ -2851,10 +5666,10 @@ class DriftPagesRead extends DataClass implements Insertable<DriftPagesRead> {
   PagesReadTableCompanion toCompanion(bool nullToAbsent) {
     return PagesReadTableCompanion(
       id: Value(id),
+      created: Value(created),
       uid: Value(uid),
       readPages: Value(readPages),
       totalPages: Value(totalPages),
-      created: Value(created),
       lastUpdated: lastUpdated == null && nullToAbsent
           ? const Value.absent()
           : Value(lastUpdated),
@@ -2866,10 +5681,10 @@ class DriftPagesRead extends DataClass implements Insertable<DriftPagesRead> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return DriftPagesRead(
       id: serializer.fromJson<int>(json['id']),
+      created: serializer.fromJson<DateTime>(json['created']),
       uid: serializer.fromJson<String>(json['uid']),
       readPages: serializer.fromJson<int>(json['readPages']),
       totalPages: serializer.fromJson<int>(json['totalPages']),
-      created: serializer.fromJson<DateTime>(json['created']),
       lastUpdated: serializer.fromJson<DateTime?>(json['lastUpdated']),
     );
   }
@@ -2878,37 +5693,37 @@ class DriftPagesRead extends DataClass implements Insertable<DriftPagesRead> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'created': serializer.toJson<DateTime>(created),
       'uid': serializer.toJson<String>(uid),
       'readPages': serializer.toJson<int>(readPages),
       'totalPages': serializer.toJson<int>(totalPages),
-      'created': serializer.toJson<DateTime>(created),
       'lastUpdated': serializer.toJson<DateTime?>(lastUpdated),
     };
   }
 
   DriftPagesRead copyWith(
           {int? id,
+          DateTime? created,
           String? uid,
           int? readPages,
           int? totalPages,
-          DateTime? created,
           Value<DateTime?> lastUpdated = const Value.absent()}) =>
       DriftPagesRead(
         id: id ?? this.id,
+        created: created ?? this.created,
         uid: uid ?? this.uid,
         readPages: readPages ?? this.readPages,
         totalPages: totalPages ?? this.totalPages,
-        created: created ?? this.created,
         lastUpdated: lastUpdated.present ? lastUpdated.value : this.lastUpdated,
       );
   @override
   String toString() {
     return (StringBuffer('DriftPagesRead(')
           ..write('id: $id, ')
+          ..write('created: $created, ')
           ..write('uid: $uid, ')
           ..write('readPages: $readPages, ')
           ..write('totalPages: $totalPages, ')
-          ..write('created: $created, ')
           ..write('lastUpdated: $lastUpdated')
           ..write(')'))
         .toString();
@@ -2916,75 +5731,75 @@ class DriftPagesRead extends DataClass implements Insertable<DriftPagesRead> {
 
   @override
   int get hashCode =>
-      Object.hash(id, uid, readPages, totalPages, created, lastUpdated);
+      Object.hash(id, created, uid, readPages, totalPages, lastUpdated);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DriftPagesRead &&
           other.id == this.id &&
+          other.created == this.created &&
           other.uid == this.uid &&
           other.readPages == this.readPages &&
           other.totalPages == this.totalPages &&
-          other.created == this.created &&
           other.lastUpdated == this.lastUpdated);
 }
 
 class PagesReadTableCompanion extends UpdateCompanion<DriftPagesRead> {
   final Value<int> id;
+  final Value<DateTime> created;
   final Value<String> uid;
   final Value<int> readPages;
   final Value<int> totalPages;
-  final Value<DateTime> created;
   final Value<DateTime?> lastUpdated;
   const PagesReadTableCompanion({
     this.id = const Value.absent(),
+    this.created = const Value.absent(),
     this.uid = const Value.absent(),
     this.readPages = const Value.absent(),
     this.totalPages = const Value.absent(),
-    this.created = const Value.absent(),
     this.lastUpdated = const Value.absent(),
   });
   PagesReadTableCompanion.insert({
     this.id = const Value.absent(),
+    this.created = const Value.absent(),
     required String uid,
     required int readPages,
     required int totalPages,
-    this.created = const Value.absent(),
     this.lastUpdated = const Value.absent(),
   })  : uid = Value(uid),
         readPages = Value(readPages),
         totalPages = Value(totalPages);
   static Insertable<DriftPagesRead> custom({
     Expression<int>? id,
+    Expression<DateTime>? created,
     Expression<String>? uid,
     Expression<int>? readPages,
     Expression<int>? totalPages,
-    Expression<DateTime>? created,
     Expression<DateTime>? lastUpdated,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (created != null) 'created': created,
       if (uid != null) 'uid': uid,
       if (readPages != null) 'read_pages': readPages,
       if (totalPages != null) 'total_pages': totalPages,
-      if (created != null) 'created': created,
       if (lastUpdated != null) 'last_updated': lastUpdated,
     });
   }
 
   PagesReadTableCompanion copyWith(
       {Value<int>? id,
+      Value<DateTime>? created,
       Value<String>? uid,
       Value<int>? readPages,
       Value<int>? totalPages,
-      Value<DateTime>? created,
       Value<DateTime?>? lastUpdated}) {
     return PagesReadTableCompanion(
       id: id ?? this.id,
+      created: created ?? this.created,
       uid: uid ?? this.uid,
       readPages: readPages ?? this.readPages,
       totalPages: totalPages ?? this.totalPages,
-      created: created ?? this.created,
       lastUpdated: lastUpdated ?? this.lastUpdated,
     );
   }
@@ -2995,6 +5810,9 @@ class PagesReadTableCompanion extends UpdateCompanion<DriftPagesRead> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
+    }
     if (uid.present) {
       map['uid'] = Variable<String>(uid.value);
     }
@@ -3003,9 +5821,6 @@ class PagesReadTableCompanion extends UpdateCompanion<DriftPagesRead> {
     }
     if (totalPages.present) {
       map['total_pages'] = Variable<int>(totalPages.value);
-    }
-    if (created.present) {
-      map['created'] = Variable<DateTime>(created.value);
     }
     if (lastUpdated.present) {
       map['last_updated'] = Variable<DateTime>(lastUpdated.value);
@@ -3017,10 +5832,10 @@ class PagesReadTableCompanion extends UpdateCompanion<DriftPagesRead> {
   String toString() {
     return (StringBuffer('PagesReadTableCompanion(')
           ..write('id: $id, ')
+          ..write('created: $created, ')
           ..write('uid: $uid, ')
           ..write('readPages: $readPages, ')
           ..write('totalPages: $totalPages, ')
-          ..write('created: $created, ')
           ..write('lastUpdated: $lastUpdated')
           ..write(')'))
         .toString();
@@ -3041,8 +5856,23 @@ abstract class _$WakaranaiDb extends GeneratedDatabase {
       $MangaLibraryItemTableTable(this);
   late final $LocalAnimeGalleryViewTableTable localAnimeGalleryViewTable =
       $LocalAnimeGalleryViewTableTable(this);
+  late final $LocalMangaConcreteViewTableTable localMangaConcreteViewTable =
+      $LocalMangaConcreteViewTableTable(this);
+  late final $LocalChaptersGroupTableTable localChaptersGroupTable =
+      $LocalChaptersGroupTableTable(this);
+  late final $LocalChapterTableTable localChapterTable =
+      $LocalChapterTableTable(this);
+  late final $LocalPagesTableTable localPagesTable =
+      $LocalPagesTableTable(this);
+  late final $LocalPageTableTable localPageTable = $LocalPageTableTable(this);
   late final $AnimeLibraryItemTableTable animeLibraryItemTable =
       $AnimeLibraryItemTableTable(this);
+  late final $LocalAnimeConcreteViewTableTable localAnimeConcreteViewTable =
+      $LocalAnimeConcreteViewTableTable(this);
+  late final $LocalAnimeVideosGroupTableTable localAnimeVideosGroupTable =
+      $LocalAnimeVideosGroupTableTable(this);
+  late final $LocalAnimeVideoTableTable localAnimeVideoTable =
+      $LocalAnimeVideoTableTable(this);
   late final $LocalConfigsSourcesTableTable localConfigsSourcesTable =
       $LocalConfigsSourcesTableTable(this);
   late final $PagesReadTableTable pagesReadTable = $PagesReadTableTable(this);
@@ -3057,7 +5887,15 @@ abstract class _$WakaranaiDb extends GeneratedDatabase {
         localMangaGalleryViewTable,
         mangaLibraryItemTable,
         localAnimeGalleryViewTable,
+        localMangaConcreteViewTable,
+        localChaptersGroupTable,
+        localChapterTable,
+        localPagesTable,
+        localPageTable,
         animeLibraryItemTable,
+        localAnimeConcreteViewTable,
+        localAnimeVideosGroupTable,
+        localAnimeVideoTable,
         localConfigsSourcesTable,
         pagesReadTable
       ];

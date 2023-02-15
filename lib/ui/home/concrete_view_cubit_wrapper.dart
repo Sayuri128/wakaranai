@@ -8,9 +8,14 @@ import 'package:wakascript/models/gallery_view.dart';
 class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
     G extends GalleryView> extends StatelessWidget {
   const ConcreteViewCubitWrapper(
-      {Key? key, required this.client, required this.builder, this.init})
+      {Key? key,
+      required this.client,
+      required this.builder,
+      this.init,
+      required this.tryLoadFromDb})
       : super(key: key);
 
+  final bool tryLoadFromDb;
   final void Function(ConcreteViewCubit<T, C, G>)? init;
   final T client;
   final Widget Function(BuildContext context, ConcreteViewState<T, C, G> state)
@@ -21,7 +26,8 @@ class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
     return BlocProvider<ConcreteViewCubit<T, C, G>>(
       create: (context) {
         final cubit = ConcreteViewCubit<T, C, G>(
-            ConcreteViewState<T, C, G>(apiClient: client));
+            ConcreteViewState<T, C, G>(apiClient: client),
+            tryLoadFromDb: tryLoadFromDb);
 
         if (init != null) {
           init!(cubit);

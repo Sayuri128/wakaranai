@@ -2,7 +2,7 @@ part of 'concrete_view_cubit.dart';
 
 class ConcreteViewState<
     T extends ApiClient,
-    C extends ConcreteView<GroupOfConcrete<dynamic>>,
+    C extends ConcreteView<dynamic>,
     G extends GalleryView> {
   final T apiClient;
 
@@ -13,7 +13,7 @@ class ConcreteViewState<
 
 class ConcreteViewInitialized<
     T extends ApiClient,
-    C extends ConcreteView<GroupOfConcrete<dynamic>>,
+    C extends ConcreteView<dynamic>,
     G extends GalleryView> extends ConcreteViewState<T, C, G> {
   final C concreteView;
   final G galleryView;
