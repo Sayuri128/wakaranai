@@ -1,19 +1,18 @@
+import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
+import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
-import 'package:wakascript/api_clients/api_client.dart';
-import 'package:wakascript/models/concrete_view.dart';
-import 'package:wakascript/models/gallery_view.dart';
 
 class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
     G extends GalleryView> extends StatelessWidget {
   const ConcreteViewCubitWrapper(
-      {Key? key,
+      {super.key,
       required this.client,
       required this.builder,
       this.init,
-      required this.tryLoadFromDb})
-      : super(key: key);
+      required this.tryLoadFromDb});
 
   final bool tryLoadFromDb;
   final void Function(ConcreteViewCubit<T, C, G>)? init;

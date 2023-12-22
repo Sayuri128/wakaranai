@@ -1,9 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
-import 'package:wakaranai/blocs/settings/settings_cubit.dart';
+import 'package:wakaranai/env.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/model/services/sources/local_configs_sources_service.dart';
 import 'package:wakaranai/models/configs_source_item/configs_source_item.dart';
 import 'package:wakaranai/models/configs_source_type/configs_source_type.dart';
 import 'package:wakaranai/models/remote_config/remote_config.dart';
@@ -21,11 +19,9 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   //     Env.OFFICIAL_GITHUB_CONFIGS_SOURCE_ORG,
   //     Env.OFFICIAL_GITHUB_CONFIGS_SOURCE_REPOSITORY);
   ConfigsService _configsService =
-      RepoConfigsService(url: "http://192.168.31.208:3000");
+      RepoConfigsService(url: Env.LOCAL_REPOSITORY_URL);
 
   ConfigsService get configService => _configsService;
-  final LocalConfigsSourcesService _localConfigsSourcesService =
-      LocalConfigsSourcesService.instance;
 
   void init() async {
     final SettingsService settingsService = SettingsService();
@@ -37,9 +33,6 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
       return;
     }
 
-    changeSource((await _localConfigsSourcesService.getAll())
-            .firstWhereOrNull((element) => element.id == defaultId) ??
-        SettingsCubit.DefaultConfigsServiceItem);
   }
 
   void getConfigs() async {
@@ -65,7 +58,6 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
               source.baseUrl.split('/')[0], source.baseUrl.split('/')[1]);
           break;
         case ConfigsSourceType.REST:
-          _configsService = RepoConfigsService(url: source.baseUrl);
           break;
       }
     } catch (_) {

@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:wakaranai/blocs/configs_sources/configs_sources_cubit.dart';
-import 'package:wakaranai/blocs/local_configs/local_configs_cubit.dart';
+import 'package:logger/logger.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/app_view.dart';
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
-import 'package:wakaranai/ui/home/library/cubit/library_page_cubit.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
 
 const bool debug = true;
+
+final logger = Logger();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,29 +41,16 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(providers: [
       BlocProvider<HomePageCubit>(create: (context) => HomePageCubit()),
-      BlocProvider<LibraryPageCubit>(
-        create: (context) =>
-            LibraryPageCubit()
-              ..init(),
-      ),
       BlocProvider<AuthenticationCubit>(
           lazy: false, create: (context) => AuthenticationCubit()),
       BlocProvider<RemoteConfigsCubit>(
         lazy: false,
         create: (context) => RemoteConfigsCubit()..init(),
       ),
-      BlocProvider<LocalConfigsCubit>(
-          create: (context) => LocalConfigsCubit(
-              remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
-              libraryPageCubit: context.read<LibraryPageCubit>())
-            ..init()),
-      BlocProvider<ConfigsSourcesCubit>(
-          create: (context) => ConfigsSourcesCubit()..getSources()),
       BlocProvider<SettingsCubit>(
           create: (context) => SettingsCubit(
-              remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
-              sourcesCubit: context.read<ConfigsSourcesCubit>())
-            ..init()),
+                remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
+              )..init()),
     ], child: const AppView());
   }
 }

@@ -1,7 +1,5 @@
-import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/blocs/configs_sources/configs_sources_cubit.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
@@ -43,47 +41,6 @@ class ConfigsSourceDialog extends StatelessWidget {
             },
             title: Text(S.current.official_github_configs_source_repository),
           ),
-          BlocBuilder<ConfigsSourcesCubit, ConfigsSourcesState>(
-              builder: (context, state) {
-            if (state is ConfigsSourcesInitialized) {
-              return Column(
-                  children: state.sources
-                      .map((e) => ListTile(
-                            onTap: () {
-                              context
-                                  .read<RemoteConfigsCubit>()
-                                  .changeSource(e);
-                              Navigator.of(context).pop();
-                            },
-                            title: Text(e.name, style: medium()),
-                            trailing: IconButton(
-                              icon: const Icon(
-                                Icons.delete_forever,
-                                color: AppColors.red,
-                              ),
-                              onPressed: () {
-                                showOkCancelAlertDialog(
-                                        context: context,
-                                        title: S.current
-                                            .delete_configs_source_confirmation_dialog_title,
-                                        message: S.current
-                                            .delete_configs_source_confirmation_dialog_message(
-                                                e.name))
-                                    .then((value) {
-                                  if (value.index == 0) {
-                                    context
-                                        .read<ConfigsSourcesCubit>()
-                                        .delete(e);
-                                  }
-                                });
-                              },
-                            ),
-                          ))
-                      .toList());
-            } else {
-              return const CircularProgressIndicator();
-            }
-          }),
           Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

@@ -1,8 +1,8 @@
+import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
-import 'package:wakascript/api_clients/api_client.dart';
-import 'package:wakascript/models/gallery_view.dart';
 
 class ServiceViewCubitWrapper<T extends ApiClient, G extends GalleryView> extends StatelessWidget {
   const ServiceViewCubitWrapper(

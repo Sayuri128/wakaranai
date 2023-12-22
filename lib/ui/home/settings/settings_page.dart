@@ -1,13 +1,9 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/blocs/configs_sources/configs_sources_cubit.dart';
-import 'package:wakaranai/blocs/local_configs/local_configs_cubit.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/model/wakaranai_db.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
-import 'package:wakaranai/ui/home/library/cubit/library_page_cubit.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -88,45 +84,6 @@ class SettingsPage extends StatelessWidget {
                     style: semibold(size: 18),
                   ),
                 ),
-                BlocBuilder<ConfigsSourcesCubit, ConfigsSourcesState>(
-                  builder: (context, configsState) {
-                    if (configsState is ConfigsSourcesInitialized) {
-                      return SizedBox(
-                        width: double.maxFinite,
-                        child: DropdownButtonFormField<int>(
-                            value: configsState.sources
-                                    .where((e) =>
-                                        e.id == state.defaultConfigsSourceId)
-                                    .isNotEmpty
-                                ? state.defaultConfigsSourceId
-                                : SettingsPage.DefaultConfigsSourceId,
-                            style: medium(),
-                            icon: const Icon(Icons.arrow_drop_down_rounded),
-                            decoration: _dropdownDecoration(),
-                            items: [
-                              _defaultConfigsSourceDropdownMenuItem,
-                              ...configsState.sources
-                                  .map((e) => DropdownMenuItem(
-                                        value: e.id,
-                                        alignment: Alignment.center,
-                                        child: Text(e.name,
-                                            textAlign: TextAlign.center,
-                                            style: medium()),
-                                      ))
-                                  .toList()
-                            ],
-                            onChanged: (mode) {
-                              if (mode != null) {
-                                context
-                                    .read<SettingsCubit>()
-                                    .onChangedDefaultSourceId(mode);
-                              }
-                            }),
-                      );
-                    }
-                    return const SizedBox();
-                  },
-                ),
                 const Divider(
                   height: 2,
                   color: AppColors.primary,
@@ -163,12 +120,12 @@ class SettingsPage extends StatelessWidget {
                             title:
                                 "Are you sure you want to delete all your data?")
                         .then((value) {
-                      if (value == OkCancelResult.ok) {
-                        waka.hardReset().then((value) {
-                          context.read<LocalConfigsCubit>().init();
-                          context.read<LibraryPageCubit>().init();
-                        });
-                      }
+                      // if (value == OkCancelResult.ok) {
+                      //   waka.hardReset().then((value) {
+                      //     context.read<LocalConfigsCubit>().init();
+                      //     context.read<LibraryPageCubit>().init();
+                      //   });
+                      // }
                     });
                   },
                   title: Text(

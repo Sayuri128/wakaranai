@@ -1,27 +1,25 @@
 import 'dart:async';
 
+import 'package:capyscript/api_clients/anime_api_client.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_gallery_view/anime_gallery_view.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
-import 'package:wakaranai/models/data/local_config_info.dart';
 import 'package:wakaranai/models/remote_config/remote_config.dart';
 import 'package:wakaranai/ui/anime_service_viewer/anime_service_viewer_body.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
 import 'package:wakaranai/ui/home/service_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
-import 'package:wakascript/api_clients/anime_api_client.dart';
-import 'package:wakascript/models/anime/anime_gallery_view/anime_gallery_view.dart';
-import 'package:wakascript/models/config_info/config_info.dart';
 
 class AnimeServiceViewerData {
   final RemoteConfig? remoteConfig;
-  final LocalConfigInfo? localConfigInfo;
 
-  AnimeServiceViewerData({this.remoteConfig, this.localConfigInfo}) {
-    assert(remoteConfig != null || localConfigInfo != null);
+  AnimeServiceViewerData({this.remoteConfig}) {
+    assert(remoteConfig != null);
   }
 }
 
@@ -49,19 +47,16 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
   @override
   Widget build(BuildContext context) {
     return ApiControllerWrapper<AnimeApiClient>(
-        remoteConfig: widget.data.remoteConfig,
-        builder: _buildWidget,
-        localConfigInfo: widget.data.localConfigInfo);
+        remoteConfig: widget.data.remoteConfig, builder: _buildWidget);
   }
 
   Widget _buildWidget(AnimeApiClient apiClient, ConfigInfo configInfo) {
     return WebBrowserWrapper<AnimeApiClient>(
         builder: (context, interceptorInitCompleter) {
-          return WillPopScope(
-            onWillPop: () {
+          return PopScope(
+            onPopInvoked: (bool _) {
               Navigator.of(context)
                   .pushNamedAndRemoveUntil(Routes.home, (route) => false);
-              return Future.value(false);
             },
             child: ServiceViewCubitWrapper<AnimeApiClient, AnimeGalleryView>(
               client: apiClient,
@@ -108,11 +103,14 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
       return BlocProvider<BrowserInterceptorCubit>(
         lazy: false,
         create: (context) {
-          final cubit = BrowserInterceptorCubit()
-            ..init(
-                url: configInfo.protectorConfig!.pingUrl,
-                initCompleter: interceptorInitCompleter);
-          apiClient.passWebBrowserInterceptorController(controller: cubit);
+          final cubit = BrowserInterceptorCubit();
+          cubit
+              .init(
+                  url: configInfo.protectorConfig!.pingUrl,
+                  initCompleter: interceptorInitCompleter)
+              .then((value) {
+            apiClient.passWebBrowserInterceptorController(controller: cubit);
+          });
           return cubit;
         },
         child: child,

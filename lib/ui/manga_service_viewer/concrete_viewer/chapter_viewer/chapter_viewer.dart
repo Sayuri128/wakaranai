@@ -1,7 +1,15 @@
 import 'dart:math';
 
 import 'package:another_xlider/another_xlider.dart';
+import 'package:another_xlider/models/handler.dart';
+import 'package:another_xlider/models/tooltip/tooltip.dart';
+import 'package:another_xlider/models/trackbar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
+import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
+import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/manga_gallery_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,11 +26,6 @@ import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/settings_overlay.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
-import 'package:wakascript/api_clients/manga_api_client.dart';
-import 'package:wakascript/models/config_info/config_info.dart';
-import 'package:wakascript/models/manga/manga_concrete_view/chapter/chapter.dart';
-import 'package:wakascript/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
-import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
 
 class ChapterViewerData {
   final MangaApiClient apiClient;

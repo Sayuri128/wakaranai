@@ -1,14 +1,8 @@
 import 'package:bloc/bloc.dart';
-import 'package:wakaranai/model/services/concrete/local_anime_concrete_view_service.dart';
-import 'package:wakaranai/model/services/concrete/local_manga_concrete_view_service.dart';
-import 'package:wakascript/api_clients/api_client.dart';
-import 'package:wakascript/models/anime/anime_concrete_view/anime_concrete_view.dart';
-import 'package:wakascript/models/anime/anime_gallery_view/anime_gallery_view.dart';
-import 'package:wakascript/models/concrete_view.dart';
-import 'package:wakascript/models/elements_group_of_concrete.dart';
-import 'package:wakascript/models/gallery_view.dart';
-import 'package:wakascript/models/manga/manga_concrete_view/manga_concrete_view.dart';
-import 'package:wakascript/models/manga/manga_gallery_view/manga_gallery_view.dart';
+import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
+import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
+import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 
 part 'concrete_view_state.dart';
 
@@ -32,57 +26,19 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       {bool forceRemote = false}) async {
     late final ConcreteView<dynamic> concreteView;
 
-    Future<void> saveLocalManga() async {
-      await LocalMangaConcreteViewService.instance.add(
-          concreteView as MangaConcreteView, galleryView as MangaGalleryView);
-    }
-
-    Future<void> saveLocalAnime() async {
-      await LocalAnimeConcreteViewService.instance.add(
-          concreteView as AnimeConcreteView, galleryView as AnimeGalleryView);
-    }
-
     Future<void> getRemoteConcrete() async {
       concreteView = await _getConcrete(uid, galleryView.data);
     }
 
     if (!tryLoadFromDb || forceRemote) {
       await getRemoteConcrete();
-      if (C == MangaConcreteView) {
-        await saveLocalManga();
-      } else if (C == AnimeConcreteView) {
-        await saveLocalAnime();
-      }
-    } else {
-      if (C == MangaConcreteView) {
-        try {
-          concreteView =
-              (await LocalMangaConcreteViewService.instance.getByUid(uid))
-                  .toRemote();
-        } on Exception {
-          await getRemoteConcrete();
-          await saveLocalManga();
-        }
-      } else if (C == AnimeConcreteView) {
-        try {
-          concreteView =
-              (await LocalAnimeConcreteViewService.instance.getByUid(uid))
-                  .toRemote();
-        } on Exception {
-          await getRemoteConcrete();
-          await saveLocalAnime();
-        }
-      } else {
-        await getRemoteConcrete();
-      }
+      emit(ConcreteViewInitialized<T, C, G>(
+          concreteView: concreteView as dynamic,
+          galleryView: galleryView,
+          apiClient: state.apiClient,
+          groupIndex: concreteView.groups.isNotEmpty ? 0 : -1,
+          order: ConcreteViewOrder.DEFAULT));
     }
-
-    emit(ConcreteViewInitialized<T, C, G>(
-        concreteView: concreteView as dynamic,
-        galleryView: galleryView,
-        apiClient: state.apiClient,
-        groupIndex: concreteView.groups.isNotEmpty ? 0 : -1,
-        order: ConcreteViewOrder.DEFAULT));
   }
 
   void changeGroup(int index) async {

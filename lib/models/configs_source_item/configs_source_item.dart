@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wakaranai/model/wakaranai_db.dart';
 import 'package:wakaranai/models/configs_source_type/configs_source_type.dart';
 
 part 'configs_source_item.g.dart';
@@ -23,7 +22,7 @@ class ConfigsSourceItem {
     required this.type,
   });
 
-  factory ConfigsSourceItem.fromDrift(DriftLocalConfigsSource item) =>
-      ConfigsSourceItem(
-          id: item.id, baseUrl: item.baseUrl, name: item.name, type: item.type);
+  // factory ConfigsSourceItem.fromDrift(DriftLocalConfigsSource item) =>
+  //     ConfigsSourceItem(
+  //         id: item.id, baseUrl: item.baseUrl, name: item.name, type: item.type);
 }

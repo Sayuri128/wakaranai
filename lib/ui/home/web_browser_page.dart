@@ -1,3 +1,6 @@
+import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/protector_config/protector_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:wakaranai/generated/l10n.dart';
@@ -7,9 +10,6 @@ import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/browser.dart';
 import 'package:wakaranai/utils/text_styles.dart';
-import 'package:wakascript/api_clients/api_client.dart';
-import 'package:wakascript/models/config_info/config_info.dart';
-import 'package:wakascript/models/config_info/protector_config/protector_config.dart';
 
 class WebBrowserData {
   final ProtectorConfig config;
