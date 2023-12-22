@@ -1,18 +1,14 @@
 part of 'api_client_controller_cubit.dart';
 
 class ApiClientControllerState {
-  final ApiClient client;
-
-  const ApiClientControllerState({required this.client});
+  const ApiClientControllerState();
 }
 
-class ApiClientControllerConfigInfo extends ApiClientControllerState {
+class ApiClientControllerInitialized<T extends ApiClient>
+    extends ApiClientControllerState {
+  final T apiClient;
   final ConfigInfo configInfo;
-  final ProtectorStorageItem? cachedProtector;
 
-  ApiClientControllerConfigInfo(
-      {required ApiClient client,
-      required this.cachedProtector,
-      required this.configInfo})
-      : super(client: client);
+  ApiClientControllerInitialized(
+      {required this.apiClient, required this.configInfo});
 }

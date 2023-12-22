@@ -30,14 +30,15 @@ class ChapterViewerData {
   final ChaptersGroup group;
   final MangaGalleryView galleryView;
   final Chapter chapter;
+  final int initialPage;
 
-  const ChapterViewerData({
-    required this.apiClient,
-    required this.configInfo,
-    required this.group,
-    required this.galleryView,
-    required this.chapter,
-  });
+  const ChapterViewerData(
+      {required this.apiClient,
+      required this.configInfo,
+      required this.group,
+      required this.galleryView,
+      required this.chapter,
+      this.initialPage = 1});
 }
 
 class ChapterViewer extends StatefulWidget {
@@ -53,19 +54,22 @@ class _ChapterViewerState extends State<ChapterViewer>
     with TickerProviderStateMixin {
   final GlobalKey _key = GlobalKey();
 
-  final PageController _pageController = PageController(initialPage: 0);
+  late final PageController _pageController;
   final ItemScrollController _itemScrollController = ItemScrollController();
 
   bool _showGestureOverlay = false;
 
   bool _canLoadNext = false;
-  bool _canLoadPrevious = true;
+  bool _canLoadPrevious = false;
 
   Map<String, String> _headers = {};
 
   @override
   void initState() {
     super.initState();
+    _pageController =
+        PageController(initialPage: max(0, widget.data.initialPage - 1));
+
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -79,7 +83,8 @@ class _ChapterViewerState extends State<ChapterViewer>
   @override
   void dispose() {
     super.dispose();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]);
   }
 
   @override
@@ -88,12 +93,20 @@ class _ChapterViewerState extends State<ChapterViewer>
       body: BlocProvider<ChapterViewCubit>(
         create: (context) => ChapterViewCubit(
             apiClient: widget.data.apiClient,
+            initialPage: widget.data.initialPage,
             settingsCubit: context.read<SettingsCubit>(),
             pageController: _pageController,
             itemScrollController: _itemScrollController)
-          ..init(widget.data),
+          ..init(widget.data, pagesLoaded: (current, total) {
+            _canLoadNext = current == total;
+            _canLoadPrevious = current == 1;
+            if (mounted) {
+              setState(() {});
+            }
+          }),
         child: _buildPage(),
       ),
+      backgroundColor: AppColors.mainBlack,
     );
   }
 
@@ -133,7 +146,7 @@ class _ChapterViewerState extends State<ChapterViewer>
               GestureDetector(
                 onTap: () {
                   _pageController.animateToPage(max(0, state.currentPage - 2),
-                      duration: Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 200),
                       curve: Curves.ease);
                 },
                 // behavior: HitTestBehavior.translucent,
@@ -170,7 +183,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                   _pageController.animateToPage(
                       min(state.currentPages.value.length - 1,
                           state.currentPage),
-                      duration: Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 200),
                       curve: Curves.ease);
                 },
                 child: AnimatedContainer(
@@ -239,8 +252,14 @@ class _ChapterViewerState extends State<ChapterViewer>
               children: [
                 Flexible(
                   child: Container(
+                    decoration: BoxDecoration(boxShadow: [
+                      BoxShadow(
+                          color: AppColors.mainBlack.withOpacity(0.25),
+                          blurRadius: 24,
+                          spreadRadius: 24)
+                    ]),
                     child: Text(
-                        state.group.chapters
+                        state.group.elements
                             .firstWhere((element) =>
                                 element.uid == state.currentPages.chapterUid)
                             .title,
@@ -248,12 +267,6 @@ class _ChapterViewerState extends State<ChapterViewer>
                         maxLines: 4,
                         softWrap: true,
                         overflow: TextOverflow.ellipsis),
-                    decoration: BoxDecoration(boxShadow: [
-                      BoxShadow(
-                          color: AppColors.mainBlack.withOpacity(0.25),
-                          blurRadius: 24,
-                          spreadRadius: 24)
-                    ]),
                   ),
                 ),
                 const SizedBox(
@@ -290,7 +303,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                           shape: BoxShape.circle),
                       child: const Icon(
                         Icons.arrow_back,
-                        color: AppColors.primary,
+                        color: AppColors.mainWhite,
                       ),
                     ),
                   ),
@@ -307,26 +320,36 @@ class _ChapterViewerState extends State<ChapterViewer>
                         padding: const EdgeInsets.symmetric(horizontal: 12.0),
                         child: FlutterSlider(
                           values: [state.currentPage.toDouble()],
-                          min: 0,
+                          min: 1,
                           max: state.totalPages.toDouble(),
+                          jump: true,
                           handlerHeight: 24,
                           handlerWidth: 24,
                           onDragCompleted: (_, index, __) {
                             switch (state.mode) {
                               case ChapterViewMode.RIGHT_TO_LEFT:
                               case ChapterViewMode.LEFT_TO_RIGHT:
-                                _pageController.jumpToPage(
-                                  min((index as double).toInt(),
-                                      state.currentPages.value.length - 1),
-                                );
+                                _pageController.jumpToPage(min(
+                                    (index as double).toInt() - 1,
+                                    state.currentPages.value.length - 1));
                                 break;
                               case ChapterViewMode.WEBTOON:
-                                _itemScrollController.scrollTo(
-                                    index: min((index as double).toInt(),
-                                        state.currentPages.value.length - 1),
-                                    duration:
-                                        const Duration(milliseconds: 300));
+                                _itemScrollController.jumpTo(
+                                  index: min((index).toInt(),
+                                      state.currentPages.value.length - 1),
+                                  alignment:
+                                      index == state.totalPages.toDouble() - 1
+                                          ? 1
+                                          : 0,
+                                );
                                 break;
+                            }
+
+                            _canLoadNext = (index).toInt() - 1 ==
+                                state.currentPages.value.length - 1;
+                            _canLoadPrevious = (index).toInt() - 1 == 0;
+                            if (mounted) {
+                              setState(() {});
                             }
                           },
                           tooltip: FlutterSliderTooltip(
@@ -339,22 +362,22 @@ class _ChapterViewerState extends State<ChapterViewer>
                                         (context, url, progress) =>
                                             CircularProgressIndicator(
                                       value: progress.progress ?? 0.01,
-                                      color: AppColors.primary,
+                                      color: AppColors.mainWhite,
                                     ),
                                     fit: BoxFit.cover,
                                   ),
                               textStyle: regular(color: AppColors.mainWhite)),
                           trackBar: FlutterSliderTrackBar(
                               inactiveTrackBar: BoxDecoration(
-                                  color: AppColors.mainBlack,
+                                  color: AppColors.mainGrey,
                                   borderRadius: BorderRadius.circular(16.0)),
                               activeTrackBar: BoxDecoration(
-                                  color: AppColors.secondary,
+                                  color: AppColors.primary,
                                   borderRadius: BorderRadius.circular(16.0))),
                           handler: FlutterSliderHandler(
                               child: const SizedBox(),
                               decoration: const BoxDecoration(
-                                  color: AppColors.primary,
+                                  color: AppColors.mainWhite,
                                   shape: BoxShape.circle)),
                         ),
                       ),
@@ -376,7 +399,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                                   ? const Icon(
                                       Icons.layers_outlined,
                                       key: ValueKey(1),
-                                      color: AppColors.primary,
+                                      color: AppColors.mainWhite,
                                     )
                                   : const Icon(
                                       Icons.layers_outlined,
@@ -387,7 +410,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                             onTap: () {
                               _showBottomSheetSettings(context, state);
                             },
-                            icon: Icon(Icons.chrome_reader_mode))
+                            icon: const Icon(Icons.chrome_reader_mode))
                       ],
                       child: Container(
                         width: 48,
@@ -397,7 +420,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                             shape: BoxShape.circle),
                         child: const Icon(
                           Icons.settings_rounded,
-                          color: AppColors.primary,
+                          color: AppColors.mainWhite,
                         ),
                       ))
                 ],
@@ -457,15 +480,17 @@ class _ChapterViewerState extends State<ChapterViewer>
             itemCount: state.currentPages.value.length,
             reverse: state.mode == ChapterViewMode.RIGHT_TO_LEFT,
             onPageChanged: (index) {
-              context.read<ChapterViewCubit>().onPageChanged(index + 1);
-              if (index == 0) {
-                _canLoadPrevious = true;
-              } else if (index == state.currentPages.value.length - 1) {
-                _canLoadNext = true;
-              } else {
-                _canLoadPrevious = false;
-                _canLoadNext = false;
-              }
+              context.read<ChapterViewCubit>().onPageChanged(
+                  index + 1, state.currentPages, onDone: (currentPages) {
+                if (index == 0) {
+                  _canLoadPrevious = true;
+                } else if (index == currentPages.value.length - 1) {
+                  _canLoadNext = true;
+                } else {
+                  _canLoadPrevious = false;
+                  _canLoadNext = false;
+                }
+              });
               setState(() {});
             },
             builder: (context, index) {
@@ -480,58 +505,58 @@ class _ChapterViewerState extends State<ChapterViewer>
             });
       case ChapterViewMode.WEBTOON:
         return NotificationListener<ScrollUpdateNotification>(
-          onNotification: (notification) {
-            if (notification.metrics.pixels >=
-                notification.metrics.maxScrollExtent - 500) {
-              _canLoadNext = true;
-              setState(() {});
-            } else if (_canLoadNext) {
-              _canLoadNext = false;
-              setState(() {});
-            }
+            onNotification: (notification) {
+              if (notification.metrics.pixels >=
+                  notification.metrics.maxScrollExtent - 500) {
+                _canLoadNext = true;
+                setState(() {});
+              } else if (_canLoadNext) {
+                _canLoadNext = false;
+                setState(() {});
+              }
 
-            if ((notification.metrics.pixels <=
-                notification.metrics.minScrollExtent + 500)) {
-              _canLoadPrevious = true;
-              setState(() {});
-            } else if (_canLoadPrevious) {
-              _canLoadPrevious = false;
-              setState(() {});
-            }
+              if ((notification.metrics.pixels <=
+                  notification.metrics.minScrollExtent + 500)) {
+                _canLoadPrevious = true;
+                setState(() {});
+              } else if (_canLoadPrevious) {
+                _canLoadPrevious = false;
+                setState(() {});
+              }
 
-            return false;
-          },
-          child: ScrollablePositionedList.builder(
-              itemScrollController: _itemScrollController,
-              physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics()),
-              itemCount: state.currentPages.value.length,
-              minCacheExtent: 600,
-              padding: EdgeInsets.zero,
-              itemBuilder: (context, index) => VisibilityDetector(
-                    key: ValueKey<String>(state.currentPages.value[index]),
-                    onVisibilityChanged: (info) {
-                      if (info.visibleFraction > 0) {
-                        context
-                            .read<ChapterViewCubit>()
-                            .onPageChanged(index + 1);
-                      }
-                    },
-                    child: CachedNetworkImage(
-                      imageUrl: state.currentPages.value[index],
-                      progressIndicatorBuilder: (context, url, progress) =>
-                          SizedBox(
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                              color: AppColors.primary,
-                              value: progress.progress ?? 0),
+              return false;
+            },
+            child: ScrollablePositionedList.builder(
+                itemScrollController: _itemScrollController,
+                initialScrollIndex: max(0, state.currentPage - 1),
+                physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics()),
+                itemCount: state.currentPages.value.length,
+                minCacheExtent: 99999,
+                padding: EdgeInsets.zero,
+                itemBuilder: (context, index) => VisibilityDetector(
+                      key: ValueKey(state.currentPages.value[index]),
+                      onVisibilityChanged: (info) {
+                        if (info.visibleFraction > 0) {
+                          context
+                              .read<ChapterViewCubit>()
+                              .onPageChanged(index + 1, state.currentPages);
+                        }
+                      },
+                      child: CachedNetworkImage(
+                        imageUrl: state.currentPages.value[index],
+                        progressIndicatorBuilder: (context, url, progress) =>
+                            SizedBox(
+                          height: MediaQuery.of(context).size.height,
+                          width: MediaQuery.of(context).size.width,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                                color: AppColors.primary,
+                                value: progress.progress ?? 0),
+                          ),
                         ),
                       ),
-                    ),
-                  )),
-        );
+                    )));
     }
   }
 
@@ -573,22 +598,35 @@ class _ChapterViewerState extends State<ChapterViewer>
                   backgroundColor:
                       MaterialStateProperty.all(AppColors.backgroundColor)),
               onPressed: () {
-                if (_canLoadNext) {
-                  context.read<ChapterViewCubit>().onPagesChanged(next: true);
-                  _canLoadNext = false;
-                  _canLoadPrevious = true;
-                } else {
-                  context.read<ChapterViewCubit>().onPagesChanged(next: false);
-                  _canLoadPrevious = false;
-                  _canLoadNext = true;
+                if (_canLoadNext && state.canGetNextPages) {
+                  context.read<ChapterViewCubit>().onPagesChanged(
+                      next: true,
+                      onDone: () {
+                        _canLoadNext = false;
+                        _canLoadPrevious = true;
+                        setState(() {});
+                      });
+                } else if (_canLoadPrevious && state.canGetPreviousPages) {
+                  context.read<ChapterViewCubit>().onPagesChanged(
+                      next: false,
+                      onDone: () {
+                        _canLoadPrevious = false;
+                        _canLoadNext = true;
+                        setState(() {});
+                      });
                 }
-                setState(() {});
               },
-              child: Text(
-                _canLoadNext
-                    ? S.current.chapter_viewer_next_chapter_button_title
-                    : S.current.chapter_viewer_previous_chapter_button_title,
-                style: medium(size: 16),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  _canLoadNext && state.canGetNextPages
+                      ? S.current.chapter_viewer_next_chapter_button_title
+                      : _canLoadPrevious && state.canGetPreviousPages
+                          ? S.current
+                              .chapter_viewer_previous_chapter_button_title
+                          : "",
+                  style: medium(size: 16),
+                ),
               ))
           : const SizedBox(),
     );

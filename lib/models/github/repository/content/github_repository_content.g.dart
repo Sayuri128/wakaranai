@@ -9,7 +9,7 @@ part of 'github_repository_content.dart';
 GithubRepositoryContent _$GithubRepositoryContentFromJson(Map json) =>
     GithubRepositoryContent(
       links: Links.fromJson(Map<String, dynamic>.from(json['_links'] as Map)),
-      download_url: json['download_url'] as String,
+      download_url: json['download_url'] as String?,
       git_url: json['git_url'] as String,
       html_url: json['html_url'] as String,
       name: json['name'] as String,

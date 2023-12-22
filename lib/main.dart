@@ -7,10 +7,12 @@ import 'package:wakaranai/blocs/local_configs/local_configs_cubit.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/app_view.dart';
+import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
+import 'package:wakaranai/ui/home/library/cubit/library_page_cubit.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
 
-final bool debug = true;
+const bool debug = true;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,13 +40,26 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(providers: [
-      BlocProvider(lazy: false, create: (context) => AuthenticationCubit()),
+      BlocProvider<HomePageCubit>(create: (context) => HomePageCubit()),
+      BlocProvider<LibraryPageCubit>(
+        create: (context) =>
+            LibraryPageCubit()
+              ..init(),
+      ),
+      BlocProvider<AuthenticationCubit>(
+          lazy: false, create: (context) => AuthenticationCubit()),
       BlocProvider<RemoteConfigsCubit>(
+        lazy: false,
         create: (context) => RemoteConfigsCubit()..init(),
       ),
-      BlocProvider(create: (context) => LocalConfigsCubit()..init()),
-      BlocProvider(create: (context) => ConfigsSourcesCubit()..getSources()),
-      BlocProvider(
+      BlocProvider<LocalConfigsCubit>(
+          create: (context) => LocalConfigsCubit(
+              remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
+              libraryPageCubit: context.read<LibraryPageCubit>())
+            ..init()),
+      BlocProvider<ConfigsSourcesCubit>(
+          create: (context) => ConfigsSourcesCubit()..getSources()),
+      BlocProvider<SettingsCubit>(
           create: (context) => SettingsCubit(
               remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
               sourcesCubit: context.read<ConfigsSourcesCubit>())

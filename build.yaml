@@ -5,3 +5,7 @@ targets:
         options:
           any_map: true
           explicit_to_json: true
+      sqfentity_gen|property_sqfentity:
+        generate_for:
+          - lib/model/*.dart
+          - lib/model/test/*.dart

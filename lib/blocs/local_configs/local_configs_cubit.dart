@@ -1,38 +1,63 @@
-import 'dart:io';
-
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:wakaranai/models/data/local_config.dart';
-import 'package:wakaranai/utils/globals.dart';
-import 'package:wakascript/api_clients/manga_api_client.dart';
+import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
+import 'package:wakaranai/model/services/configs/local_api_sources_service.dart';
+import 'package:wakaranai/model/services/configs/local_configs_info_service.dart';
+import 'package:wakaranai/models/data/local_api_client.dart';
+import 'package:wakaranai/models/data/local_config_info.dart';
+import 'package:wakaranai/models/data/local_protector_config.dart';
+import 'package:wakaranai/models/remote_config/remote_config.dart';
+import 'package:wakaranai/ui/home/library/cubit/library_page_cubit.dart';
 
 part 'local_configs_state.dart';
 
 class LocalConfigsCubit extends Cubit<LocalConfigsState> {
-  LocalConfigsCubit() : super(LocalConfigsInitial());
+  LocalConfigsCubit(
+      {required this.remoteConfigsCubit, required this.libraryPageCubit})
+      : super(LocalConfigsInitial());
 
-  String? docDir;
+  final RemoteConfigsCubit remoteConfigsCubit;
+  final LibraryPageCubit libraryPageCubit;
 
   void init() async {
-    docDir ??= '${await getAppDocumentsDir()}/scripts';
+    emit(LocalConfigsLoading());
+    LocalConfigsInfoService.instance.getAll().then((value) {
+      emit(LocalConfigsLoaded(localConfigsInfo: value));
+    });
+  }
 
-    final Directory scriptsDir = Directory(docDir!);
+  void update(
+      LocalConfigInfo localConfigInfo, RemoteConfig remoteConfig) async {
+    final script = await remoteConfigsCubit.configService
+        .getRemoteScript(remoteConfig.path);
 
-    if (!scriptsDir.existsSync()) {
-      scriptsDir.createSync(recursive: true);
-    }
+    final localApiClient = await LocalApiSourcesService.instance
+        .getByConfigUid(localConfigInfo.id!);
 
-    final scripts = <LocalConfig>[];
-
-    if (!scriptsDir.isAbsolute) {
-      scriptsDir.listSync().forEach((element) {
-        final file = File(element.path);
-        final code = file.readAsStringSync();
-        scripts.add(
-            LocalConfig(file: file, code: code, client: MangaApiClient(code: code)));
-      });
-    }
-
-    emit(LocalConfigsInitialized(mangas: scripts));
+    LocalApiSourcesService.instance.update(LocalApiClient(
+        id: localConfigInfo.id,
+        code: script.script,
+        type: remoteCategoryToConfigInfoType(remoteConfig.category),
+        localConfigInfo: LocalConfigInfo(
+          id: localApiClient.localConfigInfo.id!,
+          name: remoteConfig.config.name,
+          uid: remoteConfig.config.uid,
+          logoUrl: remoteConfig.config.logoUrl,
+          nsfw: remoteConfig.config.nsfw,
+          language: remoteConfig.config.language,
+          version: remoteConfig.config.version,
+          type: remoteConfig.config.type,
+          searchAvailable: remoteConfig.config.searchAvailable,
+          localProtectorConfig: remoteConfig.config.protectorConfig != null
+              ? LocalProtectorConfig(
+                  id: localApiClient.localConfigInfo.localProtectorConfig?.id,
+                  pingUrl: remoteConfig.config.protectorConfig!.pingUrl,
+                  inAppBrowserInterceptor: remoteConfig
+                      .config.protectorConfig!.inAppBrowserInterceptor,
+                  needToLogin: remoteConfig.config.protectorConfig!.needToLogin,
+                )
+              : null,
+        )));
+    init();
   }
 }
