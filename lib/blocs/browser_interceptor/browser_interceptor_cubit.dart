@@ -124,23 +124,27 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
 
   @override
   Future<dynamic> executeJsScript(String code) async {
-    if (this.isClosed || _jsAttempts > 10) {
-      _jsAttempts = 0;
-      return;
+    try {
+      if (isClosed || _jsAttempts > 20) {
+        _jsAttempts = 0;
+        return;
+      }
+      await Future.delayed(const Duration(milliseconds: 250));
+      final res =
+          await _inAppWebViewController.callAsyncJavaScript(functionBody: code);
+
+      logger.d(res);
+
+      if (res == null || res.error != null || res.value == null) {
+        _jsAttempts++;
+        await Future.delayed(const Duration(milliseconds: 500));
+        return await executeJsScript(code);
+      }
+
+      return res.value;
+    } catch (e) {
+      return null;
     }
-    await Future.delayed(const Duration(milliseconds: 150));
-    final res =
-        await _inAppWebViewController.callAsyncJavaScript(functionBody: code);
-
-    logger.d(res);
-
-    if (res == null || res.error != null || res.value == null) {
-      _jsAttempts++;
-      await Future.delayed(const Duration(milliseconds: 400));
-      return await executeJsScript(code);
-    }
-
-    return res.value;
   }
 
   @override
