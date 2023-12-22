@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
-import 'package:wakascript/models/config_info/config_info.dart';
 
 class ConfigCard extends StatelessWidget {
   const ConfigCard({Key? key, this.onTap, required this.configInfo})

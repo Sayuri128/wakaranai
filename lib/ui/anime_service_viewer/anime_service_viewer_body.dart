@@ -1,23 +1,17 @@
-import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:capyscript/api_clients/anime_api_client.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_gallery_view/anime_gallery_view.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:wakaranai/blocs/local_gallery_view_card/local_gallery_view_card_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/models/data/gallery/local_anime_gallery_view.dart';
-import 'package:wakaranai/models/data/library/library_anime_item.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_concrete_viewer.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
-import 'package:wakaranai/ui/home/home_view.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
-import 'package:wakaranai/ui/local_gallery_view_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
-import 'package:wakascript/api_clients/anime_api_client.dart';
-import 'package:wakascript/models/anime/anime_gallery_view/anime_gallery_view.dart';
-import 'package:wakascript/models/config_info/config_info.dart';
 
 class AnimeServiceViewerBody extends StatelessWidget {
   const AnimeServiceViewerBody(
@@ -102,32 +96,19 @@ class AnimeServiceViewerBody extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final galleryView =
                             stateInitialized.galleryViews[index];
-                        return LocalGalleryViewWrapper<LibraryAnimeItem,
-                            LocalAnimeGalleryView>(
+                        return GalleryViewCard(
+                          inLibrary: false,
+                          cover: galleryView.cover,
                           uid: galleryView.uid,
-                          type: ConfigInfoType.ANIME,
-                          builder: (context, state) => GalleryViewCard(
-                            inLibrary: state is LocalGalleryViewCardLoaded<
-                                    LibraryAnimeItem, LocalAnimeGalleryView> &&
-                                state.libraryItem != null,
-                            cover: galleryView.cover,
-                            uid: galleryView.uid,
-                            title: galleryView.title,
-                            onLongPress: () {
-                              if (state is LocalGalleryViewCardInitial) {
-                                return;
-                              }
-                              _onLongGalleryViewPress(context,
-                                  galleryView: galleryView,
-                                  canAdd: state is LocalGalleryViewCardLoaded<
-                                          LibraryAnimeItem,
-                                          LocalAnimeGalleryView> &&
-                                      state.libraryItem == null);
-                            },
-                            onTap: () {
-                              _onGalleryViewClick(context, galleryView);
-                            },
-                          ),
+                          title: galleryView.title,
+                          onLongPress: () {
+                            // _onLongGalleryViewPress(context,
+                            //     galleryView: galleryView,
+                            //     canAdd: false);
+                          },
+                          onTap: () {
+                            _onGalleryViewClick(context, galleryView);
+                          },
                         );
                       },
                       itemCount: stateInitialized.galleryViews.length,
@@ -260,53 +241,6 @@ class AnimeServiceViewerBody extends StatelessWidget {
         ),
       );
 
-  void _onLongGalleryViewPress(BuildContext context,
-      {required AnimeGalleryView galleryView, required bool canAdd}) {
-    if (canAdd) {
-      context
-          .read<
-              LocalGalleryViewCardCubit<LibraryAnimeItem,
-                  LocalAnimeGalleryView>>()
-          .create(
-              galleryView: galleryView,
-              configInfo: configInfo,
-              client: apiClient,
-              onDone: () {
-                showNotificationSnackBar(
-                    context,
-                    S.current
-                        .gallery_view_anime_item_added_to_library_notification(
-                            galleryView.title));
-              });
-    } else {
-      showOkCancelAlertDialog(
-              context: context,
-              title: S.current
-                  .gallery_view_anime_item_delete_from_library_confirmation_title(
-                      galleryView.title),
-              okLabel: S.current
-                  .gallery_view_anime_item_delete_from_library_confirmation_ok_label,
-              cancelLabel: S.current
-                  .gallery_view_anime_item_delete_from_library_confirmation_cancel_label)
-          .then((value) {
-        if (value == OkCancelResult.ok) {
-          context
-              .read<
-                  LocalGalleryViewCardCubit<LibraryAnimeItem,
-                      LocalAnimeGalleryView>>()
-              .delete(
-            () {
-              showNotificationSnackBar(
-                  context,
-                  S.current
-                      .gallery_view_anime_item_deleted_from_library_notification(
-                          galleryView.title));
-            },
-          );
-        }
-      });
-    }
-  }
 
   void _onGalleryViewClick(BuildContext context, AnimeGalleryView e) {
     Navigator.of(context).pushNamed(Routes.animeConcreteViewer,

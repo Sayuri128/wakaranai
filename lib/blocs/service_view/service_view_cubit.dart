@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
+import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/filters/data/filters/filter_data.dart';
 import 'package:meta/meta.dart';
-import 'package:wakascript/api_clients/api_client.dart';
-import 'package:wakascript/models/config_info/config_info.dart';
-import 'package:wakascript/models/gallery_view.dart';
-import 'package:wakascript/models/manga/manga_gallery_view/filters/data/filters/filter_data.dart';
 
 part 'service_view_state.dart';
 

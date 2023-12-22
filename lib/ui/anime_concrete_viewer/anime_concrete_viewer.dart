@@ -2,6 +2,10 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:capyscript/api_clients/anime_api_client.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_concrete_view.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_gallery_view/anime_gallery_view.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -16,11 +20,6 @@ import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
-import 'package:wakascript/api_clients/anime_api_client.dart';
-import 'package:wakascript/models/anime/anime_concrete_view/anime_concrete_view.dart';
-import 'package:wakascript/models/anime/anime_gallery_view/anime_gallery_view.dart';
-import 'package:wakascript/models/config_info/config_info.dart';
-
 class AnimeConcreteViewerData {
   final String uid;
   final AnimeGalleryView galleryView;

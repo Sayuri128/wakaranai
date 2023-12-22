@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/blocs/configs_sources/configs_sources_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/models/configs_source_item/configs_source_item.dart';
 import 'package:wakaranai/models/configs_source_type/configs_source_type.dart';
 import 'package:wakaranai/ui/widgets/primary_input_widget.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -101,16 +98,7 @@ class _AddConfigsSourceDialogState extends State<AddConfigsSourceDialog> {
                       style: ButtonStyle(
                           backgroundColor:
                               MaterialStateProperty.all(AppColors.primary)),
-                      onPressed: () {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          context.read<ConfigsSourcesCubit>().create(
-                              ConfigsSourceItem(
-                                  baseUrl: _baseUrlController.text,
-                                  name: _nameController.text,
-                                  type: _configsSourceType));
-                          Navigator.of(context).pop();
-                        }
-                      },
+                      onPressed: () {},
                       child: Text(
                         S.current.create_new_configs_source_button,
                         style: regular(color: AppColors.mainWhite),

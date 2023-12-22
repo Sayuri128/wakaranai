@@ -1,13 +1,13 @@
 import 'dart:async';
 
+import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
+import 'package:wakaranai/main.dart';
 import 'package:wakaranai/models/protector/protector_storage_item.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/routes.dart';
-import 'package:wakascript/api_clients/api_client.dart';
-import 'package:wakascript/logger.dart';
-import 'package:wakascript/models/config_info/config_info.dart';
 
 class WebBrowserWrapper<T extends ApiClient> extends StatefulWidget {
   const WebBrowserWrapper(

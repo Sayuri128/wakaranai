@@ -1,17 +1,16 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:wakaranai/blocs/configs_sources/configs_sources_cubit.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
+import 'package:wakaranai/env.dart';
 import 'package:wakaranai/models/configs_source_item/configs_source_item.dart';
 import 'package:wakaranai/models/configs_source_type/configs_source_type.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
-import 'package:wakaranai/ui/home/settings/settings_page.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 
 part 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
-  SettingsCubit({required this.sourcesCubit, required this.remoteConfigsCubit})
+  SettingsCubit({required this.remoteConfigsCubit})
       : super(SettingsInitial());
 
   // static final DefaultConfigsServiceItem = ConfigsSourceItem(
@@ -20,11 +19,10 @@ class SettingsCubit extends Cubit<SettingsState> {
   //     name: S.current.github_configs_source_type,
   //     type: ConfigsSourceType.GIT_HUB);
   static final DefaultConfigsServiceItem = ConfigsSourceItem(
-      baseUrl: "http://192.168.31.208:3000",
+      baseUrl: Env.LOCAL_REPOSITORY_URL,
       name: "LOCAL REST",
       type: ConfigsSourceType.REST);
 
-  final ConfigsSourcesCubit sourcesCubit;
   final RemoteConfigsCubit remoteConfigsCubit;
 
   final SettingsService _settingsService = SettingsService();
@@ -41,18 +39,4 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit((state as SettingsInitialized).copyWith(defaultMode: mode));
   }
 
-  void onChangedDefaultSourceId(int id) async {
-    await _settingsService.setDefaultConfigsSourceId(id);
-
-    if (id == SettingsPage.DefaultConfigsSourceId) {
-      remoteConfigsCubit.changeSource(DefaultConfigsServiceItem);
-    } else if (sourcesCubit.state is ConfigsSourcesInitialized) {
-      remoteConfigsCubit.changeSource(
-          (sourcesCubit.state as ConfigsSourcesInitialized)
-              .sources
-              .firstWhere((element) => element.id == id));
-    }
-
-    emit((state as SettingsInitialized).copyWith(defaultConfigsSourceId: id));
-  }
 }

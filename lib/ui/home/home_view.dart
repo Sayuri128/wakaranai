@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_page.dart';
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
-import 'package:wakaranai/ui/home/library/library_page.dart';
 import 'package:wakaranai/ui/home/settings/settings_page.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -12,9 +11,9 @@ class HomeView extends StatelessWidget {
   HomeView({Key? key}) : super(key: key);
 
   final navigationItem = [
-    NavigationDestination(
-        label: S.current.navigation_bar_library_title,
-        icon: const Icon(Icons.my_library_books)),
+    // NavigationDestination(
+    //     label: S.current.navigation_bar_library_title,
+    //     icon: const Icon(Icons.my_library_books)),
     NavigationDestination(
         label: S.current.navigation_bar_sources_title,
         icon: const Icon(
@@ -44,7 +43,7 @@ class HomeView extends StatelessWidget {
             surfaceTintColor: AppColors.backgroundColor.withOpacity(0.4),
             height: 70,
             backgroundColor: AppColors.backgroundColor.withOpacity(0.4),
-            animationDuration: Duration(milliseconds: 400),
+            animationDuration: const Duration(milliseconds: 400),
             labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
             shadowColor: AppColors.mainBlack.withOpacity(0.4),
             destinations: navigationItem,
@@ -64,11 +63,11 @@ class HomeView extends StatelessWidget {
 
   Widget _buildBody(int page) {
     switch (page) {
+      // case 0:
+      //   return LibraryPage();
       case 0:
-        return LibraryPage();
-      case 1:
         return ConfigPage();
-      case 2:
+      case 1:
         return SettingsPage();
     }
     return const SizedBox();

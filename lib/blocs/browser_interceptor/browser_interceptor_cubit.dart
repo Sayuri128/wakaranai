@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
+import 'package:capyscript/modules/http/http_interceptor_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:wakaranai/main.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/utils/browser.dart';
-import 'package:wakascript/inbuilt_libs/http/http_interceptor_controller.dart';
-import 'package:wakascript/logger.dart';
 
 part 'browser_interceptor_state.dart';
 
@@ -73,9 +73,13 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
   void pageLoaded(
       {required String body, required Map<String, dynamic> data}) async {
     if (state is BrowserInterceptorLoadingPage) {
-      (state as BrowserInterceptorLoadingPage)
-          .onLoaded
-          .complete(HttpInterceptorControllerResponse(body: body, data: data));
+      (state as BrowserInterceptorLoadingPage).onLoaded.complete(
+          HttpInterceptorControllerResponse(
+              body: body,
+              data: data,
+              statusCode: 200,
+              headers: {},
+              cookies: {}));
     }
     emit(BrowserInterceptorPageLoaded(body: body, data: data));
   }
@@ -120,7 +124,7 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
 
   @override
   Future<dynamic> executeJsScript(String code) async {
-    if(this.isClosed || _jsAttempts > 10) {
+    if (this.isClosed || _jsAttempts > 10) {
       _jsAttempts = 0;
       return;
     }
