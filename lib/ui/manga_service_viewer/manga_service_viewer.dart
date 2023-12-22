@@ -58,10 +58,11 @@ class _MangaServiceViewState extends State<MangaServiceView> {
     return WebBrowserWrapper<MangaApiClient>(
         apiClient: apiClient,
         builder: (context, interceptorInitCompleter) {
-          return PopScope(
-            onPopInvoked: (_) {
+          return WillPopScope(
+            onWillPop: () async {
               Navigator.of(context)
                   .pushNamedAndRemoveUntil(Routes.home, (route) => false);
+              return false;
             },
             child: ServiceViewCubitWrapper<MangaApiClient, MangaGalleryView>(
               client: apiClient,

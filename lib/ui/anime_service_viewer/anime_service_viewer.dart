@@ -53,10 +53,11 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
   Widget _buildWidget(AnimeApiClient apiClient, ConfigInfo configInfo) {
     return WebBrowserWrapper<AnimeApiClient>(
         builder: (context, interceptorInitCompleter) {
-          return PopScope(
-            onPopInvoked: (bool _) {
+          return WillPopScope(
+            onWillPop: () async {
               Navigator.of(context)
                   .pushNamedAndRemoveUntil(Routes.home, (route) => false);
+              return false;
             },
             child: ServiceViewCubitWrapper<AnimeApiClient, AnimeGalleryView>(
               client: apiClient,
