@@ -13,6 +13,7 @@
   "settings_clear_history_title": "Clear history",
   "service_viewer_filters_title": "Filters",
   "navigation_bar_sources_title": "Source",
+  "navigation_bar_library_title": "Library",
   "navigation_bar_history_title": "History",
   "navigation_bar_settings_title": "Settings",
   "history_page_title": "History",
@@ -50,5 +51,19 @@
   "chapter_viewer_next_chapter_button_title": "Next",
   "chapter_viewer_previous_chapter_button_title": "Previous",
   "chapter_viewer_bottom_modal_settings_reading_mode_title": "Reading Mode",
-  "chapter_viewer_bottom_modal_settings_tap_controls": "Enable tap controls"
+  "chapter_viewer_bottom_modal_settings_tap_controls": "Enable tap controls",
+  "gallery_view_manga_item_added_to_library_notification": "{manga} Added to you library!",
+  "gallery_view_anime_item_added_to_library_notification": "{anime} Added to you library!",
+  "gallery_view_manga_item_deleted_from_library_notification": "{manga} Deleted from your library!",
+  "gallery_view_anime_item_deleted_from_library_notification": "{anime} Deleted from your library!",
+  "gallery_view_manga_item_delete_from_library_confirmation_title": "Are you sure you want to delete \"{manga}\" from your library?",
+  "gallery_view_manga_item_delete_from_library_confirmation_ok_label": "Delete",
+  "gallery_view_manga_item_delete_from_library_confirmation_cancel_label": "Cancel",
+  "gallery_view_anime_item_delete_from_library_confirmation_title": "Are you sure you want to delete \"{anime}\" from your library?",
+  "gallery_view_anime_item_delete_from_library_confirmation_ok_label": "Delete",
+  "gallery_view_anime_item_delete_from_library_confirmation_cancel_label": "Cancel",
+  "gallery_view_item_in_library_title": "In library",
+  "local_configs_0_length": "No saved configs",
+  "local_configs_update_button": "Update",
+  "local_configs_no_updates": "Latest"
 }

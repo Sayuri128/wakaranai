@@ -1,6 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import 'intl/messages_all.dart';
 
 // **************************************************************************
@@ -185,6 +186,16 @@ class S {
     return Intl.message(
       'Source',
       name: 'navigation_bar_sources_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Library`
+  String get navigation_bar_library_title {
+    return Intl.message(
+      'Library',
+      name: 'navigation_bar_library_title',
       desc: '',
       args: [],
     );
@@ -565,6 +576,154 @@ class S {
     return Intl.message(
       'Enable tap controls',
       name: 'chapter_viewer_bottom_modal_settings_tap_controls',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{manga} Added to you library!`
+  String gallery_view_manga_item_added_to_library_notification(Object manga) {
+    return Intl.message(
+      '$manga Added to you library!',
+      name: 'gallery_view_manga_item_added_to_library_notification',
+      desc: '',
+      args: [manga],
+    );
+  }
+
+  /// `{anime} Added to you library!`
+  String gallery_view_anime_item_added_to_library_notification(Object anime) {
+    return Intl.message(
+      '$anime Added to you library!',
+      name: 'gallery_view_anime_item_added_to_library_notification',
+      desc: '',
+      args: [anime],
+    );
+  }
+
+  /// `{manga} Deleted from your library!`
+  String gallery_view_manga_item_deleted_from_library_notification(
+      Object manga) {
+    return Intl.message(
+      '$manga Deleted from your library!',
+      name: 'gallery_view_manga_item_deleted_from_library_notification',
+      desc: '',
+      args: [manga],
+    );
+  }
+
+  /// `{anime} Deleted from your library!`
+  String gallery_view_anime_item_deleted_from_library_notification(
+      Object anime) {
+    return Intl.message(
+      '$anime Deleted from your library!',
+      name: 'gallery_view_anime_item_deleted_from_library_notification',
+      desc: '',
+      args: [anime],
+    );
+  }
+
+  /// `Are you sure you want to delete "{manga}" from your library?`
+  String gallery_view_manga_item_delete_from_library_confirmation_title(
+      Object manga) {
+    return Intl.message(
+      'Are you sure you want to delete "$manga" from your library?',
+      name: 'gallery_view_manga_item_delete_from_library_confirmation_title',
+      desc: '',
+      args: [manga],
+    );
+  }
+
+  /// `Delete`
+  String get gallery_view_manga_item_delete_from_library_confirmation_ok_label {
+    return Intl.message(
+      'Delete',
+      name: 'gallery_view_manga_item_delete_from_library_confirmation_ok_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String
+      get gallery_view_manga_item_delete_from_library_confirmation_cancel_label {
+    return Intl.message(
+      'Cancel',
+      name:
+          'gallery_view_manga_item_delete_from_library_confirmation_cancel_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to delete "{anime}" from your library?`
+  String gallery_view_anime_item_delete_from_library_confirmation_title(
+      Object anime) {
+    return Intl.message(
+      'Are you sure you want to delete "$anime" from your library?',
+      name: 'gallery_view_anime_item_delete_from_library_confirmation_title',
+      desc: '',
+      args: [anime],
+    );
+  }
+
+  /// `Delete`
+  String get gallery_view_anime_item_delete_from_library_confirmation_ok_label {
+    return Intl.message(
+      'Delete',
+      name: 'gallery_view_anime_item_delete_from_library_confirmation_ok_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String
+      get gallery_view_anime_item_delete_from_library_confirmation_cancel_label {
+    return Intl.message(
+      'Cancel',
+      name:
+          'gallery_view_anime_item_delete_from_library_confirmation_cancel_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `In library`
+  String get gallery_view_item_in_library_title {
+    return Intl.message(
+      'In library',
+      name: 'gallery_view_item_in_library_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No saved configs`
+  String get local_configs_0_length {
+    return Intl.message(
+      'No saved configs',
+      name: 'local_configs_0_length',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update`
+  String get local_configs_update_button {
+    return Intl.message(
+      'Update',
+      name: 'local_configs_update_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Latest`
+  String get local_configs_no_updates {
+    return Intl.message(
+      'Latest',
+      name: 'local_configs_no_updates',
       desc: '',
       args: [],
     );

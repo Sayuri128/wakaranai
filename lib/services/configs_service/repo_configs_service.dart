@@ -1,11 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:wakaranai/env.dart';
+import 'package:wakaranai/models/remote_config/remote_category.dart';
+import 'package:wakaranai/models/remote_config/remote_config.dart';
+import 'package:wakaranai/models/remote_script/remote_script.dart';
 import 'package:wakaranai/repositories/configs_repository/local/local_configs_repository.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
-import 'package:wakascript/api_clients/anime_api_client.dart';
-import 'package:wakascript/api_clients/manga_api_client.dart';
-import 'package:wakascript/logger.dart';
 
 class RepoConfigsService implements ConfigsService {
   late final LocalConfigsRepository _localRepository;
@@ -16,30 +15,25 @@ class RepoConfigsService implements ConfigsService {
   }
 
   @override
-  Future<List<MangaApiClient>> getMangaConfigs() async {
-    return await Future.wait((await _localRepository.getConfigs())
-        .scripts
-        .where((e) => e.category == 'manga')
-        .first
-        .scripts
-        .map((e) async {
-      logger.d(e);
-      return compute<String, MangaApiClient>(
-          (String code) => MangaApiClient(code: code), e);
-    }));
+  Future<List<RemoteConfig>> getMangaConfigs() async {
+    return (await _localRepository.getConfigs("manga"))
+        .configs
+        .where((element) => element.category == RemoteCategory.manga )
+        .toList();
   }
 
   @override
-  Future<List<AnimeApiClient>> getAnimeConfigs() async {
-    return await Future.wait((await _localRepository.getConfigs())
-        .scripts
-        .where((e) => e.category == 'anime')
-        .first
-        .scripts
-        .map((e) async {
-      logger.d(e);
-      return compute<String, AnimeApiClient>(
-          (code) => AnimeApiClient(code: code), e);
-    }));
+  Future<List<RemoteConfig>> getAnimeConfigs() async {
+    return (await _localRepository.getConfigs("anime"))
+        .configs
+        .where((element) => element.category == RemoteCategory.anime)
+        .toList();
   }
+
+  @override
+  Future<RemoteScript> getRemoteScript(String path) async {
+    return _localRepository.getScript(path);
+  }
+
+
 }

@@ -7,18 +7,20 @@ abstract class LocalConfigsState {
 
 class LocalConfigsInitial extends LocalConfigsState {}
 
-class LocalConfigsInitialized extends LocalConfigsState {
-  final List<LocalConfig> mangas;
+class LocalConfigsLoading extends LocalConfigsState {}
 
-  const LocalConfigsInitialized({
-    required this.mangas,
+class LocalConfigsLoaded extends LocalConfigsState {
+  final List<LocalConfigInfo> localConfigsInfo;
+
+  const LocalConfigsLoaded({
+    required this.localConfigsInfo,
   });
 
-  LocalConfigsInitialized copyWith({
-    List<LocalConfig>? mangas,
+  LocalConfigsLoaded copyWith({
+    List<LocalConfigInfo>? localConfigsInfo,
   }) {
-    return LocalConfigsInitialized(
-      mangas: mangas ?? this.mangas,
+    return LocalConfigsLoaded(
+      localConfigsInfo: localConfigsInfo ?? this.localConfigsInfo,
     );
   }
 }
