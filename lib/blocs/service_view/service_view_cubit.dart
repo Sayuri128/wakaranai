@@ -4,6 +4,7 @@ import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/filters/data/filters/filter_data.dart';
 import 'package:meta/meta.dart';
+import 'package:wakaranai/main.dart';
 
 part 'service_view_state.dart';
 
@@ -21,6 +22,11 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
         retry: () {
           init(configInfo);
         });
+    final Map<String, Map<String, String>> imagesHeaders = {};
+    for (final GalleryView galleryView in (galleryViews ?? [])) {
+      imagesHeaders[galleryView.uid] = await state.client
+          .getImageHeaders(uid: galleryView.uid, data: galleryView.data);
+    }
 
     if (galleryViews != null) {
       emit(ServiceViewInitialized<T, G>(
@@ -28,6 +34,7 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
           searchQuery: '',
           configInfo: configInfo,
           galleryViews: galleryViews,
+          galleryViewImagesHeaders: imagesHeaders,
           currentPage: 1,
           selectedFilters: {},
           loading: false));
@@ -52,7 +59,9 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
           .then((value) {
         galleryViews = value;
       });
-    } catch (exception) {
+    } catch (exception, stacktrace) {
+      logger.e(exception);
+      logger.e(stacktrace);
       emit(ServiceViewError<T, G>(
           message: exception.toString(), client: state.client, retry: retry));
     }
@@ -60,7 +69,7 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
     return galleryViews;
   }
 
-  void getGallery({String? query}) async {
+  Future<void> getGallery({String? query}) async {
     if (state is ServiceViewInitialized<T, G>) {
       final state = this.state as ServiceViewInitialized<T, G>;
 
@@ -102,7 +111,8 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
       return;
     }
 
-    List<G> galleryViews = [];
+    final List<G> galleryViews = [];
+    final Map<String, String> galleryViewImagesHeaders = {};
     int currentPage = 0;
 
     final newGalleryViews = await _getGalleryViews(

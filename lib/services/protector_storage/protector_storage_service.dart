@@ -7,13 +7,17 @@ class ProtectorStorageService {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   Future<ProtectorStorageItem?> getItem({required String uid}) async {
-    final possibleItem = await _secureStorage.read(key: uid);
+    try {
+      final possibleItem = await _secureStorage.read(key: uid);
 
-    if (possibleItem == null) {
+      if (possibleItem == null) {
+        return null;
+      }
+
+      return ProtectorStorageItem.fromJson(jsonDecode(possibleItem));
+    } catch (e) {
       return null;
     }
-
-    return ProtectorStorageItem.fromJson(jsonDecode(possibleItem));
   }
 
   Future<void> saveItem({required ProtectorStorageItem item}) async {

@@ -40,6 +40,8 @@ class ConfigCard extends StatelessWidget {
                   height: 80,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => _buildSourceLogoPlaceholder(),
+                  errorWidget: (context, url, error) =>
+                      _buildSourceLogoPlaceholder(),
                   httpHeaders: const {
                     "user-agent":
                         "Mozilla/5.0 (Linux; Android 9; SM-G960N Build/PQ3B.190801.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/91.0.4472.114 Safari/537.36"

@@ -50,17 +50,20 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
           }
 
           if (!result.value.contains("Just a moment...")) {
-            Map<String, dynamic> data = {};
+            Map<String, String> data = {};
+            Map<String, String> coo = {};
             await getHeaders(
-                done: (h) {
+                done: (h, cookie) {
                   data.addAll(h);
+                  coo.addAll(cookie);
                 },
                 pingUrl: url,
                 controller: _inAppWebViewController);
 
             logger.i(data);
 
-            pageLoaded(body: result.value, data: data);
+            pageLoaded(
+                body: result.value, data: data, headers: data, cookies: coo);
 
             try {
               initCompleter.complete(true);
@@ -71,15 +74,18 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
   }
 
   void pageLoaded(
-      {required String body, required Map<String, dynamic> data}) async {
+      {required String body,
+      required Map<String, dynamic> data,
+      required Map<String, String> headers,
+      required Map<String, String> cookies}) async {
     if (state is BrowserInterceptorLoadingPage) {
       (state as BrowserInterceptorLoadingPage).onLoaded.complete(
           HttpInterceptorControllerResponse(
               body: body,
               data: data,
               statusCode: 200,
-              headers: {},
-              cookies: {}));
+              headers: headers,
+              cookies: cookies));
     }
     emit(BrowserInterceptorPageLoaded(body: body, data: data));
   }
@@ -125,7 +131,7 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
   @override
   Future<dynamic> executeJsScript(String code) async {
     try {
-      if (isClosed || _jsAttempts > 20) {
+      if (isClosed || _jsAttempts > 100) {
         _jsAttempts = 0;
         return;
       }
@@ -137,7 +143,7 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
 
       if (res == null || res.error != null || res.value == null) {
         _jsAttempts++;
-        await Future.delayed(const Duration(milliseconds: 500));
+        await Future.delayed(const Duration(milliseconds: 100));
         return await executeJsScript(code);
       }
 

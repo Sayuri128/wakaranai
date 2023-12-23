@@ -103,19 +103,23 @@ class _WebBrowserInterceptorWidgetState
                 }
 
                 if (!result.value.contains("Just a moment...")) {
-                  Map<String, dynamic> data = {};
+                  final Map<String, String> data = {};
+                  final Map<String, String> cookies = {};
                   await getHeaders(
-                      done: (h) {
-                        data.addAll(h);
+                      done: (headers, coo) {
+                        data.addAll(headers);
+                        cookies.addAll(coo);
                       },
                       pingUrl: widget.initUrl,
                       controller: await _webView);
 
                   logger.i(data);
 
-                  context
-                      .read<BrowserInterceptorCubit>()
-                      .pageLoaded(body: result.value, data: data);
+                  context.read<BrowserInterceptorCubit>().pageLoaded(
+                      body: result.value,
+                      data: {},
+                      cookies: cookies,
+                      headers: data);
                 }
               }),
             )

@@ -5,6 +5,7 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:flutter/material.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/models/protector/protector_storage_item.dart';
+import 'package:wakaranai/models/web_browser_result/web_browser_result.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/routes.dart';
@@ -18,8 +19,7 @@ class WebBrowserWrapper<T extends ApiClient> extends StatefulWidget {
       required this.apiClient})
       : super(key: key);
 
-  final Widget Function(BuildContext context, Completer<bool>)
-      builder;
+  final Widget Function(BuildContext context, Completer<bool>) builder;
   final VoidCallback onInterceptorInitialized;
 
   final T apiClient;
@@ -85,16 +85,21 @@ class _WebBrowserWrapperState extends State<WebBrowserWrapper> {
       final result = await Navigator.of(context).pushNamed(Routes.webBrowser,
           arguments:
               WebBrowserData(config: widget.configInfo.protectorConfig!));
-      if (result != null) {
-        await widget.apiClient
-            .passProtector(data: result as Map<String, dynamic>);
+      if (result != null && result is WebBrowserPageResult) {
+        await widget.apiClient.passProtector(
+            cookies: result.cookies,
+            headers: result.headers,
+            body: result.body);
         await ProtectorStorageService()
-            .saveItem(item: ProtectorStorageItem(uid: uid, headers: result));
+            .saveItem(item: ProtectorStorageItem(uid: uid, data: result));
       } else {
         return;
       }
     } else if (widget.configInfo.protectorConfig != null) {
-      await widget.apiClient.passProtector(data: cachedProtector.headers);
+      await widget.apiClient.passProtector(
+          cookies: cachedProtector.data.cookies,
+          headers: cachedProtector.data.headers,
+          body: cachedProtector.data.body);
     }
   }
 

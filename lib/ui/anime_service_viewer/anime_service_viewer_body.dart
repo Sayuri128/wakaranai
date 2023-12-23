@@ -60,8 +60,8 @@ class AnimeServiceViewerBody extends StatelessWidget {
               footer: CustomFooter(
                 builder: (context, mode) {
                   if (mode == LoadStatus.loading) {
-                    return Column(
-                      children: const [
+                    return const Column(
+                      children: [
                         SizedBox(
                           height: 24,
                         ),
@@ -101,6 +101,9 @@ class AnimeServiceViewerBody extends StatelessWidget {
                           cover: galleryView.cover,
                           uid: galleryView.uid,
                           title: galleryView.title,
+                          headers: stateInitialized
+                                  .galleryViewImagesHeaders[galleryView.uid] ??
+                              {},
                           onLongPress: () {
                             // _onLongGalleryViewPress(context,
                             //     galleryView: galleryView,
@@ -240,7 +243,6 @@ class AnimeServiceViewerBody extends StatelessWidget {
           ],
         ),
       );
-
 
   void _onGalleryViewClick(BuildContext context, AnimeGalleryView e) {
     Navigator.of(context).pushNamed(Routes.animeConcreteViewer,

@@ -1,8 +1,14 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/api_client_controller/api_client_controller_cubit.dart';
+import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/heroes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class GalleryViewCard extends StatelessWidget {
@@ -12,6 +18,7 @@ class GalleryViewCard extends StatelessWidget {
       this.onLongPress,
       required this.inLibrary,
       required this.uid,
+      required this.headers,
       required this.cover,
       required this.title})
       : super(key: key);
@@ -20,6 +27,7 @@ class GalleryViewCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 
+  final Map<String, String> headers;
   final String uid;
   final String cover;
   final String title;
@@ -35,7 +43,7 @@ class GalleryViewCard extends StatelessWidget {
             fit: BoxFit.cover,
             height: MediaQuery.of(context).size.width * .5 / aspectRatio,
             width: MediaQuery.of(context).size.width,
-            image: CachedNetworkImageProvider(cover),
+            image: getImageProvider(cover, headers: headers),
             child: InkWell(
               splashColor: AppColors.mediumLight.withOpacity(0.3),
               onTap: onTap,
