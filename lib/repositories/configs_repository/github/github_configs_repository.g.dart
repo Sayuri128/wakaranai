@@ -22,16 +22,16 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
 
   @override
   Future<List<GithubRepositoryContent>> getMangaDirectories(
-    org,
-    repo, {
-    branch = 'master',
-    maxAge = 300,
+    String org,
+    String repo, {
+    String branch = 'master',
+    int maxAge = 300,
   }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{r'ref': branch};
     final _headers = <String, dynamic>{r'max-age': maxAge};
     _headers.removeWhere((k, v) => v == null);
-    final _data = <String, dynamic>{};
+    final Map<String, dynamic>? _data = null;
     final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<List<GithubRepositoryContent>>(Options(
       method: 'GET',
@@ -44,7 +44,11 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
               queryParameters: queryParameters,
               data: _data,
             )
-            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+            .copyWith(
+                baseUrl: _combineBaseUrls(
+              _dio.options.baseUrl,
+              baseUrl,
+            ))));
     var value = _result.data!
         .map((dynamic i) =>
             GithubRepositoryContent.fromJson(i as Map<String, dynamic>))
@@ -54,16 +58,16 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
 
   @override
   Future<List<GithubRepositoryContent>> getAnimeDirectories(
-    org,
-    repo, {
-    branch = 'master',
-    maxAge = 300,
+    String org,
+    String repo, {
+    String branch = 'master',
+    int maxAge = 300,
   }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{r'ref': branch};
     final _headers = <String, dynamic>{r'max-age': maxAge};
     _headers.removeWhere((k, v) => v == null);
-    final _data = <String, dynamic>{};
+    final Map<String, dynamic>? _data = null;
     final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<List<GithubRepositoryContent>>(Options(
       method: 'GET',
@@ -76,7 +80,11 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
               queryParameters: queryParameters,
               data: _data,
             )
-            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+            .copyWith(
+                baseUrl: _combineBaseUrls(
+              _dio.options.baseUrl,
+              baseUrl,
+            ))));
     var value = _result.data!
         .map((dynamic i) =>
             GithubRepositoryContent.fromJson(i as Map<String, dynamic>))
@@ -86,17 +94,17 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
 
   @override
   Future<List<GithubRepositoryContent>> getConcreteContent({
-    required org,
-    required repo,
-    required directory,
-    required concrete,
-    maxAge = 300,
+    required String org,
+    required String repo,
+    required String directory,
+    required String concrete,
+    int maxAge = 300,
   }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{r'max-age': maxAge};
     _headers.removeWhere((k, v) => v == null);
-    final _data = <String, dynamic>{};
+    final Map<String, dynamic>? _data = null;
     final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<List<GithubRepositoryContent>>(Options(
       method: 'GET',
@@ -109,7 +117,11 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
               queryParameters: queryParameters,
               data: _data,
             )
-            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+            .copyWith(
+                baseUrl: _combineBaseUrls(
+              _dio.options.baseUrl,
+              baseUrl,
+            ))));
     var value = _result.data!
         .map((dynamic i) =>
             GithubRepositoryContent.fromJson(i as Map<String, dynamic>))
@@ -128,5 +140,22 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
       }
     }
     return requestOptions;
+  }
+
+  String _combineBaseUrls(
+    String dioBaseUrl,
+    String? baseUrl,
+  ) {
+    if (baseUrl == null || baseUrl.trim().isEmpty) {
+      return dioBaseUrl;
+    }
+
+    final url = Uri.parse(baseUrl);
+
+    if (url.isAbsolute) {
+      return url.toString();
+    }
+
+    return Uri.parse(dioBaseUrl).resolveUri(url).toString();
   }
 }

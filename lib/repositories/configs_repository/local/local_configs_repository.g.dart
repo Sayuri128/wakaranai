@@ -19,11 +19,11 @@ class _LocalConfigsRepository implements LocalConfigsRepository {
   String? baseUrl;
 
   @override
-  Future<RepoConfigsResponse> getConfigs(category) async {
+  Future<RepoConfigsResponse> getConfigs(String category) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{r'category': category};
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
+    final Map<String, dynamic>? _data = null;
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<RepoConfigsResponse>(Options(
       method: 'GET',
@@ -36,17 +36,21 @@ class _LocalConfigsRepository implements LocalConfigsRepository {
               queryParameters: queryParameters,
               data: _data,
             )
-            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+            .copyWith(
+                baseUrl: _combineBaseUrls(
+              _dio.options.baseUrl,
+              baseUrl,
+            ))));
     final value = RepoConfigsResponse.fromJson(_result.data!);
     return value;
   }
 
   @override
-  Future<RemoteScript> getScript(path) async {
+  Future<RemoteScript> getScript(String path) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{r'path': path};
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
+    final Map<String, dynamic>? _data = null;
     final _result = await _dio
         .fetch<Map<String, dynamic>>(_setStreamType<RemoteScript>(Options(
       method: 'GET',
@@ -59,7 +63,11 @@ class _LocalConfigsRepository implements LocalConfigsRepository {
               queryParameters: queryParameters,
               data: _data,
             )
-            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+            .copyWith(
+                baseUrl: _combineBaseUrls(
+              _dio.options.baseUrl,
+              baseUrl,
+            ))));
     final value = RemoteScript.fromJson(_result.data!);
     return value;
   }
@@ -75,5 +83,22 @@ class _LocalConfigsRepository implements LocalConfigsRepository {
       }
     }
     return requestOptions;
+  }
+
+  String _combineBaseUrls(
+    String dioBaseUrl,
+    String? baseUrl,
+  ) {
+    if (baseUrl == null || baseUrl.trim().isEmpty) {
+      return dioBaseUrl;
+    }
+
+    final url = Uri.parse(baseUrl);
+
+    if (url.isAbsolute) {
+      return url.toString();
+    }
+
+    return Uri.parse(dioBaseUrl).resolveUri(url).toString();
   }
 }

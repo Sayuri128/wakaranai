@@ -20,13 +20,16 @@ import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/manga_provider_button.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
+import 'package:wakaranai/ui/widgets/image_widget.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import '../../routes.dart';
 
 class MangaConcreteViewerData {
   final String uid;
   final MangaGalleryView galleryView;
+  final Map<String, String> coverHeaders;
   final MangaApiClient client;
   final ConfigInfo configInfo;
   final bool fromLibrary;
@@ -34,6 +37,7 @@ class MangaConcreteViewerData {
   const MangaConcreteViewerData(
       {required this.uid,
       required this.galleryView,
+      required this.coverHeaders,
       required this.client,
       required this.configInfo,
       this.fromLibrary = false});
@@ -42,7 +46,7 @@ class MangaConcreteViewerData {
 class MangaConcreteViewer extends StatelessWidget {
   static const String chapterDateFormat = 'yyyy-MM-dd HH:mm';
 
-  MangaConcreteViewer({Key? key, required this.data}) : super(key: key);
+  MangaConcreteViewer({super.key, required this.data});
 
   final GlobalKey _scaffoldKey = GlobalKey();
 
@@ -140,7 +144,7 @@ class MangaConcreteViewer extends StatelessWidget {
                 RefreshIndicator(
                   onRefresh: () {
                     return Future.delayed(
-                      Duration(milliseconds: 150),
+                      const Duration(milliseconds: 150),
                       () {
                         context
                             .read<
@@ -517,18 +521,10 @@ class MangaConcreteViewer extends StatelessWidget {
           Hero(
             tag: Heroes.galleryViewToConcreteView(data.uid),
             child: Material(
-              child: CachedNetworkImage(
-                imageUrl: cover,
-                width: MediaQuery.of(context).size.width,
-                fit: BoxFit.cover,
-                progressIndicatorBuilder: (context, url, progress) => SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.7,
-                  width: MediaQuery.of(context).size.width,
-                  child: Center(
-                    child: CircularProgressIndicator(
-                        color: AppColors.primary, value: progress.progress),
-                  ),
-                ),
+              child: ImageWidget(
+                uid: data.uid,
+                url: data.galleryView.cover,
+                headers: data.coverHeaders,
               ),
             ),
           ),

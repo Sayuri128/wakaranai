@@ -46,9 +46,11 @@ dependencies:
   flutter_inappwebview: ^5.8.0
   flutter_secure_storage: ^9.0.0
   flutter_isolate: ^2.0.4
-  drift: ^2.14.1
-  sqlite3_flutter_libs: ^0.5.18
+#  drift: ^2.14.1
+#  sqlite3_flutter_libs: ^0.5.18
 
+dependency_overrides:
+  watcher: ^1.1.0
 
 flutter_intl:
   enabled: true
@@ -68,7 +70,7 @@ dev_dependencies:
   flutter_lints: ^3.0.1
   build_runner: ^2.4.7
   retrofit_generator: ^8.0.6
-  drift_dev: ^2.14.1
+#  drift_dev: ^2.14.1
 
 flutter:
 

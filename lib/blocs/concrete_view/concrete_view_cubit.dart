@@ -24,21 +24,19 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
 
   Future<void> getConcrete(String uid, G galleryView,
       {bool forceRemote = false}) async {
-    late final ConcreteView<dynamic> concreteView;
+    final ConcreteView<dynamic> concreteView =
+        await _getConcrete(uid, galleryView.data);
 
-    Future<void> getRemoteConcrete() async {
-      concreteView = await _getConcrete(uid, galleryView.data);
-    }
+    final imageHeaders =
+        await state.apiClient.getImageHeaders(uid: uid, data: galleryView.data);
 
-    if (!tryLoadFromDb || forceRemote) {
-      await getRemoteConcrete();
-      emit(ConcreteViewInitialized<T, C, G>(
-          concreteView: concreteView as dynamic,
-          galleryView: galleryView,
-          apiClient: state.apiClient,
-          groupIndex: concreteView.groups.isNotEmpty ? 0 : -1,
-          order: ConcreteViewOrder.DEFAULT));
-    }
+    emit(ConcreteViewInitialized<T, C, G>(
+        concreteView: concreteView as dynamic,
+        galleryView: galleryView,
+        apiClient: state.apiClient,
+        groupIndex: concreteView.groups.isNotEmpty ? 0 : -1,
+        imageHeaders: imageHeaders,
+        order: ConcreteViewOrder.DEFAULT));
   }
 
   void changeGroup(int index) async {

@@ -62,8 +62,8 @@ class MangaServiceViewBody extends StatelessWidget {
               footer: CustomFooter(
                 builder: (context, mode) {
                   if (mode == LoadStatus.loading) {
-                    return Column(
-                      children: const [
+                    return const Column(
+                      children: [
                         SizedBox(
                           height: 24,
                         ),
@@ -81,10 +81,14 @@ class MangaServiceViewBody extends StatelessWidget {
               onLoading: () {
                 if (state
                     is! ServiceViewLoading<MangaApiClient, MangaGalleryView>) {
+                  refreshController.requestLoading();
                   context
                       .read<
                           ServiceViewCubit<MangaApiClient, MangaGalleryView>>()
-                      .getGallery();
+                      .getGallery()
+                      .then((value) {
+                    refreshController.loadComplete();
+                  });
                 }
               },
               child: state is ServiceViewInitialized<MangaApiClient,
@@ -98,9 +102,10 @@ class MangaServiceViewBody extends StatelessWidget {
                           cover: galleryView.cover,
                           uid: galleryView.uid,
                           title: galleryView.title,
-                          onLongPress: () {
-
-                          },
+                          headers: stateInitialized
+                                  .galleryViewImagesHeaders[galleryView.uid] ??
+                              {},
+                          onLongPress: () {},
                           onTap: () {
                             _onGalleryViewClick(context, galleryView);
                           },
@@ -241,6 +246,8 @@ class MangaServiceViewBody extends StatelessWidget {
         arguments: MangaConcreteViewerData(
             client: apiClient,
             uid: e.uid,
+            coverHeaders:
+                stateInitialized.galleryViewImagesHeaders[e.uid] ?? {},
             galleryView: e,
             configInfo: configInfo));
   }

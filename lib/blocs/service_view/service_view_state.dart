@@ -38,6 +38,7 @@ class ServiceViewInitialized<T extends ApiClient, G extends GalleryView>
   final String searchQuery;
   final ConfigInfo configInfo;
   final List<G> galleryViews;
+  final Map<String, Map<String, String>> galleryViewImagesHeaders;
   final int currentPage;
   final bool loading;
 
@@ -48,6 +49,7 @@ class ServiceViewInitialized<T extends ApiClient, G extends GalleryView>
       required this.searchQuery,
       required this.configInfo,
       required this.galleryViews,
+      required this.galleryViewImagesHeaders,
       required this.currentPage,
       required this.selectedFilters,
       required this.loading})
@@ -58,6 +60,7 @@ class ServiceViewInitialized<T extends ApiClient, G extends GalleryView>
       T? client,
       ConfigInfo? configInfo,
       List<G>? galleryViews,
+      Map<String, Map<String, String>>? galleryViewImagesHeaders,
       int? currentPage,
       Map<String, FilterData>? selectedFilters,
       bool? loading}) {
@@ -66,6 +69,8 @@ class ServiceViewInitialized<T extends ApiClient, G extends GalleryView>
         client: client ?? this.client,
         configInfo: configInfo ?? this.configInfo,
         galleryViews: galleryViews ?? this.galleryViews,
+        galleryViewImagesHeaders:
+            galleryViewImagesHeaders ?? this.galleryViewImagesHeaders,
         currentPage: currentPage ?? this.currentPage,
         selectedFilters: selectedFilters ?? this.selectedFilters,
         loading: loading ?? this.loading);

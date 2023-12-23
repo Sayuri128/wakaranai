@@ -9,12 +9,13 @@ part of 'protector_storage_item.dart';
 ProtectorStorageItem _$ProtectorStorageItemFromJson(Map json) =>
     ProtectorStorageItem(
       uid: json['uid'] as String,
-      headers: Map<String, dynamic>.from(json['headers'] as Map),
+      data: WebBrowserPageResult.fromJson(
+          Map<String, dynamic>.from(json['data'] as Map)),
     );
 
 Map<String, dynamic> _$ProtectorStorageItemToJson(
         ProtectorStorageItem instance) =>
     <String, dynamic>{
       'uid': instance.uid,
-      'headers': instance.headers,
+      'data': instance.data.toJson(),
     };

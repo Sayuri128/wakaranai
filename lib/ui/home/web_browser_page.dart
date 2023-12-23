@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/models/protector/protector_storage_item.dart';
+import 'package:wakaranai/models/web_browser_result/web_browser_result.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -69,9 +70,15 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
               child: ElevatedButton(
                   onPressed: () async {
                     getHeaders(
-                        done: (headers) {
+                        done: (headers, cookies) async {
                           if (!mounted) return;
-                          Navigator.of(context).pop(headers);
+                          final body = await _webView.callAsyncJavaScript(
+                              functionBody:
+                                  "return document.documentElement.innerHTML");
+                          Navigator.of(context).pop(WebBrowserPageResult(
+                              headers: headers,
+                              cookies: cookies,
+                              body: body?.value ?? ""));
                         },
                         controller: _webView,
                         pingUrl: widget.data.config.pingUrl);
@@ -98,21 +105,21 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
 }
 
 Future<void> getHeaders(
-    {required Function(Map<String, dynamic>) done,
+    {required Function(Map<String, String> headers, Map<String, String> cookies)
+        done,
     required String pingUrl,
     required InAppWebViewController controller}) async {
   final cookies = Map.fromEntries(
       (await CookieManager.instance().getCookies(url: Uri.parse(pingUrl)))
-          .map((e) => MapEntry(e.name, e.value)));
-  done({
-    'headers': Map.from(<String, String>{
-      'user-agent': ((await controller.callAsyncJavaScript(
-              functionBody: 'return navigator.userAgent;'))
-          ?.value as String),
-      'cookie': cookies.entries.map((e) => '${e.key}=${e.value}').join('; ')
-    }),
-    'cookies-raw': cookies
-  });
+          .map((e) => MapEntry(e.name, e.value.toString())));
+  done(
+      Map.from(<String, String>{
+        'user-agent': ((await controller.callAsyncJavaScript(
+                functionBody: 'return navigator.userAgent;'))
+            ?.value as String),
+        'cookie': cookies.entries.map((e) => '${e.key}=${e.value}').join('; ')
+      }),
+      cookies);
 }
 
 Future<void> openWebView(
@@ -123,10 +130,11 @@ Future<void> openWebView(
           config: config.protectorConfig!,
           protectorStorageItem:
               await ProtectorStorageService().getItem(uid: uid)));
-  if (result != null) {
-    await apiClient.passProtector(data: result as Map<String, dynamic>);
+  if (result != null && result is WebBrowserPageResult) {
+    await apiClient.passProtector(
+        body: result.body, headers: result.headers, cookies: result.cookies);
     await ProtectorStorageService()
-        .saveItem(item: ProtectorStorageItem(uid: uid, headers: result));
+        .saveItem(item: ProtectorStorageItem(uid: uid, data: result));
   } else {
     return;
   }
