@@ -10,8 +10,7 @@ import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer
 part 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
-  SettingsCubit({required this.remoteConfigsCubit})
-      : super(SettingsInitial());
+  SettingsCubit({required this.remoteConfigsCubit}) : super(SettingsInitial());
 
   // static final DefaultConfigsServiceItem = ConfigsSourceItem(
   //     baseUrl:
@@ -38,5 +37,4 @@ class SettingsCubit extends Cubit<SettingsState> {
     await _settingsService.setDefaultReaderMode(mode);
     emit((state as SettingsInitialized).copyWith(defaultMode: mode));
   }
-
 }

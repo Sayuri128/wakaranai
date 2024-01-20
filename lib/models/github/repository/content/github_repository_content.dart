@@ -6,10 +6,9 @@ part 'github_repository_content.g.dart';
 
 @JsonSerializable()
 class GithubRepositoryContent {
-
-	factory GithubRepositoryContent.fromJson(Map<String, dynamic> json) => _$GithubRepositoryContentFromJson(json);
-	Map<String, dynamic> toJson() => _$GithubRepositoryContentToJson(this);
-
+  factory GithubRepositoryContent.fromJson(Map<String, dynamic> json) =>
+      _$GithubRepositoryContentFromJson(json);
+  Map<String, dynamic> toJson() => _$GithubRepositoryContentToJson(this);
 
   @JsonKey(name: '_links')
   final Links links;

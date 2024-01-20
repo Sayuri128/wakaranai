@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 
-class ServiceViewCubitWrapper<T extends ApiClient, G extends GalleryView> extends StatelessWidget {
+class ServiceViewCubitWrapper<T extends ApiClient, G extends GalleryView>
+    extends StatelessWidget {
   const ServiceViewCubitWrapper(
       {Key? key, required this.client, required this.builder})
       : super(key: key);

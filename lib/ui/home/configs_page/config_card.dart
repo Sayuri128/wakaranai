@@ -48,7 +48,10 @@ class ConfigCard extends StatelessWidget {
                   },
                 ),
               const SizedBox(height: 8),
-              Text(configInfo.name, style: medium(),)
+              Text(
+                configInfo.name,
+                style: medium(),
+              )
             ],
           ),
         ),

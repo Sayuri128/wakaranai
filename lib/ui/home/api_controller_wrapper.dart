@@ -9,9 +9,7 @@ import 'package:wakaranai/utils/app_colors.dart';
 
 class ApiControllerWrapper<T extends ApiClient> extends StatelessWidget {
   const ApiControllerWrapper(
-      {Key? key,
-      required this.remoteConfig,
-      required this.builder})
+      {Key? key, required this.remoteConfig, required this.builder})
       : super(key: key);
 
   final RemoteConfig? remoteConfig;

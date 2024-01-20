@@ -18,7 +18,7 @@ class RepoConfigsService implements ConfigsService {
   Future<List<RemoteConfig>> getMangaConfigs() async {
     return (await _localRepository.getConfigs("manga"))
         .configs
-        .where((element) => element.category == RemoteCategory.manga )
+        .where((element) => element.category == RemoteCategory.manga)
         .toList();
   }
 
@@ -34,6 +34,4 @@ class RepoConfigsService implements ConfigsService {
   Future<RemoteScript> getRemoteScript(String path) async {
     return _localRepository.getScript(path);
   }
-
-
 }

@@ -4,9 +4,9 @@ part 'remote_script.g.dart';
 
 @JsonSerializable()
 class RemoteScript {
-
-	factory RemoteScript.fromJson(Map<String, dynamic> json) => _$RemoteScriptFromJson(json);
-	Map<String, dynamic> toJson() => _$RemoteScriptToJson(this);
+  factory RemoteScript.fromJson(Map<String, dynamic> json) =>
+      _$RemoteScriptFromJson(json);
+  Map<String, dynamic> toJson() => _$RemoteScriptToJson(this);
 
   final String path;
   final String script;

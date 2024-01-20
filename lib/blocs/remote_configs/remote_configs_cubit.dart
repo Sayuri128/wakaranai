@@ -32,7 +32,6 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
       getConfigs();
       return;
     }
-
   }
 
   void getConfigs() async {
@@ -46,7 +45,7 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
           mangaRemoteConfigs: value[0].cast(),
           animeRemoteConfigs: value[1].cast()));
     }).catchError((err) {
-    emit(RemoteConfigsError(message: "Configs source error :c"));
+      emit(RemoteConfigsError(message: "Configs source error :c"));
     });
   }
 

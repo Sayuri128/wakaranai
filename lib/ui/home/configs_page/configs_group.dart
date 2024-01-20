@@ -52,8 +52,7 @@ class ConfigsGroup extends StatelessWidget {
       Navigator.of(context).pushNamedAndRemoveUntil(
           Routes.mangaServiceViewer, (route) => false,
           arguments: MangaServiceViewData(remoteConfig: remoteConfig));
-    }
-    else if (remoteConfig.category == RemoteCategory.anime) {
+    } else if (remoteConfig.category == RemoteCategory.anime) {
       Navigator.of(context).pushNamedAndRemoveUntil(
           Routes.animeServiceViewer, (route) => false,
           arguments: AnimeServiceViewerData(remoteConfig: remoteConfig));

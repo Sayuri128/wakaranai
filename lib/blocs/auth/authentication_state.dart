@@ -14,10 +14,8 @@ class AuthenticationUnauthenticated extends AuthenticationState {
 }
 
 class AuthenticationAuthenticated extends AuthenticationState {
-
   final String email;
   final String password;
-
 
   AuthenticationAuthenticated.create(this.email, this.password);
 

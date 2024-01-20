@@ -5,7 +5,7 @@ import 'package:wakaranai/models/remote_config/remote_category.dart';
 part 'remote_config.g.dart';
 
 ConfigInfoType remoteCategoryToConfigInfoType(RemoteCategory remoteCategory) {
-  switch(remoteCategory) {
+  switch (remoteCategory) {
     case RemoteCategory.anime:
       return ConfigInfoType.ANIME;
     case RemoteCategory.manga:
@@ -15,9 +15,9 @@ ConfigInfoType remoteCategoryToConfigInfoType(RemoteCategory remoteCategory) {
 
 @JsonSerializable()
 class RemoteConfig {
-
-	factory RemoteConfig.fromJson(Map<String, dynamic> json) => _$RemoteConfigFromJson(json);
-	Map<String, dynamic> toJson() => _$RemoteConfigToJson(this);
+  factory RemoteConfig.fromJson(Map<String, dynamic> json) =>
+      _$RemoteConfigFromJson(json);
+  Map<String, dynamic> toJson() => _$RemoteConfigToJson(this);
 
   final RemoteCategory category;
   final String path;

@@ -50,8 +50,7 @@ class HomeView extends StatelessWidget {
           ),
           body: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              transitionBuilder: (child, animation) =>
-                  FadeTransition(
+              transitionBuilder: (child, animation) => FadeTransition(
                     opacity: animation,
                     child: child,
                   ),

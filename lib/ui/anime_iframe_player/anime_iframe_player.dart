@@ -19,14 +19,13 @@ class AnimeIframePlayer extends StatefulWidget {
   State<AnimeIframePlayer> createState() => _AnimeIframePlayerState();
 }
 
-class _AnimeIframePlayerState extends State<AnimeIframePlayer>{
+class _AnimeIframePlayerState extends State<AnimeIframePlayer> {
   InAppWebViewController? _inAppWebViewController;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-
   }
 
   @override
