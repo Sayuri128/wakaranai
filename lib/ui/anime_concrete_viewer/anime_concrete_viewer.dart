@@ -151,7 +151,7 @@ class AnimeConcreteViewer extends StatelessWidget {
           }
           return RefreshIndicator(
             onRefresh: () async {
-               await context
+              await context
                   .read<
                       ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
                           AnimeGalleryView>>()

@@ -27,11 +27,8 @@ class GitHubConfigsService implements ConfigsService {
       final config = await _downloadSourceCode(concreteContent
           .firstWhere((element) => element.name == "config.json")
           .download_url!);
-      return RemoteConfig.fromJson({
-        "category": "manga",
-        "path": e.name,
-        "config": jsonDecode(config)
-      });
+      return RemoteConfig.fromJson(
+          {"category": "manga", "path": e.name, "config": jsonDecode(config)});
     }));
   }
 
@@ -47,11 +44,8 @@ class GitHubConfigsService implements ConfigsService {
       final config = await _downloadSourceCode(concreteContent
           .firstWhere((element) => element.name == "config.json")
           .download_url!);
-      return RemoteConfig.fromJson({
-        "category": "anime",
-        "path": e.name,
-        "config": jsonDecode(config)
-      });
+      return RemoteConfig.fromJson(
+          {"category": "anime", "path": e.name, "config": jsonDecode(config)});
     }));
   }
 
@@ -69,7 +63,7 @@ class GitHubConfigsService implements ConfigsService {
 }
 
 Future<String> _downloadSourceCode(String url) async {
-  return (await http.get(Uri.parse(url), headers: {
-    "max-age": "600"
-  })).body.replaceAll("\n", "\r\n");
+  return (await http.get(Uri.parse(url), headers: {"max-age": "600"}))
+      .body
+      .replaceAll("\n", "\r\n");
 }

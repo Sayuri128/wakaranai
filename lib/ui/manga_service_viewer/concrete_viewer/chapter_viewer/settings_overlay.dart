@@ -35,7 +35,7 @@ class _SettingsOverlayState extends State<SettingsOverlay>
     _settingsOverlayAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500))
       ..addListener(() {
-        if(mounted) {
+        if (mounted) {
           setState(() {});
         }
       });

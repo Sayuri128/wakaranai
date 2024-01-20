@@ -10,7 +10,6 @@ abstract class ChapterViewState {
 class ChapterViewInit extends ChapterViewState {}
 
 class ChapterViewInitialized extends ChapterViewState {
-
   final List<Pages> pages;
   final Pages currentPages;
 

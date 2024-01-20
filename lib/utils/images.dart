@@ -9,4 +9,3 @@ ImageProvider getImageProvider(String url, {Map<String, String>? headers}) {
       ? Image.memory(base64Decode(url.split(',').last)).image
       : CachedNetworkImageProvider(url, headers: headers);
 }
-

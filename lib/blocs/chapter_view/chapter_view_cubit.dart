@@ -104,8 +104,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     if (state is ChapterViewInitialized &&
         currentPages.chapterUid == stateInitialized.currentPages.chapterUid) {
       onDone?.call(stateInitialized.currentPages);
-      emit(stateInitialized.copyWith(
-          currentPage: index));
+      emit(stateInitialized.copyWith(currentPage: index));
     }
   }
 

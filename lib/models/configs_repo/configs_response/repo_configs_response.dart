@@ -9,7 +9,8 @@ class RepoConfigsResponse {
   final List<String> availableCategories;
   final List<RemoteConfig> configs;
 
-  factory RepoConfigsResponse.fromJson(Map<String, dynamic> json) => _$RepoConfigsResponseFromJson(json);
+  factory RepoConfigsResponse.fromJson(Map<String, dynamic> json) =>
+      _$RepoConfigsResponseFromJson(json);
 
   Map<String, dynamic> toJson() => _$RepoConfigsResponseToJson(this);
 
@@ -19,4 +20,3 @@ class RepoConfigsResponse {
     required this.configs,
   });
 }
-

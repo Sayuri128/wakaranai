@@ -128,11 +128,11 @@ class MangaConcreteViewer extends StatelessWidget {
                   onRefresh: () async {
                     await context
                         .read<
-                        ConcreteViewCubit<MangaApiClient,
-                            MangaConcreteView, MangaGalleryView>>()
+                            ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                                MangaGalleryView>>()
                         .getConcrete(data.uid, data.galleryView,
-                        forceRemote: true);
-                    },
+                            forceRemote: true);
+                  },
                   child: ListView.builder(
                     padding: EdgeInsets.zero,
                     itemCount: 1 + groupSize + 1,

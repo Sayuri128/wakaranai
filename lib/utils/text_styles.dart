@@ -10,7 +10,6 @@ TextStyle thin({double size = 16, Color? color}) {
       color: color ?? AppColors.mainWhite);
 }
 
-
 TextStyle bold({double size = 16, Color? color}) {
   return TextStyle(
       fontSize: size,
@@ -18,7 +17,6 @@ TextStyle bold({double size = 16, Color? color}) {
       fontWeight: FontWeight.w700,
       color: color ?? AppColors.mainWhite);
 }
-
 
 TextStyle regular({double size = 14, Color? color}) {
   return TextStyle(

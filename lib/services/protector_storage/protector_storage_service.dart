@@ -27,5 +27,4 @@ class ProtectorStorageService {
   Future<void> clear() async {
     await _secureStorage.deleteAll();
   }
-
 }
