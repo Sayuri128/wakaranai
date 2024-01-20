@@ -89,16 +89,25 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
           retry: () {
             getGallery(query: query);
           });
+
       if (newGalleryViews == null) {
-        emit(state.copyWith(loading: false));
+        emit(
+          state.copyWith(
+            loading: false,
+          ),
+        );
         return;
       }
+
+      Map<String, Map<String, String>> imagesHeaders =
+          await _getImageHeaders(newGalleryViews, state);
 
       galleryViews.addAll(newGalleryViews);
 
       emit((this.state as ServiceViewInitialized<T, G>).copyWith(
         galleryViews: galleryViews,
         currentPage: currentPage,
+        galleryViewImagesHeaders: imagesHeaders,
         loading: false,
       ));
     }
@@ -115,7 +124,6 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
     }
 
     final List<G> galleryViews = [];
-    final Map<String, String> galleryViewImagesHeaders = {};
     int currentPage = 0;
 
     final newGalleryViews = await _getGalleryViews(
@@ -132,10 +140,26 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
 
     galleryViews.addAll(newGalleryViews);
 
-    emit(state.copyWith(
+    emit(
+      state.copyWith(
         galleryViews: galleryViews,
         currentPage: currentPage += 1,
-        searchQuery: query));
+        searchQuery: query,
+        galleryViewImagesHeaders:
+            await _getImageHeaders(newGalleryViews, state),
+      ),
+    );
+  }
+
+  Future<Map<String, Map<String, String>>> _getImageHeaders(
+      List<dynamic> galleryViews,
+      ServiceViewInitialized<dynamic, dynamic> state) async {
+    final Map<String, Map<String, String>> imagesHeaders = {};
+    for (final GalleryView galleryView in (galleryViews ?? [])) {
+      imagesHeaders[galleryView.uid] = await state.client
+          .getImageHeaders(uid: galleryView.uid, data: galleryView.data);
+    }
+    return imagesHeaders;
   }
 
   void removeFilter(String param) {
