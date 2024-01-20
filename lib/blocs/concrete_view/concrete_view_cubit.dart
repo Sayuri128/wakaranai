@@ -12,10 +12,7 @@ class A<G extends ElementsGroupOfConcrete<dynamic>> {}
 
 class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
     G extends GalleryView> extends Cubit<ConcreteViewState<T, C, G>> {
-  ConcreteViewCubit(initialState, {required this.tryLoadFromDb})
-      : super(initialState);
-
-  final bool tryLoadFromDb;
+  ConcreteViewCubit(super.state);
 
   Future<C> _getConcrete(String uid, Map<String, dynamic> data) async {
     return await (state.apiClient as dynamic) // TODO: avoid dynamic
