@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
@@ -16,14 +15,13 @@ import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/blocs/multi_select_cubit/multi_select_cubit.dart';
 import 'package:wakaranai/heroes.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
-import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/manga_provider_button.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/ui/widgets/image_widget.dart';
 import 'package:wakaranai/utils/app_colors.dart';
-import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
+
 import '../../routes.dart';
 
 class MangaConcreteViewerData {
