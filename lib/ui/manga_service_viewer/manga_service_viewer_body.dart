@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/common/service_viewer/service_viewer_loader.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
@@ -61,44 +62,40 @@ class MangaServiceViewBody extends StatelessWidget {
               enablePullDown: false,
               footer: CustomFooter(
                 builder: (context, mode) {
-                  if (mode == LoadStatus.loading) {
-                    return const Column(
-                      children: [
-                        SizedBox(
-                          height: 24,
-                        ),
-                        CircularProgressIndicator(color: AppColors.primary),
-                        SizedBox(
-                          height: 24,
-                        ),
-                      ],
-                    );
-                  }
-                  return const SizedBox();
+                  return ServiceViewerLoader(
+                      cubit: context.read<
+                          ServiceViewCubit<MangaApiClient,
+                              MangaGalleryView>>());
                 },
               ),
               controller: refreshController,
-              onLoading: () {
+              onLoading: () async {
                 if (state
-                    is! ServiceViewLoading<MangaApiClient, MangaGalleryView>) {
-                  refreshController.requestLoading();
+                    is ServiceViewLoading<MangaApiClient, MangaGalleryView>) {
+                  return;
+                }
+
+                if (state is ServiceViewInitialized<MangaApiClient,
+                        MangaGalleryView> &&
+                    !(state as ServiceViewInitialized<MangaApiClient,
+                            MangaGalleryView>)
+                        .loading) {
                   context
                       .read<
                           ServiceViewCubit<MangaApiClient, MangaGalleryView>>()
-                      .getGallery()
-                      .then((value) {
-                    refreshController.loadComplete();
-                  });
+                      .getGallery();
                 }
               },
               child: state is ServiceViewInitialized<MangaApiClient,
                       MangaGalleryView>
                   ? GridView.builder(
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      ),
                       itemBuilder: (context, index) {
                         final galleryView =
                             stateInitialized.galleryViews[index];
                         return GalleryViewCard(
-                          inLibrary: false,
                           cover: galleryView.cover,
                           uid: galleryView.uid,
                           title: galleryView.title,
@@ -112,12 +109,14 @@ class MangaServiceViewBody extends StatelessWidget {
                         );
                       },
                       itemCount: stateInitialized.galleryViews.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              childAspectRatio: GalleryViewCard.aspectRatio,
-                              crossAxisSpacing: 8,
-                              mainAxisSpacing: 8))
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount:
+                              MediaQuery.of(context).size.width ~/ 200,
+                          childAspectRatio: GalleryViewCard.aspectRatio(
+                            MediaQuery.of(context).size.width,
+                          ),
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8))
                   : const SizedBox()),
           if (state is! ServiceViewInitialized<MangaApiClient,
                   MangaGalleryView> &&

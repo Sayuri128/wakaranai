@@ -12,15 +12,15 @@ abstract class ServiceViewState<T extends ApiClient, G extends GalleryView> {
 class ServiceViewInitial<T extends ApiClient, G extends GalleryView>
     extends ServiceViewState<T, G> {
   const ServiceViewInitial({
-    required T client,
-  }) : super(client: client);
+    required super.client,
+  });
 }
 
 class ServiceViewLoading<T extends ApiClient, G extends GalleryView>
     extends ServiceViewState<T, G> {
   const ServiceViewLoading({
-    required T client,
-  }) : super(client: client);
+    required super.client,
+  });
 }
 
 class ServiceViewError<T extends ApiClient, G extends GalleryView>
@@ -29,8 +29,7 @@ class ServiceViewError<T extends ApiClient, G extends GalleryView>
   final void Function() retry;
 
   const ServiceViewError(
-      {required this.message, required T client, required this.retry})
-      : super(client: client);
+      {required this.message, required super.client, required this.retry});
 }
 
 class ServiceViewInitialized<T extends ApiClient, G extends GalleryView>
@@ -45,15 +44,14 @@ class ServiceViewInitialized<T extends ApiClient, G extends GalleryView>
   final Map<String, FilterData> selectedFilters;
 
   const ServiceViewInitialized(
-      {required T client,
+      {required super.client,
       required this.searchQuery,
       required this.configInfo,
       required this.galleryViews,
       required this.galleryViewImagesHeaders,
       required this.currentPage,
       required this.selectedFilters,
-      required this.loading})
-      : super(client: client);
+      required this.loading});
 
   ServiceViewInitialized<T, G> copyWith(
       {String? searchQuery,
