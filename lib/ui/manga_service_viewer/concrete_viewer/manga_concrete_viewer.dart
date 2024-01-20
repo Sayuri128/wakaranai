@@ -32,15 +32,14 @@ class MangaConcreteViewerData {
   final Map<String, String> coverHeaders;
   final MangaApiClient client;
   final ConfigInfo configInfo;
-  final bool fromLibrary;
 
-  const MangaConcreteViewerData(
-      {required this.uid,
-      required this.galleryView,
-      required this.coverHeaders,
-      required this.client,
-      required this.configInfo,
-      this.fromLibrary = false});
+  const MangaConcreteViewerData({
+    required this.uid,
+    required this.galleryView,
+    required this.coverHeaders,
+    required this.client,
+    required this.configInfo,
+  });
 }
 
 class MangaConcreteViewer extends StatelessWidget {
@@ -54,30 +53,13 @@ class MangaConcreteViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (data.fromLibrary) {
-      return WebBrowserWrapper(
-        onInterceptorInitialized: () {
-          _scaffoldKey.currentContext
-              ?.read<
-                  ConcreteViewCubit<MangaApiClient, MangaConcreteView,
-                      MangaGalleryView>>()
-              .getConcrete(data.uid, data.galleryView);
-        },
-        apiClient: data.client,
-        configInfo: data.configInfo,
-        builder: (context, completer) => _wrapWithBrowserInterceptorCubit(
-            child: _buildConcreteBody(false), completer: completer),
-      );
-    } else {
-      return _buildConcreteBody(true);
-    }
+    return _buildConcreteBody(true);
   }
 
   Widget _buildConcreteBody(bool init) {
     return ConcreteViewCubitWrapper<MangaApiClient, MangaConcreteView,
         MangaGalleryView>(
       client: data.client,
-      tryLoadFromDb: data.fromLibrary,
       init: (cubit) {
         if (init) {
           cubit.getConcrete(data.uid, data.galleryView);
@@ -137,24 +119,20 @@ class MangaConcreteViewer extends StatelessWidget {
                   ? concreteView.groups[state.groupIndex].elements.length
                   : 0
               : 0;
+
           return BlocBuilder<MultiSelectCubit, MultiSelectState>(
             builder: (context, multiSelect) => Stack(
               alignment: Alignment.center,
               children: [
                 RefreshIndicator(
-                  onRefresh: () {
-                    return Future.delayed(
-                      const Duration(milliseconds: 150),
-                      () {
-                        context
-                            .read<
-                                ConcreteViewCubit<MangaApiClient,
-                                    MangaConcreteView, MangaGalleryView>>()
-                            .getConcrete(data.uid, data.galleryView,
-                                forceRemote: true);
-                      },
-                    );
-                  },
+                  onRefresh: () async {
+                    await context
+                        .read<
+                        ConcreteViewCubit<MangaApiClient,
+                            MangaConcreteView, MangaGalleryView>>()
+                        .getConcrete(data.uid, data.galleryView,
+                        forceRemote: true);
+                    },
                   child: ListView.builder(
                     padding: EdgeInsets.zero,
                     itemCount: 1 + groupSize + 1,

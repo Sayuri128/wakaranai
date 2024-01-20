@@ -20,6 +20,7 @@ import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
+
 class AnimeConcreteViewerData {
   final String uid;
   final AnimeGalleryView galleryView;
@@ -67,7 +68,6 @@ class AnimeConcreteViewer extends StatelessWidget {
     return ConcreteViewCubitWrapper<AnimeApiClient, AnimeConcreteView,
         AnimeGalleryView>(
       client: data.client,
-      tryLoadFromDb: data.fromLibrary,
       init: (cubit) {
         if (init) {
           cubit.getConcrete(data.uid, data.galleryView);
@@ -150,18 +150,16 @@ class AnimeConcreteViewer extends StatelessWidget {
             currentGroupIndex = state.groupIndex;
           }
           return RefreshIndicator(
-            onRefresh: () {
-              return Future.delayed(
-                const Duration(milliseconds: 100),
-                () {
-                  context
-                      .read<
-                          ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
-                              AnimeGalleryView>>()
-                      .getConcrete(data.uid, data.galleryView,
-                          forceRemote: true);
-                },
-              );
+            onRefresh: () async {
+               await context
+                  .read<
+                      ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
+                          AnimeGalleryView>>()
+                  .getConcrete(
+                    data.uid,
+                    data.galleryView,
+                    forceRemote: true,
+                  );
             },
             color: AppColors.primary,
             child: ListView.builder(
