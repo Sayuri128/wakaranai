@@ -111,7 +111,7 @@ class MangaServiceViewBody extends StatelessWidget {
                       itemCount: stateInitialized.galleryViews.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount:
-                              MediaQuery.of(context).size.width ~/ 200,
+                              MediaQuery.of(context).size.width ~/ 170,
                           childAspectRatio: GalleryViewCard.aspectRatio(
                             MediaQuery.of(context).size.width,
                           ),

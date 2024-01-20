@@ -27,8 +27,6 @@ class GalleryViewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = aspectRatio(MediaQuery.of(context).size.width) *
-        MediaQuery.of(context).size.width;
     return Hero(
       tag: Heroes.galleryViewToConcreteView(uid),
       child: ClipRRect(
@@ -38,9 +36,6 @@ class GalleryViewCard extends StatelessWidget {
         child: Material(
           child: Ink.image(
               fit: BoxFit.cover,
-              height: aspectRatio(
-                MediaQuery.of(context).size.width,
-              ),
               width: MediaQuery.of(context).size.width,
               image: getImageProvider(cover, headers: headers),
               child: InkWell(

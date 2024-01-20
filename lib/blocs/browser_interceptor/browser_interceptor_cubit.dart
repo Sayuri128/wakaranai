@@ -18,59 +18,81 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
   late final InAppWebViewController _inAppWebViewController;
   late final HeadlessInAppWebView _headlessInAppWebView;
 
-  Future<void> init(
-      {required String url, required Completer<bool> initCompleter}) async {
+  Future<void> init({
+    required String url,
+    required Completer<bool> initCompleter,
+  }) async {
     logger.i("Init BrowserInterceptorCubit");
     _headlessInAppWebView = HeadlessInAppWebView(
-        shouldOverrideUrlLoading: (controller, navigationAction) async {
-          return NavigationActionPolicy.CANCEL;
+        onLoadStart: _onLoadStart,
+        initialSettings: getDefaultBrowserSettings(),
+        onWebViewCreated: _onWebViewCreated(url),
+        onProgressChanged: _onProgressChanged,
+        onUpdateVisitedHistory: (controller, loadedUrl, androidIsReload) async {
+          await _onPageLoaded(loadedUrl, controller, url, initCompleter);
         },
-        onLoadStart: (controller, url) {
-          // print("onLoadStart: $url");
-        },
-        initialOptions: getDefaultBrowserOption(),
-        onWebViewCreated: ((controller) {
-          _inAppWebViewController = controller;
-
-          loadPage(url: url).then((value) {
-            emit(BrowserInterceptorInitialized());
-          });
-        }),
         onLoadStop: (controller, loadedUrl) async {
-          await Future.delayed(const Duration(milliseconds: 150));
-
-          final result = await controller.callAsyncJavaScript(
-              functionBody: 'return document.documentElement.innerHTML');
-
-          if (result == null || result.error != null) {
-            Future.delayed(const Duration(milliseconds: 200), () {
-              retryLoadPage();
-            });
-            return;
-          }
-
-          if (!result.value.contains("Just a moment...")) {
-            Map<String, String> data = {};
-            Map<String, String> coo = {};
-            await getHeaders(
-                done: (h, cookie) {
-                  data.addAll(h);
-                  coo.addAll(cookie);
-                },
-                pingUrl: url,
-                controller: _inAppWebViewController);
-
-            logger.i(data);
-
-            pageLoaded(
-                body: result.value, data: data, headers: data, cookies: coo);
-
-            try {
-              initCompleter.complete(true);
-            } catch (_) {}
-          }
+          await _onPageLoaded(loadedUrl, controller, url, initCompleter);
         });
     await _headlessInAppWebView.run();
+  }
+
+  Future<void> _onPageLoaded(
+      WebUri? loadedUrl,
+      InAppWebViewController controller,
+      String url,
+      Completer<bool> initCompleter) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+
+    print("onLoadStop: $loadedUrl");
+
+    final result = await controller.callAsyncJavaScript(
+        functionBody: 'return document.documentElement.innerHTML');
+
+    if (result == null || result.error != null) {
+      Future.delayed(const Duration(milliseconds: 200), () {
+        retryLoadPage();
+      });
+    } else {
+      if (!result.value.contains("Just a moment...")) {
+        Map<String, String> data = {};
+        Map<String, String> coo = {};
+        await getHeaders(
+            done: (h, cookie) {
+              data.addAll(h);
+              coo.addAll(cookie);
+            },
+            pingUrl: url,
+            controller: _inAppWebViewController);
+
+        logger.i(data);
+
+        pageLoaded(body: result.value, data: data, headers: data, cookies: coo);
+
+        try {
+          initCompleter.complete(true);
+        } catch (_) {}
+      }
+    }
+  }
+
+  void _onProgressChanged(controller, progress) {
+    print("progress: $progress");
+  }
+
+  void Function(InAppWebViewController controller) _onWebViewCreated(
+      String url) {
+    return ((InAppWebViewController controller) {
+      _inAppWebViewController = controller;
+
+      loadPage(url: url).then((value) {
+        emit(BrowserInterceptorInitialized());
+      });
+    });
+  }
+
+  void _onLoadStart(controller, url) {
+    print("onLoadStart: $url");
   }
 
   void pageLoaded(
@@ -98,19 +120,21 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
       String? body}) async {
     final completer = Completer<HttpInterceptorControllerResponse>();
 
+    emit(
+      BrowserInterceptorLoadingPage(
+          url: url,
+          onLoaded: completer,
+          headers: headers,
+          method: method,
+          body: body),
+    );
+
     _inAppWebViewController.loadUrl(
         urlRequest: URLRequest(
-            url: Uri.parse(url),
+            url: WebUri(url),
             method: method,
             body: body != null ? Uint8List.fromList(utf8.encode(body)) : null,
             headers: headers));
-
-    emit(BrowserInterceptorLoadingPage(
-        url: url,
-        onLoaded: completer,
-        headers: headers,
-        method: method,
-        body: body));
 
     return completer.future;
   }

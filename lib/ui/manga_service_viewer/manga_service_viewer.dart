@@ -67,27 +67,28 @@ class _MangaServiceViewState extends State<MangaServiceView> {
             child: ServiceViewCubitWrapper<MangaApiClient, MangaGalleryView>(
               client: apiClient,
               builder: (context, state) => _wrapBrowserInterceptor(
-                  child: BlocListener<
-                      ServiceViewCubit<MangaApiClient, MangaGalleryView>,
-                      ServiceViewState<MangaApiClient, MangaGalleryView>>(
-                    listener: (context, state) {
-                      if (state is ServiceViewInitialized<MangaApiClient,
-                          MangaGalleryView>) {
-                        _refreshController.loadComplete();
-                      }
-                    },
-                    child: MangaServiceViewBody(
-                      scaffold: _scaffold,
-                      configInfo: configInfo,
-                      state: state,
-                      apiClient: apiClient,
-                      refreshController: _refreshController,
-                      searchController: _searchController,
-                    ),
+                child: BlocListener<
+                    ServiceViewCubit<MangaApiClient, MangaGalleryView>,
+                    ServiceViewState<MangaApiClient, MangaGalleryView>>(
+                  listener: (context, state) {
+                    if (state is ServiceViewInitialized<MangaApiClient,
+                        MangaGalleryView>) {
+                      _refreshController.loadComplete();
+                    }
+                  },
+                  child: MangaServiceViewBody(
+                    scaffold: _scaffold,
+                    configInfo: configInfo,
+                    state: state,
+                    apiClient: apiClient,
+                    refreshController: _refreshController,
+                    searchController: _searchController,
                   ),
-                  apiClient: apiClient,
-                  interceptorInitCompleter: interceptorInitCompleter,
-                  configInfo: configInfo),
+                ),
+                apiClient: apiClient,
+                interceptorInitCompleter: interceptorInitCompleter,
+                configInfo: configInfo,
+              ),
             ),
           );
         },

@@ -29,10 +29,17 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
   ChapterViewInitialized get stateInitialized =>
       state as ChapterViewInitialized;
 
-  void init(ChapterViewerData data,
-      {void Function(int page, int totalPage)? pagesLoaded}) async {
+  Future<void> init(
+    ChapterViewerData data, {
+    void Function(int page, int totalPage)? pagesLoaded,
+  }) async {
+    print("ChapterViewCubit init");
+
     final pagesS = [
-      await apiClient.getPages(uid: data.chapter.uid, data: data.chapter.data)
+      await apiClient.getPages(
+        uid: data.chapter.uid,
+        data: data.chapter.data,
+      )
     ];
 
     final int chapterIndex = data.group.elements
@@ -42,7 +49,8 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     final canGetPreviousPages = (chapterIndex - 1) >= 0;
     final canGetNextPages = (chapterIndex + 1) < data.group.elements.length;
 
-    emit(ChapterViewInitialized(
+    emit(
+      ChapterViewInitialized(
         pages: pagesS,
         currentPages: currentPages,
         currentPage: initialPage,
@@ -55,7 +63,9 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         group: data.group,
         galleryView: data.galleryView,
         canGetPreviousPages: canGetPreviousPages,
-        canGetNextPages: canGetNextPages));
+        canGetNextPages: canGetNextPages,
+      ),
+    );
   }
 
   void onPagesChanged({required bool next, VoidCallback? onDone}) async {

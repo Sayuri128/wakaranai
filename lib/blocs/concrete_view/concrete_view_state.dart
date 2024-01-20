@@ -24,9 +24,8 @@ class ConcreteViewInitialized<
       required this.galleryView,
       required this.order,
       required this.groupIndex,
-      required T apiClient,
-      required this.imageHeaders})
-      : super(apiClient: apiClient);
+      required super.apiClient,
+      required this.imageHeaders});
 
   ConcreteViewInitialized<T, C, G> copyWith(
       {C? concreteView,
@@ -44,4 +43,11 @@ class ConcreteViewInitialized<
       apiClient: apiClient ?? this.apiClient,
     );
   }
+}
+
+class ConcreteViewError<T extends ApiClient, C extends ConcreteView<dynamic>,
+    G extends GalleryView> extends ConcreteViewState<T, C, G> {
+  final String message;
+
+  const ConcreteViewError({required this.message, required super.apiClient});
 }

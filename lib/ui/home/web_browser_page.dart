@@ -23,7 +23,10 @@ class WebBrowserData {
 }
 
 class WebBrowserPage extends StatefulWidget {
-  const WebBrowserPage({Key? key, required this.data}) : super(key: key);
+  const WebBrowserPage({
+    super.key,
+    required this.data,
+  });
 
   final WebBrowserData data;
 
@@ -35,16 +38,15 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
   final GlobalKey _webViewKey = GlobalKey();
   late InAppWebViewController _webView;
 
-  late final InAppWebViewGroupOptions options;
+  late final InAppWebViewSettings settings;
 
   @override
   void initState() {
     super.initState();
 
-    final def = getDefaultBrowserOption();
-    def.crossPlatform.preferredContentMode =
-        UserPreferredContentMode.RECOMMENDED;
-    options = def;
+    final def = getDefaultBrowserSettings();
+    def.preferredContentMode = UserPreferredContentMode.RECOMMENDED;
+    settings = def;
   }
 
   @override
@@ -57,12 +59,12 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
           children: [
             InAppWebView(
               key: _webViewKey,
-              initialOptions: options,
-              initialUrlRequest:
-                  URLRequest(url: Uri.parse(widget.data.config.pingUrl)),
+              initialSettings: settings,
+              initialUrlRequest: URLRequest(
+                url: WebUri(widget.data.config.pingUrl),
+              ),
               onWebViewCreated: (controller) async {
                 _webView = controller;
-                controller.android.clearSslPreferences();
               },
             ),
             Padding(
@@ -109,9 +111,10 @@ Future<void> getHeaders(
         done,
     required String pingUrl,
     required InAppWebViewController controller}) async {
-  final cookies = Map.fromEntries(
-      (await CookieManager.instance().getCookies(url: Uri.parse(pingUrl)))
-          .map((e) => MapEntry(e.name, e.value.toString())));
+  final cookies = Map.fromEntries((await CookieManager.instance().getCookies(
+    url: WebUri(pingUrl),
+  ))
+      .map((e) => MapEntry(e.name, e.value.toString())));
   done(
       Map.from(<String, String>{
         'user-agent': ((await controller.callAsyncJavaScript(

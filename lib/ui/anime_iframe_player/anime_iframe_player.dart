@@ -42,7 +42,7 @@ class _AnimeIframePlayerState extends State<AnimeIframePlayer> {
           _inAppWebViewController = controller;
 
           _inAppWebViewController!.loadUrl(
-              urlRequest: URLRequest(url: Uri.parse("https://www.blank.org/")));
+              urlRequest: URLRequest(url: WebUri("https://www.blank.org/")));
 
           if (mounted) {
             setState(() {});
