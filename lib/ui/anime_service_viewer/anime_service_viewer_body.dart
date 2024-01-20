@@ -7,6 +7,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_concrete_viewer.dart';
+import 'package:wakaranai/ui/common/service_viewer/service_viewer_loader.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/routes.dart';
@@ -59,20 +60,10 @@ class AnimeServiceViewerBody extends StatelessWidget {
               enablePullDown: false,
               footer: CustomFooter(
                 builder: (context, mode) {
-                  if (mode == LoadStatus.loading) {
-                    return const Column(
-                      children: [
-                        SizedBox(
-                          height: 24,
-                        ),
-                        CircularProgressIndicator(color: AppColors.primary),
-                        SizedBox(
-                          height: 24,
-                        ),
-                      ],
-                    );
-                  }
-                  return const SizedBox();
+                  return ServiceViewerLoader(
+                      cubit: context.read<
+                          ServiceViewCubit<AnimeApiClient,
+                              AnimeGalleryView>>());
                 },
               ),
               controller: refreshController,
@@ -93,11 +84,13 @@ class AnimeServiceViewerBody extends StatelessWidget {
               child: state is ServiceViewInitialized<AnimeApiClient,
                       AnimeGalleryView>
                   ? GridView.builder(
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      ),
                       itemBuilder: (context, index) {
                         final galleryView =
                             stateInitialized.galleryViews[index];
                         return GalleryViewCard(
-                          inLibrary: false,
                           cover: galleryView.cover,
                           uid: galleryView.uid,
                           title: galleryView.title,
@@ -115,12 +108,15 @@ class AnimeServiceViewerBody extends StatelessWidget {
                         );
                       },
                       itemCount: stateInitialized.galleryViews.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              childAspectRatio: GalleryViewCard.aspectRatio,
-                              crossAxisSpacing: 8,
-                              mainAxisSpacing: 8))
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount:
+                              MediaQuery.of(context).size.width ~/ 200,
+                          childAspectRatio: GalleryViewCard.aspectRatio(
+                            MediaQuery.of(context).size.width,
+                          ),
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8),
+                    )
                   : const SizedBox()),
           if (state is! ServiceViewInitialized<AnimeApiClient,
                   AnimeGalleryView> &&

@@ -33,7 +33,6 @@ class _AppViewState extends State<AppView> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(
-          useMaterial3: true,
           elevatedButtonTheme: ElevatedButtonThemeData(
               style: ButtonStyle(
                   padding:

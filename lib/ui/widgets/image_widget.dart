@@ -41,6 +41,8 @@ class _ImageWidgetState extends State<ImageWidget> {
           setState(() {});
         }
       });
+    } else {
+      _initialized = true;
     }
 
     super.initState();

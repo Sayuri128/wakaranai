@@ -96,8 +96,11 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
 
       galleryViews.addAll(newGalleryViews);
 
-      emit((this.state as ServiceViewInitialized<T, G>)
-          .copyWith(galleryViews: galleryViews, currentPage: currentPage));
+      emit((this.state as ServiceViewInitialized<T, G>).copyWith(
+        galleryViews: galleryViews,
+        currentPage: currentPage,
+        loading: false,
+      ));
     }
   }
 
