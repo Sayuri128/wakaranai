@@ -8,11 +8,13 @@ import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class BottomModalSettings extends StatefulWidget {
-  const BottomModalSettings(
-      {Key? key, required this.scaffoldKey, required this.state})
-      : super(key: key);
+  const BottomModalSettings({
+    super.key,
+    required this.chapterViewCubit,
+    required this.state,
+  });
 
-  final GlobalKey scaffoldKey;
+  final ChapterViewCubit chapterViewCubit;
   final ChapterViewInitialized state;
 
   @override
@@ -80,9 +82,7 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
                           .toList(),
                       onChanged: (mode) {
                         if (mode != null) {
-                          widget.scaffoldKey.currentContext
-                              ?.read<ChapterViewCubit>()
-                              .onModeChanged(mode);
+                          widget.chapterViewCubit.onModeChanged(mode);
                         }
                       }),
                 )
@@ -104,15 +104,13 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
               return;
             }
 
-            widget.scaffoldKey.currentContext
-                ?.read<ChapterViewCubit>()
-                .onSetControls(newValue);
+            widget.chapterViewCubit.onSetControls(newValue);
             _enableTapControlsState = newValue;
             if (mounted) {
               setState(() {});
             }
           },
-          contentPadding: EdgeInsets.symmetric(horizontal: 24.0),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
           activeColor: AppColors.primary,
           controlAffinity:
               ListTileControlAffinity.leading, //  <-- leading Checkbox

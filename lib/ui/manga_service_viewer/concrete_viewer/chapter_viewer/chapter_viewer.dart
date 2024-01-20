@@ -45,7 +45,7 @@ class ChapterViewerData {
 }
 
 class ChapterViewer extends StatefulWidget {
-  const ChapterViewer({Key? key, required this.data}) : super(key: key);
+  const ChapterViewer({super.key, required this.data});
 
   final ChapterViewerData data;
 
@@ -55,10 +55,12 @@ class ChapterViewer extends StatefulWidget {
 
 class _ChapterViewerState extends State<ChapterViewer>
     with TickerProviderStateMixin {
-  final GlobalKey _key = GlobalKey();
+  final GlobalKey _scaffoldKey = GlobalKey();
+
+  late final ChapterViewCubit _chapterViewCubit;
 
   late final PageController _pageController;
-  final ItemScrollController _itemScrollController = ItemScrollController();
+  late final ItemScrollController _itemScrollController;
 
   bool _showGestureOverlay = false;
 
@@ -70,46 +72,58 @@ class _ChapterViewerState extends State<ChapterViewer>
   @override
   void initState() {
     super.initState();
-    _pageController =
-        PageController(initialPage: max(0, widget.data.initialPage - 1));
+    _pageController = PageController(
+      initialPage: max(0, widget.data.initialPage - 1),
+    );
+    _itemScrollController = ItemScrollController();
 
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.immersiveSticky,
+    );
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (widget.data.configInfo.protectorConfig != null) {
-        _headers = widget.data.apiClient.getProtectorHeaders();
-        setState(() {});
-      }
-    });
+    if (widget.data.configInfo.protectorConfig != null) {
+      _headers = widget.data.apiClient.getProtectorHeaders();
+    }
+
+    _chapterViewCubit = ChapterViewCubit(
+      apiClient: widget.data.apiClient,
+      initialPage: widget.data.initialPage,
+      settingsCubit: context.read<SettingsCubit>(),
+      pageController: _pageController,
+      itemScrollController: _itemScrollController,
+    )..init(
+        widget.data,
+        pagesLoaded: (current, total) {
+          _canLoadNext = current == total;
+          _canLoadPrevious = current == 1;
+          if (mounted) {
+            setState(() {});
+          }
+        },
+      );
   }
 
   @override
   void dispose() {
     super.dispose();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]);
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: [
+        SystemUiOverlay.top,
+        SystemUiOverlay.bottom,
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocProvider<ChapterViewCubit>(
-        create: (context) => ChapterViewCubit(
-            apiClient: widget.data.apiClient,
-            initialPage: widget.data.initialPage,
-            settingsCubit: context.read<SettingsCubit>(),
-            pageController: _pageController,
-            itemScrollController: _itemScrollController)
-          ..init(widget.data, pagesLoaded: (current, total) {
-            _canLoadNext = current == total;
-            _canLoadPrevious = current == 1;
-            if (mounted) {
-              setState(() {});
-            }
-          }),
-        child: _buildPage(),
+    return BlocProvider.value(
+      value: _chapterViewCubit,
+      child: Scaffold(
+        key: _scaffoldKey,
+        body: _buildPage(),
+        backgroundColor: AppColors.mainBlack,
       ),
-      backgroundColor: AppColors.mainBlack,
     );
   }
 
@@ -118,7 +132,6 @@ class _ChapterViewerState extends State<ChapterViewer>
         builder: (context, state) {
       if (state is ChapterViewInitialized) {
         return Stack(
-          key: _key,
           children: [
             _buildBackground(context),
             _buildViewer(context, state),
@@ -438,12 +451,13 @@ class _ChapterViewerState extends State<ChapterViewer>
   void _showBottomSheetSettings(
       BuildContext context, ChapterViewInitialized state) {
     showModalBottomSheet(
-        context: context,
-        enableDrag: true,
-        builder: (context) => BottomModalSettings(
-              scaffoldKey: _key,
-              state: state,
-            ));
+      context: context,
+      enableDrag: true,
+      builder: (_) => BottomModalSettings(
+        chapterViewCubit: context.read<ChapterViewCubit>(),
+        state: state,
+      ),
+    );
   }
 
   Widget _buildViewer(BuildContext context, ChapterViewInitialized state) {

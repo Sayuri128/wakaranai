@@ -158,6 +158,17 @@ class MangaConcreteViewer extends StatelessWidget {
                                   thickness: 1,
                                   color: AppColors.secondary,
                                 ),
+                              ] else if (state is ConcreteViewError<
+                                  MangaApiClient,
+                                  MangaConcreteView,
+                                  MangaGalleryView>) ...[
+                                const SizedBox(height: 16.0),
+                                Text(
+                                  state.message,
+                                  style:
+                                      regular(size: 18, color: AppColors.red),
+                                ),
+                                const SizedBox(height: 16.0),
                               ] else ...[
                                 const SizedBox(
                                   height: 32,
@@ -387,22 +398,24 @@ class MangaConcreteViewer extends StatelessWidget {
           return;
         }
         Navigator.of(context)
-            .pushNamed(Routes.chapterViewer,
-                arguments: ChapterViewerData(
-                    initialPage: 1,
-                    apiClient: data.client,
-                    chapter: chapter,
-                    group: group,
-                    galleryView: galleryView,
-                    configInfo: configInfo))
+            .pushNamed(
+              Routes.chapterViewer,
+              arguments: ChapterViewerData(
+                  initialPage: 1,
+                  apiClient: data.client,
+                  chapter: chapter,
+                  group: group,
+                  galleryView: galleryView,
+                  configInfo: configInfo),
+            )
             .then((_) {});
       },
       onLongPress: () {
-        if (isSelected) {
-          context.read<MultiSelectCubit>().unselectItem(chapter.uid);
-        } else {
-          context.read<MultiSelectCubit>().selectItem(chapter.uid);
-        }
+        // if (isSelected) {
+        //   context.read<MultiSelectCubit>().unselectItem(chapter.uid);
+        // } else {
+        //   context.read<MultiSelectCubit>().selectItem(chapter.uid);
+        // }
       },
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

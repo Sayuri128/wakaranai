@@ -12,12 +12,11 @@ import 'package:wakaranai/ui/routes.dart';
 
 class WebBrowserWrapper<T extends ApiClient> extends StatefulWidget {
   const WebBrowserWrapper(
-      {Key? key,
+      {super.key,
       required this.builder,
       required this.onInterceptorInitialized,
       required this.configInfo,
-      required this.apiClient})
-      : super(key: key);
+      required this.apiClient});
 
   final Widget Function(BuildContext context, Completer<bool>) builder;
   final VoidCallback onInterceptorInitialized;
