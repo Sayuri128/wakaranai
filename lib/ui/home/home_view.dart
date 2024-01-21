@@ -49,12 +49,13 @@ class HomeView extends StatelessWidget {
             destinations: navigationItem,
           ),
           body: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              transitionBuilder: (child, animation) => FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  ),
-              child: _buildBody(state.currentPage)),
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: child,
+            ),
+            child: _buildBody(state.currentPage),
+          ),
         );
       },
     );

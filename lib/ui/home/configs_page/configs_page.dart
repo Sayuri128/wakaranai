@@ -23,7 +23,9 @@ class ConfigPage extends StatelessWidget {
               padding: const EdgeInsets.only(top: 60),
               child: PageView(
                 controller: _pageController,
-                children: [_buildRemoteConfigsPage()],
+                children: [
+                  _buildRemoteConfigsPage(),
+                ],
               )),
           Align(
               alignment: Alignment.topCenter,
@@ -52,9 +54,10 @@ class ConfigPage extends StatelessWidget {
                         child: IconButton(
                             onPressed: () {
                               showDialog(
-                                  context: context,
-                                  builder: (context) =>
-                                      const ConfigsSourceDialog());
+                                context: context,
+                                builder: (context) =>
+                                    const ConfigsSourceDialog(),
+                              );
                             },
                             icon: const Icon(
                               Icons.filter_list_rounded,
