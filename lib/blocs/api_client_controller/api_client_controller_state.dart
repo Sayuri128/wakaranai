@@ -12,3 +12,9 @@ class ApiClientControllerInitialized<T extends ApiClient>
   ApiClientControllerInitialized(
       {required this.apiClient, required this.configInfo});
 }
+
+class ApiClientControllerError extends ApiClientControllerState {
+  final String message;
+
+  ApiClientControllerError({required this.message});
+}

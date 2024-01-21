@@ -7,8 +7,7 @@ import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 class ServiceViewCubitWrapper<T extends ApiClient, G extends GalleryView>
     extends StatelessWidget {
   const ServiceViewCubitWrapper(
-      {Key? key, required this.client, required this.builder})
-      : super(key: key);
+      {super.key, required this.client, required this.builder});
 
   final T client;
   final Widget Function(BuildContext context, ServiceViewState<T, G> state)

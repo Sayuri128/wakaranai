@@ -13,7 +13,7 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
     this._dio, {
     this.baseUrl,
   }) {
-    baseUrl ??= 'https://api.github.com/';
+    baseUrl ??= 'https://github.com/';
   }
 
   final Dio _dio;
@@ -21,99 +21,31 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
   String? baseUrl;
 
   @override
-  Future<List<GithubRepositoryContent>> getMangaDirectories(
+  Future<GithubResponseModel> getDirectories(
     String org,
     String repo, {
-    String branch = 'master',
-    int maxAge = 300,
-  }) async {
-    const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'ref': branch};
-    final _headers = <String, dynamic>{r'max-age': maxAge};
-    _headers.removeWhere((k, v) => v == null);
-    final Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<List<dynamic>>(
-        _setStreamType<List<GithubRepositoryContent>>(Options(
-      method: 'GET',
-      headers: _headers,
-      extra: _extra,
-    )
-            .compose(
-              _dio.options,
-              '/repos/${org}/${repo}/contents/scripts/manga',
-              queryParameters: queryParameters,
-              data: _data,
-            )
-            .copyWith(
-                baseUrl: _combineBaseUrls(
-              _dio.options.baseUrl,
-              baseUrl,
-            ))));
-    var value = _result.data!
-        .map((dynamic i) =>
-            GithubRepositoryContent.fromJson(i as Map<String, dynamic>))
-        .toList();
-    return value;
-  }
-
-  @override
-  Future<List<GithubRepositoryContent>> getAnimeDirectories(
-    String org,
-    String repo, {
-    String branch = 'master',
-    int maxAge = 300,
-  }) async {
-    const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'ref': branch};
-    final _headers = <String, dynamic>{r'max-age': maxAge};
-    _headers.removeWhere((k, v) => v == null);
-    final Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<List<dynamic>>(
-        _setStreamType<List<GithubRepositoryContent>>(Options(
-      method: 'GET',
-      headers: _headers,
-      extra: _extra,
-    )
-            .compose(
-              _dio.options,
-              '/repos/${org}/${repo}/contents/scripts/anime',
-              queryParameters: queryParameters,
-              data: _data,
-            )
-            .copyWith(
-                baseUrl: _combineBaseUrls(
-              _dio.options.baseUrl,
-              baseUrl,
-            ))));
-    var value = _result.data!
-        .map((dynamic i) =>
-            GithubRepositoryContent.fromJson(i as Map<String, dynamic>))
-        .toList();
-    return value;
-  }
-
-  @override
-  Future<List<GithubRepositoryContent>> getConcreteContent({
-    required String org,
-    required String repo,
     required String directory,
-    required String concrete,
+    String branch = 'master',
     int maxAge = 300,
+    String accept = "application/json",
   }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'max-age': maxAge};
+    final _headers = <String, dynamic>{
+      r'max-age': maxAge,
+      r'accept': accept,
+    };
     _headers.removeWhere((k, v) => v == null);
     final Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<List<dynamic>>(
-        _setStreamType<List<GithubRepositoryContent>>(Options(
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<GithubResponseModel>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
     )
             .compose(
               _dio.options,
-              '/repos/${org}/${repo}/contents/scripts/${directory}/${concrete}',
+              '/${org}/${repo}/tree/${branch}/${directory}',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -122,10 +54,44 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
               _dio.options.baseUrl,
               baseUrl,
             ))));
-    var value = _result.data!
-        .map((dynamic i) =>
-            GithubRepositoryContent.fromJson(i as Map<String, dynamic>))
-        .toList();
+    final value = GithubResponseModel.fromJson(_result.data!);
+    return value;
+  }
+
+  @override
+  Future<String> getConcreteContent({
+    required String org,
+    required String repo,
+    required String concrete,
+    String branch = 'master',
+    int maxAge = 300,
+    String accept = "application/json",
+  }) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{
+      r'max-age': maxAge,
+      r'accept': accept,
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final Map<String, dynamic>? _data = null;
+    final _result = await _dio.fetch<String>(_setStreamType<String>(Options(
+      method: 'GET',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/${org}/${repo}/raw/${branch}/${concrete}',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        ))));
+    final value = _result.data!;
     return value;
   }
 
