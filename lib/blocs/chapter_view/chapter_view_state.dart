@@ -70,3 +70,9 @@ class ChapterViewInitialized extends ChapterViewState {
     );
   }
 }
+
+class ChapterViewError extends ChapterViewState {
+  final String message;
+
+  const ChapterViewError({required this.message});
+}
