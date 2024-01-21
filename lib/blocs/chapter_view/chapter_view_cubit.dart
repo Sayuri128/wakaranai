@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:wakaranai/blocs/chapter_view/chapter_view_state.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
+import 'package:wakaranai/main.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 
@@ -33,39 +34,47 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     ChapterViewerData data, {
     void Function(int page, int totalPage)? pagesLoaded,
   }) async {
-    print("ChapterViewCubit init");
+    try {
+      final pagesS = [
+        await apiClient.getPages(
+          uid: data.chapter.uid,
+          data: data.chapter.data,
+        )
+      ];
 
-    final pagesS = [
-      await apiClient.getPages(
-        uid: data.chapter.uid,
-        data: data.chapter.data,
-      )
-    ];
+      final int chapterIndex = data.group.elements
+          .indexWhere((element) => element.uid == pagesS.last.chapterUid);
+      final Pages currentPages = pagesS.last;
 
-    final int chapterIndex = data.group.elements
-        .indexWhere((element) => element.uid == pagesS.last.chapterUid);
-    final Pages currentPages = pagesS.last;
+      final canGetPreviousPages = (chapterIndex - 1) >= 0;
+      final canGetNextPages = (chapterIndex + 1) < data.group.elements.length;
 
-    final canGetPreviousPages = (chapterIndex - 1) >= 0;
-    final canGetNextPages = (chapterIndex + 1) < data.group.elements.length;
-
-    emit(
-      ChapterViewInitialized(
-        pages: pagesS,
-        currentPages: currentPages,
-        currentPage: initialPage,
-        totalPages: currentPages.value.length,
-        controlsVisible: true,
-        controlsEnabled: false,
-        mode: settingsCubit.state is SettingsInitialized
-            ? (settingsCubit.state as SettingsInitialized).defaultMode
-            : ChapterViewMode.RIGHT_TO_LEFT,
-        group: data.group,
-        galleryView: data.galleryView,
-        canGetPreviousPages: canGetPreviousPages,
-        canGetNextPages: canGetNextPages,
-      ),
-    );
+      emit(
+        ChapterViewInitialized(
+          pages: pagesS,
+          currentPages: currentPages,
+          currentPage: initialPage,
+          totalPages: currentPages.value.length,
+          controlsVisible: true,
+          controlsEnabled: false,
+          mode: settingsCubit.state is SettingsInitialized
+              ? (settingsCubit.state as SettingsInitialized).defaultMode
+              : ChapterViewMode.RIGHT_TO_LEFT,
+          group: data.group,
+          galleryView: data.galleryView,
+          canGetPreviousPages: canGetPreviousPages,
+          canGetNextPages: canGetNextPages,
+        ),
+      );
+    } catch (e, s) {
+      logger.e(e);
+      logger.e(s);
+      emit(
+        ChapterViewError(
+          message: e.toString(),
+        ),
+      );
+    }
   }
 
   void onPagesChanged({required bool next, VoidCallback? onDone}) async {

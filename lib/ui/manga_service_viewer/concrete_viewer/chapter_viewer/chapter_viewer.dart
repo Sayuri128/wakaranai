@@ -141,6 +141,12 @@ class _ChapterViewerState extends State<ChapterViewer>
             _buildLoaders(context, state)
           ],
         );
+      } else if (state is ChapterViewError) {
+        return Center(
+          child: Text(
+            state.message,
+          ),
+        );
       } else {
         return const Center(
           child: CircularProgressIndicator(color: AppColors.primary),

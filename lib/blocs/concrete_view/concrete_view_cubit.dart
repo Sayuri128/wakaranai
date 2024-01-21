@@ -3,6 +3,7 @@ import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
+import 'package:wakaranai/main.dart';
 
 part 'concrete_view_state.dart';
 
@@ -35,7 +36,10 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
           groupIndex: concreteView.groups.isNotEmpty ? 0 : -1,
           imageHeaders: imageHeaders,
           order: ConcreteViewOrder.DEFAULT));
-    } catch (e) {
+    } catch (e, s) {
+      logger.e(e);
+      logger.e(s);
+
       emit(
         ConcreteViewError<T, C, G>(
           message: e.toString(),
