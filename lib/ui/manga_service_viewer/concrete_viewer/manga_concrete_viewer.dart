@@ -215,149 +215,141 @@ class MangaConcreteViewer extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 500),
-                            child: multiSelect.items.isNotEmpty
-                                ? SwitchIconButton(
-                                    key: ValueKey(multiSelect.items.isNotEmpty),
-                                    iconOn: const Icon(
-                                      Icons.clear,
-                                    ),
-                                    iconOff: const SizedBox(),
-                                    state: true,
-                                    onTap: () {
-                                      context.read<MultiSelectCubit>().clear();
-                                    },
-                                  )
-                                : SizedBox(
-                                    key: ValueKey(multiSelect.items.isNotEmpty),
-                                  ),
-                          ),
+                          // AnimatedSwitcher(
+                          //   duration: const Duration(milliseconds: 500),
+                          //   child: multiSelect.items.isNotEmpty
+                          //       ? SwitchIconButton(
+                          //           key: ValueKey(multiSelect.items.isNotEmpty),
+                          //           iconOn: const Icon(
+                          //             Icons.clear,
+                          //           ),
+                          //           iconOff: const SizedBox(),
+                          //           state: true,
+                          //           onTap: () {
+                          //             context.read<MultiSelectCubit>().clear();
+                          //           },
+                          //         )
+                          //       : SizedBox(
+                          //           key: ValueKey(multiSelect.items.isNotEmpty),
+                          //         ),
+                          // ),
                           const SizedBox(
                             height: 24,
                           ),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 500),
-                            child: multiSelect.items.isNotEmpty
-                                ? SwitchIconButton(
-                                    key: ValueKey(multiSelect.items.isNotEmpty),
-                                    iconOn: const Icon(Icons.border_clear),
-                                    iconOff: const SizedBox(),
-                                    state: true,
-                                    onTap: () {
-                                      context
-                                          .read<MultiSelectCubit>()
-                                          .unselectMultiple(state.concreteView
-                                              .groups[state.groupIndex].elements
-                                              .map((e) => e.uid)
-                                              .toList());
-                                    },
-                                  )
-                                : SizedBox(
-                                    key: ValueKey(multiSelect.items.isNotEmpty),
-                                  ),
-                          ),
+                          // AnimatedSwitcher(
+                          //   duration: const Duration(milliseconds: 500),
+                          //   child: multiSelect.items.isNotEmpty
+                          //       ? SwitchIconButton(
+                          //           key: ValueKey(multiSelect.items.isNotEmpty),
+                          //           iconOn: const Icon(Icons.border_clear),
+                          //           iconOff: const SizedBox(),
+                          //           state: true,
+                          //           onTap: () {
+                          //             context
+                          //                 .read<MultiSelectCubit>()
+                          //                 .unselectMultiple(state.concreteView
+                          //                     .groups[state.groupIndex].elements
+                          //                     .map((e) => e.uid)
+                          //                     .toList());
+                          //           },
+                          //         )
+                          //       : SizedBox(
+                          //           key: ValueKey(multiSelect.items.isNotEmpty),
+                          //         ),
+                          // ),
                           const SizedBox(
                             height: 24,
                           ),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 500),
-                            child: multiSelect.items.isNotEmpty
-                                ? SwitchIconButton(
-                                    key: ValueKey(multiSelect.items.isNotEmpty),
-                                    iconOn: const Icon(Icons.select_all),
-                                    iconOff: const SizedBox(),
-                                    state: true,
-                                    onTap: () {
-                                      context
-                                          .read<MultiSelectCubit>()
-                                          .selectMultiple(state.concreteView
-                                              .groups[state.groupIndex].elements
-                                              .map((e) => e.uid)
-                                              .toList());
-                                    },
-                                  )
-                                : SizedBox(
-                                    key: ValueKey(multiSelect.items.isNotEmpty),
-                                  ),
-                          ),
+                          // AnimatedSwitcher(
+                          //   duration: const Duration(milliseconds: 500),
+                          //   child: multiSelect.items.isNotEmpty
+                          //       ? SwitchIconButton(
+                          //           key: ValueKey(multiSelect.items.isNotEmpty),
+                          //           iconOn: const Icon(Icons.select_all),
+                          //           iconOff: const SizedBox(),
+                          //           state: true,
+                          //           onTap: () {
+                          //             context
+                          //                 .read<MultiSelectCubit>()
+                          //                 .selectMultiple(state.concreteView
+                          //                     .groups[state.groupIndex].elements
+                          //                     .map((e) => e.uid)
+                          //                     .toList());
+                          //           },
+                          //         )
+                          //       : SizedBox(
+                          //           key: ValueKey(multiSelect.items.isNotEmpty),
+                          //         ),
+                          // ),
                           const SizedBox(
                             height: 24,
                           ),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 500),
-                                child: multiSelect.items.isNotEmpty
-                                    ? SwitchIconButton(
-                                        key: ValueKey(
-                                            multiSelect.items.isNotEmpty),
-                                        iconOn: const Icon(Icons.remove_done),
-                                        iconOff: const SizedBox(),
-                                        state: true,
-                                        onTap: () {
-                                          context
-                                              .read<MultiSelectCubit>()
-                                              .clear();
-                                        },
-                                      )
-                                    : SizedBox(
-                                        key: ValueKey(
-                                            multiSelect.items.isNotEmpty),
-                                      ),
-                              ),
+                              // AnimatedSwitcher(
+                              //   duration: const Duration(milliseconds: 500),
+                              //   child: multiSelect.items.isNotEmpty
+                              //       ? SwitchIconButton(
+                              //           key: ValueKey(
+                              //               multiSelect.items.isNotEmpty),
+                              //           iconOn: const Icon(Icons.remove_done),
+                              //           iconOff: const SizedBox(),
+                              //           state: true,
+                              //           onTap: () {
+                              //             context
+                              //                 .read<MultiSelectCubit>()
+                              //                 .clear();
+                              //           },
+                              //         )
+                              //       : SizedBox(
+                              //           key: ValueKey(
+                              //               multiSelect.items.isNotEmpty),
+                              //         ),
+                              // ),
                               const SizedBox(
                                 width: 24,
                               ),
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 500),
-                                child: multiSelect.items.isNotEmpty
-                                    ? SwitchIconButton(
-                                        key: ValueKey(
-                                            multiSelect.items.isNotEmpty),
-                                        iconOn: const Icon(Icons.done_all),
-                                        iconOff: const SizedBox(),
-                                        state: true,
-                                        onTap: () {
-                                          context
-                                              .read<MultiSelectCubit>()
-                                              .clear();
-                                        },
-                                      )
-                                    : SizedBox(
-                                        key: ValueKey(
-                                            multiSelect.items.isNotEmpty),
-                                      ),
-                              ),
+                              // AnimatedSwitcher(
+                              //   duration: const Duration(milliseconds: 500),
+                              //   child: multiSelect.items.isNotEmpty
+                              //       ? SwitchIconButton(
+                              //           key: ValueKey(
+                              //               multiSelect.items.isNotEmpty),
+                              //           iconOn: const Icon(Icons.done_all),
+                              //           iconOff: const SizedBox(),
+                              //           state: true,
+                              //           onTap: () {
+                              //             context
+                              //                 .read<MultiSelectCubit>()
+                              //                 .clear();
+                              //           },
+                              //         )
+                              //       : SizedBox(
+                              //           key: ValueKey(
+                              //               multiSelect.items.isNotEmpty),
+                              //         ),
+                              // ),
                               const SizedBox(
                                 width: 24,
                               ),
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 300),
-                                child: SwitchIconButton(
-                                  key: ValueKey(multiSelect.items.isNotEmpty),
-                                  iconOn: const Icon(Icons.filter_list_rounded),
-                                  iconOff: Transform.rotate(
-                                    angle: pi / 1,
-                                    child:
-                                        const Icon(Icons.filter_list_rounded),
-                                  ),
-                                  state:
-                                      state.order == ConcreteViewOrder.DEFAULT,
-                                  onTap: () {
-                                    context
-                                        .read<
-                                            ConcreteViewCubit<
-                                                MangaApiClient,
-                                                MangaConcreteView,
-                                                MangaGalleryView>>()
-                                        .changeOrder(state.order ==
-                                                ConcreteViewOrder.DEFAULT
-                                            ? ConcreteViewOrder.DEFAULT_REVERSE
-                                            : ConcreteViewOrder.DEFAULT);
-                                  },
-                                ),
+                              SwitchIconButton(
+                                key: ValueKey(multiSelect.items.isNotEmpty),
+                                iconOn: const Icon(Icons.filter_list_rounded),
+                                state:
+                                    state.order == ConcreteViewOrder.DEFAULT,
+                                onTap: () {
+                                  context
+                                      .read<
+                                          ConcreteViewCubit<
+                                              MangaApiClient,
+                                              MangaConcreteView,
+                                              MangaGalleryView>>()
+                                      .changeOrder(state.order ==
+                                              ConcreteViewOrder.DEFAULT
+                                          ? ConcreteViewOrder.DEFAULT_REVERSE
+                                          : ConcreteViewOrder.DEFAULT);
+                                },
                               ),
                             ],
                           ),
