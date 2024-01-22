@@ -180,9 +180,11 @@ packages:
   capyscript:
     dependency: "direct main"
     description:
-      path: "../../StudioProjects/capyscript"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: cde1b65c4d93992d2f8f0aaeac4ace70e4b898ef
+      url: "https://github.com/Sayuri128/capyscript"
+    source: git
     version: "0.0.1"
   characters:
     dependency: transitive
