@@ -9,6 +9,7 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_concrete_viewer.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_loader.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
+import 'package:wakaranai/ui/home/service_viewer_app_bar.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -47,11 +48,14 @@ class AnimeServiceViewerBody extends StatelessWidget {
       appBar: PreferredSize(
           preferredSize: Size(MediaQuery.of(context).size.width,
               configInfo.searchAvailable ? 80 : 60),
-          child: _buildSearchableAppBar(
-              context,
-              state is ServiceViewInitialized<AnimeApiClient, AnimeGalleryView>
-                  ? stateInitialized
-                  : null)),
+          child: Builder(builder: (context) {
+            return _buildSearchableAppBar(
+                context,
+                state is ServiceViewInitialized<AnimeApiClient,
+                        AnimeGalleryView>
+                    ? stateInitialized
+                    : null);
+          })),
       body: Stack(
         alignment: Alignment.center,
         children: [
@@ -177,67 +181,17 @@ class AnimeServiceViewerBody extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchableAppBar(BuildContext context,
-          ServiceViewInitialized<AnimeApiClient, AnimeGalleryView>? state) =>
-      Padding(
-        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 12.0),
-                  child: Text(
-                    configInfo.name,
-                    style: medium(size: 24),
-                  ),
-                ),
-                IconButton(
-                    icon: Icon(
-                      Icons.webhook,
-                      color: configInfo.protectorConfig != null
-                          ? AppColors.mainWhite
-                          : Colors.transparent,
-                    ),
-                    onPressed: configInfo.protectorConfig != null
-                        ? () {
-                            openWebView(context, apiClient, configInfo);
-                          }
-                        : null)
-              ],
-            ),
-            if (state != null && configInfo.searchAvailable)
-              Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: TextField(
-                    controller: searchController,
-                    onSubmitted: (value) {
-                      context
-                          .read<
-                              ServiceViewCubit<AnimeApiClient,
-                                  AnimeGalleryView>>()
-                          .search(searchController.text);
-                    },
-                    cursorColor: AppColors.primary,
-                    style: medium(size: 16),
-                    decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.only(bottom: 4.0),
-                        isCollapsed: true,
-                        enabledBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.primary)),
-                        focusedBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.primary)),
-                        hintText:
-                            S.current.service_viewer_search_field_hint_text,
-                        hintStyle: medium(size: 16)),
-                  ),
-                ),
-              )
-          ],
-        ),
+  Widget _buildSearchableAppBar(
+    BuildContext context,
+    ServiceViewInitialized<AnimeApiClient, AnimeGalleryView>? state,
+  ) =>
+      ServiceViewerAppBar(
+        configInfo: configInfo,
+        apiClient: apiClient,
+        state: state,
+        searchController: searchController,
+        cubit:
+            context.read<ServiceViewCubit<AnimeApiClient, AnimeGalleryView>>(),
       );
 
   void _onGalleryViewClick(BuildContext context, AnimeGalleryView e) {
