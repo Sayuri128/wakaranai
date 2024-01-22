@@ -80,6 +80,16 @@ class S {
     );
   }
 
+  /// `NSFW`
+  String get home_nsfw_suffix {
+    return Intl.message(
+      'NSFW',
+      name: 'home_nsfw_suffix',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Search`
   String get service_viewer_search_field_hint_text {
     return Intl.message(
@@ -140,10 +150,10 @@ class S {
     );
   }
 
-  /// `Configs`
+  /// `Extensions`
   String get remote_configs_page_appbar_title {
     return Intl.message(
-      'Configs',
+      'Extensions',
       name: 'remote_configs_page_appbar_title',
       desc: '',
       args: [],
@@ -180,10 +190,10 @@ class S {
     );
   }
 
-  /// `Source`
+  /// `Explore`
   String get navigation_bar_sources_title {
     return Intl.message(
-      'Source',
+      'Explore',
       name: 'navigation_bar_sources_title',
       desc: '',
       args: [],
@@ -280,10 +290,10 @@ class S {
     );
   }
 
-  /// `Change configs source`
+  /// `Change extensions source`
   String get change_configs_source_dialog {
     return Intl.message(
-      'Change configs source',
+      'Change extensions source',
       name: 'change_configs_source_dialog',
       desc: '',
       args: [],
@@ -490,10 +500,10 @@ class S {
     );
   }
 
-  /// `Default configs source`
+  /// `Default extension source`
   String get settings_default_configs_source_title {
     return Intl.message(
-      'Default configs source',
+      'Default extension source',
       name: 'settings_default_configs_source_title',
       desc: '',
       args: [],

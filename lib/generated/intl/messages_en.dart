@@ -47,7 +47,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Add"),
         "app_name": MessageLookupByLibrary.simpleMessage("Wakaranai"),
         "change_configs_source_dialog":
-            MessageLookupByLibrary.simpleMessage("Change configs source"),
+            MessageLookupByLibrary.simpleMessage("Change extensions source"),
         "chapter_viewer_bottom_modal_settings_reading_mode_title":
             MessageLookupByLibrary.simpleMessage("Reading Mode"),
         "chapter_viewer_bottom_modal_settings_tap_controls":
@@ -115,6 +115,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "history_page_title": MessageLookupByLibrary.simpleMessage("History"),
         "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Anime"),
         "home_manga_group_title": MessageLookupByLibrary.simpleMessage("Manga"),
+        "home_nsfw_suffix": MessageLookupByLibrary.simpleMessage("NSFW"),
         "left_to_right_read_mode":
             MessageLookupByLibrary.simpleMessage("Left to right"),
         "local_configs_0_length":
@@ -130,7 +131,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "navigation_bar_settings_title":
             MessageLookupByLibrary.simpleMessage("Settings"),
         "navigation_bar_sources_title":
-            MessageLookupByLibrary.simpleMessage("Source"),
+            MessageLookupByLibrary.simpleMessage("Explore"),
         "new_configs_base_url_field_label":
             MessageLookupByLibrary.simpleMessage("URL"),
         "new_configs_base_url_required_error":
@@ -142,7 +143,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "official_github_configs_source_repository":
             MessageLookupByLibrary.simpleMessage("Wakaranai GitHub"),
         "remote_configs_page_appbar_title":
-            MessageLookupByLibrary.simpleMessage("Configs"),
+            MessageLookupByLibrary.simpleMessage("Extensions"),
         "rest_configs_source_type":
             MessageLookupByLibrary.simpleMessage("REST"),
         "right_to_left_read_mode":
@@ -159,7 +160,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "settings_clear_history_title":
             MessageLookupByLibrary.simpleMessage("Clear history"),
         "settings_default_configs_source_title":
-            MessageLookupByLibrary.simpleMessage("Default configs source"),
+            MessageLookupByLibrary.simpleMessage("Default extension source"),
         "settings_default_reader_mode_title":
             MessageLookupByLibrary.simpleMessage("Default reader mode"),
         "web_browser_no_login_button":

@@ -138,7 +138,34 @@ class _ChapterViewerState extends State<ChapterViewer>
             if (state.mode != ChapterViewMode.WEBTOON)
               _buildHorizontalGestures(state, context),
             _buildControls(context, state),
-            _buildLoaders(context, state)
+            _buildLoaders(context, state),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              left: 0,
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16.0),
+                    boxShadow: [
+                      BoxShadow(
+                          color: AppColors.mainBlack.withOpacity(0.25),
+                          blurRadius: 24,
+                          spreadRadius: 24)
+                    ]),
+                child: Center(
+                    child: Text(
+                  '${state.currentPage}/${state.totalPages}',
+                  style: medium(size: 18, color: AppColors.mainWhite).copyWith(
+                    shadows: [
+                      BoxShadow(
+                          color: AppColors.mainBlack,
+                          blurRadius: 4,
+                          spreadRadius: 4)
+                    ],
+                  ),
+                )),
+              ),
+            )
           ],
         );
       } else if (state is ChapterViewError) {
@@ -262,7 +289,7 @@ class _ChapterViewerState extends State<ChapterViewer>
       BuildContext context, ChapterViewInitialized state) {
     final centeredElementWidth = MediaQuery.of(context).size.width - 144;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,18 +318,6 @@ class _ChapterViewerState extends State<ChapterViewer>
                         overflow: TextOverflow.ellipsis),
                   ),
                 ),
-                const SizedBox(
-                  width: 8,
-                ),
-                Container(
-                  width: 70,
-                  height: 30,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16.0),
-                      color: AppColors.backgroundColor),
-                  child: Center(
-                      child: Text('${state.currentPage}/${state.totalPages}')),
-                )
               ],
             ),
           ),
@@ -310,130 +325,15 @@ class _ChapterViewerState extends State<ChapterViewer>
           Stack(
             alignment: Alignment.bottomCenter,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: const BoxDecoration(
-                          color: AppColors.backgroundColor,
-                          shape: BoxShape.circle),
-                      child: const Icon(
-                        Icons.arrow_back,
-                        color: AppColors.mainWhite,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 12,
-                  ),
-                  Center(
-                    child: Container(
-                      width: centeredElementWidth,
-                      decoration: BoxDecoration(
-                          color: AppColors.backgroundColor,
-                          borderRadius: BorderRadius.circular(8.0)),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                        child: FlutterSlider(
-                          values: [state.currentPage.toDouble()],
-                          min: 1,
-                          max: state.totalPages.toDouble(),
-                          jump: true,
-                          handlerHeight: 24,
-                          handlerWidth: 24,
-                          onDragCompleted: (_, index, __) {
-                            switch (state.mode) {
-                              case ChapterViewMode.RIGHT_TO_LEFT:
-                              case ChapterViewMode.LEFT_TO_RIGHT:
-                                _pageController.jumpToPage(min(
-                                    (index as double).toInt() - 1,
-                                    state.currentPages.value.length - 1));
-                                break;
-                              case ChapterViewMode.WEBTOON:
-                                _itemScrollController.jumpTo(
-                                  index: min((index).toInt(),
-                                      state.currentPages.value.length - 1),
-                                  alignment:
-                                      index == state.totalPages.toDouble() - 1
-                                          ? 1
-                                          : 0,
-                                );
-                                break;
-                            }
-
-                            _canLoadNext = (index).toInt() - 1 ==
-                                state.currentPages.value.length - 1;
-                            _canLoadPrevious = (index).toInt() - 1 == 0;
-                            if (mounted) {
-                              setState(() {});
-                            }
-                          },
-                          tooltip: FlutterSliderTooltip(
-                              custom: (v) => CachedNetworkImage(
-                                    httpHeaders: _headers,
-                                    imageUrl: state.currentPages.value[min(
-                                        (v as double).toInt(),
-                                        state.currentPages.value.length - 1)],
-                                    progressIndicatorBuilder:
-                                        (context, url, progress) =>
-                                            CircularProgressIndicator(
-                                      value: progress.progress ?? 0.01,
-                                      color: AppColors.mainWhite,
-                                    ),
-                                    fit: BoxFit.cover,
-                                  ),
-                              textStyle: regular(color: AppColors.mainWhite)),
-                          trackBar: FlutterSliderTrackBar(
-                              inactiveTrackBar: BoxDecoration(
-                                  color: AppColors.mainGrey,
-                                  borderRadius: BorderRadius.circular(16.0)),
-                              activeTrackBar: BoxDecoration(
-                                  color: AppColors.primary,
-                                  borderRadius: BorderRadius.circular(16.0))),
-                          handler: FlutterSliderHandler(
-                              child: const SizedBox(),
-                              decoration: const BoxDecoration(
-                                  color: AppColors.mainWhite,
-                                  shape: BoxShape.circle)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 12,
-                  ),
-                  SettingsOverlay(
-                      entries: [
-                        SettingsOverlayEntry(
-                            onTap: () {
-                              _showGestureOverlay = !_showGestureOverlay;
-                              setState(() {});
-                            },
-                            icon: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 350),
-                              child: _showGestureOverlay
-                                  ? const Icon(
-                                      Icons.layers_outlined,
-                                      key: ValueKey(1),
-                                      color: AppColors.mainWhite,
-                                    )
-                                  : const Icon(
-                                      Icons.layers_outlined,
-                                      key: ValueKey(2),
-                                    ),
-                            )),
-                        SettingsOverlayEntry(
-                            onTap: () {
-                              _showBottomSheetSettings(context, state);
-                            },
-                            icon: const Icon(Icons.chrome_reader_mode))
-                      ],
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
                       child: Container(
                         width: 48,
                         height: 48,
@@ -441,12 +341,146 @@ class _ChapterViewerState extends State<ChapterViewer>
                             color: AppColors.backgroundColor,
                             shape: BoxShape.circle),
                         child: const Icon(
-                          Icons.settings_rounded,
+                          Icons.arrow_back,
                           color: AppColors.mainWhite,
                         ),
-                      ))
-                ],
-              )
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 12,
+                    ),
+                    Center(
+                      child: Container(
+                        width: centeredElementWidth,
+                        decoration: BoxDecoration(
+                            color: AppColors.backgroundColor,
+                            borderRadius: BorderRadius.circular(8.0)),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: FlutterSlider(
+                            values: [state.currentPage.toDouble()],
+                            min: 1,
+                            max: state.totalPages.toDouble(),
+                            jump: true,
+                            handlerHeight: 24,
+                            handlerWidth: 24,
+                            onDragCompleted: (_, index, __) {
+                              switch (state.mode) {
+                                case ChapterViewMode.RIGHT_TO_LEFT:
+                                case ChapterViewMode.LEFT_TO_RIGHT:
+                                  _pageController.jumpToPage(min(
+                                      (index as double).toInt() - 1,
+                                      state.currentPages.value.length - 1));
+                                  break;
+                                case ChapterViewMode.WEBTOON:
+                                  _itemScrollController.jumpTo(
+                                    index: min((index).toInt(),
+                                        state.currentPages.value.length - 1),
+                                    alignment:
+                                        index == state.totalPages.toDouble() - 1
+                                            ? 1
+                                            : 0,
+                                  );
+                                  break;
+                              }
+
+                              _canLoadNext = (index).toInt() - 1 ==
+                                  state.currentPages.value.length - 1;
+                              _canLoadPrevious = (index).toInt() - 1 == 0;
+                              if (mounted) {
+                                setState(() {});
+                              }
+                            },
+                            tooltip: FlutterSliderTooltip(
+                                custom: (v) => CachedNetworkImage(
+                                      httpHeaders: _headers,
+                                      imageUrl: state.currentPages.value[min(
+                                          (v as double).toInt(),
+                                          state.currentPages.value.length - 1)],
+                                      progressIndicatorBuilder:
+                                          (context, url, progress) =>
+                                              CircularProgressIndicator(
+                                        value: progress.progress ?? 0.01,
+                                        color: AppColors.mainWhite,
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                textStyle: regular(color: AppColors.mainWhite)),
+                            trackBar: FlutterSliderTrackBar(
+                                inactiveTrackBar: BoxDecoration(
+                                    color: AppColors.mainGrey,
+                                    borderRadius: BorderRadius.circular(16.0)),
+                                activeTrackBar: BoxDecoration(
+                                    color: AppColors.primary,
+                                    borderRadius: BorderRadius.circular(16.0))),
+                            handler: FlutterSliderHandler(
+                                child: const SizedBox(),
+                                decoration: const BoxDecoration(
+                                    color: AppColors.mainWhite,
+                                    shape: BoxShape.circle)),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 12,
+                    ),
+                    // SettingsOverlay(
+                    //     entries: [
+                    //       SettingsOverlayEntry(
+                    //           onTap: () {
+                    //             _showGestureOverlay = !_showGestureOverlay;
+                    //             setState(() {});
+                    //           },
+                    //           icon: AnimatedSwitcher(
+                    //             duration: const Duration(milliseconds: 350),
+                    //             child: _showGestureOverlay
+                    //                 ? const Icon(
+                    //                     Icons.layers_outlined,
+                    //                     key: ValueKey(1),
+                    //                     color: AppColors.mainWhite,
+                    //                   )
+                    //                 : const Icon(
+                    //                     Icons.layers_outlined,
+                    //                     key: ValueKey(2),
+                    //                   ),
+                    //           )),
+                    //       SettingsOverlayEntry(
+                    //           onTap: () {
+                    //             _showBottomSheetSettings(context, state);
+                    //           },
+                    //           icon: const Icon(Icons.chrome_reader_mode))
+                    //     ],
+                    //     child: Container(
+                    //       width: 48,
+                    //       height: 48,
+                    //       decoration: const BoxDecoration(
+                    //           color: AppColors.backgroundColor,
+                    //           shape: BoxShape.circle),
+                    //       child: const Icon(
+                    //         Icons.settings_rounded,
+                    //         color: AppColors.mainWhite,
+                    //       ),
+                    //     ))
+                    //
+                    InkWell(
+                        onTap: () {
+                          _showBottomSheetSettings(context, state);
+                        },
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: const BoxDecoration(
+                              color: AppColors.backgroundColor,
+                              shape: BoxShape.circle),
+                          child: const Icon(
+                            Icons.settings_rounded,
+                            color: AppColors.mainWhite,
+                          ),
+                        ))
+                  ],
+                ),
+              ),
             ],
           )
         ],
@@ -602,7 +636,7 @@ class _ChapterViewerState extends State<ChapterViewer>
           children: [
             _buildControlButtons(context, state),
             const SizedBox(
-              height: 80,
+              height: 96,
             )
           ],
         ),

@@ -49,7 +49,7 @@ class MangaServiceViewBody extends StatelessWidget {
       extendBody: true,
       appBar: PreferredSize(
           preferredSize: Size(MediaQuery.of(context).size.width,
-              configInfo.searchAvailable ? 80 : 60),
+              configInfo.searchAvailable ? 96 : 60),
           child: Builder(builder: (context) {
             return _buildSearchableAppBar(
                 context,
