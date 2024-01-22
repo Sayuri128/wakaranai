@@ -117,8 +117,16 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
     final state = this.state as ServiceViewInitialized<T, G>;
 
     emit(ServiceViewLoading<T, G>(client: this.state.client));
-    if (query == null || query.isEmpty) {
-      emit(state.copyWith(searchQuery: ""));
+    if (query == null || query.trim().isEmpty) {
+      if (state.galleryViews.isNotEmpty) {
+        emit(state.copyWith(
+          searchQuery: "",
+          currentPage: 0,
+          galleryViews: [],
+          galleryViewImagesHeaders: {},
+          loading: true,
+        ));
+      }
       getGallery(query: "");
       return;
     }
@@ -143,7 +151,7 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
     emit(
       state.copyWith(
         galleryViews: galleryViews,
-        currentPage: currentPage += 1,
+        currentPage: currentPage + 1,
         searchQuery: query,
         galleryViewImagesHeaders:
             await _getImageHeaders(newGalleryViews, state),

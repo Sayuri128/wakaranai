@@ -14,9 +14,10 @@ part 'api_client_controller_state.dart';
 
 class ApiClientControllerCubit<T extends ApiClient, C>
     extends Cubit<ApiClientControllerState> {
-  ApiClientControllerCubit(
-      {required this.remoteConfig, required this.remoteConfigsCubit})
-      : super(const ApiClientControllerState());
+  ApiClientControllerCubit({
+    required this.remoteConfig,
+    required this.remoteConfigsCubit,
+  }) : super(const ApiClientControllerState());
 
   final RemoteConfigsCubit remoteConfigsCubit;
   final RemoteConfig? remoteConfig;
