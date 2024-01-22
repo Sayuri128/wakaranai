@@ -115,10 +115,6 @@ class AnimeConcreteViewer extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 24.0, right: 8.0),
               child: SwitchIconButton(
                 iconOn: const Icon(Icons.filter_list_rounded),
-                iconOff: Transform.rotate(
-                  angle: pi / 1,
-                  child: const Icon(Icons.filter_list_rounded),
-                ),
                 state: state.order == ConcreteViewOrder.DEFAULT,
                 onTap: () {
                   context

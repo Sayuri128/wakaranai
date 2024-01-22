@@ -6,12 +6,10 @@ class SwitchIconButton extends StatelessWidget {
       {Key? key,
       required this.state,
       required this.onTap,
-      required this.iconOff,
       required this.iconOn})
       : super(key: key);
 
   final Widget iconOn;
-  final Widget iconOff;
 
   final bool state;
   final VoidCallback onTap;
@@ -34,9 +32,12 @@ class SwitchIconButton extends StatelessWidget {
               ]),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 500),
-                child: state ? iconOn : iconOff),
+            child: AnimatedRotation(
+              duration: const Duration(milliseconds: 200),
+              turns: state ? 0.5 : 0,
+              curve: Curves.easeOutCubic,
+              child: iconOn,
+            ),
           ),
         ));
   }
