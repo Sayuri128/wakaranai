@@ -1,12 +1,8 @@
-<div style="display: flex; flex-direction: column; gap: 16px; justify-content: center; align-items: center;">
+<p align="center">
   <img width="192" src="docs/wakaranai.png" alt="Wakaranai"/>
+</p>
 
-</div>
-
-<p style="text-align: center; font-size: 36px; font-weight: bold;">Wakaranai - Manga Reader App</p>
-
-
---- 
+<h1 align="center">Wakaranai - Manga Reader App</h1>
 
 Wakaranai is a manga reader app built with Flutter, designed to dynamically parse and fetch manga
 content from various websites. The app utilizes a custom script language
@@ -18,24 +14,24 @@ project to experiment with creating a simple interpreter without a proper archit
 <table>
   <tr>
       <td>
-        <img width="33%" src="docs/ExplorePage.png" alt="Explore Page"/>
+        <img width="320px" src="docs/ExplorePage.png" alt="Explore Page"/>
       </td>
       <td>
-         <img width="33%" src="docs/ServiceViewer.png" alt="Service Viewer"/>
+         <img width="320px" src="docs/ServiceViewer.png" alt="Service Viewer"/>
       </td>
       <td>
-         <img width="33%" src="docs/ChapterReader.png" alt="Chapter Reader 1"/>
+         <img width="320px" src="docs/ChapterReader.png" alt="Chapter Reader 1"/>
       </td>
   </tr>
   <tr>
     <td>
-        <img width="33%" src="docs/ChapterReader2.png" alt="Chapter Reader 2"/>
+        <img width="320px" src="docs/ChapterReader2.png" alt="Chapter Reader 2"/>
     </td>
     <td>
-        <img width="33%" src="docs/ConcreteView1.png" alt="Concrete View 1"/>
+        <img width="320px" src="docs/ConcreteView1.png" alt="Concrete View 1"/>
     </td>
     <td>
-      <img width="33%" src="docs/ConcreteView2.png" alt="Concrete View 2"/>
+      <img width="320px" src="docs/ConcreteView2.png" alt="Concrete View 2"/>
     </td>
   </tr>
 </table>
@@ -70,7 +66,7 @@ in Wakaranai and Capyscript!
 ## Currently available Extensions
 
 * Manga
-    * [MangaDex](https://mangadex.org/)
+    * [MangaDex](https://mangadex.org/) (English only)
     * [MangaLib](https://mangalib.me/)
     * [MangaInUa](https://manga.in.ua/)
     * [HentaiLib](https://hentailib.me/)
@@ -82,7 +78,7 @@ in Wakaranai and Capyscript!
 
 * HTTP Requests: Capyscript provides different types of HTTP requests, allowing the app to fetch
   manga content from various websites.
-* HTTP Library and Headless WebView: Users can choose between using the HTTP library or a headless
+* Headless WebView: You can use a headless
   web view for fetching content. This is particularly useful for accessing protected sites or those
   requiring authorization.
 * JS Code Execution: Capyscript allows users to execute JavaScript code within the embedded browser,
@@ -90,7 +86,7 @@ in Wakaranai and Capyscript!
 
 For those interested in delving deeper into the project,
 a [public repository](https://github.com/Sayuri128/wakaranai_configs) is available containing the
-sources that I have personally used for an extended period. This repository can serve as a reference
+sources that I have personally used. This repository can serve as a reference 
 for understanding the code structure and implementation details.
 
 By default, Wakaranai fetches script configurations from the public repository mentioned above.
@@ -101,11 +97,11 @@ will be added to the app as soon as possible.
 The main script, `main.capyscript`, requires a `config.json` file with the following structure:
 
 * `uid`: Unique identifier for the script.
-* `name`: Name of the script.
+* `name`: Name of the source.
 * `logoUrl`: URL to the script's logo.
-* `type`: Type of script, either "MANGA" or "ANIME".
+* `type`: Type of script, either `0` for manga or `1` - anime.
 * `nsfw`: Indicates whether the script contains NSFW content (true or false).
-* `language`: Script language.
+* `language`: Source language.
 * `version`: Version number of the script.
 * `protectorConfig`: Configuration for the protector.
     * `pingUrl`: URL for ping.
