@@ -3,7 +3,8 @@ import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class PrimaryButton extends StatelessWidget {
-  const PrimaryButton({Key? key, this.padding, required this.title, this.color, this.onPressed})
+  const PrimaryButton(
+      {Key? key, this.padding, required this.title, this.color, this.onPressed})
       : super(key: key);
 
   final EdgeInsets? padding;
@@ -14,11 +15,13 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding:
+            padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: ElevatedButton(
           onPressed: onPressed,
           style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(color ?? AppColors.primary)),
+              backgroundColor:
+                  MaterialStateProperty.all(color ?? AppColors.primary)),
           child: Text(title, style: medium()),
         ));
   }

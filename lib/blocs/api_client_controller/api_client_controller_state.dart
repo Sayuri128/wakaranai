@@ -1,25 +1,20 @@
 part of 'api_client_controller_cubit.dart';
 
 class ApiClientControllerState {
-  final ApiClient client;
-
-  const ApiClientControllerState({
-    required this.client,
-  });
+  const ApiClientControllerState();
 }
 
-class ApiClientControllerConfigInfo extends ApiClientControllerState {
+class ApiClientControllerInitialized<T extends ApiClient>
+    extends ApiClientControllerState {
+  final T apiClient;
   final ConfigInfo configInfo;
 
-  ApiClientControllerConfigInfo(
-      {required ApiClient client, required this.configInfo})
-      : super(client: client);
+  ApiClientControllerInitialized(
+      {required this.apiClient, required this.configInfo});
 }
 
-class ApiClientControllerConcreteView extends ApiClientControllerState {
-  final ConcreteView concreteView;
+class ApiClientControllerError extends ApiClientControllerState {
+  final String message;
 
-  ApiClientControllerConcreteView(
-      {required ApiClient client, required this.concreteView})
-      : super(client: client);
+  ApiClientControllerError({required this.message});
 }

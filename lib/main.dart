@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:wakaranai/blocs/history/history_cubit.dart';
-import 'package:wakaranai/blocs/local_configs/local_configs_cubit.dart';
+import 'package:logger/logger.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/app_view.dart';
+import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
+
+const bool debug = true;
+
+final logger = Logger();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,34 +22,35 @@ void main() async {
 
   await dotenv.load(fileName: '.env');
 
-  runApp(const MyApp());
+  runApp(const WakaranaiApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+class WakaranaiApp extends StatefulWidget {
+  const WakaranaiApp({Key? key}) : super(key: key);
 
   static final navigatorKey = GlobalKey<NavigatorState>();
 
   static NavigatorState? get navigator => navigatorKey.currentState;
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<WakaranaiApp> createState() => _WakaranaiAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _WakaranaiAppState extends State<WakaranaiApp> {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(providers: [
-      BlocProvider(
-          lazy: false,
-          create: (context) =>
-              AuthenticationCubit()..authorize('armatura@gmail.com', '1234')),
+      BlocProvider<HomePageCubit>(create: (context) => HomePageCubit()),
+      BlocProvider<AuthenticationCubit>(
+          lazy: false, create: (context) => AuthenticationCubit()),
       BlocProvider<RemoteConfigsCubit>(
-        create: (context) => RemoteConfigsCubit()..getConfigs(),
+        lazy: false,
+        create: (context) => RemoteConfigsCubit()..init(),
       ),
-      BlocProvider(create: (context) => LocalConfigsCubit()..init()),
-      BlocProvider(create: (context) => SettingsCubit()..init()),
-      BlocProvider(create: (context) => HistoryCubit()..init())
+      BlocProvider<SettingsCubit>(
+          create: (context) => SettingsCubit(
+                remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
+              )..init()),
     ], child: const AppView());
   }
 }
