@@ -500,6 +500,16 @@ class S {
     );
   }
 
+  /// `Submit issue/feature request/extension request`
+  String get submit_issue {
+    return Intl.message(
+      'Submit issue/feature request/extension request',
+      name: 'submit_issue',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Default extension source`
   String get settings_default_configs_source_title {
     return Intl.message(
