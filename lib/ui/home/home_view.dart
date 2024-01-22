@@ -17,7 +17,7 @@ class HomeView extends StatelessWidget {
     NavigationDestination(
         label: S.current.navigation_bar_sources_title,
         icon: const Icon(
-          Icons.home_filled,
+          Icons.explore_rounded,
         )),
     NavigationDestination(
       label: S.current.navigation_bar_settings_title,
