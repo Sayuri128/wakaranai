@@ -49,21 +49,21 @@ class ConfigPage extends StatelessWidget {
                         child: Text(S.current.remote_configs_page_appbar_title,
                             style: medium(size: 24)),
                       ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: IconButton(
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) =>
-                                    const ConfigsSourceDialog(),
-                              );
-                            },
-                            icon: const Icon(
-                              Icons.filter_list_rounded,
-                              color: AppColors.mainWhite,
-                            )),
-                      )
+                      // Align(
+                      //   alignment: Alignment.centerRight,
+                      //   child: IconButton(
+                      //       onPressed: () {
+                      //         showDialog(
+                      //           context: context,
+                      //           builder: (context) =>
+                      //               const ConfigsSourceDialog(),
+                      //         );
+                      //       },
+                      //       icon: const Icon(
+                      //         Icons.filter_list_rounded,
+                      //         color: AppColors.mainWhite,
+                      //       )),
+                      // )
                     ],
                   ),
                 ),

@@ -76,18 +76,18 @@ class SettingsPage extends StatelessWidget {
                 const SizedBox(
                   height: 12,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 8.0),
-                  child: Text(
-                    S.current.settings_default_configs_source_title,
-                    style: semibold(size: 18),
-                  ),
-                ),
-                const Divider(
-                  height: 2,
-                  color: AppColors.primary,
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(
+                //       horizontal: 16.0, vertical: 8.0),
+                //   child: Text(
+                //     S.current.settings_default_configs_source_title,
+                //     style: semibold(size: 18),
+                //   ),
+                // ),
+                // const Divider(
+                //   height: 2,
+                //   color: AppColors.primary,
+                // ),
                 ListTile(
                   onTap: () {
                     showOkCancelAlertDialog(
@@ -113,26 +113,26 @@ class SettingsPage extends StatelessWidget {
                   title: Text(S.current.clear_cookies_cache,
                       style: medium(size: 16)),
                 ),
-                ListTile(
-                  onTap: () {
-                    showOkCancelAlertDialog(
-                            context: context,
-                            title:
-                                "Are you sure you want to delete all your data?")
-                        .then((value) {
-                      // if (value == OkCancelResult.ok) {
-                      //   waka.hardReset().then((value) {
-                      //     context.read<LocalConfigsCubit>().init();
-                      //     context.read<LibraryPageCubit>().init();
-                      //   });
-                      // }
-                    });
-                  },
-                  title: Text(
-                    "Hard reset",
-                    style: medium(size: 16),
-                  ),
-                )
+                // ListTile(
+                //   onTap: () {
+                //     showOkCancelAlertDialog(
+                //             context: context,
+                //             title:
+                //                 "Are you sure you want to delete all your data?")
+                //         .then((value) {
+                //       // if (value == OkCancelResult.ok) {
+                //       //   waka.hardReset().then((value) {
+                //       //     context.read<LocalConfigsCubit>().init();
+                //       //     context.read<LibraryPageCubit>().init();
+                //       //   });
+                //       // }
+                //     });
+                //   },
+                //   title: Text(
+                //     "Hard reset",
+                //     style: medium(size: 16),
+                //   ),
+                // )
               ],
             );
           }
