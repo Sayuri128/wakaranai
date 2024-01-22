@@ -1,49 +1,41 @@
-# Wakaranai - Manga Reader App
-
-<div style="
-display: flex;
-flex-direction: row;
-justify-content: center;
-align-items: center;
-gap: 16px;
-border: 1px solid black;
-border-radius: 8px;
-margin: 8px
-">
+<div style="display: flex; flex-direction: column; gap: 16px; justify-content: center; align-items: center;">
   <img width="192" src="docs/wakaranai.png" alt="Wakaranai"/>
-  <div>
-    Wakaranai is a manga reader app built with Flutter, designed to dynamically parse and fetch manga
-    content from various websites. The app utilizes a custom script language
-    called <a href="https://github.com/Sayuri128/capyscript">Capyscript</a>, which was developed as a learning
-    project to experiment with creating a simple interpreter without a proper architectural foundation.
 
-  </div>
 </div>
 
+<p style="text-align: center; font-size: 36px; font-weight: bold;">Wakaranai - Manga Reader App</p>
 
 
+--- 
+
+Wakaranai is a manga reader app built with Flutter, designed to dynamically parse and fetch manga
+content from various websites. The app utilizes a custom script language
+called [Capyscript](https://github.com/Sayuri128/capyscript), which was developed as a learning
+project to experiment with creating a simple interpreter without a proper architectural foundation.
+
+####
 
 <table>
   <tr>
       <td>
-        <img width="320px" src="docs/ExplorePage.png" alt="Explore Page"/>
+        <img width="33%" src="docs/ExplorePage.png" alt="Explore Page"/>
       </td>
       <td>
-         <img width="320px" src="docs/ServiceViewer.png" alt="Service Viewer"/>
+         <img width="33%" src="docs/ServiceViewer.png" alt="Service Viewer"/>
       </td>
       <td>
-         <img width="320px" src="docs/ChapterReader.png" alt="Chapter Reader 1"/>
+         <img width="33%" src="docs/ChapterReader.png" alt="Chapter Reader 1"/>
       </td>
   </tr>
   <tr>
     <td>
-        <img width="320px" src="docs/ChapterReader2.png" alt="Chapter Reader 2"/>
+        <img width="33%" src="docs/ChapterReader2.png" alt="Chapter Reader 2"/>
     </td>
     <td>
-        <img width="320px" src="docs/ConcreteView1.png" alt="Concrete View 1"/>
+        <img width="33%" src="docs/ConcreteView1.png" alt="Concrete View 1"/>
     </td>
     <td>
-      <img width="320px" src="docs/ConcreteView2.png" alt="Concrete View 2"/>
+      <img width="33%" src="docs/ConcreteView2.png" alt="Concrete View 2"/>
     </td>
   </tr>
 </table>
@@ -64,7 +56,8 @@ documentation.
 
 ### Future Development:
 
-The project will receive updates and documentation in the future when I have more time to work on it.
+The project will receive updates and documentation in the future when I have more time to work on
+it.
 If you encounter issues or have suggestions, feel free to open an issue or contribute.
 
 ### Support:
@@ -77,13 +70,13 @@ in Wakaranai and Capyscript!
 ## Currently available Extensions
 
 * Manga
-  * [MangaDex](https://mangadex.org/)
-  * [MangaLib](https://mangalib.me/)
-  * [MangaInUa](https://manga.in.ua/)
-  * [HentaiLib](https://hentailib.me/) 
-  * [nhentai](https://nhentai.net/)
+    * [MangaDex](https://mangadex.org/)
+    * [MangaLib](https://mangalib.me/)
+    * [MangaInUa](https://manga.in.ua/)
+    * [HentaiLib](https://hentailib.me/)
+    * [nhentai](https://nhentai.net/)
 * Anime
-  * [AnitubeInUa](https://anitube.in.ua/) 
+    * [AnitubeInUa](https://anitube.in.ua/)
 
 ## Capyscript Features
 
