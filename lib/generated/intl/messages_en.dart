@@ -163,6 +163,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Default extension source"),
         "settings_default_reader_mode_title":
             MessageLookupByLibrary.simpleMessage("Default reader mode"),
+        "submit_issue": MessageLookupByLibrary.simpleMessage(
+            "Submit issue/feature request/extension request"),
         "web_browser_no_login_button":
             MessageLookupByLibrary.simpleMessage("Done"),
         "webtoon": MessageLookupByLibrary.simpleMessage("Webtoon")

@@ -1,6 +1,7 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
@@ -113,6 +114,18 @@ class SettingsPage extends StatelessWidget {
                   title: Text(S.current.clear_cookies_cache,
                       style: medium(size: 16)),
                 ),
+                ListTile(
+                  onTap: () {
+                    launchUrl(
+                      Uri.parse(
+                          "https://github.com/Sayuri128/wakaranai/issues/new/choose"),
+                    );
+                  },
+                  title: Text(
+                    S.current.submit_issue,
+                    style: medium(size: 16),
+                  ),
+                )
                 // ListTile(
                 //   onTap: () {
                 //     showOkCancelAlertDialog(
