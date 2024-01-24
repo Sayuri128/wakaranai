@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
+import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/app_view.dart';
@@ -26,7 +27,7 @@ void main() async {
 }
 
 class WakaranaiApp extends StatefulWidget {
-  const WakaranaiApp({Key? key}) : super(key: key);
+  const WakaranaiApp({super.key});
 
   static final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -51,6 +52,10 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
           create: (context) => SettingsCubit(
                 remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
               )..init()),
+      BlocProvider<LatestReleaseCubit>(
+        create: (context) => LatestReleaseCubit()..init(),
+        lazy: true,
+      ),
     ], child: const AppView());
   }
 }

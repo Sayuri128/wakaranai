@@ -16,9 +16,8 @@ part 'remote_configs_state.dart';
 class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   RemoteConfigsCubit() : super(RemoteConfigsLoading());
 
-  ConfigsService _configsService = GitHubConfigsService(
-      Env.OFFICIAL_GITHUB_CONFIGS_SOURCE_ORG,
-      Env.OFFICIAL_GITHUB_CONFIGS_SOURCE_REPOSITORY);
+  ConfigsService _configsService =
+      GitHubConfigsService(Env.configsSourceOrg, Env.configsSourceRepo);
 
   // ConfigsService _configsService =
   //     RepoConfigsService(url: Env.LOCAL_REPOSITORY_URL);
@@ -59,16 +58,17 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   void changeSource(ConfigsSourceItem source) async {
     try {
       switch (source.type) {
-        case ConfigsSourceType.GIT_HUB:
+        case ConfigsSourceType.github:
           _configsService = GitHubConfigsService(
               source.baseUrl.split('/')[0], source.baseUrl.split('/')[1]);
           break;
-        case ConfigsSourceType.REST:
+        case ConfigsSourceType.rest:
           break;
       }
     } catch (_) {
       emit(RemoteConfigsError(
-          message: S.current.configs_source_initializing_error(source.name)));
+          message:
+              S.current.home_configs_source_initializing_error(source.name)));
       return;
     }
 

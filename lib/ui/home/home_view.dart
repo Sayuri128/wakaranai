@@ -8,19 +8,16 @@ import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class HomeView extends StatelessWidget {
-  HomeView({Key? key}) : super(key: key);
+  HomeView({super.key});
 
   final navigationItem = [
-    // NavigationDestination(
-    //     label: S.current.navigation_bar_library_title,
-    //     icon: const Icon(Icons.my_library_books)),
     NavigationDestination(
-        label: S.current.navigation_bar_sources_title,
+        label: S.current.home_navigation_bar_sources_title,
         icon: const Icon(
           Icons.explore_rounded,
         )),
     NavigationDestination(
-      label: S.current.navigation_bar_settings_title,
+      label: S.current.home_navigation_bar_settings_title,
       icon: const Icon(
         Icons.settings,
       ),

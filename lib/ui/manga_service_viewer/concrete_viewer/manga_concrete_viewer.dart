@@ -13,7 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/blocs/multi_select_cubit/multi_select_cubit.dart';
-import 'package:wakaranai/heroes.dart';
+import 'package:wakaranai/utils/heroes.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/manga_provider_button.dart';
@@ -336,8 +336,7 @@ class MangaConcreteViewer extends StatelessWidget {
                               SwitchIconButton(
                                 key: ValueKey(multiSelect.items.isNotEmpty),
                                 iconOn: const Icon(Icons.filter_list_rounded),
-                                state:
-                                    state.order == ConcreteViewOrder.DEFAULT,
+                                state: state.order == ConcreteViewOrder.DEFAULT,
                                 onTap: () {
                                   context
                                       .read<
