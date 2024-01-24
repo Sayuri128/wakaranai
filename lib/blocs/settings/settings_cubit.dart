@@ -18,9 +18,9 @@ class SettingsCubit extends Cubit<SettingsState> {
   //     name: S.current.github_configs_source_type,
   //     type: ConfigsSourceType.GIT_HUB);
   static final DefaultConfigsServiceItem = ConfigsSourceItem(
-      baseUrl: Env.LOCAL_REPOSITORY_URL,
+      baseUrl: Env.localRepoUrl,
       name: "LOCAL REST",
-      type: ConfigsSourceType.REST);
+      type: ConfigsSourceType.rest);
 
   final RemoteConfigsCubit remoteConfigsCubit;
 

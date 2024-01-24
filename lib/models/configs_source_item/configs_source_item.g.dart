@@ -22,6 +22,6 @@ Map<String, dynamic> _$ConfigsSourceItemToJson(ConfigsSourceItem instance) =>
     };
 
 const _$ConfigsSourceTypeEnumMap = {
-  ConfigsSourceType.GIT_HUB: 'GIT_HUB',
-  ConfigsSourceType.REST: 'REST',
+  ConfigsSourceType.github: 'GIT_HUB',
+  ConfigsSourceType.rest: 'REST',
 };

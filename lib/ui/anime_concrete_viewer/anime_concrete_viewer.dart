@@ -11,7 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
-import 'package:wakaranai/heroes.dart';
+import 'package:wakaranai/utils/heroes.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_player_button.dart';
 import 'package:wakaranai/ui/anime_iframe_player/anime_iframe_player.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
