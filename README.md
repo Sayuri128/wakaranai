@@ -50,11 +50,24 @@ is no documentation available for the codebase. If you find this project interes
 to contribute or explore further, please be aware that the current state lacks comprehensive
 documentation.
 
-### Future Development:
+## Future Development Roadmap
+As the development of Wakaranai is just at the very beginning, here is an overview of the planned features and improvements that are currently in the pipeline:
 
-The project will receive updates and documentation in the future when I have more time to work on
-it.
-If you encounter issues or have suggestions, feel free to open an issue or contribute.
+### Top Priorities
+
+**Documentation**: Creating comprehensive documentation for both Wakaranai and the Capyscript language is the foremost priority. This will provide users with a clear understanding of the app's functionalities, the script language, and how to use them effectively.
+
+**Library Page with Bookmarks**: Introducing a Library Page within the app, featuring a robust bookmark system. This will allow users to organize and manage their favorite manga series for easy access.
+
+### P2
+
+**User Interface Enhancements**: Improvements to the user interface for a more intuitive and seamless manga reading experience.
+
+**External Repository Integration**: Implementing the ability for users to add external repositories within the app, giving them the freedom to explore a wider range of script sources.
+
+**Scripting Language Refinement**: Refining the Capyscript language to address its current limitations and provide a more robust and flexible scripting environment.
+
+**Bug Fixes and Optimization**: Identifying and addressing any reported bugs, as well as optimizing the app for better performance and responsiveness.
 
 ### Support:
 
