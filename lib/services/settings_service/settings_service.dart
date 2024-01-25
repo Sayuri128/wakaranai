@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:collection/collection.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 
 class SettingsService {
   static const defaultReaderModePrefsKey = 'DEFAULT_CHAPTER_READER_MODE';

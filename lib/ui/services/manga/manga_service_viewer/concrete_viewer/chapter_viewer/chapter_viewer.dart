@@ -17,13 +17,12 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:transparent_pointer/transparent_pointer.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import 'package:wakaranai/blocs/chapter_view/chapter_view_cubit.dart';
-import 'package:wakaranai/blocs/chapter_view/chapter_view_state.dart';
-import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/bottom_modal_settings.dart';
-import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
-import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/settings_overlay.dart';
+import 'package:wakaranai/ui/home/settings/cubit/settings/settings_cubit.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/bottom_modal_settings.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
+import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_cubit.dart';
+import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -615,6 +614,8 @@ class _ChapterViewerState extends State<ChapterViewer>
                       ),
                     )));
     }
+
+    return const SizedBox();
   }
 
   Container _buildBackground(BuildContext context) {

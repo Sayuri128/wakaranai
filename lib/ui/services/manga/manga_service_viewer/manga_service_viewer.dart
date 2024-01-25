@@ -12,9 +12,9 @@ import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
 import 'package:wakaranai/ui/home/service_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
-import 'package:wakaranai/ui/manga_service_viewer/manga_service_viewer_body.dart';
+import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer_body.dart';
 
-import '../routes.dart';
 
 class MangaServiceViewData {
   final RemoteConfig? remoteConfig;

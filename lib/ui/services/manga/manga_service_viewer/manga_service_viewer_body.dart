@@ -10,21 +10,20 @@ import 'package:wakaranai/ui/common/service_viewer/service_viewer_loader.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
 import 'package:wakaranai/ui/home/service_viewer_app_bar.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
-import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class MangaServiceViewBody extends StatelessWidget {
   const MangaServiceViewBody(
-      {Key? key,
+      {super.key,
       required this.scaffold,
       required this.state,
       required this.apiClient,
       required this.configInfo,
       required this.refreshController,
-      required this.searchController})
-      : super(key: key);
+      required this.searchController});
 
   final ServiceViewState<MangaApiClient, MangaGalleryView> state;
   final GlobalKey scaffold;

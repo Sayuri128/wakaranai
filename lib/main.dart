@@ -4,12 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
-import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
-import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/app_view.dart';
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
+import 'ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
+import 'ui/home/settings/cubit/settings/settings_cubit.dart';
 
 const bool debug = true;
 

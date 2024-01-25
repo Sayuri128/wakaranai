@@ -10,10 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
-import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
+import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/utils/heroes.dart';
-import 'package:wakaranai/ui/anime_concrete_viewer/anime_player_button.dart';
-import 'package:wakaranai/ui/anime_iframe_player/anime_iframe_player.dart';
+import 'package:wakaranai/ui/services/anime/anime_concrete_viewer/anime_player_button.dart';
+import 'package:wakaranai/ui/services/anime/anime_iframe_player/anime_iframe_player.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
@@ -115,15 +115,15 @@ class AnimeConcreteViewer extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 24.0, right: 8.0),
               child: SwitchIconButton(
                 iconOn: const Icon(Icons.filter_list_rounded),
-                state: state.order == ConcreteViewOrder.DEFAULT,
+                state: state.order == ConcreteViewOrder.def,
                 onTap: () {
                   context
                       .read<
                           ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
                               AnimeGalleryView>>()
-                      .changeOrder(state.order == ConcreteViewOrder.DEFAULT
-                          ? ConcreteViewOrder.DEFAULT_REVERSE
-                          : ConcreteViewOrder.DEFAULT);
+                      .changeOrder(state.order == ConcreteViewOrder.def
+                          ? ConcreteViewOrder.defReverse
+                          : ConcreteViewOrder.def);
                 },
               ),
             );

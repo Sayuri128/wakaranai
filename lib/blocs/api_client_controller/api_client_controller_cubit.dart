@@ -4,11 +4,11 @@ import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/foundation.dart';
-import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/data/models/remote_config/remote_category.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/data/models/remote_script/remote_script.dart';
+import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 
 part 'api_client_controller_state.dart';
 
