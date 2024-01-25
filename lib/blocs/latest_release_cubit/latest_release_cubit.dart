@@ -1,6 +1,5 @@
-import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
-import 'package:wakaranai/data/domain/app_version.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:wakaranai/data/domain/latest_release_data.dart';
 import 'package:wakaranai/services/releases_service/releases_service.dart';
 

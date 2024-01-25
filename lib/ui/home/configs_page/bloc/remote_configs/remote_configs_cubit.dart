@@ -1,14 +1,13 @@
-import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
-import 'package:wakaranai/env.dart';
-import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/main.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:wakaranai/data/models/configs_source_item/configs_source_item.dart';
 import 'package:wakaranai/data/models/configs_source_type/configs_source_type.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
+import 'package:wakaranai/env.dart';
+import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/main.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 import 'package:wakaranai/services/configs_service/github_configs_service.dart';
-import 'package:wakaranai/services/configs_service/repo_configs_service.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
 
 part 'remote_configs_state.dart';
@@ -27,7 +26,7 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   void init() async {
     final SettingsService settingsService = SettingsService();
 
-    final defaultId = await settingsService.getDefaultConfigsSourceId();
+    final int? defaultId = await settingsService.getDefaultConfigsSourceId();
 
     if (defaultId == null) {
       getConfigs();
@@ -38,10 +37,10 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   void getConfigs() async {
     emit(RemoteConfigsLoading());
 
-    Future.wait([
+    Future.wait(<Future<List<RemoteConfig>>>[
       _configsService.getMangaConfigs(),
       _configsService.getAnimeConfigs()
-    ]).then((value) {
+    ]).then((List<List<RemoteConfig>> value) {
       emit(
         RemoteConfigsLoaded(
           mangaRemoteConfigs: value[0].cast(),

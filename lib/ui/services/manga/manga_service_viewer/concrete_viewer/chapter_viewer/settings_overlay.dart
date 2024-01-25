@@ -12,8 +12,8 @@ class SettingsOverlayEntry {
 }
 
 class SettingsOverlay extends StatefulWidget {
-  const SettingsOverlay({Key? key, required this.child, required this.entries})
-      : super(key: key);
+  const SettingsOverlay(
+      {super.key, required this.child, required this.entries});
 
   final List<SettingsOverlayEntry> entries;
 
@@ -26,7 +26,8 @@ class SettingsOverlay extends StatefulWidget {
 class _SettingsOverlayState extends State<SettingsOverlay>
     with TickerProviderStateMixin {
   late final AnimationController _settingsOverlayAnimationController;
-  final List<Animation<double>> _settingsOverlaysAnimation = [];
+  final List<Animation<double>> _settingsOverlaysAnimation =
+      <Animation<double>>[];
 
   bool _showOverlay = false;
 
@@ -53,11 +54,11 @@ class _SettingsOverlayState extends State<SettingsOverlay>
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
+      children: <Widget>[
         if (_showOverlay)
           Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: <Widget>[
               for (int i = 0; i < _settingsOverlaysAnimation.length; i++)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),

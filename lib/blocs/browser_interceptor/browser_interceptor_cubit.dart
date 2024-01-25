@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:capyscript/modules/http/http_interceptor_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -28,10 +28,12 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
         initialSettings: getDefaultBrowserSettings(),
         onWebViewCreated: _onWebViewCreated(url),
         onProgressChanged: _onProgressChanged,
-        onUpdateVisitedHistory: (controller, loadedUrl, androidIsReload) async {
+        onUpdateVisitedHistory: (InAppWebViewController controller,
+            WebUri? loadedUrl, bool? androidIsReload) async {
           await _onPageLoaded(loadedUrl, controller, url, initCompleter);
         },
-        onLoadStop: (controller, loadedUrl) async {
+        onLoadStop:
+            (InAppWebViewController controller, WebUri? loadedUrl) async {
           await _onPageLoaded(loadedUrl, controller, url, initCompleter);
         });
     await _headlessInAppWebView.run();
@@ -44,10 +46,11 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
       Completer<bool> initCompleter) async {
     await Future.delayed(const Duration(milliseconds: 150));
 
-    print("onLoadStop: $loadedUrl");
+    logger.d("onLoadStop: $loadedUrl");
 
-    final result = await controller.callAsyncJavaScript(
-        functionBody: 'return document.documentElement.innerHTML');
+    final CallAsyncJavaScriptResult? result =
+        await controller.callAsyncJavaScript(
+            functionBody: 'return document.documentElement.innerHTML');
 
     if (result == null || result.error != null) {
       Future.delayed(const Duration(milliseconds: 200), () {
@@ -55,10 +58,10 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
       });
     } else {
       if (!result.value.contains("Just a moment...")) {
-        Map<String, String> data = {};
-        Map<String, String> coo = {};
+        Map<String, String> data = <String, String>{};
+        Map<String, String> coo = <String, String>{};
         await getHeaders(
-            done: (h, cookie) {
+            done: (Map<String, String> h, Map<String, String> cookie) {
               data.addAll(h);
               coo.addAll(cookie);
             },
@@ -77,7 +80,7 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
   }
 
   void _onProgressChanged(controller, progress) {
-    print("progress: $progress");
+    logger.d("progress: $progress");
   }
 
   void Function(InAppWebViewController controller) _onWebViewCreated(
@@ -85,14 +88,14 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
     return ((InAppWebViewController controller) {
       _inAppWebViewController = controller;
 
-      loadPage(url: url).then((value) {
+      loadPage(url: url).then((HttpInterceptorControllerResponse value) {
         emit(BrowserInterceptorInitialized());
       });
     });
   }
 
   void _onLoadStart(controller, url) {
-    print("onLoadStart: $url");
+    logger.d("onLoadStart: $url");
   }
 
   void pageLoaded(
@@ -118,7 +121,8 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
       String? method,
       Map<String, String>? headers,
       String? body}) async {
-    final completer = Completer<HttpInterceptorControllerResponse>();
+    final Completer<HttpInterceptorControllerResponse> completer =
+        Completer<HttpInterceptorControllerResponse>();
 
     emit(
       BrowserInterceptorLoadingPage(
@@ -141,7 +145,8 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
 
   void retryLoadPage() {
     if (state is BrowserInterceptorLoadingPage) {
-      final loading = (state as BrowserInterceptorLoadingPage);
+      final BrowserInterceptorLoadingPage loading =
+          (state as BrowserInterceptorLoadingPage);
       loadPage(
           url: loading.url,
           headers: loading.headers,
@@ -160,7 +165,7 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
         return;
       }
       await Future.delayed(const Duration(milliseconds: 250));
-      final res =
+      final CallAsyncJavaScriptResult? res =
           await _inAppWebViewController.callAsyncJavaScript(functionBody: code);
 
       logger.d(res);

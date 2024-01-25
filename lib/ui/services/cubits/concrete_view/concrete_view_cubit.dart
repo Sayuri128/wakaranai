@@ -1,6 +1,7 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
+import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:wakaranai/main.dart';
@@ -26,7 +27,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       final ConcreteView<dynamic> concreteView =
           await _getConcrete(uid, galleryView.data);
 
-      final imageHeaders = await state.apiClient
+      final Map<String, String> imageHeaders = await state.apiClient
           .getImageHeaders(uid: uid, data: galleryView.data);
 
       emit(ConcreteViewInitialized<T, C, G>(
@@ -58,14 +59,16 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
 
   void changeOrder(ConcreteViewOrder order) {
     if (state is ConcreteViewInitialized<T, C, G>) {
-      final state = this.state as ConcreteViewInitialized<T, C, G>;
+      final ConcreteViewInitialized<T, C, G> state =
+          this.state as ConcreteViewInitialized<T, C, G>;
 
-      final groups = state.concreteView.groups;
+      final List groups = state.concreteView.groups;
 
       final List<ElementsGroupOfConcrete> copyGroups = List.from(groups);
       groups.clear();
       for (ElementsGroupOfConcrete element in copyGroups) {
-        final reversed = List.of(element.elements.reversed);
+        final List<ElementOfElementsGroupOfConcrete> reversed =
+            List.of(element.elements.reversed);
         element.elements.clear();
         reversed.forEach(element.elements.add);
         groups.add(element);

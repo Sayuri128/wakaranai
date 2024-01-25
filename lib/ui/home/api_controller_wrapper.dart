@@ -17,12 +17,12 @@ class ApiControllerWrapper<T extends ApiClient> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ApiClientControllerCubit(
+      create: (BuildContext context) => ApiClientControllerCubit(
           remoteConfig: remoteConfig,
           remoteConfigsCubit: context.read<RemoteConfigsCubit>())
         ..buildApiClient(),
       child: BlocBuilder<ApiClientControllerCubit, ApiClientControllerState>(
-        builder: (context, state) {
+        builder: (BuildContext context, ApiClientControllerState state) {
           if (state is ApiClientControllerInitialized<T>) {
             return builder(state.apiClient, state.configInfo);
           }

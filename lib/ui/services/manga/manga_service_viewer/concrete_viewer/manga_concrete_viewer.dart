@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
@@ -11,17 +10,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
-import 'package:wakaranai/ui/routes.dart';
-import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
-import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
-import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_provider_button.dart';
-import 'package:wakaranai/utils/heroes.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
+import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_provider_button.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/ui/widgets/image_widget.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/heroes.dart';
 import 'package:wakaranai/utils/text_styles.dart';
-
 
 class MangaConcreteViewerData {
   final String uid;
@@ -57,12 +55,18 @@ class MangaConcreteViewer extends StatelessWidget {
     return ConcreteViewCubitWrapper<MangaApiClient, MangaConcreteView,
         MangaGalleryView>(
       client: data.client,
-      init: (cubit) {
+      init: (ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+              MangaGalleryView>
+          cubit) {
         if (init) {
           cubit.getConcrete(data.uid, data.galleryView);
         }
       },
-      builder: (context, state) => _buildBody(),
+      builder: (BuildContext context,
+              ConcreteViewState<MangaApiClient, MangaConcreteView,
+                      MangaGalleryView>
+                  state) =>
+          _buildBody(),
     );
   }
 
@@ -71,8 +75,8 @@ class MangaConcreteViewer extends StatelessWidget {
     if (data.configInfo.protectorConfig?.inAppBrowserInterceptor ?? false) {
       return BlocProvider<BrowserInterceptorCubit>(
         lazy: false,
-        create: (context) {
-          final cubit = BrowserInterceptorCubit()
+        create: (BuildContext context) {
+          final BrowserInterceptorCubit cubit = BrowserInterceptorCubit()
             ..init(
                 url: data.configInfo.protectorConfig!.pingUrl,
                 initCompleter: completer);
@@ -97,8 +101,14 @@ class MangaConcreteViewer extends StatelessWidget {
               MangaGalleryView>,
           ConcreteViewState<MangaApiClient, MangaConcreteView,
               MangaGalleryView>>(
-        listener: (context, state) {},
-        builder: (context, state) {
+        listener: (BuildContext context,
+            ConcreteViewState<MangaApiClient, MangaConcreteView,
+                    MangaGalleryView>
+                state) {},
+        builder: (BuildContext context,
+            ConcreteViewState<MangaApiClient, MangaConcreteView,
+                    MangaGalleryView>
+                state) {
           late final MangaConcreteView concreteView;
 
           int currentGroupsIndex = -1;
@@ -108,8 +118,8 @@ class MangaConcreteViewer extends StatelessWidget {
             currentGroupsIndex = state.groupIndex;
           }
 
-          final groupSize = (state is ConcreteViewInitialized<MangaApiClient,
-                  MangaConcreteView, MangaGalleryView>)
+          final int groupSize = (state is ConcreteViewInitialized<
+                  MangaApiClient, MangaConcreteView, MangaGalleryView>)
               ? state.groupIndex != -1
                   ? concreteView.groups[state.groupIndex].elements.length
                   : 0
@@ -117,7 +127,7 @@ class MangaConcreteViewer extends StatelessWidget {
 
           return Stack(
             alignment: Alignment.center,
-            children: [
+            children: <Widget>[
               RefreshIndicator(
                 onRefresh: () async {
                   await context
@@ -130,16 +140,18 @@ class MangaConcreteViewer extends StatelessWidget {
                 child: ListView.builder(
                   padding: EdgeInsets.zero,
                   itemCount: 1 + groupSize + 1,
-                  itemBuilder: (context, index) {
+                  itemBuilder: (BuildContext context, int index) {
                     if (index == 0) {
                       return SizedBox(
                         width: MediaQuery.of(context).size.width,
                         child: Column(
-                          children: [
+                          children: <Widget>[
                             _buildCover(data.galleryView.cover, context),
                             const SizedBox(height: 16.0),
-                            if (state is ConcreteViewInitialized<MangaApiClient,
-                                MangaConcreteView, MangaGalleryView>) ...[
+                            if (state is ConcreteViewInitialized<
+                                MangaApiClient,
+                                MangaConcreteView,
+                                MangaGalleryView>) ...<Widget>[
                               _buildTitle(concreteView),
                               const SizedBox(height: 16.0),
                               _buildTags(concreteView),
@@ -155,14 +167,14 @@ class MangaConcreteViewer extends StatelessWidget {
                             ] else if (state is ConcreteViewError<
                                 MangaApiClient,
                                 MangaConcreteView,
-                                MangaGalleryView>) ...[
+                                MangaGalleryView>) ...<Widget>[
                               const SizedBox(height: 16.0),
                               Text(
                                 state.message,
                                 style: regular(size: 18, color: AppColors.red),
                               ),
                               const SizedBox(height: 16.0),
-                            ] else ...[
+                            ] else ...<Widget>[
                               const SizedBox(
                                 height: 32,
                               ),
@@ -179,7 +191,7 @@ class MangaConcreteViewer extends StatelessWidget {
                     } else {
                       if (state is ConcreteViewInitialized<MangaApiClient,
                           MangaConcreteView, MangaGalleryView>) {
-                        final chapter = concreteView
+                        final Chapter chapter = concreteView
                             .groups[currentGroupsIndex].elements[index - 1];
                         return _buildChapter(
                             context: context,
@@ -204,7 +216,7 @@ class MangaConcreteViewer extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
+                      children: <Widget>[
                         // AnimatedSwitcher(
                         //   duration: const Duration(milliseconds: 500),
                         //   child: multiSelect.items.isNotEmpty
@@ -276,7 +288,7 @@ class MangaConcreteViewer extends StatelessWidget {
                         ),
                         Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
+                          children: <Widget>[
                             const SizedBox(
                               width: 24,
                             ),
@@ -337,14 +349,14 @@ class MangaConcreteViewer extends StatelessWidget {
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        children: <Widget>[
           Text(chapter.title.trim(),
               style: medium(size: 18, color: AppColors.mainWhite)),
           if (chapter.timestamp != null &&
-              formatTimestamp(chapter).isNotEmpty) ...[
+              formatTimestamp(chapter).isNotEmpty) ...<Widget>[
             const SizedBox(height: 8.0),
             Row(
-              children: [
+              children: <Widget>[
                 Text(
                   formatTimestamp(chapter),
                   style: regular(color: AppColors.mainGrey, size: 12),
@@ -372,8 +384,8 @@ class MangaConcreteViewer extends StatelessWidget {
       int currentGroupIndex) {
     return Wrap(
       alignment: WrapAlignment.center,
-      children: state.concreteView.groups.map((e) {
-        final elementVideoGroupIndex = state.concreteView.groups.indexOf(e);
+      children: state.concreteView.groups.map((ChaptersGroup e) {
+        final int elementVideoGroupIndex = state.concreteView.groups.indexOf(e);
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
           child: MangaProviderButton(
@@ -405,7 +417,7 @@ class MangaConcreteViewer extends StatelessWidget {
 
   Wrap _buildTags(MangaConcreteView concreteView) {
     return Wrap(
-      children: concreteView.tags.map((e) => _buildTagCard(e)).toList(),
+      children: concreteView.tags.map((String e) => _buildTagCard(e)).toList(),
     );
   }
 
@@ -423,7 +435,7 @@ class MangaConcreteViewer extends StatelessWidget {
       borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
       child: Stack(
-        children: [
+        children: <Widget>[
           Hero(
             tag: Heroes.galleryViewToConcreteView(data.uid),
             child: Material(
@@ -437,7 +449,7 @@ class MangaConcreteViewer extends StatelessWidget {
           Container(
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
-                gradient: RadialGradient(radius: 2, colors: [
+                gradient: RadialGradient(radius: 2, colors: <Color>[
               Colors.transparent,
               AppColors.mainBlack.withOpacity(1)
             ])),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:wakaranai/main.dart';
 
 class AnimeIframePlayerData {
   final String src;
@@ -11,7 +12,7 @@ class AnimeIframePlayerData {
 }
 
 class AnimeIframePlayer extends StatefulWidget {
-  const AnimeIframePlayer({Key? key, required this.data}) : super(key: key);
+  const AnimeIframePlayer({super.key, required this.data});
 
   final AnimeIframePlayerData data;
 
@@ -32,27 +33,31 @@ class _AnimeIframePlayerState extends State<AnimeIframePlayer> {
   void dispose() {
     super.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]);
+        overlays: <SystemUiOverlay>[
+          SystemUiOverlay.top,
+          SystemUiOverlay.bottom
+        ]);
   }
 
   @override
   Widget build(BuildContext context) {
     return InAppWebView(
-        onWebViewCreated: (controller) {
-          _inAppWebViewController = controller;
+      onWebViewCreated: (InAppWebViewController controller) {
+        _inAppWebViewController = controller;
 
-          _inAppWebViewController!.loadUrl(
-              urlRequest: URLRequest(url: WebUri("https://www.blank.org/")));
+        _inAppWebViewController!.loadUrl(
+            urlRequest: URLRequest(url: WebUri("https://www.blank.org/")));
 
-          if (mounted) {
-            setState(() {});
-          }
-        },
-        onConsoleMessage: (controller, consoleMessage) {
-          print(consoleMessage.message);
-        },
-        onLoadStop: (controller, url) {
-          controller.callAsyncJavaScript(functionBody: '''
+        if (mounted) {
+          setState(() {});
+        }
+      },
+      onConsoleMessage:
+          (InAppWebViewController controller, ConsoleMessage consoleMessage) {
+        logger.d(consoleMessage.message);
+      },
+      onLoadStop: (InAppWebViewController controller, WebUri? url) {
+        controller.callAsyncJavaScript(functionBody: '''
           const iframe = document.createElement("iframe");
           iframe.src = "${widget.data.src}";
           iframe.style["border"] = "none";
@@ -72,25 +77,23 @@ class _AnimeIframePlayerState extends State<AnimeIframePlayer> {
          
           document.body.appendChild(iframe);
                     
-          ''').then((value) {
-            print(value);
-          });
-        },
-        initialOptions: InAppWebViewGroupOptions(
-            crossPlatform: InAppWebViewOptions(
-              javaScriptEnabled: true,
-              preferredContentMode: UserPreferredContentMode.MOBILE,
-              allowFileAccessFromFileURLs: true,
-              allowUniversalAccessFromFileURLs: true,
-              useShouldOverrideUrlLoading: true,
-              mediaPlaybackRequiresUserGesture: false,
-              javaScriptCanOpenWindowsAutomatically: true,
-              cacheEnabled: true,
-            ),
-            android: AndroidInAppWebViewOptions(
-                useHybridComposition: true, supportMultipleWindows: true),
-            ios: IOSInAppWebViewOptions(
-              allowsInlineMediaPlayback: true,
-            )));
+          ''').then((CallAsyncJavaScriptResult? value) {
+          logger.d(value);
+        });
+      },
+      initialSettings: InAppWebViewSettings(
+        javaScriptEnabled: true,
+        preferredContentMode: UserPreferredContentMode.MOBILE,
+        allowFileAccessFromFileURLs: true,
+        allowUniversalAccessFromFileURLs: true,
+        useShouldOverrideUrlLoading: true,
+        mediaPlaybackRequiresUserGesture: false,
+        javaScriptCanOpenWindowsAutomatically: true,
+        cacheEnabled: true,
+        useHybridComposition: true,
+        supportMultipleWindows: true,
+        allowsInlineMediaPlayback: true,
+      ),
+    );
   }
 }

@@ -13,7 +13,7 @@ import 'ui/home/settings/cubit/settings/settings_cubit.dart';
 
 const bool debug = true;
 
-final logger = Logger();
+final Logger logger = Logger();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +29,8 @@ void main() async {
 class WakaranaiApp extends StatefulWidget {
   const WakaranaiApp({super.key});
 
-  static final navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 
   static NavigatorState? get navigator => navigatorKey.currentState;
 
@@ -42,19 +43,21 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<HomePageCubit>(create: (context) => HomePageCubit()),
+        BlocProvider<HomePageCubit>(
+            create: (BuildContext context) => HomePageCubit()),
         BlocProvider<AuthenticationCubit>(
-            lazy: false, create: (context) => AuthenticationCubit()),
+            lazy: false,
+            create: (BuildContext context) => AuthenticationCubit()),
         BlocProvider<RemoteConfigsCubit>(
           lazy: false,
-          create: (context) => RemoteConfigsCubit()..init(),
+          create: (BuildContext context) => RemoteConfigsCubit()..init(),
         ),
         BlocProvider<SettingsCubit>(
-            create: (context) => SettingsCubit(
+            create: (BuildContext context) => SettingsCubit(
                   remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
                 )..init()),
         BlocProvider<LatestReleaseCubit>(
-          create: (context) => LatestReleaseCubit()..init(),
+          create: (BuildContext context) => LatestReleaseCubit()..init(),
           lazy: true,
         ),
       ],

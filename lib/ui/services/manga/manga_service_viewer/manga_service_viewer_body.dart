@@ -49,7 +49,7 @@ class MangaServiceViewBody extends StatelessWidget {
       appBar: PreferredSize(
           preferredSize: Size(MediaQuery.of(context).size.width,
               configInfo.searchAvailable ? 96 : 60),
-          child: Builder(builder: (context) {
+          child: Builder(builder: (BuildContext context) {
             return _buildSearchableAppBar(
                 context,
                 state is ServiceViewInitialized<MangaApiClient,
@@ -59,12 +59,12 @@ class MangaServiceViewBody extends StatelessWidget {
           })),
       body: Stack(
         alignment: Alignment.center,
-        children: [
+        children: <Widget>[
           SmartRefresher(
               enablePullUp: true,
               enablePullDown: false,
               footer: CustomFooter(
-                builder: (context, mode) {
+                builder: (BuildContext context, LoadStatus? mode) {
                   return ServiceViewerLoader(
                       cubit: context.read<
                           ServiceViewCubit<MangaApiClient,
@@ -95,8 +95,8 @@ class MangaServiceViewBody extends StatelessWidget {
                       physics: const BouncingScrollPhysics(
                         parent: AlwaysScrollableScrollPhysics(),
                       ),
-                      itemBuilder: (context, index) {
-                        final galleryView =
+                      itemBuilder: (BuildContext context, int index) {
+                        final MangaGalleryView galleryView =
                             stateInitialized.galleryViews[index];
                         return GalleryViewCard(
                           cover: galleryView.cover,
@@ -104,7 +104,7 @@ class MangaServiceViewBody extends StatelessWidget {
                           title: galleryView.title,
                           headers: stateInitialized
                                   .galleryViewImagesHeaders[galleryView.uid] ??
-                              {},
+                              <String, String>{},
                           onLongPress: () {},
                           onTap: () {
                             _onGalleryViewClick(context, galleryView);
@@ -134,12 +134,12 @@ class MangaServiceViewBody extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
+                children: <Widget>[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
+                    children: <Widget>[
                       Column(
-                        children: [
+                        children: <Widget>[
                           IconButton(
                             onPressed: stateError.retry,
                             icon: const Icon(Icons.refresh),
@@ -155,7 +155,7 @@ class MangaServiceViewBody extends StatelessWidget {
                       Text(S.current.service_view_error,
                           style: regular(color: AppColors.mainWhite, size: 18)),
                       Column(
-                        children: [
+                        children: <Widget>[
                           IconButton(
                             icon: const Icon(Icons.webhook),
                             onPressed: () {
@@ -198,8 +198,8 @@ class MangaServiceViewBody extends StatelessWidget {
         arguments: MangaConcreteViewerData(
             client: apiClient,
             uid: e.uid,
-            coverHeaders:
-                stateInitialized.galleryViewImagesHeaders[e.uid] ?? {},
+            coverHeaders: stateInitialized.galleryViewImagesHeaders[e.uid] ??
+                <String, String>{},
             galleryView: e,
             configInfo: configInfo));
   }

@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
 class PagesChangeButton extends StatefulWidget {
-  const PagesChangeButton({Key? key, required this.onTap, required this.icon})
-      : super(key: key);
+  const PagesChangeButton({super.key, required this.onTap, required this.icon});
 
   final VoidCallback onTap;
   final Widget icon;
@@ -72,7 +71,7 @@ class _PagesChangeButtonState extends State<PagesChangeButton>
         height: 48,
         decoration: BoxDecoration(
             color: _colorAnimation.value,
-            boxShadow: [
+            boxShadow: <BoxShadow>[
               BoxShadow(
                   color: _colorAnimation.value ?? AppColors.primary,
                   spreadRadius: _shadowAnimation.value,

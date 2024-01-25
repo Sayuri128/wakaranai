@@ -12,10 +12,10 @@ class ServiceViewerLoader extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder(
       bloc: cubit,
-      builder: (context, state) {
+      builder: (BuildContext context, Object? state) {
         if (state is ServiceViewInitialized && state.loading) {
           return const Column(
-            children: [
+            children: <Widget>[
               SizedBox(
                 height: 24,
               ),

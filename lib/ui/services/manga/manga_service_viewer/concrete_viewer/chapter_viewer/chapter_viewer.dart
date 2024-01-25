@@ -8,6 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
+import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/pages/pages.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/manga_gallery_view.dart';
 import 'package:flutter/material.dart';
@@ -19,10 +20,10 @@ import 'package:transparent_pointer/transparent_pointer.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/settings/cubit/settings/settings_cubit.dart';
-import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/bottom_modal_settings.dart';
-import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/bottom_modal_settings.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -61,12 +62,12 @@ class _ChapterViewerState extends State<ChapterViewer>
   late final PageController _pageController;
   late final ItemScrollController _itemScrollController;
 
-  bool _showGestureOverlay = false;
+  final bool _showGestureOverlay = false;
 
   bool _canLoadNext = false;
   bool _canLoadPrevious = false;
 
-  Map<String, String> _headers = {};
+  Map<String, String> _headers = <String, String>{};
 
   @override
   void initState() {
@@ -92,7 +93,7 @@ class _ChapterViewerState extends State<ChapterViewer>
       itemScrollController: _itemScrollController,
     )..init(
         widget.data,
-        pagesLoaded: (current, total) {
+        pagesLoaded: (int current, int total) {
           _canLoadNext = current == total;
           _canLoadPrevious = current == 1;
           if (mounted) {
@@ -107,7 +108,7 @@ class _ChapterViewerState extends State<ChapterViewer>
     super.dispose();
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.manual,
-      overlays: [
+      overlays: <SystemUiOverlay>[
         SystemUiOverlay.top,
         SystemUiOverlay.bottom,
       ],
@@ -128,10 +129,10 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   Widget _buildPage() {
     return BlocBuilder<ChapterViewCubit, ChapterViewState>(
-        builder: (context, state) {
+        builder: (BuildContext context, ChapterViewState state) {
       if (state is ChapterViewInitialized) {
         return Stack(
-          children: [
+          children: <Widget>[
             _buildBackground(context),
             _buildViewer(context, state),
             if (state.mode != ChapterViewMode.webtoon)
@@ -145,7 +146,7 @@ class _ChapterViewerState extends State<ChapterViewer>
               child: Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16.0),
-                    boxShadow: [
+                    boxShadow: <BoxShadow>[
                       BoxShadow(
                           color: AppColors.mainBlack.withOpacity(0.25),
                           blurRadius: 24,
@@ -155,7 +156,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                     child: Text(
                   '${state.currentPage}/${state.totalPages}',
                   style: medium(size: 18, color: AppColors.mainWhite).copyWith(
-                    shadows: [
+                    shadows: <Shadow>[
                       BoxShadow(
                           color: AppColors.mainBlack,
                           blurRadius: 4,
@@ -187,10 +188,10 @@ class _ChapterViewerState extends State<ChapterViewer>
       child: Column(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            children: <Widget>[
               GestureDetector(
                 onTap: () {
                   _pageController.animateToPage(max(0, state.currentPage - 2),
@@ -214,7 +215,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                             state.mode == ChapterViewMode.leftToRight
                                 ? "Prev"
                                 : "Next",
-                            style: semibold(size: 24).apply(shadows: [
+                            style: semibold(size: 24).apply(shadows: <Shadow>[
                               BoxShadow(
                                   color: AppColors.mainBlack,
                                   blurRadius: 8,
@@ -250,7 +251,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                             state.mode == ChapterViewMode.leftToRight
                                 ? "Next"
                                 : "Prev",
-                            style: semibold(size: 24).apply(shadows: [
+                            style: semibold(size: 24).apply(shadows: <Shadow>[
                               BoxShadow(
                                   color: AppColors.mainBlack,
                                   blurRadius: 8,
@@ -275,7 +276,7 @@ class _ChapterViewerState extends State<ChapterViewer>
         duration: const Duration(milliseconds: 350),
         switchInCurve: Curves.easeIn,
         switchOutCurve: Curves.easeOut,
-        transitionBuilder: (child, animation) =>
+        transitionBuilder: (Widget child, Animation<double> animation) =>
             FadeTransition(opacity: animation, child: child),
         child: state.controlsVisible
             ? _buildControlsView(context, state)
@@ -286,21 +287,21 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   Padding _buildControlsView(
       BuildContext context, ChapterViewInitialized state) {
-    final centeredElementWidth = MediaQuery.of(context).size.width - 144;
+    final double centeredElementWidth = MediaQuery.of(context).size.width - 144;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+              children: <Widget>[
                 Flexible(
                   child: Container(
-                    decoration: BoxDecoration(boxShadow: [
+                    decoration: BoxDecoration(boxShadow: <BoxShadow>[
                       BoxShadow(
                           color: AppColors.mainBlack.withOpacity(0.25),
                           blurRadius: 24,
@@ -308,7 +309,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                     ]),
                     child: Text(
                         state.group.elements
-                            .firstWhere((element) =>
+                            .firstWhere((Chapter element) =>
                                 element.uid == state.currentPages.chapterUid)
                             .title,
                         style: medium(size: 18),
@@ -323,12 +324,12 @@ class _ChapterViewerState extends State<ChapterViewer>
           const Spacer(),
           Stack(
             alignment: Alignment.bottomCenter,
-            children: [
+            children: <Widget>[
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 32.0),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
+                  children: <Widget>[
                     InkWell(
                       onTap: () {
                         Navigator.of(context).pop();
@@ -357,7 +358,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12.0),
                           child: FlutterSlider(
-                            values: [state.currentPage.toDouble()],
+                            values: <double>[state.currentPage.toDouble()],
                             min: 1,
                             max: state.totalPages.toDouble(),
                             jump: true,
@@ -397,7 +398,8 @@ class _ChapterViewerState extends State<ChapterViewer>
                                           (v as double).toInt(),
                                           state.currentPages.value.length - 1)],
                                       progressIndicatorBuilder:
-                                          (context, url, progress) =>
+                                          (BuildContext context, String url,
+                                                  DownloadProgress progress) =>
                                               CircularProgressIndicator(
                                         value: progress.progress ?? 0.01,
                                         color: AppColors.mainWhite,
@@ -516,7 +518,7 @@ class _ChapterViewerState extends State<ChapterViewer>
       case ChapterViewMode.leftToRight:
         return PhotoViewGallery.builder(
             allowImplicitScrolling: true,
-            loadingBuilder: (context, event) {
+            loadingBuilder: (BuildContext context, ImageChunkEvent? event) {
               return Center(
                 child: SizedBox(
                   width: 32,
@@ -535,9 +537,9 @@ class _ChapterViewerState extends State<ChapterViewer>
             scrollPhysics: const BouncingScrollPhysics(),
             itemCount: state.currentPages.value.length,
             reverse: state.mode == ChapterViewMode.rightToLeft,
-            onPageChanged: (index) {
+            onPageChanged: (int index) {
               context.read<ChapterViewCubit>().onPageChanged(
-                  index + 1, state.currentPages, onDone: (currentPages) {
+                  index + 1, state.currentPages, onDone: (Pages currentPages) {
                 if (index == 0) {
                   _canLoadPrevious = true;
                 } else if (index == currentPages.value.length - 1) {
@@ -549,7 +551,7 @@ class _ChapterViewerState extends State<ChapterViewer>
               });
               setState(() {});
             },
-            builder: (context, index) {
+            builder: (BuildContext context, int index) {
               return PhotoViewGalleryPageOptions(
                   minScale: 0.1,
                   maxScale: 0.5,
@@ -561,7 +563,7 @@ class _ChapterViewerState extends State<ChapterViewer>
             });
       case ChapterViewMode.webtoon:
         return NotificationListener<ScrollUpdateNotification>(
-            onNotification: (notification) {
+            onNotification: (ScrollUpdateNotification notification) {
               if (notification.metrics.pixels >=
                   notification.metrics.maxScrollExtent - 500) {
                 _canLoadNext = true;
@@ -590,9 +592,10 @@ class _ChapterViewerState extends State<ChapterViewer>
                 itemCount: state.currentPages.value.length,
                 minCacheExtent: 99999,
                 padding: EdgeInsets.zero,
-                itemBuilder: (context, index) => VisibilityDetector(
+                itemBuilder: (BuildContext context, int index) =>
+                    VisibilityDetector(
                       key: ValueKey(state.currentPages.value[index]),
-                      onVisibilityChanged: (info) {
+                      onVisibilityChanged: (VisibilityInfo info) {
                         if (info.visibleFraction > 0) {
                           context
                               .read<ChapterViewCubit>()
@@ -601,7 +604,8 @@ class _ChapterViewerState extends State<ChapterViewer>
                       },
                       child: CachedNetworkImage(
                         imageUrl: state.currentPages.value[index],
-                        progressIndicatorBuilder: (context, url, progress) =>
+                        progressIndicatorBuilder: (BuildContext context,
+                                String url, DownloadProgress progress) =>
                             SizedBox(
                           height: MediaQuery.of(context).size.height,
                           width: MediaQuery.of(context).size.width,
@@ -614,8 +618,6 @@ class _ChapterViewerState extends State<ChapterViewer>
                       ),
                     )));
     }
-
-    return const SizedBox();
   }
 
   Container _buildBackground(BuildContext context) {
@@ -634,7 +636,7 @@ class _ChapterViewerState extends State<ChapterViewer>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
+          children: <Widget>[
             _buildControlButtons(context, state),
             const SizedBox(
               height: 96,

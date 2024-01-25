@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -35,7 +34,7 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
+      children: <Widget>[
         const SizedBox(
           height: 32,
         ),
@@ -44,7 +43,7 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
             padding: const EdgeInsets.symmetric(horizontal: 32.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+              children: <Widget>[
                 SizedBox(
                     width: 128,
                     child: Text(
@@ -73,14 +72,14 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
                               borderSide:
                                   const BorderSide(color: Colors.transparent))),
                       items: ChapterViewMode.values
-                          .map((e) => DropdownMenuItem(
+                          .map((ChapterViewMode e) => DropdownMenuItem(
                                 value: e,
                                 alignment: Alignment.center,
                                 child: Text(chapterViewModelToString(e),
                                     textAlign: TextAlign.center),
                               ))
                           .toList(),
-                      onChanged: (mode) {
+                      onChanged: (ChapterViewMode? mode) {
                         if (mode != null) {
                           widget.chapterViewCubit.onModeChanged(mode);
                         }
@@ -99,7 +98,7 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
             style: medium(),
           ),
           value: _enableTapControlsState,
-          onChanged: (newValue) {
+          onChanged: (bool? newValue) {
             if (newValue == null) {
               return;
             }

@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:wakaranai/data/models/github/github_response_model.dart';
 
-
 part 'github_configs_repository.g.dart';
 
 @RestApi(baseUrl: "https://github.com/")

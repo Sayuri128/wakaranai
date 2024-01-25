@@ -24,7 +24,7 @@ class AnimeServiceViewerData {
 }
 
 class AnimeServiceViewer extends StatefulWidget {
-  const AnimeServiceViewer({Key? key, required this.data}) : super(key: key);
+  const AnimeServiceViewer({super.key, required this.data});
 
   final AnimeServiceViewerData data;
 
@@ -52,37 +52,43 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
 
   Widget _buildWidget(AnimeApiClient apiClient, ConfigInfo configInfo) {
     return WebBrowserWrapper<AnimeApiClient>(
-        builder: (context, interceptorInitCompleter) {
+        builder:
+            (BuildContext context, Completer<bool> interceptorInitCompleter) {
           return WillPopScope(
             onWillPop: () async {
               Navigator.of(context)
-                  .pushNamedAndRemoveUntil(Routes.home, (route) => false);
+                  .pushNamedAndRemoveUntil(Routes.home, (Route route) => false);
               return false;
             },
             child: ServiceViewCubitWrapper<AnimeApiClient, AnimeGalleryView>(
               client: apiClient,
-              builder: (context, state) => _wrapBrowserInterceptor(
-                  child: BlocListener<
-                      ServiceViewCubit<AnimeApiClient, AnimeGalleryView>,
-                      ServiceViewState<AnimeApiClient, AnimeGalleryView>>(
-                    listener: (context, state) {
-                      if (state is ServiceViewInitialized<AnimeApiClient,
-                          AnimeGalleryView>) {
-                        _refreshController.loadComplete();
-                      }
-                    },
-                    child: AnimeServiceViewerBody(
-                      configInfo: configInfo,
+              builder: (BuildContext context,
+                      ServiceViewState<AnimeApiClient, AnimeGalleryView>
+                          state) =>
+                  _wrapBrowserInterceptor(
+                      child: BlocListener<
+                          ServiceViewCubit<AnimeApiClient, AnimeGalleryView>,
+                          ServiceViewState<AnimeApiClient, AnimeGalleryView>>(
+                        listener: (BuildContext context,
+                            ServiceViewState<AnimeApiClient, AnimeGalleryView>
+                                state) {
+                          if (state is ServiceViewInitialized<AnimeApiClient,
+                              AnimeGalleryView>) {
+                            _refreshController.loadComplete();
+                          }
+                        },
+                        child: AnimeServiceViewerBody(
+                          configInfo: configInfo,
+                          apiClient: apiClient,
+                          scaffold: _scaffold,
+                          refreshController: _refreshController,
+                          searchController: _searchController,
+                          state: state,
+                        ),
+                      ),
                       apiClient: apiClient,
-                      scaffold: _scaffold,
-                      refreshController: _refreshController,
-                      searchController: _searchController,
-                      state: state,
-                    ),
-                  ),
-                  apiClient: apiClient,
-                  interceptorInitCompleter: interceptorInitCompleter,
-                  configInfo: configInfo),
+                      interceptorInitCompleter: interceptorInitCompleter,
+                      configInfo: configInfo),
             ),
           );
         },
@@ -103,8 +109,8 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
     if (configInfo.protectorConfig?.inAppBrowserInterceptor ?? false) {
       return BlocProvider<BrowserInterceptorCubit>(
         lazy: false,
-        create: (context) {
-          final cubit = BrowserInterceptorCubit();
+        create: (BuildContext context) {
+          final BrowserInterceptorCubit cubit = BrowserInterceptorCubit();
           cubit
               .init(
                   url: configInfo.protectorConfig!.pingUrl,

@@ -1,4 +1,5 @@
 import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/pages/pages.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -34,19 +35,20 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     void Function(int page, int totalPage)? pagesLoaded,
   }) async {
     try {
-      final pagesS = [
+      final List<Pages> pagesS = <Pages>[
         await apiClient.getPages(
           uid: data.chapter.uid,
           data: data.chapter.data,
         )
       ];
 
-      final int chapterIndex = data.group.elements
-          .indexWhere((element) => element.uid == pagesS.last.chapterUid);
+      final int chapterIndex = data.group.elements.indexWhere(
+          (Chapter element) => element.uid == pagesS.last.chapterUid);
       final Pages currentPages = pagesS.last;
 
-      final canGetPreviousPages = (chapterIndex - 1) >= 0;
-      final canGetNextPages = (chapterIndex + 1) < data.group.elements.length;
+      final bool canGetPreviousPages = (chapterIndex - 1) >= 0;
+      final bool canGetNextPages =
+          (chapterIndex + 1) < data.group.elements.length;
 
       emit(
         ChapterViewInitialized(
@@ -78,21 +80,23 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
 
   void onPagesChanged({required bool next, VoidCallback? onDone}) async {
     if (state is ChapterViewInitialized) {
-      final state = this.state as ChapterViewInitialized;
+      final ChapterViewInitialized state = this.state as ChapterViewInitialized;
       emit(ChapterViewInit());
 
       final int chapterIndex = state.group.elements.indexWhere(
-              (element) => element.uid == state.currentPages.chapterUid) +
+              (Chapter element) =>
+                  element.uid == state.currentPages.chapterUid) +
           (next ? 1 : -1);
 
       final bool canGetPreviousPages = chapterIndex > 0;
       final bool canGetNextPages =
           chapterIndex < state.group.elements.length - 1;
 
-      Pages? optionalLoadedPages = state.pages.firstWhereOrNull((element) =>
-          element.chapterUid == state.group.elements[chapterIndex].uid);
+      Pages? optionalLoadedPages = state.pages.firstWhereOrNull(
+          (Pages element) =>
+              element.chapterUid == state.group.elements[chapterIndex].uid);
 
-      final List<Pages> newPages = [...state.pages];
+      final List<Pages> newPages = <Pages>[...state.pages];
 
       if (optionalLoadedPages == null) {
         optionalLoadedPages = await apiClient.getPages(

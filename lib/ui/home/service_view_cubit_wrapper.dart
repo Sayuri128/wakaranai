@@ -16,10 +16,11 @@ class ServiceViewCubitWrapper<T extends ApiClient, G extends GalleryView>
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ServiceViewCubit<T, G>>(
-      create: (context) =>
+      create: (BuildContext context) =>
           ServiceViewCubit(ServiceViewInitial<T, G>(client: client)),
       child: BlocBuilder<ServiceViewCubit<T, G>, ServiceViewState<T, G>>(
-        builder: (context, state) => builder(context, state),
+        builder: (BuildContext context, ServiceViewState<T, G> state) =>
+            builder(context, state),
       ),
     );
   }
