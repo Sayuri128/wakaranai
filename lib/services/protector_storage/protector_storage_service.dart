@@ -8,7 +8,7 @@ class ProtectorStorageService {
 
   Future<ProtectorStorageItem?> getItem({required String uid}) async {
     try {
-      final possibleItem = await _secureStorage.read(key: uid);
+      final String? possibleItem = await _secureStorage.read(key: uid);
 
       if (possibleItem == null) {
         return null;

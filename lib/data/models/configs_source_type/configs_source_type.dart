@@ -1,5 +1,3 @@
-import 'package:wakaranai/generated/l10n.dart';
-
 // TODO: add local configs (that are stored locally on user's device)
 enum ConfigsSourceType { github, rest }
 

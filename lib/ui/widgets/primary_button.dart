@@ -4,8 +4,11 @@ import 'package:wakaranai/utils/text_styles.dart';
 
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton(
-      {Key? key, this.padding, required this.title, this.color, this.onPressed})
-      : super(key: key);
+      {super.key,
+      this.padding,
+      required this.title,
+      this.color,
+      this.onPressed});
 
   final EdgeInsets? padding;
   final VoidCallback? onPressed;

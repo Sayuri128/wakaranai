@@ -9,26 +9,26 @@ class AppVersion {
     required this.patch,
   });
 
-  static final regex = RegExp(r"\d+\.\d+\.\d+");
+  static final RegExp regex = RegExp(r"\d+\.\d+\.\d+");
 
   factory AppVersion.fromString(String version) {
     if (!regex.hasMatch(version)) {
       throw Exception("Invalid version string: $version");
     }
-    final versionResult = regex.firstMatch(version);
+    final RegExpMatch? versionResult = regex.firstMatch(version);
     if (versionResult == null) {
       throw Exception("Invalid version string: $version");
     }
-    final versionStr = versionResult.group(0)!;
+    final String versionStr = versionResult.group(0)!;
 
-    final parts = versionStr.split(".");
+    final List<String> parts = versionStr.split(".");
     if (parts.length != 3) {
       throw Exception("Invalid version string: $version");
     }
 
-    final major = int.parse(parts[0]);
-    final minor = int.parse(parts[1]);
-    final patch = int.parse(parts[2]);
+    final int major = int.parse(parts[0]);
+    final int minor = int.parse(parts[1]);
+    final int patch = int.parse(parts[2]);
 
     return AppVersion(
       major: major,

@@ -3,9 +3,9 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:capyscript/modules/waka_models/models/config_info/protector_config/protector_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/data/models/protector/protector_storage_item.dart';
 import 'package:wakaranai/data/models/web_browser_result/web_browser_result.dart';
+import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -44,7 +44,7 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
   void initState() {
     super.initState();
 
-    final def = getDefaultBrowserSettings();
+    final InAppWebViewSettings def = getDefaultBrowserSettings();
     def.preferredContentMode = UserPreferredContentMode.RECOMMENDED;
     settings = def;
   }
@@ -56,14 +56,14 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         child: Stack(
           alignment: Alignment.bottomCenter,
-          children: [
+          children: <Widget>[
             InAppWebView(
               key: _webViewKey,
               initialSettings: settings,
               initialUrlRequest: URLRequest(
                 url: WebUri(widget.data.config.pingUrl),
               ),
-              onWebViewCreated: (controller) async {
+              onWebViewCreated: (InAppWebViewController controller) async {
                 _webView = controller;
               },
             ),
@@ -72,11 +72,13 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
               child: ElevatedButton(
                   onPressed: () async {
                     getHeaders(
-                        done: (headers, cookies) async {
+                        done: (Map<String, String> headers,
+                            Map<String, String> cookies) async {
                           if (!mounted) return;
-                          final body = await _webView.callAsyncJavaScript(
-                              functionBody:
-                                  "return document.documentElement.innerHTML");
+                          final CallAsyncJavaScriptResult? body =
+                              await _webView.callAsyncJavaScript(
+                                  functionBody:
+                                      "return document.documentElement.innerHTML");
                           Navigator.of(context).pop(WebBrowserPageResult(
                               headers: headers,
                               cookies: cookies,
@@ -111,24 +113,28 @@ Future<void> getHeaders(
         done,
     required String pingUrl,
     required InAppWebViewController controller}) async {
-  final cookies = Map.fromEntries((await CookieManager.instance().getCookies(
+  final Map<String, String> cookies =
+      Map.fromEntries((await CookieManager.instance().getCookies(
     url: WebUri(pingUrl),
   ))
-      .map((e) => MapEntry(e.name, e.value.toString())));
+          .map((Cookie e) => MapEntry(e.name, e.value.toString())));
   done(
       Map.from(<String, String>{
         'user-agent': ((await controller.callAsyncJavaScript(
                 functionBody: 'return navigator.userAgent;'))
             ?.value as String),
-        'cookie': cookies.entries.map((e) => '${e.key}=${e.value}').join('; ')
+        'cookie': cookies.entries
+            .map((MapEntry<String, String> e) => '${e.key}=${e.value}')
+            .join('; ')
       }),
       cookies);
 }
 
 Future<void> openWebView(
     BuildContext context, ApiClient apiClient, ConfigInfo config) async {
-  final uid = '${config.name}_${config.version}';
-  final result = await Navigator.of(context).pushNamed(Routes.webBrowser,
+  final String uid = '${config.name}_${config.version}';
+  final Object? result = await Navigator.of(context).pushNamed(
+      Routes.webBrowser,
       arguments: WebBrowserData(
           config: config.protectorConfig!,
           protectorStorageItem:

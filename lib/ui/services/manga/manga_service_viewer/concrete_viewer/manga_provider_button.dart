@@ -4,11 +4,10 @@ import 'package:wakaranai/utils/text_styles.dart';
 
 class MangaProviderButton extends StatelessWidget {
   const MangaProviderButton(
-      {Key? key,
+      {super.key,
       required this.title,
       required this.onClick,
-      required this.selected})
-      : super(key: key);
+      required this.selected});
 
   final String title;
   final bool selected;

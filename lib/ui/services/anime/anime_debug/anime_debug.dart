@@ -3,7 +3,7 @@ import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/anime_iframe_player/anime_iframe_player.dart';
 
 class AnimeDebug extends StatelessWidget {
-  const AnimeDebug({Key? key}) : super(key: key);
+  const AnimeDebug({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,17 +12,17 @@ class AnimeDebug extends StatelessWidget {
         width: MediaQuery.of(context).size.width,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
+          children: <Widget>[
             const SizedBox(
               height: 48,
             ),
             ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pushNamed(Routes.iframeAnimePlayer,
-                      arguments: AnimeIframePlayerData(
+                      arguments: const AnimeIframePlayerData(
                           src: "https://ashdi.vip/vod/52812"));
                 },
-                child: Text("Iframe player"))
+                child: const Text("Iframe player"))
           ],
         ),
       ),

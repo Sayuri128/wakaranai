@@ -22,8 +22,8 @@ class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ConcreteViewCubit<T, C, G>>(
-      create: (context) {
-        final cubit = ConcreteViewCubit<T, C, G>(
+      create: (BuildContext context) {
+        final ConcreteViewCubit<T, C, G> cubit = ConcreteViewCubit<T, C, G>(
           ConcreteViewState<T, C, G>(apiClient: client),
         );
 
@@ -35,7 +35,8 @@ class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
       },
       child:
           BlocBuilder<ConcreteViewCubit<T, C, G>, ConcreteViewState<T, C, G>>(
-        builder: (context, state) => builder(context, state),
+        builder: (BuildContext context, ConcreteViewState<T, C, G> state) =>
+            builder(context, state),
       ),
     );
   }

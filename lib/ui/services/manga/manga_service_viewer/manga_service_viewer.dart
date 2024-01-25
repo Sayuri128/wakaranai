@@ -15,7 +15,6 @@ import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer_body.dart';
 
-
 class MangaServiceViewData {
   final RemoteConfig? remoteConfig;
 
@@ -25,7 +24,7 @@ class MangaServiceViewData {
 }
 
 class MangaServiceView extends StatefulWidget {
-  const MangaServiceView({Key? key, required this.data}) : super(key: key);
+  const MangaServiceView({super.key, required this.data});
 
   final MangaServiceViewData data;
 
@@ -57,20 +56,26 @@ class _MangaServiceViewState extends State<MangaServiceView> {
   Widget _buildWidget(MangaApiClient apiClient, ConfigInfo configInfo) {
     return WebBrowserWrapper<MangaApiClient>(
         apiClient: apiClient,
-        builder: (context, interceptorInitCompleter) {
+        builder:
+            (BuildContext context, Completer<bool> interceptorInitCompleter) {
           return WillPopScope(
             onWillPop: () async {
               Navigator.of(context)
-                  .pushNamedAndRemoveUntil(Routes.home, (route) => false);
+                  .pushNamedAndRemoveUntil(Routes.home, (Route route) => false);
               return false;
             },
             child: ServiceViewCubitWrapper<MangaApiClient, MangaGalleryView>(
               client: apiClient,
-              builder: (context, state) => _wrapBrowserInterceptor(
+              builder: (BuildContext context,
+                      ServiceViewState<MangaApiClient, MangaGalleryView>
+                          state) =>
+                  _wrapBrowserInterceptor(
                 child: BlocListener<
                     ServiceViewCubit<MangaApiClient, MangaGalleryView>,
                     ServiceViewState<MangaApiClient, MangaGalleryView>>(
-                  listener: (context, state) {
+                  listener: (BuildContext context,
+                      ServiceViewState<MangaApiClient, MangaGalleryView>
+                          state) {
                     if (state is ServiceViewInitialized<MangaApiClient,
                         MangaGalleryView>) {
                       _refreshController.loadComplete();
@@ -108,8 +113,8 @@ class _MangaServiceViewState extends State<MangaServiceView> {
     if (configInfo.protectorConfig?.inAppBrowserInterceptor ?? false) {
       return BlocProvider<BrowserInterceptorCubit>(
         lazy: false,
-        create: (context) {
-          final cubit = BrowserInterceptorCubit()
+        create: (BuildContext context) {
+          final BrowserInterceptorCubit cubit = BrowserInterceptorCubit()
             ..init(
                 url: configInfo.protectorConfig!.pingUrl,
                 initCompleter: interceptorInitCompleter);

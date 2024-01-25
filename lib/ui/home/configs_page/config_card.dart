@@ -7,8 +7,7 @@ import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class ConfigCard extends StatelessWidget {
-  const ConfigCard({Key? key, this.onTap, required this.configInfo})
-      : super(key: key);
+  const ConfigCard({super.key, this.onTap, required this.configInfo});
 
   final VoidCallback? onTap;
   final ConfigInfo configInfo;
@@ -24,14 +23,14 @@ class ConfigCard extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+            children: <Widget>[
               if (configInfo.logoUrl.contains('.svg'))
                 SvgPicture.network(configInfo.logoUrl,
                     height: 80,
                     fit: BoxFit.cover,
-                    placeholderBuilder: (context) =>
+                    placeholderBuilder: (BuildContext context) =>
                         _buildSourceLogoPlaceholder(),
-                    headers: const {
+                    headers: const <String, String>{
                       "user-agent":
                           "Mozilla/5.0 (Linux; Android 9; SM-G960N Build/PQ3B.190801.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/91.0.4472.114 Safari/537.36"
                     })
@@ -40,10 +39,12 @@ class ConfigCard extends StatelessWidget {
                   imageUrl: configInfo.logoUrl,
                   height: 80,
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => _buildSourceLogoPlaceholder(),
-                  errorWidget: (context, url, error) =>
+                  placeholder: (BuildContext context, String url) =>
                       _buildSourceLogoPlaceholder(),
-                  httpHeaders: const {
+                  errorWidget:
+                      (BuildContext context, String url, Object error) =>
+                          _buildSourceLogoPlaceholder(),
+                  httpHeaders: const <String, String>{
                     "user-agent":
                         "Mozilla/5.0 (Linux; Android 9; SM-G960N Build/PQ3B.190801.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/91.0.4472.114 Safari/537.36"
                   },
@@ -51,14 +52,14 @@ class ConfigCard extends StatelessWidget {
               const SizedBox(height: 8),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
+                children: <Widget>[
                   Text(
                     configInfo.name.trim(),
                     style: medium(size: 16),
                   ),
                   Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
+                    children: <Widget>[
                       Text(
                         configInfo.language.trim(),
                         style: regular(size: 14),

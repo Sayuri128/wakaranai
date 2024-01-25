@@ -17,12 +17,12 @@ class ConfigPage extends StatelessWidget {
       backgroundColor: AppColors.backgroundColor,
       body: Stack(
         alignment: Alignment.topCenter,
-        children: [
+        children: <Widget>[
           Padding(
               padding: const EdgeInsets.only(top: 60),
               child: PageView(
                 controller: _pageController,
-                children: [
+                children: <Widget>[
                   _buildRemoteConfigsPage(),
                 ],
               )),
@@ -30,19 +30,20 @@ class ConfigPage extends StatelessWidget {
               alignment: Alignment.topCenter,
               child: Container(
                 height: 60 + MediaQuery.of(context).padding.top,
-                decoration:
-                    BoxDecoration(color: AppColors.backgroundColor, boxShadow: [
-                  BoxShadow(
-                      color: AppColors.mainBlack.withOpacity(0.5),
-                      blurRadius: 8,
-                      spreadRadius: 2)
-                ]),
+                decoration: BoxDecoration(
+                    color: AppColors.backgroundColor,
+                    boxShadow: <BoxShadow>[
+                      BoxShadow(
+                          color: AppColors.mainBlack.withOpacity(0.5),
+                          blurRadius: 8,
+                          spreadRadius: 2)
+                    ]),
                 child: Padding(
                   padding:
                       EdgeInsets.only(top: MediaQuery.of(context).padding.top),
                   child: Stack(
                     alignment: Alignment.center,
-                    children: [
+                    children: <Widget>[
                       Align(
                         alignment: Alignment.center,
                         child: Text(
@@ -52,9 +53,7 @@ class ConfigPage extends StatelessWidget {
                       Align(
                         alignment: Alignment.centerRight,
                         child: IconButton(
-                            onPressed: () {
-
-                            },
+                            onPressed: () {},
                             icon: const Icon(
                               Icons.filter_list_rounded,
                               color: AppColors.mainWhite,
@@ -72,14 +71,14 @@ class ConfigPage extends StatelessWidget {
   BlocBuilder<RemoteConfigsCubit, RemoteConfigsState>
       _buildRemoteConfigsPage() {
     return BlocBuilder<RemoteConfigsCubit, RemoteConfigsState>(
-      builder: (context, state) {
+      builder: (BuildContext context, RemoteConfigsState state) {
         if (state is RemoteConfigsError) {
           return Center(
               child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: [
+              children: <Widget>[
                 Text(
                   state.message,
                   style: regular(size: 18, color: AppColors.red),
@@ -121,7 +120,7 @@ class ConfigPage extends StatelessWidget {
         );
       },
       child: ListView(
-        children: [
+        children: <Widget>[
           const SizedBox(
             height: 12,
           ),

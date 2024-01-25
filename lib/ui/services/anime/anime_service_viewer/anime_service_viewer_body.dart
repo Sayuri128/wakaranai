@@ -17,14 +17,13 @@ import 'package:wakaranai/utils/text_styles.dart';
 
 class AnimeServiceViewerBody extends StatelessWidget {
   const AnimeServiceViewerBody(
-      {Key? key,
+      {super.key,
       required this.apiClient,
       required this.configInfo,
       required this.scaffold,
       required this.refreshController,
       required this.searchController,
-      required this.state})
-      : super(key: key);
+      required this.state});
 
   final ServiceViewState<AnimeApiClient, AnimeGalleryView> state;
   final RefreshController refreshController;
@@ -48,7 +47,7 @@ class AnimeServiceViewerBody extends StatelessWidget {
       appBar: PreferredSize(
           preferredSize: Size(MediaQuery.of(context).size.width,
               configInfo.searchAvailable ? 96 : 60),
-          child: Builder(builder: (context) {
+          child: Builder(builder: (BuildContext context) {
             return _buildSearchableAppBar(
                 context,
                 state is ServiceViewInitialized<AnimeApiClient,
@@ -58,12 +57,12 @@ class AnimeServiceViewerBody extends StatelessWidget {
           })),
       body: Stack(
         alignment: Alignment.center,
-        children: [
+        children: <Widget>[
           SmartRefresher(
               enablePullUp: true,
               enablePullDown: false,
               footer: CustomFooter(
-                builder: (context, mode) {
+                builder: (BuildContext context, LoadStatus? mode) {
                   return ServiceViewerLoader(
                       cubit: context.read<
                           ServiceViewCubit<AnimeApiClient,
@@ -91,8 +90,8 @@ class AnimeServiceViewerBody extends StatelessWidget {
                       physics: const BouncingScrollPhysics(
                         parent: AlwaysScrollableScrollPhysics(),
                       ),
-                      itemBuilder: (context, index) {
-                        final galleryView =
+                      itemBuilder: (BuildContext context, int index) {
+                        final AnimeGalleryView galleryView =
                             stateInitialized.galleryViews[index];
                         return GalleryViewCard(
                           cover: galleryView.cover,
@@ -100,7 +99,7 @@ class AnimeServiceViewerBody extends StatelessWidget {
                           title: galleryView.title,
                           headers: stateInitialized
                                   .galleryViewImagesHeaders[galleryView.uid] ??
-                              {},
+                              <String, String>{},
                           onLongPress: () {
                             // _onLongGalleryViewPress(context,
                             //     galleryView: galleryView,
@@ -135,12 +134,12 @@ class AnimeServiceViewerBody extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
+                children: <Widget>[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
+                    children: <Widget>[
                       Column(
-                        children: [
+                        children: <Widget>[
                           IconButton(
                             onPressed: stateError.retry,
                             icon: const Icon(Icons.refresh),
@@ -156,7 +155,7 @@ class AnimeServiceViewerBody extends StatelessWidget {
                       Text(S.current.service_view_error,
                           style: regular(color: AppColors.mainWhite, size: 18)),
                       Column(
-                        children: [
+                        children: <Widget>[
                           IconButton(
                             icon: const Icon(Icons.webhook),
                             onPressed: () {
