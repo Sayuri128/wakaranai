@@ -11,7 +11,7 @@ class RepoConfigsService implements ConfigsService {
 
   RepoConfigsService({String? url}) {
     _localRepository =
-        LocalConfigsRepository(Dio(), baseUrl: url ?? Env.LOCAL_REPOSITORY_URL);
+        LocalConfigsRepository(Dio(), baseUrl: url ?? Env.localRepoUrl);
   }
 
   @override

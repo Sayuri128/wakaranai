@@ -135,7 +135,7 @@ class _ChapterViewerState extends State<ChapterViewer>
           children: [
             _buildBackground(context),
             _buildViewer(context, state),
-            if (state.mode != ChapterViewMode.WEBTOON)
+            if (state.mode != ChapterViewMode.webtoon)
               _buildHorizontalGestures(state, context),
             _buildControls(context, state),
             _buildLoaders(context, state),
@@ -212,7 +212,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                     child: _showGestureOverlay
                         ? Center(
                             child: Text(
-                            state.mode == ChapterViewMode.LEFT_TO_RIGHT
+                            state.mode == ChapterViewMode.leftToRight
                                 ? "Prev"
                                 : "Next",
                             style: semibold(size: 24).apply(shadows: [
@@ -248,7 +248,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                     child: _showGestureOverlay
                         ? Center(
                             child: Text(
-                            state.mode == ChapterViewMode.LEFT_TO_RIGHT
+                            state.mode == ChapterViewMode.leftToRight
                                 ? "Next"
                                 : "Prev",
                             style: semibold(size: 24).apply(shadows: [
@@ -366,13 +366,13 @@ class _ChapterViewerState extends State<ChapterViewer>
                             handlerWidth: 24,
                             onDragCompleted: (_, index, __) {
                               switch (state.mode) {
-                                case ChapterViewMode.RIGHT_TO_LEFT:
-                                case ChapterViewMode.LEFT_TO_RIGHT:
+                                case ChapterViewMode.rightToLeft:
+                                case ChapterViewMode.leftToRight:
                                   _pageController.jumpToPage(min(
                                       (index as double).toInt() - 1,
                                       state.currentPages.value.length - 1));
                                   break;
-                                case ChapterViewMode.WEBTOON:
+                                case ChapterViewMode.webtoon:
                                   _itemScrollController.jumpTo(
                                     index: min((index).toInt(),
                                         state.currentPages.value.length - 1),
@@ -513,8 +513,8 @@ class _ChapterViewerState extends State<ChapterViewer>
   Widget _buildPageViewerPage(
       ChapterViewInitialized state, BuildContext context) {
     switch (state.mode) {
-      case ChapterViewMode.RIGHT_TO_LEFT:
-      case ChapterViewMode.LEFT_TO_RIGHT:
+      case ChapterViewMode.rightToLeft:
+      case ChapterViewMode.leftToRight:
         return PhotoViewGallery.builder(
             allowImplicitScrolling: true,
             loadingBuilder: (context, event) {
@@ -535,7 +535,7 @@ class _ChapterViewerState extends State<ChapterViewer>
             pageController: _pageController,
             scrollPhysics: const BouncingScrollPhysics(),
             itemCount: state.currentPages.value.length,
-            reverse: state.mode == ChapterViewMode.RIGHT_TO_LEFT,
+            reverse: state.mode == ChapterViewMode.rightToLeft,
             onPageChanged: (index) {
               context.read<ChapterViewCubit>().onPageChanged(
                   index + 1, state.currentPages, onDone: (currentPages) {
@@ -560,7 +560,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                       state.currentPages.value[index],
                       headers: _headers));
             });
-      case ChapterViewMode.WEBTOON:
+      case ChapterViewMode.webtoon:
         return NotificationListener<ScrollUpdateNotification>(
             onNotification: (notification) {
               if (notification.metrics.pixels >=

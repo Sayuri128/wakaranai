@@ -59,7 +59,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
           controlsEnabled: false,
           mode: settingsCubit.state is SettingsInitialized
               ? (settingsCubit.state as SettingsInitialized).defaultMode
-              : ChapterViewMode.RIGHT_TO_LEFT,
+              : ChapterViewMode.rightToLeft,
           group: data.group,
           galleryView: data.galleryView,
           canGetPreviousPages: canGetPreviousPages,
