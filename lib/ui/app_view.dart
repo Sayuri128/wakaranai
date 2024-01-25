@@ -4,7 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wakaranai/blocs/auth/authentication_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/ui/home/configs_page/my_repositores/my_repositores_page.dart';
+import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page.dart';
+import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page_arguments.dart';
+import 'package:wakaranai/ui/home/configs_page/extension_sources/my_extension_sources_page.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/anime_concrete_viewer/anime_concrete_viewer.dart';
@@ -89,8 +91,10 @@ class _AppViewState extends State<AppView> {
               WebBrowserPage(data: settings.arguments as WebBrowserData),
           Routes.iframeAnimePlayer: (BuildContext context) => AnimeIframePlayer(
               data: settings.arguments as AnimeIframePlayerData),
-          Routes.addConfig: (BuildContext context) =>
-              const MyRepositoriesPage(),
+          Routes.myExtensionSources: (BuildContext context) =>
+              const MyExtensionSourcesPage(),
+          Routes.addExtensionSource: (BuildContext context) => AddExtensionPage(
+              arguments: settings.arguments as AddExtensionPageArguments)
         };
 
         return CupertinoPageRoute(builder: routes[settings.name]!);

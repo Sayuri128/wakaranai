@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_group.dart';
+import 'package:wakaranai/ui/home/configs_page/extension_sources/extension_sources_page_result.dart';
+import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/widgets/elevated_appbar.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -15,54 +18,40 @@ class ConfigPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      body: Stack(
-        alignment: Alignment.topCenter,
-        children: <Widget>[
-          Padding(
-              padding: const EdgeInsets.only(top: 60),
-              child: PageView(
-                controller: _pageController,
-                children: <Widget>[
-                  _buildRemoteConfigsPage(),
-                ],
-              )),
-          Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                height: 60 + MediaQuery.of(context).padding.top,
-                decoration: BoxDecoration(
-                    color: AppColors.backgroundColor,
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                          color: AppColors.mainBlack.withOpacity(0.5),
-                          blurRadius: 8,
-                          spreadRadius: 2)
-                    ]),
-                child: Padding(
-                  padding:
-                      EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                            S.current.home_remote_configs_page_appbar_title,
-                            style: medium(size: 24)),
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: IconButton(
-                            onPressed: () {},
-                            icon: const Icon(
-                              Icons.filter_list_rounded,
-                              color: AppColors.mainWhite,
-                            )),
-                      )
-                    ],
-                  ),
+      appBar: PreferredSize(
+        preferredSize: const Size(60, double.maxFinite),
+        child: BlocBuilder<RemoteConfigsCubit, RemoteConfigsState>(
+          builder: (context, state) {
+            return ElevatedAppbar(
+              title: Text(
+                state is RemoteConfigsLoaded
+                    ? state.sourceName
+                    : S.current.home_remote_configs_page_appbar_title,
+                style: medium(size: 24),
+              ),
+              actions: IconButton(
+                onPressed: () {
+                  Navigator.of(context)
+                      .pushNamed(Routes.myExtensionSources)
+                      .then((value) {
+                    if (value is ExtensionSourcesPageResult) {
+                      context.read<RemoteConfigsCubit>().changeSource(value);
+                    }
+                  });
+                },
+                icon: const Icon(
+                  Icons.filter_list_rounded,
+                  color: AppColors.mainWhite,
                 ),
-              ))
+              ),
+            );
+          },
+        ),
+      ),
+      body: PageView(
+        controller: _pageController,
+        children: <Widget>[
+          _buildRemoteConfigsPage(),
         ],
       ),
     );
@@ -85,7 +74,7 @@ class ConfigPage extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () {
-                    context.read<RemoteConfigsCubit>().getConfigs();
+                    context.read<RemoteConfigsCubit>().init();
                   },
                   icon: const Icon(Icons.refresh),
                   splashRadius: 18,
@@ -115,7 +104,7 @@ class ConfigPage extends StatelessWidget {
         return Future.delayed(
           const Duration(milliseconds: 300),
           () {
-            context.read<RemoteConfigsCubit>().getConfigs();
+            context.read<RemoteConfigsCubit>().init();
           },
         );
       },

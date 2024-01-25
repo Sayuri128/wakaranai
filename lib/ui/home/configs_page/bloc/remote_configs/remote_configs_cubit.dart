@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:wakaranai/data/models/configs_source_item/configs_source_item.dart';
-import 'package:wakaranai/data/models/configs_source_type/configs_source_type.dart';
+import 'package:wakaranai/data/domain/extension/extension_source_type.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/env.dart';
 import 'package:wakaranai/generated/l10n.dart';
@@ -9,6 +8,8 @@ import 'package:wakaranai/main.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 import 'package:wakaranai/services/configs_service/github_configs_service.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
+import 'package:wakaranai/ui/home/configs_page/extension_sources/extension_sources_page_result.dart';
+import 'package:wakaranai/utils/github_url_parser.dart';
 
 part 'remote_configs_state.dart';
 
@@ -29,12 +30,14 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
     final int? defaultId = await settingsService.getDefaultConfigsSourceId();
 
     if (defaultId == null) {
-      getConfigs();
+      await getConfigs(
+          sourceName:
+              S.current.extension_sources_page_wakaranai_github_repo_title);
       return;
     }
   }
 
-  void getConfigs() async {
+  Future<void> getConfigs({required String sourceName}) async {
     emit(RemoteConfigsLoading());
 
     Future.wait(<Future<List<RemoteConfig>>>[
@@ -45,6 +48,7 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
         RemoteConfigsLoaded(
           mangaRemoteConfigs: value[0].cast(),
           animeRemoteConfigs: value[1].cast(),
+          sourceName: sourceName,
         ),
       );
     }).catchError((err, s) {
@@ -54,14 +58,14 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
     });
   }
 
-  void changeSource(ConfigsSourceItem source) async {
+  void changeSource(ExtensionSourcesPageResult source) async {
     try {
       switch (source.type) {
-        case ConfigsSourceType.github:
+        case ExtensionSourceType.github:
+          final githubParser = GithubUrlParser(url: source.url);
+          final githubParserResult = githubParser.parse()!;
           _configsService = GitHubConfigsService(
-              source.baseUrl.split('/')[0], source.baseUrl.split('/')[1]);
-          break;
-        case ConfigsSourceType.rest:
+              githubParserResult.org, githubParserResult.repo);
           break;
       }
     } catch (_) {
@@ -71,6 +75,8 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
       return;
     }
 
-    getConfigs();
+    await getConfigs(
+      sourceName: source.name,
+    );
   }
 }

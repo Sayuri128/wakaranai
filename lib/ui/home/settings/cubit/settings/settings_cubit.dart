@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/data/models/configs_source_item/configs_source_item.dart';
 import 'package:wakaranai/data/models/configs_source_type/configs_source_type.dart';
 import 'package:wakaranai/env.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
@@ -17,10 +16,6 @@ class SettingsCubit extends Cubit<SettingsState> {
   //         '${Env.OFFICIAL_GITHUB_CONFIGS_SOURCE_ORG}/${Env.OFFICIAL_GITHUB_CONFIGS_SOURCE_REPOSITORY}',
   //     name: S.current.github_configs_source_type,
   //     type: ConfigsSourceType.GIT_HUB);
-  static final ConfigsSourceItem defaultConfigsServiceItem = ConfigsSourceItem(
-      baseUrl: Env.localRepoUrl,
-      name: "LOCAL REST",
-      type: ConfigsSourceType.rest);
 
   final RemoteConfigsCubit remoteConfigsCubit;
 
