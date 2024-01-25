@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wakaranai/heroes.dart';
+import 'package:wakaranai/utils/heroes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
