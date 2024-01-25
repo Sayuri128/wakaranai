@@ -7,7 +7,7 @@ import 'package:wakaranai/main.dart';
 
 part 'concrete_view_state.dart';
 
-enum ConcreteViewOrder { DEFAULT, DEFAULT_REVERSE }
+enum ConcreteViewOrder { def, defReverse }
 
 class A<G extends ElementsGroupOfConcrete<dynamic>> {}
 
@@ -35,7 +35,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
           apiClient: state.apiClient,
           groupIndex: concreteView.groups.isNotEmpty ? 0 : -1,
           imageHeaders: imageHeaders,
-          order: ConcreteViewOrder.DEFAULT));
+          order: ConcreteViewOrder.def));
     } catch (e, s) {
       logger.e(e);
       logger.e(s);

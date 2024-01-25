@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wakaranai/ui/anime_iframe_player/anime_iframe_player.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/services/anime/anime_iframe_player/anime_iframe_player.dart';
 
 class AnimeDebug extends StatelessWidget {
   const AnimeDebug({Key? key}) : super(key: key);

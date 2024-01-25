@@ -4,11 +4,11 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:wakaranai/blocs/chapter_view/chapter_view_state.dart';
-import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/main.dart';
-import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
-import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
+import 'package:wakaranai/ui/home/settings/cubit/settings/settings_cubit.dart';
+import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 
 class ChapterViewCubit extends Cubit<ChapterViewState> {
   ChapterViewCubit(
@@ -20,7 +20,6 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       : super(ChapterViewInit());
 
   final SettingsCubit settingsCubit;
-
   final MangaApiClient apiClient;
 
   final PageController pageController;

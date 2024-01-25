@@ -3,7 +3,7 @@ import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart'
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
+import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 
 class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
     G extends GalleryView> extends StatelessWidget {
