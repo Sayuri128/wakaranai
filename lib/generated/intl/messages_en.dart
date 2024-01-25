@@ -27,6 +27,28 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "add_extension_source_page_add_button_title":
+            MessageLookupByLibrary.simpleMessage("Save"),
+        "add_extension_source_page_appbar_edit_title":
+            MessageLookupByLibrary.simpleMessage("Edit Source"),
+        "add_extension_source_page_appbar_title":
+            MessageLookupByLibrary.simpleMessage("Add Source"),
+        "add_extension_source_page_name_field_error_text":
+            MessageLookupByLibrary.simpleMessage("Invalid name"),
+        "add_extension_source_page_name_field_hint_text":
+            MessageLookupByLibrary.simpleMessage(
+                "Wakaranai configs repository"),
+        "add_extension_source_page_name_field_label":
+            MessageLookupByLibrary.simpleMessage("Name"),
+        "add_extension_source_page_update_button_title":
+            MessageLookupByLibrary.simpleMessage("Update"),
+        "add_extension_source_page_url_field_error_text":
+            MessageLookupByLibrary.simpleMessage("Invalid URL"),
+        "add_extension_source_page_url_field_hint_text":
+            MessageLookupByLibrary.simpleMessage(
+                "https://github.com/username/repository"),
+        "add_extension_source_page_url_field_label":
+            MessageLookupByLibrary.simpleMessage("URL"),
         "app_name": MessageLookupByLibrary.simpleMessage("Wakaranai"),
         "chapter_viewer_bottom_modal_settings_reading_mode_title":
             MessageLookupByLibrary.simpleMessage("Reading Mode"),
@@ -42,6 +64,31 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Right to left"),
         "chapter_viewer_webtoon":
             MessageLookupByLibrary.simpleMessage("Webtoon"),
+        "extension_source_page_error_adding_source":
+            MessageLookupByLibrary.simpleMessage(
+                "Error occurred during adding source"),
+        "extension_source_page_error_removing_source":
+            MessageLookupByLibrary.simpleMessage(
+                "Error occurred during removing source"),
+        "extension_source_page_error_updating_source":
+            MessageLookupByLibrary.simpleMessage(
+                "Error occurred during updating source"),
+        "extension_source_page_remove_source_dialog_cancel_label":
+            MessageLookupByLibrary.simpleMessage("Cancel"),
+        "extension_source_page_remove_source_dialog_message":
+            MessageLookupByLibrary.simpleMessage(
+                "Are you sure you want to remove this source?"),
+        "extension_source_page_remove_source_dialog_ok_label":
+            MessageLookupByLibrary.simpleMessage("Remove"),
+        "extension_source_page_remove_source_dialog_title":
+            MessageLookupByLibrary.simpleMessage("Remove source"),
+        "extension_sources_page_appbar_title":
+            MessageLookupByLibrary.simpleMessage("Repositories"),
+        "extension_sources_page_error_loading_sources":
+            MessageLookupByLibrary.simpleMessage(
+                "Error occurred during loading sources"),
+        "extension_sources_page_wakaranai_github_repo_title":
+            MessageLookupByLibrary.simpleMessage("Wakaranai Extensions"),
         "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Anime"),
         "home_configs_source_initializing_error": m0,
         "home_fetching_mangas_configs_error":

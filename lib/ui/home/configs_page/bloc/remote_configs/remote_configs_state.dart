@@ -6,11 +6,15 @@ abstract class RemoteConfigsState {}
 class RemoteConfigsLoading extends RemoteConfigsState {}
 
 class RemoteConfigsLoaded extends RemoteConfigsState {
+  final String sourceName;
   final List<RemoteConfig> mangaRemoteConfigs;
   final List<RemoteConfig> animeRemoteConfigs;
 
-  RemoteConfigsLoaded(
-      {required this.mangaRemoteConfigs, required this.animeRemoteConfigs});
+  RemoteConfigsLoaded({
+    required this.mangaRemoteConfigs,
+    required this.animeRemoteConfigs,
+    required this.sourceName,
+  });
 }
 
 class RemoteConfigsError extends RemoteConfigsState {
