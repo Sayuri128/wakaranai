@@ -1,5 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:wakaranai/domain/app_version.dart';
+import 'package:wakaranai/data/domain/app_version.dart';
 
 class Env {
   static final String localRepoUrl = dotenv.env['LOCAL_REPOSITORY_URL']!;

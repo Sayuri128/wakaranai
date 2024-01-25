@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
-import 'package:wakaranai/models/github/payload/tree/item/github_tree_item_model.dart';
-import 'package:wakaranai/models/remote_config/remote_config.dart';
-import 'package:wakaranai/models/remote_script/remote_script.dart';
+import 'package:wakaranai/data/models/github/payload/tree/item/github_tree_item_model.dart';
+import 'package:wakaranai/data/models/remote_config/remote_config.dart';
+import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 import 'package:wakaranai/repositories/configs_repository/github/github_configs_repository.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 

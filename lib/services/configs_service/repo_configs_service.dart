@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:wakaranai/env.dart';
-import 'package:wakaranai/models/remote_config/remote_category.dart';
-import 'package:wakaranai/models/remote_config/remote_config.dart';
-import 'package:wakaranai/models/remote_script/remote_script.dart';
+import 'package:wakaranai/data/models/remote_config/remote_category.dart';
+import 'package:wakaranai/data/models/remote_config/remote_config.dart';
+import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 import 'package:wakaranai/repositories/configs_repository/local/local_configs_repository.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 

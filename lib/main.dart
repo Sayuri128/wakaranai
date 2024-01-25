@@ -40,22 +40,25 @@ class WakaranaiApp extends StatefulWidget {
 class _WakaranaiAppState extends State<WakaranaiApp> {
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(providers: [
-      BlocProvider<HomePageCubit>(create: (context) => HomePageCubit()),
-      BlocProvider<AuthenticationCubit>(
-          lazy: false, create: (context) => AuthenticationCubit()),
-      BlocProvider<RemoteConfigsCubit>(
-        lazy: false,
-        create: (context) => RemoteConfigsCubit()..init(),
-      ),
-      BlocProvider<SettingsCubit>(
-          create: (context) => SettingsCubit(
-                remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
-              )..init()),
-      BlocProvider<LatestReleaseCubit>(
-        create: (context) => LatestReleaseCubit()..init(),
-        lazy: true,
-      ),
-    ], child: const AppView());
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<HomePageCubit>(create: (context) => HomePageCubit()),
+        BlocProvider<AuthenticationCubit>(
+            lazy: false, create: (context) => AuthenticationCubit()),
+        BlocProvider<RemoteConfigsCubit>(
+          lazy: false,
+          create: (context) => RemoteConfigsCubit()..init(),
+        ),
+        BlocProvider<SettingsCubit>(
+            create: (context) => SettingsCubit(
+                  remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
+                )..init()),
+        BlocProvider<LatestReleaseCubit>(
+          create: (context) => LatestReleaseCubit()..init(),
+          lazy: true,
+        ),
+      ],
+      child: const AppView(),
+    );
   }
 }

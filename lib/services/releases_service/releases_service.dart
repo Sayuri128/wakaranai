@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:wakaranai/domain/app_version.dart';
-import 'package:wakaranai/domain/latest_release_data.dart';
+import 'package:wakaranai/data/domain/app_version.dart';
+import 'package:wakaranai/data/domain/latest_release_data.dart';
 import 'package:wakaranai/env.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/releases_repository/github/github_releases_repository.dart';

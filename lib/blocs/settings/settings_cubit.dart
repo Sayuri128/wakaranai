@@ -2,8 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/env.dart';
-import 'package:wakaranai/models/configs_source_item/configs_source_item.dart';
-import 'package:wakaranai/models/configs_source_type/configs_source_type.dart';
+import 'package:wakaranai/data/models/configs_source_item/configs_source_item.dart';
+import 'package:wakaranai/data/models/configs_source_type/configs_source_type.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 

@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wakaranai/models/github/payload/tree/item/github_tree_item_model.dart';
+import 'package:wakaranai/data/models/github/payload/tree/item/github_tree_item_model.dart';
 
 part 'github_tree_model.g.dart';
 

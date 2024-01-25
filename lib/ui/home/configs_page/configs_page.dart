@@ -7,7 +7,7 @@ import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class ConfigPage extends StatelessWidget {
-  ConfigPage({Key? key}) : super(key: key);
+  ConfigPage({super.key});
 
   final PageController _pageController = PageController();
 
@@ -45,24 +45,21 @@ class ConfigPage extends StatelessWidget {
                     children: [
                       Align(
                         alignment: Alignment.center,
-                        child: Text(S.current.home_remote_configs_page_appbar_title,
+                        child: Text(
+                            S.current.home_remote_configs_page_appbar_title,
                             style: medium(size: 24)),
                       ),
-                      // Align(
-                      //   alignment: Alignment.centerRight,
-                      //   child: IconButton(
-                      //       onPressed: () {
-                      //         showDialog(
-                      //           context: context,
-                      //           builder: (context) =>
-                      //               const ConfigsSourceDialog(),
-                      //         );
-                      //       },
-                      //       icon: const Icon(
-                      //         Icons.filter_list_rounded,
-                      //         color: AppColors.mainWhite,
-                      //       )),
-                      // )
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: IconButton(
+                            onPressed: () {
+
+                            },
+                            icon: const Icon(
+                              Icons.filter_list_rounded,
+                              color: AppColors.mainWhite,
+                            )),
+                      )
                     ],
                   ),
                 ),

@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wakaranai/models/remote_config/remote_config.dart';
+import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 
 part 'repo_configs_response.g.dart';
 

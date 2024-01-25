@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wakaranai/models/github/payload/github_payload_model.dart';
+import 'package:wakaranai/data/models/github/payload/github_payload_model.dart';
 
 part 'github_response_model.g.dart';
 

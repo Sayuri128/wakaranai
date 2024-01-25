@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wakaranai/models/github/payload/repo/github_repo_model.dart';
-import 'package:wakaranai/models/github/payload/tree/blob/github_blob_model.dart';
-import 'package:wakaranai/models/github/payload/tree/github_tree_model.dart';
+import 'package:wakaranai/data/models/github/payload/repo/github_repo_model.dart';
+import 'package:wakaranai/data/models/github/payload/tree/blob/github_blob_model.dart';
+import 'package:wakaranai/data/models/github/payload/tree/github_tree_model.dart';
 
 part 'github_payload_model.g.dart';
 

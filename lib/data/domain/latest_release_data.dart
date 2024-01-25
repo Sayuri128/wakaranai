@@ -1,4 +1,4 @@
-import 'package:wakaranai/domain/app_version.dart';
+import 'package:wakaranai/data/domain/app_version.dart';
 
 class LatestReleaseData {
   final String url;
