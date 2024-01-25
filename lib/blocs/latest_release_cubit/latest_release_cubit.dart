@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:wakaranai/domain/app_version.dart';
-import 'package:wakaranai/domain/latest_release_data.dart';
+import 'package:wakaranai/data/domain/app_version.dart';
+import 'package:wakaranai/data/domain/latest_release_data.dart';
 import 'package:wakaranai/services/releases_service/releases_service.dart';
 
 part 'latest_release_state.dart';

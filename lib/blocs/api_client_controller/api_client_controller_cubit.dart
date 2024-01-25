@@ -6,9 +6,9 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:flutter/foundation.dart';
 import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/main.dart';
-import 'package:wakaranai/models/remote_config/remote_category.dart';
-import 'package:wakaranai/models/remote_config/remote_config.dart';
-import 'package:wakaranai/models/remote_script/remote_script.dart';
+import 'package:wakaranai/data/models/remote_config/remote_category.dart';
+import 'package:wakaranai/data/models/remote_config/remote_config.dart';
+import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 
 part 'api_client_controller_state.dart';
 

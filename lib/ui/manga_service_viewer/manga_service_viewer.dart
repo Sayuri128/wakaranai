@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
-import 'package:wakaranai/models/remote_config/remote_config.dart';
+import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
 import 'package:wakaranai/ui/home/service_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';

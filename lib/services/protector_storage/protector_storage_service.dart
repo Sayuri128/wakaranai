@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:wakaranai/models/protector/protector_storage_item.dart';
+import 'package:wakaranai/data/models/protector/protector_storage_item.dart';
 
 class ProtectorStorageService {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();

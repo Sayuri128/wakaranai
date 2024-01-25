@@ -7,6 +7,7 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/anime_concrete_viewer/anime_concrete_viewer.dart';
 import 'package:wakaranai/ui/anime_iframe_player/anime_iframe_player.dart';
 import 'package:wakaranai/ui/anime_service_viewer/anime_service_viewer.dart';
+import 'package:wakaranai/ui/home/configs_page/my_repositores/my_repositores_page.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
@@ -65,7 +66,7 @@ class _AppViewState extends State<AppView> {
       navigatorObservers: [_heroController],
       routes: {
         Routes.splashScreen: (context) => const SplashScreen(),
-        Routes.home: (context) => HomeView()
+        Routes.home: (context) => HomeView(),
       },
       onGenerateRoute: (settings) {
         final routes = <String, WidgetBuilder>{
@@ -83,7 +84,8 @@ class _AppViewState extends State<AppView> {
           Routes.webBrowser: (context) =>
               WebBrowserPage(data: settings.arguments as WebBrowserData),
           Routes.iframeAnimePlayer: (context) => AnimeIframePlayer(
-              data: settings.arguments as AnimeIframePlayerData)
+              data: settings.arguments as AnimeIframePlayerData),
+          Routes.addConfig: (context) => const MyRepositoriesPage(),
         };
 
         return CupertinoPageRoute(builder: routes[settings.name]!);

@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wakaranai/models/web_browser_result/web_browser_result.dart';
+import 'package:wakaranai/data/models/web_browser_result/web_browser_result.dart';
 
 part 'protector_storage_item.g.dart';
 

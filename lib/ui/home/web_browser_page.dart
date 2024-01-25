@@ -4,8 +4,8 @@ import 'package:capyscript/modules/waka_models/models/config_info/protector_conf
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/models/protector/protector_storage_item.dart';
-import 'package:wakaranai/models/web_browser_result/web_browser_result.dart';
+import 'package:wakaranai/data/models/protector/protector_storage_item.dart';
+import 'package:wakaranai/data/models/web_browser_result/web_browser_result.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';

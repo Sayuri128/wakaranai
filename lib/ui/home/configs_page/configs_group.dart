@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wakaranai/models/remote_config/remote_category.dart';
-import 'package:wakaranai/models/remote_config/remote_config.dart';
+import 'package:wakaranai/data/models/remote_config/remote_category.dart';
+import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/ui/anime_service_viewer/anime_service_viewer.dart';
 import 'package:wakaranai/ui/home/configs_page/config_card.dart';
 import 'package:wakaranai/ui/manga_service_viewer/manga_service_viewer.dart';

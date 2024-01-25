@@ -1,6 +1,7 @@
 class Routes {
   static const String splashScreen = '/';
   static const String home = '/home';
+  static const String addConfig = '/addConfig';
   static const String mangaServiceViewer = '/mangaServiceViewer';
   static const String animeServiceViewer = '/animeServiceViewer';
   static const String mangaConcreteViewer = '/mangaConcreteViewer';

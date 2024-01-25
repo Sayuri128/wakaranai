@@ -1,8 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:wakaranai/models/github/github_response_model.dart';
+import 'package:wakaranai/data/models/github/github_response_model.dart';
 
-import '../../../models/github/release_response/github_release_response_model.dart';
 
 part 'github_configs_repository.g.dart';
 

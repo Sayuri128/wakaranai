@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wakaranai/models/configs_source_type/configs_source_type.dart';
+import 'package:wakaranai/data/models/configs_source_type/configs_source_type.dart';
 
 part 'configs_source_item.g.dart';
 
