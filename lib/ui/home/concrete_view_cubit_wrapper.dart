@@ -3,7 +3,7 @@ import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart'
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/blocs/concrete_view/concrete_view_cubit.dart';
+import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 
 class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
     G extends GalleryView> extends StatelessWidget {
@@ -22,8 +22,8 @@ class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ConcreteViewCubit<T, C, G>>(
-      create: (context) {
-        final cubit = ConcreteViewCubit<T, C, G>(
+      create: (BuildContext context) {
+        final ConcreteViewCubit<T, C, G> cubit = ConcreteViewCubit<T, C, G>(
           ConcreteViewState<T, C, G>(apiClient: client),
         );
 
@@ -35,7 +35,8 @@ class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
       },
       child:
           BlocBuilder<ConcreteViewCubit<T, C, G>, ConcreteViewState<T, C, G>>(
-        builder: (context, state) => builder(context, state),
+        builder: (BuildContext context, ConcreteViewState<T, C, G> state) =>
+            builder(context, state),
       ),
     );
   }

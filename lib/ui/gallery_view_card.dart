@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:wakaranai/utils/heroes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/heroes.dart';
 import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class GalleryViewCard extends StatelessWidget {
   const GalleryViewCard(
-      {Key? key,
+      {super.key,
       this.onTap,
       this.onLongPress,
       required this.uid,
       required this.headers,
       required this.cover,
-      required this.title})
-      : super(key: key);
+      required this.title});
 
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
@@ -44,14 +43,14 @@ class GalleryViewCard extends StatelessWidget {
                 onLongPress: onLongPress,
                 child: Stack(
                   fit: StackFit.expand,
-                  children: [
+                  children: <Widget>[
                     Container(
                       width: double.maxFinite,
                       decoration: BoxDecoration(
                           gradient: LinearGradient(
                               begin: const Alignment(-1, 0),
                               end: const Alignment(-1, 1),
-                              colors: [
+                              colors: <Color>[
                             AppColors.mainBlack.withOpacity(0.0),
                             AppColors.mainBlack.withOpacity(.8),
                           ])),

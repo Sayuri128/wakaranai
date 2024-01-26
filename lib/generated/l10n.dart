@@ -140,6 +140,206 @@ class S {
     );
   }
 
+  /// `Repositories`
+  String get extension_sources_page_appbar_title {
+    return Intl.message(
+      'Repositories',
+      name: 'extension_sources_page_appbar_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wakaranai Extensions`
+  String get extension_sources_page_wakaranai_github_repo_title {
+    return Intl.message(
+      'Wakaranai Extensions',
+      name: 'extension_sources_page_wakaranai_github_repo_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during loading sources`
+  String get extension_sources_page_error_loading_sources {
+    return Intl.message(
+      'Error occurred during loading sources',
+      name: 'extension_sources_page_error_loading_sources',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during adding source`
+  String get extension_source_page_error_adding_source {
+    return Intl.message(
+      'Error occurred during adding source',
+      name: 'extension_source_page_error_adding_source',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during updating source`
+  String get extension_source_page_error_updating_source {
+    return Intl.message(
+      'Error occurred during updating source',
+      name: 'extension_source_page_error_updating_source',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during removing source`
+  String get extension_source_page_error_removing_source {
+    return Intl.message(
+      'Error occurred during removing source',
+      name: 'extension_source_page_error_removing_source',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove source`
+  String get extension_source_page_remove_source_dialog_title {
+    return Intl.message(
+      'Remove source',
+      name: 'extension_source_page_remove_source_dialog_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to remove this source?`
+  String get extension_source_page_remove_source_dialog_message {
+    return Intl.message(
+      'Are you sure you want to remove this source?',
+      name: 'extension_source_page_remove_source_dialog_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove`
+  String get extension_source_page_remove_source_dialog_ok_label {
+    return Intl.message(
+      'Remove',
+      name: 'extension_source_page_remove_source_dialog_ok_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get extension_source_page_remove_source_dialog_cancel_label {
+    return Intl.message(
+      'Cancel',
+      name: 'extension_source_page_remove_source_dialog_cancel_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add Source`
+  String get add_extension_source_page_appbar_title {
+    return Intl.message(
+      'Add Source',
+      name: 'add_extension_source_page_appbar_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Edit Source`
+  String get add_extension_source_page_appbar_edit_title {
+    return Intl.message(
+      'Edit Source',
+      name: 'add_extension_source_page_appbar_edit_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `URL`
+  String get add_extension_source_page_url_field_label {
+    return Intl.message(
+      'URL',
+      name: 'add_extension_source_page_url_field_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `https://github.com/username/repository`
+  String get add_extension_source_page_url_field_hint_text {
+    return Intl.message(
+      'https://github.com/username/repository',
+      name: 'add_extension_source_page_url_field_hint_text',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid URL`
+  String get add_extension_source_page_url_field_error_text {
+    return Intl.message(
+      'Invalid URL',
+      name: 'add_extension_source_page_url_field_error_text',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Name`
+  String get add_extension_source_page_name_field_label {
+    return Intl.message(
+      'Name',
+      name: 'add_extension_source_page_name_field_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wakaranai configs repository`
+  String get add_extension_source_page_name_field_hint_text {
+    return Intl.message(
+      'Wakaranai configs repository',
+      name: 'add_extension_source_page_name_field_hint_text',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid name`
+  String get add_extension_source_page_name_field_error_text {
+    return Intl.message(
+      'Invalid name',
+      name: 'add_extension_source_page_name_field_error_text',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save`
+  String get add_extension_source_page_add_button_title {
+    return Intl.message(
+      'Save',
+      name: 'add_extension_source_page_add_button_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update`
+  String get add_extension_source_page_update_button_title {
+    return Intl.message(
+      'Update',
+      name: 'add_extension_source_page_update_button_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Error :c`
   String get service_view_error {
     return Intl.message(

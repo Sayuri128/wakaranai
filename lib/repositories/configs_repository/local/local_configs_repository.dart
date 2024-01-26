@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/http.dart';
-import 'package:wakaranai/models/configs_repo/configs_response/repo_configs_response.dart';
-import 'package:wakaranai/models/remote_script/remote_script.dart';
+import 'package:wakaranai/data/models/configs_repo/configs_response/repo_configs_response.dart';
+import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 
 part 'local_configs_repository.g.dart';
 
