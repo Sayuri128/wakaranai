@@ -24,11 +24,11 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocBuilder<AuthenticationCubit, AuthenticationState>(
-          builder: (context, state) {
+          builder: (BuildContext context, AuthenticationState state) {
         Future.delayed(const Duration(seconds: 0), () {
           if (state is AuthenticationAuthenticated) {
             WakaranaiApp.navigator
-                ?.pushNamedAndRemoveUntil(Routes.home, (route) => false);
+                ?.pushNamedAndRemoveUntil(Routes.home, (Route route) => false);
           }
         });
 

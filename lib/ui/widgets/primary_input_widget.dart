@@ -4,8 +4,10 @@ import 'package:wakaranai/utils/text_styles.dart';
 
 class PrimaryInputWidget extends StatelessWidget {
   const PrimaryInputWidget(
-      {Key? key, required this.controller, required this.label, this.validator})
-      : super(key: key);
+      {super.key,
+      required this.controller,
+      required this.label,
+      this.validator});
 
   final TextEditingController controller;
   final String label;

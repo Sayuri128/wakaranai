@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
-import 'package:wakaranai/blocs/settings/settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
-import 'package:wakaranai/ui/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
+import 'package:wakaranai/ui/home/settings/cubit/settings/settings_cubit.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -17,7 +17,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocBuilder<SettingsCubit, SettingsState>(
-        builder: (context, state) {
+        builder: (BuildContext context, SettingsState state) {
           if (state is SettingsInitial) {
             return const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
@@ -26,7 +26,7 @@ class SettingsPage extends StatelessWidget {
           if (state is SettingsInitialized) {
             return ListView(
               physics: const BouncingScrollPhysics(),
-              children: [
+              children: <Widget>[
                 const SizedBox(
                   height: 12,
                 ),
@@ -45,7 +45,7 @@ class SettingsPage extends StatelessWidget {
                       icon: const Icon(Icons.arrow_drop_down_rounded),
                       decoration: _dropdownDecoration(),
                       items: ChapterViewMode.values
-                          .map((e) => DropdownMenuItem(
+                          .map((ChapterViewMode e) => DropdownMenuItem(
                                 value: e,
                                 alignment: Alignment.center,
                                 child: Text(chapterViewModelToString(e),
@@ -53,7 +53,7 @@ class SettingsPage extends StatelessWidget {
                                     style: medium()),
                               ))
                           .toList(),
-                      onChanged: (mode) {
+                      onChanged: (ChapterViewMode? mode) {
                         if (mode != null) {
                           context
                               .read<SettingsCubit>()
@@ -92,7 +92,7 @@ class SettingsPage extends StatelessWidget {
                           .settings_clear_cookies_cache_dialog_confirmation_title,
                       message: S.current
                           .settings_clear_cookies_cache_dialog_confirmation_message,
-                    ).then((value) {
+                    ).then((OkCancelResult value) {
                       if (value.index == 0) {
                         ProtectorStorageService().clear().then((_) {
                           showOkAlertDialog(
@@ -120,7 +120,7 @@ class SettingsPage extends StatelessWidget {
                 ),
 
                 BlocBuilder<LatestReleaseCubit, LatestReleaseState>(
-                    builder: (context, state) {
+                    builder: (BuildContext context, LatestReleaseState state) {
                   if (state is LatestReleaseLoaded &&
                       state.releaseData.needsUpdate) {
                     return Padding(
@@ -180,7 +180,7 @@ class SettingsPage extends StatelessWidget {
 
   InputDecoration _dropdownDecoration() {
     return InputDecoration(
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16.0),
             borderSide: const BorderSide(color: Colors.transparent)),

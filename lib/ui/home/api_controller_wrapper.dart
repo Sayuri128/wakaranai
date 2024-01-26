@@ -3,14 +3,13 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/api_client_controller/api_client_controller_cubit.dart';
-import 'package:wakaranai/blocs/remote_configs/remote_configs_cubit.dart';
-import 'package:wakaranai/models/remote_config/remote_config.dart';
+import 'package:wakaranai/data/models/remote_config/remote_config.dart';
+import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
 class ApiControllerWrapper<T extends ApiClient> extends StatelessWidget {
   const ApiControllerWrapper(
-      {Key? key, required this.remoteConfig, required this.builder})
-      : super(key: key);
+      {super.key, required this.remoteConfig, required this.builder});
 
   final RemoteConfig? remoteConfig;
   final Widget Function(T apiClient, ConfigInfo) builder;
@@ -18,12 +17,12 @@ class ApiControllerWrapper<T extends ApiClient> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ApiClientControllerCubit(
+      create: (BuildContext context) => ApiClientControllerCubit(
           remoteConfig: remoteConfig,
           remoteConfigsCubit: context.read<RemoteConfigsCubit>())
         ..buildApiClient(),
       child: BlocBuilder<ApiClientControllerCubit, ApiClientControllerState>(
-        builder: (context, state) {
+        builder: (BuildContext context, ApiClientControllerState state) {
           if (state is ApiClientControllerInitialized<T>) {
             return builder(state.apiClient, state.configInfo);
           }

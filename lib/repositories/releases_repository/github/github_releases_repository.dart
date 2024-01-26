@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:wakaranai/models/github/release_response/github_release_response_model.dart';
+import 'package:wakaranai/data/models/github/release_response/github_release_response_model.dart';
 
 part 'github_releases_repository.g.dart';
 
