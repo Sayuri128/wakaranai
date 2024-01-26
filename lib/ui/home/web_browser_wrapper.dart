@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
+import 'package:wakaranai/data/models/protector/protector_storage_item.dart';
+import 'package:wakaranai/data/models/web_browser_result/web_browser_result.dart';
 import 'package:wakaranai/main.dart';
-import 'package:wakaranai/models/protector/protector_storage_item.dart';
-import 'package:wakaranai/models/web_browser_result/web_browser_result.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/routes.dart';
@@ -50,13 +50,13 @@ class _WebBrowserWrapperState extends State<WebBrowserWrapper> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_initDone) {
         _interceptorInitDone.then((_) {
-          _initProtector().then((value) {
+          _initProtector().then((bool value) {
             logger.i("Init after interceptor and protector");
             widget.onInterceptorInitialized();
           });
         });
       } else if (widget.configInfo.protectorConfig != null) {
-        _initProtector().then((value) {
+        _initProtector().then((bool value) {
           logger.i("init after protector");
           widget.onInterceptorInitialized();
         });
@@ -77,11 +77,13 @@ class _WebBrowserWrapperState extends State<WebBrowserWrapper> {
   }
 
   Future<void> _init() async {
-    final uid = '${widget.configInfo.name}_${widget.configInfo.version}';
+    final String uid = '${widget.configInfo.name}_${widget.configInfo.version}';
 
-    final cachedProtector = await ProtectorStorageService().getItem(uid: uid);
+    final ProtectorStorageItem? cachedProtector =
+        await ProtectorStorageService().getItem(uid: uid);
     if (cachedProtector == null) {
-      final result = await Navigator.of(context).pushNamed(Routes.webBrowser,
+      final Object? result = await Navigator.of(context).pushNamed(
+          Routes.webBrowser,
           arguments:
               WebBrowserData(config: widget.configInfo.protectorConfig!));
       if (result != null && result is WebBrowserPageResult) {
