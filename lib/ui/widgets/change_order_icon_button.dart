@@ -3,11 +3,10 @@ import 'package:wakaranai/utils/app_colors.dart';
 
 class SwitchIconButton extends StatelessWidget {
   const SwitchIconButton(
-      {Key? key,
+      {super.key,
       required this.state,
       required this.onTap,
-      required this.iconOn})
-      : super(key: key);
+      required this.iconOn});
 
   final Widget iconOn;
 
@@ -24,7 +23,7 @@ class SwitchIconButton extends StatelessWidget {
               color: AppColors.backgroundColor,
               backgroundBlendMode: BlendMode.dstATop,
               shape: BoxShape.circle,
-              boxShadow: [
+              boxShadow: <BoxShadow>[
                 BoxShadow(
                     color: AppColors.mainBlack.withOpacity(0.3),
                     blurRadius: 4,

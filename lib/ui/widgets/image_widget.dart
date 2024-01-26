@@ -26,15 +26,15 @@ class _ImageWidgetState extends State<ImageWidget> {
   void initState() {
     if (widget.url.startsWith("data:")) {
       (() async {
-        final temp = await getTemporaryDirectory();
-        final file = File("${temp.path}/${widget.uid}.png");
+        final Directory temp = await getTemporaryDirectory();
+        final File file = File("${temp.path}/${widget.uid}.png");
         if (!(await file.exists())) {
           await file.writeAsBytes(base64Decode(widget.url.split(',').last));
         }
 
         _file = file;
       })()
-          .then((value) {
+          .then((Object? value) {
         _initialized = true;
         if (mounted) {
           setState(() {});
@@ -61,8 +61,8 @@ class _ImageWidgetState extends State<ImageWidget> {
       );
     }
 
-    final height = MediaQuery.of(context).size.height * 0.7;
-    final width = MediaQuery.of(context).size.width;
+    final double height = MediaQuery.of(context).size.height * 0.7;
+    final double width = MediaQuery.of(context).size.width;
 
     if (_file != null) {
       return Image.file(_file!,
@@ -70,23 +70,27 @@ class _ImageWidgetState extends State<ImageWidget> {
           height: height,
           fit: BoxFit.cover,
           isAntiAlias: true,
-          errorBuilder: (context, error, stackTrace) => SizedBox(
-                height: height,
-                width: width,
-                child: Center(
-                  child: Text(
-                    "Error",
-                    style: Theme.of(context).textTheme.headline4,
-                  ),
-                ),
-              ));
+          errorBuilder:
+              (BuildContext context, Object error, StackTrace? stackTrace) =>
+                  SizedBox(
+                    height: height,
+                    width: width,
+                    child: Center(
+                      child: Text(
+                        "Error",
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                    ),
+                  ));
     }
 
     return CachedNetworkImage(
       imageUrl: widget.url,
       width: width,
       fit: BoxFit.cover,
-      progressIndicatorBuilder: (context, url, progress) => SizedBox(
+      progressIndicatorBuilder:
+          (BuildContext context, String url, DownloadProgress progress) =>
+              SizedBox(
         height: height,
         width: width,
         child: Center(

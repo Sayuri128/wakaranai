@@ -90,441 +90,251 @@ class S {
     );
   }
 
-  /// `Search`
-  String get service_viewer_search_field_hint_text {
-    return Intl.message(
-      'Search',
-      name: 'service_viewer_search_field_hint_text',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Download again`
-  String get download_again {
-    return Intl.message(
-      'Download again',
-      name: 'download_again',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Delete`
-  String get delete {
-    return Intl.message(
-      'Delete',
-      name: 'delete',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Right to left`
-  String get right_to_left_read_mode {
-    return Intl.message(
-      'Right to left',
-      name: 'right_to_left_read_mode',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Left to right`
-  String get left_to_right_read_mode {
-    return Intl.message(
-      'Left to right',
-      name: 'left_to_right_read_mode',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Webtoon`
-  String get webtoon {
-    return Intl.message(
-      'Webtoon',
-      name: 'webtoon',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Extensions`
-  String get remote_configs_page_appbar_title {
+  String get home_remote_configs_page_appbar_title {
     return Intl.message(
       'Extensions',
-      name: 'remote_configs_page_appbar_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Default reader mode`
-  String get settings_default_reader_mode_title {
-    return Intl.message(
-      'Default reader mode',
-      name: 'settings_default_reader_mode_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Clear history`
-  String get settings_clear_history_title {
-    return Intl.message(
-      'Clear history',
-      name: 'settings_clear_history_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Filters`
-  String get service_viewer_filters_title {
-    return Intl.message(
-      'Filters',
-      name: 'service_viewer_filters_title',
+      name: 'home_remote_configs_page_appbar_title',
       desc: '',
       args: [],
     );
   }
 
   /// `Explore`
-  String get navigation_bar_sources_title {
+  String get home_navigation_bar_sources_title {
     return Intl.message(
       'Explore',
-      name: 'navigation_bar_sources_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Library`
-  String get navigation_bar_library_title {
-    return Intl.message(
-      'Library',
-      name: 'navigation_bar_library_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `History`
-  String get navigation_bar_history_title {
-    return Intl.message(
-      'History',
-      name: 'navigation_bar_history_title',
+      name: 'home_navigation_bar_sources_title',
       desc: '',
       args: [],
     );
   }
 
   /// `Settings`
-  String get navigation_bar_settings_title {
+  String get home_navigation_bar_settings_title {
     return Intl.message(
       'Settings',
-      name: 'navigation_bar_settings_title',
+      name: 'home_navigation_bar_settings_title',
       desc: '',
       args: [],
-    );
-  }
-
-  /// `History`
-  String get history_page_title {
-    return Intl.message(
-      'History',
-      name: 'history_page_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Last visit: {date}`
-  String history_last_visit(Object date) {
-    return Intl.message(
-      'Last visit: $date',
-      name: 'history_last_visit',
-      desc: '',
-      args: [date],
-    );
-  }
-
-  /// `Done`
-  String get web_browser_no_login_button {
-    return Intl.message(
-      'Done',
-      name: 'web_browser_no_login_button',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Wakaranai GitHub`
-  String get official_github_configs_source_repository {
-    return Intl.message(
-      'Wakaranai GitHub',
-      name: 'official_github_configs_source_repository',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `GitHub`
-  String get github_configs_source_type {
-    return Intl.message(
-      'GitHub',
-      name: 'github_configs_source_type',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `REST`
-  String get rest_configs_source_type {
-    return Intl.message(
-      'REST',
-      name: 'rest_configs_source_type',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Change extensions source`
-  String get change_configs_source_dialog {
-    return Intl.message(
-      'Change extensions source',
-      name: 'change_configs_source_dialog',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Add`
-  String get add_new_configs_source_button {
-    return Intl.message(
-      'Add',
-      name: 'add_new_configs_source_button',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Create`
-  String get create_new_configs_source_button {
-    return Intl.message(
-      'Create',
-      name: 'create_new_configs_source_button',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Name`
-  String get new_configs_name_field_label {
-    return Intl.message(
-      'Name',
-      name: 'new_configs_name_field_label',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `URL`
-  String get new_configs_base_url_field_label {
-    return Intl.message(
-      'URL',
-      name: 'new_configs_base_url_field_label',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Name is required`
-  String get new_configs_name_required_error {
-    return Intl.message(
-      'Name is required',
-      name: 'new_configs_name_required_error',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Base URL is required`
-  String get new_configs_base_url_required_error {
-    return Intl.message(
-      'Base URL is required',
-      name: 'new_configs_base_url_required_error',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Confirmation`
-  String get delete_configs_source_confirmation_dialog_title {
-    return Intl.message(
-      'Confirmation',
-      name: 'delete_configs_source_confirmation_dialog_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Are you sure you want to delete {name} source?`
-  String delete_configs_source_confirmation_dialog_message(Object name) {
-    return Intl.message(
-      'Are you sure you want to delete $name source?',
-      name: 'delete_configs_source_confirmation_dialog_message',
-      desc: '',
-      args: [name],
     );
   }
 
   /// `Error occurred during fetching manga configs`
-  String get fetching_mangas_configs_error {
+  String get home_fetching_mangas_configs_error {
     return Intl.message(
       'Error occurred during fetching manga configs',
-      name: 'fetching_mangas_configs_error',
+      name: 'home_fetching_mangas_configs_error',
       desc: '',
       args: [],
     );
   }
 
   /// `Error occurred during initializing configs {name} source`
-  String configs_source_initializing_error(Object name) {
+  String home_configs_source_initializing_error(Object name) {
     return Intl.message(
       'Error occurred during initializing configs $name source',
-      name: 'configs_source_initializing_error',
+      name: 'home_configs_source_initializing_error',
       desc: '',
       args: [name],
     );
   }
 
-  /// `Are you sure you want to clear your history?`
-  String get clear_history_dialog_confirmation_title {
+  /// `Repositories`
+  String get extension_sources_page_appbar_title {
     return Intl.message(
-      'Are you sure you want to clear your history?',
-      name: 'clear_history_dialog_confirmation_title',
+      'Repositories',
+      name: 'extension_sources_page_appbar_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `This action cannot be canceled later`
-  String get clear_history_dialog_confirmation_message {
+  /// `Wakaranai Extensions`
+  String get extension_sources_page_wakaranai_github_repo_title {
     return Intl.message(
-      'This action cannot be canceled later',
-      name: 'clear_history_dialog_confirmation_message',
+      'Wakaranai Extensions',
+      name: 'extension_sources_page_wakaranai_github_repo_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `Delete`
-  String get clear_history_dialog_confirmation_ok_label {
+  /// `Error occurred during loading sources`
+  String get extension_sources_page_error_loading_sources {
     return Intl.message(
-      'Delete',
-      name: 'clear_history_dialog_confirmation_ok_label',
+      'Error occurred during loading sources',
+      name: 'extension_sources_page_error_loading_sources',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during adding source`
+  String get extension_source_page_error_adding_source {
+    return Intl.message(
+      'Error occurred during adding source',
+      name: 'extension_source_page_error_adding_source',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during updating source`
+  String get extension_source_page_error_updating_source {
+    return Intl.message(
+      'Error occurred during updating source',
+      name: 'extension_source_page_error_updating_source',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during removing source`
+  String get extension_source_page_error_removing_source {
+    return Intl.message(
+      'Error occurred during removing source',
+      name: 'extension_source_page_error_removing_source',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove source`
+  String get extension_source_page_remove_source_dialog_title {
+    return Intl.message(
+      'Remove source',
+      name: 'extension_source_page_remove_source_dialog_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to remove this source?`
+  String get extension_source_page_remove_source_dialog_message {
+    return Intl.message(
+      'Are you sure you want to remove this source?',
+      name: 'extension_source_page_remove_source_dialog_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove`
+  String get extension_source_page_remove_source_dialog_ok_label {
+    return Intl.message(
+      'Remove',
+      name: 'extension_source_page_remove_source_dialog_ok_label',
       desc: '',
       args: [],
     );
   }
 
   /// `Cancel`
-  String get clear_history_dialog_confirmation_cancel_label {
+  String get extension_source_page_remove_source_dialog_cancel_label {
     return Intl.message(
       'Cancel',
-      name: 'clear_history_dialog_confirmation_cancel_label',
+      name: 'extension_source_page_remove_source_dialog_cancel_label',
       desc: '',
       args: [],
     );
   }
 
-  /// `History has been cleared`
-  String get clear_history_dialog_success {
+  /// `Add Source`
+  String get add_extension_source_page_appbar_title {
     return Intl.message(
-      'History has been cleared',
-      name: 'clear_history_dialog_success',
+      'Add Source',
+      name: 'add_extension_source_page_appbar_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `Clear cookies cache`
-  String get clear_cookies_cache {
+  /// `Edit Source`
+  String get add_extension_source_page_appbar_edit_title {
     return Intl.message(
-      'Clear cookies cache',
-      name: 'clear_cookies_cache',
+      'Edit Source',
+      name: 'add_extension_source_page_appbar_edit_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `Are you sure you want to clear your cookies?`
-  String get clear_cookies_cache_dialog_confirmation_title {
+  /// `URL`
+  String get add_extension_source_page_url_field_label {
     return Intl.message(
-      'Are you sure you want to clear your cookies?',
-      name: 'clear_cookies_cache_dialog_confirmation_title',
+      'URL',
+      name: 'add_extension_source_page_url_field_label',
       desc: '',
       args: [],
     );
   }
 
-  /// `This action cannot be canceled later`
-  String get clear_cookies_cache_dialog_confirmation_message {
+  /// `https://github.com/username/repository`
+  String get add_extension_source_page_url_field_hint_text {
     return Intl.message(
-      'This action cannot be canceled later',
-      name: 'clear_cookies_cache_dialog_confirmation_message',
+      'https://github.com/username/repository',
+      name: 'add_extension_source_page_url_field_hint_text',
       desc: '',
       args: [],
     );
   }
 
-  /// `Delete`
-  String get clear_cookies_cache_dialog_confirmation_ok_label {
+  /// `Invalid URL`
+  String get add_extension_source_page_url_field_error_text {
     return Intl.message(
-      'Delete',
-      name: 'clear_cookies_cache_dialog_confirmation_ok_label',
+      'Invalid URL',
+      name: 'add_extension_source_page_url_field_error_text',
       desc: '',
       args: [],
     );
   }
 
-  /// `Cancel`
-  String get clear_cookies_cache_dialog_confirmation_cancel_label {
+  /// `Name`
+  String get add_extension_source_page_name_field_label {
     return Intl.message(
-      'Cancel',
-      name: 'clear_cookies_cache_dialog_confirmation_cancel_label',
+      'Name',
+      name: 'add_extension_source_page_name_field_label',
       desc: '',
       args: [],
     );
   }
 
-  /// `Submit issue/feature request/extension request`
-  String get submit_issue {
+  /// `Wakaranai configs repository`
+  String get add_extension_source_page_name_field_hint_text {
     return Intl.message(
-      'Submit issue/feature request/extension request',
-      name: 'submit_issue',
+      'Wakaranai configs repository',
+      name: 'add_extension_source_page_name_field_hint_text',
       desc: '',
       args: [],
     );
   }
 
-  /// `Default extension source`
-  String get settings_default_configs_source_title {
+  /// `Invalid name`
+  String get add_extension_source_page_name_field_error_text {
     return Intl.message(
-      'Default extension source',
-      name: 'settings_default_configs_source_title',
+      'Invalid name',
+      name: 'add_extension_source_page_name_field_error_text',
       desc: '',
       args: [],
     );
   }
 
-  /// `Cookies has been cleared`
-  String get clear_cookies_dialog_success {
+  /// `Save`
+  String get add_extension_source_page_add_button_title {
     return Intl.message(
-      'Cookies has been cleared',
-      name: 'clear_cookies_dialog_success',
+      'Save',
+      name: 'add_extension_source_page_add_button_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update`
+  String get add_extension_source_page_update_button_title {
+    return Intl.message(
+      'Update',
+      name: 'add_extension_source_page_update_button_title',
       desc: '',
       args: [],
     );
@@ -555,6 +365,16 @@ class S {
     return Intl.message(
       'Open in WebView',
       name: 'service_view_open_web_view_button_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search`
+  String get service_viewer_search_field_hint_text {
+    return Intl.message(
+      'Search',
+      name: 'service_viewer_search_field_hint_text',
       desc: '',
       args: [],
     );
@@ -600,149 +420,151 @@ class S {
     );
   }
 
-  /// `{manga} Added to you library!`
-  String gallery_view_manga_item_added_to_library_notification(Object manga) {
+  /// `Right to left`
+  String get chapter_viewer_right_to_left_read_mode {
     return Intl.message(
-      '$manga Added to you library!',
-      name: 'gallery_view_manga_item_added_to_library_notification',
+      'Right to left',
+      name: 'chapter_viewer_right_to_left_read_mode',
       desc: '',
-      args: [manga],
+      args: [],
     );
   }
 
-  /// `{anime} Added to you library!`
-  String gallery_view_anime_item_added_to_library_notification(Object anime) {
+  /// `Left to right`
+  String get chapter_viewer_left_to_right_read_mode {
     return Intl.message(
-      '$anime Added to you library!',
-      name: 'gallery_view_anime_item_added_to_library_notification',
+      'Left to right',
+      name: 'chapter_viewer_left_to_right_read_mode',
       desc: '',
-      args: [anime],
+      args: [],
     );
   }
 
-  /// `{manga} Deleted from your library!`
-  String gallery_view_manga_item_deleted_from_library_notification(
-      Object manga) {
+  /// `Webtoon`
+  String get chapter_viewer_webtoon {
     return Intl.message(
-      '$manga Deleted from your library!',
-      name: 'gallery_view_manga_item_deleted_from_library_notification',
+      'Webtoon',
+      name: 'chapter_viewer_webtoon',
       desc: '',
-      args: [manga],
+      args: [],
     );
   }
 
-  /// `{anime} Deleted from your library!`
-  String gallery_view_anime_item_deleted_from_library_notification(
-      Object anime) {
+  /// `New version {version} available`
+  String settings_download_latest_release(Object version) {
     return Intl.message(
-      '$anime Deleted from your library!',
-      name: 'gallery_view_anime_item_deleted_from_library_notification',
+      'New version $version available',
+      name: 'settings_download_latest_release',
       desc: '',
-      args: [anime],
+      args: [version],
     );
   }
 
-  /// `Are you sure you want to delete "{manga}" from your library?`
-  String gallery_view_manga_item_delete_from_library_confirmation_title(
-      Object manga) {
+  /// `Default reader mode`
+  String get settings_default_reader_mode_title {
     return Intl.message(
-      'Are you sure you want to delete "$manga" from your library?',
-      name: 'gallery_view_manga_item_delete_from_library_confirmation_title',
+      'Default reader mode',
+      name: 'settings_default_reader_mode_title',
       desc: '',
-      args: [manga],
+      args: [],
+    );
+  }
+
+  /// `Clear history`
+  String get settings_clear_history_title {
+    return Intl.message(
+      'Clear history',
+      name: 'settings_clear_history_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Filters`
+  String get settings_service_viewer_filters_title {
+    return Intl.message(
+      'Filters',
+      name: 'settings_service_viewer_filters_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cookies has been cleared`
+  String get settings_clear_cookies_dialog_success {
+    return Intl.message(
+      'Cookies has been cleared',
+      name: 'settings_clear_cookies_dialog_success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Submit issue/feature request/extension request`
+  String get settings_submit_issue {
+    return Intl.message(
+      'Submit issue/feature request/extension request',
+      name: 'settings_submit_issue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear cookies cache`
+  String get settings_clear_cookies_cache {
+    return Intl.message(
+      'Clear cookies cache',
+      name: 'settings_clear_cookies_cache',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to clear your cookies?`
+  String get settings_clear_cookies_cache_dialog_confirmation_title {
+    return Intl.message(
+      'Are you sure you want to clear your cookies?',
+      name: 'settings_clear_cookies_cache_dialog_confirmation_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This action cannot be canceled later`
+  String get settings_clear_cookies_cache_dialog_confirmation_message {
+    return Intl.message(
+      'This action cannot be canceled later',
+      name: 'settings_clear_cookies_cache_dialog_confirmation_message',
+      desc: '',
+      args: [],
     );
   }
 
   /// `Delete`
-  String get gallery_view_manga_item_delete_from_library_confirmation_ok_label {
+  String get settings_clear_cookies_cache_dialog_confirmation_ok_label {
     return Intl.message(
       'Delete',
-      name: 'gallery_view_manga_item_delete_from_library_confirmation_ok_label',
+      name: 'settings_clear_cookies_cache_dialog_confirmation_ok_label',
       desc: '',
       args: [],
     );
   }
 
   /// `Cancel`
-  String
-      get gallery_view_manga_item_delete_from_library_confirmation_cancel_label {
+  String get settings_clear_cookies_cache_dialog_confirmation_cancel_label {
     return Intl.message(
       'Cancel',
-      name:
-          'gallery_view_manga_item_delete_from_library_confirmation_cancel_label',
+      name: 'settings_clear_cookies_cache_dialog_confirmation_cancel_label',
       desc: '',
       args: [],
     );
   }
 
-  /// `Are you sure you want to delete "{anime}" from your library?`
-  String gallery_view_anime_item_delete_from_library_confirmation_title(
-      Object anime) {
+  /// `Done`
+  String get web_browser_no_login_button {
     return Intl.message(
-      'Are you sure you want to delete "$anime" from your library?',
-      name: 'gallery_view_anime_item_delete_from_library_confirmation_title',
-      desc: '',
-      args: [anime],
-    );
-  }
-
-  /// `Delete`
-  String get gallery_view_anime_item_delete_from_library_confirmation_ok_label {
-    return Intl.message(
-      'Delete',
-      name: 'gallery_view_anime_item_delete_from_library_confirmation_ok_label',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Cancel`
-  String
-      get gallery_view_anime_item_delete_from_library_confirmation_cancel_label {
-    return Intl.message(
-      'Cancel',
-      name:
-          'gallery_view_anime_item_delete_from_library_confirmation_cancel_label',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `In library`
-  String get gallery_view_item_in_library_title {
-    return Intl.message(
-      'In library',
-      name: 'gallery_view_item_in_library_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `No saved configs`
-  String get local_configs_0_length {
-    return Intl.message(
-      'No saved configs',
-      name: 'local_configs_0_length',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Update`
-  String get local_configs_update_button {
-    return Intl.message(
-      'Update',
-      name: 'local_configs_update_button',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Latest`
-  String get local_configs_no_updates {
-    return Intl.message(
-      'Latest',
-      name: 'local_configs_no_updates',
+      'Done',
+      name: 'web_browser_no_login_button',
       desc: '',
       args: [],
     );

@@ -28,10 +28,10 @@ class ServiceViewerAppBar extends StatelessWidget {
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: Column(
         mainAxisSize: MainAxisSize.max,
-        children: [
+        children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(left: 12.0),
                 child: Text(
@@ -57,7 +57,7 @@ class ServiceViewerAppBar extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: TextField(
                   controller: searchController,
-                  onSubmitted: (value) {
+                  onSubmitted: (String value) {
                     cubit.search(searchController.text);
                   },
                   cursorColor: AppColors.primary,

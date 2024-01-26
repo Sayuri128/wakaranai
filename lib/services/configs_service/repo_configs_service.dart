@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:wakaranai/data/models/remote_config/remote_category.dart';
+import 'package:wakaranai/data/models/remote_config/remote_config.dart';
+import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 import 'package:wakaranai/env.dart';
-import 'package:wakaranai/models/remote_config/remote_category.dart';
-import 'package:wakaranai/models/remote_config/remote_config.dart';
-import 'package:wakaranai/models/remote_script/remote_script.dart';
 import 'package:wakaranai/repositories/configs_repository/local/local_configs_repository.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 
@@ -11,14 +11,15 @@ class RepoConfigsService implements ConfigsService {
 
   RepoConfigsService({String? url}) {
     _localRepository =
-        LocalConfigsRepository(Dio(), baseUrl: url ?? Env.LOCAL_REPOSITORY_URL);
+        LocalConfigsRepository(Dio(), baseUrl: url ?? Env.localRepoUrl);
   }
 
   @override
   Future<List<RemoteConfig>> getMangaConfigs() async {
     return (await _localRepository.getConfigs("manga"))
         .configs
-        .where((element) => element.category == RemoteCategory.manga)
+        .where(
+            (RemoteConfig element) => element.category == RemoteCategory.manga)
         .toList();
   }
 
@@ -26,7 +27,8 @@ class RepoConfigsService implements ConfigsService {
   Future<List<RemoteConfig>> getAnimeConfigs() async {
     return (await _localRepository.getConfigs("anime"))
         .configs
-        .where((element) => element.category == RemoteCategory.anime)
+        .where(
+            (RemoteConfig element) => element.category == RemoteCategory.anime)
         .toList();
   }
 
