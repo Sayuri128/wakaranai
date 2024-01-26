@@ -57,7 +57,9 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
         ),
         BlocProvider<RemoteConfigsCubit>(
           lazy: false,
-          create: (BuildContext context) => RemoteConfigsCubit()..init(),
+          create: (BuildContext context) => RemoteConfigsCubit(
+            wakaranaiDatabase: context.read<WakaranaiDatabase>(),
+          )..init(),
         ),
         BlocProvider<SettingsCubit>(
           create: (BuildContext context) => SettingsCubit(

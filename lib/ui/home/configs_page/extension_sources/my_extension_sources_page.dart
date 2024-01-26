@@ -111,6 +111,7 @@ class MyExtensionSourcesPage extends StatelessWidget {
               return _buildItem(
                   onTap: () {
                     Navigator.of(context).pop(ExtensionSourcesPageResult(
+                      id: null,
                       url:
                           "https://github.com/${Env.configsSourceOrg}/${Env.configsSourceRepo}",
                       type: ExtensionSourceType.github,
@@ -126,6 +127,7 @@ class MyExtensionSourcesPage extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).pop(
                   ExtensionSourcesPageResult(
+                    id: source.id,
                     url: source.url,
                     type: source.type,
                     name: source.name,

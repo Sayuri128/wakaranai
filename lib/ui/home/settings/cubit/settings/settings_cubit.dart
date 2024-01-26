@@ -22,10 +22,11 @@ class SettingsCubit extends Cubit<SettingsState> {
   final SettingsService _settingsService = SettingsService();
 
   void init() async {
-    emit(SettingsInitialized(
+    emit(
+      SettingsInitialized(
         defaultMode: await _settingsService.getDefaultReaderMode(),
-        defaultConfigsSourceId:
-            await _settingsService.getDefaultConfigsSourceId()));
+      ),
+    );
   }
 
   void onChangedDefaultReadMode(ChapterViewMode mode) async {

@@ -6,9 +6,9 @@ import 'package:wakaranai/data/domain/extension/extension_source_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository/extension_source_repository.dart';
+import 'package:wakaranai/repositories/shared_pref/default_extension_source_repository/default_extension_source_repository.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page_result.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
-import 'package:wakaranai/utils/app_colors.dart';
 
 part 'extension_sources_state.dart';
 
