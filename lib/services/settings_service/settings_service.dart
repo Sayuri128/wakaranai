@@ -36,14 +36,4 @@ class SettingsService {
 
     _prefs!.setString(defaultReaderModePrefsKey, mode.toString());
   }
-
-  Future<int?> getDefaultConfigsSourceId() async {
-    _prefs ??= await SharedPreferences.getInstance();
-    return _prefs!.getInt(defaultConfigsSourceIdKey);
-  }
-
-  Future<void> setDefaultConfigsSourceId(int id) async {
-    _prefs ??= await SharedPreferences.getInstance();
-    _prefs!.setInt(defaultConfigsSourceIdKey, id);
-  }
 }
