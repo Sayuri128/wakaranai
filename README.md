@@ -59,19 +59,19 @@ As the development of Wakaranai is just at the very beginning, here is an overvi
 
 ### Top Priorities
 
-**Documentation**: Creating comprehensive documentation for both Wakaranai and the Capyscript language is the foremost priority. This will provide users with a clear understanding of the app's functionalities, the script language, and how to use them effectively.
+- [ ] **Documentation**: Creating comprehensive documentation for both Wakaranai and the Capyscript language is the foremost priority. This will provide users with a clear understanding of the app's functionalities, the script language, and how to use them effectively.
 
-**Library Page with Bookmarks**: Introducing a Library Page within the app, featuring a robust bookmark system. This will allow users to organize and manage their favorite manga series for easy access.
+- [ ] **Library Page with Bookmarks**: Introducing a Library Page within the app, featuring a robust bookmark system. This will allow users to organize and manage their favorite manga series for easy access.
 
 ### P2
 
-**User Interface Enhancements**: Improvements to the user interface for a more intuitive and seamless manga reading experience.
+- [ ] **User Interface Enhancements**: Improvements to the user interface for a more intuitive and seamless manga reading experience.
 
-**External Repository Integration**: Implementing the ability for users to add external repositories within the app, giving them the freedom to explore a wider range of script sources.
+- [x] **External Repository Integration**: Implementing the ability for users to add external repositories within the app, giving them the freedom to explore a wider range of script sources.
 
-**Scripting Language Refinement**: Refining the Capyscript language to address its current limitations and provide a more robust and flexible scripting environment.
+- [ ] **Scripting Language Refinement**: Refining the Capyscript language to address its current limitations and provide a more robust and flexible scripting environment.
 
-**Bug Fixes and Optimization**: Identifying and addressing any reported bugs, as well as optimizing the app for better performance and responsiveness.
+- [ ] **Bug Fixes and Optimization**: Identifying and addressing any reported bugs, as well as optimizing the app for better performance and responsiveness.
 
 ### Support:
 
