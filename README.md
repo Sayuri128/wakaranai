@@ -50,6 +50,10 @@ is no documentation available for the codebase. If you find this project interes
 to contribute or explore further, please be aware that the current state lacks comprehensive
 documentation.
 
+## Create your own extension
+
+See the guide for creating extensions [here](docs/guides/extensions.md).
+
 ## Future Development Roadmap
 As the development of Wakaranai is just at the very beginning, here is an overview of the planned features and improvements that are currently in the pipeline:
 
@@ -107,31 +111,5 @@ However, to enhance flexibility and customization, there are plans to implement 
 users to add external repositories directly within the app. This functionality is on the roadmap and
 will be added to the app as soon as possible.
 
-The main script, `main.capyscript`, requires a `config.json` file with the following structure:
 
-* `uid`: Unique identifier for the script.
-* `name`: Name of the source.
-* `logoUrl`: URL to the script's logo.
-* `type`: Type of script, either `0` for manga or `1` - anime.
-* `nsfw`: Indicates whether the script contains NSFW content (true or false).
-* `language`: Source language.
-* `version`: Version number of the script.
-* `protectorConfig`: Configuration for the protector.
-    * `pingUrl`: URL for ping.
-    * `needToLogin`: Indicates whether login is required (true or false).
-    * `inAppBrowserInterceptor`: Indicates whether to use in-app browser interceptor (true or
-      false).
-* `searchAvailable`: Indicates whether search functionality is available (true or false).
 
-### Minimal Required Implemented Functions in `main.capyscript`
-
-The `main.capyscript` file should implement the following functions:
-
-* `getGallery`
-* `getPages`
-* `getConcrete`
-* `getImageHeaders`
-* `passProtector`
-
-**Note**: More detailed guidance on implementing these functions will be provided once time allows.
-For any immediate assistance or questions, feel free to reach out.
