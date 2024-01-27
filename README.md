@@ -50,24 +50,28 @@ is no documentation available for the codebase. If you find this project interes
 to contribute or explore further, please be aware that the current state lacks comprehensive
 documentation.
 
+## Create your own extension
+
+See the guide for creating extensions [here](docs/guides/extensions.md).
+
 ## Future Development Roadmap
 As the development of Wakaranai is just at the very beginning, here is an overview of the planned features and improvements that are currently in the pipeline:
 
 ### Top Priorities
 
-**Documentation**: Creating comprehensive documentation for both Wakaranai and the Capyscript language is the foremost priority. This will provide users with a clear understanding of the app's functionalities, the script language, and how to use them effectively.
+- [ ] **Documentation**: Creating comprehensive documentation for both Wakaranai and the Capyscript language is the foremost priority. This will provide users with a clear understanding of the app's functionalities, the script language, and how to use them effectively.
 
-**Library Page with Bookmarks**: Introducing a Library Page within the app, featuring a robust bookmark system. This will allow users to organize and manage their favorite manga series for easy access.
+- [ ] **Library Page with Bookmarks**: Introducing a Library Page within the app, featuring a robust bookmark system. This will allow users to organize and manage their favorite manga series for easy access.
 
 ### P2
 
-**User Interface Enhancements**: Improvements to the user interface for a more intuitive and seamless manga reading experience.
+- [ ] **User Interface Enhancements**: Improvements to the user interface for a more intuitive and seamless manga reading experience.
 
-**External Repository Integration**: Implementing the ability for users to add external repositories within the app, giving them the freedom to explore a wider range of script sources.
+- [x] **External Repository Integration**: Implementing the ability for users to add external repositories within the app, giving them the freedom to explore a wider range of script sources.
 
-**Scripting Language Refinement**: Refining the Capyscript language to address its current limitations and provide a more robust and flexible scripting environment.
+- [ ] **Scripting Language Refinement**: Refining the Capyscript language to address its current limitations and provide a more robust and flexible scripting environment.
 
-**Bug Fixes and Optimization**: Identifying and addressing any reported bugs, as well as optimizing the app for better performance and responsiveness.
+- [ ] **Bug Fixes and Optimization**: Identifying and addressing any reported bugs, as well as optimizing the app for better performance and responsiveness.
 
 ### Support:
 
@@ -107,31 +111,5 @@ However, to enhance flexibility and customization, there are plans to implement 
 users to add external repositories directly within the app. This functionality is on the roadmap and
 will be added to the app as soon as possible.
 
-The main script, `main.capyscript`, requires a `config.json` file with the following structure:
 
-* `uid`: Unique identifier for the script.
-* `name`: Name of the source.
-* `logoUrl`: URL to the script's logo.
-* `type`: Type of script, either `0` for manga or `1` - anime.
-* `nsfw`: Indicates whether the script contains NSFW content (true or false).
-* `language`: Source language.
-* `version`: Version number of the script.
-* `protectorConfig`: Configuration for the protector.
-    * `pingUrl`: URL for ping.
-    * `needToLogin`: Indicates whether login is required (true or false).
-    * `inAppBrowserInterceptor`: Indicates whether to use in-app browser interceptor (true or
-      false).
-* `searchAvailable`: Indicates whether search functionality is available (true or false).
 
-### Minimal Required Implemented Functions in `main.capyscript`
-
-The `main.capyscript` file should implement the following functions:
-
-* `getGallery`
-* `getPages`
-* `getConcrete`
-* `getImageHeaders`
-* `passProtector`
-
-**Note**: More detailed guidance on implementing these functions will be provided once time allows.
-For any immediate assistance or questions, feel free to reach out.
