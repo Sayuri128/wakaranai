@@ -1,0 +1,33 @@
+import "http";
+import "io";
+import "json";
+import "date";
+import "html";
+import "manga_models";
+import "converter";
+
+
+
+function getGallery(page, query, filters) {
+
+}
+
+function getConcrete(uid, data) {
+
+}
+
+function getPages(uid, data) {
+
+}
+
+function getImageHeaders(uid) {
+    return {};
+}
+
+function passProtector(body, headers, cookies) {
+    useHeaders({"headers": headers});
+}
+
+function passWebBrowserInterceptorController(controller) {
+    registerInterceptorController(controller);
+}
