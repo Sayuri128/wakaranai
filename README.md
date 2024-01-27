@@ -91,25 +91,10 @@ in Wakaranai and Capyscript!
 * Anime
     * [AnitubeInUa](https://anitube.in.ua/)
 
-## Capyscript Features
-
-* HTTP Requests: Capyscript provides different types of HTTP requests, allowing the app to fetch
-  manga content from various websites.
-* Headless WebView: You can use a headless
-  web view for fetching content. This is particularly useful for accessing protected sites or those
-  requiring authorization.
-* JS Code Execution: Capyscript allows users to execute JavaScript code within the embedded browser,
-  offering flexibility for handling dynamic content.
-
 For those interested in delving deeper into the project,
 a [public repository](https://github.com/Sayuri128/wakaranai_configs) is available containing the
 sources that I have personally used. This repository can serve as a reference 
 for understanding the code structure and implementation details.
 
 By default, Wakaranai fetches script configurations from the public repository mentioned above.
-However, to enhance flexibility and customization, there are plans to implement a feature allowing
-users to add external repositories directly within the app. This functionality is on the roadmap and
-will be added to the app as soon as possible.
-
-
 
