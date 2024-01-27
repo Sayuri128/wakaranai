@@ -1,0 +1,16 @@
+{
+  "name": "Name",
+  "uid": "Generate a new UUIDv4",
+  "logoUrl": "icon URL",
+  "type": 0,
+  "nsfw": false,
+  "language": "English",
+  "version": 1,
+  "filters": [],
+  "protectorConfig": {
+    "pingUrl": "Url where the app will open in the web browser",
+    "needToLogin": true,
+    "inAppBrowserInterceptor": true
+  },
+  "searchAvailable": true
+}
