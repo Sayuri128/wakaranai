@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:wakaranai/main.dart';
+import 'package:wakaranai/repositories/shared_pref/default_manga_reader_mode_repository/default_manga_reader_repository.dart';
 import 'package:wakaranai/ui/home/settings/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
@@ -25,6 +26,8 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
 
   final PageController pageController;
   final ItemScrollController itemScrollController;
+  final DefaultMangaReaderRepository defaultMangaReaderRepository =
+      DefaultMangaReaderRepository();
   final int initialPage;
 
   ChapterViewInitialized get stateInitialized =>
@@ -35,6 +38,18 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     void Function(int page, int totalPage)? pagesLoaded,
   }) async {
     try {
+      ChapterViewMode? mode;
+
+      try {
+        await defaultMangaReaderRepository.init();
+        mode = await defaultMangaReaderRepository.getDefaultMangaReaderMode(
+          data.configInfo.uid,
+          data.concreteView.uid,
+        );
+      } catch (e, s) {
+        // ignore:
+      }
+
       final List<Pages> pagesS = <Pages>[
         await apiClient.getPages(
           uid: data.chapter.uid,
@@ -52,15 +67,17 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
 
       emit(
         ChapterViewInitialized(
+          data: data,
           pages: pagesS,
           currentPages: currentPages,
           currentPage: initialPage,
           totalPages: currentPages.value.length,
           controlsVisible: true,
           controlsEnabled: false,
-          mode: settingsCubit.state is SettingsInitialized
-              ? (settingsCubit.state as SettingsInitialized).defaultMode
-              : ChapterViewMode.rightToLeft,
+          mode: mode ??
+              (settingsCubit.state is SettingsInitialized
+                  ? (settingsCubit.state as SettingsInitialized).defaultMode
+                  : ChapterViewMode.leftToRight),
           group: data.group,
           galleryView: data.galleryView,
           canGetPreviousPages: canGetPreviousPages,
@@ -109,13 +126,15 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         }
       }
 
-      emit(state.copyWith(
-          canGetNextPages: canGetNextPages,
-          canGetPreviousPages: canGetPreviousPages,
-          pages: newPages,
-          totalPages: optionalLoadedPages.value.length,
-          currentPage: next ? 1 : optionalLoadedPages.value.length,
-          currentPages: optionalLoadedPages));
+      emit(
+        state.copyWith(
+            canGetNextPages: canGetNextPages,
+            canGetPreviousPages: canGetPreviousPages,
+            pages: newPages,
+            totalPages: optionalLoadedPages.value.length,
+            currentPage: next ? 1 : optionalLoadedPages.value.length,
+            currentPages: optionalLoadedPages),
+      );
 
       onDone?.call();
     }
@@ -145,6 +164,16 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
 
   void onModeChanged(ChapterViewMode mode) {
     if (state is ChapterViewInitialized) {
+      defaultMangaReaderRepository
+          .setDefaultMangaReaderMode(
+        mode,
+        (state as ChapterViewInitialized).data.configInfo.uid,
+        (state as ChapterViewInitialized).data.concreteView.uid,
+      )
+          .catchError((e) {
+        logger.e(e);
+      });
+
       emit((state as ChapterViewInitialized).copyWith(mode: mode));
     }
   }
