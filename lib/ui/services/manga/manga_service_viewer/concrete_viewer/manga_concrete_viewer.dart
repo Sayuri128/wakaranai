@@ -340,6 +340,7 @@ class MangaConcreteViewer extends StatelessWidget {
                   initialPage: 1,
                   apiClient: data.client,
                   chapter: chapter,
+                  concreteView: concreteViewInitialized.concreteView,
                   group: group,
                   galleryView: galleryView,
                   configInfo: configInfo),
