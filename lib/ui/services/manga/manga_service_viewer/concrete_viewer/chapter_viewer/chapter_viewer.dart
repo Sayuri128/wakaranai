@@ -202,8 +202,12 @@ class _ChapterViewerState extends State<ChapterViewer>
     );
   }
 
-  TransparentPointer _buildHorizontalGestures(
+  Widget _buildHorizontalGestures(
       ChapterViewInitialized state, BuildContext context) {
+    if(!state.controlsEnabled) {
+      return const SizedBox();
+    }
+
     return TransparentPointer(
       child: Column(
         mainAxisSize: MainAxisSize.max,
