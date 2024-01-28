@@ -408,10 +408,23 @@ class MangaConcreteViewer extends StatelessWidget {
   Widget _buildTitle(MangaConcreteView concreteView) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: Text(
-        concreteView.title,
-        textAlign: TextAlign.center,
-        style: semibold(size: 18),
+      child: Column(
+        children: [
+          Text(
+            concreteView.title,
+            textAlign: TextAlign.center,
+            style: semibold(size: 18),
+          ),
+          if(concreteView.alternativeTitles.isNotEmpty)
+            ...[
+              const SizedBox(height: 8.0),
+              Text(
+                concreteView.alternativeTitles.join(', '),
+                textAlign: TextAlign.center,
+                style: regular(size: 16),
+              ),
+            ]
+        ],
       ),
     );
   }
