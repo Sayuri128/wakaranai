@@ -6,6 +6,7 @@ import 'package:another_xlider/models/tooltip/tooltip.dart';
 import 'package:another_xlider/models/trackbar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/pages/pages.dart';
@@ -30,6 +31,7 @@ import 'package:wakaranai/utils/text_styles.dart';
 class ChapterViewerData {
   final MangaApiClient apiClient;
   final ConfigInfo configInfo;
+  final ConcreteView<ChaptersGroup> concreteView;
   final ChaptersGroup group;
   final MangaGalleryView galleryView;
   final Chapter chapter;
@@ -39,6 +41,7 @@ class ChapterViewerData {
       {required this.apiClient,
       required this.configInfo,
       required this.group,
+      required this.concreteView,
       required this.galleryView,
       required this.chapter,
       this.initialPage = 1});
@@ -133,39 +136,27 @@ class _ChapterViewerState extends State<ChapterViewer>
       if (state is ChapterViewInitialized) {
         return Stack(
           children: <Widget>[
-            _buildBackground(context),
+            _buildBackground(
+              context,
+            ),
             _buildViewer(context, state),
             if (state.mode != ChapterViewMode.webtoon)
-              _buildHorizontalGestures(state, context),
-            _buildControls(context, state),
-            _buildLoaders(context, state),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              left: 0,
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16.0),
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                          color: AppColors.mainBlack.withOpacity(0.25),
-                          blurRadius: 24,
-                          spreadRadius: 24)
-                    ]),
-                child: Center(
-                    child: Text(
-                  '${state.currentPage}/${state.totalPages}',
-                  style: medium(size: 18, color: AppColors.mainWhite).copyWith(
-                    shadows: <Shadow>[
-                      BoxShadow(
-                          color: AppColors.mainBlack,
-                          blurRadius: 4,
-                          spreadRadius: 4)
-                    ],
-                  ),
-                )),
+              _buildHorizontalGestures(
+                state,
+                context,
               ),
-            )
+            _buildControls(
+              context,
+              state,
+            ),
+            _buildLoaders(
+              context,
+              state,
+            ),
+            _buildPageCounter(
+              context,
+              state,
+            ),
           ],
         );
       } else if (state is ChapterViewError) {
@@ -182,8 +173,41 @@ class _ChapterViewerState extends State<ChapterViewer>
     });
   }
 
-  TransparentPointer _buildHorizontalGestures(
+  Positioned _buildPageCounter(
+      BuildContext context, ChapterViewInitialized state) {
+    return Positioned(
+      bottom: 0,
+      right: 0,
+      left: 0,
+      child: Container(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16.0),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: AppColors.mainBlack.withOpacity(0.25),
+                  blurRadius: 24,
+                  spreadRadius: 24)
+            ]),
+        child: Center(
+            child: Text(
+          '${state.currentPage}/${state.totalPages}',
+          style: medium(size: 18, color: AppColors.mainWhite).copyWith(
+            shadows: <Shadow>[
+              BoxShadow(
+                  color: AppColors.mainBlack, blurRadius: 4, spreadRadius: 4)
+            ],
+          ),
+        )),
+      ),
+    );
+  }
+
+  Widget _buildHorizontalGestures(
       ChapterViewInitialized state, BuildContext context) {
+    if(!state.controlsEnabled) {
+      return const SizedBox();
+    }
+
     return TransparentPointer(
       child: Column(
         mainAxisSize: MainAxisSize.max,
@@ -294,6 +318,9 @@ class _ChapterViewerState extends State<ChapterViewer>
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          const SizedBox(
+            height: 16.0,
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
@@ -426,44 +453,6 @@ class _ChapterViewerState extends State<ChapterViewer>
                     const SizedBox(
                       width: 12,
                     ),
-                    // SettingsOverlay(
-                    //     entries: [
-                    //       SettingsOverlayEntry(
-                    //           onTap: () {
-                    //             _showGestureOverlay = !_showGestureOverlay;
-                    //             setState(() {});
-                    //           },
-                    //           icon: AnimatedSwitcher(
-                    //             duration: const Duration(milliseconds: 350),
-                    //             child: _showGestureOverlay
-                    //                 ? const Icon(
-                    //                     Icons.layers_outlined,
-                    //                     key: ValueKey(1),
-                    //                     color: AppColors.mainWhite,
-                    //                   )
-                    //                 : const Icon(
-                    //                     Icons.layers_outlined,
-                    //                     key: ValueKey(2),
-                    //                   ),
-                    //           )),
-                    //       SettingsOverlayEntry(
-                    //           onTap: () {
-                    //             _showBottomSheetSettings(context, state);
-                    //           },
-                    //           icon: const Icon(Icons.chrome_reader_mode))
-                    //     ],
-                    //     child: Container(
-                    //       width: 48,
-                    //       height: 48,
-                    //       decoration: const BoxDecoration(
-                    //           color: AppColors.backgroundColor,
-                    //           shape: BoxShape.circle),
-                    //       child: const Icon(
-                    //         Icons.settings_rounded,
-                    //         color: AppColors.mainWhite,
-                    //       ),
-                    //     ))
-                    //
                     InkWell(
                         onTap: () {
                           _showBottomSheetSettings(context, state);
