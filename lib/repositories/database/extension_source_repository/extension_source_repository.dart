@@ -1,12 +1,15 @@
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/extension/extension_source_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
+import 'package:wakaranai/repositories/database/base_repository.dart';
 
-class ExtensionSourceRepository {
+class ExtensionSourceRepository
+    implements BaseRepository<ExtensionSourceDomain> {
   final WakaranaiDatabase database;
 
   ExtensionSourceRepository(this.database);
 
+  @override
   Future<ExtensionSourceDomain?> get(int id) async {
     try {
       final res = await (database.extensionSourceTable.select()
@@ -19,6 +22,7 @@ class ExtensionSourceRepository {
     }
   }
 
+  @override
   Future<ExtensionSourceDomain?> create(ExtensionSourceDomain domain) async {
     try {
       final res =
@@ -31,6 +35,7 @@ class ExtensionSourceRepository {
     }
   }
 
+  @override
   Future<List<ExtensionSourceDomain>> getAll() async {
     try {
       final res = await (database.extensionSourceTable.select()).get();
@@ -40,6 +45,7 @@ class ExtensionSourceRepository {
     }
   }
 
+  @override
   Future<ExtensionSourceDomain?> update(ExtensionSourceDomain domain) async {
     try {
       final res = await (database.extensionSourceTable.update()
@@ -51,6 +57,7 @@ class ExtensionSourceRepository {
     }
   }
 
+  @override
   Future<ExtensionSourceDomain?> delete(ExtensionSourceDomain domain) async {
     try {
       final res = await (database.extensionSourceTable.delete()

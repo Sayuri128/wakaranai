@@ -1,9 +1,9 @@
-import 'package:wakaranai/data/models/remote_config/remote_config.dart';
+import 'package:wakaranai/data/domain/extension/base_extension.dart';
 import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 
 abstract class ConfigsService {
-  Future<List<RemoteConfig>> getMangaConfigs();
-  Future<List<RemoteConfig>> getAnimeConfigs();
+  Future<List<BaseExtension>> getMangaConfigs();
+  Future<List<BaseExtension>> getAnimeConfigs();
 
   Future<RemoteScript> getRemoteScript(String path);
 }

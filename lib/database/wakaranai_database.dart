@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:wakaranai/data/entities/extension/extension_table.dart';
 import 'package:wakaranai/data/entities/extensions_source/extension_source_table.dart';
 import 'package:path/path.dart' as path;
 import 'package:drift/native.dart';
@@ -11,6 +12,7 @@ part 'wakaranai_database.g.dart';
 
 @DriftDatabase(tables: [
   ExtensionSourceTable,
+  ExtensionTable,
 ])
 class WakaranaiDatabase extends _$WakaranaiDatabase {
   WakaranaiDatabase() : super(_openConnection());
@@ -23,13 +25,13 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
         },
         onUpgrade: (m, from, to) async {
           if (from < 2) {
-            // await m.createTable(extensionSourceTable);
+            await m.createTable(extensionTable);
           }
         },
       );
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 }
 
 LazyDatabase _openConnection() {

@@ -7,8 +7,8 @@ class RemoteConfigsLoading extends RemoteConfigsState {}
 
 class RemoteConfigsLoaded extends RemoteConfigsState {
   final String sourceName;
-  final List<RemoteConfig> mangaRemoteConfigs;
-  final List<RemoteConfig> animeRemoteConfigs;
+  final List<BaseExtension> mangaRemoteConfigs;
+  final List<BaseExtension> animeRemoteConfigs;
 
   RemoteConfigsLoaded({
     required this.mangaRemoteConfigs,
