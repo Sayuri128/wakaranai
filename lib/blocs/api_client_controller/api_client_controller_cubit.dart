@@ -4,6 +4,8 @@ import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/data/domain/extension/base_extension.dart';
+import 'package:wakaranai/data/domain/extension/extension_domain.dart';
 import 'package:wakaranai/data/models/remote_config/remote_category.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/data/models/remote_script/remote_script.dart';
@@ -20,19 +22,28 @@ class ApiClientControllerCubit<T extends ApiClient, C>
   }) : super(const ApiClientControllerState());
 
   final RemoteConfigsCubit remoteConfigsCubit;
-  final RemoteConfig? remoteConfig;
+  final BaseExtension? remoteConfig;
 
   void buildApiClient() async {
     if (remoteConfig != null) {
       try {
-        final RemoteScript remoteScript = await remoteConfigsCubit.configService
-            .getRemoteScript(remoteConfig!.path);
+        late String script;
+
+        if (remoteConfig is RemoteConfig) {
+          script = (await remoteConfigsCubit.configService
+                  .getRemoteScript((remoteConfig as RemoteConfig).path))
+              .script;
+        } else if (remoteConfig is ExtensionDomain) {
+          script = (remoteConfig as ExtensionDomain).sourceCode;
+        } else {
+          throw Exception("Invalid remote config type");
+        }
 
         switch (remoteConfig!.category) {
           case RemoteCategory.anime:
             compute<String, ApiClient>(
                     (String message) async => AnimeApiClient(code: message),
-                    remoteScript.script)
+                    script)
                 .then((ApiClient value) {
               emit(ApiClientControllerInitialized<AnimeApiClient>(
                   apiClient: value as AnimeApiClient,
@@ -42,7 +53,7 @@ class ApiClientControllerCubit<T extends ApiClient, C>
           case RemoteCategory.manga:
             compute<String, ApiClient>(
                     (String message) async => MangaApiClient(code: message),
-                    remoteScript.script)
+                    script)
                 .then((ApiClient value) {
               emit(ApiClientControllerInitialized<MangaApiClient>(
                   apiClient: value as MangaApiClient,

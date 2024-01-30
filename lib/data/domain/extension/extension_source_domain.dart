@@ -6,7 +6,7 @@ import 'package:wakaranai/data/domain/extension/extension_source_type.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/utils/enum_converters.dart';
 
-class ExtensionSourceDomain extends BaseDomain {
+class ExtensionSourceDomain extends BaseDomain<ExtensionSourceTableCompanion> {
   final String name;
   final String url;
   final ExtensionSourceType type;
@@ -30,6 +30,7 @@ class ExtensionSourceDomain extends BaseDomain {
         updatedAt: data.updatedAt,
       );
 
+  @override
   ExtensionSourceTableCompanion toDrift({
     bool update = false,
     bool create = false,

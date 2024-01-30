@@ -3,6 +3,7 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/api_client_controller/api_client_controller_cubit.dart';
+import 'package:wakaranai/data/domain/extension/base_extension.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -11,7 +12,7 @@ class ApiControllerWrapper<T extends ApiClient> extends StatelessWidget {
   const ApiControllerWrapper(
       {super.key, required this.remoteConfig, required this.builder});
 
-  final RemoteConfig? remoteConfig;
+  final BaseExtension? remoteConfig;
   final Widget Function(T apiClient, ConfigInfo) builder;
 
   @override

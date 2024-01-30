@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:wakaranai/data/domain/extension/base_extension.dart';
 import 'package:wakaranai/data/domain/extension/extension_source_type.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
@@ -73,10 +74,10 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   Future<void> getConfigs({required String sourceName}) async {
     emit(RemoteConfigsLoading());
 
-    Future.wait(<Future<List<RemoteConfig>>>[
+    Future.wait(<Future<List<BaseExtension>>>[
       _configsService.getMangaConfigs(),
       _configsService.getAnimeConfigs()
-    ]).then((List<List<RemoteConfig>> value) {
+    ]).then((List<List<BaseExtension>> value) {
       emit(
         RemoteConfigsLoaded(
           mangaRemoteConfigs: value[0].cast(),

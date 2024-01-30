@@ -1,4 +1,4 @@
-class BaseDomain {
+abstract class BaseDomain<TTableCompanion> {
   final int id;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -8,4 +8,10 @@ class BaseDomain {
     required this.createdAt,
     this.updatedAt,
   });
+
+  TTableCompanion toDrift({
+    bool update = false,
+    bool create = false,
+  });
+
 }
