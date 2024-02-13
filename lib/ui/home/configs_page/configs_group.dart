@@ -1,3 +1,4 @@
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:wakaranai/data/domain/extension/base_extension.dart';
 import 'package:wakaranai/data/models/remote_config/remote_category.dart';
@@ -51,11 +52,11 @@ class ConfigsGroup extends StatelessWidget {
     BuildContext context,
     BaseExtension remoteConfig,
   ) async {
-    if (remoteConfig.category == RemoteCategory.manga) {
+    if (remoteConfig.config.type == ConfigInfoType.MANGA) {
       Navigator.of(context).pushNamedAndRemoveUntil(
           Routes.mangaServiceViewer, (Route route) => false,
           arguments: MangaServiceViewData(remoteConfig: remoteConfig));
-    } else if (remoteConfig.category == RemoteCategory.anime) {
+    } else if (remoteConfig.config.type == ConfigInfoType.ANIME) {
       Navigator.of(context).pushNamedAndRemoveUntil(
           Routes.animeServiceViewer, (Route route) => false,
           arguments: AnimeServiceViewerData(remoteConfig: remoteConfig));

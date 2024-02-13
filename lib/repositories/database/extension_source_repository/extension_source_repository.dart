@@ -3,11 +3,8 @@ import 'package:wakaranai/data/domain/extension/extension_source_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/base_repository.dart';
 
-class ExtensionSourceRepository
-    implements BaseRepository<ExtensionSourceDomain> {
-  final WakaranaiDatabase database;
-
-  ExtensionSourceRepository(this.database);
+class ExtensionSourceRepository extends BaseRepository<ExtensionSourceDomain> {
+  ExtensionSourceRepository({required super.database});
 
   @override
   Future<ExtensionSourceDomain?> get(int id) async {

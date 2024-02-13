@@ -13,5 +13,4 @@ abstract class BaseDomain<TTableCompanion> {
     bool update = false,
     bool create = false,
   });
-
 }

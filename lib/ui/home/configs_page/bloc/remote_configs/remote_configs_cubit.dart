@@ -23,7 +23,9 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
     required this.wakaranaiDatabase,
   }) : super(RemoteConfigsLoading()) {
     _defaultExtensionRepository = DefaultExtensionRepository();
-    _extensionSourceRepository = ExtensionSourceRepository(wakaranaiDatabase);
+    _extensionSourceRepository = ExtensionSourceRepository(
+      database: wakaranaiDatabase,
+    );
   }
 
   final WakaranaiDatabase wakaranaiDatabase;

@@ -13,15 +13,12 @@ import 'package:wakaranai/utils/enum_converters.dart';
 class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
     with BaseExtension {
   @override
-  final RemoteCategory category;
-  @override
   final ConfigInfo config;
   final String sourceCode;
 
   factory ExtensionDomain.fromDrift(ExtensionTableData data) {
     return ExtensionDomain(
       id: data.id,
-      category: decodeEnum(RemoteCategory.values, data.type)!,
       config: ConfigInfo(
         name: data.name,
         language: data.language,
@@ -29,9 +26,7 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
         nsfw: data.nsfw,
         uid: data.uid,
         version: data.version,
-        type: remoteCategoryToConfigInfoType(
-          decodeEnum(RemoteCategory.values, data.type)!,
-        ),
+        type: decodeEnum(ConfigInfoType.values, data.type)!,
         filters: [],
         searchAvailable: data.searchAvailable,
         protectorConfig: data.protectorConfig != null
@@ -45,20 +40,26 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
   }
 
   @override
-  ExtensionTableCompanion toDrift({bool update = false, bool create = false}) {
+  ExtensionTableCompanion toDrift({
+    bool update = false,
+    bool create = false,
+  }) {
     late DateTime? updatedAt;
     late DateTime createdAt;
+    late Value<int> id;
     if (update) {
+      id = Value(this.id);
       updatedAt = DateTime.now();
       createdAt = this.createdAt;
     }
     if (create) {
+      id = const Value.absent();
       createdAt = DateTime.now();
       updatedAt = null;
     }
 
     return ExtensionTableCompanion(
-      id: Value(id),
+      id: id,
       uid: Value(config.uid),
       name: Value(config.name),
       type: Value(encodeEnum(config.type)),
@@ -68,7 +69,11 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
       nsfw: Value(config.nsfw),
       sourceCode: Value(sourceCode),
       searchAvailable: Value(config.searchAvailable),
-      protectorConfig: Value(jsonEncode(config.protectorConfig)),
+      protectorConfig: Value(
+        config.protectorConfig == null
+            ? null
+            : jsonEncode(config.protectorConfig),
+      ),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -76,12 +81,25 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
 
   const ExtensionDomain({
     required super.id,
-    required this.category,
     required this.config,
     required this.sourceCode,
     required super.createdAt,
     super.updatedAt,
   });
 
-
+  ExtensionDomain copyWith({
+    ConfigInfo? config,
+    String? sourceCode,
+    DateTime? updatedAt,
+    DateTime? createdAt,
+    int? id,
+  }) {
+    return ExtensionDomain(
+      config: config ?? this.config,
+      sourceCode: sourceCode ?? this.sourceCode,
+      updatedAt: updatedAt ?? this.updatedAt,
+      createdAt: createdAt ?? this.createdAt,
+      id: id ?? this.id,
+    );
+  }
 }

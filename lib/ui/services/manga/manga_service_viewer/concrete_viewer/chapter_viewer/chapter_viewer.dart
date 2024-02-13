@@ -204,7 +204,7 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   Widget _buildHorizontalGestures(
       ChapterViewInitialized state, BuildContext context) {
-    if(!state.controlsEnabled) {
+    if (!state.controlsEnabled) {
       return const SizedBox();
     }
 
