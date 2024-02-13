@@ -24,13 +24,15 @@ class GitHubConfigsService implements ConfigsService {
       GithubConfigsRepository.mangaDirectory,
     );
 
-    return Future.wait((directories).map((GithubTreeItemModel e) async {
-      return await _getConfig(
-        treeItem: e,
-        directory: GithubConfigsRepository.mangaDirectory,
-        category: "manga",
-      );
-    }));
+    return Future.wait(
+      (directories).map((GithubTreeItemModel e) async {
+        return await _getConfig(
+          treeItem: e,
+          directory: GithubConfigsRepository.mangaDirectory,
+          category: "manga",
+        );
+      }),
+    );
   }
 
   @override
@@ -39,13 +41,15 @@ class GitHubConfigsService implements ConfigsService {
       GithubConfigsRepository.animeDirectory,
     );
 
-    return Future.wait((directories).map((GithubTreeItemModel e) async {
-      return await _getConfig(
-        treeItem: e,
-        directory: GithubConfigsRepository.animeDirectory,
-        category: "anime",
-      );
-    }));
+    return Future.wait(
+      (directories).map((GithubTreeItemModel e) async {
+        return await _getConfig(
+          treeItem: e,
+          directory: GithubConfigsRepository.animeDirectory,
+          category: "anime",
+        );
+      }),
+    );
   }
 
   Future<RemoteConfig> _getConfig({

@@ -16,7 +16,9 @@ class ExtensionSourcesCubit extends Cubit<ExtensionSourcesState> {
   ExtensionSourcesCubit({
     required this.database,
   }) : super(ExtensionSourcesInitial()) {
-    _extensionSourceRepository = ExtensionSourceRepository(database);
+    _extensionSourceRepository = ExtensionSourceRepository(
+      database: database,
+    );
   }
 
   final WakaranaiDatabase database;

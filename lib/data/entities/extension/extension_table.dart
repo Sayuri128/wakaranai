@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:wakaranai/data/entities/base_table.dart';
 
 class ExtensionTable extends BaseTable {
-  TextColumn get uid => text()();
+  TextColumn get uid => text().unique()();
 
   TextColumn get name => text()();
 

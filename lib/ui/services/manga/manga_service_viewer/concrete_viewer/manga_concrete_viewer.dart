@@ -415,15 +415,14 @@ class MangaConcreteViewer extends StatelessWidget {
             textAlign: TextAlign.center,
             style: semibold(size: 18),
           ),
-          if(concreteView.alternativeTitles.isNotEmpty)
-            ...[
-              const SizedBox(height: 8.0),
-              Text(
-                concreteView.alternativeTitles.join(', '),
-                textAlign: TextAlign.center,
-                style: regular(size: 16),
-              ),
-            ]
+          if (concreteView.alternativeTitles.isNotEmpty) ...[
+            const SizedBox(height: 8.0),
+            Text(
+              concreteView.alternativeTitles.join(', '),
+              textAlign: TextAlign.center,
+              style: regular(size: 16),
+            ),
+          ]
         ],
       ),
     );

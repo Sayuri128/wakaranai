@@ -362,7 +362,9 @@ class $ExtensionTableTable extends ExtensionTable
   @override
   late final GeneratedColumn<String> uid = GeneratedColumn<String>(
       'uid', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'));
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(

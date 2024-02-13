@@ -9,7 +9,10 @@ import 'package:wakaranai/data/domain/extension/extension_domain.dart';
 import 'package:wakaranai/data/models/remote_config/remote_category.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/data/models/remote_script/remote_script.dart';
+import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
+import 'package:wakaranai/repositories/database/extension_repository/extension_repository.dart';
+import 'package:wakaranai/repositories/database/extension_source_repository/extension_source_repository.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 
 part 'api_client_controller_state.dart';
@@ -17,11 +20,18 @@ part 'api_client_controller_state.dart';
 class ApiClientControllerCubit<T extends ApiClient, C>
     extends Cubit<ApiClientControllerState> {
   ApiClientControllerCubit({
+    required this.database,
     required this.remoteConfig,
     required this.remoteConfigsCubit,
-  }) : super(const ApiClientControllerState());
+  }) : super(const ApiClientControllerState()) {
+    extensionRepository = ExtensionRepository(
+      database: database,
+    );
+  }
 
+  final WakaranaiDatabase database;
   final RemoteConfigsCubit remoteConfigsCubit;
+  late final ExtensionRepository extensionRepository;
   final BaseExtension? remoteConfig;
 
   void buildApiClient() async {
@@ -33,14 +43,22 @@ class ApiClientControllerCubit<T extends ApiClient, C>
           script = (await remoteConfigsCubit.configService
                   .getRemoteScript((remoteConfig as RemoteConfig).path))
               .script;
+          await extensionRepository.createUpdateByUid(
+            ExtensionDomain(
+              id: 0,
+              config: remoteConfig!.config,
+              sourceCode: script,
+              createdAt: DateTime.now(),
+            ),
+          );
         } else if (remoteConfig is ExtensionDomain) {
           script = (remoteConfig as ExtensionDomain).sourceCode;
         } else {
           throw Exception("Invalid remote config type");
         }
 
-        switch (remoteConfig!.category) {
-          case RemoteCategory.anime:
+        switch (remoteConfig!.config.type) {
+          case ConfigInfoType.ANIME:
             compute<String, ApiClient>(
                     (String message) async => AnimeApiClient(code: message),
                     script)
@@ -50,7 +68,7 @@ class ApiClientControllerCubit<T extends ApiClient, C>
                   configInfo: remoteConfig!.config));
             });
             break;
-          case RemoteCategory.manga:
+          case ConfigInfoType.MANGA:
             compute<String, ApiClient>(
                     (String message) async => MangaApiClient(code: message),
                     script)
