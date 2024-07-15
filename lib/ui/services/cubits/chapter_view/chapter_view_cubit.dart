@@ -69,6 +69,8 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         ChapterViewInitialized(
           data: data,
           pages: pagesS,
+          headers: await apiClient
+              .getImageHeaders(uid: currentPages.chapterUid, data: {}),
           currentPages: currentPages,
           currentPage: initialPage,
           totalPages: currentPages.value.length,
@@ -128,12 +130,15 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
 
       emit(
         state.copyWith(
-            canGetNextPages: canGetNextPages,
-            canGetPreviousPages: canGetPreviousPages,
-            pages: newPages,
-            totalPages: optionalLoadedPages.value.length,
-            currentPage: next ? 1 : optionalLoadedPages.value.length,
-            currentPages: optionalLoadedPages),
+          canGetNextPages: canGetNextPages,
+          canGetPreviousPages: canGetPreviousPages,
+          pages: newPages,
+          totalPages: optionalLoadedPages.value.length,
+          currentPage: next ? 1 : optionalLoadedPages.value.length,
+          currentPages: optionalLoadedPages,
+          headers: await apiClient
+              .getImageHeaders(uid: optionalLoadedPages.chapterUid, data: {}),
+        ),
       );
 
       onDone?.call();

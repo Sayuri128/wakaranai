@@ -14,7 +14,9 @@ import 'ui/home/settings/cubit/settings/settings_cubit.dart';
 
 const bool debug = true;
 
-final Logger logger = Logger();
+final Logger logger = Logger(
+  filter: ProductionFilter(),
+);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
