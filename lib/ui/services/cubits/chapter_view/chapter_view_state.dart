@@ -15,6 +15,7 @@ class ChapterViewInitialized extends ChapterViewState {
 
   final List<Pages> pages;
   final Pages currentPages;
+  final Map<String, String> headers;
 
   final ChaptersGroup group;
   final MangaGalleryView galleryView;
@@ -33,6 +34,7 @@ class ChapterViewInitialized extends ChapterViewState {
     required this.data,
     required this.pages,
     required this.currentPages,
+    required this.headers,
     required this.group,
     required this.galleryView,
     required this.currentPage,
@@ -48,6 +50,7 @@ class ChapterViewInitialized extends ChapterViewState {
     ChapterViewerData? data,
     List<Pages>? pages,
     Pages? currentPages,
+    Map<String, String>? headers,
     Pages? nextPages,
     Pages? previousPages,
     ChaptersGroup? group,
@@ -64,6 +67,7 @@ class ChapterViewInitialized extends ChapterViewState {
       data: data ?? this.data,
       pages: pages ?? this.pages,
       currentPages: currentPages ?? this.currentPages,
+      headers: headers ?? this.headers,
       group: group ?? this.group,
       galleryView: galleryView ?? this.galleryView,
       currentPage: currentPage ?? this.currentPage,
