@@ -17,18 +17,13 @@ part 'api_client_controller_state.dart';
 class ApiClientControllerCubit<T extends ApiClient, C>
     extends Cubit<ApiClientControllerState> {
   ApiClientControllerCubit({
-    required this.database,
+    required this.extensionRepository,
     required this.remoteConfig,
     required this.remoteConfigsCubit,
-  }) : super(const ApiClientControllerState()) {
-    extensionRepository = ExtensionRepository(
-      database: database,
-    );
-  }
+  }) : super(const ApiClientControllerState());
 
-  final WakaranaiDatabase database;
   final RemoteConfigsCubit remoteConfigsCubit;
-  late final ExtensionRepository extensionRepository;
+  final ExtensionRepository extensionRepository;
   final BaseExtension? remoteConfig;
 
   void buildApiClient() async {

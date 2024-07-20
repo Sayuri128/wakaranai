@@ -13,7 +13,7 @@ class ExtensionSourceRepository extends BaseRepository<ExtensionSourceDomain,
   }
 
   @override
-  fromDrift(data) {
+  ExtensionSourceDomain fromDrift(data) {
     return ExtensionSourceDomain.fromDrift(data);
   }
 

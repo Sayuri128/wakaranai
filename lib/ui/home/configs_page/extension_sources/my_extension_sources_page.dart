@@ -5,6 +5,7 @@ import 'package:wakaranai/data/domain/extension/extension_source_type.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/env.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page_arguments.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page_result.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/cubit/extension_sources_cubit.dart';
@@ -21,9 +22,9 @@ class MyExtensionSourcesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          ExtensionSourcesCubit(database: context.read<WakaranaiDatabase>())
-            ..init(),
+      create: (context) => ExtensionSourcesCubit(
+        extensionSourceRepository: context.read<ExtensionSourceRepository>(),
+      )..init(),
       child: Scaffold(
           backgroundColor: AppColors.backgroundColor,
           floatingActionButton: _buildFloatingActionButton(context),

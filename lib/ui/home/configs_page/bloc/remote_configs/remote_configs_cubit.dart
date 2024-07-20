@@ -18,15 +18,8 @@ part 'remote_configs_state.dart';
 
 class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   RemoteConfigsCubit({
-    required this.wakaranaiDatabase,
-  }) : super(RemoteConfigsLoading()) {
-    _defaultExtensionRepository = DefaultExtensionRepository();
-    _extensionSourceRepository = ExtensionSourceRepository(
-      database: wakaranaiDatabase,
-    );
-  }
-
-  final WakaranaiDatabase wakaranaiDatabase;
+    required this.extensionSourceRepository,
+  }) : super(RemoteConfigsLoading());
 
   ConfigsService _configsService =
       GitHubConfigsService(Env.configsSourceOrg, Env.configsSourceRepo);
@@ -34,16 +27,17 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   // ConfigsService _configsService =
   //     RepoConfigsService(url: Env.LOCAL_REPOSITORY_URL);
 
-  late final DefaultExtensionRepository _defaultExtensionRepository;
-  late final ExtensionSourceRepository _extensionSourceRepository;
+  final DefaultExtensionRepository defaultExtensionRepository =
+      DefaultExtensionRepository();
+  final ExtensionSourceRepository extensionSourceRepository;
 
   ConfigsService get configService => _configsService;
 
   void init() async {
-    await _defaultExtensionRepository.init();
+    await defaultExtensionRepository.init();
 
     final int? defaultId =
-        await _defaultExtensionRepository.getDefaultExtensionId();
+        await defaultExtensionRepository.getDefaultExtensionId();
 
     Future<void> getDefaultConfig() async {
       await getConfigs(
@@ -56,7 +50,7 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
       return;
     }
 
-    final source = await _extensionSourceRepository.get(defaultId);
+    final source = await extensionSourceRepository.get(defaultId);
 
     if (source == null) {
       await getDefaultConfig();
@@ -102,7 +96,7 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
               githubParserResult.org, githubParserResult.repo);
           break;
       }
-      await _defaultExtensionRepository.setDefaultExtensionId(source.id);
+      await defaultExtensionRepository.setDefaultExtensionId(source.id);
     } catch (_) {
       emit(RemoteConfigsError(
           message:

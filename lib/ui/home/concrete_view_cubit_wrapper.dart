@@ -3,6 +3,7 @@ import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart'
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 
 class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
@@ -25,6 +26,7 @@ class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
       create: (BuildContext context) {
         final ConcreteViewCubit<T, C, G> cubit = ConcreteViewCubit<T, C, G>(
           ConcreteViewState<T, C, G>(apiClient: client),
+          concreteDataRepository: context.read<ConcreteDataRepository>(),
         );
 
         if (init != null) {
