@@ -70,8 +70,6 @@ class _ChapterViewerState extends State<ChapterViewer>
   bool _canLoadNext = false;
   bool _canLoadPrevious = false;
 
-  Map<String, String> _headers = <String, String>{};
-
   @override
   void initState() {
     super.initState();
@@ -83,10 +81,6 @@ class _ChapterViewerState extends State<ChapterViewer>
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.immersiveSticky,
     );
-
-    if (widget.data.configInfo.protectorConfig != null) {
-      _headers = widget.data.apiClient.getProtectorHeaders();
-    }
 
     _chapterViewCubit = ChapterViewCubit(
       apiClient: widget.data.apiClient,
@@ -420,7 +414,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                             },
                             tooltip: FlutterSliderTooltip(
                                 custom: (v) => CachedNetworkImage(
-                                      httpHeaders: _headers,
+                                      httpHeaders: state.headers,
                                       imageUrl: state.currentPages.value[min(
                                           (v as double).toInt(),
                                           state.currentPages.value.length - 1)],
@@ -548,7 +542,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                   tightMode: true,
                   imageProvider: CachedNetworkImageProvider(
                       state.currentPages.value[index],
-                      headers: _headers));
+                      headers: state.headers));
             });
       case ChapterViewMode.webtoon:
         return NotificationListener<ScrollUpdateNotification>(
@@ -593,6 +587,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                       },
                       child: CachedNetworkImage(
                         imageUrl: state.currentPages.value[index],
+                        httpHeaders: state.headers,
                         progressIndicatorBuilder: (BuildContext context,
                                 String url, DownloadProgress progress) =>
                             SizedBox(

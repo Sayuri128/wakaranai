@@ -25,7 +25,7 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
     String org,
     String repo, {
     required String directory,
-    String branch = 'master',
+    String branch = 'main',
     int maxAge = 300,
     String accept = "application/json",
   }) async {
@@ -63,7 +63,7 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
     required String org,
     required String repo,
     required String concrete,
-    String branch = 'master',
+    String branch = 'main',
     int maxAge = 300,
     String accept = "application/json",
   }) async {
