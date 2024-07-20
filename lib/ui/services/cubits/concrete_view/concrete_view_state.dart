@@ -19,6 +19,7 @@ class ConcreteViewInitialized<
   final G galleryView;
   final ConcreteViewOrder order;
   final int groupIndex;
+  final Map<String, ChapterActivityDomain> chapterActivities;
   final Map<String, String> imageHeaders;
 
   const ConcreteViewInitialized(
@@ -28,6 +29,7 @@ class ConcreteViewInitialized<
       required this.groupIndex,
       required super.apiClient,
       required super.configInfo,
+      required this.chapterActivities,
       required this.imageHeaders});
 
   ConcreteViewInitialized<T, C, G> copyWith({
@@ -38,6 +40,7 @@ class ConcreteViewInitialized<
     Map<String, String>? imageHeaders,
     T? apiClient,
     ConfigInfo? configInfo,
+    Map<String, ChapterActivityDomain>? chapterActivities,
   }) {
     return ConcreteViewInitialized<T, C, G>(
       concreteView: concreteView ?? this.concreteView,
@@ -47,6 +50,7 @@ class ConcreteViewInitialized<
       imageHeaders: imageHeaders ?? this.imageHeaders,
       apiClient: apiClient ?? this.apiClient,
       configInfo: configInfo ?? this.configInfo,
+      chapterActivities: chapterActivities ?? this.chapterActivities,
     );
   }
 }

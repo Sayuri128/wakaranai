@@ -119,6 +119,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
           canGetNextPages: canGetNextPages,
         ),
       );
+      pagesLoaded?.call(initialPage, currentPages.value.length);
     } catch (e, s) {
       logger.e(e);
       logger.e(s);

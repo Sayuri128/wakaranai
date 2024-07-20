@@ -97,6 +97,21 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
     }
   }
 
+  Future<List<TDomain>> getAllBy<TTable>(
+    dynamic value, {
+    required GeneratedColumn Function(TTable) where,
+    bool distinct = false,
+  }) async {
+    try {
+      final res = await (selectStatement()
+            ..where((tbl) => where(tbl).equals(value)))
+          .get();
+      return res.map((e) => fromDrift(e)).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
   Future<TDomain?> update(TDomain domain) async {
     try {
       final res = await (updateStatement()
