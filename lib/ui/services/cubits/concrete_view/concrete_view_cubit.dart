@@ -3,6 +3,7 @@ import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart'
 import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
@@ -37,10 +38,11 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
 
       final all = await concreteDataRepository.getAll();
 
-      await concreteDataRepository.createUpdateBy<$ConcreteDataTableTable,
-          String>(
+      await concreteDataRepository
+          .createUpdateBy<$ConcreteDataTableTable, String>(
         concreteView.toConcreteDataDomain(
-          galleryView.data,
+          data: galleryView.data,
+          extensionUid: state.configInfo.uid,
         ),
         by: (tbl) => tbl.uid,
         where: (tbl) => tbl.uid,
@@ -48,13 +50,17 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       final Map<String, String> imageHeaders = await state.apiClient
           .getImageHeaders(uid: uid, data: galleryView.data);
 
-      emit(ConcreteViewInitialized<T, C, G>(
+      emit(
+        ConcreteViewInitialized<T, C, G>(
           concreteView: concreteView as dynamic,
           galleryView: galleryView,
           apiClient: state.apiClient,
+          configInfo: state.configInfo,
           groupIndex: concreteView.groups.isNotEmpty ? 0 : -1,
           imageHeaders: imageHeaders,
-          order: ConcreteViewOrder.def));
+          order: ConcreteViewOrder.def,
+        ),
+      );
     } catch (e, s) {
       logger.e(e);
       logger.e(s);
@@ -63,6 +69,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
         ConcreteViewError<T, C, G>(
           message: e.toString(),
           apiClient: state.apiClient,
+          configInfo: state.configInfo,
         ),
       );
     }

@@ -10,6 +10,7 @@ import 'package:wakaranai/data/domain/base_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 
 class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
+  final String extensionUid;
   final String uid;
   final String title;
   final String? cover;
@@ -21,6 +22,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
       ConcreteDataDomain(
         id: data.id,
         uid: data.uid,
+        extensionUid: data.extensionUid,
         title: data.title,
         cover: data.cover,
         data: data.data,
@@ -35,6 +37,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
       return ConcreteDataTableCompanion(
         id: const Value.absent(),
         uid: Value(uid),
+        extensionUid: Value(extensionUid),
         title: Value(title),
         cover: Value(cover),
         data: Value(data),
@@ -45,6 +48,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
     return ConcreteDataTableCompanion(
       id: Value(id),
       uid: Value(uid),
+      extensionUid: Value(extensionUid),
       title: Value(title),
       cover: Value(cover),
       data: Value(data),
@@ -56,6 +60,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
   ConcreteDataDomain copyWith({
     int? id,
     String? uid,
+    String? extensionUid,
     String? title,
     String? cover,
     String? data,
@@ -63,6 +68,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
     return ConcreteDataDomain(
       id: id ?? this.id,
       uid: uid ?? this.uid,
+      extensionUid: extensionUid ?? this.extensionUid,
       title: title ?? this.title,
       cover: cover ?? this.cover,
       data: data ?? this.data,
@@ -74,6 +80,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
   ConcreteDataDomain({
     required super.id,
     required this.uid,
+    required this.extensionUid,
     required this.title,
     this.cover,
     this.data,
@@ -83,10 +90,14 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
 }
 
 extension ConcreteViewExtension on ConcreteView<dynamic> {
-  ConcreteDataDomain toConcreteDataDomain(Map<String, dynamic> data) =>
+  ConcreteDataDomain toConcreteDataDomain({
+    required Map<String, dynamic> data,
+    required String extensionUid,
+  }) =>
       ConcreteDataDomain(
         id: 0,
         uid: uid,
+        extensionUid: extensionUid,
         title: title,
         cover: cover,
         data: jsonEncode(data),

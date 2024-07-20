@@ -1015,6 +1015,15 @@ class $ConcreteDataTableTable extends ConcreteDataTable
   late final GeneratedColumn<String> uid = GeneratedColumn<String>(
       'uid', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _extensionUidMeta =
+      const VerificationMeta('extensionUid');
+  @override
+  late final GeneratedColumn<String> extensionUid = GeneratedColumn<String>(
+      'extension_uid', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES extension_table (uid)'));
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
@@ -1032,7 +1041,7 @@ class $ConcreteDataTableTable extends ConcreteDataTable
       type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, createdAt, updatedAt, uid, title, cover, data];
+      [id, createdAt, updatedAt, uid, extensionUid, title, cover, data];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1060,6 +1069,14 @@ class $ConcreteDataTableTable extends ConcreteDataTable
           _uidMeta, uid.isAcceptableOrUnknown(data['uid']!, _uidMeta));
     } else if (isInserting) {
       context.missing(_uidMeta);
+    }
+    if (data.containsKey('extension_uid')) {
+      context.handle(
+          _extensionUidMeta,
+          extensionUid.isAcceptableOrUnknown(
+              data['extension_uid']!, _extensionUidMeta));
+    } else if (isInserting) {
+      context.missing(_extensionUidMeta);
     }
     if (data.containsKey('title')) {
       context.handle(
@@ -1092,6 +1109,8 @@ class $ConcreteDataTableTable extends ConcreteDataTable
           .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
       uid: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
+      extensionUid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}extension_uid'])!,
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       cover: attachedDatabase.typeMapping
@@ -1113,6 +1132,7 @@ class ConcreteDataTableData extends DataClass
   final DateTime createdAt;
   final DateTime? updatedAt;
   final String uid;
+  final String extensionUid;
   final String title;
   final String? cover;
   final String? data;
@@ -1121,6 +1141,7 @@ class ConcreteDataTableData extends DataClass
       required this.createdAt,
       this.updatedAt,
       required this.uid,
+      required this.extensionUid,
       required this.title,
       this.cover,
       this.data});
@@ -1133,6 +1154,7 @@ class ConcreteDataTableData extends DataClass
       map['updated_at'] = Variable<DateTime>(updatedAt);
     }
     map['uid'] = Variable<String>(uid);
+    map['extension_uid'] = Variable<String>(extensionUid);
     map['title'] = Variable<String>(title);
     if (!nullToAbsent || cover != null) {
       map['cover'] = Variable<String>(cover);
@@ -1151,6 +1173,7 @@ class ConcreteDataTableData extends DataClass
           ? const Value.absent()
           : Value(updatedAt),
       uid: Value(uid),
+      extensionUid: Value(extensionUid),
       title: Value(title),
       cover:
           cover == null && nullToAbsent ? const Value.absent() : Value(cover),
@@ -1166,6 +1189,7 @@ class ConcreteDataTableData extends DataClass
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
       uid: serializer.fromJson<String>(json['uid']),
+      extensionUid: serializer.fromJson<String>(json['extensionUid']),
       title: serializer.fromJson<String>(json['title']),
       cover: serializer.fromJson<String?>(json['cover']),
       data: serializer.fromJson<String?>(json['data']),
@@ -1179,6 +1203,7 @@ class ConcreteDataTableData extends DataClass
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
       'uid': serializer.toJson<String>(uid),
+      'extensionUid': serializer.toJson<String>(extensionUid),
       'title': serializer.toJson<String>(title),
       'cover': serializer.toJson<String?>(cover),
       'data': serializer.toJson<String?>(data),
@@ -1190,6 +1215,7 @@ class ConcreteDataTableData extends DataClass
           DateTime? createdAt,
           Value<DateTime?> updatedAt = const Value.absent(),
           String? uid,
+          String? extensionUid,
           String? title,
           Value<String?> cover = const Value.absent(),
           Value<String?> data = const Value.absent()}) =>
@@ -1198,6 +1224,7 @@ class ConcreteDataTableData extends DataClass
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
         uid: uid ?? this.uid,
+        extensionUid: extensionUid ?? this.extensionUid,
         title: title ?? this.title,
         cover: cover.present ? cover.value : this.cover,
         data: data.present ? data.value : this.data,
@@ -1208,6 +1235,9 @@ class ConcreteDataTableData extends DataClass
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       uid: data.uid.present ? data.uid.value : this.uid,
+      extensionUid: data.extensionUid.present
+          ? data.extensionUid.value
+          : this.extensionUid,
       title: data.title.present ? data.title.value : this.title,
       cover: data.cover.present ? data.cover.value : this.cover,
       data: data.data.present ? data.data.value : this.data,
@@ -1221,6 +1251,7 @@ class ConcreteDataTableData extends DataClass
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('uid: $uid, ')
+          ..write('extensionUid: $extensionUid, ')
           ..write('title: $title, ')
           ..write('cover: $cover, ')
           ..write('data: $data')
@@ -1229,8 +1260,8 @@ class ConcreteDataTableData extends DataClass
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, createdAt, updatedAt, uid, title, cover, data);
+  int get hashCode => Object.hash(
+      id, createdAt, updatedAt, uid, extensionUid, title, cover, data);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1239,6 +1270,7 @@ class ConcreteDataTableData extends DataClass
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.uid == this.uid &&
+          other.extensionUid == this.extensionUid &&
           other.title == this.title &&
           other.cover == this.cover &&
           other.data == this.data);
@@ -1250,6 +1282,7 @@ class ConcreteDataTableCompanion
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
   final Value<String> uid;
+  final Value<String> extensionUid;
   final Value<String> title;
   final Value<String?> cover;
   final Value<String?> data;
@@ -1258,6 +1291,7 @@ class ConcreteDataTableCompanion
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.uid = const Value.absent(),
+    this.extensionUid = const Value.absent(),
     this.title = const Value.absent(),
     this.cover = const Value.absent(),
     this.data = const Value.absent(),
@@ -1267,16 +1301,19 @@ class ConcreteDataTableCompanion
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     required String uid,
+    required String extensionUid,
     required String title,
     this.cover = const Value.absent(),
     this.data = const Value.absent(),
   })  : uid = Value(uid),
+        extensionUid = Value(extensionUid),
         title = Value(title);
   static Insertable<ConcreteDataTableData> custom({
     Expression<int>? id,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<String>? uid,
+    Expression<String>? extensionUid,
     Expression<String>? title,
     Expression<String>? cover,
     Expression<String>? data,
@@ -1286,6 +1323,7 @@ class ConcreteDataTableCompanion
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (uid != null) 'uid': uid,
+      if (extensionUid != null) 'extension_uid': extensionUid,
       if (title != null) 'title': title,
       if (cover != null) 'cover': cover,
       if (data != null) 'data': data,
@@ -1297,6 +1335,7 @@ class ConcreteDataTableCompanion
       Value<DateTime>? createdAt,
       Value<DateTime?>? updatedAt,
       Value<String>? uid,
+      Value<String>? extensionUid,
       Value<String>? title,
       Value<String?>? cover,
       Value<String?>? data}) {
@@ -1305,6 +1344,7 @@ class ConcreteDataTableCompanion
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       uid: uid ?? this.uid,
+      extensionUid: extensionUid ?? this.extensionUid,
       title: title ?? this.title,
       cover: cover ?? this.cover,
       data: data ?? this.data,
@@ -1326,6 +1366,9 @@ class ConcreteDataTableCompanion
     if (uid.present) {
       map['uid'] = Variable<String>(uid.value);
     }
+    if (extensionUid.present) {
+      map['extension_uid'] = Variable<String>(extensionUid.value);
+    }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
@@ -1345,6 +1388,7 @@ class ConcreteDataTableCompanion
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('uid: $uid, ')
+          ..write('extensionUid: $extensionUid, ')
           ..write('title: $title, ')
           ..write('cover: $cover, ')
           ..write('data: $data')
@@ -2081,6 +2125,23 @@ class $$ExtensionTableTableFilterComposer
       column: $state.table.protectorConfig,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ComposableFilter concreteDataTableRefs(
+      ComposableFilter Function($$ConcreteDataTableTableFilterComposer f) f) {
+    final $$ConcreteDataTableTableFilterComposer composer =
+        $state.composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.uid,
+            referencedTable: $state.db.concreteDataTable,
+            getReferencedColumn: (t) => t.extensionUid,
+            builder: (joinBuilder, parentComposers) =>
+                $$ConcreteDataTableTableFilterComposer(ComposerState(
+                    $state.db,
+                    $state.db.concreteDataTable,
+                    joinBuilder,
+                    parentComposers)));
+    return f(composer);
+  }
 }
 
 class $$ExtensionTableTableOrderingComposer
@@ -2158,6 +2219,7 @@ typedef $$ConcreteDataTableTableCreateCompanionBuilder
   Value<DateTime> createdAt,
   Value<DateTime?> updatedAt,
   required String uid,
+  required String extensionUid,
   required String title,
   Value<String?> cover,
   Value<String?> data,
@@ -2168,6 +2230,7 @@ typedef $$ConcreteDataTableTableUpdateCompanionBuilder
   Value<DateTime> createdAt,
   Value<DateTime?> updatedAt,
   Value<String> uid,
+  Value<String> extensionUid,
   Value<String> title,
   Value<String?> cover,
   Value<String?> data,
@@ -2195,6 +2258,7 @@ class $$ConcreteDataTableTableTableManager extends RootTableManager<
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime?> updatedAt = const Value.absent(),
             Value<String> uid = const Value.absent(),
+            Value<String> extensionUid = const Value.absent(),
             Value<String> title = const Value.absent(),
             Value<String?> cover = const Value.absent(),
             Value<String?> data = const Value.absent(),
@@ -2204,6 +2268,7 @@ class $$ConcreteDataTableTableTableManager extends RootTableManager<
             createdAt: createdAt,
             updatedAt: updatedAt,
             uid: uid,
+            extensionUid: extensionUid,
             title: title,
             cover: cover,
             data: data,
@@ -2213,6 +2278,7 @@ class $$ConcreteDataTableTableTableManager extends RootTableManager<
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime?> updatedAt = const Value.absent(),
             required String uid,
+            required String extensionUid,
             required String title,
             Value<String?> cover = const Value.absent(),
             Value<String?> data = const Value.absent(),
@@ -2222,6 +2288,7 @@ class $$ConcreteDataTableTableTableManager extends RootTableManager<
             createdAt: createdAt,
             updatedAt: updatedAt,
             uid: uid,
+            extensionUid: extensionUid,
             title: title,
             cover: cover,
             data: data,
@@ -2266,6 +2333,18 @@ class $$ConcreteDataTableTableFilterComposer
       column: $state.table.data,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
+
+  $$ExtensionTableTableFilterComposer get extensionUid {
+    final $$ExtensionTableTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.extensionUid,
+        referencedTable: $state.db.extensionTable,
+        getReferencedColumn: (t) => t.uid,
+        builder: (joinBuilder, parentComposers) =>
+            $$ExtensionTableTableFilterComposer(ComposerState($state.db,
+                $state.db.extensionTable, joinBuilder, parentComposers)));
+    return composer;
+  }
 
   ComposableFilter chapterActivityTableRefs(
       ComposableFilter Function($$ChapterActivityTableTableFilterComposer f)
@@ -2323,6 +2402,19 @@ class $$ConcreteDataTableTableOrderingComposer
       column: $state.table.data,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  $$ExtensionTableTableOrderingComposer get extensionUid {
+    final $$ExtensionTableTableOrderingComposer composer =
+        $state.composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.extensionUid,
+            referencedTable: $state.db.extensionTable,
+            getReferencedColumn: (t) => t.uid,
+            builder: (joinBuilder, parentComposers) =>
+                $$ExtensionTableTableOrderingComposer(ComposerState($state.db,
+                    $state.db.extensionTable, joinBuilder, parentComposers)));
+    return composer;
+  }
 }
 
 typedef $$ChapterActivityTableTableCreateCompanionBuilder

@@ -70,6 +70,7 @@ class AnimeConcreteViewer extends StatelessWidget {
     return ConcreteViewCubitWrapper<AnimeApiClient, AnimeConcreteView,
         AnimeGalleryView>(
       client: data.client,
+      configInfo: data.configInfo,
       init: (ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
               AnimeGalleryView>
           cubit) {
