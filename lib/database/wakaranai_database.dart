@@ -1,18 +1,22 @@
 import 'dart:io';
 
 import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
+import 'package:wakaranai/data/entities/chapter_activity/chapter_activity_table.dart';
+import 'package:wakaranai/data/entities/concrete_data/concrete_data_table.dart';
 import 'package:wakaranai/data/entities/extension/extension_table.dart';
 import 'package:wakaranai/data/entities/extensions_source/extension_source_table.dart';
-import 'package:path/path.dart' as path;
-import 'package:drift/native.dart';
-import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
 part 'wakaranai_database.g.dart';
 
 @DriftDatabase(tables: [
   ExtensionSourceTable,
   ExtensionTable,
+  ConcreteDataTable,
+  ChapterActivityTable,
 ])
 class WakaranaiDatabase extends _$WakaranaiDatabase {
   WakaranaiDatabase() : super(_openConnection());
@@ -27,11 +31,15 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
           if (from < 2) {
             await m.createTable(extensionTable);
           }
+          if (from < 3) {
+            await m.createTable(concreteDataTable);
+            await m.createTable(chapterActivityTable);
+          }
         },
       );
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 }
 
 LazyDatabase _openConnection() {

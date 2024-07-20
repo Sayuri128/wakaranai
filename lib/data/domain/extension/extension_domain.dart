@@ -5,8 +5,6 @@ import 'package:capyscript/modules/waka_models/models/config_info/protector_conf
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
 import 'package:wakaranai/data/domain/extension/base_extension.dart';
-import 'package:wakaranai/data/models/remote_config/remote_category.dart';
-import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/utils/enum_converters.dart';
 
@@ -79,7 +77,7 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
     );
   }
 
-  const ExtensionDomain({
+  ExtensionDomain({
     required super.id,
     required this.config,
     required this.sourceCode,

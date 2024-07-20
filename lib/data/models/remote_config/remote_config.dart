@@ -1,8 +1,6 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:wakaranai/data/domain/extension/base_extension.dart';
-import 'package:wakaranai/data/domain/extension/extension_domain.dart';
-import 'package:wakaranai/data/models/remote_config/remote_category.dart';
 
 part 'remote_config.g.dart';
 
