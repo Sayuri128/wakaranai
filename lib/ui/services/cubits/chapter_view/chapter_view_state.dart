@@ -2,6 +2,7 @@ import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/manga_gallery_view.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 
 abstract class ChapterViewState {
   const ChapterViewState();
@@ -10,8 +11,11 @@ abstract class ChapterViewState {
 class ChapterViewInit extends ChapterViewState {}
 
 class ChapterViewInitialized extends ChapterViewState {
+  final ChapterViewerData data;
+
   final List<Pages> pages;
   final Pages currentPages;
+  final Map<String, String> headers;
 
   final ChaptersGroup group;
   final MangaGalleryView galleryView;
@@ -27,8 +31,10 @@ class ChapterViewInitialized extends ChapterViewState {
   final bool canGetPreviousPages;
 
   const ChapterViewInitialized({
+    required this.data,
     required this.pages,
     required this.currentPages,
+    required this.headers,
     required this.group,
     required this.galleryView,
     required this.currentPage,
@@ -41,8 +47,10 @@ class ChapterViewInitialized extends ChapterViewState {
   });
 
   ChapterViewInitialized copyWith({
+    ChapterViewerData? data,
     List<Pages>? pages,
     Pages? currentPages,
+    Map<String, String>? headers,
     Pages? nextPages,
     Pages? previousPages,
     ChaptersGroup? group,
@@ -56,8 +64,10 @@ class ChapterViewInitialized extends ChapterViewState {
     bool? canGetPreviousPages,
   }) {
     return ChapterViewInitialized(
+      data: data ?? this.data,
       pages: pages ?? this.pages,
       currentPages: currentPages ?? this.currentPages,
+      headers: headers ?? this.headers,
       group: group ?? this.group,
       galleryView: galleryView ?? this.galleryView,
       currentPage: currentPage ?? this.currentPage,
