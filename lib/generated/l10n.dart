@@ -1,7 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import 'intl/messages_all.dart';
 
 // **************************************************************************
@@ -106,6 +105,16 @@ class S {
     return Intl.message(
       'Explore',
       name: 'home_navigation_bar_sources_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `History`
+  String get home_navigation_bar_activity_history_title {
+    return Intl.message(
+      'History',
+      name: 'home_navigation_bar_activity_history_title',
       desc: '',
       args: [],
     );
@@ -566,6 +575,26 @@ class S {
     return Intl.message(
       'Done',
       name: 'web_browser_no_login_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during loading history`
+  String get activity_history_error_loading_history {
+    return Intl.message(
+      'Error occurred during loading history',
+      name: 'activity_history_error_loading_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during loading extension`
+  String get activity_history_error_loading_extension {
+    return Intl.message(
+      'Error occurred during loading extension',
+      name: 'activity_history_error_loading_extension',
       desc: '',
       args: [],
     );

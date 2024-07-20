@@ -24,14 +24,14 @@ import 'package:wakaranai/utils/text_styles.dart';
 
 class AnimeConcreteViewerData {
   final String uid;
-  final AnimeGalleryView galleryView;
+  final Map<String, dynamic> galleryData;
   final AnimeApiClient client;
   final ConfigInfo configInfo;
   final bool fromLibrary;
 
   const AnimeConcreteViewerData(
       {required this.uid,
-      required this.galleryView,
+      required this.galleryData,
       required this.client,
       required this.configInfo,
       this.fromLibrary = false});
@@ -55,7 +55,7 @@ class AnimeConcreteViewer extends StatelessWidget {
               ?.read<
                   ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
                       AnimeGalleryView>>()
-              .getConcrete(data.uid, data.galleryView);
+              .getConcrete(data.uid, data.galleryData);
         },
         builder: (BuildContext context, Completer<bool> completer) =>
             _wrapWithBrowserInterceptorCubit(
@@ -75,7 +75,7 @@ class AnimeConcreteViewer extends StatelessWidget {
               AnimeGalleryView>
           cubit) {
         if (init) {
-          cubit.getConcrete(data.uid, data.galleryView);
+          cubit.getConcrete(data.uid, data.galleryData);
         }
       },
       builder: (BuildContext context,
@@ -168,7 +168,7 @@ class AnimeConcreteViewer extends StatelessWidget {
                           AnimeGalleryView>>()
                   .getConcrete(
                     data.uid,
-                    data.galleryView,
+                    data.galleryData,
                     forceRemote: true,
                   );
             },
@@ -189,7 +189,7 @@ class AnimeConcreteViewer extends StatelessWidget {
                     width: MediaQuery.of(context).size.width,
                     child: Column(
                       children: <Widget>[
-                        _buildCover(data.galleryView.cover, context),
+                        _buildCover(concreteView.cover, context),
                         const SizedBox(height: 16.0),
                         if (state is ConcreteViewInitialized<AnimeApiClient,
                             AnimeConcreteView, AnimeGalleryView>) ...<Widget>[

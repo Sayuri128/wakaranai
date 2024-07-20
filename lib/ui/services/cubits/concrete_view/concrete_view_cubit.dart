@@ -5,12 +5,12 @@ import 'package:capyscript/modules/waka_models/models/common/elements_group_of_c
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/data/domain/chapter_activity_domain/chapter_activity_domain.dart';
+import 'package:wakaranai/data/domain/database/chapter_activity_domain/chapter_activity_domain.dart';
+import 'package:wakaranai/data/domain/database/concrete_data_domain/concrete_data_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
-import 'package:wakaranai/data/domain/concrete_data_domain/concrete_data_domain.dart';
 
 part 'concrete_view_state.dart';
 
@@ -34,25 +34,25 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
         .getConcrete(uid: uid, data: data);
   }
 
-  Future<void> getConcrete(String uid, G galleryView,
+  Future<void> getConcrete(String uid, Map<String, dynamic> galleryData,
       {bool forceRemote = false}) async {
     try {
       final ConcreteView<dynamic> concreteView =
-          await _getConcrete(uid, galleryView.data);
+          await _getConcrete(uid, galleryData);
 
       final all = await concreteDataRepository.getAll();
 
       await concreteDataRepository
           .createUpdateBy<$ConcreteDataTableTable, String>(
         concreteView.toConcreteDataDomain(
-          data: galleryView.data,
+          data: galleryData,
           extensionUid: state.configInfo.uid,
         ),
         by: (tbl) => tbl.uid,
         where: (tbl) => tbl.uid,
       );
       final Map<String, String> imageHeaders = await state.apiClient
-          .getImageHeaders(uid: uid, data: galleryView.data);
+          .getImageHeaders(uid: uid, data: galleryData);
 
       // Fetch chapter activities to show the user's progress
       final Map<String, ChapterActivityDomain> chapterActivities = {};
@@ -65,7 +65,6 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       emit(
         ConcreteViewInitialized<T, C, G>(
           concreteView: concreteView as dynamic,
-          galleryView: galleryView,
           apiClient: state.apiClient,
           configInfo: state.configInfo,
           groupIndex: concreteView.groups.isNotEmpty ? 0 : -1,

@@ -15,7 +15,7 @@ import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
 import 'blocs/auth/authentication_cubit.dart';
 import 'repositories/database/concerete_data_repository.dart';
 import 'ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
-import 'ui/home/settings/cubit/settings/settings_cubit.dart';
+import 'ui/home/settings_page/cubit/settings/settings_cubit.dart';
 
 const bool debug = true;
 

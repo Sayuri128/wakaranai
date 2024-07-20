@@ -1,4 +1,4 @@
-import 'package:wakaranai/data/domain/extension/extension_source_type.dart';
+import 'package:wakaranai/data/domain/database/extension/extension_source_type.dart';
 
 class ExtensionSourcesPageResult {
   final int? id;

@@ -16,7 +16,6 @@ class ConcreteViewInitialized<
     C extends ConcreteView<dynamic>,
     G extends GalleryView> extends ConcreteViewState<T, C, G> {
   final C concreteView;
-  final G galleryView;
   final ConcreteViewOrder order;
   final int groupIndex;
   final Map<String, ChapterActivityDomain> chapterActivities;
@@ -24,7 +23,6 @@ class ConcreteViewInitialized<
 
   const ConcreteViewInitialized(
       {required this.concreteView,
-      required this.galleryView,
       required this.order,
       required this.groupIndex,
       required super.apiClient,
@@ -34,7 +32,6 @@ class ConcreteViewInitialized<
 
   ConcreteViewInitialized<T, C, G> copyWith({
     C? concreteView,
-    G? galleryView,
     int? groupIndex,
     ConcreteViewOrder? order,
     Map<String, String>? imageHeaders,
@@ -44,7 +41,6 @@ class ConcreteViewInitialized<
   }) {
     return ConcreteViewInitialized<T, C, G>(
       concreteView: concreteView ?? this.concreteView,
-      galleryView: galleryView ?? this.galleryView,
       order: order ?? this.order,
       groupIndex: groupIndex ?? this.groupIndex,
       imageHeaders: imageHeaders ?? this.imageHeaders,
