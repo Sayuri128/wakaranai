@@ -1431,6 +1431,22 @@ class $ChapterActivityTableTable extends ChapterActivityTable
   late final GeneratedColumn<String> uid = GeneratedColumn<String>(
       'uid', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<String> timestamp = GeneratedColumn<String>(
+      'timestamp', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+      'data', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _concreteIdMeta =
       const VerificationMeta('concreteId');
   @override
@@ -1453,8 +1469,18 @@ class $ChapterActivityTableTable extends ChapterActivityTable
       'total_pages', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, createdAt, updatedAt, uid, concreteId, readPages, totalPages];
+  List<GeneratedColumn> get $columns => [
+        id,
+        createdAt,
+        updatedAt,
+        uid,
+        title,
+        timestamp,
+        data,
+        concreteId,
+        readPages,
+        totalPages
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1482,6 +1508,20 @@ class $ChapterActivityTableTable extends ChapterActivityTable
           _uidMeta, uid.isAcceptableOrUnknown(data['uid']!, _uidMeta));
     } else if (isInserting) {
       context.missing(_uidMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('data')) {
+      context.handle(
+          _dataMeta, this.data.isAcceptableOrUnknown(data['data']!, _dataMeta));
     }
     if (data.containsKey('concrete_id')) {
       context.handle(
@@ -1523,6 +1563,12 @@ class $ChapterActivityTableTable extends ChapterActivityTable
           .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
       uid: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}timestamp']),
+      data: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}data']),
       concreteId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}concrete_id'])!,
       readPages: attachedDatabase.typeMapping
@@ -1544,6 +1590,9 @@ class ChapterActivityTableData extends DataClass
   final DateTime createdAt;
   final DateTime? updatedAt;
   final String uid;
+  final String title;
+  final String? timestamp;
+  final String? data;
   final int concreteId;
   final int readPages;
   final int totalPages;
@@ -1552,6 +1601,9 @@ class ChapterActivityTableData extends DataClass
       required this.createdAt,
       this.updatedAt,
       required this.uid,
+      required this.title,
+      this.timestamp,
+      this.data,
       required this.concreteId,
       required this.readPages,
       required this.totalPages});
@@ -1564,6 +1616,13 @@ class ChapterActivityTableData extends DataClass
       map['updated_at'] = Variable<DateTime>(updatedAt);
     }
     map['uid'] = Variable<String>(uid);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || timestamp != null) {
+      map['timestamp'] = Variable<String>(timestamp);
+    }
+    if (!nullToAbsent || data != null) {
+      map['data'] = Variable<String>(data);
+    }
     map['concrete_id'] = Variable<int>(concreteId);
     map['read_pages'] = Variable<int>(readPages);
     map['total_pages'] = Variable<int>(totalPages);
@@ -1578,6 +1637,11 @@ class ChapterActivityTableData extends DataClass
           ? const Value.absent()
           : Value(updatedAt),
       uid: Value(uid),
+      title: Value(title),
+      timestamp: timestamp == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timestamp),
+      data: data == null && nullToAbsent ? const Value.absent() : Value(data),
       concreteId: Value(concreteId),
       readPages: Value(readPages),
       totalPages: Value(totalPages),
@@ -1592,6 +1656,9 @@ class ChapterActivityTableData extends DataClass
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
       uid: serializer.fromJson<String>(json['uid']),
+      title: serializer.fromJson<String>(json['title']),
+      timestamp: serializer.fromJson<String?>(json['timestamp']),
+      data: serializer.fromJson<String?>(json['data']),
       concreteId: serializer.fromJson<int>(json['concreteId']),
       readPages: serializer.fromJson<int>(json['readPages']),
       totalPages: serializer.fromJson<int>(json['totalPages']),
@@ -1605,6 +1672,9 @@ class ChapterActivityTableData extends DataClass
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
       'uid': serializer.toJson<String>(uid),
+      'title': serializer.toJson<String>(title),
+      'timestamp': serializer.toJson<String?>(timestamp),
+      'data': serializer.toJson<String?>(data),
       'concreteId': serializer.toJson<int>(concreteId),
       'readPages': serializer.toJson<int>(readPages),
       'totalPages': serializer.toJson<int>(totalPages),
@@ -1616,6 +1686,9 @@ class ChapterActivityTableData extends DataClass
           DateTime? createdAt,
           Value<DateTime?> updatedAt = const Value.absent(),
           String? uid,
+          String? title,
+          Value<String?> timestamp = const Value.absent(),
+          Value<String?> data = const Value.absent(),
           int? concreteId,
           int? readPages,
           int? totalPages}) =>
@@ -1624,6 +1697,9 @@ class ChapterActivityTableData extends DataClass
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
         uid: uid ?? this.uid,
+        title: title ?? this.title,
+        timestamp: timestamp.present ? timestamp.value : this.timestamp,
+        data: data.present ? data.value : this.data,
         concreteId: concreteId ?? this.concreteId,
         readPages: readPages ?? this.readPages,
         totalPages: totalPages ?? this.totalPages,
@@ -1635,6 +1711,9 @@ class ChapterActivityTableData extends DataClass
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       uid: data.uid.present ? data.uid.value : this.uid,
+      title: data.title.present ? data.title.value : this.title,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      data: data.data.present ? data.data.value : this.data,
       concreteId:
           data.concreteId.present ? data.concreteId.value : this.concreteId,
       readPages: data.readPages.present ? data.readPages.value : this.readPages,
@@ -1650,6 +1729,9 @@ class ChapterActivityTableData extends DataClass
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('uid: $uid, ')
+          ..write('title: $title, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('data: $data, ')
           ..write('concreteId: $concreteId, ')
           ..write('readPages: $readPages, ')
           ..write('totalPages: $totalPages')
@@ -1658,8 +1740,8 @@ class ChapterActivityTableData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, createdAt, updatedAt, uid, concreteId, readPages, totalPages);
+  int get hashCode => Object.hash(id, createdAt, updatedAt, uid, title,
+      timestamp, data, concreteId, readPages, totalPages);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1668,6 +1750,9 @@ class ChapterActivityTableData extends DataClass
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.uid == this.uid &&
+          other.title == this.title &&
+          other.timestamp == this.timestamp &&
+          other.data == this.data &&
           other.concreteId == this.concreteId &&
           other.readPages == this.readPages &&
           other.totalPages == this.totalPages);
@@ -1679,6 +1764,9 @@ class ChapterActivityTableCompanion
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
   final Value<String> uid;
+  final Value<String> title;
+  final Value<String?> timestamp;
+  final Value<String?> data;
   final Value<int> concreteId;
   final Value<int> readPages;
   final Value<int> totalPages;
@@ -1687,6 +1775,9 @@ class ChapterActivityTableCompanion
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.uid = const Value.absent(),
+    this.title = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.data = const Value.absent(),
     this.concreteId = const Value.absent(),
     this.readPages = const Value.absent(),
     this.totalPages = const Value.absent(),
@@ -1696,10 +1787,14 @@ class ChapterActivityTableCompanion
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     required String uid,
+    required String title,
+    this.timestamp = const Value.absent(),
+    this.data = const Value.absent(),
     required int concreteId,
     required int readPages,
     required int totalPages,
   })  : uid = Value(uid),
+        title = Value(title),
         concreteId = Value(concreteId),
         readPages = Value(readPages),
         totalPages = Value(totalPages);
@@ -1708,6 +1803,9 @@ class ChapterActivityTableCompanion
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<String>? uid,
+    Expression<String>? title,
+    Expression<String>? timestamp,
+    Expression<String>? data,
     Expression<int>? concreteId,
     Expression<int>? readPages,
     Expression<int>? totalPages,
@@ -1717,6 +1815,9 @@ class ChapterActivityTableCompanion
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (uid != null) 'uid': uid,
+      if (title != null) 'title': title,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (data != null) 'data': data,
       if (concreteId != null) 'concrete_id': concreteId,
       if (readPages != null) 'read_pages': readPages,
       if (totalPages != null) 'total_pages': totalPages,
@@ -1728,6 +1829,9 @@ class ChapterActivityTableCompanion
       Value<DateTime>? createdAt,
       Value<DateTime?>? updatedAt,
       Value<String>? uid,
+      Value<String>? title,
+      Value<String?>? timestamp,
+      Value<String?>? data,
       Value<int>? concreteId,
       Value<int>? readPages,
       Value<int>? totalPages}) {
@@ -1736,6 +1840,9 @@ class ChapterActivityTableCompanion
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       uid: uid ?? this.uid,
+      title: title ?? this.title,
+      timestamp: timestamp ?? this.timestamp,
+      data: data ?? this.data,
       concreteId: concreteId ?? this.concreteId,
       readPages: readPages ?? this.readPages,
       totalPages: totalPages ?? this.totalPages,
@@ -1757,6 +1864,15 @@ class ChapterActivityTableCompanion
     if (uid.present) {
       map['uid'] = Variable<String>(uid.value);
     }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<String>(timestamp.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
     if (concreteId.present) {
       map['concrete_id'] = Variable<int>(concreteId.value);
     }
@@ -1776,6 +1892,9 @@ class ChapterActivityTableCompanion
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('uid: $uid, ')
+          ..write('title: $title, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('data: $data, ')
           ..write('concreteId: $concreteId, ')
           ..write('readPages: $readPages, ')
           ..write('totalPages: $totalPages')
@@ -2423,6 +2542,9 @@ typedef $$ChapterActivityTableTableCreateCompanionBuilder
   Value<DateTime> createdAt,
   Value<DateTime?> updatedAt,
   required String uid,
+  required String title,
+  Value<String?> timestamp,
+  Value<String?> data,
   required int concreteId,
   required int readPages,
   required int totalPages,
@@ -2433,6 +2555,9 @@ typedef $$ChapterActivityTableTableUpdateCompanionBuilder
   Value<DateTime> createdAt,
   Value<DateTime?> updatedAt,
   Value<String> uid,
+  Value<String> title,
+  Value<String?> timestamp,
+  Value<String?> data,
   Value<int> concreteId,
   Value<int> readPages,
   Value<int> totalPages,
@@ -2460,6 +2585,9 @@ class $$ChapterActivityTableTableTableManager extends RootTableManager<
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime?> updatedAt = const Value.absent(),
             Value<String> uid = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> timestamp = const Value.absent(),
+            Value<String?> data = const Value.absent(),
             Value<int> concreteId = const Value.absent(),
             Value<int> readPages = const Value.absent(),
             Value<int> totalPages = const Value.absent(),
@@ -2469,6 +2597,9 @@ class $$ChapterActivityTableTableTableManager extends RootTableManager<
             createdAt: createdAt,
             updatedAt: updatedAt,
             uid: uid,
+            title: title,
+            timestamp: timestamp,
+            data: data,
             concreteId: concreteId,
             readPages: readPages,
             totalPages: totalPages,
@@ -2478,6 +2609,9 @@ class $$ChapterActivityTableTableTableManager extends RootTableManager<
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime?> updatedAt = const Value.absent(),
             required String uid,
+            required String title,
+            Value<String?> timestamp = const Value.absent(),
+            Value<String?> data = const Value.absent(),
             required int concreteId,
             required int readPages,
             required int totalPages,
@@ -2487,6 +2621,9 @@ class $$ChapterActivityTableTableTableManager extends RootTableManager<
             createdAt: createdAt,
             updatedAt: updatedAt,
             uid: uid,
+            title: title,
+            timestamp: timestamp,
+            data: data,
             concreteId: concreteId,
             readPages: readPages,
             totalPages: totalPages,
@@ -2514,6 +2651,21 @@ class $$ChapterActivityTableTableFilterComposer
 
   ColumnFilters<String> get uid => $state.composableBuilder(
       column: $state.table.uid,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get title => $state.composableBuilder(
+      column: $state.table.title,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get timestamp => $state.composableBuilder(
+      column: $state.table.timestamp,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get data => $state.composableBuilder(
+      column: $state.table.data,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
@@ -2564,6 +2716,21 @@ class $$ChapterActivityTableTableOrderingComposer
 
   ColumnOrderings<String> get uid => $state.composableBuilder(
       column: $state.table.uid,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get title => $state.composableBuilder(
+      column: $state.table.title,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get timestamp => $state.composableBuilder(
+      column: $state.table.timestamp,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get data => $state.composableBuilder(
+      column: $state.table.data,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/pages/pages.dart';
@@ -5,14 +7,13 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:wakaranai/data/domain/chapter_activity_domain/chapter_activity_domain.dart';
-import 'package:wakaranai/data/entities/chapter_activity/chapter_activity_table.dart';
+import 'package:wakaranai/data/domain/database/chapter_activity_domain/chapter_activity_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/shared_pref/default_manga_reader_mode_repository/default_manga_reader_repository.dart';
-import 'package:wakaranai/ui/home/settings/cubit/settings/settings_cubit.dart';
+import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
@@ -85,8 +86,11 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         chapterActivityRepository
             .createUpdateBy<$ChapterActivityTableTable, String>(
           ChapterActivityDomain(
-            uid: currentPages.chapterUid,
+            uid: data.chapter.uid,
             concreteId: concreteData.id,
+            title: data.chapter.title,
+            data: jsonEncode(data.chapter.data),
+            timestamp: data.chapter.timestamp,
             readPages: initialPage,
             id: 0,
             totalPages: currentPages.value.length,
@@ -114,7 +118,6 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
                   ? (settingsCubit.state as SettingsInitialized).defaultMode
                   : ChapterViewMode.leftToRight),
           group: data.group,
-          galleryView: data.galleryView,
           canGetPreviousPages: canGetPreviousPages,
           canGetNextPages: canGetNextPages,
         ),
@@ -145,9 +148,10 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       final bool canGetNextPages =
           chapterIndex < state.group.elements.length - 1;
 
+      final chapter = state.group.elements[chapterIndex];
+
       Pages? optionalLoadedPages = state.pages.firstWhereOrNull(
-          (Pages element) =>
-              element.chapterUid == state.group.elements[chapterIndex].uid);
+          (Pages element) => element.chapterUid == chapter.uid);
 
       final List<Pages> newPages = <Pages>[...state.pages];
 
@@ -165,11 +169,14 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       chapterActivityRepository
           .createUpdateBy<$ChapterActivityTableTable, String>(
         ChapterActivityDomain(
-          uid: optionalLoadedPages.chapterUid,
+          uid: chapter.uid,
           concreteId: state.concreteData!.id,
           readPages: next ? 1 : optionalLoadedPages.value.length,
           id: state.concreteData!.id,
           totalPages: optionalLoadedPages.value.length,
+          title: chapter.title,
+          timestamp: chapter.timestamp,
+          data: jsonEncode(chapter.data),
           createdAt: state.concreteData!.createdAt,
         ),
         by: (tbl) => tbl.uid,
@@ -198,13 +205,19 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         currentPages.chapterUid == stateInitialized.currentPages.chapterUid) {
       onDone?.call(stateInitialized.currentPages);
       if (stateInitialized.currentPage < index) {
+        final chapter = stateInitialized.group.elements.firstWhere(
+            (Chapter element) => element.uid == currentPages.chapterUid);
+
         chapterActivityRepository
             .createUpdateBy<$ChapterActivityTableTable, String>(
           ChapterActivityDomain(
-            uid: currentPages.chapterUid,
+            uid: chapter.uid,
             concreteId: stateInitialized.concreteData!.id,
             readPages: index,
             id: stateInitialized.concreteData!.id,
+            timestamp: chapter.timestamp,
+            data: jsonEncode(chapter.data),
+            title: chapter.title,
             totalPages: currentPages.value.length,
             createdAt: stateInitialized.concreteData!.createdAt,
           ),

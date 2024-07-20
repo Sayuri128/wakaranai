@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/data/domain/extension/base_extension.dart';
-import 'package:wakaranai/data/domain/extension/extension_source_type.dart';
+import 'package:wakaranai/data/domain/database/extension/base_extension.dart';
+import 'package:wakaranai/data/domain/database/extension/extension_source_type.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/env.dart';
 import 'package:wakaranai/generated/l10n.dart';

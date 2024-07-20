@@ -22,7 +22,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
-import 'package:wakaranai/ui/home/settings/cubit/settings/settings_cubit.dart';
+import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/bottom_modal_settings.dart';
@@ -35,7 +35,6 @@ class ChapterViewerData {
   final ConfigInfo configInfo;
   final ConcreteView<ChaptersGroup> concreteView;
   final ChaptersGroup group;
-  final MangaGalleryView galleryView;
   final Chapter chapter;
   final int initialPage;
 
@@ -44,7 +43,6 @@ class ChapterViewerData {
       required this.configInfo,
       required this.group,
       required this.concreteView,
-      required this.galleryView,
       required this.chapter,
       this.initialPage = 1});
 }

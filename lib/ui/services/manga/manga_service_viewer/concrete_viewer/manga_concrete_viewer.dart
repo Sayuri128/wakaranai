@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
-import 'package:wakaranai/data/domain/chapter_activity_domain/chapter_activity_domain.dart';
+import 'package:wakaranai/data/domain/database/chapter_activity_domain/chapter_activity_domain.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
@@ -24,15 +24,19 @@ import 'package:wakaranai/utils/text_styles.dart';
 
 class MangaConcreteViewerData {
   final String uid;
-  final MangaGalleryView galleryView;
   final Map<String, String> coverHeaders;
+
+  // used for hero animation
+  final String? galleryCover;
+  final Map<String, dynamic> galleryData;
   final MangaApiClient client;
   final ConfigInfo configInfo;
 
   const MangaConcreteViewerData({
     required this.uid,
-    required this.galleryView,
     required this.coverHeaders,
+    required this.galleryCover,
+    required this.galleryData,
     required this.client,
     required this.configInfo,
   });
@@ -61,7 +65,7 @@ class MangaConcreteViewer extends StatelessWidget {
               MangaGalleryView>
           cubit) {
         if (init) {
-          cubit.getConcrete(data.uid, data.galleryView);
+          cubit.getConcrete(data.uid, data.galleryData);
         }
       },
       builder: (BuildContext context,
@@ -136,7 +140,7 @@ class MangaConcreteViewer extends StatelessWidget {
                       .read<
                           ConcreteViewCubit<MangaApiClient, MangaConcreteView,
                               MangaGalleryView>>()
-                      .getConcrete(data.uid, data.galleryView,
+                      .getConcrete(data.uid, data.galleryData,
                           forceRemote: true);
                 },
                 child: ListView.builder(
@@ -147,13 +151,23 @@ class MangaConcreteViewer extends StatelessWidget {
                       return SizedBox(
                         width: MediaQuery.of(context).size.width,
                         child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            _buildCover(data.galleryView.cover, context),
-                            const SizedBox(height: 16.0),
+                            if (data.galleryCover != null) ...[
+                              _buildCover(data.galleryCover!, context),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                            ],
                             if (state is ConcreteViewInitialized<
                                 MangaApiClient,
                                 MangaConcreteView,
                                 MangaGalleryView>) ...<Widget>[
+                              if (data.galleryCover == null)
+                                _buildCover(concreteView.cover, context),
+                              const SizedBox(height: 16.0),
                               _buildTitle(concreteView),
                               const SizedBox(height: 16.0),
                               _buildTags(concreteView),
@@ -170,18 +184,34 @@ class MangaConcreteViewer extends StatelessWidget {
                                 MangaApiClient,
                                 MangaConcreteView,
                                 MangaGalleryView>) ...<Widget>[
-                              const SizedBox(height: 16.0),
-                              Text(
-                                state.message,
-                                style: regular(size: 18, color: AppColors.red),
-                              ),
-                              const SizedBox(height: 16.0),
+                              SizedBox(
+                                height: data.galleryCover == null
+                                    ? MediaQuery.of(context).size.height
+                                    : null,
+                                width: data.galleryCover == null
+                                    ? MediaQuery.of(context).size.width
+                                    : null,
+                                child: Center(
+                                  child: Text(
+                                    state.message,
+                                    style:
+                                        regular(size: 18, color: AppColors.red),
+                                  ),
+                                ),
+                              )
                             ] else ...<Widget>[
-                              const SizedBox(
-                                height: 32,
-                              ),
-                              const CircularProgressIndicator(
-                                color: AppColors.primary,
+                              SizedBox(
+                                height: data.galleryCover == null
+                                    ? MediaQuery.of(context).size.height
+                                    : null,
+                                width: data.galleryCover == null
+                                    ? MediaQuery.of(context).size.width
+                                    : null,
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.primary,
+                                  ),
+                                ),
                               ),
                             ],
                             const SizedBox(height: 16.0),
@@ -198,7 +228,6 @@ class MangaConcreteViewer extends StatelessWidget {
                         return _buildChapter(
                           context: context,
                           chapter: chapter,
-                          galleryView: data.galleryView,
                           group: concreteView.groups[currentGroupsIndex],
                           configInfo: data.configInfo,
                           chapterActivityDomain:
@@ -329,7 +358,6 @@ class MangaConcreteViewer extends StatelessWidget {
   Widget _buildChapter(
       {required BuildContext context,
       required Chapter chapter,
-      required MangaGalleryView galleryView,
       required ChaptersGroup group,
       required ConfigInfo configInfo,
       required ConcreteViewInitialized<MangaApiClient, MangaConcreteView,
@@ -351,7 +379,6 @@ class MangaConcreteViewer extends StatelessWidget {
                 chapter: chapter,
                 concreteView: concreteViewInitialized.concreteView,
                 group: group,
-                galleryView: galleryView,
                 configInfo: configInfo),
           )
               .then((_) {
@@ -479,7 +506,7 @@ class MangaConcreteViewer extends StatelessWidget {
             child: Material(
               child: ImageWidget(
                 uid: data.uid,
-                url: data.galleryView.cover,
+                url: cover,
                 headers: data.coverHeaders,
               ),
             ),

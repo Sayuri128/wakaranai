@@ -1,16 +1,15 @@
 {
   "app_name": "Wakaranai",
-
   "@_HOME": {},
   "home_manga_group_title": "Manga",
   "home_anime_group_title": "Anime",
   "home_nsfw_suffix": "NSFW",
   "home_remote_configs_page_appbar_title": "Extensions",
   "home_navigation_bar_sources_title": "Explore",
+  "home_navigation_bar_activity_history_title": "History",
   "home_navigation_bar_settings_title": "Settings",
   "home_fetching_mangas_configs_error": "Error occurred during fetching manga configs",
   "home_configs_source_initializing_error": "Error occurred during initializing configs {name} source",
-
   "@_EXTENSION_SOURCES_PAGE": {},
   "extension_sources_page_appbar_title": "Repositories",
   "extension_sources_page_wakaranai_github_repo_title": "Wakaranai Extensions",
@@ -22,7 +21,6 @@
   "extension_source_page_remove_source_dialog_message": "Are you sure you want to remove this source?",
   "extension_source_page_remove_source_dialog_ok_label": "Remove",
   "extension_source_page_remove_source_dialog_cancel_label": "Cancel",
-
   "@_ADD_EXTENSION_SOURCE_PAGE": {},
   "add_extension_source_page_appbar_title": "Add Source",
   "add_extension_source_page_appbar_edit_title": "Edit Source",
@@ -34,13 +32,11 @@
   "add_extension_source_page_name_field_error_text": "Invalid name",
   "add_extension_source_page_add_button_title": "Save",
   "add_extension_source_page_update_button_title": "Update",
-
   "@_SERVICE_VIEWER": {},
   "service_view_error": "Error :c",
   "service_view_retry_button_title": "Retry",
   "service_view_open_web_view_button_title": "Open in WebView",
   "service_viewer_search_field_hint_text": "Search",
-
   "@_CHAPTER_VIEWER": {},
   "chapter_viewer_next_chapter_button_title": "Next",
   "chapter_viewer_previous_chapter_button_title": "Previous",
@@ -49,7 +45,6 @@
   "chapter_viewer_right_to_left_read_mode": "Right to left",
   "chapter_viewer_left_to_right_read_mode": "Left to right",
   "chapter_viewer_webtoon": "Webtoon",
-
   "@_SETTINGS": {},
   "settings_download_latest_release": "New version {version} available",
   "settings_default_reader_mode_title": "Default reader mode",
@@ -62,10 +57,9 @@
   "settings_clear_cookies_cache_dialog_confirmation_message": "This action cannot be canceled later",
   "settings_clear_cookies_cache_dialog_confirmation_ok_label": "Delete",
   "settings_clear_cookies_cache_dialog_confirmation_cancel_label": "Cancel",
-
   "@_WEB_BROWSER": {},
-  "web_browser_no_login_button": "Done"
-
-
-
+  "web_browser_no_login_button": "Done",
+  "@_ACTIVITY_HISTORY": {},
+  "activity_history_error_loading_history": "Error occurred during loading history",
+  "activity_history_error_loading_extension": "Error occurred during loading extension"
 }

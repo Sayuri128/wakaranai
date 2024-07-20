@@ -27,6 +27,12 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "activity_history_error_loading_extension":
+            MessageLookupByLibrary.simpleMessage(
+                "Error occurred during loading extension"),
+        "activity_history_error_loading_history":
+            MessageLookupByLibrary.simpleMessage(
+                "Error occurred during loading history"),
         "add_extension_source_page_add_button_title":
             MessageLookupByLibrary.simpleMessage("Save"),
         "add_extension_source_page_appbar_edit_title":
@@ -95,6 +101,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage(
                 "Error occurred during fetching manga configs"),
         "home_manga_group_title": MessageLookupByLibrary.simpleMessage("Manga"),
+        "home_navigation_bar_activity_history_title":
+            MessageLookupByLibrary.simpleMessage("History"),
         "home_navigation_bar_settings_title":
             MessageLookupByLibrary.simpleMessage("Settings"),
         "home_navigation_bar_sources_title":

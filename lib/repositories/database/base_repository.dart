@@ -25,7 +25,8 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
           return await updateBy<TTable, TValue>(
             domain,
             by: by,
-            where: where,);
+            where: where,
+          );
         } else {
           return await create(domain);
         }
@@ -42,8 +43,7 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
   }) async {
     try {
       final value = by(domain);
-      await (updateStatement()
-            ..where((tbl) => where(tbl).equals(value)))
+      await (updateStatement()..where((tbl) => where(tbl).equals(value)))
           .write(domain.toDrift(update: true));
       return get(domain.id);
     } catch (e) {
@@ -88,9 +88,11 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
     }
   }
 
-  Future<List<TDomain>> getAll() async {
+  Future<List<TDomain>> getAll({
+    List<OrderingTerm Function(dynamic)> orderBy = const [],
+  }) async {
     try {
-      final res = await selectStatement().get();
+      final res = await (selectStatement()..orderBy(orderBy)).get();
       return res.map((e) => fromDrift(e)).toList();
     } catch (e) {
       return [];

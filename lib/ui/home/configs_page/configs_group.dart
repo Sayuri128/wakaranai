@@ -1,6 +1,6 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
-import 'package:wakaranai/data/domain/extension/base_extension.dart';
+import 'package:wakaranai/data/domain/database/extension/base_extension.dart';
 import 'package:wakaranai/ui/home/configs_page/config_card.dart';
 import 'package:wakaranai/ui/services/anime/anime_service_viewer/anime_service_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';

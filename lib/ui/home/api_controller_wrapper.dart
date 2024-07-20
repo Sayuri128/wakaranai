@@ -3,7 +3,7 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/api_client_controller/api_client_controller_cubit.dart';
-import 'package:wakaranai/data/domain/extension/base_extension.dart';
+import 'package:wakaranai/data/domain/database/extension/base_extension.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
