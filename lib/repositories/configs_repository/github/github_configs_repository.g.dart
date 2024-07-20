@@ -6,7 +6,7 @@ part of 'github_configs_repository.dart';
 // RetrofitGenerator
 // **************************************************************************
 
-// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element
 
 class _GithubConfigsRepository implements GithubConfigsRepository {
   _GithubConfigsRepository(
@@ -29,14 +29,14 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
     int maxAge = 300,
     String accept = "application/json",
   }) async {
-    const _extra = <String, dynamic>{};
+    final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{
       r'max-age': maxAge,
       r'accept': accept,
     };
     _headers.removeWhere((k, v) => v == null);
-    final Map<String, dynamic>? _data = null;
+    const Map<String, dynamic>? _data = null;
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<GithubResponseModel>(Options(
       method: 'GET',
@@ -54,8 +54,8 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
               _dio.options.baseUrl,
               baseUrl,
             ))));
-    final value = GithubResponseModel.fromJson(_result.data!);
-    return value;
+    final _value = GithubResponseModel.fromJson(_result.data!);
+    return _value;
   }
 
   @override
@@ -67,14 +67,14 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
     int maxAge = 300,
     String accept = "application/json",
   }) async {
-    const _extra = <String, dynamic>{};
+    final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{
       r'max-age': maxAge,
       r'accept': accept,
     };
     _headers.removeWhere((k, v) => v == null);
-    final Map<String, dynamic>? _data = null;
+    const Map<String, dynamic>? _data = null;
     final _result = await _dio.fetch<String>(_setStreamType<String>(Options(
       method: 'GET',
       headers: _headers,
@@ -91,8 +91,8 @@ class _GithubConfigsRepository implements GithubConfigsRepository {
           _dio.options.baseUrl,
           baseUrl,
         ))));
-    final value = _result.data!;
-    return value;
+    final _value = _result.data!;
+    return _value;
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {

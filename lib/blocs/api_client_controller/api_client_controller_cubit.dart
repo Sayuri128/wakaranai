@@ -6,13 +6,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/extension/base_extension.dart';
 import 'package:wakaranai/data/domain/extension/extension_domain.dart';
-import 'package:wakaranai/data/models/remote_config/remote_category.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
-import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
-import 'package:wakaranai/repositories/database/extension_repository/extension_repository.dart';
-import 'package:wakaranai/repositories/database/extension_source_repository/extension_source_repository.dart';
+import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 
 part 'api_client_controller_state.dart';

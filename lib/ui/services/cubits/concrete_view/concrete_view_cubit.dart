@@ -1,9 +1,9 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/main.dart';
 
 part 'concrete_view_state.dart';

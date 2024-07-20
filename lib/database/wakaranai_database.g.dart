@@ -203,6 +203,18 @@ class ExtensionSourceTableData extends DataClass
         name: name ?? this.name,
         url: url ?? this.url,
       );
+  ExtensionSourceTableData copyWithCompanion(
+      ExtensionSourceTableCompanion data) {
+    return ExtensionSourceTableData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      type: data.type.present ? data.type.value : this.type,
+      name: data.name.present ? data.name.value : this.name,
+      url: data.url.present ? data.url.value : this.url,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('ExtensionSourceTableData(')
@@ -711,6 +723,29 @@ class ExtensionTableData extends DataClass
             ? protectorConfig.value
             : this.protectorConfig,
       );
+  ExtensionTableData copyWithCompanion(ExtensionTableCompanion data) {
+    return ExtensionTableData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      uid: data.uid.present ? data.uid.value : this.uid,
+      name: data.name.present ? data.name.value : this.name,
+      type: data.type.present ? data.type.value : this.type,
+      version: data.version.present ? data.version.value : this.version,
+      logoUrl: data.logoUrl.present ? data.logoUrl.value : this.logoUrl,
+      language: data.language.present ? data.language.value : this.language,
+      nsfw: data.nsfw.present ? data.nsfw.value : this.nsfw,
+      sourceCode:
+          data.sourceCode.present ? data.sourceCode.value : this.sourceCode,
+      searchAvailable: data.searchAvailable.present
+          ? data.searchAvailable.value
+          : this.searchAvailable,
+      protectorConfig: data.protectorConfig.present
+          ? data.protectorConfig.value
+          : this.protectorConfig,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('ExtensionTableData(')
@@ -946,15 +981,1536 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
   }
 }
 
+class $ConcreteDataTableTable extends ConcreteDataTable
+    with TableInfo<$ConcreteDataTableTable, ConcreteDataTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ConcreteDataTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      clientDefault: () => DateTime.now());
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+      'uid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _coverMeta = const VerificationMeta('cover');
+  @override
+  late final GeneratedColumn<String> cover = GeneratedColumn<String>(
+      'cover', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+      'data', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, createdAt, updatedAt, uid, title, cover, data];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'concrete_data_table';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ConcreteDataTableData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid']!, _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('cover')) {
+      context.handle(
+          _coverMeta, cover.isAcceptableOrUnknown(data['cover']!, _coverMeta));
+    }
+    if (data.containsKey('data')) {
+      context.handle(
+          _dataMeta, this.data.isAcceptableOrUnknown(data['data']!, _dataMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ConcreteDataTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ConcreteDataTableData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
+      uid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      cover: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover']),
+      data: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}data']),
+    );
+  }
+
+  @override
+  $ConcreteDataTableTable createAlias(String alias) {
+    return $ConcreteDataTableTable(attachedDatabase, alias);
+  }
+}
+
+class ConcreteDataTableData extends DataClass
+    implements Insertable<ConcreteDataTableData> {
+  final int id;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final String uid;
+  final String title;
+  final String? cover;
+  final String? data;
+  const ConcreteDataTableData(
+      {required this.id,
+      required this.createdAt,
+      this.updatedAt,
+      required this.uid,
+      required this.title,
+      this.cover,
+      this.data});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['uid'] = Variable<String>(uid);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || cover != null) {
+      map['cover'] = Variable<String>(cover);
+    }
+    if (!nullToAbsent || data != null) {
+      map['data'] = Variable<String>(data);
+    }
+    return map;
+  }
+
+  ConcreteDataTableCompanion toCompanion(bool nullToAbsent) {
+    return ConcreteDataTableCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      uid: Value(uid),
+      title: Value(title),
+      cover:
+          cover == null && nullToAbsent ? const Value.absent() : Value(cover),
+      data: data == null && nullToAbsent ? const Value.absent() : Value(data),
+    );
+  }
+
+  factory ConcreteDataTableData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ConcreteDataTableData(
+      id: serializer.fromJson<int>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      uid: serializer.fromJson<String>(json['uid']),
+      title: serializer.fromJson<String>(json['title']),
+      cover: serializer.fromJson<String?>(json['cover']),
+      data: serializer.fromJson<String?>(json['data']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'uid': serializer.toJson<String>(uid),
+      'title': serializer.toJson<String>(title),
+      'cover': serializer.toJson<String?>(cover),
+      'data': serializer.toJson<String?>(data),
+    };
+  }
+
+  ConcreteDataTableData copyWith(
+          {int? id,
+          DateTime? createdAt,
+          Value<DateTime?> updatedAt = const Value.absent(),
+          String? uid,
+          String? title,
+          Value<String?> cover = const Value.absent(),
+          Value<String?> data = const Value.absent()}) =>
+      ConcreteDataTableData(
+        id: id ?? this.id,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+        uid: uid ?? this.uid,
+        title: title ?? this.title,
+        cover: cover.present ? cover.value : this.cover,
+        data: data.present ? data.value : this.data,
+      );
+  ConcreteDataTableData copyWithCompanion(ConcreteDataTableCompanion data) {
+    return ConcreteDataTableData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      uid: data.uid.present ? data.uid.value : this.uid,
+      title: data.title.present ? data.title.value : this.title,
+      cover: data.cover.present ? data.cover.value : this.cover,
+      data: data.data.present ? data.data.value : this.data,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConcreteDataTableData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('title: $title, ')
+          ..write('cover: $cover, ')
+          ..write('data: $data')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, createdAt, updatedAt, uid, title, cover, data);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ConcreteDataTableData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.uid == this.uid &&
+          other.title == this.title &&
+          other.cover == this.cover &&
+          other.data == this.data);
+}
+
+class ConcreteDataTableCompanion
+    extends UpdateCompanion<ConcreteDataTableData> {
+  final Value<int> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<String> uid;
+  final Value<String> title;
+  final Value<String?> cover;
+  final Value<String?> data;
+  const ConcreteDataTableCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.uid = const Value.absent(),
+    this.title = const Value.absent(),
+    this.cover = const Value.absent(),
+    this.data = const Value.absent(),
+  });
+  ConcreteDataTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    required String uid,
+    required String title,
+    this.cover = const Value.absent(),
+    this.data = const Value.absent(),
+  })  : uid = Value(uid),
+        title = Value(title);
+  static Insertable<ConcreteDataTableData> custom({
+    Expression<int>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? uid,
+    Expression<String>? title,
+    Expression<String>? cover,
+    Expression<String>? data,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (uid != null) 'uid': uid,
+      if (title != null) 'title': title,
+      if (cover != null) 'cover': cover,
+      if (data != null) 'data': data,
+    });
+  }
+
+  ConcreteDataTableCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime>? createdAt,
+      Value<DateTime?>? updatedAt,
+      Value<String>? uid,
+      Value<String>? title,
+      Value<String?>? cover,
+      Value<String?>? data}) {
+    return ConcreteDataTableCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      uid: uid ?? this.uid,
+      title: title ?? this.title,
+      cover: cover ?? this.cover,
+      data: data ?? this.data,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (cover.present) {
+      map['cover'] = Variable<String>(cover.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConcreteDataTableCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('title: $title, ')
+          ..write('cover: $cover, ')
+          ..write('data: $data')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ChapterActivityTableTable extends ChapterActivityTable
+    with TableInfo<$ChapterActivityTableTable, ChapterActivityTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChapterActivityTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      clientDefault: () => DateTime.now());
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+      'uid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _concreteIdMeta =
+      const VerificationMeta('concreteId');
+  @override
+  late final GeneratedColumn<int> concreteId = GeneratedColumn<int>(
+      'concrete_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES concrete_data_table (id)'));
+  static const VerificationMeta _readPagesMeta =
+      const VerificationMeta('readPages');
+  @override
+  late final GeneratedColumn<int> readPages = GeneratedColumn<int>(
+      'read_pages', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _totalPagesMeta =
+      const VerificationMeta('totalPages');
+  @override
+  late final GeneratedColumn<int> totalPages = GeneratedColumn<int>(
+      'total_pages', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, createdAt, updatedAt, uid, concreteId, readPages, totalPages];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'chapter_activity_table';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ChapterActivityTableData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid']!, _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('concrete_id')) {
+      context.handle(
+          _concreteIdMeta,
+          concreteId.isAcceptableOrUnknown(
+              data['concrete_id']!, _concreteIdMeta));
+    } else if (isInserting) {
+      context.missing(_concreteIdMeta);
+    }
+    if (data.containsKey('read_pages')) {
+      context.handle(_readPagesMeta,
+          readPages.isAcceptableOrUnknown(data['read_pages']!, _readPagesMeta));
+    } else if (isInserting) {
+      context.missing(_readPagesMeta);
+    }
+    if (data.containsKey('total_pages')) {
+      context.handle(
+          _totalPagesMeta,
+          totalPages.isAcceptableOrUnknown(
+              data['total_pages']!, _totalPagesMeta));
+    } else if (isInserting) {
+      context.missing(_totalPagesMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ChapterActivityTableData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ChapterActivityTableData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
+      uid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
+      concreteId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}concrete_id'])!,
+      readPages: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}read_pages'])!,
+      totalPages: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}total_pages'])!,
+    );
+  }
+
+  @override
+  $ChapterActivityTableTable createAlias(String alias) {
+    return $ChapterActivityTableTable(attachedDatabase, alias);
+  }
+}
+
+class ChapterActivityTableData extends DataClass
+    implements Insertable<ChapterActivityTableData> {
+  final int id;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final String uid;
+  final int concreteId;
+  final int readPages;
+  final int totalPages;
+  const ChapterActivityTableData(
+      {required this.id,
+      required this.createdAt,
+      this.updatedAt,
+      required this.uid,
+      required this.concreteId,
+      required this.readPages,
+      required this.totalPages});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['uid'] = Variable<String>(uid);
+    map['concrete_id'] = Variable<int>(concreteId);
+    map['read_pages'] = Variable<int>(readPages);
+    map['total_pages'] = Variable<int>(totalPages);
+    return map;
+  }
+
+  ChapterActivityTableCompanion toCompanion(bool nullToAbsent) {
+    return ChapterActivityTableCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      uid: Value(uid),
+      concreteId: Value(concreteId),
+      readPages: Value(readPages),
+      totalPages: Value(totalPages),
+    );
+  }
+
+  factory ChapterActivityTableData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChapterActivityTableData(
+      id: serializer.fromJson<int>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      uid: serializer.fromJson<String>(json['uid']),
+      concreteId: serializer.fromJson<int>(json['concreteId']),
+      readPages: serializer.fromJson<int>(json['readPages']),
+      totalPages: serializer.fromJson<int>(json['totalPages']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'uid': serializer.toJson<String>(uid),
+      'concreteId': serializer.toJson<int>(concreteId),
+      'readPages': serializer.toJson<int>(readPages),
+      'totalPages': serializer.toJson<int>(totalPages),
+    };
+  }
+
+  ChapterActivityTableData copyWith(
+          {int? id,
+          DateTime? createdAt,
+          Value<DateTime?> updatedAt = const Value.absent(),
+          String? uid,
+          int? concreteId,
+          int? readPages,
+          int? totalPages}) =>
+      ChapterActivityTableData(
+        id: id ?? this.id,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+        uid: uid ?? this.uid,
+        concreteId: concreteId ?? this.concreteId,
+        readPages: readPages ?? this.readPages,
+        totalPages: totalPages ?? this.totalPages,
+      );
+  ChapterActivityTableData copyWithCompanion(
+      ChapterActivityTableCompanion data) {
+    return ChapterActivityTableData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      uid: data.uid.present ? data.uid.value : this.uid,
+      concreteId:
+          data.concreteId.present ? data.concreteId.value : this.concreteId,
+      readPages: data.readPages.present ? data.readPages.value : this.readPages,
+      totalPages:
+          data.totalPages.present ? data.totalPages.value : this.totalPages,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChapterActivityTableData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('concreteId: $concreteId, ')
+          ..write('readPages: $readPages, ')
+          ..write('totalPages: $totalPages')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, createdAt, updatedAt, uid, concreteId, readPages, totalPages);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChapterActivityTableData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.uid == this.uid &&
+          other.concreteId == this.concreteId &&
+          other.readPages == this.readPages &&
+          other.totalPages == this.totalPages);
+}
+
+class ChapterActivityTableCompanion
+    extends UpdateCompanion<ChapterActivityTableData> {
+  final Value<int> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<String> uid;
+  final Value<int> concreteId;
+  final Value<int> readPages;
+  final Value<int> totalPages;
+  const ChapterActivityTableCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.uid = const Value.absent(),
+    this.concreteId = const Value.absent(),
+    this.readPages = const Value.absent(),
+    this.totalPages = const Value.absent(),
+  });
+  ChapterActivityTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    required String uid,
+    required int concreteId,
+    required int readPages,
+    required int totalPages,
+  })  : uid = Value(uid),
+        concreteId = Value(concreteId),
+        readPages = Value(readPages),
+        totalPages = Value(totalPages);
+  static Insertable<ChapterActivityTableData> custom({
+    Expression<int>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? uid,
+    Expression<int>? concreteId,
+    Expression<int>? readPages,
+    Expression<int>? totalPages,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (uid != null) 'uid': uid,
+      if (concreteId != null) 'concrete_id': concreteId,
+      if (readPages != null) 'read_pages': readPages,
+      if (totalPages != null) 'total_pages': totalPages,
+    });
+  }
+
+  ChapterActivityTableCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime>? createdAt,
+      Value<DateTime?>? updatedAt,
+      Value<String>? uid,
+      Value<int>? concreteId,
+      Value<int>? readPages,
+      Value<int>? totalPages}) {
+    return ChapterActivityTableCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      uid: uid ?? this.uid,
+      concreteId: concreteId ?? this.concreteId,
+      readPages: readPages ?? this.readPages,
+      totalPages: totalPages ?? this.totalPages,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (concreteId.present) {
+      map['concrete_id'] = Variable<int>(concreteId.value);
+    }
+    if (readPages.present) {
+      map['read_pages'] = Variable<int>(readPages.value);
+    }
+    if (totalPages.present) {
+      map['total_pages'] = Variable<int>(totalPages.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChapterActivityTableCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('concreteId: $concreteId, ')
+          ..write('readPages: $readPages, ')
+          ..write('totalPages: $totalPages')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$WakaranaiDatabase extends GeneratedDatabase {
   _$WakaranaiDatabase(QueryExecutor e) : super(e);
+  $WakaranaiDatabaseManager get managers => $WakaranaiDatabaseManager(this);
   late final $ExtensionSourceTableTable extensionSourceTable =
       $ExtensionSourceTableTable(this);
   late final $ExtensionTableTable extensionTable = $ExtensionTableTable(this);
+  late final $ConcreteDataTableTable concreteDataTable =
+      $ConcreteDataTableTable(this);
+  late final $ChapterActivityTableTable chapterActivityTable =
+      $ChapterActivityTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [extensionSourceTable, extensionTable];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        extensionSourceTable,
+        extensionTable,
+        concreteDataTable,
+        chapterActivityTable
+      ];
+}
+
+typedef $$ExtensionSourceTableTableCreateCompanionBuilder
+    = ExtensionSourceTableCompanion Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  required String type,
+  required String name,
+  required String url,
+});
+typedef $$ExtensionSourceTableTableUpdateCompanionBuilder
+    = ExtensionSourceTableCompanion Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  Value<String> type,
+  Value<String> name,
+  Value<String> url,
+});
+
+class $$ExtensionSourceTableTableTableManager extends RootTableManager<
+    _$WakaranaiDatabase,
+    $ExtensionSourceTableTable,
+    ExtensionSourceTableData,
+    $$ExtensionSourceTableTableFilterComposer,
+    $$ExtensionSourceTableTableOrderingComposer,
+    $$ExtensionSourceTableTableCreateCompanionBuilder,
+    $$ExtensionSourceTableTableUpdateCompanionBuilder> {
+  $$ExtensionSourceTableTableTableManager(
+      _$WakaranaiDatabase db, $ExtensionSourceTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: $$ExtensionSourceTableTableFilterComposer(
+              ComposerState(db, table)),
+          orderingComposer: $$ExtensionSourceTableTableOrderingComposer(
+              ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String> url = const Value.absent(),
+          }) =>
+              ExtensionSourceTableCompanion(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            type: type,
+            name: name,
+            url: url,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            required String type,
+            required String name,
+            required String url,
+          }) =>
+              ExtensionSourceTableCompanion.insert(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            type: type,
+            name: name,
+            url: url,
+          ),
+        ));
+}
+
+class $$ExtensionSourceTableTableFilterComposer
+    extends FilterComposer<_$WakaranaiDatabase, $ExtensionSourceTableTable> {
+  $$ExtensionSourceTableTableFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get type => $state.composableBuilder(
+      column: $state.table.type,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get url => $state.composableBuilder(
+      column: $state.table.url,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$ExtensionSourceTableTableOrderingComposer
+    extends OrderingComposer<_$WakaranaiDatabase, $ExtensionSourceTableTable> {
+  $$ExtensionSourceTableTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get type => $state.composableBuilder(
+      column: $state.table.type,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get url => $state.composableBuilder(
+      column: $state.table.url,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$ExtensionTableTableCreateCompanionBuilder = ExtensionTableCompanion
+    Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  required String uid,
+  required String name,
+  required String type,
+  required int version,
+  required String logoUrl,
+  required String language,
+  required bool nsfw,
+  required String sourceCode,
+  required bool searchAvailable,
+  Value<String?> protectorConfig,
+});
+typedef $$ExtensionTableTableUpdateCompanionBuilder = ExtensionTableCompanion
+    Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  Value<String> uid,
+  Value<String> name,
+  Value<String> type,
+  Value<int> version,
+  Value<String> logoUrl,
+  Value<String> language,
+  Value<bool> nsfw,
+  Value<String> sourceCode,
+  Value<bool> searchAvailable,
+  Value<String?> protectorConfig,
+});
+
+class $$ExtensionTableTableTableManager extends RootTableManager<
+    _$WakaranaiDatabase,
+    $ExtensionTableTable,
+    ExtensionTableData,
+    $$ExtensionTableTableFilterComposer,
+    $$ExtensionTableTableOrderingComposer,
+    $$ExtensionTableTableCreateCompanionBuilder,
+    $$ExtensionTableTableUpdateCompanionBuilder> {
+  $$ExtensionTableTableTableManager(
+      _$WakaranaiDatabase db, $ExtensionTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$ExtensionTableTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$ExtensionTableTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<String> uid = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<int> version = const Value.absent(),
+            Value<String> logoUrl = const Value.absent(),
+            Value<String> language = const Value.absent(),
+            Value<bool> nsfw = const Value.absent(),
+            Value<String> sourceCode = const Value.absent(),
+            Value<bool> searchAvailable = const Value.absent(),
+            Value<String?> protectorConfig = const Value.absent(),
+          }) =>
+              ExtensionTableCompanion(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            uid: uid,
+            name: name,
+            type: type,
+            version: version,
+            logoUrl: logoUrl,
+            language: language,
+            nsfw: nsfw,
+            sourceCode: sourceCode,
+            searchAvailable: searchAvailable,
+            protectorConfig: protectorConfig,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            required String uid,
+            required String name,
+            required String type,
+            required int version,
+            required String logoUrl,
+            required String language,
+            required bool nsfw,
+            required String sourceCode,
+            required bool searchAvailable,
+            Value<String?> protectorConfig = const Value.absent(),
+          }) =>
+              ExtensionTableCompanion.insert(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            uid: uid,
+            name: name,
+            type: type,
+            version: version,
+            logoUrl: logoUrl,
+            language: language,
+            nsfw: nsfw,
+            sourceCode: sourceCode,
+            searchAvailable: searchAvailable,
+            protectorConfig: protectorConfig,
+          ),
+        ));
+}
+
+class $$ExtensionTableTableFilterComposer
+    extends FilterComposer<_$WakaranaiDatabase, $ExtensionTableTable> {
+  $$ExtensionTableTableFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get uid => $state.composableBuilder(
+      column: $state.table.uid,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get type => $state.composableBuilder(
+      column: $state.table.type,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get version => $state.composableBuilder(
+      column: $state.table.version,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get logoUrl => $state.composableBuilder(
+      column: $state.table.logoUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get language => $state.composableBuilder(
+      column: $state.table.language,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<bool> get nsfw => $state.composableBuilder(
+      column: $state.table.nsfw,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get sourceCode => $state.composableBuilder(
+      column: $state.table.sourceCode,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<bool> get searchAvailable => $state.composableBuilder(
+      column: $state.table.searchAvailable,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get protectorConfig => $state.composableBuilder(
+      column: $state.table.protectorConfig,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$ExtensionTableTableOrderingComposer
+    extends OrderingComposer<_$WakaranaiDatabase, $ExtensionTableTable> {
+  $$ExtensionTableTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get uid => $state.composableBuilder(
+      column: $state.table.uid,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get type => $state.composableBuilder(
+      column: $state.table.type,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get version => $state.composableBuilder(
+      column: $state.table.version,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get logoUrl => $state.composableBuilder(
+      column: $state.table.logoUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get language => $state.composableBuilder(
+      column: $state.table.language,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<bool> get nsfw => $state.composableBuilder(
+      column: $state.table.nsfw,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get sourceCode => $state.composableBuilder(
+      column: $state.table.sourceCode,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<bool> get searchAvailable => $state.composableBuilder(
+      column: $state.table.searchAvailable,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get protectorConfig => $state.composableBuilder(
+      column: $state.table.protectorConfig,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$ConcreteDataTableTableCreateCompanionBuilder
+    = ConcreteDataTableCompanion Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  required String uid,
+  required String title,
+  Value<String?> cover,
+  Value<String?> data,
+});
+typedef $$ConcreteDataTableTableUpdateCompanionBuilder
+    = ConcreteDataTableCompanion Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  Value<String> uid,
+  Value<String> title,
+  Value<String?> cover,
+  Value<String?> data,
+});
+
+class $$ConcreteDataTableTableTableManager extends RootTableManager<
+    _$WakaranaiDatabase,
+    $ConcreteDataTableTable,
+    ConcreteDataTableData,
+    $$ConcreteDataTableTableFilterComposer,
+    $$ConcreteDataTableTableOrderingComposer,
+    $$ConcreteDataTableTableCreateCompanionBuilder,
+    $$ConcreteDataTableTableUpdateCompanionBuilder> {
+  $$ConcreteDataTableTableTableManager(
+      _$WakaranaiDatabase db, $ConcreteDataTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$ConcreteDataTableTableFilterComposer(ComposerState(db, table)),
+          orderingComposer: $$ConcreteDataTableTableOrderingComposer(
+              ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<String> uid = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> cover = const Value.absent(),
+            Value<String?> data = const Value.absent(),
+          }) =>
+              ConcreteDataTableCompanion(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            uid: uid,
+            title: title,
+            cover: cover,
+            data: data,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            required String uid,
+            required String title,
+            Value<String?> cover = const Value.absent(),
+            Value<String?> data = const Value.absent(),
+          }) =>
+              ConcreteDataTableCompanion.insert(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            uid: uid,
+            title: title,
+            cover: cover,
+            data: data,
+          ),
+        ));
+}
+
+class $$ConcreteDataTableTableFilterComposer
+    extends FilterComposer<_$WakaranaiDatabase, $ConcreteDataTableTable> {
+  $$ConcreteDataTableTableFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get uid => $state.composableBuilder(
+      column: $state.table.uid,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get title => $state.composableBuilder(
+      column: $state.table.title,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get cover => $state.composableBuilder(
+      column: $state.table.cover,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get data => $state.composableBuilder(
+      column: $state.table.data,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ComposableFilter chapterActivityTableRefs(
+      ComposableFilter Function($$ChapterActivityTableTableFilterComposer f)
+          f) {
+    final $$ChapterActivityTableTableFilterComposer composer =
+        $state.composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $state.db.chapterActivityTable,
+            getReferencedColumn: (t) => t.concreteId,
+            builder: (joinBuilder, parentComposers) =>
+                $$ChapterActivityTableTableFilterComposer(ComposerState(
+                    $state.db,
+                    $state.db.chapterActivityTable,
+                    joinBuilder,
+                    parentComposers)));
+    return f(composer);
+  }
+}
+
+class $$ConcreteDataTableTableOrderingComposer
+    extends OrderingComposer<_$WakaranaiDatabase, $ConcreteDataTableTable> {
+  $$ConcreteDataTableTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get uid => $state.composableBuilder(
+      column: $state.table.uid,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get title => $state.composableBuilder(
+      column: $state.table.title,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get cover => $state.composableBuilder(
+      column: $state.table.cover,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get data => $state.composableBuilder(
+      column: $state.table.data,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$ChapterActivityTableTableCreateCompanionBuilder
+    = ChapterActivityTableCompanion Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  required String uid,
+  required int concreteId,
+  required int readPages,
+  required int totalPages,
+});
+typedef $$ChapterActivityTableTableUpdateCompanionBuilder
+    = ChapterActivityTableCompanion Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  Value<String> uid,
+  Value<int> concreteId,
+  Value<int> readPages,
+  Value<int> totalPages,
+});
+
+class $$ChapterActivityTableTableTableManager extends RootTableManager<
+    _$WakaranaiDatabase,
+    $ChapterActivityTableTable,
+    ChapterActivityTableData,
+    $$ChapterActivityTableTableFilterComposer,
+    $$ChapterActivityTableTableOrderingComposer,
+    $$ChapterActivityTableTableCreateCompanionBuilder,
+    $$ChapterActivityTableTableUpdateCompanionBuilder> {
+  $$ChapterActivityTableTableTableManager(
+      _$WakaranaiDatabase db, $ChapterActivityTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: $$ChapterActivityTableTableFilterComposer(
+              ComposerState(db, table)),
+          orderingComposer: $$ChapterActivityTableTableOrderingComposer(
+              ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<String> uid = const Value.absent(),
+            Value<int> concreteId = const Value.absent(),
+            Value<int> readPages = const Value.absent(),
+            Value<int> totalPages = const Value.absent(),
+          }) =>
+              ChapterActivityTableCompanion(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            uid: uid,
+            concreteId: concreteId,
+            readPages: readPages,
+            totalPages: totalPages,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            required String uid,
+            required int concreteId,
+            required int readPages,
+            required int totalPages,
+          }) =>
+              ChapterActivityTableCompanion.insert(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            uid: uid,
+            concreteId: concreteId,
+            readPages: readPages,
+            totalPages: totalPages,
+          ),
+        ));
+}
+
+class $$ChapterActivityTableTableFilterComposer
+    extends FilterComposer<_$WakaranaiDatabase, $ChapterActivityTableTable> {
+  $$ChapterActivityTableTableFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get uid => $state.composableBuilder(
+      column: $state.table.uid,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get readPages => $state.composableBuilder(
+      column: $state.table.readPages,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get totalPages => $state.composableBuilder(
+      column: $state.table.totalPages,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  $$ConcreteDataTableTableFilterComposer get concreteId {
+    final $$ConcreteDataTableTableFilterComposer composer =
+        $state.composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.concreteId,
+            referencedTable: $state.db.concreteDataTable,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder, parentComposers) =>
+                $$ConcreteDataTableTableFilterComposer(ComposerState(
+                    $state.db,
+                    $state.db.concreteDataTable,
+                    joinBuilder,
+                    parentComposers)));
+    return composer;
+  }
+}
+
+class $$ChapterActivityTableTableOrderingComposer
+    extends OrderingComposer<_$WakaranaiDatabase, $ChapterActivityTableTable> {
+  $$ChapterActivityTableTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get uid => $state.composableBuilder(
+      column: $state.table.uid,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get readPages => $state.composableBuilder(
+      column: $state.table.readPages,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get totalPages => $state.composableBuilder(
+      column: $state.table.totalPages,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  $$ConcreteDataTableTableOrderingComposer get concreteId {
+    final $$ConcreteDataTableTableOrderingComposer composer =
+        $state.composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.concreteId,
+            referencedTable: $state.db.concreteDataTable,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder, parentComposers) =>
+                $$ConcreteDataTableTableOrderingComposer(ComposerState(
+                    $state.db,
+                    $state.db.concreteDataTable,
+                    joinBuilder,
+                    parentComposers)));
+    return composer;
+  }
+}
+
+class $WakaranaiDatabaseManager {
+  final _$WakaranaiDatabase _db;
+  $WakaranaiDatabaseManager(this._db);
+  $$ExtensionSourceTableTableTableManager get extensionSourceTable =>
+      $$ExtensionSourceTableTableTableManager(_db, _db.extensionSourceTable);
+  $$ExtensionTableTableTableManager get extensionTable =>
+      $$ExtensionTableTableTableManager(_db, _db.extensionTable);
+  $$ConcreteDataTableTableTableManager get concreteDataTable =>
+      $$ConcreteDataTableTableTableManager(_db, _db.concreteDataTable);
+  $$ChapterActivityTableTableTableManager get chapterActivityTable =>
+      $$ChapterActivityTableTableTableManager(_db, _db.chapterActivityTable);
 }

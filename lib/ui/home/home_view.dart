@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_page.dart';
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
