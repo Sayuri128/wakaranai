@@ -4,6 +4,7 @@ import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 
@@ -33,6 +34,7 @@ class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
             configInfo: configInfo,
           ),
           concreteDataRepository: context.read<ConcreteDataRepository>(),
+          chapterActivityRepository: context.read<ChapterActivityRepository>(),
         );
 
         if (init != null) {

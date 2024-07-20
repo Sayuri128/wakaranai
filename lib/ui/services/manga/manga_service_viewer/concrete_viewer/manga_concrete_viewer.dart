@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
+import 'package:wakaranai/data/domain/chapter_activity_domain/chapter_activity_domain.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
@@ -195,12 +196,15 @@ class MangaConcreteViewer extends StatelessWidget {
                         final Chapter chapter = concreteView
                             .groups[currentGroupsIndex].elements[index - 1];
                         return _buildChapter(
-                            context: context,
-                            chapter: chapter,
-                            galleryView: data.galleryView,
-                            group: concreteView.groups[currentGroupsIndex],
-                            configInfo: data.configInfo,
-                            concreteViewInitialized: state);
+                          context: context,
+                          chapter: chapter,
+                          galleryView: data.galleryView,
+                          group: concreteView.groups[currentGroupsIndex],
+                          configInfo: data.configInfo,
+                          chapterActivityDomain:
+                              state.chapterActivities[chapter.uid],
+                          concreteViewInitialized: state,
+                        );
                       } else {
                         return const SizedBox();
                       }
@@ -330,43 +334,63 @@ class MangaConcreteViewer extends StatelessWidget {
       required ConfigInfo configInfo,
       required ConcreteViewInitialized<MangaApiClient, MangaConcreteView,
               MangaGalleryView>
-          concreteViewInitialized}) {
-    return ListTile(
-      selectedTileColor: AppColors.mediumLight.withOpacity(0.15),
-      onTap: () {
-        Navigator.of(context)
-            .pushNamed(
-              Routes.chapterViewer,
-              arguments: ChapterViewerData(
-                  initialPage: 1,
-                  apiClient: data.client,
-                  chapter: chapter,
-                  concreteView: concreteViewInitialized.concreteView,
-                  group: group,
-                  galleryView: galleryView,
-                  configInfo: configInfo),
-            )
-            .then((_) {});
-      },
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(chapter.title.trim(),
-              style: medium(size: 18, color: AppColors.mainWhite)),
-          if (chapter.timestamp != null &&
-              formatTimestamp(chapter).isNotEmpty) ...<Widget>[
-            const SizedBox(height: 8.0),
-            Row(
-              children: <Widget>[
-                Text(
-                  formatTimestamp(chapter),
-                  style: regular(color: AppColors.mainGrey, size: 12),
-                ),
-              ],
-            )
+          concreteViewInitialized,
+      required ChapterActivityDomain? chapterActivityDomain}) {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 500),
+      opacity: chapterActivityDomain?.isCompleted == true ? 0.5 : 1.0,
+      child: ListTile(
+        selectedTileColor: AppColors.mediumLight.withOpacity(0.15),
+        onTap: () {
+          Navigator.of(context)
+              .pushNamed(
+            Routes.chapterViewer,
+            arguments: ChapterViewerData(
+                initialPage: chapterActivityDomain?.readPages ?? 1,
+                apiClient: data.client,
+                chapter: chapter,
+                concreteView: concreteViewInitialized.concreteView,
+                group: group,
+                galleryView: galleryView,
+                configInfo: configInfo),
+          )
+              .then((_) {
+            context
+                .read<
+                    ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                        MangaGalleryView>>()
+                .updateMangaActivities();
+          });
+        },
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(chapter.title.trim(),
+                style: medium(size: 18, color: AppColors.mainWhite)),
+            if (chapter.timestamp != null &&
+                formatTimestamp(chapter).isNotEmpty) ...<Widget>[
+              const SizedBox(height: 8.0),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    formatTimestamp(chapter),
+                    style: regular(color: AppColors.mainGrey, size: 12),
+                  ),
+                  if (chapterActivityDomain != null) ...<Widget>[
+                    const SizedBox(width: 8.0),
+                    Text(
+                      "${chapterActivityDomain.readPages}/${chapterActivityDomain.totalPages}",
+                      style: regular(color: AppColors.mainGrey, size: 12),
+                    ),
+                  ]
+                ],
+              )
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

@@ -1,11 +1,30 @@
 import 'package:drift/src/runtime/query_builder/query_builder.dart';
 import 'package:wakaranai/data/domain/chapter_activity_domain/chapter_activity_domain.dart';
+import 'package:wakaranai/data/domain/concrete_data_domain/concrete_data_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/base_repository.dart';
+import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 
 class ChapterActivityRepository extends BaseRepository<ChapterActivityDomain,
     ChapterActivityTableCompanion, ChapterActivityTableData> {
-  ChapterActivityRepository({required super.database});
+  ChapterActivityRepository({required super.database}) {
+    _concreteDataRepository = ConcreteDataRepository(database: database);
+  }
+
+  late final ConcreteDataRepository _concreteDataRepository;
+
+  Future<List<ChapterActivityDomain>?> getAllActivitiesByConcreteId(
+      String uid) async {
+    final concrete = await _concreteDataRepository
+        .getBy<$ConcreteDataTableTable>(uid, where: (tbl) => tbl.uid);
+
+    if (concrete == null) {
+      return null;
+    } else {
+      return getAllBy<$ChapterActivityTableTable>(concrete.id,
+          where: (tbl) => tbl.concreteId);
+    }
+  }
 
   @override
   DeleteStatement deleteStatement() {

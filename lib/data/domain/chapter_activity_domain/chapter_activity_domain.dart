@@ -9,6 +9,8 @@ class ChapterActivityDomain extends BaseDomain<ChapterActivityTableCompanion> {
   final int readPages;
   final int totalPages;
 
+  bool get isCompleted => readPages >= totalPages;
+
   factory ChapterActivityDomain.fromDrift(ChapterActivityTableData data) =>
       ChapterActivityDomain(
         id: data.id,
