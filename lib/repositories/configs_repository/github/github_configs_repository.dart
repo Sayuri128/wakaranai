@@ -16,7 +16,7 @@ abstract class GithubConfigsRepository {
     @Path() String org,
     @Path() String repo, {
     @Path() required String directory,
-    @Path() String branch = 'master',
+    @Path() String branch = 'main',
     @Header("max-age") int maxAge = 300,
     @Header("accept") String accept = "application/json",
   });
@@ -26,7 +26,7 @@ abstract class GithubConfigsRepository {
     @Path() required String org,
     @Path() required String repo,
     @Path() required String concrete,
-    @Path() String branch = 'master',
+    @Path() String branch = 'main',
     @Header("max-age") int maxAge = 300,
     @Header("accept") String accept = "application/json",
   });

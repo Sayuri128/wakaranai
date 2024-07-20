@@ -1,4 +1,4 @@
-package io.github.armatura24.h_reader
+package io.github.sayuri128.wakaranai
 
 import io.flutter.embedding.android.FlutterActivity
 
