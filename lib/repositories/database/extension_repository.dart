@@ -17,8 +17,9 @@ class ExtensionRepository extends BaseRepository<ExtensionDomain,
   }
 
   Future<ExtensionDomain?> updateByUid(ExtensionDomain domain) async {
-    return updateBy<$ExtensionTableTable>(
+    return updateBy<$ExtensionTableTable, String>(
       domain,
+      by: (domain) => domain.config.uid,
       where: (tbl) => tbl.uid,
     );
   }

@@ -20,6 +20,8 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:transparent_pointer/transparent_pointer.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
+import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/ui/home/settings/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
@@ -88,6 +90,8 @@ class _ChapterViewerState extends State<ChapterViewer>
       settingsCubit: context.read<SettingsCubit>(),
       pageController: _pageController,
       itemScrollController: _itemScrollController,
+      chapterActivityRepository: context.read<ChapterActivityRepository>(),
+      concreteDataRepository: context.read<ConcreteDataRepository>(),
     )..init(
         widget.data,
         pagesLoaded: (int current, int total) {

@@ -15,14 +15,17 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
       final byValue = by(domain);
 
       return await database.transaction(() async {
-        final existing = await getBy(
+        final existing = await getBy<TTable>(
           byValue,
           where: where,
         );
 
         if (existing != null) {
           domain.id = existing.id;
-          return await updateBy(domain, where: where);
+          return await updateBy<TTable, TValue>(
+            domain,
+            by: by,
+            where: where,);
         } else {
           return await create(domain);
         }
@@ -32,15 +35,17 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
     }
   }
 
-  Future<TDomain?> updateBy<TTable>(
+  Future<TDomain?> updateBy<TTable, TValue>(
     TDomain domain, {
+    required TValue Function(TDomain) by,
     required dynamic Function(TTable) where,
   }) async {
     try {
-      final res = await (updateStatement()
-            ..where((tbl) => where(tbl).equals(domain.id)))
+      final value = by(domain);
+      await (updateStatement()
+            ..where((tbl) => where(tbl).equals(value)))
           .write(domain.toDrift(update: true));
-      return get(res);
+      return get(domain.id);
     } catch (e) {
       return null;
     }
@@ -97,7 +102,7 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
       final res = await (updateStatement()
             ..where((tbl) => tbl.id.equals(domain.id)))
           .write(domain.toDrift(update: true));
-      return get(res);
+      return get(domain.id);
     } catch (e) {
       return null;
     }
@@ -108,7 +113,7 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
       final res = await (deleteStatement()
             ..where((tbl) => tbl.id.equals(domain.id)))
           .go();
-      return get(res);
+      return get(domain.id);
     } catch (e) {
       return null;
     }

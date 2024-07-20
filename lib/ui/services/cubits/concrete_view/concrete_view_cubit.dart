@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/data/domain/concrete_data_domain/concrete_data_domain.dart';
 
 part 'concrete_view_state.dart';
 
@@ -34,6 +35,16 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       final ConcreteView<dynamic> concreteView =
           await _getConcrete(uid, galleryView.data);
 
+      final all = await concreteDataRepository.getAll();
+
+      await concreteDataRepository.createUpdateBy<$ConcreteDataTableTable,
+          String>(
+        concreteView.toConcreteDataDomain(
+          galleryView.data,
+        ),
+        by: (tbl) => tbl.uid,
+        where: (tbl) => tbl.uid,
+      );
       final Map<String, String> imageHeaders = await state.apiClient
           .getImageHeaders(uid: uid, data: galleryView.data);
 

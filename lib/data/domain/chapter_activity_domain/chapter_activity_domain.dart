@@ -1,3 +1,4 @@
+import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
@@ -22,8 +23,10 @@ class ChapterActivityDomain extends BaseDomain<ChapterActivityTableCompanion> {
   @override
   ChapterActivityTableCompanion toDrift(
       {bool update = false, bool create = false}) {
+
     if (create) {
       return ChapterActivityTableCompanion(
+        id: const Value.absent(),
         uid: Value(uid),
         concreteId: Value(concreteId),
         readPages: Value(readPages),
