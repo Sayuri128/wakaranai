@@ -55,6 +55,7 @@ class MangaConcreteViewer extends StatelessWidget {
     return ConcreteViewCubitWrapper<MangaApiClient, MangaConcreteView,
         MangaGalleryView>(
       client: data.client,
+      configInfo: data.configInfo,
       init: (ConcreteViewCubit<MangaApiClient, MangaConcreteView,
               MangaGalleryView>
           cubit) {

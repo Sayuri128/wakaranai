@@ -3,9 +3,11 @@ part of 'concrete_view_cubit.dart';
 class ConcreteViewState<T extends ApiClient, C extends ConcreteView<dynamic>,
     G extends GalleryView> {
   final T apiClient;
+  final ConfigInfo configInfo;
 
   const ConcreteViewState({
     required this.apiClient,
+    required this.configInfo,
   });
 }
 
@@ -25,15 +27,18 @@ class ConcreteViewInitialized<
       required this.order,
       required this.groupIndex,
       required super.apiClient,
+      required super.configInfo,
       required this.imageHeaders});
 
-  ConcreteViewInitialized<T, C, G> copyWith(
-      {C? concreteView,
-      G? galleryView,
-      int? groupIndex,
-      ConcreteViewOrder? order,
-      Map<String, String>? imageHeaders,
-      T? apiClient}) {
+  ConcreteViewInitialized<T, C, G> copyWith({
+    C? concreteView,
+    G? galleryView,
+    int? groupIndex,
+    ConcreteViewOrder? order,
+    Map<String, String>? imageHeaders,
+    T? apiClient,
+    ConfigInfo? configInfo,
+  }) {
     return ConcreteViewInitialized<T, C, G>(
       concreteView: concreteView ?? this.concreteView,
       galleryView: galleryView ?? this.galleryView,
@@ -41,6 +46,7 @@ class ConcreteViewInitialized<
       groupIndex: groupIndex ?? this.groupIndex,
       imageHeaders: imageHeaders ?? this.imageHeaders,
       apiClient: apiClient ?? this.apiClient,
+      configInfo: configInfo ?? this.configInfo,
     );
   }
 }
@@ -49,5 +55,9 @@ class ConcreteViewError<T extends ApiClient, C extends ConcreteView<dynamic>,
     G extends GalleryView> extends ConcreteViewState<T, C, G> {
   final String message;
 
-  const ConcreteViewError({required this.message, required super.apiClient});
+  const ConcreteViewError({
+    required this.message,
+    required super.apiClient,
+    required super.configInfo,
+  });
 }
