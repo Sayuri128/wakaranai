@@ -1,5 +1,10 @@
 import 'dart:convert';
 
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_concrete_view.dart';
+import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
+import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
+import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
+import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/manga_concrete_view.dart';
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
@@ -28,6 +33,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
       {bool update = false, bool create = false}) {
     if (create) {
       return ConcreteDataTableCompanion(
+        id: const Value.absent(),
         uid: Value(uid),
         title: Value(title),
         cover: Value(cover),
@@ -74,4 +80,16 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
     required super.createdAt,
     super.updatedAt,
   });
+}
+
+extension ConcreteViewExtension on ConcreteView<dynamic> {
+  ConcreteDataDomain toConcreteDataDomain(Map<String, dynamic> data) =>
+      ConcreteDataDomain(
+        id: 0,
+        uid: uid,
+        title: title,
+        cover: cover,
+        data: jsonEncode(data),
+        createdAt: DateTime.now(),
+      );
 }

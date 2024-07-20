@@ -5,7 +5,12 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:wakaranai/data/domain/chapter_activity_domain/chapter_activity_domain.dart';
+import 'package:wakaranai/data/entities/chapter_activity/chapter_activity_table.dart';
+import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
+import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
+import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/shared_pref/default_manga_reader_mode_repository/default_manga_reader_repository.dart';
 import 'package:wakaranai/ui/home/settings/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
@@ -13,13 +18,18 @@ import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 
 class ChapterViewCubit extends Cubit<ChapterViewState> {
-  ChapterViewCubit(
-      {required this.apiClient,
-      required this.settingsCubit,
-      required this.pageController,
-      required this.itemScrollController,
-      required this.initialPage})
-      : super(ChapterViewInit());
+  ChapterViewCubit({
+    required this.apiClient,
+    required this.settingsCubit,
+    required this.pageController,
+    required this.itemScrollController,
+    required this.initialPage,
+    required this.concreteDataRepository,
+    required this.chapterActivityRepository,
+  }) : super(ChapterViewInit());
+
+  final ConcreteDataRepository concreteDataRepository;
+  final ChapterActivityRepository chapterActivityRepository;
 
   final SettingsCubit settingsCubit;
   final MangaApiClient apiClient;
@@ -65,6 +75,28 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       final bool canGetNextPages =
           (chapterIndex + 1) < data.group.elements.length;
 
+      final concreteData =
+          await concreteDataRepository.getBy<$ConcreteDataTableTable>(
+        data.concreteView.uid,
+        where: (tbl) => tbl.uid,
+      );
+
+      if (concreteData != null) {
+        chapterActivityRepository
+            .createUpdateBy<$ChapterActivityTableTable, String>(
+          ChapterActivityDomain(
+            uid: currentPages.chapterUid,
+            concreteId: concreteData.id,
+            readPages: initialPage,
+            id: 0,
+            totalPages: currentPages.value.length,
+            createdAt: DateTime.now(),
+          ),
+          by: (tbl) => tbl.uid,
+          where: (tbl) => tbl.uid,
+        );
+      }
+
       emit(
         ChapterViewInitialized(
           data: data,
@@ -73,6 +105,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
               .getImageHeaders(uid: currentPages.chapterUid, data: {}),
           currentPages: currentPages,
           currentPage: initialPage,
+          concreteData: concreteData,
           totalPages: currentPages.value.length,
           controlsVisible: true,
           controlsEnabled: false,
@@ -128,6 +161,19 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         }
       }
 
+      chapterActivityRepository
+          .createUpdateBy<$ChapterActivityTableTable, String>(
+        ChapterActivityDomain(
+          uid: optionalLoadedPages.chapterUid,
+          concreteId: state.concreteData!.id,
+          readPages: next ? 1 : optionalLoadedPages.value.length,
+          id: state.concreteData!.id,
+          totalPages: optionalLoadedPages.value.length,
+          createdAt: state.concreteData!.createdAt,
+        ),
+        by: (tbl) => tbl.uid,
+        where: (tbl) => tbl.uid,
+      );
       emit(
         state.copyWith(
           canGetNextPages: canGetNextPages,
@@ -150,6 +196,21 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     if (state is ChapterViewInitialized &&
         currentPages.chapterUid == stateInitialized.currentPages.chapterUid) {
       onDone?.call(stateInitialized.currentPages);
+      if (stateInitialized.currentPage < index) {
+        chapterActivityRepository
+            .createUpdateBy<$ChapterActivityTableTable, String>(
+          ChapterActivityDomain(
+            uid: currentPages.chapterUid,
+            concreteId: stateInitialized.concreteData!.id,
+            readPages: index,
+            id: stateInitialized.concreteData!.id,
+            totalPages: currentPages.value.length,
+            createdAt: stateInitialized.concreteData!.createdAt,
+          ),
+          by: (tbl) => tbl.uid,
+          where: (tbl) => tbl.uid,
+        );
+      }
       emit(stateInitialized.copyWith(currentPage: index));
     }
   }

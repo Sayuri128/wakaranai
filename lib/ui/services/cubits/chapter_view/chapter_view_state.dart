@@ -1,6 +1,7 @@
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/pages/pages.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/manga_gallery_view.dart';
+import 'package:wakaranai/data/domain/concrete_data_domain/concrete_data_domain.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 
@@ -20,6 +21,8 @@ class ChapterViewInitialized extends ChapterViewState {
   final ChaptersGroup group;
   final MangaGalleryView galleryView;
 
+  final ConcreteDataDomain? concreteData;
+
   final int currentPage;
   final int totalPages;
 
@@ -37,6 +40,7 @@ class ChapterViewInitialized extends ChapterViewState {
     required this.headers,
     required this.group,
     required this.galleryView,
+    required this.concreteData,
     required this.currentPage,
     required this.totalPages,
     required this.mode,
@@ -51,10 +55,9 @@ class ChapterViewInitialized extends ChapterViewState {
     List<Pages>? pages,
     Pages? currentPages,
     Map<String, String>? headers,
-    Pages? nextPages,
-    Pages? previousPages,
     ChaptersGroup? group,
     MangaGalleryView? galleryView,
+    ConcreteDataDomain? concreteData,
     int? currentPage,
     int? totalPages,
     ChapterViewMode? mode,
@@ -70,6 +73,7 @@ class ChapterViewInitialized extends ChapterViewState {
       headers: headers ?? this.headers,
       group: group ?? this.group,
       galleryView: galleryView ?? this.galleryView,
+      concreteData: concreteData ?? this.concreteData,
       currentPage: currentPage ?? this.currentPage,
       totalPages: totalPages ?? this.totalPages,
       mode: mode ?? this.mode,
