@@ -12,21 +12,16 @@ part 'extension_sources_state.dart';
 
 class ExtensionSourcesCubit extends Cubit<ExtensionSourcesState> {
   ExtensionSourcesCubit({
-    required this.database,
-  }) : super(ExtensionSourcesInitial()) {
-    _extensionSourceRepository = ExtensionSourceRepository(
-      database: database,
-    );
-  }
+    required this.extensionSourceRepository,
+  }) : super(ExtensionSourcesInitial());
 
-  final WakaranaiDatabase database;
-  late final ExtensionSourceRepository _extensionSourceRepository;
+  final ExtensionSourceRepository extensionSourceRepository;
 
   Future<void> init() async {
     emit(ExtensionSourcesLoading());
 
     try {
-      final repositories = await _extensionSourceRepository.getAll();
+      final repositories = await extensionSourceRepository.getAll();
 
       emit(ExtensionSourcesLoaded(
         repositories: repositories,
@@ -42,7 +37,7 @@ class ExtensionSourcesCubit extends Cubit<ExtensionSourcesState> {
       BuildContext context, ExtensionSourceDomain domain) async {
     emit(ExtensionSourcesLoading());
 
-    final res = await _extensionSourceRepository.delete(domain);
+    final res = await extensionSourceRepository.delete(domain);
 
     if (res == null) {
       SnackBars.showErrorSnackBar(
@@ -57,7 +52,7 @@ class ExtensionSourcesCubit extends Cubit<ExtensionSourcesState> {
       BuildContext context, ExtensionSourceDomain domain) async {
     emit(ExtensionSourcesLoading());
 
-    final res = await _extensionSourceRepository.update(domain);
+    final res = await extensionSourceRepository.update(domain);
 
     if (res == null) {
       SnackBars.showErrorSnackBar(
@@ -71,7 +66,7 @@ class ExtensionSourcesCubit extends Cubit<ExtensionSourcesState> {
   Future<void> add(BuildContext context, AddExtensionPageResult data) async {
     emit(ExtensionSourcesLoading());
 
-    final res = await _extensionSourceRepository.create(
+    final res = await extensionSourceRepository.create(
       ExtensionSourceDomain(
         id: 0,
         name: data.name,

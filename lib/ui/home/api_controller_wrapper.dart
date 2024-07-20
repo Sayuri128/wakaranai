@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/api_client_controller/api_client_controller_cubit.dart';
 import 'package:wakaranai/data/domain/extension/base_extension.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
+import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
@@ -21,7 +22,7 @@ class ApiControllerWrapper<T extends ApiClient> extends StatelessWidget {
       create: (BuildContext context) => ApiClientControllerCubit(
         remoteConfig: remoteConfig,
         remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
-        database: context.read<WakaranaiDatabase>(),
+        extensionRepository: context.read<ExtensionRepository>(),
       )..buildApiClient(),
       child: BlocBuilder<ApiClientControllerCubit, ApiClientControllerState>(
         builder: (BuildContext context, ApiClientControllerState state) {

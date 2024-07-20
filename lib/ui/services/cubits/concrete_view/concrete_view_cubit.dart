@@ -4,7 +4,9 @@ import 'package:capyscript/modules/waka_models/models/common/element_of_elements
 import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
+import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 
 part 'concrete_view_state.dart';
 
@@ -14,7 +16,12 @@ class A<G extends ElementsGroupOfConcrete<dynamic>> {}
 
 class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
     G extends GalleryView> extends Cubit<ConcreteViewState<T, C, G>> {
-  ConcreteViewCubit(super.state);
+  ConcreteViewCubit(
+    super.state, {
+    required this.concreteDataRepository,
+  });
+
+  final ConcreteDataRepository concreteDataRepository;
 
   Future<C> _getConcrete(String uid, Map<String, dynamic> data) async {
     return await (state.apiClient as dynamic) // TODO: avoid dynamic
