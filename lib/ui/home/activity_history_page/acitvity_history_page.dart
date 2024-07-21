@@ -326,7 +326,11 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
                                     style: regular(size: 14),
                                   ),
                                   if (listItem.activity
-                                      is ChapterActivityDomain)
+                                          is ChapterActivityDomain &&
+                                      (listItem.activity
+                                                  as ChapterActivityDomain)
+                                              .totalPages !=
+                                          0)
                                     Text(
                                       "${listItem.activity.readPages}/${listItem.activity.totalPages}",
                                       style: regular(
