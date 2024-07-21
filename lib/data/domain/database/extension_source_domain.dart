@@ -1,17 +1,15 @@
-import 'dart:convert';
-
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
-import 'package:wakaranai/data/domain/extension/extension_source_type.dart';
+import 'package:wakaranai/data/domain/database/extension_source_type.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/utils/enum_converters.dart';
 
-class ExtensionSourceDomain extends BaseDomain {
+class ExtensionSourceDomain extends BaseDomain<ExtensionSourceTableCompanion> {
   final String name;
   final String url;
   final ExtensionSourceType type;
 
-  const ExtensionSourceDomain({
+  ExtensionSourceDomain({
     required super.id,
     required this.name,
     required this.url,
@@ -30,6 +28,7 @@ class ExtensionSourceDomain extends BaseDomain {
         updatedAt: data.updatedAt,
       );
 
+  @override
   ExtensionSourceTableCompanion toDrift({
     bool update = false,
     bool create = false,

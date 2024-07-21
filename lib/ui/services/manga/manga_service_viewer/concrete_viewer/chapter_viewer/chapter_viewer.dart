@@ -11,7 +11,6 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/pages/pages.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
-import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/manga_gallery_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +19,9 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:transparent_pointer/transparent_pointer.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/ui/home/settings/cubit/settings/settings_cubit.dart';
+import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
+import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/bottom_modal_settings.dart';
@@ -33,7 +34,6 @@ class ChapterViewerData {
   final ConfigInfo configInfo;
   final ConcreteView<ChaptersGroup> concreteView;
   final ChaptersGroup group;
-  final MangaGalleryView galleryView;
   final Chapter chapter;
   final int initialPage;
 
@@ -42,7 +42,6 @@ class ChapterViewerData {
       required this.configInfo,
       required this.group,
       required this.concreteView,
-      required this.galleryView,
       required this.chapter,
       this.initialPage = 1});
 }
@@ -88,6 +87,8 @@ class _ChapterViewerState extends State<ChapterViewer>
       settingsCubit: context.read<SettingsCubit>(),
       pageController: _pageController,
       itemScrollController: _itemScrollController,
+      chapterActivityRepository: context.read<ChapterActivityRepository>(),
+      concreteDataRepository: context.read<ConcreteDataRepository>(),
     )..init(
         widget.data,
         pagesLoaded: (int current, int total) {
@@ -198,7 +199,7 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   Widget _buildHorizontalGestures(
       ChapterViewInitialized state, BuildContext context) {
-    if(!state.controlsEnabled) {
+    if (!state.controlsEnabled) {
       return const SizedBox();
     }
 

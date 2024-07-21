@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/home/activity_history_page/acitvity_history_page.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_page.dart';
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
-import 'package:wakaranai/ui/home/settings/settings_page.dart';
+import 'package:wakaranai/ui/home/settings_page/settings_page.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -16,6 +16,11 @@ class HomeView extends StatelessWidget {
         label: S.current.home_navigation_bar_sources_title,
         icon: const Icon(
           Icons.explore_rounded,
+        )),
+    NavigationDestination(
+        label: S.current.home_navigation_bar_activity_history_title,
+        icon: const Icon(
+          Icons.history_rounded,
         )),
     NavigationDestination(
       label: S.current.home_navigation_bar_settings_title,
@@ -67,6 +72,8 @@ class HomeView extends StatelessWidget {
       case 0:
         return ConfigPage();
       case 1:
+        return const ActivityHistoryPage();
+      case 2:
         return const SettingsPage();
     }
     return const SizedBox();

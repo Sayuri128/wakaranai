@@ -4,13 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
-import 'package:wakaranai/database/wakaranai_database.dart';
+import 'package:wakaranai/repositories/database/extension_source_repository.dart';
+import 'package:wakaranai/repositories/database/repository_providers.dart';
 import 'package:wakaranai/ui/app_view.dart';
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
 import 'ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
-import 'ui/home/settings/cubit/settings/settings_cubit.dart';
+import 'ui/home/settings_page/cubit/settings/settings_cubit.dart';
 
 const bool debug = true;
 
@@ -44,36 +45,36 @@ class WakaranaiApp extends StatefulWidget {
 class _WakaranaiAppState extends State<WakaranaiApp> {
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        RepositoryProvider<WakaranaiDatabase>(
-          create: (context) => WakaranaiDatabase(),
-          lazy: false,
-        ),
-        BlocProvider<HomePageCubit>(
-          create: (BuildContext context) => HomePageCubit(),
-        ),
-        BlocProvider<AuthenticationCubit>(
-          lazy: false,
-          create: (BuildContext context) => AuthenticationCubit(),
-        ),
-        BlocProvider<RemoteConfigsCubit>(
-          lazy: false,
-          create: (BuildContext context) => RemoteConfigsCubit(
-            wakaranaiDatabase: context.read<WakaranaiDatabase>(),
-          )..init(),
-        ),
-        BlocProvider<SettingsCubit>(
-          create: (BuildContext context) => SettingsCubit(
-            remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
-          )..init(),
-        ),
-        BlocProvider<LatestReleaseCubit>(
-          create: (BuildContext context) => LatestReleaseCubit()..init(),
-          lazy: true,
-        ),
-      ],
-      child: const AppView(),
+    return repositoryProviders(
+      context,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<HomePageCubit>(
+            create: (BuildContext context) => HomePageCubit(),
+          ),
+          BlocProvider<AuthenticationCubit>(
+            lazy: false,
+            create: (BuildContext context) => AuthenticationCubit(),
+          ),
+          BlocProvider<RemoteConfigsCubit>(
+            lazy: false,
+            create: (BuildContext context) => RemoteConfigsCubit(
+              extensionSourceRepository:
+                  context.read<ExtensionSourceRepository>(),
+            )..init(),
+          ),
+          BlocProvider<SettingsCubit>(
+            create: (BuildContext context) => SettingsCubit(
+              remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
+            )..init(),
+          ),
+          BlocProvider<LatestReleaseCubit>(
+            create: (BuildContext context) => LatestReleaseCubit()..init(),
+            lazy: true,
+          ),
+        ],
+        child: const AppView(),
+      ),
     );
   }
 }

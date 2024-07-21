@@ -7,7 +7,7 @@ part of 'github_repo_model.dart';
 // **************************************************************************
 
 GithubRepoModel _$GithubRepoModelFromJson(Map json) => GithubRepoModel(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       defaultBranch: json['defaultBranch'] as String,
       name: json['name'] as String,
       ownerLogin: json['ownerLogin'] as String,

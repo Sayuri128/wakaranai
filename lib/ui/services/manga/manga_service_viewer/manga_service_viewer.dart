@@ -8,17 +8,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
-import 'package:wakaranai/data/models/remote_config/remote_config.dart';
+import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
 import 'package:wakaranai/ui/home/service_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer_body.dart';
 
 class MangaServiceViewData {
-  final RemoteConfig? remoteConfig;
+  final BaseExtension? remoteConfig;
+  final MangaConcreteViewerData? nextViewerData;
 
-  MangaServiceViewData({this.remoteConfig}) {
+  MangaServiceViewData({
+    this.remoteConfig,
+    this.nextViewerData,
+  }) {
     assert(remoteConfig != null);
   }
 }
@@ -98,9 +103,22 @@ class _MangaServiceViewState extends State<MangaServiceView> {
           );
         },
         onInterceptorInitialized: () {
-          _scaffold.currentContext
-              ?.read<ServiceViewCubit<MangaApiClient, MangaGalleryView>>()
-              .init(configInfo);
+          if (widget.data.nextViewerData != null) {
+            Navigator.of(context)
+                .pushNamed(
+              Routes.mangaConcreteViewer,
+              arguments: widget.data.nextViewerData,
+            )
+                .then((_) {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            });
+          } else {
+            _scaffold.currentContext
+                ?.read<ServiceViewCubit<MangaApiClient, MangaGalleryView>>()
+                .init(configInfo);
+          }
         },
         configInfo: configInfo);
   }
@@ -114,11 +132,14 @@ class _MangaServiceViewState extends State<MangaServiceView> {
       return BlocProvider<BrowserInterceptorCubit>(
         lazy: false,
         create: (BuildContext context) {
-          final BrowserInterceptorCubit cubit = BrowserInterceptorCubit()
-            ..init(
-                url: configInfo.protectorConfig!.pingUrl,
-                initCompleter: interceptorInitCompleter);
-          apiClient.passWebBrowserInterceptorController(controller: cubit);
+          final BrowserInterceptorCubit cubit = BrowserInterceptorCubit();
+          cubit
+              .init(
+                  url: configInfo.protectorConfig!.pingUrl,
+                  initCompleter: interceptorInitCompleter)
+              .then((value) {
+            apiClient.passWebBrowserInterceptorController(controller: cubit);
+          });
           return cubit;
         },
         child: child,

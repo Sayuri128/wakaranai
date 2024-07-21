@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/data/models/configs_source_type/configs_source_type.dart';
-import 'package:wakaranai/env.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';

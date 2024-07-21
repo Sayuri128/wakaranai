@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:capyscript/modules/http/http_interceptor_controller.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
@@ -47,6 +47,15 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
     await Future.delayed(const Duration(milliseconds: 150));
 
     logger.d("onLoadStop: $loadedUrl");
+
+    String? documentState =
+        await controller.evaluateJavascript(source: 'document.readyState');
+
+    while (documentState != 'complete') {
+      await Future.delayed(const Duration(milliseconds: 100));
+      documentState =
+          await controller.evaluateJavascript(source: 'document.readyState');
+    }
 
     final CallAsyncJavaScriptResult? result =
         await controller.callAsyncJavaScript(
@@ -165,6 +174,16 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
         return;
       }
       await Future.delayed(const Duration(milliseconds: 250));
+
+      final documentState = await _inAppWebViewController.evaluateJavascript(
+          source: 'document.readyState');
+
+      if (documentState != 'complete') {
+        _jsAttempts++;
+        await Future.delayed(const Duration(milliseconds: 100));
+        return await executeJsScript(code);
+      }
+
       final CallAsyncJavaScriptResult? res =
           await _inAppWebViewController.callAsyncJavaScript(functionBody: code);
 

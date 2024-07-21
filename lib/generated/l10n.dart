@@ -110,6 +110,16 @@ class S {
     );
   }
 
+  /// `History`
+  String get home_navigation_bar_activity_history_title {
+    return Intl.message(
+      'History',
+      name: 'home_navigation_bar_activity_history_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Settings`
   String get home_navigation_bar_settings_title {
     return Intl.message(
@@ -567,6 +577,56 @@ class S {
       name: 'web_browser_no_login_button',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `Manga`
+  String get activity_history_manga_appbar_title {
+    return Intl.message(
+      'Manga',
+      name: 'activity_history_manga_appbar_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Anime`
+  String get activity_history_anime_appbar_title {
+    return Intl.message(
+      'Anime',
+      name: 'activity_history_anime_appbar_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during loading history`
+  String get activity_history_error_loading_history {
+    return Intl.message(
+      'Error occurred during loading history',
+      name: 'activity_history_error_loading_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during loading extension`
+  String get activity_history_error_loading_extension {
+    return Intl.message(
+      'Error occurred during loading extension',
+      name: 'activity_history_error_loading_extension',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Watched at {time}`
+  String anime_concrete_viewer_watched_at_title(Object time) {
+    return Intl.message(
+      'Watched at $time',
+      name: 'anime_concrete_viewer_watched_at_title',
+      desc: '',
+      args: [time],
     );
   }
 }
