@@ -15,8 +15,8 @@ dependencies:
     sdk: flutter
 
   capyscript:
-    path: ../../StudioProjects/capyscript
-#    git: https://github.com/Sayuri128/capyscript
+#    path: ../../StudioProjects/capyscript
+    git: https://github.com/Sayuri128/capyscript
 
   logger: ^2.4.0
   path: ^1.8.3
