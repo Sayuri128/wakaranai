@@ -8,17 +8,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
-import 'package:wakaranai/data/domain/database/extension/base_extension.dart';
+import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
 import 'package:wakaranai/ui/home/service_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/services/anime/anime_concrete_viewer/anime_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/anime/anime_service_viewer/anime_service_viewer_body.dart';
 
 class AnimeServiceViewerData {
   final BaseExtension? remoteConfig;
+  final AnimeConcreteViewerData? nextViewerData;
 
-  AnimeServiceViewerData({this.remoteConfig}) {
+  AnimeServiceViewerData({
+    this.remoteConfig,
+    this.nextViewerData,
+  }) {
     assert(remoteConfig != null);
   }
 }
@@ -47,7 +52,9 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
   @override
   Widget build(BuildContext context) {
     return ApiControllerWrapper<AnimeApiClient>(
-        remoteConfig: widget.data.remoteConfig, builder: _buildWidget);
+      remoteConfig: widget.data.remoteConfig,
+      builder: _buildWidget,
+    );
   }
 
   Widget _buildWidget(AnimeApiClient apiClient, ConfigInfo configInfo) {
@@ -93,9 +100,22 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
           );
         },
         onInterceptorInitialized: () {
-          _scaffold.currentContext
-              ?.read<ServiceViewCubit<AnimeApiClient, AnimeGalleryView>>()
-              .init(configInfo);
+          if (widget.data.nextViewerData != null) {
+            Navigator.of(context)
+                .pushNamed(
+              Routes.animeConcreteViewer,
+              arguments: widget.data.nextViewerData,
+            )
+                .then((_) {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            });
+          } else {
+            _scaffold.currentContext
+                ?.read<ServiceViewCubit<AnimeApiClient, AnimeGalleryView>>()
+                .init(configInfo);
+          }
         },
         configInfo: configInfo,
         apiClient: apiClient);

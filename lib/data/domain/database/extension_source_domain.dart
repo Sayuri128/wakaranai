@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
-import 'package:wakaranai/data/domain/database/extension/extension_source_type.dart';
+import 'package:wakaranai/data/domain/database/extension_source_type.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/utils/enum_converters.dart';
 

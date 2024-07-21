@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
-import 'package:wakaranai/data/domain/database/extension/base_extension.dart';
+import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
 import 'package:wakaranai/ui/home/service_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
@@ -132,11 +132,14 @@ class _MangaServiceViewState extends State<MangaServiceView> {
       return BlocProvider<BrowserInterceptorCubit>(
         lazy: false,
         create: (BuildContext context) {
-          final BrowserInterceptorCubit cubit = BrowserInterceptorCubit()
-            ..init(
-                url: configInfo.protectorConfig!.pingUrl,
-                initCompleter: interceptorInitCompleter);
-          apiClient.passWebBrowserInterceptorController(controller: cubit);
+          final BrowserInterceptorCubit cubit = BrowserInterceptorCubit();
+          cubit
+              .init(
+                  url: configInfo.protectorConfig!.pingUrl,
+                  initCompleter: interceptorInitCompleter)
+              .then((value) {
+            apiClient.passWebBrowserInterceptorController(controller: cubit);
+          });
           return cubit;
         },
         child: child,

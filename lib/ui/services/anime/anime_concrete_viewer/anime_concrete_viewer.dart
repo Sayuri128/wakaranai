@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
+import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
+import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
@@ -213,15 +215,11 @@ class AnimeConcreteViewer extends StatelessWidget {
                     ),
                     const SizedBox(height: 16.0),
                     _buildPlayerButtons(state, context, currentGroupIndex),
+                  ] else if (state is ConcreteViewError<AnimeApiClient,
+                      AnimeConcreteView, AnimeGalleryView>) ...[
+                    _buildErrorMessage(context, state),
                   ] else ...<Widget>[
-                    const SizedBox(
-                      height: 32,
-                    ),
-                    const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                    ),
+                    _buildLoader(context),
                   ],
                   const SizedBox(height: 16.0),
                 ])),
@@ -234,7 +232,15 @@ class AnimeConcreteViewer extends StatelessWidget {
                     final AnimeVideo animeVideo =
                         concreteView.groups[currentGroupIndex].elements[index];
 
-                    return _buildEpisode(context, animeVideo);
+                    return _buildEpisode(
+                      context: context,
+                      animeVideo: animeVideo,
+                      concreteView: concreteView,
+                      activity: state is ConcreteViewInitialized<AnimeApiClient,
+                              AnimeConcreteView, AnimeGalleryView>
+                          ? state.animeEpisodeActivities[animeVideo.uid]
+                          : null,
+                    );
                   },
                 )
               ],
@@ -245,28 +251,89 @@ class AnimeConcreteViewer extends StatelessWidget {
     );
   }
 
-  ListTile _buildEpisode(BuildContext context, AnimeVideo animeVideo) {
-    return ListTile(
-      onTap: () {
-        Navigator.of(context).pushNamed(Routes.iframeAnimePlayer,
-            arguments: AnimeIframePlayerData(src: animeVideo.src));
-      },
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(animeVideo.title.trim()),
-          if (animeVideo.timestamp != null) ...<Widget>[
-            const SizedBox(height: 8.0),
-            Text(
-              int.tryParse(animeVideo.timestamp ?? '') != null
-                  ? DateFormat(animeVideo.timestamp).format(
-                      DateTime.fromMillisecondsSinceEpoch(
-                          int.tryParse(animeVideo.timestamp!)!))
-                  : animeVideo.timestamp ?? '',
-              style: regular(color: AppColors.mainGrey, size: 12),
-            )
-          ]
-        ],
+  SizedBox _buildErrorMessage(
+      BuildContext context,
+      ConcreteViewError<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
+          state) {
+    return SizedBox(
+      height:
+          data.galleryCover == null ? MediaQuery.of(context).size.height : null,
+      width:
+          data.galleryCover == null ? MediaQuery.of(context).size.width : null,
+      child: Center(
+        child: Text(
+          state.message,
+          style: regular(size: 18, color: AppColors.red),
+        ),
+      ),
+    );
+  }
+
+  SizedBox _buildLoader(BuildContext context) {
+    return SizedBox(
+      width: data.galleryCover == null ? MediaQuery.of(context).size.width : 0,
+      height:
+          data.galleryCover == null ? MediaQuery.of(context).size.height : 0,
+      child: const Center(
+        child: CircularProgressIndicator(
+          color: AppColors.primary,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEpisode({
+    required BuildContext context,
+    required AnimeVideo animeVideo,
+    required AnimeConcreteView concreteView,
+    required AnimeEpisodeActivityDomain? activity,
+  }) {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 300),
+      opacity: activity != null ? 0.5 : 1,
+      child: ListTile(
+        onTap: () {
+          Navigator.of(context)
+              .pushNamed(
+            Routes.iframeAnimePlayer,
+            arguments: AnimeIframePlayerData(
+              anime: concreteView,
+              video: animeVideo,
+            ),
+          )
+              .then((_) {
+            context
+                .read<
+                    ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
+                        AnimeGalleryView>>()
+                .updateActivities();
+          });
+        },
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(animeVideo.title.trim()),
+            if (animeVideo.timestamp != null) ...<Widget>[
+              const SizedBox(height: 8.0),
+              Text(
+                int.tryParse(animeVideo.timestamp ?? '') != null
+                    ? DateFormat(animeVideo.timestamp).format(
+                        DateTime.fromMillisecondsSinceEpoch(
+                            int.tryParse(animeVideo.timestamp!)!))
+                    : animeVideo.timestamp ?? '',
+                style: regular(color: AppColors.mainGrey, size: 12),
+              ),
+            ],
+            if (activity != null) ...<Widget>[
+              const SizedBox(height: 8.0),
+              Text(
+                S.current.anime_concrete_viewer_watched_at_title(
+                    DateFormat('yyyy-MM-dd HH:mm').format(activity.createdAt)),
+                style: regular(color: AppColors.mainGrey, size: 12),
+              )
+            ],
+          ],
+        ),
       ),
     );
   }

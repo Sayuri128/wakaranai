@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/entities/base_table.dart';
-import 'package:wakaranai/data/entities/extension/extension_table.dart';
+import 'package:wakaranai/data/entities/extension_table.dart';
 
 class ConcreteDataTable extends BaseTable {
 

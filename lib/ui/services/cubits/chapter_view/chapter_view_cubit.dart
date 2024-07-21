@@ -7,7 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:wakaranai/data/domain/database/chapter_activity_domain/chapter_activity_domain.dart';
+import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
@@ -76,10 +76,8 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       final bool canGetNextPages =
           (chapterIndex + 1) < data.group.elements.length;
 
-      final concreteData =
-          await concreteDataRepository.getBy<$ConcreteDataTableTable>(
+      final concreteData = await concreteDataRepository.getByUid(
         data.concreteView.uid,
-        where: (tbl) => tbl.uid,
       );
 
       if (concreteData != null) {

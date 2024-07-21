@@ -20,19 +20,25 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(name) =>
+  static String m0(time) => "Watched at ${time}";
+
+  static String m1(name) =>
       "Error occurred during initializing configs ${name} source";
 
-  static String m1(version) => "New version ${version} available";
+  static String m2(version) => "New version ${version} available";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "activity_history_anime_appbar_title":
+            MessageLookupByLibrary.simpleMessage("Anime"),
         "activity_history_error_loading_extension":
             MessageLookupByLibrary.simpleMessage(
                 "Error occurred during loading extension"),
         "activity_history_error_loading_history":
             MessageLookupByLibrary.simpleMessage(
                 "Error occurred during loading history"),
+        "activity_history_manga_appbar_title":
+            MessageLookupByLibrary.simpleMessage("Manga"),
         "add_extension_source_page_add_button_title":
             MessageLookupByLibrary.simpleMessage("Save"),
         "add_extension_source_page_appbar_edit_title":
@@ -55,6 +61,7 @@ class MessageLookup extends MessageLookupByLibrary {
                 "https://github.com/username/repository"),
         "add_extension_source_page_url_field_label":
             MessageLookupByLibrary.simpleMessage("URL"),
+        "anime_concrete_viewer_watched_at_title": m0,
         "app_name": MessageLookupByLibrary.simpleMessage("Wakaranai"),
         "chapter_viewer_bottom_modal_settings_reading_mode_title":
             MessageLookupByLibrary.simpleMessage("Reading Mode"),
@@ -96,7 +103,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "extension_sources_page_wakaranai_github_repo_title":
             MessageLookupByLibrary.simpleMessage("Wakaranai Extensions"),
         "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Anime"),
-        "home_configs_source_initializing_error": m0,
+        "home_configs_source_initializing_error": m1,
         "home_fetching_mangas_configs_error":
             MessageLookupByLibrary.simpleMessage(
                 "Error occurred during fetching manga configs"),
@@ -135,7 +142,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Clear history"),
         "settings_default_reader_mode_title":
             MessageLookupByLibrary.simpleMessage("Default reader mode"),
-        "settings_download_latest_release": m1,
+        "settings_download_latest_release": m2,
         "settings_service_viewer_filters_title":
             MessageLookupByLibrary.simpleMessage("Filters"),
         "settings_submit_issue": MessageLookupByLibrary.simpleMessage(

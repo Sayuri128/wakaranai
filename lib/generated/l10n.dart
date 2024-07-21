@@ -1,6 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import 'intl/messages_all.dart';
 
 // **************************************************************************
@@ -580,6 +581,26 @@ class S {
     );
   }
 
+  /// `Manga`
+  String get activity_history_manga_appbar_title {
+    return Intl.message(
+      'Manga',
+      name: 'activity_history_manga_appbar_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Anime`
+  String get activity_history_anime_appbar_title {
+    return Intl.message(
+      'Anime',
+      name: 'activity_history_anime_appbar_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Error occurred during loading history`
   String get activity_history_error_loading_history {
     return Intl.message(
@@ -597,6 +618,16 @@ class S {
       name: 'activity_history_error_loading_extension',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `Watched at {time}`
+  String anime_concrete_viewer_watched_at_title(Object time) {
+    return Intl.message(
+      'Watched at $time',
+      name: 'anime_concrete_viewer_watched_at_title',
+      desc: '',
+      args: [time],
     );
   }
 }

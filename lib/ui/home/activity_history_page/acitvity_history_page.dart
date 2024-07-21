@@ -2,10 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/data/domain/ui/activity_list_item.dart';
-import 'package:wakaranai/ui/home/activity_history_page/cubit/activity_history_cubit.dart';
-import 'package:wakaranai/ui/routes.dart';
-import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
+import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
+import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -16,8 +17,11 @@ class ActivityHistoryPage extends StatefulWidget {
   State<ActivityHistoryPage> createState() => _ActivityHistoryPageState();
 }
 
-class _ActivityHistoryPageState extends State<ActivityHistoryPage> {
+class _ActivityHistoryPageState extends State<ActivityHistoryPage>
+    with AutomaticKeepAliveClientMixin {
+  final PageController _pageController = PageController();
   final ScrollController _scrollListController = ScrollController();
+  final _pageBucket = PageStorageBucket();
 
   final DateFormat _dateFormat = DateFormat('dd/MM/yyyy');
   final DateFormat _dayTimeFormat = DateFormat('HH:mm');
@@ -25,62 +29,205 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage> {
   @override
   void dispose() {
     _scrollListController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (BuildContext context) => ActivityHistoryCubit(
-        chapterActivityRepository: RepositoryProvider.of(context),
-        concreteDataRepository: RepositoryProvider.of(context),
-        extensionRepository: RepositoryProvider.of(context),
-      )..init(),
+    super.build(context);
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (BuildContext context) => MangaActivityHistoryCubit(
+            chapterActivityRepository: RepositoryProvider.of(context),
+            concreteDataRepository: RepositoryProvider.of(context),
+            extensionRepository: RepositoryProvider.of(context),
+          )..init(),
+        ),
+        BlocProvider(
+          create: (context) => AnimeActivityHistoryCubit(
+              extensionRepository: RepositoryProvider.of(context),
+              concreteDataRepository: RepositoryProvider.of(context),
+              animeEpisodeActivityRepository: RepositoryProvider.of(context))
+            ..init(),
+        ),
+      ],
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
-        body: BlocBuilder<ActivityHistoryCubit, ActivityHistoryState>(
-          builder: (context, state) {
-            if (state is ActivityHistoryInitial ||
-                state is ActivityHistoryLoading) {
-              return const Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
-              );
-            }
-
-            if (state is ActivityHistoryError) {
-              return Center(
-                child: Text(state.message),
-              );
-            }
-
-            if (state is ActivityHistoryLoaded) {
-              return CustomScrollView(
-                controller: _scrollListController,
-                slivers: [
-                  SliverList.builder(
-                    itemCount: state.activities.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return SizedBox(
-                          height: MediaQuery.of(context).padding.top + 8.0,
-                        );
-                      }
-                      final item = state.activities[index - 1];
-                      return _buildDay(item, context);
-                    },
-                  )
-                ],
-              );
-            }
-
-            return const SizedBox();
-          },
+        body: PageStorage(
+          bucket: _pageBucket,
+          child: PageView(
+            controller: _pageController,
+            children: [
+              _buildMangaActivities(),
+              _buildAnimeActivities(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Padding _buildDay(ActivityListItem item, BuildContext context) {
+  Widget _wrapFullScreen(BuildContext context, Widget child) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height - 200,
+      child: child,
+    );
+  }
+
+  Widget _buildAnimeActivities() {
+    return BlocBuilder<AnimeActivityHistoryCubit, AnimeActivityHistoryState>(
+      builder: (context, state) {
+        return RefreshIndicator(
+          color: AppColors.primary,
+          onRefresh: () async {
+            return context.read<AnimeActivityHistoryCubit>().init();
+          },
+          child: CustomScrollView(
+            controller: _scrollListController,
+            key: const PageStorageKey('anime'),
+            slivers: [
+              _buildAppBar(
+                S.current.activity_history_anime_appbar_title,
+              ),
+              if (state is AnimeActivityHistoryInitial ||
+                  state is AnimeActivityHistoryLoading)
+                SliverToBoxAdapter(
+                  child: _wrapFullScreen(
+                      context,
+                      const Center(
+                        child:
+                            CircularProgressIndicator(color: AppColors.primary),
+                      )),
+                )
+              else if (state is AnimeActivityHistoryError)
+                SliverToBoxAdapter(
+                  child: _wrapFullScreen(
+                    context,
+                    Center(
+                      child: Text(state.message),
+                    ),
+                  ),
+                )
+              else if (state is AnimeActivityHistoryLoaded)
+                SliverList.builder(
+                  itemCount: state.animeActivities.length,
+                  itemBuilder: (context, index) {
+                    final item = state.animeActivities[index];
+                    return _buildDay(
+                        context: context,
+                        item: item,
+                        onTap: (day) {
+                          context
+                              .read<AnimeActivityHistoryCubit>()
+                              .onActivityTap(
+                                context,
+                                concrete: day.data,
+                                activity: day.activity,
+                              );
+                        });
+                  },
+                )
+            ],
+          ),
+        );
+
+        return const SizedBox();
+      },
+    );
+  }
+
+  Widget _buildMangaActivities() {
+    return BlocBuilder<MangaActivityHistoryCubit, ActivityHistoryState>(
+      builder: (context, state) {
+        return RefreshIndicator(
+          color: AppColors.primary,
+          onRefresh: () async {
+            return context.read<MangaActivityHistoryCubit>().init();
+          },
+          child: CustomScrollView(
+            controller: _scrollListController,
+            key: const PageStorageKey('manga'),
+            slivers: [
+              _buildAppBar(
+                S.current.activity_history_manga_appbar_title,
+              ),
+              if (state is ActivityHistoryInitial ||
+                  state is ActivityHistoryLoading)
+                SliverToBoxAdapter(
+                  child: _wrapFullScreen(
+                    context,
+                    Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                )
+              else if (state is ActivityHistoryError)
+                SliverToBoxAdapter(
+                  child: _wrapFullScreen(
+                    context,
+                    Center(
+                      child: Text(state.message),
+                    ),
+                  ),
+                )
+              else if (state is ActivityHistoryLoaded)
+                SliverList.builder(
+                  itemCount: state.mangaActivities.length,
+                  itemBuilder: (context, index) {
+                    final item = state.mangaActivities[index];
+                    return _buildDay(
+                        context: context,
+                        item: item,
+                        onTap: (day) {
+                          context
+                              .read<MangaActivityHistoryCubit>()
+                              .onActivityTap(
+                                context,
+                                concrete: day.data,
+                                activity: day.activity,
+                              );
+                        });
+                  },
+                )
+            ],
+          ),
+        );
+
+        return const SizedBox();
+      },
+    );
+  }
+
+  SliverAppBar _buildAppBar(String title) {
+    return SliverAppBar(
+      title: Center(
+        child: Text(
+          title,
+          style: semibold(
+            size: 24,
+          ),
+        ),
+      ),
+      backgroundColor: AppColors.backgroundColor,
+      foregroundColor: AppColors.mainWhite,
+      shadowColor: AppColors.shadowColor,
+      surfaceTintColor: AppColors.backgroundColor,
+      floating: true,
+      pinned: true,
+    );
+  }
+
+  Padding _buildDay({
+    required BuildContext context,
+    required ActivityListItem item,
+    required void Function(DayActivityListItem listItem) onTap,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 12.0,
@@ -101,7 +248,11 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage> {
           Column(
             children: [
               for (final listItem in item.listItems)
-                _buildListItem(context, listItem),
+                _buildListItem(
+                  context: context,
+                  listItem: listItem,
+                  onTap: onTap,
+                ),
             ],
           ),
         ],
@@ -109,7 +260,11 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage> {
     );
   }
 
-  Padding _buildListItem(BuildContext context, DayActivityListItem listItem) {
+  Padding _buildListItem({
+    required BuildContext context,
+    required DayActivityListItem listItem,
+    required void Function(DayActivityListItem listItem) onTap,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 4.0,
@@ -118,11 +273,7 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12.0),
         onTap: () {
-          context.read<ActivityHistoryCubit>().onActivityTap(
-                context,
-                concrete: listItem.data,
-                activity: listItem.activity,
-              );
+          onTap(listItem);
         },
         child: Container(
           padding: const EdgeInsets.symmetric(
@@ -186,11 +337,13 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage> {
                                     listItem.activity.title.trim(),
                                     style: regular(size: 14),
                                   ),
-                                  Text(
-                                    "${listItem.activity.readPages}/${listItem.activity.totalPages}",
-                                    style: regular(
-                                        size: 12, color: AppColors.mainGrey),
-                                  ),
+                                  if (listItem.activity
+                                      is ChapterActivityDomain)
+                                    Text(
+                                      "${listItem.activity.readPages}/${listItem.activity.totalPages}",
+                                      style: regular(
+                                          size: 12, color: AppColors.mainGrey),
+                                    ),
                                 ],
                               ),
                             ),
@@ -214,4 +367,7 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

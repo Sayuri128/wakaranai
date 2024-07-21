@@ -48,6 +48,15 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
 
     logger.d("onLoadStop: $loadedUrl");
 
+    String? documentState =
+        await controller.evaluateJavascript(source: 'document.readyState');
+
+    while (documentState != 'complete') {
+      await Future.delayed(const Duration(milliseconds: 100));
+      documentState =
+          await controller.evaluateJavascript(source: 'document.readyState');
+    }
+
     final CallAsyncJavaScriptResult? result =
         await controller.callAsyncJavaScript(
             functionBody: 'return document.documentElement.innerHTML');
@@ -165,6 +174,16 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
         return;
       }
       await Future.delayed(const Duration(milliseconds: 250));
+
+      final documentState = await _inAppWebViewController.evaluateJavascript(
+          source: 'document.readyState');
+
+      if (documentState != 'complete') {
+        _jsAttempts++;
+        await Future.delayed(const Duration(milliseconds: 100));
+        return await executeJsScript(code);
+      }
+
       final CallAsyncJavaScriptResult? res =
           await _inAppWebViewController.callAsyncJavaScript(functionBody: code);
 
