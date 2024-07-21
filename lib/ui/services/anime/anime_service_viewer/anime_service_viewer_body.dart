@@ -199,6 +199,7 @@ class AnimeServiceViewerBody extends StatelessWidget {
             client: apiClient,
             uid: e.uid,
             galleryData: e.data,
+            galleryCover: e.cover,
             configInfo: configInfo));
   }
 }

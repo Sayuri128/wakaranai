@@ -17,8 +17,16 @@ class ActivityHistoryPage extends StatefulWidget {
 }
 
 class _ActivityHistoryPageState extends State<ActivityHistoryPage> {
+  final ScrollController _scrollListController = ScrollController();
+
   final DateFormat _dateFormat = DateFormat('dd/MM/yyyy');
-  final DateFormat _dayTimeFormat = DateFormat('HH:mm:ss');
+  final DateFormat _dayTimeFormat = DateFormat('HH:mm');
+
+  @override
+  void dispose() {
+    _scrollListController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,12 +54,22 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage> {
             }
 
             if (state is ActivityHistoryLoaded) {
-              return ListView.builder(
-                itemCount: state.activities.length,
-                itemBuilder: (context, index) {
-                  final item = state.activities[index];
-                  return _buildDay(item, context);
-                },
+              return CustomScrollView(
+                controller: _scrollListController,
+                slivers: [
+                  SliverList.builder(
+                    itemCount: state.activities.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return SizedBox(
+                          height: MediaQuery.of(context).padding.top + 8.0,
+                        );
+                      }
+                      final item = state.activities[index - 1];
+                      return _buildDay(item, context);
+                    },
+                  )
+                ],
               );
             }
 
@@ -170,9 +188,8 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage> {
                                   ),
                                   Text(
                                     "${listItem.activity.readPages}/${listItem.activity.totalPages}",
-                                    style: regular(size: 12,
-                                      color: AppColors.mainGrey
-                                    ),
+                                    style: regular(
+                                        size: 12, color: AppColors.mainGrey),
                                   ),
                                 ],
                               ),
