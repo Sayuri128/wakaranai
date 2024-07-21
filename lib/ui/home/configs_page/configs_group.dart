@@ -18,29 +18,25 @@ class ConfigsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
+    return SliverList(
+      delegate: SliverChildListDelegate(
+        <Widget>[
+          const SizedBox(height: 16.0),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(title,
                 style: semibold(size: 18, color: AppColors.mainWhite)),
           ),
           const SizedBox(height: 16.0),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6.0),
-            child: Wrap(
-              children: <Widget>[
-                ...remoteConfigs.map((BaseExtension e) => ConfigCard(
-                    configInfo: e.config,
-                    onTap: () {
-                      _onCardClick(context, e);
-                    })),
-              ],
+          ...remoteConfigs.map(
+            (BaseExtension e) => ConfigCard(
+              configInfo: e.config,
+              onTap: () {
+                _onCardClick(context, e);
+              },
             ),
           ),
+          const SizedBox(height: 16.0),
         ],
       ),
     );
