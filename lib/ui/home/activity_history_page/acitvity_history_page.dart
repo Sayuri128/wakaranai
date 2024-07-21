@@ -160,7 +160,7 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
                 SliverToBoxAdapter(
                   child: _wrapFullScreen(
                     context,
-                    Center(
+                    const Center(
                       child: CircularProgressIndicator(
                         color: AppColors.primary,
                       ),
