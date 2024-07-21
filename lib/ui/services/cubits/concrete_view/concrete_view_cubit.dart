@@ -5,10 +5,12 @@ import 'package:capyscript/modules/waka_models/models/common/elements_group_of_c
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/data/domain/database/chapter_activity_domain/chapter_activity_domain.dart';
-import 'package:wakaranai/data/domain/database/concrete_data_domain/concrete_data_domain.dart';
+import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
+import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
+import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
+import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 
@@ -24,10 +26,12 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
     super.state, {
     required this.concreteDataRepository,
     required this.chapterActivityRepository,
+    required this.animeEpisodeActivityRepository,
   });
 
   final ConcreteDataRepository concreteDataRepository;
   final ChapterActivityRepository chapterActivityRepository;
+  final AnimeEpisodeActivityRepository animeEpisodeActivityRepository;
 
   Future<C> _getConcrete(String uid, Map<String, dynamic> data) async {
     return await (state.apiClient as dynamic) // TODO: avoid dynamic
@@ -51,8 +55,8 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
         by: (tbl) => tbl.uid,
         where: (tbl) => tbl.uid,
       );
-      final Map<String, String> imageHeaders = await state.apiClient
-          .getImageHeaders(uid: uid, data: galleryData);
+      final Map<String, String> imageHeaders =
+          await state.apiClient.getImageHeaders(uid: uid, data: galleryData);
 
       // Fetch chapter activities to show the user's progress
       final Map<String, ChapterActivityDomain> chapterActivities = {};
@@ -60,6 +64,13 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       if (state.configInfo.type == ConfigInfoType.MANGA) {
         chapterActivities
             .addAll(await _fetchMangaChapterActivities(concreteView));
+      }
+
+      final Map<String, AnimeEpisodeActivityDomain> animeEpisodeActivities = {};
+
+      if (state.configInfo.type == ConfigInfoType.ANIME) {
+        animeEpisodeActivities
+            .addAll(await _fetchAnimeEpisodeActivities(concreteView));
       }
 
       emit(
@@ -70,6 +81,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
           groupIndex: concreteView.groups.isNotEmpty ? 0 : -1,
           imageHeaders: imageHeaders,
           chapterActivities: chapterActivities,
+          animeEpisodeActivities: animeEpisodeActivities,
           order: ConcreteViewOrder.def,
         ),
       );
@@ -85,6 +97,22 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
         ),
       );
     }
+  }
+
+  Future<Map<String, AnimeEpisodeActivityDomain>> _fetchAnimeEpisodeActivities(
+      ConcreteView<dynamic> concreteView) async {
+    final Map<String, AnimeEpisodeActivityDomain> animeEpisodeActivities = {};
+
+    if (state.configInfo.type == ConfigInfoType.ANIME) {
+      final data = await animeEpisodeActivityRepository
+          .getAllActivitiesByConcreteId(concreteView.uid);
+
+      for (AnimeEpisodeActivityDomain activity in data ?? []) {
+        animeEpisodeActivities[activity.uid] = activity;
+      }
+    }
+
+    return animeEpisodeActivities;
   }
 
   Future<Map<String, ChapterActivityDomain>> _fetchMangaChapterActivities(
@@ -103,7 +131,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
     return chapterActivities;
   }
 
-  void updateMangaActivities() {
+  void updateActivities() {
     if (state is ConcreteViewInitialized<T, C, G>) {
       final ConcreteViewInitialized<T, C, G> state =
           this.state as ConcreteViewInitialized<T, C, G>;
@@ -112,6 +140,11 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
         _fetchMangaChapterActivities(state.concreteView)
             .then((chapterActivities) {
           emit(state.copyWith(chapterActivities: chapterActivities));
+        });
+      } else if (state.configInfo.type == ConfigInfoType.ANIME) {
+        _fetchAnimeEpisodeActivities(state.concreteView)
+            .then((animeEpisodeActivities) {
+          emit(state.copyWith(animeEpisodeActivities: animeEpisodeActivities));
         });
       }
     }

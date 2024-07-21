@@ -1,10 +1,6 @@
 import 'dart:convert';
 
-import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
-import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
-import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
-import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/manga_concrete_view.dart';
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';

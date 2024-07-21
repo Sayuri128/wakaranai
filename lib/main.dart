@@ -4,16 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
-import 'package:wakaranai/database/wakaranai_database.dart';
-import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
-import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/repositories/database/repository_providers.dart';
 import 'package:wakaranai/ui/app_view.dart';
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
-import 'repositories/database/concerete_data_repository.dart';
 import 'ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'ui/home/settings_page/cubit/settings/settings_cubit.dart';
 

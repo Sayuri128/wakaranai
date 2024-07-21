@@ -60,6 +60,10 @@
   "@_WEB_BROWSER": {},
   "web_browser_no_login_button": "Done",
   "@_ACTIVITY_HISTORY": {},
+  "activity_history_manga_appbar_title": "Manga",
+  "activity_history_anime_appbar_title": "Anime",
   "activity_history_error_loading_history": "Error occurred during loading history",
-  "activity_history_error_loading_extension": "Error occurred during loading extension"
+  "activity_history_error_loading_extension": "Error occurred during loading extension",
+  "@_ANIME_CONCRETE_VIEWER": {},
+  "anime_concrete_viewer_watched_at_title": "Watched at {time}"
 }

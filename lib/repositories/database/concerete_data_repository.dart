@@ -1,12 +1,15 @@
 import 'package:drift/drift.dart';
-import 'package:wakaranai/data/domain/database/concrete_data_domain/concrete_data_domain.dart';
+import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/base_repository.dart';
-
 
 class ConcreteDataRepository extends BaseRepository<ConcreteDataDomain,
     ConcreteDataTableCompanion, ConcreteDataTableData> {
   ConcreteDataRepository({required super.database});
+
+  Future<ConcreteDataDomain?> getByUid(String uid) async {
+    return getBy<$ConcreteDataTableTable>(uid, where: (tbl) => tbl.uid);
+  }
 
   @override
   DeleteStatement deleteStatement() {

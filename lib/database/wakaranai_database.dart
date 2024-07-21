@@ -5,10 +5,11 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
-import 'package:wakaranai/data/entities/chapter_activity/chapter_activity_table.dart';
-import 'package:wakaranai/data/entities/concrete_data/concrete_data_table.dart';
-import 'package:wakaranai/data/entities/extension/extension_table.dart';
-import 'package:wakaranai/data/entities/extensions_source/extension_source_table.dart';
+import 'package:wakaranai/data/entities/anime_episode_activity_table.dart';
+import 'package:wakaranai/data/entities/chapter_activity_table.dart';
+import 'package:wakaranai/data/entities/concrete_data_table.dart';
+import 'package:wakaranai/data/entities/extension_source_table.dart';
+import 'package:wakaranai/data/entities/extension_table.dart';
 
 part 'wakaranai_database.g.dart';
 
@@ -17,13 +18,15 @@ part 'wakaranai_database.g.dart';
   ExtensionTable,
   ConcreteDataTable,
   ChapterActivityTable,
+  AnimeEpisodeActivityTable,
 ])
 class WakaranaiDatabase extends _$WakaranaiDatabase {
   WakaranaiDatabase() : super(_openConnection());
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        beforeOpen: (details) async {},
+        beforeOpen: (details) async {
+        },
         onCreate: (m) async {
           await m.createAll();
         },
@@ -34,6 +37,8 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
           if (from < 3) {
             await m.createTable(concreteDataTable);
             await m.createTable(chapterActivityTable);
+            await m.createTable(animeEpisodeActivityTable);
+
           }
         },
       );

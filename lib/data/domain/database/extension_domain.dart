@@ -4,7 +4,7 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:capyscript/modules/waka_models/models/config_info/protector_config/protector_config.dart';
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
-import 'package:wakaranai/data/domain/database/extension/base_extension.dart';
+import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/utils/enum_converters.dart';
 

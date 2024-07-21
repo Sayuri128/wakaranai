@@ -1903,6 +1903,516 @@ class ChapterActivityTableCompanion
   }
 }
 
+class $AnimeEpisodeActivityTableTable extends AnimeEpisodeActivityTable
+    with
+        TableInfo<$AnimeEpisodeActivityTableTable,
+            AnimeEpisodeActivityTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AnimeEpisodeActivityTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      clientDefault: () => DateTime.now());
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+      'uid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<String> timestamp = GeneratedColumn<String>(
+      'timestamp', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+      'data', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _concreteIdMeta =
+      const VerificationMeta('concreteId');
+  @override
+  late final GeneratedColumn<int> concreteId = GeneratedColumn<int>(
+      'concrete_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES concrete_data_table (id)'));
+  static const VerificationMeta _watchedTimeMeta =
+      const VerificationMeta('watchedTime');
+  @override
+  late final GeneratedColumn<int> watchedTime = GeneratedColumn<int>(
+      'watched_time', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _totalTimeMeta =
+      const VerificationMeta('totalTime');
+  @override
+  late final GeneratedColumn<int> totalTime = GeneratedColumn<int>(
+      'total_time', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        createdAt,
+        updatedAt,
+        uid,
+        title,
+        timestamp,
+        data,
+        concreteId,
+        watchedTime,
+        totalTime
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'anime_episode_activity_table';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<AnimeEpisodeActivityTableData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid']!, _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('data')) {
+      context.handle(
+          _dataMeta, this.data.isAcceptableOrUnknown(data['data']!, _dataMeta));
+    }
+    if (data.containsKey('concrete_id')) {
+      context.handle(
+          _concreteIdMeta,
+          concreteId.isAcceptableOrUnknown(
+              data['concrete_id']!, _concreteIdMeta));
+    } else if (isInserting) {
+      context.missing(_concreteIdMeta);
+    }
+    if (data.containsKey('watched_time')) {
+      context.handle(
+          _watchedTimeMeta,
+          watchedTime.isAcceptableOrUnknown(
+              data['watched_time']!, _watchedTimeMeta));
+    }
+    if (data.containsKey('total_time')) {
+      context.handle(_totalTimeMeta,
+          totalTime.isAcceptableOrUnknown(data['total_time']!, _totalTimeMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AnimeEpisodeActivityTableData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AnimeEpisodeActivityTableData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
+      uid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}timestamp']),
+      data: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}data']),
+      concreteId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}concrete_id'])!,
+      watchedTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}watched_time']),
+      totalTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}total_time']),
+    );
+  }
+
+  @override
+  $AnimeEpisodeActivityTableTable createAlias(String alias) {
+    return $AnimeEpisodeActivityTableTable(attachedDatabase, alias);
+  }
+}
+
+class AnimeEpisodeActivityTableData extends DataClass
+    implements Insertable<AnimeEpisodeActivityTableData> {
+  final int id;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final String uid;
+  final String title;
+  final String? timestamp;
+  final String? data;
+  final int concreteId;
+  final int? watchedTime;
+  final int? totalTime;
+  const AnimeEpisodeActivityTableData(
+      {required this.id,
+      required this.createdAt,
+      this.updatedAt,
+      required this.uid,
+      required this.title,
+      this.timestamp,
+      this.data,
+      required this.concreteId,
+      this.watchedTime,
+      this.totalTime});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['uid'] = Variable<String>(uid);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || timestamp != null) {
+      map['timestamp'] = Variable<String>(timestamp);
+    }
+    if (!nullToAbsent || data != null) {
+      map['data'] = Variable<String>(data);
+    }
+    map['concrete_id'] = Variable<int>(concreteId);
+    if (!nullToAbsent || watchedTime != null) {
+      map['watched_time'] = Variable<int>(watchedTime);
+    }
+    if (!nullToAbsent || totalTime != null) {
+      map['total_time'] = Variable<int>(totalTime);
+    }
+    return map;
+  }
+
+  AnimeEpisodeActivityTableCompanion toCompanion(bool nullToAbsent) {
+    return AnimeEpisodeActivityTableCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      uid: Value(uid),
+      title: Value(title),
+      timestamp: timestamp == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timestamp),
+      data: data == null && nullToAbsent ? const Value.absent() : Value(data),
+      concreteId: Value(concreteId),
+      watchedTime: watchedTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(watchedTime),
+      totalTime: totalTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(totalTime),
+    );
+  }
+
+  factory AnimeEpisodeActivityTableData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AnimeEpisodeActivityTableData(
+      id: serializer.fromJson<int>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      uid: serializer.fromJson<String>(json['uid']),
+      title: serializer.fromJson<String>(json['title']),
+      timestamp: serializer.fromJson<String?>(json['timestamp']),
+      data: serializer.fromJson<String?>(json['data']),
+      concreteId: serializer.fromJson<int>(json['concreteId']),
+      watchedTime: serializer.fromJson<int?>(json['watchedTime']),
+      totalTime: serializer.fromJson<int?>(json['totalTime']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'uid': serializer.toJson<String>(uid),
+      'title': serializer.toJson<String>(title),
+      'timestamp': serializer.toJson<String?>(timestamp),
+      'data': serializer.toJson<String?>(data),
+      'concreteId': serializer.toJson<int>(concreteId),
+      'watchedTime': serializer.toJson<int?>(watchedTime),
+      'totalTime': serializer.toJson<int?>(totalTime),
+    };
+  }
+
+  AnimeEpisodeActivityTableData copyWith(
+          {int? id,
+          DateTime? createdAt,
+          Value<DateTime?> updatedAt = const Value.absent(),
+          String? uid,
+          String? title,
+          Value<String?> timestamp = const Value.absent(),
+          Value<String?> data = const Value.absent(),
+          int? concreteId,
+          Value<int?> watchedTime = const Value.absent(),
+          Value<int?> totalTime = const Value.absent()}) =>
+      AnimeEpisodeActivityTableData(
+        id: id ?? this.id,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+        uid: uid ?? this.uid,
+        title: title ?? this.title,
+        timestamp: timestamp.present ? timestamp.value : this.timestamp,
+        data: data.present ? data.value : this.data,
+        concreteId: concreteId ?? this.concreteId,
+        watchedTime: watchedTime.present ? watchedTime.value : this.watchedTime,
+        totalTime: totalTime.present ? totalTime.value : this.totalTime,
+      );
+  AnimeEpisodeActivityTableData copyWithCompanion(
+      AnimeEpisodeActivityTableCompanion data) {
+    return AnimeEpisodeActivityTableData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      uid: data.uid.present ? data.uid.value : this.uid,
+      title: data.title.present ? data.title.value : this.title,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      data: data.data.present ? data.data.value : this.data,
+      concreteId:
+          data.concreteId.present ? data.concreteId.value : this.concreteId,
+      watchedTime:
+          data.watchedTime.present ? data.watchedTime.value : this.watchedTime,
+      totalTime: data.totalTime.present ? data.totalTime.value : this.totalTime,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AnimeEpisodeActivityTableData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('title: $title, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('data: $data, ')
+          ..write('concreteId: $concreteId, ')
+          ..write('watchedTime: $watchedTime, ')
+          ..write('totalTime: $totalTime')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, createdAt, updatedAt, uid, title,
+      timestamp, data, concreteId, watchedTime, totalTime);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AnimeEpisodeActivityTableData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.uid == this.uid &&
+          other.title == this.title &&
+          other.timestamp == this.timestamp &&
+          other.data == this.data &&
+          other.concreteId == this.concreteId &&
+          other.watchedTime == this.watchedTime &&
+          other.totalTime == this.totalTime);
+}
+
+class AnimeEpisodeActivityTableCompanion
+    extends UpdateCompanion<AnimeEpisodeActivityTableData> {
+  final Value<int> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<String> uid;
+  final Value<String> title;
+  final Value<String?> timestamp;
+  final Value<String?> data;
+  final Value<int> concreteId;
+  final Value<int?> watchedTime;
+  final Value<int?> totalTime;
+  const AnimeEpisodeActivityTableCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.uid = const Value.absent(),
+    this.title = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.data = const Value.absent(),
+    this.concreteId = const Value.absent(),
+    this.watchedTime = const Value.absent(),
+    this.totalTime = const Value.absent(),
+  });
+  AnimeEpisodeActivityTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    required String uid,
+    required String title,
+    this.timestamp = const Value.absent(),
+    this.data = const Value.absent(),
+    required int concreteId,
+    this.watchedTime = const Value.absent(),
+    this.totalTime = const Value.absent(),
+  })  : uid = Value(uid),
+        title = Value(title),
+        concreteId = Value(concreteId);
+  static Insertable<AnimeEpisodeActivityTableData> custom({
+    Expression<int>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? uid,
+    Expression<String>? title,
+    Expression<String>? timestamp,
+    Expression<String>? data,
+    Expression<int>? concreteId,
+    Expression<int>? watchedTime,
+    Expression<int>? totalTime,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (uid != null) 'uid': uid,
+      if (title != null) 'title': title,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (data != null) 'data': data,
+      if (concreteId != null) 'concrete_id': concreteId,
+      if (watchedTime != null) 'watched_time': watchedTime,
+      if (totalTime != null) 'total_time': totalTime,
+    });
+  }
+
+  AnimeEpisodeActivityTableCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime>? createdAt,
+      Value<DateTime?>? updatedAt,
+      Value<String>? uid,
+      Value<String>? title,
+      Value<String?>? timestamp,
+      Value<String?>? data,
+      Value<int>? concreteId,
+      Value<int?>? watchedTime,
+      Value<int?>? totalTime}) {
+    return AnimeEpisodeActivityTableCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      uid: uid ?? this.uid,
+      title: title ?? this.title,
+      timestamp: timestamp ?? this.timestamp,
+      data: data ?? this.data,
+      concreteId: concreteId ?? this.concreteId,
+      watchedTime: watchedTime ?? this.watchedTime,
+      totalTime: totalTime ?? this.totalTime,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<String>(timestamp.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
+    if (concreteId.present) {
+      map['concrete_id'] = Variable<int>(concreteId.value);
+    }
+    if (watchedTime.present) {
+      map['watched_time'] = Variable<int>(watchedTime.value);
+    }
+    if (totalTime.present) {
+      map['total_time'] = Variable<int>(totalTime.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AnimeEpisodeActivityTableCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('title: $title, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('data: $data, ')
+          ..write('concreteId: $concreteId, ')
+          ..write('watchedTime: $watchedTime, ')
+          ..write('totalTime: $totalTime')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$WakaranaiDatabase extends GeneratedDatabase {
   _$WakaranaiDatabase(QueryExecutor e) : super(e);
   $WakaranaiDatabaseManager get managers => $WakaranaiDatabaseManager(this);
@@ -1913,6 +2423,8 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
       $ConcreteDataTableTable(this);
   late final $ChapterActivityTableTable chapterActivityTable =
       $ChapterActivityTableTable(this);
+  late final $AnimeEpisodeActivityTableTable animeEpisodeActivityTable =
+      $AnimeEpisodeActivityTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1921,7 +2433,8 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
         extensionSourceTable,
         extensionTable,
         concreteDataTable,
-        chapterActivityTable
+        chapterActivityTable,
+        animeEpisodeActivityTable
       ];
 }
 
@@ -2482,6 +2995,25 @@ class $$ConcreteDataTableTableFilterComposer
                     parentComposers)));
     return f(composer);
   }
+
+  ComposableFilter animeEpisodeActivityTableRefs(
+      ComposableFilter Function(
+              $$AnimeEpisodeActivityTableTableFilterComposer f)
+          f) {
+    final $$AnimeEpisodeActivityTableTableFilterComposer composer =
+        $state.composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $state.db.animeEpisodeActivityTable,
+            getReferencedColumn: (t) => t.concreteId,
+            builder: (joinBuilder, parentComposers) =>
+                $$AnimeEpisodeActivityTableTableFilterComposer(ComposerState(
+                    $state.db,
+                    $state.db.animeEpisodeActivityTable,
+                    joinBuilder,
+                    parentComposers)));
+    return f(composer);
+  }
 }
 
 class $$ConcreteDataTableTableOrderingComposer
@@ -2761,6 +3293,231 @@ class $$ChapterActivityTableTableOrderingComposer
   }
 }
 
+typedef $$AnimeEpisodeActivityTableTableCreateCompanionBuilder
+    = AnimeEpisodeActivityTableCompanion Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  required String uid,
+  required String title,
+  Value<String?> timestamp,
+  Value<String?> data,
+  required int concreteId,
+  Value<int?> watchedTime,
+  Value<int?> totalTime,
+});
+typedef $$AnimeEpisodeActivityTableTableUpdateCompanionBuilder
+    = AnimeEpisodeActivityTableCompanion Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  Value<String> uid,
+  Value<String> title,
+  Value<String?> timestamp,
+  Value<String?> data,
+  Value<int> concreteId,
+  Value<int?> watchedTime,
+  Value<int?> totalTime,
+});
+
+class $$AnimeEpisodeActivityTableTableTableManager extends RootTableManager<
+    _$WakaranaiDatabase,
+    $AnimeEpisodeActivityTableTable,
+    AnimeEpisodeActivityTableData,
+    $$AnimeEpisodeActivityTableTableFilterComposer,
+    $$AnimeEpisodeActivityTableTableOrderingComposer,
+    $$AnimeEpisodeActivityTableTableCreateCompanionBuilder,
+    $$AnimeEpisodeActivityTableTableUpdateCompanionBuilder> {
+  $$AnimeEpisodeActivityTableTableTableManager(
+      _$WakaranaiDatabase db, $AnimeEpisodeActivityTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: $$AnimeEpisodeActivityTableTableFilterComposer(
+              ComposerState(db, table)),
+          orderingComposer: $$AnimeEpisodeActivityTableTableOrderingComposer(
+              ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<String> uid = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> timestamp = const Value.absent(),
+            Value<String?> data = const Value.absent(),
+            Value<int> concreteId = const Value.absent(),
+            Value<int?> watchedTime = const Value.absent(),
+            Value<int?> totalTime = const Value.absent(),
+          }) =>
+              AnimeEpisodeActivityTableCompanion(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            uid: uid,
+            title: title,
+            timestamp: timestamp,
+            data: data,
+            concreteId: concreteId,
+            watchedTime: watchedTime,
+            totalTime: totalTime,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            required String uid,
+            required String title,
+            Value<String?> timestamp = const Value.absent(),
+            Value<String?> data = const Value.absent(),
+            required int concreteId,
+            Value<int?> watchedTime = const Value.absent(),
+            Value<int?> totalTime = const Value.absent(),
+          }) =>
+              AnimeEpisodeActivityTableCompanion.insert(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            uid: uid,
+            title: title,
+            timestamp: timestamp,
+            data: data,
+            concreteId: concreteId,
+            watchedTime: watchedTime,
+            totalTime: totalTime,
+          ),
+        ));
+}
+
+class $$AnimeEpisodeActivityTableTableFilterComposer extends FilterComposer<
+    _$WakaranaiDatabase, $AnimeEpisodeActivityTableTable> {
+  $$AnimeEpisodeActivityTableTableFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get uid => $state.composableBuilder(
+      column: $state.table.uid,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get title => $state.composableBuilder(
+      column: $state.table.title,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get timestamp => $state.composableBuilder(
+      column: $state.table.timestamp,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get data => $state.composableBuilder(
+      column: $state.table.data,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get watchedTime => $state.composableBuilder(
+      column: $state.table.watchedTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get totalTime => $state.composableBuilder(
+      column: $state.table.totalTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  $$ConcreteDataTableTableFilterComposer get concreteId {
+    final $$ConcreteDataTableTableFilterComposer composer =
+        $state.composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.concreteId,
+            referencedTable: $state.db.concreteDataTable,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder, parentComposers) =>
+                $$ConcreteDataTableTableFilterComposer(ComposerState(
+                    $state.db,
+                    $state.db.concreteDataTable,
+                    joinBuilder,
+                    parentComposers)));
+    return composer;
+  }
+}
+
+class $$AnimeEpisodeActivityTableTableOrderingComposer extends OrderingComposer<
+    _$WakaranaiDatabase, $AnimeEpisodeActivityTableTable> {
+  $$AnimeEpisodeActivityTableTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get uid => $state.composableBuilder(
+      column: $state.table.uid,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get title => $state.composableBuilder(
+      column: $state.table.title,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get timestamp => $state.composableBuilder(
+      column: $state.table.timestamp,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get data => $state.composableBuilder(
+      column: $state.table.data,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get watchedTime => $state.composableBuilder(
+      column: $state.table.watchedTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get totalTime => $state.composableBuilder(
+      column: $state.table.totalTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  $$ConcreteDataTableTableOrderingComposer get concreteId {
+    final $$ConcreteDataTableTableOrderingComposer composer =
+        $state.composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.concreteId,
+            referencedTable: $state.db.concreteDataTable,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder, parentComposers) =>
+                $$ConcreteDataTableTableOrderingComposer(ComposerState(
+                    $state.db,
+                    $state.db.concreteDataTable,
+                    joinBuilder,
+                    parentComposers)));
+    return composer;
+  }
+}
+
 class $WakaranaiDatabaseManager {
   final _$WakaranaiDatabase _db;
   $WakaranaiDatabaseManager(this._db);
@@ -2772,4 +3529,7 @@ class $WakaranaiDatabaseManager {
       $$ConcreteDataTableTableTableManager(_db, _db.concreteDataTable);
   $$ChapterActivityTableTableTableManager get chapterActivityTable =>
       $$ChapterActivityTableTableTableManager(_db, _db.chapterActivityTable);
+  $$AnimeEpisodeActivityTableTableTableManager get animeEpisodeActivityTable =>
+      $$AnimeEpisodeActivityTableTableTableManager(
+          _db, _db.animeEpisodeActivityTable);
 }

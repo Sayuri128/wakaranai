@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
-import 'package:wakaranai/data/domain/database/chapter_activity_domain/chapter_activity_domain.dart';
+import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
@@ -382,7 +382,7 @@ class MangaConcreteViewer extends StatelessWidget {
                 .read<
                     ConcreteViewCubit<MangaApiClient, MangaConcreteView,
                         MangaGalleryView>>()
-                .updateMangaActivities();
+                .updateActivities();
           });
         },
         title: Column(

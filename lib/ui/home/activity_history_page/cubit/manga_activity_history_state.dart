@@ -1,4 +1,4 @@
-part of 'activity_history_cubit.dart';
+part of 'manga_activity_history_cubit.dart';
 
 @immutable
 abstract class ActivityHistoryState {
@@ -10,11 +10,12 @@ final class ActivityHistoryInitial extends ActivityHistoryState {}
 class ActivityHistoryLoading extends ActivityHistoryState {}
 
 class ActivityHistoryLoaded extends ActivityHistoryState {
-  final List<ActivityListItem> activities;
+  final List<ActivityListItem<ChapterActivityDomain>> mangaActivities;
 
   const ActivityHistoryLoaded({
-    required this.activities,
+    required this.mangaActivities,
   });
+
 }
 
 class ActivityHistoryError extends ActivityHistoryState {

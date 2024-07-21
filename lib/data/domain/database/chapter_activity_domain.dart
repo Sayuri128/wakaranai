@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
