@@ -7,6 +7,7 @@ import 'package:wakaranai/data/domain/ui/activity_list_item.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
+import 'package:wakaranai/ui/widgets/elevated_appbar.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -90,8 +91,11 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
             controller: _scrollListController,
             key: const PageStorageKey('anime'),
             slivers: [
-              _buildAppBar(
-                S.current.activity_history_anime_appbar_title,
+              ElevatedAppbar(
+                title: Text(
+                  S.current.activity_history_anime_appbar_title,
+                  style: medium(size: 24),
+                ),
               ),
               if (state is AnimeActivityHistoryInitial ||
                   state is AnimeActivityHistoryLoading)
@@ -152,8 +156,11 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
             controller: _scrollListController,
             key: const PageStorageKey('manga'),
             slivers: [
-              _buildAppBar(
-                S.current.activity_history_manga_appbar_title,
+              ElevatedAppbar(
+                title: Text(
+                  S.current.activity_history_manga_appbar_title,
+                  style: medium(size: 24),
+                ),
               ),
               if (state is ActivityHistoryInitial ||
                   state is ActivityHistoryLoading)
@@ -201,25 +208,6 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
 
         return const SizedBox();
       },
-    );
-  }
-
-  SliverAppBar _buildAppBar(String title) {
-    return SliverAppBar(
-      title: Center(
-        child: Text(
-          title,
-          style: semibold(
-            size: 24,
-          ),
-        ),
-      ),
-      backgroundColor: AppColors.backgroundColor,
-      foregroundColor: AppColors.mainWhite,
-      shadowColor: AppColors.shadowColor,
-      surfaceTintColor: AppColors.backgroundColor,
-      floating: true,
-      pinned: true,
     );
   }
 
