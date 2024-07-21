@@ -1,6 +1,6 @@
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
-import 'package:wakaranai/data/models/remote_config/remote_category.dart';
-import 'package:wakaranai/data/models/remote_config/remote_config.dart';
+import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/ui/home/configs_page/config_card.dart';
 import 'package:wakaranai/ui/services/anime/anime_service_viewer/anime_service_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
@@ -14,7 +14,7 @@ class ConfigsGroup extends StatelessWidget {
       {super.key, required this.title, required this.remoteConfigs});
 
   final String title;
-  final List<RemoteConfig> remoteConfigs;
+  final List<BaseExtension> remoteConfigs;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class ConfigsGroup extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 6.0),
             child: Wrap(
               children: <Widget>[
-                ...remoteConfigs.map((RemoteConfig e) => ConfigCard(
+                ...remoteConfigs.map((BaseExtension e) => ConfigCard(
                     configInfo: e.config,
                     onTap: () {
                       _onCardClick(context, e);
@@ -46,12 +46,15 @@ class ConfigsGroup extends StatelessWidget {
     );
   }
 
-  void _onCardClick(BuildContext context, RemoteConfig remoteConfig) async {
-    if (remoteConfig.category == RemoteCategory.manga) {
+  void _onCardClick(
+    BuildContext context,
+    BaseExtension remoteConfig,
+  ) async {
+    if (remoteConfig.config.type == ConfigInfoType.MANGA) {
       Navigator.of(context).pushNamedAndRemoveUntil(
           Routes.mangaServiceViewer, (Route route) => false,
           arguments: MangaServiceViewData(remoteConfig: remoteConfig));
-    } else if (remoteConfig.category == RemoteCategory.anime) {
+    } else if (remoteConfig.config.type == ConfigInfoType.ANIME) {
       Navigator.of(context).pushNamedAndRemoveUntil(
           Routes.animeServiceViewer, (Route route) => false,
           arguments: AnimeServiceViewerData(remoteConfig: remoteConfig));

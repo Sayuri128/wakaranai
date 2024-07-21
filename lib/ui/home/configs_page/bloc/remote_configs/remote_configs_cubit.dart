@@ -1,15 +1,13 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:wakaranai/data/domain/extension/extension_source_type.dart';
-import 'package:wakaranai/data/models/remote_config/remote_config.dart';
-import 'package:wakaranai/database/wakaranai_database.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/data/domain/database/base_extension.dart';
+import 'package:wakaranai/data/domain/database/extension_source_type.dart';
 import 'package:wakaranai/env.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
-import 'package:wakaranai/repositories/database/extension_source_repository/extension_source_repository.dart';
+import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 import 'package:wakaranai/services/configs_service/github_configs_service.dart';
-import 'package:wakaranai/services/settings_service/settings_service.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/extension_sources_page_result.dart';
 import 'package:wakaranai/utils/github_url_parser.dart';
 
@@ -19,13 +17,8 @@ part 'remote_configs_state.dart';
 
 class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   RemoteConfigsCubit({
-    required this.wakaranaiDatabase,
-  }) : super(RemoteConfigsLoading()) {
-    _defaultExtensionRepository = DefaultExtensionRepository();
-    _extensionSourceRepository = ExtensionSourceRepository(wakaranaiDatabase);
-  }
-
-  final WakaranaiDatabase wakaranaiDatabase;
+    required this.extensionSourceRepository,
+  }) : super(RemoteConfigsLoading());
 
   ConfigsService _configsService =
       GitHubConfigsService(Env.configsSourceOrg, Env.configsSourceRepo);
@@ -33,16 +26,17 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   // ConfigsService _configsService =
   //     RepoConfigsService(url: Env.LOCAL_REPOSITORY_URL);
 
-  late final DefaultExtensionRepository _defaultExtensionRepository;
-  late final ExtensionSourceRepository _extensionSourceRepository;
+  final DefaultExtensionRepository defaultExtensionRepository =
+      DefaultExtensionRepository();
+  final ExtensionSourceRepository extensionSourceRepository;
 
   ConfigsService get configService => _configsService;
 
   void init() async {
-    await _defaultExtensionRepository.init();
+    await defaultExtensionRepository.init();
 
     final int? defaultId =
-        await _defaultExtensionRepository.getDefaultExtensionId();
+        await defaultExtensionRepository.getDefaultExtensionId();
 
     Future<void> getDefaultConfig() async {
       await getConfigs(
@@ -55,7 +49,7 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
       return;
     }
 
-    final source = await _extensionSourceRepository.get(defaultId);
+    final source = await extensionSourceRepository.get(defaultId);
 
     if (source == null) {
       await getDefaultConfig();
@@ -73,10 +67,10 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   Future<void> getConfigs({required String sourceName}) async {
     emit(RemoteConfigsLoading());
 
-    Future.wait(<Future<List<RemoteConfig>>>[
+    Future.wait(<Future<List<BaseExtension>>>[
       _configsService.getMangaConfigs(),
       _configsService.getAnimeConfigs()
-    ]).then((List<List<RemoteConfig>> value) {
+    ]).then((List<List<BaseExtension>> value) {
       emit(
         RemoteConfigsLoaded(
           mangaRemoteConfigs: value[0].cast(),
@@ -101,7 +95,7 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
               githubParserResult.org, githubParserResult.repo);
           break;
       }
-      await _defaultExtensionRepository.setDefaultExtensionId(source.id);
+      await defaultExtensionRepository.setDefaultExtensionId(source.id);
     } catch (_) {
       emit(RemoteConfigsError(
           message:

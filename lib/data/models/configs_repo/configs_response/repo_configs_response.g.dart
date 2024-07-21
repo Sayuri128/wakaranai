@@ -8,7 +8,7 @@ part of 'repo_configs_response.dart';
 
 RepoConfigsResponse _$RepoConfigsResponseFromJson(Map json) =>
     RepoConfigsResponse(
-      status: json['status'] as int,
+      status: (json['status'] as num).toInt(),
       availableCategories: (json['availableCategories'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
