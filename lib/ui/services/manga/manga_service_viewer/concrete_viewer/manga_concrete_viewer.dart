@@ -135,6 +135,7 @@ class MangaConcreteViewer extends StatelessWidget {
             alignment: Alignment.center,
             children: <Widget>[
               RefreshIndicator(
+                color: AppColors.primary,
                 onRefresh: () async {
                   await context
                       .read<

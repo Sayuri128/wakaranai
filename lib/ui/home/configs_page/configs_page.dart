@@ -10,20 +10,13 @@ import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class ConfigPage extends StatelessWidget {
-  ConfigPage({super.key});
-
-  final PageController _pageController = PageController();
+  const ConfigPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      body: PageView(
-        controller: _pageController,
-        children: <Widget>[
-          _buildRemoteConfigsPage(),
-        ],
-      ),
+      body: _buildRemoteConfigsPage(),
     );
   }
 
@@ -56,9 +49,7 @@ class ConfigPage extends StatelessWidget {
             builder: (context, state) {
               return ElevatedAppbar(
                 title: Text(
-                  state is RemoteConfigsLoaded
-                      ? state.sourceName
-                      : "",
+                  state is RemoteConfigsLoaded ? state.sourceName : "",
                   style: medium(size: 24),
                 ),
                 actions: IconButton(

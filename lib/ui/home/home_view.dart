@@ -5,6 +5,8 @@ import 'package:wakaranai/ui/home/activity_history_page/acitvity_history_page.da
 import 'package:wakaranai/ui/home/configs_page/configs_page.dart';
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_page.dart';
+import 'package:wakaranai/ui/home/widgets/bottom_navigation_bar_container.dart';
+import 'package:wakaranai/ui/home/widgets/bottom_navigation_bar_item_widget.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -19,23 +21,20 @@ class _HomeViewState extends State<HomeView> {
   final PageStorageBucket bucket = PageStorageBucket();
   final PageController _pageController = PageController();
 
-  final List<NavigationDestination> navigationItem = <NavigationDestination>[
-    NavigationDestination(
-        label: S.current.home_navigation_bar_sources_title,
-        icon: const Icon(
-          Icons.explore_rounded,
-        )),
-    NavigationDestination(
-        label: S.current.home_navigation_bar_activity_history_title,
-        icon: const Icon(
-          Icons.history_rounded,
-        )),
-    NavigationDestination(
-      label: S.current.home_navigation_bar_settings_title,
-      icon: const Icon(
-        Icons.settings,
-      ),
-    )
+  final List<BottomNavigationBarItemWidgetData> navigationItem =
+      <BottomNavigationBarItemWidgetData>[
+    BottomNavigationBarItemWidgetData(
+      text: S.current.home_navigation_bar_sources_title,
+      icon: Icons.explore_rounded,
+    ),
+    BottomNavigationBarItemWidgetData(
+      text: S.current.home_navigation_bar_activity_history_title,
+      icon: Icons.history_rounded,
+    ),
+    BottomNavigationBarItemWidgetData(
+      text: S.current.home_navigation_bar_settings_title,
+      icon: Icons.settings,
+    ),
   ];
 
   @override
@@ -60,30 +59,28 @@ class _HomeViewState extends State<HomeView> {
           return Scaffold(
             backgroundColor: AppColors.backgroundColor,
             extendBodyBehindAppBar: true,
-            bottomNavigationBar: NavigationBar(
-              elevation: 4,
-              selectedIndex: state.currentPage,
-              onDestinationSelected: (int value) {
-                context.read<HomePageCubit>().changePage(value);
-              },
-              surfaceTintColor: AppColors.backgroundColor.withOpacity(0.4),
-              height: 70,
-              backgroundColor: AppColors.backgroundColor.withOpacity(0.4),
-              animationDuration: const Duration(milliseconds: 400),
-              labelBehavior:
-                  NavigationDestinationLabelBehavior.onlyShowSelected,
-              shadowColor: AppColors.mainBlack.withOpacity(0.4),
-              destinations: navigationItem,
-            ),
-            body: PageView.builder(
-              itemCount: navigationItem.length,
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                return _buildBody(
-                  index,
-                );
-              },
+            body: Column(
+              children: [
+                Expanded(
+                  child: PageView.builder(
+                    itemCount: navigationItem.length,
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return _buildBody(
+                        index,
+                      );
+                    },
+                  ),
+                ),
+                BottomNavigationBarContainer(
+                  data: navigationItem,
+                  currentIndex: state.currentPage,
+                  onTap: (int index) {
+                    context.read<HomePageCubit>().changePage(index);
+                  },
+                ),
+              ],
             ),
           );
         },
