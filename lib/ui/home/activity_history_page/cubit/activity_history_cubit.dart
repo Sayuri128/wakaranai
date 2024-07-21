@@ -56,13 +56,14 @@ class ActivityHistoryCubit extends Cubit<ActivityHistoryState> {
       DateTime? lastDay;
       for (final activity in data) {
         final concreteData = chapterActivities[activity.concreteId];
-        lastDay ??= activity.createdAt;
-
-        if (lastDay.difference(activity.createdAt).inDays > 0 ||
+        lastDay ??= activity.updatedAt ?? activity.createdAt;
+        final lastDayDay = lastDay.day;
+        final activityDay = (activity.updatedAt ?? activity.createdAt).day;
+        if (lastDayDay != activityDay ||
             items.isEmpty) {
           items.add(
             ActivityListItem(
-              day: lastDay,
+              day: activity.updatedAt ?? activity.createdAt,
               listItems: [
                 DayActivityListItem(
                   data: concreteData!,
@@ -71,7 +72,7 @@ class ActivityHistoryCubit extends Cubit<ActivityHistoryState> {
               ],
             ),
           );
-          lastDay = activity.createdAt;
+          lastDay = activity.updatedAt ?? activity.createdAt;
         } else {
           items.last.listItems.add(
             DayActivityListItem(

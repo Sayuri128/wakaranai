@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
-class MangaProviderButton extends StatelessWidget {
+class MangaProviderButton extends StatefulWidget {
   const MangaProviderButton(
       {super.key,
       required this.title,
@@ -14,20 +14,76 @@ class MangaProviderButton extends StatelessWidget {
   final VoidCallback onClick;
 
   @override
+  State<MangaProviderButton> createState() => _MangaProviderButtonState();
+}
+
+class _MangaProviderButtonState extends State<MangaProviderButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  late final ColorTween _colorTween = ColorTween(
+    begin: AppColors.backgroundColor,
+    end: AppColors.primary,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+      reverseDuration: const Duration(milliseconds: 300),
+    );
+
+    _colorTween.animate(_controller);
+
+    if (widget.selected) {
+      _controller.forward();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant MangaProviderButton oldWidget) {
+    if (oldWidget.selected != widget.selected) {
+      if (widget.selected) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Card(
-        elevation: 8.0,
-        margin: EdgeInsets.zero,
-        color: selected ? AppColors.primary : null,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.0)),
-        child: InkWell(
-          onTap: onClick,
-          borderRadius: BorderRadius.circular(24.0),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(title, style: medium(size: 16)),
-          ),
-        ));
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Card(
+          elevation: 8.0,
+          margin: EdgeInsets.zero,
+          color: _colorTween.evaluate(_controller),
+          shadowColor: AppColors.shadowColor,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.0)),
+          child: child,
+        );
+      },
+      child: InkWell(
+        onTap: widget.onClick,
+        borderRadius: BorderRadius.circular(24.0),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(widget.title, style: medium(size: 16)),
+        ),
+      ),
+    );
   }
 }
