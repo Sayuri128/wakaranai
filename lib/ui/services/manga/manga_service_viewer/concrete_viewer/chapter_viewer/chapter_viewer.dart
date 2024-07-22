@@ -69,12 +69,12 @@ class _ChapterViewerState extends State<ChapterViewer>
   bool _canLoadNext = false;
   bool _canLoadPrevious = false;
 
+  bool _initialized = false;
+
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(
-      initialPage: max(0, widget.data.initialPage - 1),
-    );
+    _pageController = PageController();
     _itemScrollController = ItemScrollController();
 
     SystemChrome.setEnabledSystemUIMode(
@@ -126,46 +126,64 @@ class _ChapterViewerState extends State<ChapterViewer>
   }
 
   Widget _buildPage() {
-    return BlocBuilder<ChapterViewCubit, ChapterViewState>(
+    return BlocConsumer<ChapterViewCubit, ChapterViewState>(
+        listenWhen: (ChapterViewState previous, ChapterViewState current) =>
+            current is ChapterViewInitialized &&
+            (!_initialized ||
+                (previous is ChapterViewInitialized &&
+                    current.mode != previous.mode)),
+        listener: (BuildContext context, ChapterViewState state) {
+          if(state is ChapterViewInitialized) {
+            _initialized = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (state.mode == ChapterViewMode.webtoon) {
+                _itemScrollController.jumpTo(index: max(0, state.currentPage - 1));
+              } else {
+                _pageController.jumpToPage(max(0, state.currentPage - 1));
+              }
+            });
+          }
+
+        },
         builder: (BuildContext context, ChapterViewState state) {
-      if (state is ChapterViewInitialized) {
-        return Stack(
-          children: <Widget>[
-            _buildBackground(
-              context,
-            ),
-            _buildViewer(context, state),
-            if (state.mode != ChapterViewMode.webtoon)
-              _buildHorizontalGestures(
-                state,
-                context,
+          if (state is ChapterViewInitialized) {
+            return Stack(
+              children: <Widget>[
+                _buildBackground(
+                  context,
+                ),
+                _buildViewer(context, state),
+                if (state.mode != ChapterViewMode.webtoon)
+                  _buildHorizontalGestures(
+                    state,
+                    context,
+                  ),
+                _buildControls(
+                  context,
+                  state,
+                ),
+                _buildLoaders(
+                  context,
+                  state,
+                ),
+                _buildPageCounter(
+                  context,
+                  state,
+                ),
+              ],
+            );
+          } else if (state is ChapterViewError) {
+            return Center(
+              child: Text(
+                state.message,
               ),
-            _buildControls(
-              context,
-              state,
-            ),
-            _buildLoaders(
-              context,
-              state,
-            ),
-            _buildPageCounter(
-              context,
-              state,
-            ),
-          ],
-        );
-      } else if (state is ChapterViewError) {
-        return Center(
-          child: Text(
-            state.message,
-          ),
-        );
-      } else {
-        return const Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
-        );
-      }
-    });
+            );
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
+          }
+        });
   }
 
   Positioned _buildPageCounter(
