@@ -51,10 +51,23 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
     String? documentState =
         await controller.evaluateJavascript(source: 'document.readyState');
 
+    int documentStateAttempts = 0;
+
     while (documentState != 'complete') {
       await Future.delayed(const Duration(milliseconds: 100));
       documentState =
           await controller.evaluateJavascript(source: 'document.readyState');
+      documentStateAttempts++;
+
+      // TODO: Make this configurable with a parameter in capyscript
+      if (documentState == "interactive" && documentStateAttempts > 10) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        break;
+      }
+
+      if (documentStateAttempts > 50) {
+        break;
+      }
     }
 
     final CallAsyncJavaScriptResult? result =
