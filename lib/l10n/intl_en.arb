@@ -64,6 +64,10 @@
   "activity_history_anime_appbar_title": "Anime",
   "activity_history_error_loading_history": "Error occurred during loading history",
   "activity_history_error_loading_extension": "Error occurred during loading extension",
+  "activity_history_deleted_activity": "Deleted activity successfully",
+  "activity_history_long_tap_dialog_delete_button": "Delete",
+  "activity_history_empty_manga_list_message": "No history :c\nStart reading manga to see your history here",
+  "activity_history_empty_anime_list_message": "No history :c\nStart watching anime to see your history here",
   "@_ANIME_CONCRETE_VIEWER": {},
   "anime_concrete_viewer_watched_at_title": "Watched at {time}"
 }
