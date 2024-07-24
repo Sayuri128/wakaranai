@@ -104,7 +104,8 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
       data: concrete.dataJson,
     );
 
-    Navigator.of(context).pushNamed(
+    Navigator.of(context)
+        .pushNamed(
       Routes.mangaServiceViewer,
       arguments: MangaServiceViewData(
         remoteConfig: extension,
@@ -117,6 +118,9 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
           galleryCover: null,
         ),
       ),
-    );
+    )
+        .then((_) {
+      init();
+    });
   }
 }

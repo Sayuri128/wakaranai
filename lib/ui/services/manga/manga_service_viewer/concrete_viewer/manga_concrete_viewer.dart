@@ -316,17 +316,18 @@ class MangaConcreteViewer extends StatelessWidget
           children: <Widget>[
             Text(chapter.title.trim(),
                 style: medium(size: 18, color: AppColors.mainWhite)),
-            if (chapter.timestamp != null &&
-                formatTimestamp(chapter).isNotEmpty) ...<Widget>[
+            ...<Widget>[
               const SizedBox(height: 8.0),
               Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text(
-                    formatTimestamp(chapter),
-                    style: regular(color: AppColors.mainGrey, size: 12),
-                  ),
+                  if (chapter.timestamp != null &&
+                      formatTimestamp(chapter).isNotEmpty)
+                    Text(
+                      formatTimestamp(chapter),
+                      style: regular(color: AppColors.mainGrey, size: 12),
+                    ),
                   if (chapterActivityDomain != null &&
                       chapterActivityDomain.totalPages != 0) ...<Widget>[
                     const SizedBox(width: 8.0),
