@@ -60,7 +60,7 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
       documentStateAttempts++;
 
       // TODO: Make this configurable with a parameter in capyscript
-      if (documentState == "interactive" && documentStateAttempts > 10) {
+      if (documentState == "interactive" && documentStateAttempts > 3) {
         await Future.delayed(const Duration(milliseconds: 500));
         break;
       }
@@ -188,13 +188,26 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
       }
       await Future.delayed(const Duration(milliseconds: 250));
 
-      final documentState = await _inAppWebViewController.evaluateJavascript(
+      String? documentState = await _inAppWebViewController.evaluateJavascript(
           source: 'document.readyState');
 
-      if (documentState != 'complete') {
-        _jsAttempts++;
+      int documentStateAttempts = 0;
+
+      while (documentState != 'complete') {
         await Future.delayed(const Duration(milliseconds: 100));
-        return await executeJsScript(code);
+        documentState = await _inAppWebViewController.evaluateJavascript(
+            source: 'document.readyState');
+        documentStateAttempts++;
+
+        // TODO: Make this configurable with a parameter in capyscript
+        if (documentState == "interactive" && documentStateAttempts > 3) {
+          await Future.delayed(const Duration(milliseconds: 500));
+          break;
+        }
+
+        if (documentStateAttempts > 50) {
+          break;
+        }
       }
 
       final CallAsyncJavaScriptResult? res =
