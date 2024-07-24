@@ -80,7 +80,8 @@ class AnimeActivityHistoryCubit extends Cubit<AnimeActivityHistoryState>
       data: concrete.dataJson,
     );
 
-    Navigator.of(context).pushNamed(
+    Navigator.of(context)
+        .pushNamed(
       Routes.animeServiceViewer,
       arguments: AnimeServiceViewerData(
         remoteConfig: extension,
@@ -92,7 +93,10 @@ class AnimeActivityHistoryCubit extends Cubit<AnimeActivityHistoryState>
           galleryCover: null,
         ),
       ),
-    );
+    )
+        .then((_) {
+      init();
+    });
   }
 
   Future<void> onDelete(

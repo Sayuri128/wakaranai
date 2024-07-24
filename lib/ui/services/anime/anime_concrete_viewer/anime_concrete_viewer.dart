@@ -121,38 +121,6 @@ class AnimeConcreteViewer extends StatelessWidget
       key: _scaffoldKey,
       backgroundColor: AppColors.backgroundColor,
       extendBodyBehindAppBar: true,
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      floatingActionButton: BlocBuilder<
-          ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
-              AnimeGalleryView>,
-          ConcreteViewState<AnimeApiClient, AnimeConcreteView,
-              AnimeGalleryView>>(
-        builder: (BuildContext context,
-            ConcreteViewState<AnimeApiClient, AnimeConcreteView,
-                    AnimeGalleryView>
-                state) {
-          if (state is ConcreteViewInitialized<AnimeApiClient,
-              AnimeConcreteView, AnimeGalleryView>) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 24.0, right: 8.0),
-              child: SwitchIconButton(
-                iconOn: const Icon(Icons.filter_list_rounded),
-                state: state.order == ConcreteViewOrder.def,
-                onTap: () {
-                  context
-                      .read<
-                          ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
-                              AnimeGalleryView>>()
-                      .changeOrder(state.order == ConcreteViewOrder.def
-                          ? ConcreteViewOrder.defReverse
-                          : ConcreteViewOrder.def);
-                },
-              ),
-            );
-          }
-          return const SizedBox();
-        },
-      ),
       body: BlocBuilder<
           ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
               AnimeGalleryView>,
