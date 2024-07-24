@@ -148,6 +148,14 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
     }
   }
 
+  Future<int> deleteAll() async {
+    try {
+      return await deleteStatement().go();
+    } catch (e) {
+      return 0;
+    }
+  }
+
   BaseRepository({required this.database});
 }
 
