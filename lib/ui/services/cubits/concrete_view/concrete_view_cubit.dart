@@ -45,8 +45,6 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       final ConcreteView<dynamic> concreteView =
           await _getConcrete(uid, galleryData);
 
-      final all = await concreteDataRepository.getAll();
-
       final domain = await concreteDataRepository
           .createUpdateBy<$ConcreteDataTableTable, String>(
         concreteView.toConcreteDataDomain(

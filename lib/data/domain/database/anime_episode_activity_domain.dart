@@ -3,15 +3,13 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
+import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 
-class AnimeEpisodeActivityDomain extends BaseDomain {
+class AnimeEpisodeActivityDomain extends BaseActivityDomain<AnimeEpisodeActivityTableCompanion> {
 
-  final String uid;
-  final String title;
   final String? timestamp;
   final String? data;
-  final int concreteId;
   final int? watchedTime;
   final int? totalTime;
 
@@ -19,11 +17,11 @@ class AnimeEpisodeActivityDomain extends BaseDomain {
 
   AnimeEpisodeActivityDomain({
     required super.id,
-    required this.uid,
-    required this.title,
+    required super.uid,
+    required super.title,
     this.timestamp,
     this.data,
-    required this.concreteId,
+    required super.concreteId,
     this.watchedTime,
     this.totalTime,
     required super.createdAt,

@@ -1,7 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import 'intl/messages_all.dart';
 
 // **************************************************************************
@@ -616,6 +615,46 @@ class S {
     return Intl.message(
       'Error occurred during loading extension',
       name: 'activity_history_error_loading_extension',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Deleted activity successfully`
+  String get activity_history_deleted_activity {
+    return Intl.message(
+      'Deleted activity successfully',
+      name: 'activity_history_deleted_activity',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get activity_history_long_tap_dialog_delete_button {
+    return Intl.message(
+      'Delete',
+      name: 'activity_history_long_tap_dialog_delete_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No history :c\nStart reading manga to see your history here`
+  String get activity_history_empty_manga_list_message {
+    return Intl.message(
+      'No history :c\nStart reading manga to see your history here',
+      name: 'activity_history_empty_manga_list_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No history :c\nStart watching anime to see your history here`
+  String get activity_history_empty_anime_list_message {
+    return Intl.message(
+      'No history :c\nStart watching anime to see your history here',
+      name: 'activity_history_empty_anime_list_message',
       desc: '',
       args: [],
     );

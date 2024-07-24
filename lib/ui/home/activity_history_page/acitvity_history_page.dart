@@ -2,12 +2,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/data/domain/ui/activity_list_item.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
+import 'package:wakaranai/ui/home/activity_history_page/widgets/activity_history_long_tap_dialog.dart';
 import 'package:wakaranai/ui/widgets/elevated_appbar.dart';
+import 'package:wakaranai/ui/widgets/infinite_rotation_animation.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -117,11 +120,15 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
                   ),
                 )
               else if (state is AnimeActivityHistoryLoaded)
-                SliverList.builder(
-                  itemCount: state.animeActivities.length,
-                  itemBuilder: (context, index) {
-                    final item = state.animeActivities[index];
-                    return _buildDay(
+                if (state.animeActivities.isEmpty)
+                  _buildEmptyState(context,
+                      S.current.activity_history_empty_anime_list_message)
+                else
+                  SliverList.builder(
+                    itemCount: state.animeActivities.length,
+                    itemBuilder: (context, index) {
+                      final item = state.animeActivities[index];
+                      return _buildDay(
                         context: context,
                         item: item,
                         onTap: (day) {
@@ -132,9 +139,16 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
                                 concrete: day.data,
                                 activity: day.activity,
                               );
-                        });
-                  },
-                )
+                        },
+                        onDelete: (day) {
+                          context.read<AnimeActivityHistoryCubit>().onDelete(
+                                context: context,
+                                activity: day.activity,
+                              );
+                        },
+                      );
+                    },
+                  )
             ],
           ),
         );
@@ -184,11 +198,15 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
                   ),
                 )
               else if (state is ActivityHistoryLoaded)
-                SliverList.builder(
-                  itemCount: state.mangaActivities.length,
-                  itemBuilder: (context, index) {
-                    final item = state.mangaActivities[index];
-                    return _buildDay(
+                if (state.mangaActivities.isEmpty)
+                  _buildEmptyState(context,
+                      S.current.activity_history_empty_manga_list_message)
+                else
+                  SliverList.builder(
+                    itemCount: state.mangaActivities.length,
+                    itemBuilder: (context, index) {
+                      final item = state.mangaActivities[index];
+                      return _buildDay(
                         context: context,
                         item: item,
                         onTap: (day) {
@@ -199,9 +217,16 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
                                 concrete: day.data,
                                 activity: day.activity,
                               );
-                        });
-                  },
-                )
+                        },
+                        onDelete: (day) {
+                          context.read<MangaActivityHistoryCubit>().onDelete(
+                                context: context,
+                                activity: day.activity,
+                              );
+                        },
+                      );
+                    },
+                  )
             ],
           ),
         );
@@ -211,10 +236,54 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
     );
   }
 
+  SliverToBoxAdapter _buildEmptyState(
+    BuildContext context,
+    String message,
+  ) {
+    return SliverToBoxAdapter(
+      child: _wrapFullScreen(
+        context,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 48.0),
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const InfiniteRotationAnimation(
+                  child: Icon(
+                    Icons.hourglass_empty,
+                    size: 32,
+                    color: AppColors.mainWhite,
+                  ),
+                ),
+                const SizedBox(
+                  width: 16,
+                ),
+                Flexible(
+                  child: Text(
+                    message,
+                    style: medium(
+                      size: 16,
+                      color: AppColors.mainWhite,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Padding _buildDay({
     required BuildContext context,
-    required ActivityListItem item,
-    required void Function(DayActivityListItem listItem) onTap,
+    required ActivityListItem<BaseActivityDomain> item,
+    required void Function(DayActivityListItem<BaseActivityDomain> listItem)
+        onTap,
+    required void Function(DayActivityListItem<BaseActivityDomain> listItem)
+        onDelete,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -240,6 +309,7 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
                   context: context,
                   listItem: listItem,
                   onTap: onTap,
+                  onDelete: onDelete,
                 ),
             ],
           ),
@@ -248,10 +318,26 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
     );
   }
 
+  void _showActivityDialog(
+    BuildContext context, {
+    required DayActivityListItem<BaseActivityDomain> listItem,
+    required void Function(DayActivityListItem<BaseActivityDomain> listItem)
+        onDelete,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) => ActivityHistoryLongTapDialog<BaseActivityDomain>(
+          domain: listItem.activity, onDelete: () => onDelete(listItem)),
+    );
+  }
+
   Padding _buildListItem({
     required BuildContext context,
-    required DayActivityListItem listItem,
-    required void Function(DayActivityListItem listItem) onTap,
+    required DayActivityListItem<BaseActivityDomain> listItem,
+    required void Function(DayActivityListItem<BaseActivityDomain> listItem)
+        onTap,
+    required void Function(DayActivityListItem<BaseActivityDomain> listItem)
+        onDelete,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -262,6 +348,9 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
         borderRadius: BorderRadius.circular(12.0),
         onTap: () {
           onTap(listItem);
+        },
+        onLongPress: () {
+          _showActivityDialog(context, listItem: listItem, onDelete: onDelete);
         },
         child: Container(
           padding: const EdgeInsets.symmetric(
@@ -332,7 +421,7 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
                                               .totalPages !=
                                           0)
                                     Text(
-                                      "${listItem.activity.readPages}/${listItem.activity.totalPages}",
+                                      "${(listItem.activity as ChapterActivityDomain).readPages}/${(listItem.activity as ChapterActivityDomain).totalPages}",
                                       style: regular(
                                           size: 12, color: AppColors.mainGrey),
                                     ),
@@ -350,6 +439,9 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
                         ),
                       ],
                     ),
+                  ),
+                  const SizedBox(
+                    width: 16,
                   ),
                 ],
               ),
