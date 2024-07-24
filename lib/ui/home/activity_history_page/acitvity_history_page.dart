@@ -41,34 +41,16 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (BuildContext context) => MangaActivityHistoryCubit(
-            chapterActivityRepository: RepositoryProvider.of(context),
-            concreteDataRepository: RepositoryProvider.of(context),
-            extensionRepository: RepositoryProvider.of(context),
-          )..init(),
-        ),
-        BlocProvider(
-          create: (context) => AnimeActivityHistoryCubit(
-              extensionRepository: RepositoryProvider.of(context),
-              concreteDataRepository: RepositoryProvider.of(context),
-              animeEpisodeActivityRepository: RepositoryProvider.of(context))
-            ..init(),
-        ),
-      ],
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundColor,
-        body: PageStorage(
-          bucket: _pageBucket,
-          child: PageView(
-            controller: _pageController,
-            children: [
-              _buildMangaActivities(),
-              _buildAnimeActivities(),
-            ],
-          ),
+    return Scaffold(
+      backgroundColor: AppColors.backgroundColor,
+      body: PageStorage(
+        bucket: _pageBucket,
+        child: PageView(
+          controller: _pageController,
+          children: [
+            _buildMangaActivities(),
+            _buildAnimeActivities(),
+          ],
         ),
       ),
     );
