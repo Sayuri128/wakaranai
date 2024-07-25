@@ -135,6 +135,23 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Retry"),
         "service_viewer_search_field_hint_text":
             MessageLookupByLibrary.simpleMessage("Search"),
+        "settings_clear_activity_history":
+            MessageLookupByLibrary.simpleMessage("Clear activity history"),
+        "settings_clear_activity_history_dialog_confirmation_cancel_label":
+            MessageLookupByLibrary.simpleMessage("Cancel"),
+        "settings_clear_activity_history_dialog_confirmation_message":
+            MessageLookupByLibrary.simpleMessage(
+                "This action cannot be canceled later"),
+        "settings_clear_activity_history_dialog_confirmation_ok_label":
+            MessageLookupByLibrary.simpleMessage("Delete"),
+        "settings_clear_activity_history_dialog_confirmation_title":
+            MessageLookupByLibrary.simpleMessage(
+                "Are you sure you want to clear your history?"),
+        "settings_clear_activity_history_dialog_error":
+            MessageLookupByLibrary.simpleMessage(
+                "Error occurred during clearing history"),
+        "settings_clear_activity_history_dialog_success":
+            MessageLookupByLibrary.simpleMessage("History has been cleared"),
         "settings_clear_cookies_cache":
             MessageLookupByLibrary.simpleMessage("Clear cookies cache"),
         "settings_clear_cookies_cache_dialog_confirmation_cancel_label":
