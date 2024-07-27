@@ -18,6 +18,7 @@ import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/anime_concrete_viewer/anime_player_button.dart';
 import 'package:wakaranai/ui/services/anime/anime_iframe_player/anime_iframe_player.dart';
+import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -43,7 +44,10 @@ class AnimeConcreteViewerData {
       this.fromLibrary = false});
 }
 
-class AnimeConcreteViewer extends StatelessWidget {
+class AnimeConcreteViewer extends StatelessWidget
+    with
+        ConcreteViewerMixin<AnimeApiClient, AnimeConcreteView,
+            AnimeGalleryView> {
   AnimeConcreteViewer({super.key, required this.data});
 
   final GlobalKey _scaffoldKey = GlobalKey();
@@ -117,38 +121,6 @@ class AnimeConcreteViewer extends StatelessWidget {
       key: _scaffoldKey,
       backgroundColor: AppColors.backgroundColor,
       extendBodyBehindAppBar: true,
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      floatingActionButton: BlocBuilder<
-          ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
-              AnimeGalleryView>,
-          ConcreteViewState<AnimeApiClient, AnimeConcreteView,
-              AnimeGalleryView>>(
-        builder: (BuildContext context,
-            ConcreteViewState<AnimeApiClient, AnimeConcreteView,
-                    AnimeGalleryView>
-                state) {
-          if (state is ConcreteViewInitialized<AnimeApiClient,
-              AnimeConcreteView, AnimeGalleryView>) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 24.0, right: 8.0),
-              child: SwitchIconButton(
-                iconOn: const Icon(Icons.filter_list_rounded),
-                state: state.order == ConcreteViewOrder.def,
-                onTap: () {
-                  context
-                      .read<
-                          ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
-                              AnimeGalleryView>>()
-                      .changeOrder(state.order == ConcreteViewOrder.def
-                          ? ConcreteViewOrder.defReverse
-                          : ConcreteViewOrder.def);
-                },
-              ),
-            );
-          }
-          return const SizedBox();
-        },
-      ),
       body: BlocBuilder<
           ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
               AnimeGalleryView>,
@@ -166,85 +138,98 @@ class AnimeConcreteViewer extends StatelessWidget {
             concreteView = state.concreteView;
             currentGroupIndex = state.groupIndex;
           }
-          return RefreshIndicator(
-            onRefresh: () async {
-              await context
-                  .read<
-                      ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
-                          AnimeGalleryView>>()
-                  .getConcrete(
-                    data.uid,
-                    data.galleryData,
-                    forceRemote: true,
-                  );
-            },
-            color: AppColors.primary,
-            child: CustomScrollView(
-              slivers: [
-                SliverList(
-                    delegate: SliverChildListDelegate(<Widget>[
-                  if (data.galleryCover != null) ...[
-                    _buildCover(data.galleryCover!, context),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                  ],
-                  const SizedBox(height: 16.0),
-                  if (state is ConcreteViewInitialized<AnimeApiClient,
-                      AnimeConcreteView, AnimeGalleryView>) ...<Widget>[
-                    if (data.galleryCover == null)
-                      _buildCover(concreteView.cover, context),
-                    const SizedBox(height: 16.0),
-                    _buildTitle(
-                      concreteView,
-                    ),
-                    const SizedBox(height: 16.0),
-                    _buildTags(
-                      context,
-                      concreteView,
-                    ),
-                    const SizedBox(height: 16.0),
-                    _buildDescription(
-                      context,
-                      concreteView,
-                    ),
-                    const SizedBox(height: 16.0),
-                    const Divider(
-                      thickness: 1,
-                      color: AppColors.primary,
-                    ),
-                    const SizedBox(height: 16.0),
-                    _buildPlayerButtons(state, context, currentGroupIndex),
-                  ] else if (state is ConcreteViewError<AnimeApiClient,
-                      AnimeConcreteView, AnimeGalleryView>) ...[
-                    _buildErrorMessage(context, state),
-                  ] else ...<Widget>[
-                    _buildLoader(context),
-                  ],
-                  const SizedBox(height: 16.0),
-                ])),
-                SliverList.builder(
-                  itemCount: state is ConcreteViewInitialized<AnimeApiClient,
-                          AnimeConcreteView, AnimeGalleryView>
-                      ? concreteView.groups[currentGroupIndex].elements.length
-                      : 0,
-                  itemBuilder: (context, index) {
-                    final AnimeVideo animeVideo =
-                        concreteView.groups[currentGroupIndex].elements[index];
+          return Stack(
+            children: [
+              RefreshIndicator(
+                onRefresh: () async {
+                  await context
+                      .read<
+                          ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
+                              AnimeGalleryView>>()
+                      .getConcrete(
+                        data.uid,
+                        data.galleryData,
+                        forceRemote: true,
+                      );
+                },
+                color: AppColors.primary,
+                child: CustomScrollView(
+                  slivers: [
+                    SliverList(
+                        delegate: SliverChildListDelegate(<Widget>[
+                      if (data.galleryCover != null) ...[
+                        _buildCover(data.galleryCover!, context),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                      ],
+                      const SizedBox(height: 16.0),
+                      if (state is ConcreteViewInitialized<AnimeApiClient,
+                          AnimeConcreteView, AnimeGalleryView>) ...<Widget>[
+                        if (data.galleryCover == null)
+                          _buildCover(concreteView.cover, context),
+                        const SizedBox(height: 16.0),
+                        _buildTitle(
+                          concreteView,
+                        ),
+                        const SizedBox(height: 16.0),
+                        _buildTags(
+                          context,
+                          concreteView,
+                        ),
+                        const SizedBox(height: 16.0),
+                        _buildDescription(
+                          context,
+                          concreteView,
+                        ),
+                        const SizedBox(height: 16.0),
+                        const Divider(
+                          thickness: 1,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(height: 16.0),
+                        _buildPlayerButtons(state, context, currentGroupIndex),
+                      ] else if (state is ConcreteViewError<AnimeApiClient,
+                          AnimeConcreteView, AnimeGalleryView>) ...[
+                        _buildErrorMessage(context, state),
+                      ] else ...<Widget>[
+                        _buildLoader(context),
+                      ],
+                      const SizedBox(height: 16.0),
+                    ])),
+                    SliverList.builder(
+                      itemCount: state is ConcreteViewInitialized<
+                              AnimeApiClient,
+                              AnimeConcreteView,
+                              AnimeGalleryView>
+                          ? concreteView
+                              .groups[currentGroupIndex].elements.length
+                          : 0,
+                      itemBuilder: (context, index) {
+                        state as ConcreteViewInitialized<AnimeApiClient,
+                            AnimeConcreteView, AnimeGalleryView>;
 
-                    return _buildEpisode(
-                      context: context,
-                      animeVideo: animeVideo,
-                      concreteView: concreteView,
-                      activity: state is ConcreteViewInitialized<AnimeApiClient,
-                              AnimeConcreteView, AnimeGalleryView>
-                          ? state.animeEpisodeActivities[animeVideo.uid]
-                          : null,
-                    );
-                  },
-                )
-              ],
-            ),
+                        final AnimeVideo animeVideo = concreteView
+                            .groups[currentGroupIndex].elements[index];
+
+                        return _buildEpisode(
+                          context: context,
+                          animeVideo: animeVideo,
+                          concreteView: concreteView,
+                          activity:
+                              state.animeEpisodeActivities[animeVideo.uid],
+                          state: state,
+                        );
+                      },
+                    )
+                  ],
+                ),
+              ),
+              if (state is ConcreteViewInitialized<
+                  AnimeApiClient,
+                  AnimeConcreteView,
+                  AnimeGalleryView>) ...[getExpandableFabWidget(context, state)]
+            ],
           );
         },
       ),
@@ -287,27 +272,39 @@ class AnimeConcreteViewer extends StatelessWidget {
     required AnimeVideo animeVideo,
     required AnimeConcreteView concreteView,
     required AnimeEpisodeActivityDomain? activity,
+    required ConcreteViewInitialized<AnimeApiClient, AnimeConcreteView,
+            AnimeGalleryView>
+        state,
   }) {
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 300),
       opacity: activity != null ? 0.5 : 1,
       child: ListTile(
+        selectedTileColor: AppColors.mediumLight.withOpacity(0.15),
+        selected: state.selection.contains(animeVideo.uid),
+        onLongPress: () {
+          getConcreteViewCubit(context).changeSelection(animeVideo.uid);
+        },
         onTap: () {
-          Navigator.of(context)
-              .pushNamed(
-            Routes.iframeAnimePlayer,
-            arguments: AnimeIframePlayerData(
-              anime: concreteView,
-              video: animeVideo,
-            ),
-          )
-              .then((_) {
-            context
-                .read<
-                    ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
-                        AnimeGalleryView>>()
-                .updateActivities();
-          });
+          if (state.selection.isEmpty) {
+            Navigator.of(context)
+                .pushNamed(
+              Routes.iframeAnimePlayer,
+              arguments: AnimeIframePlayerData(
+                anime: concreteView,
+                video: animeVideo,
+              ),
+            )
+                .then((_) {
+              context
+                  .read<
+                      ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
+                          AnimeGalleryView>>()
+                  .updateActivities();
+            });
+          } else {
+            getConcreteViewCubit(context).changeSelection(animeVideo.uid);
+          }
         },
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

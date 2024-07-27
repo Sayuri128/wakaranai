@@ -25,150 +25,187 @@ class SettingsPage extends StatelessWidget {
             );
           }
           if (state is SettingsInitialized) {
-            return ListView(
-              physics: const BouncingScrollPhysics(),
-              children: <Widget>[
-                const SizedBox(
-                  height: 12,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 8.0),
-                  child: Text(S.current.settings_default_reader_mode_title,
-                      style: semibold(size: 18)),
-                ),
-                SizedBox(
-                  width: double.maxFinite,
-                  child: DropdownButtonFormField<ChapterViewMode>(
-                      value: state.defaultMode,
-                      // borderRadius: BorderRadius.circular(16.0),
-                      style: medium(),
-                      icon: const Icon(Icons.arrow_drop_down_rounded),
-                      decoration: _dropdownDecoration(),
-                      items: ChapterViewMode.values
-                          .map((ChapterViewMode e) => DropdownMenuItem(
-                                value: e,
-                                alignment: Alignment.center,
-                                child: Text(chapterViewModelToString(e),
-                                    textAlign: TextAlign.center,
-                                    style: medium()),
-                              ))
-                          .toList(),
-                      onChanged: (ChapterViewMode? mode) {
-                        if (mode != null) {
-                          context
-                              .read<SettingsCubit>()
-                              .onChangedDefaultReadMode(mode);
-                        }
-                      }),
-                ),
-                const Divider(
-                  height: 2,
-                  color: AppColors.primary,
-                ),
-                const SizedBox(
-                  height: 12,
-                ),
-                // Padding(
-                //   padding: const EdgeInsets.symmetric(
-                //       horizontal: 16.0, vertical: 8.0),
-                //   child: Text(
-                //     S.current.settings_default_configs_source_title,
-                //     style: semibold(size: 18),
-                //   ),
-                // ),
-                // const Divider(
-                //   height: 2,
-                //   color: AppColors.primary,
-                // ),
-                ListTile(
-                  onTap: () {
-                    showOkCancelAlertDialog(
-                      context: context,
-                      okLabel: S.current
-                          .settings_clear_cookies_cache_dialog_confirmation_ok_label,
-                      cancelLabel: S.current
-                          .settings_clear_cookies_cache_dialog_confirmation_cancel_label,
-                      title: S.current
-                          .settings_clear_cookies_cache_dialog_confirmation_title,
-                      message: S.current
-                          .settings_clear_cookies_cache_dialog_confirmation_message,
-                    ).then((OkCancelResult value) {
-                      if (value.index == 0) {
-                        ProtectorStorageService().clear().then((_) {
-                          showOkAlertDialog(
-                              context: context,
-                              title: S.current
-                                  .settings_clear_cookies_dialog_success);
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                ListView(
+                  physics: const BouncingScrollPhysics(),
+                  children: <Widget>[
+                    const SizedBox(
+                      height: 12,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
+                      child: Text(S.current.settings_default_reader_mode_title,
+                          style: semibold(size: 18)),
+                    ),
+                    SizedBox(
+                      width: double.maxFinite,
+                      child: DropdownButtonFormField<ChapterViewMode>(
+                          value: state.defaultMode,
+                          // borderRadius: BorderRadius.circular(16.0),
+                          style: medium(),
+                          icon: const Icon(Icons.arrow_drop_down_rounded),
+                          decoration: _dropdownDecoration(),
+                          items: ChapterViewMode.values
+                              .map((ChapterViewMode e) => DropdownMenuItem(
+                                    value: e,
+                                    alignment: Alignment.center,
+                                    child: Text(chapterViewModelToString(e),
+                                        textAlign: TextAlign.center,
+                                        style: medium()),
+                                  ))
+                              .toList(),
+                          onChanged: (ChapterViewMode? mode) {
+                            if (mode != null) {
+                              context
+                                  .read<SettingsCubit>()
+                                  .onChangedDefaultReadMode(mode);
+                            }
+                          }),
+                    ),
+                    const Divider(
+                      height: 2,
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(
+                      height: 12,
+                    ),
+                    // Padding(
+                    //   padding: const EdgeInsets.symmetric(
+                    //       horizontal: 16.0, vertical: 8.0),
+                    //   child: Text(
+                    //     S.current.settings_default_configs_source_title,
+                    //     style: semibold(size: 18),
+                    //   ),
+                    // ),
+                    // const Divider(
+                    //   height: 2,
+                    //   color: AppColors.primary,
+                    // ),
+                    ListTile(
+                      onTap: () {
+                        showOkCancelAlertDialog(
+                          context: context,
+                          okLabel: S.current
+                              .settings_clear_cookies_cache_dialog_confirmation_ok_label,
+                          cancelLabel: S.current
+                              .settings_clear_cookies_cache_dialog_confirmation_cancel_label,
+                          title: S.current
+                              .settings_clear_cookies_cache_dialog_confirmation_title,
+                          message: S.current
+                              .settings_clear_cookies_cache_dialog_confirmation_message,
+                        ).then((OkCancelResult value) {
+                          if (value.index == 0) {
+                            ProtectorStorageService().clear().then((_) {
+                              showOkAlertDialog(
+                                  context: context,
+                                  title: S.current
+                                      .settings_clear_cookies_dialog_success);
+                            });
+                          }
                         });
-                      }
-                    });
-                  },
-                  title: Text(S.current.settings_clear_cookies_cache,
-                      style: medium(size: 16)),
-                ),
-                ListTile(
-                  onTap: () {
-                    launchUrl(
-                      Uri.parse(
-                          "https://github.com/Sayuri128/wakaranai/issues/new/choose"),
-                    );
-                  },
-                  title: Text(
-                    S.current.settings_submit_issue,
-                    style: medium(size: 16),
-                  ),
-                ),
-
-                BlocBuilder<LatestReleaseCubit, LatestReleaseState>(
-                    builder: (BuildContext context, LatestReleaseState state) {
-                  if (state is LatestReleaseLoaded &&
-                      state.releaseData.needsUpdate) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 48.0),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16.0),
-                          ),
-                        ),
-                        onPressed: () {
-                          launchUrl(Uri.parse(
-                            state.releaseData.url,
-                          ));
-                        },
-                        child: Text(
-                          S.current.settings_download_latest_release(
-                              state.releaseData.latestVersion),
-                          style: medium(size: 16),
-                        ),
+                      },
+                      title: Text(S.current.settings_clear_cookies_cache,
+                          style: medium(size: 16)),
+                    ),
+                    ListTile(
+                      onTap: () {
+                        showOkCancelAlertDialog(
+                          context: context,
+                          okLabel: S.current
+                              .settings_clear_activity_history_dialog_confirmation_ok_label,
+                          cancelLabel: S.current
+                              .settings_clear_activity_history_dialog_confirmation_cancel_label,
+                          title: S.current
+                              .settings_clear_activity_history_dialog_confirmation_title,
+                          message: S.current
+                              .settings_clear_activity_history_dialog_confirmation_message,
+                        ).then((OkCancelResult value) {
+                          if (value.index == 0) {
+                            context
+                                .read<SettingsCubit>()
+                                .deleteActivityHistory(context);
+                          }
+                        });
+                      },
+                      title: Text(S.current.settings_clear_activity_history,
+                          style: medium(size: 16)),
+                    ),
+                    ListTile(
+                      onTap: () {
+                        launchUrl(
+                          Uri.parse(
+                              "https://github.com/Sayuri128/wakaranai/issues/new/choose"),
+                        );
+                      },
+                      title: Text(
+                        S.current.settings_submit_issue,
+                        style: medium(size: 16),
                       ),
-                    );
-                  }
+                    ),
 
-                  return const SizedBox();
-                }),
-                // ListTile(
-                //   onTap: () {
-                //     showOkCancelAlertDialog(
-                //             context: context,
-                //             title:
-                //                 "Are you sure you want to delete all your data?")
-                //         .then((value) {
-                //       // if (value == OkCancelResult.ok) {
-                //       //   waka.hardReset().then((value) {
-                //       //     context.read<LocalConfigsCubit>().init();
-                //       //     context.read<LibraryPageCubit>().init();
-                //       //   });
-                //       // }
-                //     });
-                //   },
-                //   title: Text(
-                //     "Hard reset",
-                //     style: medium(size: 16),
-                //   ),
-                // )
+                    BlocBuilder<LatestReleaseCubit, LatestReleaseState>(builder:
+                        (BuildContext context, LatestReleaseState state) {
+                      if (state is LatestReleaseLoaded &&
+                          state.releaseData.needsUpdate) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 48.0),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                              ),
+                            ),
+                            onPressed: () {
+                              launchUrl(Uri.parse(
+                                state.releaseData.url,
+                              ));
+                            },
+                            child: Text(
+                              S.current.settings_download_latest_release(
+                                  state.releaseData.latestVersion),
+                              style: medium(size: 16),
+                            ),
+                          ),
+                        );
+                      }
+
+                      return const SizedBox();
+                    }),
+                    // ListTile(
+                    //   onTap: () {
+                    //     showOkCancelAlertDialog(
+                    //             context: context,
+                    //             title:
+                    //                 "Are you sure you want to delete all your data?")
+                    //         .then((value) {
+                    //       // if (value == OkCancelResult.ok) {
+                    //       //   waka.hardReset().then((value) {
+                    //       //     context.read<LocalConfigsCubit>().init();
+                    //       //     context.read<LibraryPageCubit>().init();
+                    //       //   });
+                    //       // }
+                    //     });
+                    //   },
+                    //   title: Text(
+                    //     "Hard reset",
+                    //     style: medium(size: 16),
+                    //   ),
+                    // )
+                  ],
+                ),
+                if (state.loading)
+                  Container(
+                    color: Colors.black.withOpacity(0.5),
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
               ],
             );
           }
