@@ -99,17 +99,21 @@ class _AppViewState extends State<AppView> {
 
         return CupertinoPageRoute(builder: routes[settings.name]!);
       },
-      builder: (BuildContext context, Widget? child) =>
-          BlocListener<AuthenticationCubit, AuthenticationState>(
-              listener: (BuildContext context, AuthenticationState state) {
-                Future.delayed(const Duration(seconds: 0), () {
-                  if (state is AuthenticationAuthenticated) {
-                    WakaranaiApp.navigator?.pushNamedAndRemoveUntil(
-                        Routes.home, (Route route) => false);
-                  }
-                });
-              },
-              child: child!),
+      builder: (BuildContext context, Widget? child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          textScaler: const TextScaler.linear(1.0),
+        ),
+        child: BlocListener<AuthenticationCubit, AuthenticationState>(
+            listener: (BuildContext context, AuthenticationState state) {
+              Future.delayed(const Duration(seconds: 0), () {
+                if (state is AuthenticationAuthenticated) {
+                  WakaranaiApp.navigator?.pushNamedAndRemoveUntil(
+                      Routes.home, (Route route) => false);
+                }
+              });
+            },
+            child: child!),
+      ),
     );
   }
 }

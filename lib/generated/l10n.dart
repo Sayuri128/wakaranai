@@ -110,6 +110,16 @@ class S {
     );
   }
 
+  /// `History`
+  String get home_navigation_bar_activity_history_title {
+    return Intl.message(
+      'History',
+      name: 'home_navigation_bar_activity_history_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Settings`
   String get home_navigation_bar_settings_title {
     return Intl.message(
@@ -560,6 +570,76 @@ class S {
     );
   }
 
+  /// `Clear activity history`
+  String get settings_clear_activity_history {
+    return Intl.message(
+      'Clear activity history',
+      name: 'settings_clear_activity_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to clear your history?`
+  String get settings_clear_activity_history_dialog_confirmation_title {
+    return Intl.message(
+      'Are you sure you want to clear your history?',
+      name: 'settings_clear_activity_history_dialog_confirmation_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This action cannot be canceled later`
+  String get settings_clear_activity_history_dialog_confirmation_message {
+    return Intl.message(
+      'This action cannot be canceled later',
+      name: 'settings_clear_activity_history_dialog_confirmation_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get settings_clear_activity_history_dialog_confirmation_ok_label {
+    return Intl.message(
+      'Delete',
+      name: 'settings_clear_activity_history_dialog_confirmation_ok_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get settings_clear_activity_history_dialog_confirmation_cancel_label {
+    return Intl.message(
+      'Cancel',
+      name: 'settings_clear_activity_history_dialog_confirmation_cancel_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `History has been cleared`
+  String get settings_clear_activity_history_dialog_success {
+    return Intl.message(
+      'History has been cleared',
+      name: 'settings_clear_activity_history_dialog_success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during clearing history`
+  String get settings_clear_activity_history_dialog_error {
+    return Intl.message(
+      'Error occurred during clearing history',
+      name: 'settings_clear_activity_history_dialog_error',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Done`
   String get web_browser_no_login_button {
     return Intl.message(
@@ -567,6 +647,96 @@ class S {
       name: 'web_browser_no_login_button',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `Manga`
+  String get activity_history_manga_appbar_title {
+    return Intl.message(
+      'Manga',
+      name: 'activity_history_manga_appbar_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Anime`
+  String get activity_history_anime_appbar_title {
+    return Intl.message(
+      'Anime',
+      name: 'activity_history_anime_appbar_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during loading history`
+  String get activity_history_error_loading_history {
+    return Intl.message(
+      'Error occurred during loading history',
+      name: 'activity_history_error_loading_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during loading extension`
+  String get activity_history_error_loading_extension {
+    return Intl.message(
+      'Error occurred during loading extension',
+      name: 'activity_history_error_loading_extension',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Deleted activity successfully`
+  String get activity_history_deleted_activity {
+    return Intl.message(
+      'Deleted activity successfully',
+      name: 'activity_history_deleted_activity',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get activity_history_long_tap_dialog_delete_button {
+    return Intl.message(
+      'Delete',
+      name: 'activity_history_long_tap_dialog_delete_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No history :c\nStart reading manga to see your history here`
+  String get activity_history_empty_manga_list_message {
+    return Intl.message(
+      'No history :c\nStart reading manga to see your history here',
+      name: 'activity_history_empty_manga_list_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No history :c\nStart watching anime to see your history here`
+  String get activity_history_empty_anime_list_message {
+    return Intl.message(
+      'No history :c\nStart watching anime to see your history here',
+      name: 'activity_history_empty_anime_list_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Watched at {time}`
+  String anime_concrete_viewer_watched_at_title(Object time) {
+    return Intl.message(
+      'Watched at $time',
+      name: 'anime_concrete_viewer_watched_at_title',
+      desc: '',
+      args: [time],
     );
   }
 }

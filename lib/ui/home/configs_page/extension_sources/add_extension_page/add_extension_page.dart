@@ -60,77 +60,81 @@ class _AddExtensionPageState extends State<AddExtensionPage> {
         },
         child: const Icon(Icons.check),
       ),
-      appBar: PreferredSize(
-        preferredSize: const Size(60, double.maxFinite),
-        child: ElevatedAppbar(
-          leading: IconButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            icon: const Icon(
-              Icons.arrow_back_rounded,
-              color: AppColors.mainWhite,
-            ),
-          ),
-          title: Text(
-            widget.arguments.update
-                ? S.current.add_extension_source_page_appbar_edit_title
-                : S.current.add_extension_source_page_appbar_title,
-            style: medium(size: 24),
-          ),
-        ),
-      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 16.0,
         ),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 48,
+        child: CustomScrollView(
+          slivers: [
+            ElevatedAppbar(
+              leading: IconButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: AppColors.mainWhite,
                 ),
-                OutlinedTextFormField(
-                  controller: _urlController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return S.current
-                          .add_extension_source_page_url_field_error_text;
-                    }
-
-                    final githubParser = GithubUrlParser(url: value);
-                    if (githubParser.parse() == null) {
-                      return S.current
-                          .add_extension_source_page_url_field_error_text;
-                    }
-
-                    return null;
-                  },
-                  title: S.current.add_extension_source_page_url_field_label,
-                  hint: S.current.add_extension_source_page_url_field_hint_text,
-                ),
-                const SizedBox(
-                  height: 48,
-                ),
-                OutlinedTextFormField(
-                  controller: _nameController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return S.current
-                          .add_extension_source_page_name_field_error_text;
-                    }
-
-                    return null;
-                  },
-                  title: S.current.add_extension_source_page_name_field_label,
-                  hint:
-                      S.current.add_extension_source_page_name_field_hint_text,
-                ),
-              ],
+              ),
+              title: Text(
+                widget.arguments.update
+                    ? S.current.add_extension_source_page_appbar_edit_title
+                    : S.current.add_extension_source_page_appbar_title,
+                style: medium(size: 24),
+              ),
             ),
-          ),
+            SliverToBoxAdapter(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    const SizedBox(
+                      height: 48,
+                    ),
+                    OutlinedTextFormField(
+                      controller: _urlController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return S.current
+                              .add_extension_source_page_url_field_error_text;
+                        }
+
+                        final githubParser = GithubUrlParser(url: value);
+                        if (githubParser.parse() == null) {
+                          return S.current
+                              .add_extension_source_page_url_field_error_text;
+                        }
+
+                        return null;
+                      },
+                      title:
+                          S.current.add_extension_source_page_url_field_label,
+                      hint: S.current
+                          .add_extension_source_page_url_field_hint_text,
+                    ),
+                    const SizedBox(
+                      height: 48,
+                    ),
+                    OutlinedTextFormField(
+                      controller: _nameController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return S.current
+                              .add_extension_source_page_name_field_error_text;
+                        }
+
+                        return null;
+                      },
+                      title:
+                          S.current.add_extension_source_page_name_field_label,
+                      hint: S.current
+                          .add_extension_source_page_name_field_hint_text,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

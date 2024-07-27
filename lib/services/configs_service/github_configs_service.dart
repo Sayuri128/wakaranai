@@ -8,6 +8,14 @@ import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 import 'package:wakaranai/repositories/configs_repository/github/github_configs_repository.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 
+/*
+* This needs to be refactored to avoid too many requests to GitHub
+* ideally we should get all the configs at once
+* e.g. there is .json file that contains all the necessary information
+* like the path to the config file, category, etc.
+* basically a lightweight version of ConfigInfo model
+* this way it will also allow us to make the order of the configs customizable
+ */
 class GitHubConfigsService implements ConfigsService {
   final String org;
   final String repository;
@@ -24,13 +32,15 @@ class GitHubConfigsService implements ConfigsService {
       GithubConfigsRepository.mangaDirectory,
     );
 
-    return Future.wait((directories).map((GithubTreeItemModel e) async {
-      return await _getConfig(
-        treeItem: e,
-        directory: GithubConfigsRepository.mangaDirectory,
-        category: "manga",
-      );
-    }));
+    return Future.wait(
+      (directories).map((GithubTreeItemModel e) async {
+        return await _getConfig(
+          treeItem: e,
+          directory: GithubConfigsRepository.mangaDirectory,
+          category: "manga",
+        );
+      }),
+    );
   }
 
   @override
@@ -39,13 +49,15 @@ class GitHubConfigsService implements ConfigsService {
       GithubConfigsRepository.animeDirectory,
     );
 
-    return Future.wait((directories).map((GithubTreeItemModel e) async {
-      return await _getConfig(
-        treeItem: e,
-        directory: GithubConfigsRepository.animeDirectory,
-        category: "anime",
-      );
-    }));
+    return Future.wait(
+      (directories).map((GithubTreeItemModel e) async {
+        return await _getConfig(
+          treeItem: e,
+          directory: GithubConfigsRepository.animeDirectory,
+          category: "anime",
+        );
+      }),
+    );
   }
 
   Future<RemoteConfig> _getConfig({
