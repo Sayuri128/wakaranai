@@ -63,42 +63,35 @@ class _MangaServiceViewState extends State<MangaServiceView> {
         apiClient: apiClient,
         builder:
             (BuildContext context, Completer<bool> interceptorInitCompleter) {
-          return WillPopScope(
-            onWillPop: () async {
-              Navigator.of(context)
-                  .pushNamedAndRemoveUntil(Routes.home, (Route route) => false);
-              return false;
-            },
-            child: ServiceViewCubitWrapper<MangaApiClient, MangaGalleryView>(
-              client: apiClient,
-              builder: (BuildContext context,
-                      ServiceViewState<MangaApiClient, MangaGalleryView>
-                          state) =>
-                  _wrapBrowserInterceptor(
-                child: BlocListener<
-                    ServiceViewCubit<MangaApiClient, MangaGalleryView>,
-                    ServiceViewState<MangaApiClient, MangaGalleryView>>(
-                  listener: (BuildContext context,
-                      ServiceViewState<MangaApiClient, MangaGalleryView>
-                          state) {
-                    if (state is ServiceViewInitialized<MangaApiClient,
-                        MangaGalleryView>) {
-                      _refreshController.loadComplete();
-                    }
-                  },
-                  child: MangaServiceViewBody(
-                    scaffold: _scaffold,
-                    configInfo: configInfo,
-                    state: state,
-                    apiClient: apiClient,
-                    refreshController: _refreshController,
-                    searchController: _searchController,
-                  ),
+          return ServiceViewCubitWrapper<MangaApiClient, MangaGalleryView>(
+            client: apiClient,
+            builder: (BuildContext context,
+                    ServiceViewState<MangaApiClient, MangaGalleryView>
+                        state) =>
+                _wrapBrowserInterceptor(
+              child: BlocListener<
+                  ServiceViewCubit<MangaApiClient, MangaGalleryView>,
+                  ServiceViewState<MangaApiClient, MangaGalleryView>>(
+                listener: (BuildContext context,
+                    ServiceViewState<MangaApiClient, MangaGalleryView>
+                        state) {
+                  if (state is ServiceViewInitialized<MangaApiClient,
+                      MangaGalleryView>) {
+                    _refreshController.loadComplete();
+                  }
+                },
+                child: MangaServiceViewBody(
+                  scaffold: _scaffold,
+                  configInfo: configInfo,
+                  state: state,
+                  apiClient: apiClient,
+                  refreshController: _refreshController,
+                  searchController: _searchController,
                 ),
-                apiClient: apiClient,
-                interceptorInitCompleter: interceptorInitCompleter,
-                configInfo: configInfo,
               ),
+              apiClient: apiClient,
+              interceptorInitCompleter: interceptorInitCompleter,
+              configInfo: configInfo,
             ),
           );
         },

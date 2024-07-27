@@ -8,6 +8,7 @@ import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 import 'package:wakaranai/services/configs_service/github_configs_service.dart';
+import 'package:wakaranai/services/configs_service/repo_configs_service.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/extension_sources_page_result.dart';
 import 'package:wakaranai/utils/github_url_parser.dart';
 
@@ -24,7 +25,7 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
       GitHubConfigsService(Env.configsSourceOrg, Env.configsSourceRepo);
 
   // ConfigsService _configsService =
-  //     RepoConfigsService(url: Env.LOCAL_REPOSITORY_URL);
+  //     RepoConfigsService(url: Env.localRepoUrl);
 
   final DefaultExtensionRepository defaultExtensionRepository =
       DefaultExtensionRepository();

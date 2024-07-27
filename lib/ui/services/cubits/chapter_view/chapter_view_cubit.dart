@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
@@ -106,7 +107,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
           headers: await apiClient
               .getImageHeaders(uid: currentPages.chapterUid, data: {}),
           currentPages: currentPages,
-          currentPage: initialPage,
+          currentPage: max(1, initialPage),
           concreteData: concreteData,
           totalPages: currentPages.value.length,
           controlsVisible: true,

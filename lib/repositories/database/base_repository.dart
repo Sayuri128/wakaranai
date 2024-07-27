@@ -82,7 +82,7 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
       final res = await insertStatement().insert(domain.toDrift(
         create: true,
       ));
-      return get(res);
+      return get(domain.id);
     } catch (e) {
       return null;
     }
@@ -133,6 +133,26 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
       return get(domain.id);
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<int> deleteBy<TTable>(
+    dynamic value, {
+    required GeneratedColumn Function(TTable) where,
+  }) async {
+    try {
+      return await (deleteStatement()..where((tbl) => where(tbl).equals(value)))
+          .go();
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  Future<int> deleteAll() async {
+    try {
+      return await deleteStatement().go();
+    } catch (e) {
+      return 0;
     }
   }
 

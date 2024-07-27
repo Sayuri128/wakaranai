@@ -13,10 +13,10 @@ import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.da
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_provider_button.dart';
-import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/ui/widgets/image_widget.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/heroes.dart';
@@ -42,7 +42,10 @@ class MangaConcreteViewerData {
   });
 }
 
-class MangaConcreteViewer extends StatelessWidget {
+class MangaConcreteViewer extends StatelessWidget
+    with
+        ConcreteViewerMixin<MangaApiClient, MangaConcreteView,
+            MangaGalleryView> {
   static const String chapterDateFormat = 'yyyy-MM-dd HH:mm';
 
   MangaConcreteViewer({super.key, required this.data});
@@ -207,112 +210,9 @@ class MangaConcreteViewer extends StatelessWidget {
                 ),
               ),
               if (state is ConcreteViewInitialized<MangaApiClient,
-                  MangaConcreteView, MangaGalleryView>)
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 24.0, right: 24.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: <Widget>[
-                        // AnimatedSwitcher(
-                        //   duration: const Duration(milliseconds: 500),
-                        //   child: multiSelect.items.isNotEmpty
-                        //       ? SwitchIconButton(
-                        //           key: ValueKey(multiSelect.items.isNotEmpty),
-                        //           iconOn: const Icon(
-                        //             Icons.clear,
-                        //           ),
-                        //           iconOff: const SizedBox(),
-                        //           state: true,
-                        //           onTap: () {
-                        //             context.read<MultiSelectCubit>().clear();
-                        //           },
-                        //         )
-                        //       : SizedBox(
-                        //           key: ValueKey(multiSelect.items.isNotEmpty),
-                        //         ),
-                        // ),
-                        const SizedBox(
-                          height: 24,
-                        ),
-                        // AnimatedSwitcher(
-                        //   duration: const Duration(milliseconds: 500),
-                        //   child: multiSelect.items.isNotEmpty
-                        //       ? SwitchIconButton(
-                        //           key: ValueKey(multiSelect.items.isNotEmpty),
-                        //           iconOn: const Icon(Icons.border_clear),
-                        //           iconOff: const SizedBox(),
-                        //           state: true,
-                        //           onTap: () {
-                        //             context
-                        //                 .read<MultiSelectCubit>()
-                        //                 .unselectMultiple(state.concreteView
-                        //                     .groups[state.groupIndex].elements
-                        //                     .map((e) => e.uid)
-                        //                     .toList());
-                        //           },
-                        //         )
-                        //       : SizedBox(
-                        //           key: ValueKey(multiSelect.items.isNotEmpty),
-                        //         ),
-                        // ),
-                        const SizedBox(
-                          height: 24,
-                        ),
-                        // AnimatedSwitcher(
-                        //   duration: const Duration(milliseconds: 500),
-                        //   child: multiSelect.items.isNotEmpty
-                        //       ? SwitchIconButton(
-                        //           key: ValueKey(multiSelect.items.isNotEmpty),
-                        //           iconOn: const Icon(Icons.select_all),
-                        //           iconOff: const SizedBox(),
-                        //           state: true,
-                        //           onTap: () {
-                        //             context
-                        //                 .read<MultiSelectCubit>()
-                        //                 .selectMultiple(state.concreteView
-                        //                     .groups[state.groupIndex].elements
-                        //                     .map((e) => e.uid)
-                        //                     .toList());
-                        //           },
-                        //         )
-                        //       : SizedBox(
-                        //           key: ValueKey(multiSelect.items.isNotEmpty),
-                        //         ),
-                        // ),
-                        const SizedBox(
-                          height: 24,
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            const SizedBox(
-                              width: 24,
-                            ),
-                            SwitchIconButton(
-                              iconOn: const Icon(Icons.filter_list_rounded),
-                              state: state.order == ConcreteViewOrder.def,
-                              onTap: () {
-                                context
-                                    .read<
-                                        ConcreteViewCubit<
-                                            MangaApiClient,
-                                            MangaConcreteView,
-                                            MangaGalleryView>>()
-                                    .changeOrder(
-                                        state.order == ConcreteViewOrder.def
-                                            ? ConcreteViewOrder.defReverse
-                                            : ConcreteViewOrder.def);
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                )
+                  MangaConcreteView, MangaGalleryView>) ...[
+                getExpandableFabWidget(context, state),
+              ]
             ],
           );
         },
@@ -365,26 +265,50 @@ class MangaConcreteViewer extends StatelessWidget {
       duration: const Duration(milliseconds: 500),
       opacity: chapterActivityDomain?.isCompleted == true ? 0.5 : 1.0,
       child: ListTile(
-        selectedTileColor: AppColors.mediumLight.withOpacity(0.15),
+        selectedTileColor: AppColors.mediumLight.withOpacity(
+          0.15,
+        ),
+        selected: concreteViewInitialized.selection.contains(
+          chapter.uid,
+        ),
+        onLongPress: () {
+          context
+              .read<
+                  ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                      MangaGalleryView>>()
+              .changeSelection(
+                chapter.uid,
+              );
+        },
         onTap: () {
-          Navigator.of(context)
-              .pushNamed(
-            Routes.chapterViewer,
-            arguments: ChapterViewerData(
-                initialPage: chapterActivityDomain?.readPages ?? 1,
-                apiClient: data.client,
-                chapter: chapter,
-                concreteView: concreteViewInitialized.concreteView,
-                group: group,
-                configInfo: configInfo),
-          )
-              .then((_) {
+          if (concreteViewInitialized.selection.isEmpty) {
+            Navigator.of(context)
+                .pushNamed(
+              Routes.chapterViewer,
+              arguments: ChapterViewerData(
+                  initialPage: chapterActivityDomain?.readPages ?? 1,
+                  apiClient: data.client,
+                  chapter: chapter,
+                  concreteView: concreteViewInitialized.concreteView,
+                  group: group,
+                  configInfo: configInfo),
+            )
+                .then((_) {
+              context
+                  .read<
+                      ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                          MangaGalleryView>>()
+                  .updateActivities();
+            });
+          } else {
             context
                 .read<
                     ConcreteViewCubit<MangaApiClient, MangaConcreteView,
                         MangaGalleryView>>()
-                .updateActivities();
-          });
+                .changeSelection(
+                  chapter.uid,
+                );
+          }
         },
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -392,18 +316,20 @@ class MangaConcreteViewer extends StatelessWidget {
           children: <Widget>[
             Text(chapter.title.trim(),
                 style: medium(size: 18, color: AppColors.mainWhite)),
-            if (chapter.timestamp != null &&
-                formatTimestamp(chapter).isNotEmpty) ...<Widget>[
+            ...<Widget>[
               const SizedBox(height: 8.0),
               Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text(
-                    formatTimestamp(chapter),
-                    style: regular(color: AppColors.mainGrey, size: 12),
-                  ),
-                  if (chapterActivityDomain != null) ...<Widget>[
+                  if (chapter.timestamp != null &&
+                      formatTimestamp(chapter).isNotEmpty)
+                    Text(
+                      formatTimestamp(chapter),
+                      style: regular(color: AppColors.mainGrey, size: 12),
+                    ),
+                  if (chapterActivityDomain != null &&
+                      chapterActivityDomain.totalPages != 0) ...<Widget>[
                     const SizedBox(width: 8.0),
                     Text(
                       "${chapterActivityDomain.readPages}/${chapterActivityDomain.totalPages}",
