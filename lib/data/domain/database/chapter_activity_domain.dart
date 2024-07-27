@@ -2,14 +2,12 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
+import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 
-class ChapterActivityDomain extends BaseDomain<ChapterActivityTableCompanion> {
-  final String uid;
-  final String title;
+class ChapterActivityDomain extends BaseActivityDomain<ChapterActivityTableCompanion> {
   final String? timestamp;
   final String? data;
-  final int concreteId;
   final int readPages;
   final int totalPages;
 
@@ -62,11 +60,11 @@ class ChapterActivityDomain extends BaseDomain<ChapterActivityTableCompanion> {
   }
 
   ChapterActivityDomain({
-    required this.uid,
-    required this.title,
+    required super.uid,
+    required super.title,
     required this.timestamp,
     required this.data,
-    required this.concreteId,
+    required super.concreteId,
     required this.readPages,
     required this.totalPages,
     required super.id,

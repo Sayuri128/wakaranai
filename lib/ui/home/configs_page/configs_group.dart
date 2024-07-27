@@ -1,6 +1,9 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
+import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
+import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/configs_page/config_card.dart';
 import 'package:wakaranai/ui/services/anime/anime_service_viewer/anime_service_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
@@ -47,13 +50,21 @@ class ConfigsGroup extends StatelessWidget {
     BaseExtension remoteConfig,
   ) async {
     if (remoteConfig.config.type == ConfigInfoType.MANGA) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-          Routes.mangaServiceViewer, (Route route) => false,
-          arguments: MangaServiceViewData(remoteConfig: remoteConfig));
+      Navigator.of(context)
+          .pushNamed(
+              Routes.mangaServiceViewer,
+              arguments: MangaServiceViewData(remoteConfig: remoteConfig))
+          .then((_) {
+        context.read<MangaActivityHistoryCubit>().init();
+      });
     } else if (remoteConfig.config.type == ConfigInfoType.ANIME) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-          Routes.animeServiceViewer, (Route route) => false,
-          arguments: AnimeServiceViewerData(remoteConfig: remoteConfig));
+      Navigator.of(context)
+          .pushNamed(
+              Routes.animeServiceViewer,
+              arguments: AnimeServiceViewerData(remoteConfig: remoteConfig))
+          .then((_) {
+        context.read<AnimeActivityHistoryCubit>().init();
+      });
     }
   }
 }
