@@ -10,19 +10,18 @@ class ElevatedAppbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 60 + MediaQuery.of(context).padding.top,
-      decoration: BoxDecoration(
-          color: AppColors.backgroundColor,
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-                color: AppColors.mainBlack.withOpacity(0.5),
-                blurRadius: 8,
-                spreadRadius: 2)
-          ]),
-      child: Padding(
-        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-        child: Stack(
+    return SliverAppBar(
+        backgroundColor: AppColors.backgroundColor,
+        foregroundColor: AppColors.mainWhite,
+        shadowColor: AppColors.shadowColor,
+        surfaceTintColor: AppColors.backgroundColor,
+        leading: const SizedBox(),
+        leadingWidth: 0,
+        elevation: 16.0,
+        snap: true,
+        floating: true,
+        pinned: true,
+        title: Stack(
           alignment: Alignment.center,
           children: <Widget>[
             Align(
@@ -38,8 +37,6 @@ class ElevatedAppbar extends StatelessWidget {
               child: leading,
             )
           ],
-        ),
-      ),
-    );
+        ));
   }
 }

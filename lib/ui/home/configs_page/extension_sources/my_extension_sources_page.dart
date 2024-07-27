@@ -27,43 +27,33 @@ class MyExtensionSourcesPage extends StatelessWidget {
       child: Scaffold(
           backgroundColor: AppColors.backgroundColor,
           floatingActionButton: _buildFloatingActionButton(context),
-          appBar: PreferredSize(
-            preferredSize: const Size(60, double.maxFinite),
-            child: ElevatedAppbar(
-              leading: IconButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                icon: const Icon(
-                  Icons.arrow_back_rounded,
-                  color: AppColors.mainWhite,
+          body: CustomScrollView(
+            slivers: [
+              ElevatedAppbar(
+                leading: IconButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  icon: const Icon(
+                    Icons.arrow_back_rounded,
+                    color: AppColors.mainWhite,
+                  ),
+                ),
+                title: Text(
+                  S.current.extension_sources_page_appbar_title,
+                  style: medium(
+                    size: 24,
+                  ),
+                ),
+                actions: IconButton(
+                  onPressed: () {
+                    launchUrl(Uri.parse(
+                        "https://github.com/${Env.appRepoOrg}/${Env.appRepoName}/blob/master/docs/inapp_docs/external_extension_sources.md"));
+                  },
+                  icon: const Icon(Icons.info),
                 ),
               ),
-              title: Text(
-                S.current.extension_sources_page_appbar_title,
-                style: medium(
-                  size: 24,
-                ),
-              ),
-              actions: IconButton(
-                onPressed: () {
-                  launchUrl(Uri.parse(
-                      "https://github.com/${Env.appRepoOrg}/${Env.appRepoName}/blob/master/docs/inapp_docs/external_extension_sources.md"));
-                },
-                icon: const Icon(Icons.info),
-              ),
-            ),
-          ),
-          body: Column(
-            children: [
-              const SizedBox(
-                height: 24,
-              ),
-              Builder(builder: (context) {
-                return Expanded(
-                  child: _buildBody(),
-                );
-              })
+              _buildBody(),
             ],
           )),
     );
@@ -98,13 +88,19 @@ class MyExtensionSourcesPage extends StatelessWidget {
     return BlocBuilder<ExtensionSourcesCubit, ExtensionSourcesState>(
         builder: (context, state) {
       if (state is ExtensionSourcesLoading) {
-        return const Center(
-          child: CircularProgressIndicator(
-            color: AppColors.primary,
+        return SliverToBoxAdapter(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height - 200,
+            child: const Center(
+              child: CircularProgressIndicator(
+                color: AppColors.primary,
+              ),
+            ),
           ),
         );
       } else if (state is ExtensionSourcesLoaded) {
-        return ListView.builder(
+        return SliverList.builder(
           itemCount: state.repositories.length + 1,
           itemBuilder: (_, index) {
             if (index == 0) {
