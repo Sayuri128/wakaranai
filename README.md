@@ -89,6 +89,7 @@ in Wakaranai and Capyscript!
     * [HentaiLib](https://hentailib.me/)
     * [nhentai](https://nhentai.net/)
     * [Bato.To](https://bato.to/)
+    * [Manga4life](https://manga4life.com/)
 * Anime
     * [AnitubeInUa](https://anitube.in.ua/)
 
