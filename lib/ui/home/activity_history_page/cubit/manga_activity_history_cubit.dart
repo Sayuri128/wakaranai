@@ -1,9 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:flutter/material.dart';
+import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/data/domain/ui/activity_list_item.dart';
+import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
@@ -12,7 +14,7 @@ import 'package:wakaranai/ui/home/activity_history_page/cubit/activity_history_c
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
-import 'package:wakaranai/utils/snackbars.dart';
+import 'package:wakaranai/ui/widgets/snackbars.dart';
 
 part 'manga_activity_history_state.dart';
 
@@ -58,15 +60,40 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
     }
   }
 
+  void onDelete({
+    required BuildContext context,
+    required BaseActivityDomain activity,
+  }) async {
+    await chapterActivityRepository.deleteBy<$ChapterActivityTableTable>(
+        activity.id,
+        where: (tbl) => tbl.id);
+
+    if (state is ActivityHistoryLoaded) {
+      final loadedState = state as ActivityHistoryLoaded;
+      final List<ActivityListItem<ChapterActivityDomain>> copy =
+          List.from(loadedState.mangaActivities);
+      emit(
+        ActivityHistoryLoaded(
+          mangaActivities: removeActivityListItem(copy, activity.uid),
+        ),
+      );
+    }
+
+    SnackBars.showSnackBar(
+        context: context, message: S.current.activity_history_deleted_activity);
+  }
+
   void onActivityTap(
     BuildContext context, {
     required ConcreteDataDomain concrete,
-    required ChapterActivityDomain activity,
+    required BaseActivityDomain activity,
   }) async {
     final extension = await extensionRepository.getByUid(concrete.extensionUid);
     if (extension == null) {
-      showErrorSnackbar(
-          context, S.current.activity_history_error_loading_history);
+      SnackBars.showErrorSnackBar(
+        context: context,
+        error: S.current.activity_history_error_loading_history,
+      );
       return;
     }
 
@@ -77,7 +104,8 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
       data: concrete.dataJson,
     );
 
-    Navigator.of(context).pushNamed(
+    Navigator.of(context)
+        .pushNamed(
       Routes.mangaServiceViewer,
       arguments: MangaServiceViewData(
         remoteConfig: extension,
@@ -90,6 +118,9 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
           galleryCover: null,
         ),
       ),
-    );
+    )
+        .then((_) {
+      init();
+    });
   }
 }

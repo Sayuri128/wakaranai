@@ -1,10 +1,12 @@
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
+import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/data/domain/ui/activity_list_item.dart';
+import 'package:wakaranai/repositories/database/base_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 
-mixin ActivityHistoryCubitMixin<TDomain extends BaseDomain> {
+mixin ActivityHistoryCubitMixin<TDomain extends BaseActivityDomain> {
   List<OrderingTerm Function(dynamic)> getOrderingTerms() {
     return [
       (t) => OrderingTerm(
@@ -65,6 +67,22 @@ mixin ActivityHistoryCubitMixin<TDomain extends BaseDomain> {
       );
     }
 
+    return items;
+  }
+
+  List<ActivityListItem<TDomain>> removeActivityListItem(
+      List<ActivityListItem<TDomain>> items, String uid) {
+    for (var i = 0; i < items.length; i++) {
+      final item = items[i];
+      final index = item.listItems.indexWhere((element) => element.activity.uid == uid);
+      if (index != -1) {
+        item.listItems.removeAt(index);
+        if (item.listItems.isEmpty) {
+          items.removeAt(i);
+        }
+        return items;
+      }
+    }
     return items;
   }
 }
