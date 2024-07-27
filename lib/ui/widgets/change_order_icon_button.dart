@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
 class SwitchIconButton extends StatelessWidget {
-  const SwitchIconButton(
-      {super.key,
-      required this.state,
-      required this.onTap,
-      required this.iconOn});
+  const SwitchIconButton({
+    super.key,
+    required this.state,
+    required this.onTap,
+    required this.iconOn,
+    this.iconOff,
+  });
 
   final Widget iconOn;
+  final Widget? iconOff;
 
   final bool state;
   final VoidCallback onTap;
@@ -21,11 +24,10 @@ class SwitchIconButton extends StatelessWidget {
         icon: Container(
           decoration: BoxDecoration(
               color: AppColors.backgroundColor,
-              backgroundBlendMode: BlendMode.dstATop,
               shape: BoxShape.circle,
               boxShadow: <BoxShadow>[
                 BoxShadow(
-                    color: AppColors.mainBlack.withOpacity(0.3),
+                    color: AppColors.shadowColor,
                     blurRadius: 4,
                     spreadRadius: 2)
               ]),
@@ -35,7 +37,7 @@ class SwitchIconButton extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               turns: state ? 0.5 : 0,
               curve: Curves.easeOutCubic,
-              child: iconOn,
+              child: state ? iconOn : iconOff ?? iconOn,
             ),
           ),
         ));

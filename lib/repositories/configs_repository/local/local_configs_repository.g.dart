@@ -6,7 +6,7 @@ part of 'local_configs_repository.dart';
 // RetrofitGenerator
 // **************************************************************************
 
-// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element
 
 class _LocalConfigsRepository implements LocalConfigsRepository {
   _LocalConfigsRepository(
@@ -20,10 +20,10 @@ class _LocalConfigsRepository implements LocalConfigsRepository {
 
   @override
   Future<RepoConfigsResponse> getConfigs(String category) async {
-    const _extra = <String, dynamic>{};
+    final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{r'category': category};
     final _headers = <String, dynamic>{};
-    final Map<String, dynamic>? _data = null;
+    const Map<String, dynamic>? _data = null;
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<RepoConfigsResponse>(Options(
       method: 'GET',
@@ -41,16 +41,16 @@ class _LocalConfigsRepository implements LocalConfigsRepository {
               _dio.options.baseUrl,
               baseUrl,
             ))));
-    final value = RepoConfigsResponse.fromJson(_result.data!);
-    return value;
+    final _value = RepoConfigsResponse.fromJson(_result.data!);
+    return _value;
   }
 
   @override
   Future<RemoteScript> getScript(String path) async {
-    const _extra = <String, dynamic>{};
+    final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{r'path': path};
     final _headers = <String, dynamic>{};
-    final Map<String, dynamic>? _data = null;
+    const Map<String, dynamic>? _data = null;
     final _result = await _dio
         .fetch<Map<String, dynamic>>(_setStreamType<RemoteScript>(Options(
       method: 'GET',
@@ -68,8 +68,8 @@ class _LocalConfigsRepository implements LocalConfigsRepository {
               _dio.options.baseUrl,
               baseUrl,
             ))));
-    final value = RemoteScript.fromJson(_result.data!);
-    return value;
+    final _value = RemoteScript.fromJson(_result.data!);
+    return _value;
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {

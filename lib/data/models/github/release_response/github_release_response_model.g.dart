@@ -14,7 +14,7 @@ GithubReleaseResponseModel _$GithubReleaseResponseModelFromJson(Map json) =>
       uploadUrl: json['upload_url'] as String,
       tarballUrl: json['tarball_url'] as String,
       zipballUrl: json['zipball_url'] as String,
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       nodeId: json['node_id'] as String,
       tagName: json['tag_name'] as String,
       targetCommitish: json['target_commitish'] as String,

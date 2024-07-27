@@ -1,13 +1,21 @@
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_concrete_view.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:wakaranai/main.dart';
+import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
+import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/ui/services/anime/anime_iframe_player/cubit/anime_iframe_player_cubit.dart';
 
 class AnimeIframePlayerData {
-  final String src;
+  final AnimeVideo video;
+  final AnimeConcreteView anime;
 
   const AnimeIframePlayerData({
-    required this.src,
+    required this.video,
+    required this.anime,
   });
 }
 
@@ -41,25 +49,35 @@ class _AnimeIframePlayerState extends State<AnimeIframePlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return InAppWebView(
-      onWebViewCreated: (InAppWebViewController controller) {
-        _inAppWebViewController = controller;
+    return BlocProvider<AnimeIframePlayerCubit>(
+      lazy: false,
+      create: (context) => AnimeIframePlayerCubit(
+        concreteDataRepository: context.read<ConcreteDataRepository>(),
+        animeEpisodeActivityRepository:
+            context.read<AnimeEpisodeActivityRepository>(),
+      )..init(
+          anime: widget.data.anime,
+          video: widget.data.video,
+        ),
+      child: InAppWebView(
+        onWebViewCreated: (InAppWebViewController controller) {
+          _inAppWebViewController = controller;
 
-        _inAppWebViewController!.loadUrl(
-            urlRequest: URLRequest(url: WebUri("https://www.blank.org/")));
+          _inAppWebViewController!.loadUrl(
+              urlRequest: URLRequest(url: WebUri("https://www.blank.org/")));
 
-        if (mounted) {
-          setState(() {});
-        }
-      },
-      onConsoleMessage:
-          (InAppWebViewController controller, ConsoleMessage consoleMessage) {
-        logger.d(consoleMessage.message);
-      },
-      onLoadStop: (InAppWebViewController controller, WebUri? url) {
-        controller.callAsyncJavaScript(functionBody: '''
+          if (mounted) {
+            setState(() {});
+          }
+        },
+        onConsoleMessage:
+            (InAppWebViewController controller, ConsoleMessage consoleMessage) {
+          logger.d(consoleMessage.message);
+        },
+        onLoadStop: (InAppWebViewController controller, WebUri? url) {
+          controller.callAsyncJavaScript(functionBody: '''
           const iframe = document.createElement("iframe");
-          iframe.src = "${widget.data.src}";
+          iframe.src = "${widget.data.video.src}";
           iframe.style["border"] = "none";
           
           iframe.style["width"] = "100%";
@@ -78,21 +96,22 @@ class _AnimeIframePlayerState extends State<AnimeIframePlayer> {
           document.body.appendChild(iframe);
                     
           ''').then((CallAsyncJavaScriptResult? value) {
-          logger.d(value);
-        });
-      },
-      initialSettings: InAppWebViewSettings(
-        javaScriptEnabled: true,
-        preferredContentMode: UserPreferredContentMode.MOBILE,
-        allowFileAccessFromFileURLs: true,
-        allowUniversalAccessFromFileURLs: true,
-        useShouldOverrideUrlLoading: true,
-        mediaPlaybackRequiresUserGesture: false,
-        javaScriptCanOpenWindowsAutomatically: true,
-        cacheEnabled: true,
-        useHybridComposition: true,
-        supportMultipleWindows: true,
-        allowsInlineMediaPlayback: true,
+            logger.d(value);
+          });
+        },
+        initialSettings: InAppWebViewSettings(
+          javaScriptEnabled: true,
+          preferredContentMode: UserPreferredContentMode.MOBILE,
+          allowFileAccessFromFileURLs: true,
+          allowUniversalAccessFromFileURLs: true,
+          useShouldOverrideUrlLoading: true,
+          mediaPlaybackRequiresUserGesture: false,
+          javaScriptCanOpenWindowsAutomatically: true,
+          cacheEnabled: true,
+          useHybridComposition: true,
+          supportMultipleWindows: true,
+          allowsInlineMediaPlayback: true,
+        ),
       ),
     );
   }

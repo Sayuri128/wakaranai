@@ -1,4 +1,4 @@
-import 'package:json_annotation/json_annotation.dart';
+
 
 T? decodeEnum<T>(List<T> values, String? value) {
   if (value == null) return null;

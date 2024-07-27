@@ -10,12 +10,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
+import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_provider_button.dart';
-import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/ui/widgets/image_widget.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/heroes.dart';
@@ -23,21 +24,28 @@ import 'package:wakaranai/utils/text_styles.dart';
 
 class MangaConcreteViewerData {
   final String uid;
-  final MangaGalleryView galleryView;
   final Map<String, String> coverHeaders;
+
+  // used for hero animation
+  final String? galleryCover;
+  final Map<String, dynamic> galleryData;
   final MangaApiClient client;
   final ConfigInfo configInfo;
 
   const MangaConcreteViewerData({
     required this.uid,
-    required this.galleryView,
     required this.coverHeaders,
+    required this.galleryCover,
+    required this.galleryData,
     required this.client,
     required this.configInfo,
   });
 }
 
-class MangaConcreteViewer extends StatelessWidget {
+class MangaConcreteViewer extends StatelessWidget
+    with
+        ConcreteViewerMixin<MangaApiClient, MangaConcreteView,
+            MangaGalleryView> {
   static const String chapterDateFormat = 'yyyy-MM-dd HH:mm';
 
   MangaConcreteViewer({super.key, required this.data});
@@ -55,11 +63,12 @@ class MangaConcreteViewer extends StatelessWidget {
     return ConcreteViewCubitWrapper<MangaApiClient, MangaConcreteView,
         MangaGalleryView>(
       client: data.client,
+      configInfo: data.configInfo,
       init: (ConcreteViewCubit<MangaApiClient, MangaConcreteView,
               MangaGalleryView>
           cubit) {
         if (init) {
-          cubit.getConcrete(data.uid, data.galleryView);
+          cubit.getConcrete(data.uid, data.galleryData);
         }
       },
       builder: (BuildContext context,
@@ -129,191 +138,81 @@ class MangaConcreteViewer extends StatelessWidget {
             alignment: Alignment.center,
             children: <Widget>[
               RefreshIndicator(
+                color: AppColors.primary,
                 onRefresh: () async {
                   await context
                       .read<
                           ConcreteViewCubit<MangaApiClient, MangaConcreteView,
                               MangaGalleryView>>()
-                      .getConcrete(data.uid, data.galleryView,
+                      .getConcrete(data.uid, data.galleryData,
                           forceRemote: true);
                 },
-                child: ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: 1 + groupSize + 1,
-                  itemBuilder: (BuildContext context, int index) {
-                    if (index == 0) {
-                      return SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: Column(
-                          children: <Widget>[
-                            _buildCover(data.galleryView.cover, context),
-                            const SizedBox(height: 16.0),
-                            if (state is ConcreteViewInitialized<
-                                MangaApiClient,
-                                MangaConcreteView,
-                                MangaGalleryView>) ...<Widget>[
-                              _buildTitle(concreteView),
-                              const SizedBox(height: 16.0),
-                              _buildTags(concreteView),
-                              const SizedBox(height: 16.0),
-                              _buildDescription(context, concreteView),
-                              const SizedBox(height: 16.0),
-                              _buildMangaProviderButtons(
-                                  state, context, currentGroupsIndex),
-                              const Divider(
-                                thickness: 1,
-                                color: AppColors.secondary,
-                              ),
-                            ] else if (state is ConcreteViewError<
-                                MangaApiClient,
-                                MangaConcreteView,
-                                MangaGalleryView>) ...<Widget>[
-                              const SizedBox(height: 16.0),
-                              Text(
-                                state.message,
-                                style: regular(size: 18, color: AppColors.red),
-                              ),
-                              const SizedBox(height: 16.0),
-                            ] else ...<Widget>[
-                              const SizedBox(
-                                height: 32,
-                              ),
-                              const CircularProgressIndicator(
-                                color: AppColors.primary,
-                              ),
-                            ],
-                            const SizedBox(height: 16.0),
+                child: CustomScrollView(
+                  slivers: [
+                    SliverList(
+                      delegate: SliverChildListDelegate([
+                        ...<Widget>[
+                          if (data.galleryCover != null) ...[
+                            _buildCover(data.galleryCover!, context),
+                            const SizedBox(
+                              height: 16,
+                            ),
                           ],
-                        ),
-                      );
-                    } else if (index == 1 + groupSize) {
-                      return const SizedBox(height: 48);
-                    } else {
-                      if (state is ConcreteViewInitialized<MangaApiClient,
-                          MangaConcreteView, MangaGalleryView>) {
-                        final Chapter chapter = concreteView
-                            .groups[currentGroupsIndex].elements[index - 1];
-                        return _buildChapter(
+                          if (state is ConcreteViewInitialized<MangaApiClient,
+                              MangaConcreteView, MangaGalleryView>) ...<Widget>[
+                            if (data.galleryCover == null)
+                              _buildCover(concreteView.cover, context),
+                            const SizedBox(height: 16.0),
+                            _buildTitle(concreteView),
+                            const SizedBox(height: 16.0),
+                            _buildTags(context, concreteView),
+                            const SizedBox(height: 16.0),
+                            _buildDescription(context, concreteView),
+                            const SizedBox(height: 16.0),
+                            _buildMangaProviderButtons(
+                                state, context, currentGroupsIndex),
+                            const Divider(
+                              thickness: 1,
+                              color: AppColors.secondary,
+                            ),
+                          ] else if (state is ConcreteViewError<MangaApiClient,
+                              MangaConcreteView, MangaGalleryView>) ...<Widget>[
+                            _buildErrorMessage(context, state)
+                          ] else ...<Widget>[
+                            _buildLoader(context),
+                          ],
+                          const SizedBox(height: 16.0),
+                        ],
+                      ]),
+                    ),
+                    SliverList.builder(
+                      itemCount: groupSize,
+                      itemBuilder: (BuildContext context, int index) {
+                        if (state is ConcreteViewInitialized<MangaApiClient,
+                            MangaConcreteView, MangaGalleryView>) {
+                          final Chapter chapter = concreteView
+                              .groups[currentGroupsIndex].elements[index];
+                          return _buildChapter(
                             context: context,
                             chapter: chapter,
-                            galleryView: data.galleryView,
                             group: concreteView.groups[currentGroupsIndex],
                             configInfo: data.configInfo,
-                            concreteViewInitialized: state);
-                      } else {
-                        return const SizedBox();
-                      }
-                    }
-                  },
+                            chapterActivityDomain:
+                                state.chapterActivities[chapter.uid],
+                            concreteViewInitialized: state,
+                          );
+                        } else {
+                          return const SizedBox();
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ),
               if (state is ConcreteViewInitialized<MangaApiClient,
-                  MangaConcreteView, MangaGalleryView>)
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 24.0, right: 24.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: <Widget>[
-                        // AnimatedSwitcher(
-                        //   duration: const Duration(milliseconds: 500),
-                        //   child: multiSelect.items.isNotEmpty
-                        //       ? SwitchIconButton(
-                        //           key: ValueKey(multiSelect.items.isNotEmpty),
-                        //           iconOn: const Icon(
-                        //             Icons.clear,
-                        //           ),
-                        //           iconOff: const SizedBox(),
-                        //           state: true,
-                        //           onTap: () {
-                        //             context.read<MultiSelectCubit>().clear();
-                        //           },
-                        //         )
-                        //       : SizedBox(
-                        //           key: ValueKey(multiSelect.items.isNotEmpty),
-                        //         ),
-                        // ),
-                        const SizedBox(
-                          height: 24,
-                        ),
-                        // AnimatedSwitcher(
-                        //   duration: const Duration(milliseconds: 500),
-                        //   child: multiSelect.items.isNotEmpty
-                        //       ? SwitchIconButton(
-                        //           key: ValueKey(multiSelect.items.isNotEmpty),
-                        //           iconOn: const Icon(Icons.border_clear),
-                        //           iconOff: const SizedBox(),
-                        //           state: true,
-                        //           onTap: () {
-                        //             context
-                        //                 .read<MultiSelectCubit>()
-                        //                 .unselectMultiple(state.concreteView
-                        //                     .groups[state.groupIndex].elements
-                        //                     .map((e) => e.uid)
-                        //                     .toList());
-                        //           },
-                        //         )
-                        //       : SizedBox(
-                        //           key: ValueKey(multiSelect.items.isNotEmpty),
-                        //         ),
-                        // ),
-                        const SizedBox(
-                          height: 24,
-                        ),
-                        // AnimatedSwitcher(
-                        //   duration: const Duration(milliseconds: 500),
-                        //   child: multiSelect.items.isNotEmpty
-                        //       ? SwitchIconButton(
-                        //           key: ValueKey(multiSelect.items.isNotEmpty),
-                        //           iconOn: const Icon(Icons.select_all),
-                        //           iconOff: const SizedBox(),
-                        //           state: true,
-                        //           onTap: () {
-                        //             context
-                        //                 .read<MultiSelectCubit>()
-                        //                 .selectMultiple(state.concreteView
-                        //                     .groups[state.groupIndex].elements
-                        //                     .map((e) => e.uid)
-                        //                     .toList());
-                        //           },
-                        //         )
-                        //       : SizedBox(
-                        //           key: ValueKey(multiSelect.items.isNotEmpty),
-                        //         ),
-                        // ),
-                        const SizedBox(
-                          height: 24,
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            const SizedBox(
-                              width: 24,
-                            ),
-                            SwitchIconButton(
-                              iconOn: const Icon(Icons.filter_list_rounded),
-                              state: state.order == ConcreteViewOrder.def,
-                              onTap: () {
-                                context
-                                    .read<
-                                        ConcreteViewCubit<
-                                            MangaApiClient,
-                                            MangaConcreteView,
-                                            MangaGalleryView>>()
-                                    .changeOrder(
-                                        state.order == ConcreteViewOrder.def
-                                            ? ConcreteViewOrder.defReverse
-                                            : ConcreteViewOrder.def);
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                )
+                  MangaConcreteView, MangaGalleryView>) ...[
+                getExpandableFabWidget(context, state),
+              ]
             ],
           );
         },
@@ -321,51 +220,127 @@ class MangaConcreteViewer extends StatelessWidget {
     );
   }
 
+  SizedBox _buildLoader(BuildContext context) {
+    return SizedBox(
+      height:
+          data.galleryCover == null ? MediaQuery.of(context).size.height : null,
+      width:
+          data.galleryCover == null ? MediaQuery.of(context).size.width : null,
+      child: const Center(
+        child: CircularProgressIndicator(
+          color: AppColors.primary,
+        ),
+      ),
+    );
+  }
+
+  SizedBox _buildErrorMessage(
+      BuildContext context,
+      ConcreteViewError<MangaApiClient, MangaConcreteView, MangaGalleryView>
+          state) {
+    return SizedBox(
+      height:
+          data.galleryCover == null ? MediaQuery.of(context).size.height : null,
+      width:
+          data.galleryCover == null ? MediaQuery.of(context).size.width : null,
+      child: Center(
+        child: Text(
+          state.message,
+          style: regular(size: 18, color: AppColors.red),
+        ),
+      ),
+    );
+  }
+
   Widget _buildChapter(
       {required BuildContext context,
       required Chapter chapter,
-      required MangaGalleryView galleryView,
       required ChaptersGroup group,
       required ConfigInfo configInfo,
       required ConcreteViewInitialized<MangaApiClient, MangaConcreteView,
               MangaGalleryView>
-          concreteViewInitialized}) {
-    return ListTile(
-      selectedTileColor: AppColors.mediumLight.withOpacity(0.15),
-      onTap: () {
-        Navigator.of(context)
-            .pushNamed(
+          concreteViewInitialized,
+      required ChapterActivityDomain? chapterActivityDomain}) {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 500),
+      opacity: chapterActivityDomain?.isCompleted == true ? 0.5 : 1.0,
+      child: ListTile(
+        selectedTileColor: AppColors.mediumLight.withOpacity(
+          0.15,
+        ),
+        selected: concreteViewInitialized.selection.contains(
+          chapter.uid,
+        ),
+        onLongPress: () {
+          context
+              .read<
+                  ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                      MangaGalleryView>>()
+              .changeSelection(
+                chapter.uid,
+              );
+        },
+        onTap: () {
+          if (concreteViewInitialized.selection.isEmpty) {
+            Navigator.of(context)
+                .pushNamed(
               Routes.chapterViewer,
               arguments: ChapterViewerData(
-                  initialPage: 1,
+                  initialPage: chapterActivityDomain?.readPages ?? 1,
                   apiClient: data.client,
                   chapter: chapter,
                   concreteView: concreteViewInitialized.concreteView,
                   group: group,
-                  galleryView: galleryView,
                   configInfo: configInfo),
             )
-            .then((_) {});
-      },
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(chapter.title.trim(),
-              style: medium(size: 18, color: AppColors.mainWhite)),
-          if (chapter.timestamp != null &&
-              formatTimestamp(chapter).isNotEmpty) ...<Widget>[
-            const SizedBox(height: 8.0),
-            Row(
-              children: <Widget>[
-                Text(
-                  formatTimestamp(chapter),
-                  style: regular(color: AppColors.mainGrey, size: 12),
-                ),
-              ],
-            )
+                .then((_) {
+              context
+                  .read<
+                      ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                          MangaGalleryView>>()
+                  .updateActivities();
+            });
+          } else {
+            context
+                .read<
+                    ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                        MangaGalleryView>>()
+                .changeSelection(
+                  chapter.uid,
+                );
+          }
+        },
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(chapter.title.trim(),
+                style: medium(size: 18, color: AppColors.mainWhite)),
+            ...<Widget>[
+              const SizedBox(height: 8.0),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  if (chapter.timestamp != null &&
+                      formatTimestamp(chapter).isNotEmpty)
+                    Text(
+                      formatTimestamp(chapter),
+                      style: regular(color: AppColors.mainGrey, size: 12),
+                    ),
+                  if (chapterActivityDomain != null &&
+                      chapterActivityDomain.totalPages != 0) ...<Widget>[
+                    const SizedBox(width: 8.0),
+                    Text(
+                      "${chapterActivityDomain.readPages}/${chapterActivityDomain.totalPages}",
+                      style: regular(color: AppColors.mainGrey, size: 12),
+                    ),
+                  ]
+                ],
+              )
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -415,23 +390,31 @@ class MangaConcreteViewer extends StatelessWidget {
             textAlign: TextAlign.center,
             style: semibold(size: 18),
           ),
-          if(concreteView.alternativeTitles.isNotEmpty)
-            ...[
-              const SizedBox(height: 8.0),
-              Text(
-                concreteView.alternativeTitles.join(', '),
-                textAlign: TextAlign.center,
-                style: regular(size: 16),
-              ),
-            ]
+          if (concreteView.alternativeTitles.isNotEmpty) ...[
+            const SizedBox(height: 8.0),
+            Text(
+              concreteView.alternativeTitles.join(', '),
+              textAlign: TextAlign.center,
+              style: regular(size: 16),
+            ),
+          ]
         ],
       ),
     );
   }
 
-  Wrap _buildTags(MangaConcreteView concreteView) {
-    return Wrap(
-      children: concreteView.tags.map((String e) => _buildTagCard(e)).toList(),
+  Widget _buildTags(BuildContext context, MangaConcreteView concreteView) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        child: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          alignment: WrapAlignment.start,
+          children:
+              concreteView.tags.map((String e) => _buildTagCard(e)).toList(),
+        ),
+      ),
     );
   }
 
@@ -455,7 +438,7 @@ class MangaConcreteViewer extends StatelessWidget {
             child: Material(
               child: ImageWidget(
                 uid: data.uid,
-                url: data.galleryView.cover,
+                url: cover,
                 headers: data.coverHeaders,
               ),
             ),

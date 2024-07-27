@@ -1,5 +1,5 @@
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:dio/dio.dart';
-import 'package:wakaranai/data/models/remote_config/remote_category.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 import 'package:wakaranai/env.dart';
@@ -18,8 +18,8 @@ class RepoConfigsService implements ConfigsService {
   Future<List<RemoteConfig>> getMangaConfigs() async {
     return (await _localRepository.getConfigs("manga"))
         .configs
-        .where(
-            (RemoteConfig element) => element.category == RemoteCategory.manga)
+        .where((RemoteConfig element) =>
+            element.config.type == ConfigInfoType.MANGA)
         .toList();
   }
 
@@ -27,8 +27,8 @@ class RepoConfigsService implements ConfigsService {
   Future<List<RemoteConfig>> getAnimeConfigs() async {
     return (await _localRepository.getConfigs("anime"))
         .configs
-        .where(
-            (RemoteConfig element) => element.category == RemoteCategory.anime)
+        .where((RemoteConfig element) =>
+            element.config.type == ConfigInfoType.ANIME)
         .toList();
   }
 

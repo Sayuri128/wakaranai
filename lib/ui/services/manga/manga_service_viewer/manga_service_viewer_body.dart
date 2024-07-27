@@ -200,7 +200,8 @@ class MangaServiceViewBody extends StatelessWidget {
             uid: e.uid,
             coverHeaders: stateInitialized.galleryViewImagesHeaders[e.uid] ??
                 <String, String>{},
-            galleryView: e,
+            galleryData: e.data,
+            galleryCover: e.cover,
             configInfo: configInfo));
   }
 }
