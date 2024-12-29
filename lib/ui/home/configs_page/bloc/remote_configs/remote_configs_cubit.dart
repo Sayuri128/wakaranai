@@ -21,11 +21,11 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
     required this.extensionSourceRepository,
   }) : super(RemoteConfigsLoading());
 
-  ConfigsService _configsService =
-      GitHubConfigsService(Env.configsSourceOrg, Env.configsSourceRepo);
-
   // ConfigsService _configsService =
-  //     RepoConfigsService(url: Env.localRepoUrl);
+  //     GitHubConfigsService(Env.configsSourceOrg, Env.configsSourceRepo);
+
+  ConfigsService _configsService =
+      RepoConfigsService(url: Env.localRepoUrl);
 
   final DefaultExtensionRepository defaultExtensionRepository =
       DefaultExtensionRepository();
@@ -87,22 +87,22 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   }
 
   Future<void> changeSource(ExtensionSourcesPageResult source) async {
-    try {
-      switch (source.type) {
-        case ExtensionSourceType.github:
-          final githubParser = GithubUrlParser(url: source.url);
-          final githubParserResult = githubParser.parse()!;
-          _configsService = GitHubConfigsService(
-              githubParserResult.org, githubParserResult.repo);
-          break;
-      }
-      await defaultExtensionRepository.setDefaultExtensionId(source.id);
-    } catch (_) {
-      emit(RemoteConfigsError(
-          message:
-              S.current.home_configs_source_initializing_error(source.name)));
-      return;
-    }
+    // try {
+    //   switch (source.type) {
+    //     case ExtensionSourceType.github:
+    //       final githubParser = GithubUrlParser(url: source.url);
+    //       final githubParserResult = githubParser.parse()!;
+    //       _configsService = GitHubConfigsService(
+    //           githubParserResult.org, githubParserResult.repo);
+    //       break;
+    //   }
+    //   await defaultExtensionRepository.setDefaultExtensionId(source.id);
+    // } catch (_) {
+    //   emit(RemoteConfigsError(
+    //       message:
+    //           S.current.home_configs_source_initializing_error(source.name)));
+    //   return;
+    // }
 
     await getConfigs(
       sourceName: source.name,
