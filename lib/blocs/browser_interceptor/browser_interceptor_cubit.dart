@@ -90,7 +90,7 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
             pingUrl: url,
             controller: _inAppWebViewController);
 
-        logger.i(data);
+        // logger.i(data);
 
         pageLoaded(body: result.value, data: data, headers: data, cookies: coo);
 
@@ -213,7 +213,7 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
       final CallAsyncJavaScriptResult? res =
           await _inAppWebViewController.callAsyncJavaScript(functionBody: code);
 
-      logger.d(res);
+      // logger.d(res);
 
       if (res == null || res.error != null || res.value == null) {
         _jsAttempts++;

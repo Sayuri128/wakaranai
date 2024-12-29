@@ -2457,23 +2457,119 @@ typedef $$ExtensionSourceTableTableUpdateCompanionBuilder
   Value<String> url,
 });
 
+class $$ExtensionSourceTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $ExtensionSourceTableTable> {
+  $$ExtensionSourceTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnFilters(column));
+}
+
+class $$ExtensionSourceTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $ExtensionSourceTableTable> {
+  $$ExtensionSourceTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ExtensionSourceTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $ExtensionSourceTableTable> {
+  $$ExtensionSourceTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get url =>
+      $composableBuilder(column: $table.url, builder: (column) => column);
+}
+
 class $$ExtensionSourceTableTableTableManager extends RootTableManager<
     _$WakaranaiDatabase,
     $ExtensionSourceTableTable,
     ExtensionSourceTableData,
     $$ExtensionSourceTableTableFilterComposer,
     $$ExtensionSourceTableTableOrderingComposer,
+    $$ExtensionSourceTableTableAnnotationComposer,
     $$ExtensionSourceTableTableCreateCompanionBuilder,
-    $$ExtensionSourceTableTableUpdateCompanionBuilder> {
+    $$ExtensionSourceTableTableUpdateCompanionBuilder,
+    (
+      ExtensionSourceTableData,
+      BaseReferences<_$WakaranaiDatabase, $ExtensionSourceTableTable,
+          ExtensionSourceTableData>
+    ),
+    ExtensionSourceTableData,
+    PrefetchHooks Function()> {
   $$ExtensionSourceTableTableTableManager(
       _$WakaranaiDatabase db, $ExtensionSourceTableTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer: $$ExtensionSourceTableTableFilterComposer(
-              ComposerState(db, table)),
-          orderingComposer: $$ExtensionSourceTableTableOrderingComposer(
-              ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$ExtensionSourceTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ExtensionSourceTableTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ExtensionSourceTableTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
@@ -2506,77 +2602,30 @@ class $$ExtensionSourceTableTableTableManager extends RootTableManager<
             name: name,
             url: url,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$ExtensionSourceTableTableFilterComposer
-    extends FilterComposer<_$WakaranaiDatabase, $ExtensionSourceTableTable> {
-  $$ExtensionSourceTableTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get type => $state.composableBuilder(
-      column: $state.table.type,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get name => $state.composableBuilder(
-      column: $state.table.name,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get url => $state.composableBuilder(
-      column: $state.table.url,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$ExtensionSourceTableTableOrderingComposer
-    extends OrderingComposer<_$WakaranaiDatabase, $ExtensionSourceTableTable> {
-  $$ExtensionSourceTableTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get type => $state.composableBuilder(
-      column: $state.table.type,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get name => $state.composableBuilder(
-      column: $state.table.name,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get url => $state.composableBuilder(
-      column: $state.table.url,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$ExtensionSourceTableTableProcessedTableManager
+    = ProcessedTableManager<
+        _$WakaranaiDatabase,
+        $ExtensionSourceTableTable,
+        ExtensionSourceTableData,
+        $$ExtensionSourceTableTableFilterComposer,
+        $$ExtensionSourceTableTableOrderingComposer,
+        $$ExtensionSourceTableTableAnnotationComposer,
+        $$ExtensionSourceTableTableCreateCompanionBuilder,
+        $$ExtensionSourceTableTableUpdateCompanionBuilder,
+        (
+          ExtensionSourceTableData,
+          BaseReferences<_$WakaranaiDatabase, $ExtensionSourceTableTable,
+              ExtensionSourceTableData>
+        ),
+        ExtensionSourceTableData,
+        PrefetchHooks Function()>;
 typedef $$ExtensionTableTableCreateCompanionBuilder = ExtensionTableCompanion
     Function({
   Value<int> id,
@@ -2610,23 +2659,247 @@ typedef $$ExtensionTableTableUpdateCompanionBuilder = ExtensionTableCompanion
   Value<String?> protectorConfig,
 });
 
+final class $$ExtensionTableTableReferences extends BaseReferences<
+    _$WakaranaiDatabase, $ExtensionTableTable, ExtensionTableData> {
+  $$ExtensionTableTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$ConcreteDataTableTable,
+      List<ConcreteDataTableData>> _concreteDataTableRefsTable(
+          _$WakaranaiDatabase db) =>
+      MultiTypedResultKey.fromTable(db.concreteDataTable,
+          aliasName: $_aliasNameGenerator(
+              db.extensionTable.uid, db.concreteDataTable.extensionUid));
+
+  $$ConcreteDataTableTableProcessedTableManager get concreteDataTableRefs {
+    final manager =
+        $$ConcreteDataTableTableTableManager($_db, $_db.concreteDataTable)
+            .filter((f) => f.extensionUid.uid($_item.uid));
+
+    final cache =
+        $_typedResult.readTableOrNull(_concreteDataTableRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$ExtensionTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $ExtensionTableTable> {
+  $$ExtensionTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get uid => $composableBuilder(
+      column: $table.uid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get version => $composableBuilder(
+      column: $table.version, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get logoUrl => $composableBuilder(
+      column: $table.logoUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get nsfw => $composableBuilder(
+      column: $table.nsfw, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceCode => $composableBuilder(
+      column: $table.sourceCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get searchAvailable => $composableBuilder(
+      column: $table.searchAvailable,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get protectorConfig => $composableBuilder(
+      column: $table.protectorConfig,
+      builder: (column) => ColumnFilters(column));
+
+  Expression<bool> concreteDataTableRefs(
+      Expression<bool> Function($$ConcreteDataTableTableFilterComposer f) f) {
+    final $$ConcreteDataTableTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.uid,
+        referencedTable: $db.concreteDataTable,
+        getReferencedColumn: (t) => t.extensionUid,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ConcreteDataTableTableFilterComposer(
+              $db: $db,
+              $table: $db.concreteDataTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$ExtensionTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $ExtensionTableTable> {
+  $$ExtensionTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get uid => $composableBuilder(
+      column: $table.uid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get version => $composableBuilder(
+      column: $table.version, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get logoUrl => $composableBuilder(
+      column: $table.logoUrl, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get nsfw => $composableBuilder(
+      column: $table.nsfw, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceCode => $composableBuilder(
+      column: $table.sourceCode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get searchAvailable => $composableBuilder(
+      column: $table.searchAvailable,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get protectorConfig => $composableBuilder(
+      column: $table.protectorConfig,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$ExtensionTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $ExtensionTableTable> {
+  $$ExtensionTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<int> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => column);
+
+  GeneratedColumn<String> get logoUrl =>
+      $composableBuilder(column: $table.logoUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<bool> get nsfw =>
+      $composableBuilder(column: $table.nsfw, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceCode => $composableBuilder(
+      column: $table.sourceCode, builder: (column) => column);
+
+  GeneratedColumn<bool> get searchAvailable => $composableBuilder(
+      column: $table.searchAvailable, builder: (column) => column);
+
+  GeneratedColumn<String> get protectorConfig => $composableBuilder(
+      column: $table.protectorConfig, builder: (column) => column);
+
+  Expression<T> concreteDataTableRefs<T extends Object>(
+      Expression<T> Function($$ConcreteDataTableTableAnnotationComposer a) f) {
+    final $$ConcreteDataTableTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.uid,
+            referencedTable: $db.concreteDataTable,
+            getReferencedColumn: (t) => t.extensionUid,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ConcreteDataTableTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.concreteDataTable,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+}
+
 class $$ExtensionTableTableTableManager extends RootTableManager<
     _$WakaranaiDatabase,
     $ExtensionTableTable,
     ExtensionTableData,
     $$ExtensionTableTableFilterComposer,
     $$ExtensionTableTableOrderingComposer,
+    $$ExtensionTableTableAnnotationComposer,
     $$ExtensionTableTableCreateCompanionBuilder,
-    $$ExtensionTableTableUpdateCompanionBuilder> {
+    $$ExtensionTableTableUpdateCompanionBuilder,
+    (ExtensionTableData, $$ExtensionTableTableReferences),
+    ExtensionTableData,
+    PrefetchHooks Function({bool concreteDataTableRefs})> {
   $$ExtensionTableTableTableManager(
       _$WakaranaiDatabase db, $ExtensionTableTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$ExtensionTableTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$ExtensionTableTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$ExtensionTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ExtensionTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ExtensionTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
@@ -2687,164 +2960,52 @@ class $$ExtensionTableTableTableManager extends RootTableManager<
             searchAvailable: searchAvailable,
             protectorConfig: protectorConfig,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$ExtensionTableTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({concreteDataTableRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (concreteDataTableRefs) db.concreteDataTable
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (concreteDataTableRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$ExtensionTableTableReferences
+                            ._concreteDataTableRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ExtensionTableTableReferences(db, table, p0)
+                                .concreteDataTableRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.extensionUid == item.uid),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
         ));
 }
 
-class $$ExtensionTableTableFilterComposer
-    extends FilterComposer<_$WakaranaiDatabase, $ExtensionTableTable> {
-  $$ExtensionTableTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get uid => $state.composableBuilder(
-      column: $state.table.uid,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get name => $state.composableBuilder(
-      column: $state.table.name,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get type => $state.composableBuilder(
-      column: $state.table.type,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get version => $state.composableBuilder(
-      column: $state.table.version,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get logoUrl => $state.composableBuilder(
-      column: $state.table.logoUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get language => $state.composableBuilder(
-      column: $state.table.language,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<bool> get nsfw => $state.composableBuilder(
-      column: $state.table.nsfw,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get sourceCode => $state.composableBuilder(
-      column: $state.table.sourceCode,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<bool> get searchAvailable => $state.composableBuilder(
-      column: $state.table.searchAvailable,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get protectorConfig => $state.composableBuilder(
-      column: $state.table.protectorConfig,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ComposableFilter concreteDataTableRefs(
-      ComposableFilter Function($$ConcreteDataTableTableFilterComposer f) f) {
-    final $$ConcreteDataTableTableFilterComposer composer =
-        $state.composerBuilder(
-            composer: this,
-            getCurrentColumn: (t) => t.uid,
-            referencedTable: $state.db.concreteDataTable,
-            getReferencedColumn: (t) => t.extensionUid,
-            builder: (joinBuilder, parentComposers) =>
-                $$ConcreteDataTableTableFilterComposer(ComposerState(
-                    $state.db,
-                    $state.db.concreteDataTable,
-                    joinBuilder,
-                    parentComposers)));
-    return f(composer);
-  }
-}
-
-class $$ExtensionTableTableOrderingComposer
-    extends OrderingComposer<_$WakaranaiDatabase, $ExtensionTableTable> {
-  $$ExtensionTableTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get uid => $state.composableBuilder(
-      column: $state.table.uid,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get name => $state.composableBuilder(
-      column: $state.table.name,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get type => $state.composableBuilder(
-      column: $state.table.type,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get version => $state.composableBuilder(
-      column: $state.table.version,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get logoUrl => $state.composableBuilder(
-      column: $state.table.logoUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get language => $state.composableBuilder(
-      column: $state.table.language,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<bool> get nsfw => $state.composableBuilder(
-      column: $state.table.nsfw,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get sourceCode => $state.composableBuilder(
-      column: $state.table.sourceCode,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<bool> get searchAvailable => $state.composableBuilder(
-      column: $state.table.searchAvailable,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get protectorConfig => $state.composableBuilder(
-      column: $state.table.protectorConfig,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$ExtensionTableTableProcessedTableManager = ProcessedTableManager<
+    _$WakaranaiDatabase,
+    $ExtensionTableTable,
+    ExtensionTableData,
+    $$ExtensionTableTableFilterComposer,
+    $$ExtensionTableTableOrderingComposer,
+    $$ExtensionTableTableAnnotationComposer,
+    $$ExtensionTableTableCreateCompanionBuilder,
+    $$ExtensionTableTableUpdateCompanionBuilder,
+    (ExtensionTableData, $$ExtensionTableTableReferences),
+    ExtensionTableData,
+    PrefetchHooks Function({bool concreteDataTableRefs})>;
 typedef $$ConcreteDataTableTableCreateCompanionBuilder
     = ConcreteDataTableCompanion Function({
   Value<int> id,
@@ -2868,23 +3029,336 @@ typedef $$ConcreteDataTableTableUpdateCompanionBuilder
   Value<String?> data,
 });
 
+final class $$ConcreteDataTableTableReferences extends BaseReferences<
+    _$WakaranaiDatabase, $ConcreteDataTableTable, ConcreteDataTableData> {
+  $$ConcreteDataTableTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ExtensionTableTable _extensionUidTable(_$WakaranaiDatabase db) =>
+      db.extensionTable.createAlias($_aliasNameGenerator(
+          db.concreteDataTable.extensionUid, db.extensionTable.uid));
+
+  $$ExtensionTableTableProcessedTableManager get extensionUid {
+    final manager = $$ExtensionTableTableTableManager($_db, $_db.extensionTable)
+        .filter((f) => f.uid($_item.extensionUid!));
+    final item = $_typedResult.readTableOrNull(_extensionUidTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static MultiTypedResultKey<$ChapterActivityTableTable,
+      List<ChapterActivityTableData>> _chapterActivityTableRefsTable(
+          _$WakaranaiDatabase db) =>
+      MultiTypedResultKey.fromTable(db.chapterActivityTable,
+          aliasName: $_aliasNameGenerator(
+              db.concreteDataTable.id, db.chapterActivityTable.concreteId));
+
+  $$ChapterActivityTableTableProcessedTableManager
+      get chapterActivityTableRefs {
+    final manager =
+        $$ChapterActivityTableTableTableManager($_db, $_db.chapterActivityTable)
+            .filter((f) => f.concreteId.id($_item.id));
+
+    final cache =
+        $_typedResult.readTableOrNull(_chapterActivityTableRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$AnimeEpisodeActivityTableTable,
+      List<AnimeEpisodeActivityTableData>> _animeEpisodeActivityTableRefsTable(
+          _$WakaranaiDatabase db) =>
+      MultiTypedResultKey.fromTable(db.animeEpisodeActivityTable,
+          aliasName: $_aliasNameGenerator(db.concreteDataTable.id,
+              db.animeEpisodeActivityTable.concreteId));
+
+  $$AnimeEpisodeActivityTableTableProcessedTableManager
+      get animeEpisodeActivityTableRefs {
+    final manager = $$AnimeEpisodeActivityTableTableTableManager(
+            $_db, $_db.animeEpisodeActivityTable)
+        .filter((f) => f.concreteId.id($_item.id));
+
+    final cache = $_typedResult
+        .readTableOrNull(_animeEpisodeActivityTableRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$ConcreteDataTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $ConcreteDataTableTable> {
+  $$ConcreteDataTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get uid => $composableBuilder(
+      column: $table.uid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get cover => $composableBuilder(
+      column: $table.cover, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get data => $composableBuilder(
+      column: $table.data, builder: (column) => ColumnFilters(column));
+
+  $$ExtensionTableTableFilterComposer get extensionUid {
+    final $$ExtensionTableTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.extensionUid,
+        referencedTable: $db.extensionTable,
+        getReferencedColumn: (t) => t.uid,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ExtensionTableTableFilterComposer(
+              $db: $db,
+              $table: $db.extensionTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  Expression<bool> chapterActivityTableRefs(
+      Expression<bool> Function($$ChapterActivityTableTableFilterComposer f)
+          f) {
+    final $$ChapterActivityTableTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.chapterActivityTable,
+        getReferencedColumn: (t) => t.concreteId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ChapterActivityTableTableFilterComposer(
+              $db: $db,
+              $table: $db.chapterActivityTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> animeEpisodeActivityTableRefs(
+      Expression<bool> Function(
+              $$AnimeEpisodeActivityTableTableFilterComposer f)
+          f) {
+    final $$AnimeEpisodeActivityTableTableFilterComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.animeEpisodeActivityTable,
+            getReferencedColumn: (t) => t.concreteId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$AnimeEpisodeActivityTableTableFilterComposer(
+                  $db: $db,
+                  $table: $db.animeEpisodeActivityTable,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+}
+
+class $$ConcreteDataTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $ConcreteDataTableTable> {
+  $$ConcreteDataTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get uid => $composableBuilder(
+      column: $table.uid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get cover => $composableBuilder(
+      column: $table.cover, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get data => $composableBuilder(
+      column: $table.data, builder: (column) => ColumnOrderings(column));
+
+  $$ExtensionTableTableOrderingComposer get extensionUid {
+    final $$ExtensionTableTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.extensionUid,
+        referencedTable: $db.extensionTable,
+        getReferencedColumn: (t) => t.uid,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ExtensionTableTableOrderingComposer(
+              $db: $db,
+              $table: $db.extensionTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ConcreteDataTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $ConcreteDataTableTable> {
+  $$ConcreteDataTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get cover =>
+      $composableBuilder(column: $table.cover, builder: (column) => column);
+
+  GeneratedColumn<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => column);
+
+  $$ExtensionTableTableAnnotationComposer get extensionUid {
+    final $$ExtensionTableTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.extensionUid,
+        referencedTable: $db.extensionTable,
+        getReferencedColumn: (t) => t.uid,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ExtensionTableTableAnnotationComposer(
+              $db: $db,
+              $table: $db.extensionTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  Expression<T> chapterActivityTableRefs<T extends Object>(
+      Expression<T> Function($$ChapterActivityTableTableAnnotationComposer a)
+          f) {
+    final $$ChapterActivityTableTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.chapterActivityTable,
+            getReferencedColumn: (t) => t.concreteId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ChapterActivityTableTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.chapterActivityTable,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+
+  Expression<T> animeEpisodeActivityTableRefs<T extends Object>(
+      Expression<T> Function(
+              $$AnimeEpisodeActivityTableTableAnnotationComposer a)
+          f) {
+    final $$AnimeEpisodeActivityTableTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.animeEpisodeActivityTable,
+            getReferencedColumn: (t) => t.concreteId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$AnimeEpisodeActivityTableTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.animeEpisodeActivityTable,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+}
+
 class $$ConcreteDataTableTableTableManager extends RootTableManager<
     _$WakaranaiDatabase,
     $ConcreteDataTableTable,
     ConcreteDataTableData,
     $$ConcreteDataTableTableFilterComposer,
     $$ConcreteDataTableTableOrderingComposer,
+    $$ConcreteDataTableTableAnnotationComposer,
     $$ConcreteDataTableTableCreateCompanionBuilder,
-    $$ConcreteDataTableTableUpdateCompanionBuilder> {
+    $$ConcreteDataTableTableUpdateCompanionBuilder,
+    (ConcreteDataTableData, $$ConcreteDataTableTableReferences),
+    ConcreteDataTableData,
+    PrefetchHooks Function(
+        {bool extensionUid,
+        bool chapterActivityTableRefs,
+        bool animeEpisodeActivityTableRefs})> {
   $$ConcreteDataTableTableTableManager(
       _$WakaranaiDatabase db, $ConcreteDataTableTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$ConcreteDataTableTableFilterComposer(ComposerState(db, table)),
-          orderingComposer: $$ConcreteDataTableTableOrderingComposer(
-              ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$ConcreteDataTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ConcreteDataTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ConcreteDataTableTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
@@ -2925,149 +3399,97 @@ class $$ConcreteDataTableTableTableManager extends RootTableManager<
             cover: cover,
             data: data,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$ConcreteDataTableTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: (
+              {extensionUid = false,
+              chapterActivityTableRefs = false,
+              animeEpisodeActivityTableRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (chapterActivityTableRefs) db.chapterActivityTable,
+                if (animeEpisodeActivityTableRefs) db.animeEpisodeActivityTable
+              ],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (extensionUid) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.extensionUid,
+                    referencedTable: $$ConcreteDataTableTableReferences
+                        ._extensionUidTable(db),
+                    referencedColumn: $$ConcreteDataTableTableReferences
+                        ._extensionUidTable(db)
+                        .uid,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (chapterActivityTableRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$ConcreteDataTableTableReferences
+                            ._chapterActivityTableRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ConcreteDataTableTableReferences(db, table, p0)
+                                .chapterActivityTableRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.concreteId == item.id),
+                        typedResults: items),
+                  if (animeEpisodeActivityTableRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$ConcreteDataTableTableReferences
+                            ._animeEpisodeActivityTableRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ConcreteDataTableTableReferences(db, table, p0)
+                                .animeEpisodeActivityTableRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.concreteId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
         ));
 }
 
-class $$ConcreteDataTableTableFilterComposer
-    extends FilterComposer<_$WakaranaiDatabase, $ConcreteDataTableTable> {
-  $$ConcreteDataTableTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get uid => $state.composableBuilder(
-      column: $state.table.uid,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get cover => $state.composableBuilder(
-      column: $state.table.cover,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get data => $state.composableBuilder(
-      column: $state.table.data,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  $$ExtensionTableTableFilterComposer get extensionUid {
-    final $$ExtensionTableTableFilterComposer composer = $state.composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.extensionUid,
-        referencedTable: $state.db.extensionTable,
-        getReferencedColumn: (t) => t.uid,
-        builder: (joinBuilder, parentComposers) =>
-            $$ExtensionTableTableFilterComposer(ComposerState($state.db,
-                $state.db.extensionTable, joinBuilder, parentComposers)));
-    return composer;
-  }
-
-  ComposableFilter chapterActivityTableRefs(
-      ComposableFilter Function($$ChapterActivityTableTableFilterComposer f)
-          f) {
-    final $$ChapterActivityTableTableFilterComposer composer =
-        $state.composerBuilder(
-            composer: this,
-            getCurrentColumn: (t) => t.id,
-            referencedTable: $state.db.chapterActivityTable,
-            getReferencedColumn: (t) => t.concreteId,
-            builder: (joinBuilder, parentComposers) =>
-                $$ChapterActivityTableTableFilterComposer(ComposerState(
-                    $state.db,
-                    $state.db.chapterActivityTable,
-                    joinBuilder,
-                    parentComposers)));
-    return f(composer);
-  }
-
-  ComposableFilter animeEpisodeActivityTableRefs(
-      ComposableFilter Function(
-              $$AnimeEpisodeActivityTableTableFilterComposer f)
-          f) {
-    final $$AnimeEpisodeActivityTableTableFilterComposer composer =
-        $state.composerBuilder(
-            composer: this,
-            getCurrentColumn: (t) => t.id,
-            referencedTable: $state.db.animeEpisodeActivityTable,
-            getReferencedColumn: (t) => t.concreteId,
-            builder: (joinBuilder, parentComposers) =>
-                $$AnimeEpisodeActivityTableTableFilterComposer(ComposerState(
-                    $state.db,
-                    $state.db.animeEpisodeActivityTable,
-                    joinBuilder,
-                    parentComposers)));
-    return f(composer);
-  }
-}
-
-class $$ConcreteDataTableTableOrderingComposer
-    extends OrderingComposer<_$WakaranaiDatabase, $ConcreteDataTableTable> {
-  $$ConcreteDataTableTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get uid => $state.composableBuilder(
-      column: $state.table.uid,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get cover => $state.composableBuilder(
-      column: $state.table.cover,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get data => $state.composableBuilder(
-      column: $state.table.data,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  $$ExtensionTableTableOrderingComposer get extensionUid {
-    final $$ExtensionTableTableOrderingComposer composer =
-        $state.composerBuilder(
-            composer: this,
-            getCurrentColumn: (t) => t.extensionUid,
-            referencedTable: $state.db.extensionTable,
-            getReferencedColumn: (t) => t.uid,
-            builder: (joinBuilder, parentComposers) =>
-                $$ExtensionTableTableOrderingComposer(ComposerState($state.db,
-                    $state.db.extensionTable, joinBuilder, parentComposers)));
-    return composer;
-  }
-}
-
+typedef $$ConcreteDataTableTableProcessedTableManager = ProcessedTableManager<
+    _$WakaranaiDatabase,
+    $ConcreteDataTableTable,
+    ConcreteDataTableData,
+    $$ConcreteDataTableTableFilterComposer,
+    $$ConcreteDataTableTableOrderingComposer,
+    $$ConcreteDataTableTableAnnotationComposer,
+    $$ConcreteDataTableTableCreateCompanionBuilder,
+    $$ConcreteDataTableTableUpdateCompanionBuilder,
+    (ConcreteDataTableData, $$ConcreteDataTableTableReferences),
+    ConcreteDataTableData,
+    PrefetchHooks Function(
+        {bool extensionUid,
+        bool chapterActivityTableRefs,
+        bool animeEpisodeActivityTableRefs})>;
 typedef $$ChapterActivityTableTableCreateCompanionBuilder
     = ChapterActivityTableCompanion Function({
   Value<int> id,
@@ -3095,23 +3517,223 @@ typedef $$ChapterActivityTableTableUpdateCompanionBuilder
   Value<int> totalPages,
 });
 
+final class $$ChapterActivityTableTableReferences extends BaseReferences<
+    _$WakaranaiDatabase, $ChapterActivityTableTable, ChapterActivityTableData> {
+  $$ChapterActivityTableTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ConcreteDataTableTable _concreteIdTable(_$WakaranaiDatabase db) =>
+      db.concreteDataTable.createAlias($_aliasNameGenerator(
+          db.chapterActivityTable.concreteId, db.concreteDataTable.id));
+
+  $$ConcreteDataTableTableProcessedTableManager get concreteId {
+    final manager =
+        $$ConcreteDataTableTableTableManager($_db, $_db.concreteDataTable)
+            .filter((f) => f.id($_item.concreteId!));
+    final item = $_typedResult.readTableOrNull(_concreteIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$ChapterActivityTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $ChapterActivityTableTable> {
+  $$ChapterActivityTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get uid => $composableBuilder(
+      column: $table.uid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get data => $composableBuilder(
+      column: $table.data, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get readPages => $composableBuilder(
+      column: $table.readPages, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get totalPages => $composableBuilder(
+      column: $table.totalPages, builder: (column) => ColumnFilters(column));
+
+  $$ConcreteDataTableTableFilterComposer get concreteId {
+    final $$ConcreteDataTableTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.concreteId,
+        referencedTable: $db.concreteDataTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ConcreteDataTableTableFilterComposer(
+              $db: $db,
+              $table: $db.concreteDataTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ChapterActivityTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $ChapterActivityTableTable> {
+  $$ChapterActivityTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get uid => $composableBuilder(
+      column: $table.uid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get data => $composableBuilder(
+      column: $table.data, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get readPages => $composableBuilder(
+      column: $table.readPages, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get totalPages => $composableBuilder(
+      column: $table.totalPages, builder: (column) => ColumnOrderings(column));
+
+  $$ConcreteDataTableTableOrderingComposer get concreteId {
+    final $$ConcreteDataTableTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.concreteId,
+        referencedTable: $db.concreteDataTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ConcreteDataTableTableOrderingComposer(
+              $db: $db,
+              $table: $db.concreteDataTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ChapterActivityTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $ChapterActivityTableTable> {
+  $$ChapterActivityTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => column);
+
+  GeneratedColumn<int> get readPages =>
+      $composableBuilder(column: $table.readPages, builder: (column) => column);
+
+  GeneratedColumn<int> get totalPages => $composableBuilder(
+      column: $table.totalPages, builder: (column) => column);
+
+  $$ConcreteDataTableTableAnnotationComposer get concreteId {
+    final $$ConcreteDataTableTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.concreteId,
+            referencedTable: $db.concreteDataTable,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ConcreteDataTableTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.concreteDataTable,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
 class $$ChapterActivityTableTableTableManager extends RootTableManager<
     _$WakaranaiDatabase,
     $ChapterActivityTableTable,
     ChapterActivityTableData,
     $$ChapterActivityTableTableFilterComposer,
     $$ChapterActivityTableTableOrderingComposer,
+    $$ChapterActivityTableTableAnnotationComposer,
     $$ChapterActivityTableTableCreateCompanionBuilder,
-    $$ChapterActivityTableTableUpdateCompanionBuilder> {
+    $$ChapterActivityTableTableUpdateCompanionBuilder,
+    (ChapterActivityTableData, $$ChapterActivityTableTableReferences),
+    ChapterActivityTableData,
+    PrefetchHooks Function({bool concreteId})> {
   $$ChapterActivityTableTableTableManager(
       _$WakaranaiDatabase db, $ChapterActivityTableTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer: $$ChapterActivityTableTableFilterComposer(
-              ComposerState(db, table)),
-          orderingComposer: $$ChapterActivityTableTableOrderingComposer(
-              ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$ChapterActivityTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ChapterActivityTableTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ChapterActivityTableTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
@@ -3160,139 +3782,64 @@ class $$ChapterActivityTableTableTableManager extends RootTableManager<
             readPages: readPages,
             totalPages: totalPages,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$ChapterActivityTableTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({concreteId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (concreteId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.concreteId,
+                    referencedTable: $$ChapterActivityTableTableReferences
+                        ._concreteIdTable(db),
+                    referencedColumn: $$ChapterActivityTableTableReferences
+                        ._concreteIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
         ));
 }
 
-class $$ChapterActivityTableTableFilterComposer
-    extends FilterComposer<_$WakaranaiDatabase, $ChapterActivityTableTable> {
-  $$ChapterActivityTableTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get uid => $state.composableBuilder(
-      column: $state.table.uid,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get timestamp => $state.composableBuilder(
-      column: $state.table.timestamp,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get data => $state.composableBuilder(
-      column: $state.table.data,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get readPages => $state.composableBuilder(
-      column: $state.table.readPages,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get totalPages => $state.composableBuilder(
-      column: $state.table.totalPages,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  $$ConcreteDataTableTableFilterComposer get concreteId {
-    final $$ConcreteDataTableTableFilterComposer composer =
-        $state.composerBuilder(
-            composer: this,
-            getCurrentColumn: (t) => t.concreteId,
-            referencedTable: $state.db.concreteDataTable,
-            getReferencedColumn: (t) => t.id,
-            builder: (joinBuilder, parentComposers) =>
-                $$ConcreteDataTableTableFilterComposer(ComposerState(
-                    $state.db,
-                    $state.db.concreteDataTable,
-                    joinBuilder,
-                    parentComposers)));
-    return composer;
-  }
-}
-
-class $$ChapterActivityTableTableOrderingComposer
-    extends OrderingComposer<_$WakaranaiDatabase, $ChapterActivityTableTable> {
-  $$ChapterActivityTableTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get uid => $state.composableBuilder(
-      column: $state.table.uid,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get timestamp => $state.composableBuilder(
-      column: $state.table.timestamp,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get data => $state.composableBuilder(
-      column: $state.table.data,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get readPages => $state.composableBuilder(
-      column: $state.table.readPages,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get totalPages => $state.composableBuilder(
-      column: $state.table.totalPages,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  $$ConcreteDataTableTableOrderingComposer get concreteId {
-    final $$ConcreteDataTableTableOrderingComposer composer =
-        $state.composerBuilder(
-            composer: this,
-            getCurrentColumn: (t) => t.concreteId,
-            referencedTable: $state.db.concreteDataTable,
-            getReferencedColumn: (t) => t.id,
-            builder: (joinBuilder, parentComposers) =>
-                $$ConcreteDataTableTableOrderingComposer(ComposerState(
-                    $state.db,
-                    $state.db.concreteDataTable,
-                    joinBuilder,
-                    parentComposers)));
-    return composer;
-  }
-}
-
+typedef $$ChapterActivityTableTableProcessedTableManager
+    = ProcessedTableManager<
+        _$WakaranaiDatabase,
+        $ChapterActivityTableTable,
+        ChapterActivityTableData,
+        $$ChapterActivityTableTableFilterComposer,
+        $$ChapterActivityTableTableOrderingComposer,
+        $$ChapterActivityTableTableAnnotationComposer,
+        $$ChapterActivityTableTableCreateCompanionBuilder,
+        $$ChapterActivityTableTableUpdateCompanionBuilder,
+        (ChapterActivityTableData, $$ChapterActivityTableTableReferences),
+        ChapterActivityTableData,
+        PrefetchHooks Function({bool concreteId})>;
 typedef $$AnimeEpisodeActivityTableTableCreateCompanionBuilder
     = AnimeEpisodeActivityTableCompanion Function({
   Value<int> id,
@@ -3320,23 +3867,226 @@ typedef $$AnimeEpisodeActivityTableTableUpdateCompanionBuilder
   Value<int?> totalTime,
 });
 
+final class $$AnimeEpisodeActivityTableTableReferences extends BaseReferences<
+    _$WakaranaiDatabase,
+    $AnimeEpisodeActivityTableTable,
+    AnimeEpisodeActivityTableData> {
+  $$AnimeEpisodeActivityTableTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ConcreteDataTableTable _concreteIdTable(_$WakaranaiDatabase db) =>
+      db.concreteDataTable.createAlias($_aliasNameGenerator(
+          db.animeEpisodeActivityTable.concreteId, db.concreteDataTable.id));
+
+  $$ConcreteDataTableTableProcessedTableManager get concreteId {
+    final manager =
+        $$ConcreteDataTableTableTableManager($_db, $_db.concreteDataTable)
+            .filter((f) => f.id($_item.concreteId!));
+    final item = $_typedResult.readTableOrNull(_concreteIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$AnimeEpisodeActivityTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $AnimeEpisodeActivityTableTable> {
+  $$AnimeEpisodeActivityTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get uid => $composableBuilder(
+      column: $table.uid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get data => $composableBuilder(
+      column: $table.data, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get watchedTime => $composableBuilder(
+      column: $table.watchedTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get totalTime => $composableBuilder(
+      column: $table.totalTime, builder: (column) => ColumnFilters(column));
+
+  $$ConcreteDataTableTableFilterComposer get concreteId {
+    final $$ConcreteDataTableTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.concreteId,
+        referencedTable: $db.concreteDataTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ConcreteDataTableTableFilterComposer(
+              $db: $db,
+              $table: $db.concreteDataTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AnimeEpisodeActivityTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $AnimeEpisodeActivityTableTable> {
+  $$AnimeEpisodeActivityTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get uid => $composableBuilder(
+      column: $table.uid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get data => $composableBuilder(
+      column: $table.data, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get watchedTime => $composableBuilder(
+      column: $table.watchedTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get totalTime => $composableBuilder(
+      column: $table.totalTime, builder: (column) => ColumnOrderings(column));
+
+  $$ConcreteDataTableTableOrderingComposer get concreteId {
+    final $$ConcreteDataTableTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.concreteId,
+        referencedTable: $db.concreteDataTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ConcreteDataTableTableOrderingComposer(
+              $db: $db,
+              $table: $db.concreteDataTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AnimeEpisodeActivityTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $AnimeEpisodeActivityTableTable> {
+  $$AnimeEpisodeActivityTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => column);
+
+  GeneratedColumn<int> get watchedTime => $composableBuilder(
+      column: $table.watchedTime, builder: (column) => column);
+
+  GeneratedColumn<int> get totalTime =>
+      $composableBuilder(column: $table.totalTime, builder: (column) => column);
+
+  $$ConcreteDataTableTableAnnotationComposer get concreteId {
+    final $$ConcreteDataTableTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.concreteId,
+            referencedTable: $db.concreteDataTable,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ConcreteDataTableTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.concreteDataTable,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
 class $$AnimeEpisodeActivityTableTableTableManager extends RootTableManager<
     _$WakaranaiDatabase,
     $AnimeEpisodeActivityTableTable,
     AnimeEpisodeActivityTableData,
     $$AnimeEpisodeActivityTableTableFilterComposer,
     $$AnimeEpisodeActivityTableTableOrderingComposer,
+    $$AnimeEpisodeActivityTableTableAnnotationComposer,
     $$AnimeEpisodeActivityTableTableCreateCompanionBuilder,
-    $$AnimeEpisodeActivityTableTableUpdateCompanionBuilder> {
+    $$AnimeEpisodeActivityTableTableUpdateCompanionBuilder,
+    (AnimeEpisodeActivityTableData, $$AnimeEpisodeActivityTableTableReferences),
+    AnimeEpisodeActivityTableData,
+    PrefetchHooks Function({bool concreteId})> {
   $$AnimeEpisodeActivityTableTableTableManager(
       _$WakaranaiDatabase db, $AnimeEpisodeActivityTableTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer: $$AnimeEpisodeActivityTableTableFilterComposer(
-              ComposerState(db, table)),
-          orderingComposer: $$AnimeEpisodeActivityTableTableOrderingComposer(
-              ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$AnimeEpisodeActivityTableTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AnimeEpisodeActivityTableTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AnimeEpisodeActivityTableTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
@@ -3385,138 +4135,67 @@ class $$AnimeEpisodeActivityTableTableTableManager extends RootTableManager<
             watchedTime: watchedTime,
             totalTime: totalTime,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$AnimeEpisodeActivityTableTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({concreteId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (concreteId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.concreteId,
+                    referencedTable: $$AnimeEpisodeActivityTableTableReferences
+                        ._concreteIdTable(db),
+                    referencedColumn: $$AnimeEpisodeActivityTableTableReferences
+                        ._concreteIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
         ));
 }
 
-class $$AnimeEpisodeActivityTableTableFilterComposer extends FilterComposer<
-    _$WakaranaiDatabase, $AnimeEpisodeActivityTableTable> {
-  $$AnimeEpisodeActivityTableTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get uid => $state.composableBuilder(
-      column: $state.table.uid,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get timestamp => $state.composableBuilder(
-      column: $state.table.timestamp,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get data => $state.composableBuilder(
-      column: $state.table.data,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get watchedTime => $state.composableBuilder(
-      column: $state.table.watchedTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get totalTime => $state.composableBuilder(
-      column: $state.table.totalTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  $$ConcreteDataTableTableFilterComposer get concreteId {
-    final $$ConcreteDataTableTableFilterComposer composer =
-        $state.composerBuilder(
-            composer: this,
-            getCurrentColumn: (t) => t.concreteId,
-            referencedTable: $state.db.concreteDataTable,
-            getReferencedColumn: (t) => t.id,
-            builder: (joinBuilder, parentComposers) =>
-                $$ConcreteDataTableTableFilterComposer(ComposerState(
-                    $state.db,
-                    $state.db.concreteDataTable,
-                    joinBuilder,
-                    parentComposers)));
-    return composer;
-  }
-}
-
-class $$AnimeEpisodeActivityTableTableOrderingComposer extends OrderingComposer<
-    _$WakaranaiDatabase, $AnimeEpisodeActivityTableTable> {
-  $$AnimeEpisodeActivityTableTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get uid => $state.composableBuilder(
-      column: $state.table.uid,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get timestamp => $state.composableBuilder(
-      column: $state.table.timestamp,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get data => $state.composableBuilder(
-      column: $state.table.data,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get watchedTime => $state.composableBuilder(
-      column: $state.table.watchedTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get totalTime => $state.composableBuilder(
-      column: $state.table.totalTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  $$ConcreteDataTableTableOrderingComposer get concreteId {
-    final $$ConcreteDataTableTableOrderingComposer composer =
-        $state.composerBuilder(
-            composer: this,
-            getCurrentColumn: (t) => t.concreteId,
-            referencedTable: $state.db.concreteDataTable,
-            getReferencedColumn: (t) => t.id,
-            builder: (joinBuilder, parentComposers) =>
-                $$ConcreteDataTableTableOrderingComposer(ComposerState(
-                    $state.db,
-                    $state.db.concreteDataTable,
-                    joinBuilder,
-                    parentComposers)));
-    return composer;
-  }
-}
+typedef $$AnimeEpisodeActivityTableTableProcessedTableManager
+    = ProcessedTableManager<
+        _$WakaranaiDatabase,
+        $AnimeEpisodeActivityTableTable,
+        AnimeEpisodeActivityTableData,
+        $$AnimeEpisodeActivityTableTableFilterComposer,
+        $$AnimeEpisodeActivityTableTableOrderingComposer,
+        $$AnimeEpisodeActivityTableTableAnnotationComposer,
+        $$AnimeEpisodeActivityTableTableCreateCompanionBuilder,
+        $$AnimeEpisodeActivityTableTableUpdateCompanionBuilder,
+        (
+          AnimeEpisodeActivityTableData,
+          $$AnimeEpisodeActivityTableTableReferences
+        ),
+        AnimeEpisodeActivityTableData,
+        PrefetchHooks Function({bool concreteId})>;
 
 class $WakaranaiDatabaseManager {
   final _$WakaranaiDatabase _db;
