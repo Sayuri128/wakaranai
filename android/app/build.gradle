@@ -30,6 +30,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     compileSdkVersion 34
+    namespace "io.github.sayuri128.wakaranai"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
