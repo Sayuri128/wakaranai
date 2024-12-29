@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/http.dart';
+import 'package:retrofit/retrofit.dart';
 import 'package:wakaranai/data/models/configs_repo/configs_response/repo_configs_response.dart';
 import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 
