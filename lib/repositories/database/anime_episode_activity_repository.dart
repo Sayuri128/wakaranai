@@ -47,7 +47,7 @@ class AnimeEpisodeActivityRepository extends BaseRepository<
       updatedAt: data.updatedAt,
     );
   }
-
+  
   @override
   InsertStatement insertStatement() {
     return database.animeEpisodeActivityTable.insert();

@@ -2,10 +2,14 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 
+part 'anime_episode_activity_domain.g.dart';
+
+@JsonSerializable()
 class AnimeEpisodeActivityDomain extends BaseActivityDomain<AnimeEpisodeActivityTableCompanion> {
 
   final String? timestamp;
@@ -14,6 +18,11 @@ class AnimeEpisodeActivityDomain extends BaseActivityDomain<AnimeEpisodeActivity
   final int? totalTime;
 
   Map<String, dynamic> get dataJson => data != null ? jsonDecode(data!) : {};
+  
+  factory AnimeEpisodeActivityDomain.fromJson(Map<String, dynamic> json) =>
+      _$AnimeEpisodeActivityDomainFromJson(json);
+  
+  Map<String, dynamic> toJson() => _$AnimeEpisodeActivityDomainToJson(this);
 
   AnimeEpisodeActivityDomain({
     required super.id,
@@ -27,6 +36,7 @@ class AnimeEpisodeActivityDomain extends BaseActivityDomain<AnimeEpisodeActivity
     required super.createdAt,
      super.updatedAt,
   });
+  
 
   factory AnimeEpisodeActivityDomain.fromDrift(AnimeEpisodeActivityTableData data) =>
       AnimeEpisodeActivityDomain(

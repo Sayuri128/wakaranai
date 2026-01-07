@@ -21,11 +21,11 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
     required this.extensionSourceRepository,
   }) : super(RemoteConfigsLoading());
 
-  // ConfigsService _configsService =
-  //     GitHubConfigsService(Env.configsSourceOrg, Env.configsSourceRepo);
-
   ConfigsService _configsService =
-      RepoConfigsService(url: Env.localRepoUrl);
+      GitHubConfigsService(Env.configsSourceOrg, Env.configsSourceRepo);
+
+  // ConfigsService _configsService =
+  //     RepoConfigsService(url: Env.localRepoUrl);
 
   final DefaultExtensionRepository defaultExtensionRepository =
       DefaultExtensionRepository();
