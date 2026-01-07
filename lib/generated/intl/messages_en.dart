@@ -27,6 +27,9 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m2(version) => "New version ${version} available";
 
+  static String m3(IMPORTED, TOTAL) =>
+      "Activity history imported ${IMPORTED} out of ${TOTAL} activities";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "activity_history_anime_appbar_title":
@@ -171,6 +174,20 @@ class MessageLookup extends MessageLookupByLibrary {
         "settings_default_reader_mode_title":
             MessageLookupByLibrary.simpleMessage("Default reader mode"),
         "settings_download_latest_release": m2,
+        "settings_export_activity_history_button":
+            MessageLookupByLibrary.simpleMessage("Export activity history"),
+        "settings_export_activity_history_error":
+            MessageLookupByLibrary.simpleMessage(
+                "Error occurred during exporting activity history"),
+        "settings_export_activity_history_success":
+            MessageLookupByLibrary.simpleMessage(
+                "Activity history exported successfully"),
+        "settings_import_activity_history_button":
+            MessageLookupByLibrary.simpleMessage("Import activity history"),
+        "settings_import_activity_history_error":
+            MessageLookupByLibrary.simpleMessage(
+                "Error occurred during importing activity history"),
+        "settings_import_activity_history_success": m3,
         "settings_service_viewer_filters_title":
             MessageLookupByLibrary.simpleMessage("Filters"),
         "settings_submit_issue": MessageLookupByLibrary.simpleMessage(

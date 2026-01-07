@@ -1,10 +1,14 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 
+part 'chapter_activity_domain.g.dart';
+
+@JsonSerializable()
 class ChapterActivityDomain extends BaseActivityDomain<ChapterActivityTableCompanion> {
   final String? timestamp;
   final String? data;
@@ -13,7 +17,13 @@ class ChapterActivityDomain extends BaseActivityDomain<ChapterActivityTableCompa
 
   bool get isCompleted => readPages >= totalPages;
   Map<String, dynamic> get dataJson => data != null ? jsonDecode(data!) : {};
-
+  
+  factory ChapterActivityDomain.fromJson(Map<String, dynamic> json) =>
+      _$ChapterActivityDomainFromJson(json);
+  
+  Map<String, dynamic> toJson() => _$ChapterActivityDomainToJson(this);
+  
+  
   factory ChapterActivityDomain.fromDrift(ChapterActivityTableData data) =>
       ChapterActivityDomain(
         id: data.id,

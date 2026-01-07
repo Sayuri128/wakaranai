@@ -29,7 +29,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion 34
+    compileSdkVersion 35
     namespace "io.github.sayuri128.wakaranai"
 
     compileOptions {
@@ -59,7 +59,6 @@ android {
             keyPassword keystoreProperties['keyPassword']
             storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
             storePassword keystoreProperties['storePassword']
-            
         }
     }
 
@@ -68,7 +67,7 @@ android {
             signingConfig signingConfigs.release
         }
         debug {
-            signingConfig signingConfigs.release
+//            signingConfig signingConfigs.release
         }
     }
 }
