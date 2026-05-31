@@ -1,11 +1,10 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:wakaranai/data/models/github/github_response_model.dart';
 import 'package:wakaranai/data/models/github/payload/tree/item/github_tree_item_model.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/data/models/remote_script/remote_script.dart';
-import 'package:wakaranai/repositories/configs_repository/github/github_configs_repository.dart';
+import 'package:wakaranai/services/configs_service/capyscript_import_bundler.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 
 /*
@@ -17,11 +16,20 @@ import 'package:wakaranai/services/configs_service/configs_service.dart';
 * this way it will also allow us to make the order of the configs customizable
  */
 class GitHubConfigsService implements ConfigsService {
+  static const String _branch = 'main';
+  static const String _mangaDirectory = 'manga';
+  static const String _animeDirectory = 'anime';
+
   final String org;
   final String repository;
 
-  final GithubConfigsRepository _repository = GithubConfigsRepository(
-    Dio()..options.validateStatus = (_) => true,
+  final Dio _dio = Dio(
+    BaseOptions(
+      validateStatus: (_) => true,
+      headers: <String, String>{
+        'accept': 'application/vnd.github+json',
+      },
+    ),
   );
 
   GitHubConfigsService(this.org, this.repository);
@@ -29,14 +37,14 @@ class GitHubConfigsService implements ConfigsService {
   @override
   Future<List<RemoteConfig>> getMangaConfigs() async {
     List<GithubTreeItemModel> directories = await _getDirectories(
-      GithubConfigsRepository.mangaDirectory,
+      _mangaDirectory,
     );
 
     return Future.wait(
       (directories).map((GithubTreeItemModel e) async {
         return await _getConfig(
           treeItem: e,
-          directory: GithubConfigsRepository.mangaDirectory,
+          directory: _mangaDirectory,
           category: "manga",
         );
       }),
@@ -46,14 +54,14 @@ class GitHubConfigsService implements ConfigsService {
   @override
   Future<List<RemoteConfig>> getAnimeConfigs() async {
     List<GithubTreeItemModel> directories = await _getDirectories(
-      GithubConfigsRepository.animeDirectory,
+      _animeDirectory,
     );
 
     return Future.wait(
       (directories).map((GithubTreeItemModel e) async {
         return await _getConfig(
           treeItem: e,
-          directory: GithubConfigsRepository.animeDirectory,
+          directory: _animeDirectory,
           category: "anime",
         );
       }),
@@ -65,10 +73,8 @@ class GitHubConfigsService implements ConfigsService {
     required String directory,
     required String category,
   }) async {
-    final String config = await _repository.getConcreteContent(
-      org: org,
-      repo: repository,
-      concrete: '$directory/${treeItem.name}/config.json',
+    final String config = await _getRawContent(
+      '$directory/${treeItem.name}/config.json',
     );
 
     return RemoteConfig.fromJson(
@@ -83,29 +89,52 @@ class GitHubConfigsService implements ConfigsService {
   Future<List<GithubTreeItemModel>> _getDirectories(
     String directory,
   ) async {
-    final GithubResponseModel response = await _repository.getDirectories(
-      org,
-      repository,
-      directory: directory,
+    final Response<List<dynamic>> response = await _dio.get<List<dynamic>>(
+      'https://api.github.com/repos/$org/$repository/contents/$directory',
+      queryParameters: <String, dynamic>{'ref': _branch},
     );
 
-    final List<GithubTreeItemModel> directories = response.payload.tree!.items
-        .where(
-            (GithubTreeItemModel element) => element.contentType == "directory")
+    if (response.statusCode != 200 || response.data == null) {
+      throw Exception(
+        'Failed to load GitHub directory $directory from $org/$repository',
+      );
+    }
+
+    return response.data!
+        .whereType<Map<String, dynamic>>()
+        .where((Map<String, dynamic> item) => item['type'] == 'dir')
+        .map((Map<String, dynamic> item) => GithubTreeItemModel(
+              name: item['name'] as String,
+              path: item['path'] as String,
+              contentType: 'directory',
+            ))
         .toList();
-    return directories;
   }
 
   @override
   Future<RemoteScript> getRemoteScript(String path) async {
     final String scriptPath = "$path/main.capyscript";
-    return RemoteScript(
-      path: scriptPath,
-      script: await _repository.getConcreteContent(
-        org: org,
-        repo: repository,
-        concrete: scriptPath,
+    return CapyscriptImportBundler.bundle(
+      entryPath: scriptPath,
+      fetchScript: (String concretePath) async => RemoteScript(
+        path: concretePath,
+        script: await _getRawContent(concretePath),
       ),
     );
+  }
+
+  Future<String> _getRawContent(String path) async {
+    final Response<String> response = await _dio.get<String>(
+      'https://raw.githubusercontent.com/$org/$repository/$_branch/$path',
+      options: Options(responseType: ResponseType.plain),
+    );
+
+    if (response.statusCode != 200 || response.data == null) {
+      throw Exception(
+        'Failed to load GitHub file $path from $org/$repository',
+      );
+    }
+
+    return response.data!;
   }
 }
