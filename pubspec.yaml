@@ -3,7 +3,7 @@ description: Wakaranai is a manga reader app, designed to dynamically parse and 
 
 publish_to: 'none'
 
-version: 0.2.0+4
+version: 0.2.1+5
 
 environment:
   sdk: ">=3.4.0"
@@ -15,8 +15,10 @@ dependencies:
     sdk: flutter
 
   capyscript:
-    path: ../../StudioProjects/capyscript
-#    git: https://github.com/Sayuri128/capyscript
+    #    path: ../capyscript
+    git:
+      url: https://github.com/Sayuri128/capyscript
+      branch: dev
 
   logger: ^2.4.0
   path: ^1.8.3
@@ -29,7 +31,7 @@ dependencies:
   dio: ^5.4.0
   json_annotation: ^4.9.0
   transparent_image: ^2.0.1
-  intl: ^0.19.0
+  intl: 0.20.2
   intl_utils: ^2.8.7
   photo_view: ^0.15.0
   cached_network_image: ^3.3.1
@@ -51,8 +53,11 @@ dependencies:
   drift: ^2.19.1+1
   sqlite3_flutter_libs: ^0.5.24
   collection: ^1.18.0
+  file_saver: ^0.2.14
+  file_picker: ^9.2.3
 
 dependency_overrides:
+  intl: 0.20.2
   watcher: ^1.1.0
 
 flutter_intl:
@@ -93,4 +98,3 @@ flutter:
         - asset: fonts/Ubuntu-Th.ttf
         - asset: fonts/UbuntuMono-B.ttf
         - asset: fonts/UbuntuMono-R.ttf
-

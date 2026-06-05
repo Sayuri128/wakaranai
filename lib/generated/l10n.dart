@@ -640,6 +640,67 @@ class S {
     );
   }
 
+  /// `Export activity history`
+  String get settings_export_activity_history_button {
+    return Intl.message(
+      'Export activity history',
+      name: 'settings_export_activity_history_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Activity history exported successfully`
+  String get settings_export_activity_history_success {
+    return Intl.message(
+      'Activity history exported successfully',
+      name: 'settings_export_activity_history_success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error occurred during exporting activity history`
+  String get settings_export_activity_history_error {
+    return Intl.message(
+      'Error occurred during exporting activity history',
+      name: 'settings_export_activity_history_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import activity history`
+  String get settings_import_activity_history_button {
+    return Intl.message(
+      'Import activity history',
+      name: 'settings_import_activity_history_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Activity history imported {IMPORTED} out of {TOTAL} activities`
+  String settings_import_activity_history_success(
+      Object IMPORTED, Object TOTAL) {
+    return Intl.message(
+      'Activity history imported $IMPORTED out of $TOTAL activities',
+      name: 'settings_import_activity_history_success',
+      desc: '',
+      args: [IMPORTED, TOTAL],
+    );
+  }
+
+  /// `Error occurred during importing activity history`
+  String get settings_import_activity_history_error {
+    return Intl.message(
+      'Error occurred during importing activity history',
+      name: 'settings_import_activity_history_error',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Done`
   String get web_browser_no_login_button {
     return Intl.message(

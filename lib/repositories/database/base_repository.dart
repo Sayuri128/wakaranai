@@ -51,6 +51,33 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
     }
   }
 
+  Future<TDomain?> getByComplex<TTable>(
+    final List<dynamic> values, {
+    required List<GeneratedColumn> Function(TTable) where,
+    bool distinct = false,
+  }) async {
+    try {
+      final res = await (selectStatement()
+            ..where((tbl) {
+              final conditions = where(tbl);
+              Expression<bool>? combinedCondition;
+
+              for (int i = 0; i < conditions.length; i++) {
+                final condition = conditions[i].equals(values[i]);
+                combinedCondition = combinedCondition == null
+                    ? condition
+                    : combinedCondition & condition;
+              }
+
+              return combinedCondition!;
+            }))
+          .getSingle();
+      return fromDrift(res);
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<TDomain?> getBy<TTable>(
     dynamic value, {
     required GeneratedColumn Function(TTable) where,
@@ -74,6 +101,16 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
       return fromDrift(res);
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<bool> exists(int id) async {
+    try {
+      final res = await (selectStatement()..where((tbl) => tbl.id.equals(id)))
+          .getSingleOrNull();
+      return res != null;
+    } catch (e) {
+      return false;
     }
   }
 
@@ -114,11 +151,14 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
     }
   }
 
-  Future<TDomain?> update(TDomain domain) async {
+  Future<TDomain?> update(
+    TDomain domain, {
+    bool update = true,
+  }) async {
     try {
       final res = await (updateStatement()
             ..where((tbl) => tbl.id.equals(domain.id)))
-          .write(domain.toDrift(update: true));
+          .write(domain.toDrift(update: false));
       return get(domain.id);
     } catch (e) {
       return null;

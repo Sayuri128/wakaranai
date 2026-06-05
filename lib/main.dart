@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
+import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/repositories/database/repository_providers.dart';
 import 'package:wakaranai/ui/app_view.dart';
@@ -89,16 +90,13 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
           ),
           BlocProvider<SettingsCubit>(
             create: (BuildContext context) => SettingsCubit(
-              remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
-              chapterActivityRepository:
-                  context.read<ChapterActivityRepository>(),
-              animeEpisodeActivityRepository:
-                  context.read<AnimeEpisodeActivityRepository>(),
-              animeActivityHistoryCubit:
-                  context.read<AnimeActivityHistoryCubit>(),
-              mangaActivityHistoryCubit:
-                  context.read<MangaActivityHistoryCubit>(),
-            )..init(),
+                remoteConfigsCubit: context.read<RemoteConfigsCubit>(),
+                animeActivityHistoryCubit:
+                    context.read<AnimeActivityHistoryCubit>(),
+                mangaActivityHistoryCubit:
+                    context.read<MangaActivityHistoryCubit>(),
+                database: context.read<WakaranaiDatabase>())
+              ..init(),
           ),
         ],
         child: const AppView(),

@@ -4,6 +4,7 @@ import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 import 'package:wakaranai/env.dart';
 import 'package:wakaranai/repositories/configs_repository/local/local_configs_repository.dart';
+import 'package:wakaranai/services/configs_service/capyscript_import_bundler.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 
 class RepoConfigsService implements ConfigsService {
@@ -34,6 +35,9 @@ class RepoConfigsService implements ConfigsService {
 
   @override
   Future<RemoteScript> getRemoteScript(String path) async {
-    return _localRepository.getScript(path);
+    return CapyscriptImportBundler.bundle(
+      entryPath: path,
+      fetchScript: (String scriptPath) => _localRepository.getScript(scriptPath),
+    );
   }
 }
