@@ -113,8 +113,9 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
       return;
     }
 
-    await getConfigs(
-      sourceName: source.name,
-    );
+      await getConfigs(
+        sourceName: source.name,
+      );
+    }
   }
 }
