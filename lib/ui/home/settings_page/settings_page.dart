@@ -111,6 +111,22 @@ class SettingsPage extends StatelessWidget {
                           style: medium(size: 16)),
                     ),
                     ListTile(
+                      title: Text(S.current.settings_export_activity_history_button),
+                      onTap: () {
+                        context
+                            .read<SettingsCubit>()
+                            .exportActivityHistory(context);
+                      },
+                    ),
+                    ListTile(
+                      title: Text(S.current.settings_import_activity_history_button),
+                      onTap: () {
+                        context
+                            .read<SettingsCubit>()
+                            .importActivityHistory(context);
+                      },
+                    ),
+                    ListTile(
                       onTap: () {
                         showOkCancelAlertDialog(
                           context: context,

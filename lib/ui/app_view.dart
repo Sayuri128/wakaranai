@@ -39,17 +39,18 @@ class _AppViewState extends State<AppView> {
           elevatedButtonTheme: ElevatedButtonThemeData(
               style: ButtonStyle(
                   padding:
-                      MaterialStateProperty.all(const EdgeInsets.all(4.0)))),
+                      const WidgetStatePropertyAll<EdgeInsets>(
+                          EdgeInsets.all(4.0)))),
           navigationBarTheme: NavigationBarThemeData(
-              labelTextStyle: MaterialStateProperty.all(
+              labelTextStyle: WidgetStateProperty.all(
                   medium(size: 16, color: AppColors.mainWhite)),
               indicatorColor: AppColors.primary.withOpacity(0.9),
-              iconTheme: MaterialStateProperty.all(
+              iconTheme: WidgetStateProperty.all(
                   const IconThemeData(color: AppColors.mainWhite))),
-          dialogTheme:
-              const DialogTheme(surfaceTintColor: AppColors.backgroundColor),
+          dialogTheme: const DialogThemeData(
+              surfaceTintColor: AppColors.backgroundColor),
           cardTheme:
-              const CardTheme(surfaceTintColor: AppColors.backgroundColor),
+              const CardThemeData(surfaceTintColor: AppColors.backgroundColor),
           pageTransitionsTheme: const PageTransitionsTheme(
               builders: <TargetPlatform, PageTransitionsBuilder>{
                 TargetPlatform.android: CupertinoPageTransitionsBuilder(),
