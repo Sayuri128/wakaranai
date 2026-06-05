@@ -3,7 +3,7 @@ description: Wakaranai is a manga reader app, designed to dynamically parse and 
 
 publish_to: 'none'
 
-version: 0.2.1+5
+version: 0.2.3+7
 
 environment:
   sdk: ">=3.4.0"
