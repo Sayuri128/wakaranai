@@ -385,6 +385,76 @@ class S {
     );
   }
 
+  /// `Something went wrong`
+  String get service_view_error_title {
+    return Intl.message(
+      'Something went wrong',
+      name: 'service_view_error_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No results`
+  String get service_view_no_results_title {
+    return Intl.message(
+      'No results',
+      name: 'service_view_no_results_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We couldn't find anything for “{query}”`
+  String service_view_no_results_message(Object query) {
+    return Intl.message(
+      'We couldn\'t find anything for “$query”',
+      name: 'service_view_no_results_message',
+      desc: '',
+      args: [query],
+    );
+  }
+
+  /// `Nothing here yet`
+  String get service_view_empty_title {
+    return Intl.message(
+      'Nothing here yet',
+      name: 'service_view_empty_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pull down to refresh`
+  String get service_view_empty_message {
+    return Intl.message(
+      'Pull down to refresh',
+      name: 'service_view_empty_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Results for “{query}”`
+  String service_view_search_results_for(Object query) {
+    return Intl.message(
+      'Results for “$query”',
+      name: 'service_view_search_results_for',
+      desc: '',
+      args: [query],
+    );
+  }
+
+  /// `Clear`
+  String get service_view_clear_search {
+    return Intl.message(
+      'Clear',
+      name: 'service_view_clear_search',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Next`
   String get chapter_viewer_next_chapter_button_title {
     return Intl.message(

@@ -29,47 +29,70 @@ class GalleryViewCard extends StatelessWidget {
     return Hero(
       tag: Heroes.galleryViewToConcreteView(uid),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(
-          4.0,
-        ),
+        borderRadius: BorderRadius.circular(10.0),
         child: Material(
-          child: Ink.image(
-              fit: BoxFit.cover,
-              width: MediaQuery.of(context).size.width,
-              image: getImageProvider(cover, headers: headers),
-              child: InkWell(
-                splashColor: AppColors.mediumLight.withOpacity(0.3),
-                onTap: onTap,
-                onLongPress: onLongPress,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: <Widget>[
-                    Container(
-                      width: double.maxFinite,
-                      decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                              begin: const Alignment(-1, 0),
-                              end: const Alignment(-1, 1),
-                              colors: <Color>[
-                            AppColors.mainBlack.withOpacity(0.0),
-                            AppColors.mainBlack.withOpacity(.8),
-                          ])),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          title,
-                          maxLines: 3,
-                          style: medium(),
-                          overflow: TextOverflow.ellipsis,
+          color: const Color(0xFF3A3A3A),
+          child: Stack(
+            fit: StackFit.expand,
+            children: <Widget>[
+              const Center(
+                child: Icon(
+                  Icons.image_outlined,
+                  color: Colors.white24,
+                  size: 32,
+                ),
+              ),
+              Ink.image(
+                fit: BoxFit.cover,
+                image: getImageProvider(cover, headers: headers),
+                child: InkWell(
+                  splashColor: AppColors.mediumLight.withValues(alpha: 0.3),
+                  onTap: onTap,
+                  onLongPress: onLongPress,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: <Widget>[
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: FractionallySizedBox(
+                          heightFactor: 0.55,
+                          widthFactor: 1,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: <Color>[
+                                  Colors.black.withValues(alpha: 0.0),
+                                  Colors.black.withValues(alpha: 0.85),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    )
-                  ],
+                      Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            title,
+                            maxLines: 3,
+                            style: medium().copyWith(
+                              shadows: const <Shadow>[
+                                Shadow(color: Colors.black, blurRadius: 4),
+                              ],
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              )),
+              ),
+            ],
+          ),
         ),
       ),
     );

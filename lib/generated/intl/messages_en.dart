@@ -27,9 +27,13 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m2(name) =>
       "Error occurred during initializing configs ${name} source";
 
-  static String m3(version) => "New version ${version} available";
+  static String m3(query) => "We couldn\'t find anything for “${query}”";
 
-  static String m4(IMPORTED, TOTAL) =>
+  static String m4(query) => "Results for “${query}”";
+
+  static String m5(version) => "New version ${version} available";
+
+  static String m6(IMPORTED, TOTAL) =>
       "Activity history imported ${IMPORTED} out of ${TOTAL} activities";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -158,12 +162,27 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_nsfw_suffix": MessageLookupByLibrary.simpleMessage("NSFW"),
     "home_remote_configs_page_appbar_title":
         MessageLookupByLibrary.simpleMessage("Extensions"),
+    "service_view_clear_search": MessageLookupByLibrary.simpleMessage("Clear"),
+    "service_view_empty_message": MessageLookupByLibrary.simpleMessage(
+      "Pull down to refresh",
+    ),
+    "service_view_empty_title": MessageLookupByLibrary.simpleMessage(
+      "Nothing here yet",
+    ),
     "service_view_error": MessageLookupByLibrary.simpleMessage("Error :c"),
+    "service_view_error_title": MessageLookupByLibrary.simpleMessage(
+      "Something went wrong",
+    ),
+    "service_view_no_results_message": m3,
+    "service_view_no_results_title": MessageLookupByLibrary.simpleMessage(
+      "No results",
+    ),
     "service_view_open_web_view_button_title":
         MessageLookupByLibrary.simpleMessage("Open in WebView"),
     "service_view_retry_button_title": MessageLookupByLibrary.simpleMessage(
       "Retry",
     ),
+    "service_view_search_results_for": m4,
     "service_viewer_search_field_hint_text":
         MessageLookupByLibrary.simpleMessage("Search"),
     "settings_clear_activity_history": MessageLookupByLibrary.simpleMessage(
@@ -210,7 +229,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_default_reader_mode_title": MessageLookupByLibrary.simpleMessage(
       "Default reader mode",
     ),
-    "settings_download_latest_release": m3,
+    "settings_download_latest_release": m5,
     "settings_export_activity_history_button":
         MessageLookupByLibrary.simpleMessage("Export activity history"),
     "settings_export_activity_history_error":
@@ -227,7 +246,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Error occurred during importing activity history",
         ),
-    "settings_import_activity_history_success": m4,
+    "settings_import_activity_history_success": m6,
     "settings_service_viewer_filters_title":
         MessageLookupByLibrary.simpleMessage("Filters"),
     "settings_submit_issue": MessageLookupByLibrary.simpleMessage(

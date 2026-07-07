@@ -6,12 +6,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/common/service_viewer/gallery_grid_skeleton.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_loader.dart';
+import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
-import 'package:wakaranai/ui/home/service_viewer_app_bar.dart';
+import 'package:wakaranai/ui/home/service_viewer_header.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
+import 'package:wakaranai/ui/widgets/scroll_to_top_area.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -40,157 +43,182 @@ class MangaServiceViewBody extends StatelessWidget {
   ServiceViewError<MangaApiClient, MangaGalleryView> get stateError =>
       state as ServiceViewError<MangaApiClient, MangaGalleryView>;
 
+  ServiceViewCubit<MangaApiClient, MangaGalleryView> _cubit(
+          BuildContext context) =>
+      context.read<ServiceViewCubit<MangaApiClient, MangaGalleryView>>();
+
   @override
   Widget build(BuildContext context) {
+    final bool initialized =
+        state is ServiceViewInitialized<MangaApiClient, MangaGalleryView>;
     return Scaffold(
       key: scaffold,
       backgroundColor: AppColors.backgroundColor,
       extendBody: true,
-      appBar: PreferredSize(
-          preferredSize: Size(MediaQuery.of(context).size.width,
-              configInfo.searchAvailable ? 96 : 60),
-          child: Builder(builder: (BuildContext context) {
-            return _buildSearchableAppBar(
-                context,
-                state is ServiceViewInitialized<MangaApiClient,
-                        MangaGalleryView>
-                    ? stateInitialized
-                    : null);
-          })),
-      body: Stack(
-        alignment: Alignment.center,
+      body: Column(
         children: <Widget>[
-          SmartRefresher(
-              enablePullUp: true,
-              enablePullDown: false,
-              footer: CustomFooter(
-                builder: (BuildContext context, LoadStatus? mode) {
-                  return ServiceViewerLoader(
-                      cubit: context.read<
-                          ServiceViewCubit<MangaApiClient,
-                              MangaGalleryView>>());
-                },
-              ),
-              controller: refreshController,
-              onLoading: () async {
-                if (state
-                    is ServiceViewLoading<MangaApiClient, MangaGalleryView>) {
-                  return;
-                }
-
-                if (state is ServiceViewInitialized<MangaApiClient,
-                        MangaGalleryView> &&
-                    !(state as ServiceViewInitialized<MangaApiClient,
-                            MangaGalleryView>)
-                        .loading) {
-                  context
-                      .read<
-                          ServiceViewCubit<MangaApiClient, MangaGalleryView>>()
-                      .getGallery();
-                }
-              },
-              child: state is ServiceViewInitialized<MangaApiClient,
-                      MangaGalleryView>
-                  ? GridView.builder(
-                      physics: const BouncingScrollPhysics(
-                        parent: AlwaysScrollableScrollPhysics(),
-                      ),
-                      itemBuilder: (BuildContext context, int index) {
-                        final MangaGalleryView galleryView =
-                            stateInitialized.galleryViews[index];
-                        return GalleryViewCard(
-                          cover: galleryView.cover,
-                          uid: galleryView.uid,
-                          title: galleryView.title,
-                          headers: stateInitialized
-                                  .galleryViewImagesHeaders[galleryView.uid] ??
-                              <String, String>{},
-                          onLongPress: () {},
-                          onTap: () {
-                            _onGalleryViewClick(context, galleryView);
-                          },
-                        );
-                      },
-                      itemCount: stateInitialized.galleryViews.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount:
-                              MediaQuery.of(context).size.width ~/ 170,
-                          childAspectRatio: GalleryViewCard.aspectRatio(
-                            MediaQuery.of(context).size.width,
-                          ),
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8))
-                  : const SizedBox()),
-          if (state is! ServiceViewInitialized<MangaApiClient,
-                  MangaGalleryView> &&
-              state is! ServiceViewError<MangaApiClient, MangaGalleryView>)
-            const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primary,
-              ),
-            )
-          else if (state is ServiceViewError<MangaApiClient, MangaGalleryView>)
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+          _buildHeader(context),
+          if (initialized && stateInitialized.searchQuery.isNotEmpty)
+            _buildSearchChip(context),
+          Expanded(
+            child: ScrollToTopArea(
+              refreshController: refreshController,
+              child: Stack(
+                alignment: Alignment.center,
                 children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: <Widget>[
-                      Column(
-                        children: <Widget>[
-                          IconButton(
-                            onPressed: stateError.retry,
-                            icon: const Icon(Icons.refresh),
-                            splashRadius: 18,
-                          ),
-                          Text(
-                            S.current.service_view_retry_button_title,
-                            style:
-                                regular(color: AppColors.mainWhite, size: 14),
-                          )
-                        ],
+                  SmartRefresher(
+                    enablePullUp: true,
+                    enablePullDown: true,
+                    onRefresh: () async {
+                      await _cubit(context).refresh();
+                      refreshController.refreshCompleted();
+                    },
+                    footer: CustomFooter(
+                      builder: (BuildContext context, LoadStatus? mode) {
+                        return ServiceViewerLoader(cubit: _cubit(context));
+                      },
+                    ),
+                    controller: refreshController,
+                    onLoading: () async {
+                      if (state is ServiceViewLoading<MangaApiClient,
+                          MangaGalleryView>) {
+                        return;
+                      }
+                      if (initialized && !stateInitialized.loading) {
+                        _cubit(context).getGallery();
+                      }
+                    },
+                    child: _buildGrid(context),
+                  ),
+                  if (initialized && stateInitialized.loading)
+                    const Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: LinearProgressIndicator(
+                        minHeight: 2,
+                        color: AppColors.primary,
+                        backgroundColor: Colors.transparent,
                       ),
-                      Text(S.current.service_view_error,
-                          style: regular(color: AppColors.mainWhite, size: 18)),
-                      Column(
-                        children: <Widget>[
-                          IconButton(
-                            icon: const Icon(Icons.webhook),
-                            onPressed: () {
-                              openWebView(context, apiClient, configInfo);
-                            },
-                            splashRadius: 18,
-                          ),
-                          Text(
-                            S.current.service_view_open_web_view_button_title,
-                            style:
-                                regular(color: AppColors.mainWhite, size: 14),
-                          )
-                        ],
-                      )
-                    ],
-                  )
+                    ),
+                  if (!initialized &&
+                      state is! ServiceViewError<MangaApiClient,
+                          MangaGalleryView>)
+                    const GalleryGridSkeleton()
+                  else if (state is ServiceViewError<MangaApiClient,
+                      MangaGalleryView>)
+                    _buildError(context)
+                  else if (stateInitialized.galleryViews.isEmpty &&
+                      !stateInitialized.loading)
+                    _buildEmpty(context),
                 ],
               ),
-            )
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSearchableAppBar(
-    BuildContext context,
-    ServiceViewInitialized<MangaApiClient, MangaGalleryView>? state,
-  ) =>
-      ServiceViewerAppBar(
+  Widget _buildGrid(BuildContext context) {
+    if (state is! ServiceViewInitialized<MangaApiClient, MangaGalleryView>) {
+      return const SizedBox();
+    }
+    return GridView.builder(
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      ),
+      padding: kGalleryGridPadding,
+      gridDelegate: kGalleryGridDelegate,
+      itemCount: stateInitialized.galleryViews.length,
+      itemBuilder: (BuildContext context, int index) {
+        final MangaGalleryView galleryView =
+            stateInitialized.galleryViews[index];
+        return GalleryViewCard(
+          cover: galleryView.cover,
+          uid: galleryView.uid,
+          title: galleryView.title,
+          headers:
+              stateInitialized.galleryViewImagesHeaders[galleryView.uid] ??
+                  <String, String>{},
+          onLongPress: () {},
+          onTap: () => _onGalleryViewClick(context, galleryView),
+        );
+      },
+    );
+  }
+
+  Widget _buildSearchChip(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: InputChip(
+          backgroundColor: Colors.white.withValues(alpha: 0.08),
+          side: BorderSide.none,
+          label: Text(
+            S.of(context).service_view_search_results_for(
+                stateInitialized.searchQuery),
+            style: regular(size: 13),
+          ),
+          deleteIconColor: AppColors.mainGrey,
+          deleteIcon: const Icon(Icons.close_rounded, size: 16),
+          onDeleted: () {
+            searchController.clear();
+            _cubit(context).search('');
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmpty(BuildContext context) {
+    final bool searching = stateInitialized.searchQuery.isNotEmpty;
+    return ServiceViewerMessage(
+      icon: searching ? Icons.search_off_rounded : Icons.inbox_rounded,
+      title: searching
+          ? S.of(context).service_view_no_results_title
+          : S.of(context).service_view_empty_title,
+      message: searching
+          ? S
+              .of(context)
+              .service_view_no_results_message(stateInitialized.searchQuery)
+          : S.of(context).service_view_empty_message,
+    );
+  }
+
+  Widget _buildError(BuildContext context) {
+    return ServiceViewerMessage(
+      icon: Icons.error_outline_rounded,
+      title: S.of(context).service_view_error_title,
+      actions: <Widget>[
+        ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.mainBlack,
+          ),
+          onPressed: stateError.retry,
+          icon: const Icon(Icons.refresh_rounded),
+          label: Text(S.of(context).service_view_retry_button_title),
+        ),
+        OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.mainWhite,
+            side: const BorderSide(color: AppColors.mainGrey),
+          ),
+          onPressed: () => openWebView(context, apiClient, configInfo),
+          icon: const Icon(Icons.public_rounded),
+          label: Text(S.of(context).service_view_open_web_view_button_title),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) => ServiceViewerHeader(
         configInfo: configInfo,
         apiClient: apiClient,
-        state: state,
         searchController: searchController,
-        cubit:
-            context.read<ServiceViewCubit<MangaApiClient, MangaGalleryView>>(),
+        cubit: _cubit(context),
       );
 
   void _onGalleryViewClick(BuildContext context, MangaGalleryView e) {
