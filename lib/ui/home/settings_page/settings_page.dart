@@ -1,4 +1,3 @@
-import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -7,6 +6,7 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
+import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -19,230 +19,532 @@ class SettingsPage extends StatelessWidget {
       backgroundColor: AppColors.backgroundColor,
       body: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (BuildContext context, SettingsState state) {
-          if (state is SettingsInitial) {
+          if (state is! SettingsInitialized) {
             return const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
-          if (state is SettingsInitialized) {
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                ListView(
+
+          return Stack(
+            fit: StackFit.expand,
+            children: <Widget>[
+              SafeArea(
+                bottom: false,
+                child: ListView(
                   physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 24),
                   children: <Widget>[
-                    const SizedBox(
-                      height: 12,
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+                      child: _SettingsHeader(),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 8.0),
-                      child: Text(S.current.settings_default_reader_mode_title,
-                          style: semibold(size: 18)),
-                    ),
-                    SizedBox(
-                      width: double.maxFinite,
-                      child: DropdownButtonFormField<ChapterViewMode>(
-                          value: state.defaultMode,
-                          // borderRadius: BorderRadius.circular(16.0),
-                          style: medium(),
-                          icon: const Icon(Icons.arrow_drop_down_rounded),
-                          decoration: _dropdownDecoration(),
-                          items: ChapterViewMode.values
-                              .map((ChapterViewMode e) => DropdownMenuItem(
-                                    value: e,
-                                    alignment: Alignment.center,
-                                    child: Text(chapterViewModelToString(e),
-                                        textAlign: TextAlign.center,
-                                        style: medium()),
-                                  ))
-                              .toList(),
-                          onChanged: (ChapterViewMode? mode) {
-                            if (mode != null) {
-                              context
-                                  .read<SettingsCubit>()
-                                  .onChangedDefaultReadMode(mode);
-                            }
-                          }),
-                    ),
-                    const Divider(
-                      height: 2,
-                      color: AppColors.primary,
-                    ),
-                    const SizedBox(
-                      height: 12,
-                    ),
-                    // Padding(
-                    //   padding: const EdgeInsets.symmetric(
-                    //       horizontal: 16.0, vertical: 8.0),
-                    //   child: Text(
-                    //     S.current.settings_default_configs_source_title,
-                    //     style: semibold(size: 18),
-                    //   ),
-                    // ),
-                    // const Divider(
-                    //   height: 2,
-                    //   color: AppColors.primary,
-                    // ),
-                    ListTile(
-                      onTap: () {
-                        showOkCancelAlertDialog(
-                          context: context,
-                          okLabel: S.current
-                              .settings_clear_cookies_cache_dialog_confirmation_ok_label,
-                          cancelLabel: S.current
-                              .settings_clear_cookies_cache_dialog_confirmation_cancel_label,
-                          title: S.current
-                              .settings_clear_cookies_cache_dialog_confirmation_title,
-                          message: S.current
-                              .settings_clear_cookies_cache_dialog_confirmation_message,
-                        ).then((OkCancelResult value) {
-                          if (value.index == 0) {
-                            ProtectorStorageService().clear().then((_) {
-                              showOkAlertDialog(
-                                  context: context,
-                                  title: S.current
-                                      .settings_clear_cookies_dialog_success);
-                            });
-                          }
-                        });
-                      },
-                      title: Text(S.current.settings_clear_cookies_cache,
-                          style: medium(size: 16)),
-                    ),
-                    ListTile(
-                      title: Text(S.current.settings_export_activity_history_button),
-                      onTap: () {
-                        context
-                            .read<SettingsCubit>()
-                            .exportActivityHistory(context);
-                      },
-                    ),
-                    ListTile(
-                      title: Text(S.current.settings_import_activity_history_button),
-                      onTap: () {
-                        context
-                            .read<SettingsCubit>()
-                            .importActivityHistory(context);
-                      },
-                    ),
-                    ListTile(
-                      onTap: () {
-                        showOkCancelAlertDialog(
-                          context: context,
-                          okLabel: S.current
-                              .settings_clear_activity_history_dialog_confirmation_ok_label,
-                          cancelLabel: S.current
-                              .settings_clear_activity_history_dialog_confirmation_cancel_label,
-                          title: S.current
-                              .settings_clear_activity_history_dialog_confirmation_title,
-                          message: S.current
-                              .settings_clear_activity_history_dialog_confirmation_message,
-                        ).then((OkCancelResult value) {
-                          if (value.index == 0) {
-                            context
-                                .read<SettingsCubit>()
-                                .deleteActivityHistory(context);
-                          }
-                        });
-                      },
-                      title: Text(S.current.settings_clear_activity_history,
-                          style: medium(size: 16)),
-                    ),
-                    ListTile(
-                      onTap: () {
-                        launchUrl(
-                          Uri.parse(
-                              "https://github.com/Sayuri128/wakaranai/issues/new/choose"),
-                        );
-                      },
-                      title: Text(
-                        S.current.settings_submit_issue,
-                        style: medium(size: 16),
-                      ),
-                    ),
-
-                    BlocBuilder<LatestReleaseCubit, LatestReleaseState>(builder:
-                        (BuildContext context, LatestReleaseState state) {
-                      if (state is LatestReleaseLoaded &&
-                          state.releaseData.needsUpdate) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 48.0),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                              ),
-                            ),
-                            onPressed: () {
-                              launchUrl(Uri.parse(
-                                state.releaseData.url,
-                              ));
-                            },
-                            child: Text(
-                              S.current.settings_download_latest_release(
-                                  state.releaseData.latestVersion),
-                              style: medium(size: 16),
-                            ),
-                          ),
-                        );
-                      }
-
-                      return const SizedBox();
-                    }),
-                    // ListTile(
-                    //   onTap: () {
-                    //     showOkCancelAlertDialog(
-                    //             context: context,
-                    //             title:
-                    //                 "Are you sure you want to delete all your data?")
-                    //         .then((value) {
-                    //       // if (value == OkCancelResult.ok) {
-                    //       //   waka.hardReset().then((value) {
-                    //       //     context.read<LocalConfigsCubit>().init();
-                    //       //     context.read<LibraryPageCubit>().init();
-                    //       //   });
-                    //       // }
-                    //     });
-                    //   },
-                    //   title: Text(
-                    //     "Hard reset",
-                    //     style: medium(size: 16),
-                    //   ),
-                    // )
+                    const _UpdateBanner(),
+                    _buildReaderSection(context, state),
+                    _buildActivitySection(context),
+                    _buildAboutSection(context),
                   ],
                 ),
-                if (state.loading)
-                  Container(
-                    color: Colors.black.withOpacity(0.5),
-                    child: const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                    ),
+              ),
+              if (state.loading)
+                ColoredBox(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  child: const Center(
+                    child:
+                        CircularProgressIndicator(color: AppColors.primary),
                   ),
-              ],
-            );
-          }
-
-          return const SizedBox();
+                ),
+            ],
+          );
         },
       ),
     );
   }
 
-  InputDecoration _dropdownDecoration() {
-    return InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16.0),
-            borderSide: const BorderSide(color: Colors.transparent)),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16.0),
-            borderSide: const BorderSide(color: Colors.transparent)),
-        enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16.0),
-            borderSide: const BorderSide(color: Colors.transparent)));
+  Widget _buildReaderSection(BuildContext context, SettingsInitialized state) {
+    return _SettingsSection(
+      title: S.current.settings_reader_section_title,
+      tiles: <Widget>[
+        _SettingsTile(
+          icon: Icons.menu_book_rounded,
+          title: S.current.settings_default_reader_mode_title,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                chapterViewModelToString(state.defaultMode),
+                style: medium(size: 13, color: AppColors.mainGrey),
+              ),
+              const SizedBox(width: 4),
+              const Icon(Icons.chevron_right_rounded,
+                  color: AppColors.mainGrey),
+            ],
+          ),
+          onTap: () => _showReaderModePicker(context, state.defaultMode),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActivitySection(BuildContext context) {
+    return _SettingsSection(
+      title: S.current.home_navigation_bar_activity_history_title,
+      action: _InfoButton(
+        onTap: () => _showImportExportInfo(context),
+      ),
+      tiles: <Widget>[
+        _SettingsTile(
+          icon: Icons.file_upload_outlined,
+          title: S.current.settings_export_activity_history_button,
+          onTap: () =>
+              context.read<SettingsCubit>().exportActivityHistory(context),
+        ),
+        _SettingsTile(
+          icon: Icons.file_download_outlined,
+          title: S.current.settings_import_activity_history_button,
+          onTap: () =>
+              context.read<SettingsCubit>().importActivityHistory(context),
+        ),
+        _SettingsTile(
+          icon: Icons.cleaning_services_rounded,
+          title: S.current.settings_clear_cookies_cache,
+          onTap: () => _confirmClearCookies(context),
+        ),
+        _SettingsTile(
+          icon: Icons.delete_outline_rounded,
+          title: S.current.settings_clear_activity_history,
+          destructive: true,
+          onTap: () => _confirmClearHistory(context),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAboutSection(BuildContext context) {
+    return _SettingsSection(
+      title: S.current.settings_about_section_title,
+      tiles: <Widget>[
+        _SettingsTile(
+          icon: Icons.bug_report_outlined,
+          title: S.current.settings_submit_issue,
+          trailing:
+              const Icon(Icons.open_in_new_rounded, color: AppColors.mainGrey),
+          onTap: () => launchUrl(
+            Uri.parse(
+                "https://github.com/Sayuri128/wakaranai/issues/new/choose"),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showReaderModePicker(BuildContext context, ChapterViewMode current) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.backgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(top: 12, bottom: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                child: Text(
+                  S.current.settings_default_reader_mode_title,
+                  style: semibold(size: 18),
+                ),
+              ),
+              for (final ChapterViewMode mode in ChapterViewMode.values)
+                InkWell(
+                  onTap: () {
+                    context.read<SettingsCubit>().onChangedDefaultReadMode(mode);
+                    Navigator.of(sheetContext).pop();
+                  },
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            chapterViewModelToString(mode),
+                            style: medium(
+                              size: 15,
+                              color: mode == current
+                                  ? AppColors.primary
+                                  : AppColors.mainWhite,
+                            ),
+                          ),
+                        ),
+                        if (mode == current)
+                          const Icon(Icons.check_rounded,
+                              color: AppColors.primary, size: 20),
+                      ],
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showImportExportInfo(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.backgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(top: 12, bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Text(
+                  S.current.settings_import_export_info_title,
+                  style: semibold(size: 18),
+                ),
+                const SizedBox(height: 16),
+                _InfoParagraph(
+                  icon: Icons.file_upload_outlined,
+                  title: S.current.settings_import_export_info_export_title,
+                  body: S.current.settings_import_export_info_export_body,
+                ),
+                const SizedBox(height: 16),
+                _InfoParagraph(
+                  icon: Icons.file_download_outlined,
+                  title: S.current.settings_import_export_info_import_title,
+                  body: S.current.settings_import_export_info_import_body,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _confirmClearCookies(BuildContext context) {
+    showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) => ConfirmationDialog(
+        destructive: true,
+        icon: Icons.cleaning_services_rounded,
+        title:
+            S.current.settings_clear_cookies_cache_dialog_confirmation_title,
+        message:
+            S.current.settings_clear_cookies_cache_dialog_confirmation_message,
+        yesText:
+            S.current.settings_clear_cookies_cache_dialog_confirmation_ok_label,
+        noText: S.current
+            .settings_clear_cookies_cache_dialog_confirmation_cancel_label,
+      ),
+    ).then((bool? confirmed) {
+      if (confirmed == true) {
+        ProtectorStorageService().clear().then((_) {
+          if (!context.mounted) return;
+          showDialog<void>(
+            context: context,
+            builder: (BuildContext dialogContext) => InfoDialog(
+              title: S.current.settings_clear_cookies_dialog_success,
+              okText: S.current.common_ok_button,
+            ),
+          );
+        });
+      }
+    });
+  }
+
+  void _confirmClearHistory(BuildContext context) {
+    showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) => ConfirmationDialog(
+        destructive: true,
+        icon: Icons.delete_outline_rounded,
+        title:
+            S.current.settings_clear_activity_history_dialog_confirmation_title,
+        message: S
+            .current.settings_clear_activity_history_dialog_confirmation_message,
+        yesText: S.current
+            .settings_clear_activity_history_dialog_confirmation_ok_label,
+        noText: S.current
+            .settings_clear_activity_history_dialog_confirmation_cancel_label,
+      ),
+    ).then((bool? confirmed) {
+      if (confirmed == true && context.mounted) {
+        context.read<SettingsCubit>().deleteActivityHistory(context);
+      }
+    });
+  }
+}
+
+class _SettingsHeader extends StatelessWidget {
+  const _SettingsHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      S.current.home_navigation_bar_settings_title,
+      style: semibold(size: 24),
+    );
+  }
+}
+
+class _UpdateBanner extends StatelessWidget {
+  const _UpdateBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LatestReleaseCubit, LatestReleaseState>(
+      builder: (BuildContext context, LatestReleaseState state) {
+        if (state is! LatestReleaseLoaded || !state.releaseData.needsUpdate) {
+          return const SizedBox.shrink();
+        }
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Material(
+            color: AppColors.primary.withValues(alpha: 0.14),
+            borderRadius: BorderRadius.circular(16),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () => launchUrl(Uri.parse(state.releaseData.url)),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.system_update_rounded,
+                          color: AppColors.primary),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Text(
+                        S.current.settings_download_latest_release(
+                            state.releaseData.latestVersion),
+                        style: semibold(size: 15, color: AppColors.primary),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.download_rounded,
+                        color: AppColors.primary),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SettingsSection extends StatelessWidget {
+  const _SettingsSection({
+    required this.title,
+    required this.tiles,
+    this.action,
+  });
+
+  final String title;
+  final List<Widget> tiles;
+  final Widget? action;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 10),
+          child: Row(
+            children: <Widget>[
+              Expanded(child: Text(title, style: semibold(size: 18))),
+              if (action != null) action!,
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Material(
+            color: Colors.white.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(16),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              children: <Widget>[
+                for (int i = 0; i < tiles.length; i++) ...<Widget>[
+                  if (i > 0)
+                    Divider(
+                      height: 1,
+                      indent: 64,
+                      color: Colors.white.withValues(alpha: 0.06),
+                    ),
+                  tiles[i],
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  const _SettingsTile({
+    required this.icon,
+    required this.title,
+    this.trailing,
+    this.onTap,
+    this.destructive = false,
+  });
+
+  final IconData icon;
+  final String title;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  final bool destructive;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color tint = destructive ? AppColors.red : AppColors.primary;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        child: Row(
+          children: <Widget>[
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: tint.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: tint, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                title,
+                style: medium(
+                  size: 15,
+                  color:
+                      destructive ? AppColors.red : AppColors.mainWhite,
+                ),
+              ),
+            ),
+            if (trailing != null) ...<Widget>[
+              const SizedBox(width: 8),
+              trailing!,
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoButton extends StatelessWidget {
+  const _InfoButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.06),
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: const Padding(
+          padding: EdgeInsets.all(6),
+          child: Icon(Icons.info_outline_rounded,
+              size: 18, color: AppColors.mainGrey),
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoParagraph extends StatelessWidget {
+  const _InfoParagraph({
+    required this.icon,
+    required this.title,
+    required this.body,
+  });
+
+  final IconData icon;
+  final String title;
+  final String body;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.14),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: AppColors.primary, size: 20),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(title, style: semibold(size: 15)),
+              const SizedBox(height: 4),
+              Text(
+                body,
+                style: regular(size: 13, color: AppColors.mainGrey),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

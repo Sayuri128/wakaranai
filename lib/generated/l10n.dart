@@ -60,6 +60,11 @@ class S {
     return Intl.message('Wakaranai', name: 'app_name', desc: '', args: []);
   }
 
+  /// `OK`
+  String get common_ok_button {
+    return Intl.message('OK', name: 'common_ok_button', desc: '', args: []);
+  }
+
   /// `Manga`
   String get home_manga_group_title {
     return Intl.message(
@@ -605,6 +610,26 @@ class S {
     );
   }
 
+  /// `Reader`
+  String get settings_reader_section_title {
+    return Intl.message(
+      'Reader',
+      name: 'settings_reader_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `About`
+  String get settings_about_section_title {
+    return Intl.message(
+      'About',
+      name: 'settings_about_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Clear history`
   String get settings_clear_history_title {
     return Intl.message(
@@ -790,6 +815,56 @@ class S {
     return Intl.message(
       'Error occurred during exporting activity history',
       name: 'settings_export_activity_history_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import & export`
+  String get settings_import_export_info_title {
+    return Intl.message(
+      'Import & export',
+      name: 'settings_import_export_info_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Export`
+  String get settings_import_export_info_export_title {
+    return Intl.message(
+      'Export',
+      name: 'settings_import_export_info_export_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saves all your manga and anime reading history into a single JSON file that you can back up or move to another device.`
+  String get settings_import_export_info_export_body {
+    return Intl.message(
+      'Saves all your manga and anime reading history into a single JSON file that you can back up or move to another device.',
+      name: 'settings_import_export_info_export_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import`
+  String get settings_import_export_info_import_title {
+    return Intl.message(
+      'Import',
+      name: 'settings_import_export_info_import_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Loads history from a previously exported JSON file and merges it with what you already have — existing entries are updated and new ones are added, nothing is deleted.`
+  String get settings_import_export_info_import_body {
+    return Intl.message(
+      'Loads history from a previously exported JSON file and merges it with what you already have — existing entries are updated and new ones are added, nothing is deleted.',
+      name: 'settings_import_export_info_import_body',
       desc: '',
       args: [],
     );

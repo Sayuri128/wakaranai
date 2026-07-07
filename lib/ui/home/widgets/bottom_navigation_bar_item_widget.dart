@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/text_styles.dart';
 
 class BottomNavigationBarItemWidgetData {
   final IconData icon;
@@ -13,84 +12,57 @@ class BottomNavigationBarItemWidgetData {
   });
 }
 
-class BottomNavigationBarItemWidget extends StatefulWidget {
+class BottomNavigationBarItemWidget extends StatelessWidget {
   const BottomNavigationBarItemWidget({
     super.key,
     required this.data,
-    this.selected = false,
-    required this.index,
-    required this.borderRadius,
+    required this.selected,
+    required this.onTap,
   });
 
   final BottomNavigationBarItemWidgetData data;
-  final int index;
   final bool selected;
-  final BorderRadius borderRadius;
-
-  @override
-  State<BottomNavigationBarItemWidget> createState() =>
-      _BottomNavigationBarItemWidgetState();
-}
-
-class _BottomNavigationBarItemWidgetState
-    extends State<BottomNavigationBarItemWidget>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  final ColorTween _colorTween = ColorTween(
-    begin: AppColors.primary,
-    end: AppColors.backgroundColor,
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-
-    if (widget.selected) {
-      _controller.forward();
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(covariant BottomNavigationBarItemWidget oldWidget) {
-    if (widget != oldWidget) {}
-    if (widget.selected) {
-      _controller.forward();
-    } else {
-      _controller.reverse();
-    }
-
-    super.didUpdateWidget(oldWidget);
-  }
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final Color color = selected ? AppColors.primary : AppColors.mainGrey;
     return Expanded(
       child: InkWell(
-        onTap: () {
-          context.read<HomePageCubit>().changePage(widget.index);
-        },
-        borderRadius: widget.borderRadius,
-        splashColor: AppColors.primary.withOpacity(0.8),
-        child: Ink(
+        borderRadius: BorderRadius.circular(18),
+        splashColor: AppColors.primary.withValues(alpha: 0.12),
+        highlightColor: AppColors.primary.withValues(alpha: 0.06),
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
           height: 48,
-          color: AppColors.backgroundColor,
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) => Icon(
-              widget.data.icon,
-              color: _colorTween.evaluate(_controller),
-            ),
+          decoration: BoxDecoration(
+            color: selected
+                ? AppColors.primary.withValues(alpha: 0.14)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(data.icon, color: color, size: 24),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutCubic,
+                child: selected
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(
+                          data.text,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: semibold(size: 13, color: AppColors.primary),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
           ),
         ),
       ),

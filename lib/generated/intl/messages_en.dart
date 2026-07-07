@@ -106,6 +106,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "chapter_viewer_right_to_left_read_mode":
         MessageLookupByLibrary.simpleMessage("Right to left"),
     "chapter_viewer_webtoon": MessageLookupByLibrary.simpleMessage("Webtoon"),
+    "common_ok_button": MessageLookupByLibrary.simpleMessage("OK"),
     "concrete_selection_clear": MessageLookupByLibrary.simpleMessage("Clear"),
     "concrete_selection_count": m1,
     "concrete_selection_invert": MessageLookupByLibrary.simpleMessage("Invert"),
@@ -201,6 +202,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_search_results_for": m4,
     "service_viewer_search_field_hint_text":
         MessageLookupByLibrary.simpleMessage("Search"),
+    "settings_about_section_title": MessageLookupByLibrary.simpleMessage(
+      "About",
+    ),
     "settings_clear_activity_history": MessageLookupByLibrary.simpleMessage(
       "Clear activity history",
     ),
@@ -263,6 +267,22 @@ class MessageLookup extends MessageLookupByLibrary {
           "Error occurred during importing activity history",
         ),
     "settings_import_activity_history_success": m6,
+    "settings_import_export_info_export_body": MessageLookupByLibrary.simpleMessage(
+      "Saves all your manga and anime reading history into a single JSON file that you can back up or move to another device.",
+    ),
+    "settings_import_export_info_export_title":
+        MessageLookupByLibrary.simpleMessage("Export"),
+    "settings_import_export_info_import_body": MessageLookupByLibrary.simpleMessage(
+      "Loads history from a previously exported JSON file and merges it with what you already have — existing entries are updated and new ones are added, nothing is deleted.",
+    ),
+    "settings_import_export_info_import_title":
+        MessageLookupByLibrary.simpleMessage("Import"),
+    "settings_import_export_info_title": MessageLookupByLibrary.simpleMessage(
+      "Import & export",
+    ),
+    "settings_reader_section_title": MessageLookupByLibrary.simpleMessage(
+      "Reader",
+    ),
     "settings_service_viewer_filters_title":
         MessageLookupByLibrary.simpleMessage("Filters"),
     "settings_submit_issue": MessageLookupByLibrary.simpleMessage(

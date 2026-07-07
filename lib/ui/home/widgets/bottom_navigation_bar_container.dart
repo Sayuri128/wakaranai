@@ -16,94 +16,26 @@ class BottomNavigationBarContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.backgroundColor,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16.0),
-          topRight: Radius.circular(16.0),
+        border: Border(
+          top: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowColor,
-            blurRadius: 8.0,
-            spreadRadius: 2.0,
-            offset: const Offset(0, -4),
-          )
-        ],
       ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16.0),
-          topRight: Radius.circular(16.0),
-        ),
-        child: Material(
-          child: Ink(
-            decoration: const BoxDecoration(
-              color: AppColors.backgroundColor,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16.0),
-                topRight: Radius.circular(16.0),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(
-                top: 4.0,
-                left: 4.0,
-                right: 4.0,
-              ),
-              child: Stack(
-                children: [
-                  AnimatedPositioned(
-                    duration: const Duration(milliseconds: 200),
-                    left: (MediaQuery.of(context).size.width - 12) /
-                        data.length *
-                        currentIndex,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      height: 64,
-                      width: MediaQuery.of(context).size.width / data.length,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.only(
-                          topLeft: currentIndex == 0
-                              ? const Radius.circular(16.0)
-                              : Radius.zero,
-                          topRight: currentIndex == data.length - 1
-                              ? const Radius.circular(16.0)
-                              : Radius.zero,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.shadowColor,
-                            blurRadius: 16.0,
-                            spreadRadius: 4.0,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      for (int i = 0; i < data.length; i++)
-                        BottomNavigationBarItemWidget(
-                            data: data[i],
-                            index: i,
-                            selected: i == currentIndex,
-                            borderRadius: BorderRadius.only(
-                              topLeft: i == 0
-                                  ? const Radius.circular(16.0)
-                                  : Radius.zero,
-                              topRight: i == data.length - 1
-                                  ? const Radius.circular(16.0)
-                                  : Radius.zero,
-                            ))
-                    ],
-                  ),
-                ],
-              ),
-            ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: Row(
+            children: <Widget>[
+              for (int i = 0; i < data.length; i++)
+                BottomNavigationBarItemWidget(
+                  data: data[i],
+                  selected: i == currentIndex,
+                  onTap: () => onTap(i),
+                ),
+            ],
           ),
         ),
       ),

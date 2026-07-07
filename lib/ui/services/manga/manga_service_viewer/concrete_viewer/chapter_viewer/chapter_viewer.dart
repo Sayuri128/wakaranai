@@ -498,6 +498,10 @@ class _ChapterViewerState extends State<ChapterViewer>
     showModalBottomSheet(
       context: context,
       enableDrag: true,
+      backgroundColor: AppColors.backgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (_) => BottomModalSettings(
         chapterViewCubit: context.read<ChapterViewCubit>(),
         state: state,

@@ -21,103 +21,158 @@ class BottomModalSettings extends StatefulWidget {
 }
 
 class _BottomModalSettingsState extends State<BottomModalSettings> {
-  bool _enableTapControlsState = false;
+  late bool _enableTapControlsState;
+  late ChapterViewMode _mode;
 
   @override
   void initState() {
     super.initState();
     _enableTapControlsState = widget.state.controlsEnabled;
+    _mode = widget.state.mode;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        const SizedBox(
-          height: 32,
-        ),
-        Flexible(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(top: 12, bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Text(
+              S.current
+                  .chapter_viewer_bottom_modal_settings_reading_mode_title,
+              style: semibold(size: 18),
+            ),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
               children: <Widget>[
-                SizedBox(
-                    width: 128,
-                    child: Text(
-                      S.current
-                          .chapter_viewer_bottom_modal_settings_reading_mode_title,
-                      style: semibold(size: 18),
-                    )),
-                Flexible(
-                  child: DropdownButtonFormField<ChapterViewMode>(
-                      value: widget.state.mode,
-                      borderRadius: BorderRadius.circular(16.0),
-                      style: medium(size: 18),
-                      icon: const Icon(Icons.arrow_drop_down_rounded),
-                      decoration: InputDecoration(
-                          labelStyle: medium(size: 18),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                                  const BorderSide(color: Colors.transparent)),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                                  const BorderSide(color: Colors.transparent)),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                                  const BorderSide(color: Colors.transparent))),
-                      items: ChapterViewMode.values
-                          .map((ChapterViewMode e) => DropdownMenuItem(
-                                value: e,
-                                alignment: Alignment.center,
-                                child: Text(chapterViewModelToString(e),
-                                    textAlign: TextAlign.center),
-                              ))
-                          .toList(),
-                      onChanged: (ChapterViewMode? mode) {
-                        if (mode != null) {
-                          widget.chapterViewCubit.onModeChanged(mode);
-                        }
-                      }),
-                )
+                for (final ChapterViewMode mode in ChapterViewMode.values)
+                  _ModeChip(
+                    label: chapterViewModelToString(mode),
+                    selected: mode == _mode,
+                    onTap: () {
+                      widget.chapterViewCubit.onModeChanged(mode);
+                      setState(() => _mode = mode);
+                    },
+                  ),
               ],
             ),
-          ),
+            const SizedBox(height: 20),
+            _SwitchRow(
+              label:
+                  S.current.chapter_viewer_bottom_modal_settings_tap_controls,
+              value: _enableTapControlsState,
+              onChanged: (bool newValue) {
+                widget.chapterViewCubit.onSetControls(newValue);
+                setState(() => _enableTapControlsState = newValue);
+              },
+            ),
+          ],
         ),
-        const SizedBox(
-          height: 2,
-        ),
-        CheckboxListTile(
-          title: Text(
-            S.current.chapter_viewer_bottom_modal_settings_tap_controls,
-            style: medium(),
-          ),
-          value: _enableTapControlsState,
-          onChanged: (bool? newValue) {
-            if (newValue == null) {
-              return;
-            }
+      ),
+    );
+  }
+}
 
-            widget.chapterViewCubit.onSetControls(newValue);
-            _enableTapControlsState = newValue;
-            if (mounted) {
-              setState(() {});
-            }
-          },
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
-          activeColor: AppColors.primary,
-          controlAffinity:
-              ListTileControlAffinity.leading, //  <-- leading Checkbox
+class _ModeChip extends StatelessWidget {
+  const _ModeChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected
+          ? AppColors.primary
+          : Colors.white.withValues(alpha: 0.06),
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              if (selected) ...<Widget>[
+                Icon(Icons.check_rounded,
+                    size: 16, color: AppColors.mainBlack),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                label,
+                style: semibold(
+                  size: 14,
+                  color: selected ? AppColors.mainBlack : AppColors.mainWhite,
+                ),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(
-          height: 16,
-        )
-      ],
+      ),
+    );
+  }
+}
+
+class _SwitchRow extends StatelessWidget {
+  const _SwitchRow({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.04),
+      borderRadius: BorderRadius.circular(14),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => onChanged(!value),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(label, style: medium(size: 15)),
+              ),
+              Switch(
+                value: value,
+                onChanged: onChanged,
+                activeThumbColor: AppColors.mainBlack,
+                activeTrackColor: AppColors.primary,
+                inactiveThumbColor: AppColors.mainWhite,
+                inactiveTrackColor: Colors.white.withValues(alpha: 0.12),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
