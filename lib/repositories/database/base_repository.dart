@@ -116,10 +116,10 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
 
   Future<TDomain?> create(TDomain domain) async {
     try {
-      final res = await insertStatement().insert(domain.toDrift(
+      final int insertedId = await insertStatement().insert(domain.toDrift(
         create: true,
       ));
-      return get(domain.id);
+      return get(insertedId);
     } catch (e) {
       return null;
     }

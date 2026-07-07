@@ -211,7 +211,7 @@ class MangaConcreteViewer extends StatelessWidget
               ),
               if (state is ConcreteViewInitialized<MangaApiClient,
                   MangaConcreteView, MangaGalleryView>) ...[
-                getExpandableFabWidget(context, state),
+                getSelectionOverlay(context, state),
               ]
             ],
           );

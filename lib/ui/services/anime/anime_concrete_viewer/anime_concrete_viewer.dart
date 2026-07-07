@@ -20,7 +20,6 @@ import 'package:wakaranai/ui/services/anime/anime_concrete_viewer/anime_player_b
 import 'package:wakaranai/ui/services/anime/anime_iframe_player/anime_iframe_player.dart';
 import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
-import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/heroes.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -228,7 +227,7 @@ class AnimeConcreteViewer extends StatelessWidget
               if (state is ConcreteViewInitialized<
                   AnimeApiClient,
                   AnimeConcreteView,
-                  AnimeGalleryView>) ...[getExpandableFabWidget(context, state)]
+                  AnimeGalleryView>) ...[getSelectionOverlay(context, state)]
             ],
           );
         },

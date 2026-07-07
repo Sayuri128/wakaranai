@@ -18,17 +18,20 @@ class S {
   static S? _current;
 
   static S get current {
-    assert(_current != null,
-        'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.');
+    assert(
+      _current != null,
+      'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.',
+    );
     return _current!;
   }
 
   static const AppLocalizationDelegate delegate = AppLocalizationDelegate();
 
   static Future<S> load(Locale locale) {
-    final name = (locale.countryCode?.isEmpty ?? false)
-        ? locale.languageCode
-        : locale.toString();
+    final name =
+        (locale.countryCode?.isEmpty ?? false)
+            ? locale.languageCode
+            : locale.toString();
     final localeName = Intl.canonicalizedLocale(name);
     return initializeMessages(localeName).then((_) {
       Intl.defaultLocale = localeName;
@@ -41,8 +44,10 @@ class S {
 
   static S of(BuildContext context) {
     final instance = S.maybeOf(context);
-    assert(instance != null,
-        'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?');
+    assert(
+      instance != null,
+      'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?',
+    );
     return instance!;
   }
 
@@ -52,12 +57,7 @@ class S {
 
   /// `Wakaranai`
   String get app_name {
-    return Intl.message(
-      'Wakaranai',
-      name: 'app_name',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Wakaranai', name: 'app_name', desc: '', args: []);
   }
 
   /// `Manga`
@@ -82,12 +82,7 @@ class S {
 
   /// `NSFW`
   String get home_nsfw_suffix {
-    return Intl.message(
-      'NSFW',
-      name: 'home_nsfw_suffix',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('NSFW', name: 'home_nsfw_suffix', desc: '', args: []);
   }
 
   /// `Extensions`
@@ -682,7 +677,9 @@ class S {
 
   /// `Activity history imported {IMPORTED} out of {TOTAL} activities`
   String settings_import_activity_history_success(
-      Object IMPORTED, Object TOTAL) {
+    Object IMPORTED,
+    Object TOTAL,
+  ) {
     return Intl.message(
       'Activity history imported $IMPORTED out of $TOTAL activities',
       name: 'settings_import_activity_history_success',
@@ -800,15 +797,73 @@ class S {
       args: [time],
     );
   }
+
+  /// `{count} selected`
+  String concrete_selection_count(Object count) {
+    return Intl.message(
+      '$count selected',
+      name: 'concrete_selection_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Read`
+  String get concrete_selection_mark_read {
+    return Intl.message(
+      'Read',
+      name: 'concrete_selection_mark_read',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unread`
+  String get concrete_selection_mark_unread {
+    return Intl.message(
+      'Unread',
+      name: 'concrete_selection_mark_unread',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All`
+  String get concrete_selection_select_all {
+    return Intl.message(
+      'All',
+      name: 'concrete_selection_select_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invert`
+  String get concrete_selection_invert {
+    return Intl.message(
+      'Invert',
+      name: 'concrete_selection_invert',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear`
+  String get concrete_selection_clear {
+    return Intl.message(
+      'Clear',
+      name: 'concrete_selection_clear',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
   const AppLocalizationDelegate();
 
   List<Locale> get supportedLocales {
-    return const <Locale>[
-      Locale.fromSubtags(languageCode: 'en'),
-    ];
+    return const <Locale>[Locale.fromSubtags(languageCode: 'en')];
   }
 
   @override

@@ -82,5 +82,12 @@
   "activity_history_empty_manga_list_message": "No history :c\nStart reading manga to see your history here",
   "activity_history_empty_anime_list_message": "No history :c\nStart watching anime to see your history here",
   "@_ANIME_CONCRETE_VIEWER": {},
-  "anime_concrete_viewer_watched_at_title": "Watched at {time}"
+  "anime_concrete_viewer_watched_at_title": "Watched at {time}",
+  "@_CONCRETE_VIEWER_SELECTION": {},
+  "concrete_selection_count": "{count} selected",
+  "concrete_selection_mark_read": "Read",
+  "concrete_selection_mark_unread": "Unread",
+  "concrete_selection_select_all": "All",
+  "concrete_selection_invert": "Invert",
+  "concrete_selection_clear": "Clear"
 }
