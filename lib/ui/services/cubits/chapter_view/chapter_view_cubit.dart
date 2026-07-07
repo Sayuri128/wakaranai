@@ -59,7 +59,8 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
           data.concreteView.uid,
         );
       } catch (e, s) {
-        // ignore:
+        logger.w('Failed to load default manga reader mode: $e');
+        logger.w(s);
       }
 
       final List<Pages> pagesS = <Pages>[
@@ -82,7 +83,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       );
 
       if (concreteData != null) {
-        chapterActivityRepository
+        await chapterActivityRepository
             .createUpdateBy<$ChapterActivityTableTable, String>(
           ChapterActivityDomain(
             uid: data.chapter.uid,
@@ -165,22 +166,25 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         }
       }
 
-      chapterActivityRepository
-          .createUpdateBy<$ChapterActivityTableTable, String>(
-        ChapterActivityDomain(
-          uid: chapter.uid,
-          concreteId: state.concreteData!.id,
-          readPages: next ? 1 : optionalLoadedPages.value.length,
-          id: state.concreteData!.id,
-          totalPages: optionalLoadedPages.value.length,
-          title: chapter.title,
-          timestamp: chapter.timestamp,
-          data: jsonEncode(chapter.data),
-          createdAt: state.concreteData!.createdAt,
-        ),
-        by: (tbl) => tbl.uid,
-        where: (tbl) => tbl.uid,
-      );
+      final concreteData = state.concreteData;
+      if (concreteData != null) {
+        await chapterActivityRepository
+            .createUpdateBy<$ChapterActivityTableTable, String>(
+          ChapterActivityDomain(
+            uid: chapter.uid,
+            concreteId: concreteData.id,
+            readPages: next ? 1 : optionalLoadedPages.value.length,
+            id: 0,
+            totalPages: optionalLoadedPages.value.length,
+            title: chapter.title,
+            timestamp: chapter.timestamp,
+            data: jsonEncode(chapter.data),
+            createdAt: concreteData.createdAt,
+          ),
+          by: (tbl) => tbl.uid,
+          where: (tbl) => tbl.uid,
+        );
+      }
       emit(
         state.copyWith(
           canGetNextPages: canGetNextPages,
@@ -203,28 +207,34 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     if (state is ChapterViewInitialized &&
         currentPages.chapterUid == stateInitialized.currentPages.chapterUid) {
       onDone?.call(stateInitialized.currentPages);
-      if (stateInitialized.currentPage < index) {
+      final concreteData = stateInitialized.concreteData;
+      if (concreteData != null && stateInitialized.currentPage < index) {
         final chapter = stateInitialized.group.elements.firstWhere(
             (Chapter element) => element.uid == currentPages.chapterUid);
 
-        chapterActivityRepository
+        await chapterActivityRepository
             .createUpdateBy<$ChapterActivityTableTable, String>(
           ChapterActivityDomain(
             uid: chapter.uid,
-            concreteId: stateInitialized.concreteData!.id,
+            concreteId: concreteData.id,
             readPages: index,
-            id: stateInitialized.concreteData!.id,
+            id: 0,
             timestamp: chapter.timestamp,
             data: jsonEncode(chapter.data),
             title: chapter.title,
             totalPages: currentPages.value.length,
-            createdAt: stateInitialized.concreteData!.createdAt,
+            createdAt: concreteData.createdAt,
           ),
           by: (tbl) => tbl.uid,
           where: (tbl) => tbl.uid,
         );
       }
-      emit(stateInitialized.copyWith(currentPage: index));
+      // Re-check: an awaited DB write above may have yielded to another
+      // handler (e.g. onPagesChanged) that changed the state.
+      if (state is ChapterViewInitialized &&
+          currentPages.chapterUid == stateInitialized.currentPages.chapterUid) {
+        emit(stateInitialized.copyWith(currentPage: index));
+      }
     }
   }
 

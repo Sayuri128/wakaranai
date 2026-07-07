@@ -103,7 +103,8 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   @override
   void dispose() {
-    super.dispose();
+    _chapterViewCubit.close();
+    _pageController.dispose();
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.manual,
       overlays: <SystemUiOverlay>[
@@ -111,6 +112,7 @@ class _ChapterViewerState extends State<ChapterViewer>
         SystemUiOverlay.bottom,
       ],
     );
+    super.dispose();
   }
 
   @override
@@ -133,17 +135,17 @@ class _ChapterViewerState extends State<ChapterViewer>
                 (previous is ChapterViewInitialized &&
                     current.mode != previous.mode)),
         listener: (BuildContext context, ChapterViewState state) {
-          if(state is ChapterViewInitialized) {
+          if (state is ChapterViewInitialized) {
             _initialized = true;
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (state.mode == ChapterViewMode.webtoon) {
-                _itemScrollController.jumpTo(index: max(0, state.currentPage - 1));
+                _itemScrollController.jumpTo(
+                    index: max(0, state.currentPage - 1));
               } else {
                 _pageController.jumpToPage(max(0, state.currentPage - 1));
               }
             });
           }
-
         },
         builder: (BuildContext context, ChapterViewState state) {
           if (state is ChapterViewInitialized) {
@@ -659,7 +661,7 @@ class _ChapterViewerState extends State<ChapterViewer>
           ? ElevatedButton(
               style: ButtonStyle(
                   backgroundColor:
-                      MaterialStateProperty.all(AppColors.backgroundColor)),
+                      WidgetStateProperty.all(AppColors.backgroundColor)),
               onPressed: () {
                 if (_canLoadNext && state.canGetNextPages) {
                   context.read<ChapterViewCubit>().onPagesChanged(
