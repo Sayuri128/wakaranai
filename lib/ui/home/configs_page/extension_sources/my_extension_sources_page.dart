@@ -113,6 +113,10 @@ class MyExtensionSourcesPage extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: AppColors.mainBlack,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
                 ),
                 onPressed: () =>
                     context.read<ExtensionSourcesCubit>().init(),

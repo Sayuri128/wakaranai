@@ -194,6 +194,9 @@ class AnimeServiceViewerBody extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: AppColors.mainBlack,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
           onPressed: stateError.retry,
           icon: const Icon(Icons.refresh_rounded),
@@ -203,6 +206,9 @@ class AnimeServiceViewerBody extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.mainWhite,
             side: const BorderSide(color: AppColors.mainGrey),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
           onPressed: () => openWebView(context, apiClient, configInfo),
           icon: const Icon(Icons.public_rounded),

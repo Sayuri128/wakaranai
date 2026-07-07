@@ -28,6 +28,7 @@ class GalleryViewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Hero(
       tag: Heroes.galleryViewToConcreteView(uid),
+      flightShuttleBuilder: Heroes.crossfadeFlightShuttle,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10.0),
         child: Material(

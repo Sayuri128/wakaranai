@@ -1003,6 +1003,66 @@ class S {
     );
   }
 
+  /// `Chapters`
+  String get concrete_viewer_chapters_section_title {
+    return Intl.message(
+      'Chapters',
+      name: 'concrete_viewer_chapters_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Episodes`
+  String get concrete_viewer_episodes_section_title {
+    return Intl.message(
+      'Episodes',
+      name: 'concrete_viewer_episodes_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show more`
+  String get concrete_viewer_description_show_more {
+    return Intl.message(
+      'Show more',
+      name: 'concrete_viewer_description_show_more',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show less`
+  String get concrete_viewer_description_show_less {
+    return Intl.message(
+      'Show less',
+      name: 'concrete_viewer_description_show_less',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load title`
+  String get concrete_viewer_error_title {
+    return Intl.message(
+      'Couldn\'t load title',
+      name: 'concrete_viewer_error_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get concrete_viewer_retry_button {
+    return Intl.message(
+      'Retry',
+      name: 'concrete_viewer_retry_button',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{count} selected`
   String concrete_selection_count(Object count) {
     return Intl.message(

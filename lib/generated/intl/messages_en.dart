@@ -119,6 +119,20 @@ class MessageLookup extends MessageLookupByLibrary {
     "concrete_selection_select_all": MessageLookupByLibrary.simpleMessage(
       "All",
     ),
+    "concrete_viewer_chapters_section_title":
+        MessageLookupByLibrary.simpleMessage("Chapters"),
+    "concrete_viewer_description_show_less":
+        MessageLookupByLibrary.simpleMessage("Show less"),
+    "concrete_viewer_description_show_more":
+        MessageLookupByLibrary.simpleMessage("Show more"),
+    "concrete_viewer_episodes_section_title":
+        MessageLookupByLibrary.simpleMessage("Episodes"),
+    "concrete_viewer_error_title": MessageLookupByLibrary.simpleMessage(
+      "Couldn\'t load title",
+    ),
+    "concrete_viewer_retry_button": MessageLookupByLibrary.simpleMessage(
+      "Retry",
+    ),
     "extension_source_page_error_adding_source":
         MessageLookupByLibrary.simpleMessage(
           "Error occurred during adding source",

@@ -11,12 +11,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
+import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
-import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_provider_button.dart';
+import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
 import 'package:wakaranai/ui/widgets/image_widget.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/heroes.dart';
@@ -79,6 +81,7 @@ class MangaConcreteViewer extends StatelessWidget
     );
   }
 
+  // ignore: unused_element
   Widget _wrapWithBrowserInterceptorCubit(
       {required Widget child, required Completer<bool> completer}) {
     if (data.configInfo.protectorConfig?.inAppBrowserInterceptor ?? false) {
@@ -118,20 +121,15 @@ class MangaConcreteViewer extends StatelessWidget
             ConcreteViewState<MangaApiClient, MangaConcreteView,
                     MangaGalleryView>
                 state) {
-          late final MangaConcreteView concreteView;
+          final bool initialized = state is ConcreteViewInitialized<
+              MangaApiClient, MangaConcreteView, MangaGalleryView>;
 
-          int currentGroupsIndex = -1;
-          if (state is ConcreteViewInitialized<MangaApiClient,
-              MangaConcreteView, MangaGalleryView>) {
-            concreteView = state.concreteView;
-            currentGroupsIndex = state.groupIndex;
-          }
+          final MangaConcreteView? concreteView =
+              initialized ? state.concreteView : null;
+          final int currentGroupsIndex = initialized ? state.groupIndex : -1;
 
-          final int groupSize = (state is ConcreteViewInitialized<
-                  MangaApiClient, MangaConcreteView, MangaGalleryView>)
-              ? state.groupIndex != -1
-                  ? concreteView.groups[state.groupIndex].elements.length
-                  : 0
+          final int groupSize = (initialized && currentGroupsIndex != -1)
+              ? concreteView!.groups[currentGroupsIndex].elements.length
               : 0;
 
           return Stack(
@@ -139,6 +137,7 @@ class MangaConcreteViewer extends StatelessWidget
             children: <Widget>[
               RefreshIndicator(
                 color: AppColors.primary,
+                backgroundColor: AppColors.backgroundColor,
                 onRefresh: () async {
                   await context
                       .read<
@@ -148,49 +147,57 @@ class MangaConcreteViewer extends StatelessWidget
                           forceRemote: true);
                 },
                 child: CustomScrollView(
-                  slivers: [
+                  slivers: <Widget>[
                     SliverList(
-                      delegate: SliverChildListDelegate([
-                        ...<Widget>[
-                          if (data.galleryCover != null) ...[
-                            _buildCover(data.galleryCover!, context),
-                            const SizedBox(
-                              height: 16,
-                            ),
-                          ],
-                          if (state is ConcreteViewInitialized<MangaApiClient,
-                              MangaConcreteView, MangaGalleryView>) ...<Widget>[
-                            if (data.galleryCover == null)
-                              _buildCover(concreteView.cover, context),
-                            const SizedBox(height: 16.0),
-                            _buildTitle(concreteView),
-                            const SizedBox(height: 16.0),
+                      delegate: SliverChildListDelegate(<Widget>[
+                        if (data.galleryCover != null)
+                          _buildCover(data.galleryCover!, context),
+                        if (initialized) ...<Widget>[
+                          if (data.galleryCover == null)
+                            _buildCover(concreteView!.cover, context),
+                          const SizedBox(height: 16),
+                          _buildTitle(concreteView!),
+                          if (concreteView.tags.isNotEmpty) ...<Widget>[
+                            const SizedBox(height: 16),
                             _buildTags(context, concreteView),
-                            const SizedBox(height: 16.0),
-                            _buildDescription(context, concreteView),
-                            const SizedBox(height: 16.0),
-                            _buildMangaProviderButtons(
-                                state, context, currentGroupsIndex),
-                            const Divider(
-                              thickness: 1,
-                              color: AppColors.secondary,
-                            ),
-                          ] else if (state is ConcreteViewError<MangaApiClient,
-                              MangaConcreteView, MangaGalleryView>) ...<Widget>[
-                            _buildErrorMessage(context, state)
-                          ] else ...<Widget>[
-                            _buildLoader(context),
                           ],
-                          const SizedBox(height: 16.0),
+                          if (concreteView.description.isNotEmpty) ...<Widget>[
+                            const SizedBox(height: 20),
+                            _buildDescription(context, concreteView),
+                          ],
+                          if (concreteView.groups.length > 1) ...<Widget>[
+                            const SizedBox(height: 20),
+                            ConcreteGroupSelector(
+                              titles: concreteView.groups
+                                  .map((ChaptersGroup g) => g.title)
+                                  .toList(),
+                              selectedIndex: currentGroupsIndex,
+                              onSelected: (int index) => context
+                                  .read<
+                                      ConcreteViewCubit<MangaApiClient,
+                                          MangaConcreteView, MangaGalleryView>>()
+                                  .changeGroup(index),
+                            ),
+                          ],
+                          const SizedBox(height: 20),
+                          ConcreteSectionHeader(
+                            title: S
+                                .current.concrete_viewer_chapters_section_title,
+                            count: groupSize,
+                          ),
+                        ] else if (state is ConcreteViewError<MangaApiClient,
+                            MangaConcreteView, MangaGalleryView>) ...<Widget>[
+                          _buildErrorMessage(context, state)
+                        ] else ...<Widget>[
+                          const ConcreteContentSkeleton(),
                         ],
                       ]),
                     ),
-                    SliverList.builder(
-                      itemCount: groupSize,
-                      itemBuilder: (BuildContext context, int index) {
-                        if (state is ConcreteViewInitialized<MangaApiClient,
-                            MangaConcreteView, MangaGalleryView>) {
-                          final Chapter chapter = concreteView
+                    if (initialized)
+                      SliverList.builder(
+                        itemCount: groupSize,
+                        itemBuilder: (BuildContext context, int index) {
+                          final Chapter chapter = concreteView!
                               .groups[currentGroupsIndex].elements[index];
                           return _buildChapter(
                             context: context,
@@ -201,18 +208,18 @@ class MangaConcreteViewer extends StatelessWidget
                                 state.chapterActivities[chapter.uid],
                             concreteViewInitialized: state,
                           );
-                        } else {
-                          return const SizedBox();
-                        }
-                      },
-                    ),
+                        },
+                      ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 24)),
                   ],
                 ),
               ),
-              if (state is ConcreteViewInitialized<MangaApiClient,
-                  MangaConcreteView, MangaGalleryView>) ...[
-                getSelectionOverlay(context, state),
-              ]
+              const Positioned(
+                top: 0,
+                left: 0,
+                child: ConcreteBackButton(),
+              ),
+              if (initialized) getSelectionOverlay(context, state),
             ],
           );
         },
@@ -220,34 +227,35 @@ class MangaConcreteViewer extends StatelessWidget
     );
   }
 
-  SizedBox _buildLoader(BuildContext context) {
-    return SizedBox(
-      height:
-          data.galleryCover == null ? MediaQuery.of(context).size.height : null,
-      width:
-          data.galleryCover == null ? MediaQuery.of(context).size.width : null,
-      child: const Center(
-        child: CircularProgressIndicator(
-          color: AppColors.primary,
-        ),
-      ),
-    );
-  }
-
-  SizedBox _buildErrorMessage(
+  Widget _buildErrorMessage(
       BuildContext context,
       ConcreteViewError<MangaApiClient, MangaConcreteView, MangaGalleryView>
           state) {
     return SizedBox(
-      height:
-          data.galleryCover == null ? MediaQuery.of(context).size.height : null,
-      width:
-          data.galleryCover == null ? MediaQuery.of(context).size.width : null,
-      child: Center(
-        child: Text(
-          state.message,
-          style: regular(size: 18, color: AppColors.red),
-        ),
+      height: MediaQuery.of(context).size.height * 0.6,
+      child: ServiceViewerMessage(
+        icon: Icons.error_outline_rounded,
+        title: S.current.concrete_viewer_error_title,
+        message: state.message,
+        actions: <Widget>[
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.mainBlack,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14)),
+            ),
+            onPressed: () => context
+                .read<
+                    ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                        MangaGalleryView>>()
+                .getConcrete(data.uid, data.galleryData, forceRemote: true),
+            icon: const Icon(Icons.refresh_rounded),
+            label: Text(S.current.concrete_viewer_retry_button),
+          ),
+        ],
       ),
     );
   }
@@ -261,87 +269,82 @@ class MangaConcreteViewer extends StatelessWidget
               MangaGalleryView>
           concreteViewInitialized,
       required ChapterActivityDomain? chapterActivityDomain}) {
-    return AnimatedOpacity(
-      duration: const Duration(milliseconds: 500),
-      opacity: chapterActivityDomain?.isCompleted == true ? 0.5 : 1.0,
-      child: ListTile(
-        selectedTileColor: AppColors.mediumLight.withOpacity(
-          0.15,
-        ),
-        selected: concreteViewInitialized.selection.contains(
-          chapter.uid,
-        ),
-        onLongPress: () {
-          context
-              .read<
-                  ConcreteViewCubit<MangaApiClient, MangaConcreteView,
-                      MangaGalleryView>>()
-              .changeSelection(
-                chapter.uid,
-              );
-        },
-        onTap: () {
-          if (concreteViewInitialized.selection.isEmpty) {
-            Navigator.of(context)
-                .pushNamed(
-              Routes.chapterViewer,
-              arguments: ChapterViewerData(
-                  initialPage: chapterActivityDomain?.readPages ?? 1,
-                  apiClient: data.client,
-                  chapter: chapter,
-                  concreteView: concreteViewInitialized.concreteView,
-                  group: group,
-                  configInfo: configInfo),
-            )
-                .then((_) {
-              context
-                  .read<
-                      ConcreteViewCubit<MangaApiClient, MangaConcreteView,
-                          MangaGalleryView>>()
-                  .updateActivities();
-            });
-          } else {
+    final bool hasProgress = chapterActivityDomain != null &&
+        chapterActivityDomain.totalPages != 0;
+    final double? progress = hasProgress
+        ? (chapterActivityDomain.readPages / chapterActivityDomain.totalPages)
+            .clamp(0.0, 1.0)
+        : null;
+
+    return ConcreteListTile(
+      title: chapter.title,
+      selected: concreteViewInitialized.selection.contains(chapter.uid),
+      dim: chapterActivityDomain?.isCompleted == true,
+      progress: progress,
+      subtitle: _buildChapterSubtitle(chapter, chapterActivityDomain),
+      onLongPress: () {
+        context
+            .read<
+                ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                    MangaGalleryView>>()
+            .changeSelection(chapter.uid);
+      },
+      onTap: () {
+        if (concreteViewInitialized.selection.isEmpty) {
+          Navigator.of(context)
+              .pushNamed(
+            Routes.chapterViewer,
+            arguments: ChapterViewerData(
+                initialPage: chapterActivityDomain?.readPages ?? 1,
+                apiClient: data.client,
+                chapter: chapter,
+                concreteView: concreteViewInitialized.concreteView,
+                group: group,
+                configInfo: configInfo),
+          )
+              .then((_) {
             context
                 .read<
                     ConcreteViewCubit<MangaApiClient, MangaConcreteView,
                         MangaGalleryView>>()
-                .changeSelection(
-                  chapter.uid,
-                );
-          }
-        },
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(chapter.title.trim(),
-                style: medium(size: 18, color: AppColors.mainWhite)),
-            ...<Widget>[
-              const SizedBox(height: 8.0),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  if (chapter.timestamp != null &&
-                      formatTimestamp(chapter).isNotEmpty)
-                    Text(
-                      formatTimestamp(chapter),
-                      style: regular(color: AppColors.mainGrey, size: 12),
-                    ),
-                  if (chapterActivityDomain != null &&
-                      chapterActivityDomain.totalPages != 0) ...<Widget>[
-                    const SizedBox(width: 8.0),
-                    Text(
-                      "${chapterActivityDomain.readPages}/${chapterActivityDomain.totalPages}",
-                      style: regular(color: AppColors.mainGrey, size: 12),
-                    ),
-                  ]
-                ],
-              )
-            ],
-          ],
-        ),
-      ),
+                .updateActivities();
+          });
+        } else {
+          context
+              .read<
+                  ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                      MangaGalleryView>>()
+              .changeSelection(chapter.uid);
+        }
+      },
+    );
+  }
+
+  Widget? _buildChapterSubtitle(
+      Chapter chapter, ChapterActivityDomain? activity) {
+    final bool hasTimestamp =
+        chapter.timestamp != null && formatTimestamp(chapter).isNotEmpty;
+    final bool hasProgress = activity != null && activity.totalPages != 0;
+
+    if (!hasTimestamp && !hasProgress) {
+      return null;
+    }
+
+    return Row(
+      children: <Widget>[
+        if (hasTimestamp)
+          Text(
+            formatTimestamp(chapter),
+            style: regular(color: AppColors.mainGrey, size: 12),
+          ),
+        if (hasTimestamp && hasProgress)
+          const Text('  ·  ', style: TextStyle(color: AppColors.mainGrey)),
+        if (hasProgress)
+          Text(
+            "${activity.readPages}/${activity.totalPages}",
+            style: regular(color: AppColors.mainGrey, size: 12),
+          ),
+      ],
     );
   }
 
@@ -352,52 +355,20 @@ class MangaConcreteViewer extends StatelessWidget
         : e.timestamp ?? '';
   }
 
-  Wrap _buildMangaProviderButtons(
-      ConcreteViewInitialized<MangaApiClient, MangaConcreteView,
-              MangaGalleryView>
-          state,
-      BuildContext context,
-      int currentGroupIndex) {
-    return Wrap(
-      alignment: WrapAlignment.center,
-      children: state.concreteView.groups.map((ChaptersGroup e) {
-        final int elementVideoGroupIndex = state.concreteView.groups.indexOf(e);
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-          child: MangaProviderButton(
-            title: e.title,
-            onClick: () {
-              context
-                  .read<
-                      ConcreteViewCubit<MangaApiClient, MangaConcreteView,
-                          MangaGalleryView>>()
-                  .changeGroup(elementVideoGroupIndex);
-            },
-            selected: currentGroupIndex == elementVideoGroupIndex,
-          ),
-        );
-      }).toList(),
-    );
-  }
-
   Widget _buildTitle(MangaConcreteView concreteView) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
-        children: [
-          Text(
-            concreteView.title,
-            textAlign: TextAlign.center,
-            style: semibold(size: 18),
-          ),
-          if (concreteView.alternativeTitles.isNotEmpty) ...[
-            const SizedBox(height: 8.0),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(concreteView.title, style: semibold(size: 22)),
+          if (concreteView.alternativeTitles.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 8),
             Text(
               concreteView.alternativeTitles.join(', '),
-              textAlign: TextAlign.center,
-              style: regular(size: 16),
+              style: regular(size: 14, color: AppColors.mainGrey),
             ),
-          ]
+          ],
         ],
       ),
     );
@@ -405,71 +376,43 @@ class MangaConcreteViewer extends StatelessWidget
 
   Widget _buildTags(BuildContext context, MangaConcreteView concreteView) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        child: Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          alignment: WrapAlignment.start,
-          children:
-              concreteView.tags.map((String e) => _buildTagCard(e)).toList(),
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: concreteView.tags
+            .map((String e) => ConcreteTagChip(label: e))
+            .toList(),
       ),
     );
   }
 
-  Card _buildTagCard(String e) {
-    return Card(
-        elevation: 8.0,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(e),
-        ));
-  }
-
   Widget _buildCover(String cover, BuildContext context) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
-      child: Stack(
-        children: <Widget>[
-          Hero(
-            tag: Heroes.galleryViewToConcreteView(data.uid),
-            child: Material(
-              child: ImageWidget(
-                uid: data.uid,
-                url: cover,
-                headers: data.coverHeaders,
-              ),
+    return Hero(
+      tag: Heroes.galleryViewToConcreteView(data.uid),
+      flightShuttleBuilder: Heroes.crossfadeFlightShuttle,
+      child: Material(
+        type: MaterialType.transparency,
+        child: Stack(
+          children: <Widget>[
+            ImageWidget(
+              uid: data.uid,
+              url: cover,
+              headers: data.coverHeaders,
             ),
-          ),
-          Container(
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-                gradient: RadialGradient(radius: 2, colors: <Color>[
-              Colors.transparent,
-              AppColors.mainBlack.withOpacity(1)
-            ])),
-          )
-        ],
+            const Positioned.fill(child: ConcreteCoverScrim()),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildDescription(
       BuildContext context, MangaConcreteView concreteView) {
-    if (concreteView.description.isEmpty) {
-      return const SizedBox();
-    }
-    return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-        child: Text(
-          concreteView.description.replaceAll('\\n', '\n\n').trim(),
-          textAlign: TextAlign.left,
-          style: regular(size: 16),
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ExpandableDescription(
+        text: concreteView.description.replaceAll('\\n', '\n\n').trim(),
       ),
     );
   }
