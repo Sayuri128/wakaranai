@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/text_styles.dart';
 
 class OutlinedTextFormField extends StatelessWidget {
   const OutlinedTextFormField({
@@ -17,65 +18,38 @@ class OutlinedTextFormField extends StatelessWidget {
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
 
+  OutlineInputBorder _border(Color color, {double width = 1}) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: color, width: width),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-        controller: controller,
-        onChanged: onChanged,
-        validator: validator,
-        cursorColor: AppColors.secondary,
-        decoration: InputDecoration(
-          labelText: title,
-          labelStyle: const TextStyle(
-            color: AppColors.mainWhite,
-          ),
-          errorStyle: const TextStyle(
-            color: AppColors.red,
-          ),
-          hintText: hint,
-          hintStyle: const TextStyle(
-            color: AppColors.mainGrey,
-          ),
-          focusColor: AppColors.secondary,
-          iconColor: AppColors.secondary,
-          fillColor: AppColors.secondary,
-          hoverColor: AppColors.secondary,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(
-              color: AppColors.secondary,
-            ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(
-              color: AppColors.secondary,
-            ),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(
-              color: AppColors.red,
-            ),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(
-              color: AppColors.red,
-            ),
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-              color: AppColors.secondary.withOpacity(0.25),
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(
-              color: AppColors.secondary,
-            ),
-          ),
-        ));
+      controller: controller,
+      onChanged: onChanged,
+      validator: validator,
+      cursorColor: AppColors.primary,
+      style: medium(size: 15),
+      decoration: InputDecoration(
+        labelText: title,
+        labelStyle: regular(size: 14, color: AppColors.mainGrey),
+        floatingLabelStyle: medium(size: 14, color: AppColors.primary),
+        hintText: hint,
+        hintStyle: regular(size: 14, color: AppColors.mainGrey),
+        errorStyle: regular(size: 12, color: AppColors.red),
+        filled: true,
+        fillColor: Colors.white.withValues(alpha: 0.04),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        enabledBorder: _border(Colors.white.withValues(alpha: 0.10)),
+        focusedBorder: _border(AppColors.primary, width: 1.5),
+        errorBorder: _border(AppColors.red),
+        focusedErrorBorder: _border(AppColors.red, width: 1.5),
+        disabledBorder: _border(Colors.white.withValues(alpha: 0.06)),
+      ),
+    );
   }
 }

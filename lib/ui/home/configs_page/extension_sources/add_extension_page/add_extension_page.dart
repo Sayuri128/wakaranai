@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page_arguments.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page_result.dart';
-import 'package:wakaranai/ui/widgets/elevated_appbar.dart';
 import 'package:wakaranai/ui/widgets/outlined_text_form_field.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/github_url_parser.dart';
@@ -37,60 +36,42 @@ class _AddExtensionPageState extends State<AddExtensionPage> {
   void dispose() {
     _nameController.dispose();
     _urlController.dispose();
-
     super.dispose();
+  }
+
+  void _submit() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.of(context).pop(
+        AddExtensionPageResult(
+          name: _nameController.text,
+          url: _urlController.text,
+          type: widget.arguments.type,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.primary,
-        onPressed: () {
-          if (_formKey.currentState!.validate()) {
-            Navigator.of(context).pop(
-              AddExtensionPageResult(
-                name: _nameController.text,
-                url: _urlController.text,
-                type: widget.arguments.type,
-              ),
-            );
-          }
-        },
-        child: const Icon(Icons.check),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-        ),
-        child: CustomScrollView(
-          slivers: [
-            ElevatedAppbar(
-              leading: IconButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                icon: const Icon(
-                  Icons.arrow_back_rounded,
-                  color: AppColors.mainWhite,
-                ),
-              ),
-              title: Text(
-                widget.arguments.update
-                    ? S.current.add_extension_source_page_appbar_edit_title
-                    : S.current.add_extension_source_page_appbar_title,
-                style: medium(size: 24),
-              ),
-            ),
-            SliverToBoxAdapter(
+      bottomNavigationBar: _buildSubmitButton(),
+      body: CustomScrollView(
+        slivers: <Widget>[
+          _buildAppBar(),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Form(
                 key: _formKey,
                 child: Column(
-                  children: [
-                    const SizedBox(
-                      height: 48,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      S.current.add_extension_source_page_description,
+                      style: regular(size: 14, color: AppColors.mainGrey),
                     ),
+                    const SizedBox(height: 28),
                     OutlinedTextFormField(
                       controller: _urlController,
                       validator: (value) {
@@ -98,23 +79,17 @@ class _AddExtensionPageState extends State<AddExtensionPage> {
                           return S.current
                               .add_extension_source_page_url_field_error_text;
                         }
-
-                        final githubParser = GithubUrlParser(url: value);
-                        if (githubParser.parse() == null) {
+                        if (GithubUrlParser(url: value).parse() == null) {
                           return S.current
                               .add_extension_source_page_url_field_error_text;
                         }
-
                         return null;
                       },
-                      title:
-                          S.current.add_extension_source_page_url_field_label,
-                      hint: S.current
-                          .add_extension_source_page_url_field_hint_text,
+                      title: S.current.add_extension_source_page_url_field_label,
+                      hint: S
+                          .current.add_extension_source_page_url_field_hint_text,
                     ),
-                    const SizedBox(
-                      height: 48,
-                    ),
+                    const SizedBox(height: 20),
                     OutlinedTextFormField(
                       controller: _nameController,
                       validator: (value) {
@@ -122,7 +97,6 @@ class _AddExtensionPageState extends State<AddExtensionPage> {
                           return S.current
                               .add_extension_source_page_name_field_error_text;
                         }
-
                         return null;
                       },
                       title:
@@ -134,7 +108,57 @@ class _AddExtensionPageState extends State<AddExtensionPage> {
                 ),
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return SliverAppBar(
+      backgroundColor: AppColors.backgroundColor,
+      surfaceTintColor: AppColors.backgroundColor,
+      foregroundColor: AppColors.mainWhite,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      pinned: true,
+      centerTitle: false,
+      titleSpacing: 0,
+      leading: IconButton(
+        onPressed: () => Navigator.of(context).pop(),
+        icon: const Icon(Icons.arrow_back_rounded, color: AppColors.mainWhite),
+      ),
+      title: Text(
+        widget.arguments.update
+            ? S.current.add_extension_source_page_appbar_edit_title
+            : S.current.add_extension_source_page_appbar_title,
+        style: semibold(size: 22),
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.mainBlack,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14)),
+            ),
+            onPressed: _submit,
+            child: Text(
+              widget.arguments.update
+                  ? S.current.add_extension_source_page_update_button_title
+                  : S.current.add_extension_source_page_add_button_title,
+              style: semibold(size: 16, color: AppColors.mainBlack),
+            ),
+          ),
         ),
       ),
     );

@@ -71,6 +71,10 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Edit Source"),
     "add_extension_source_page_appbar_title":
         MessageLookupByLibrary.simpleMessage("Add Source"),
+    "add_extension_source_page_description":
+        MessageLookupByLibrary.simpleMessage(
+          "Add a GitHub repository that hosts Wakaranai extensions.",
+        ),
     "add_extension_source_page_name_field_error_text":
         MessageLookupByLibrary.simpleMessage("Invalid name"),
     "add_extension_source_page_name_field_hint_text":
@@ -139,6 +143,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "extension_sources_page_appbar_title": MessageLookupByLibrary.simpleMessage(
       "Repositories",
     ),
+    "extension_sources_page_default_badge":
+        MessageLookupByLibrary.simpleMessage("Default"),
     "extension_sources_page_error_loading_sources":
         MessageLookupByLibrary.simpleMessage(
           "Error occurred during loading sources",
@@ -147,6 +153,9 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Wakaranai Extensions"),
     "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Anime"),
     "home_configs_source_initializing_error": m2,
+    "home_extensions_error_title": MessageLookupByLibrary.simpleMessage(
+      "Couldn\'t load extensions",
+    ),
     "home_fetching_mangas_configs_error": MessageLookupByLibrary.simpleMessage(
       "Error occurred during fetching manga configs",
     ),
@@ -159,9 +168,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_navigation_bar_sources_title": MessageLookupByLibrary.simpleMessage(
       "Explore",
     ),
+    "home_no_extensions_message": MessageLookupByLibrary.simpleMessage(
+      "This source doesn\'t have any extensions yet",
+    ),
+    "home_no_extensions_title": MessageLookupByLibrary.simpleMessage(
+      "No extensions",
+    ),
     "home_nsfw_suffix": MessageLookupByLibrary.simpleMessage("NSFW"),
     "home_remote_configs_page_appbar_title":
         MessageLookupByLibrary.simpleMessage("Extensions"),
+    "home_sources_button": MessageLookupByLibrary.simpleMessage("Sources"),
     "service_view_clear_search": MessageLookupByLibrary.simpleMessage("Clear"),
     "service_view_empty_message": MessageLookupByLibrary.simpleMessage(
       "Pull down to refresh",

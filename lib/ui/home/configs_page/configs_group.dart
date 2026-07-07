@@ -12,7 +12,7 @@ import 'package:wakaranai/utils/text_styles.dart';
 
 import '../../routes.dart';
 
-class ConfigsGroup extends StatelessWidget {
+class ConfigsGroup extends StatefulWidget {
   const ConfigsGroup(
       {super.key, required this.title, required this.remoteConfigs});
 
@@ -20,28 +20,75 @@ class ConfigsGroup extends StatelessWidget {
   final List<BaseExtension> remoteConfigs;
 
   @override
+  State<ConfigsGroup> createState() => _ConfigsGroupState();
+}
+
+class _ConfigsGroupState extends State<ConfigsGroup> {
+  bool _expanded = true;
+
+  @override
   Widget build(BuildContext context) {
-    return SliverList(
-      delegate: SliverChildListDelegate(
-        <Widget>[
-          const SizedBox(height: 16.0),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(title,
-                style: semibold(size: 18, color: AppColors.mainWhite)),
+    return SliverToBoxAdapter(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          _buildHeader(),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            child: _expanded
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      ...widget.remoteConfigs.map(
+                        (BaseExtension e) => ConfigCard(
+                          configInfo: e.config,
+                          onTap: () => _onCardClick(context, e),
+                        ),
+                      ),
+                    ],
+                  )
+                : const SizedBox(width: double.infinity),
           ),
-          const SizedBox(height: 16.0),
-          ...remoteConfigs.map(
-            (BaseExtension e) => ConfigCard(
-              configInfo: e.config,
-              onTap: () {
-                _onCardClick(context, e);
-              },
-            ),
-          ),
-          const SizedBox(height: 16.0),
         ],
       ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return InkWell(
+      onTap: () => setState(() => _expanded = !_expanded),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 8.0),
+        child: Row(
+          children: <Widget>[
+            Text(widget.title,
+                style: semibold(size: 18, color: AppColors.mainWhite)),
+            const SizedBox(width: 8),
+            _buildCountBadge(widget.remoteConfigs.length),
+            const Spacer(),
+            AnimatedRotation(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+              turns: _expanded ? 0.5 : 0.0,
+              child: const Icon(Icons.keyboard_arrow_down_rounded,
+                  color: AppColors.mainGrey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCountBadge(int count) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text('$count', style: medium(size: 12, color: AppColors.mainGrey)),
     );
   }
 

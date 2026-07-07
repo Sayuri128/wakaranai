@@ -95,6 +95,46 @@ class S {
     );
   }
 
+  /// `Sources`
+  String get home_sources_button {
+    return Intl.message(
+      'Sources',
+      name: 'home_sources_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No extensions`
+  String get home_no_extensions_title {
+    return Intl.message(
+      'No extensions',
+      name: 'home_no_extensions_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This source doesn't have any extensions yet`
+  String get home_no_extensions_message {
+    return Intl.message(
+      'This source doesn\'t have any extensions yet',
+      name: 'home_no_extensions_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load extensions`
+  String get home_extensions_error_title {
+    return Intl.message(
+      'Couldn\'t load extensions',
+      name: 'home_extensions_error_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Explore`
   String get home_navigation_bar_sources_title {
     return Intl.message(
@@ -150,6 +190,16 @@ class S {
     return Intl.message(
       'Repositories',
       name: 'extension_sources_page_appbar_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Default`
+  String get extension_sources_page_default_badge {
+    return Intl.message(
+      'Default',
+      name: 'extension_sources_page_default_badge',
       desc: '',
       args: [],
     );
@@ -240,6 +290,16 @@ class S {
     return Intl.message(
       'Cancel',
       name: 'extension_source_page_remove_source_dialog_cancel_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add a GitHub repository that hosts Wakaranai extensions.`
+  String get add_extension_source_page_description {
+    return Intl.message(
+      'Add a GitHub repository that hosts Wakaranai extensions.',
+      name: 'add_extension_source_page_description',
       desc: '',
       args: [],
     );

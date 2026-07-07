@@ -12,110 +12,115 @@ class ConfigCard extends StatelessWidget {
   final VoidCallback? onTap;
   final ConfigInfo configInfo;
 
+  static const Map<String, String> _logoHeaders = <String, String>{
+    "user-agent":
+        "Mozilla/5.0 (Linux; Android 9; SM-G960N Build/PQ3B.190801.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/91.0.4472.114 Safari/537.36"
+  };
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: InkWell(
-        splashColor: AppColors.mediumLight.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(8.0),
-        onTap: onTap,
-        child: Ink(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8.0),
-            color: AppColors.backgroundColor,
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.shadowColor,
-                offset: const Offset(0, 2),
-                blurRadius: 4.0,
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.backgroundColor,
-                    borderRadius: BorderRadius.circular(8.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.shadowColor,
-                        offset: const Offset(0, 2),
-                        blurRadius: 4.0,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Material(
+        color: Colors.white.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          splashColor: AppColors.mediumLight.withValues(alpha: 0.2),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: <Widget>[
+                _buildLogo(),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        configInfo.name.trim(),
+                        style: semibold(size: 16),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: <Widget>[
+                          if (configInfo.language.trim().isNotEmpty)
+                            _buildChip(configInfo.language.trim()),
+                          if (configInfo.nsfw)
+                            _buildChip(S.current.home_nsfw_suffix,
+                                color: AppColors.red),
+                        ],
                       ),
                     ],
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.0),
-                    child: configInfo.logoUrl.contains('.svg')
-                        ? SvgPicture.network(configInfo.logoUrl,
-                            height: 64,
-                            fit: BoxFit.cover,
-                            placeholderBuilder: (BuildContext context) =>
-                                _buildSourceLogoPlaceholder(),
-                            headers: const <String, String>{
-                                "user-agent":
-                                    "Mozilla/5.0 (Linux; Android 9; SM-G960N Build/PQ3B.190801.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/91.0.4472.114 Safari/537.36"
-                              })
-                        : CachedNetworkImage(
-                            imageUrl: configInfo.logoUrl,
-                            height: 64,
-                            fit: BoxFit.cover,
-                            placeholder: (BuildContext context, String url) =>
-                                _buildSourceLogoPlaceholder(),
-                            errorWidget: (BuildContext context, String url,
-                                    Object error) =>
-                                _buildSourceLogoPlaceholder(),
-                            httpHeaders: const <String, String>{
-                              "user-agent":
-                                  "Mozilla/5.0 (Linux; Android 9; SM-G960N Build/PQ3B.190801.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/91.0.4472.114 Safari/537.36"
-                            },
-                          ),
-                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Row(
-                      children: [
-                        Text(configInfo.name.trim(), style: medium(size: 16)),
-                        if (configInfo.nsfw) ...[
-                          const SizedBox(width: 8),
-                          Text(
-                            S.current.home_nsfw_suffix,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: AppColors.red,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ]
-                      ],
-                    ),
-                    Text(configInfo.language.trim(), style: regular(size: 14)),
-                  ],
-                ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                const Icon(Icons.chevron_right_rounded,
+                    color: AppColors.mainGrey),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildSourceLogoPlaceholder() {
+  Widget _buildLogo() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: SizedBox(
+        width: 56,
+        height: 56,
+        child: configInfo.logoUrl.contains('.svg')
+            ? SvgPicture.network(
+                configInfo.logoUrl,
+                fit: BoxFit.cover,
+                placeholderBuilder: (BuildContext context) =>
+                    _buildLogoPlaceholder(),
+                headers: _logoHeaders,
+              )
+            : CachedNetworkImage(
+                imageUrl: configInfo.logoUrl,
+                fit: BoxFit.cover,
+                placeholder: (BuildContext context, String url) =>
+                    _buildLogoPlaceholder(),
+                errorWidget:
+                    (BuildContext context, String url, Object error) =>
+                        _buildLogoPlaceholder(),
+                httpHeaders: _logoHeaders,
+              ),
+      ),
+    );
+  }
+
+  Widget _buildLogoPlaceholder() {
+    return const ColoredBox(
+      color: Color(0xFF3A3A3A),
+      child: Center(
+        child: Icon(Icons.extension_rounded, color: Colors.white24, size: 24),
+      ),
+    );
+  }
+
+  Widget _buildChip(String label, {Color? color}) {
+    final Color tint = color ?? AppColors.mainGrey;
     return Container(
-      height: 64,
-      width: 64,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-          color: AppColors.backgroundColor,
-          borderRadius: BorderRadius.circular(16.0)),
+        color: tint.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label,
+        style: medium(size: 11, color: color ?? AppColors.mainWhite),
+      ),
     );
   }
 }
