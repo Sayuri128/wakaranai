@@ -258,7 +258,10 @@ class MangaConcreteViewer extends StatelessWidget
                           );
                         },
                       ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                          height: 24 + MediaQuery.of(context).padding.bottom),
+                    ),
                   ],
                 ),
               ),

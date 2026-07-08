@@ -128,7 +128,8 @@ class MangaServiceViewBody extends StatelessWidget {
       physics: const BouncingScrollPhysics(
         parent: AlwaysScrollableScrollPhysics(),
       ),
-      padding: kGalleryGridPadding,
+      padding: kGalleryGridPadding +
+          EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       gridDelegate: kGalleryGridDelegate,
       itemCount: stateInitialized.galleryViews.length,
       itemBuilder: (BuildContext context, int index) {
