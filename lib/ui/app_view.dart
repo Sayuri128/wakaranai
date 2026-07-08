@@ -6,6 +6,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wakaranai/blocs/auth/authentication_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/repositories/database/extension_source_repository.dart';
+import 'package:wakaranai/services/configs_service/extension_resolver.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page_arguments.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/my_extension_sources_page.dart';
@@ -110,7 +113,11 @@ class _AppViewState extends State<AppView> {
                   animeEpisodeActivityRepository:
                       RepositoryProvider.of(context),
                   concreteDataRepository: RepositoryProvider.of(context),
-                  extensionRepository: RepositoryProvider.of(context),
+                  extensionResolver: ExtensionResolver(
+                    extensionRepository: context.read<ExtensionRepository>(),
+                    extensionSourceRepository:
+                        context.read<ExtensionSourceRepository>(),
+                  ),
                 )..init(),
                 child: const StatsPage(),
               ),

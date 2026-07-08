@@ -1,11 +1,18 @@
 import 'dart:async';
 
+import 'package:capyscript/api_clients/anime_api_client.dart';
+import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/database/category_domain.dart';
+import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
+import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/category_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
 import 'package:wakaranai/repositories/database/library_update_repository.dart';
+import 'package:wakaranai/services/configs_service/extension_resolver.dart';
 
 part 'library_state.dart';
 
@@ -16,14 +23,20 @@ class LibraryCubit extends Cubit<LibraryState> {
     required this.libraryEntryRepository,
     required this.categoryRepository,
     required this.libraryUpdateRepository,
+    required this.extensionResolver,
   }) : super(const LibraryState());
 
   final LibraryEntryRepository libraryEntryRepository;
   final CategoryRepository categoryRepository;
   final LibraryUpdateRepository libraryUpdateRepository;
+  final ExtensionResolver extensionResolver;
 
   StreamSubscription<List<LibraryEntryDomain>>? _entriesSub;
   StreamSubscription<List<CategoryDomain>>? _categoriesSub;
+
+  final Map<String, Map<String, String>> _headersByExtension =
+      <String, Map<String, String>>{};
+  final Set<String> _resolvingExtensions = <String>{};
 
   void init() {
     _entriesSub?.cancel();
@@ -32,6 +45,7 @@ class LibraryCubit extends Cubit<LibraryState> {
     _entriesSub = libraryEntryRepository.watchAll().listen(
       (List<LibraryEntryDomain> entries) {
         emit(state.copyWith(entries: entries, loading: false));
+        _ensureCoverHeaders(entries);
       },
     );
 
@@ -40,6 +54,48 @@ class LibraryCubit extends Cubit<LibraryState> {
         emit(state.copyWith(categories: categories));
       },
     );
+  }
+
+  Future<void> _ensureCoverHeaders(List<LibraryEntryDomain> entries) async {
+    final Map<String, LibraryEntryDomain> pending =
+        <String, LibraryEntryDomain>{};
+    for (final LibraryEntryDomain entry in entries) {
+      if (_headersByExtension.containsKey(entry.extensionUid)) continue;
+      if (_resolvingExtensions.contains(entry.extensionUid)) continue;
+      pending.putIfAbsent(entry.extensionUid, () => entry);
+    }
+    if (pending.isEmpty) return;
+
+    for (final MapEntry<String, LibraryEntryDomain> e in pending.entries) {
+      _resolvingExtensions.add(e.key);
+      try {
+        final Map<String, String> headers = await _resolveHeaders(e.value);
+        _headersByExtension[e.key] = headers;
+        if (!isClosed) {
+          emit(state.copyWith(
+            coverHeaders: Map<String, Map<String, String>>.of(
+                _headersByExtension),
+          ));
+        }
+      } catch (error, stack) {
+        logger.w('Failed to resolve cover headers for ${e.key}: $error');
+        logger.w(stack);
+      } finally {
+        _resolvingExtensions.remove(e.key);
+      }
+    }
+  }
+
+  Future<Map<String, String>> _resolveHeaders(LibraryEntryDomain entry) async {
+    final ExtensionDomain? extension =
+        await extensionResolver.resolve(entry.extensionUid);
+    if (extension == null) return const <String, String>{};
+
+    final ApiClient client = extension.config.type == ConfigInfoType.MANGA
+        ? MangaApiClient(code: extension.sourceCode)
+        : AnimeApiClient(code: extension.sourceCode);
+
+    return client.getImageHeaders(uid: entry.uid, data: entry.dataJson);
   }
 
   bool isFavorite(String uid) {

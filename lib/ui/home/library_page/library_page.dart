@@ -355,6 +355,7 @@ class _LibraryPageState extends State<LibraryPage> {
                     final LibraryEntryDomain entry = entries[index];
                     return _LibraryCard(
                       entry: entry,
+                      headers: state.coverHeaders[entry.extensionUid],
                       selected: _selected.contains(entry.uid),
                       selectionMode: _selectionMode,
                       onTap: () => _selectionMode
@@ -788,6 +789,7 @@ class _SelectionAction extends StatelessWidget {
 class _LibraryCard extends StatelessWidget {
   const _LibraryCard({
     required this.entry,
+    required this.headers,
     required this.selected,
     required this.selectionMode,
     required this.onTap,
@@ -796,6 +798,7 @@ class _LibraryCard extends StatelessWidget {
   });
 
   final LibraryEntryDomain entry;
+  final Map<String, String>? headers;
   final bool selected;
   final bool selectionMode;
   final VoidCallback onTap;
@@ -808,8 +811,9 @@ class _LibraryCard extends StatelessWidget {
       children: <Widget>[
         Positioned.fill(
           child: GalleryViewCard(
+            key: ValueKey<bool>(headers != null),
             uid: entry.uid,
-            headers: const <String, String>{},
+            headers: headers ?? const <String, String>{},
             cover: entry.cover ?? '',
             title: entry.title,
             onTap: onTap,

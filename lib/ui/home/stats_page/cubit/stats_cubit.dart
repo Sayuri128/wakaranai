@@ -6,7 +6,7 @@ import 'package:wakaranai/data/domain/ui/reading_stats.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
-import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/services/configs_service/extension_resolver.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
 
 part 'stats_state.dart';
@@ -16,13 +16,13 @@ class StatsCubit extends Cubit<StatsState> {
     required this.chapterActivityRepository,
     required this.animeEpisodeActivityRepository,
     required this.concreteDataRepository,
-    required this.extensionRepository,
+    required this.extensionResolver,
   }) : super(StatsInitial());
 
   final ChapterActivityRepository chapterActivityRepository;
   final AnimeEpisodeActivityRepository animeEpisodeActivityRepository;
   final ConcreteDataRepository concreteDataRepository;
-  final ExtensionRepository extensionRepository;
+  final ExtensionResolver extensionResolver;
 
   final SettingsService _settingsService = SettingsService();
 
@@ -130,7 +130,7 @@ class StatsCubit extends Cubit<StatsState> {
     Future<String> nameFor(String extensionUid) async {
       final String? cached = extensionNames[extensionUid];
       if (cached != null) return cached;
-      final extension = await extensionRepository.getByUid(extensionUid);
+      final extension = await extensionResolver.resolve(extensionUid);
       final String name = extension?.config.name ?? extensionUid;
       extensionNames[extensionUid] = name;
       return name;

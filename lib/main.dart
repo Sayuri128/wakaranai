@@ -13,7 +13,9 @@ import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
+import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
+import 'package:wakaranai/services/configs_service/extension_resolver.dart';
 import 'package:wakaranai/repositories/database/repository_providers.dart';
 import 'package:wakaranai/services/background/background_tasks.dart';
 import 'package:wakaranai/services/import_export/import_export_service.dart';
@@ -83,6 +85,11 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
               libraryEntryRepository: RepositoryProvider.of(context),
               categoryRepository: RepositoryProvider.of(context),
               libraryUpdateRepository: RepositoryProvider.of(context),
+              extensionResolver: ExtensionResolver(
+                extensionRepository: context.read<ExtensionRepository>(),
+                extensionSourceRepository:
+                    context.read<ExtensionSourceRepository>(),
+              ),
             )..init(),
           ),
           BlocProvider<LibraryUpdatesCubit>(

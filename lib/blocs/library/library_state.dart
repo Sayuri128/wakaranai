@@ -6,6 +6,7 @@ class LibraryState {
   final LibrarySort sort;
   final String searchQuery;
   final bool loading;
+  final Map<String, Map<String, String>> coverHeaders;
 
   const LibraryState({
     this.entries = const <LibraryEntryDomain>[],
@@ -13,6 +14,7 @@ class LibraryState {
     this.sort = LibrarySort.addedNewest,
     this.searchQuery = '',
     this.loading = true,
+    this.coverHeaders = const <String, Map<String, String>>{},
   });
 
   bool get searching => searchQuery.isNotEmpty;
@@ -47,6 +49,7 @@ class LibraryState {
     LibrarySort? sort,
     String? searchQuery,
     bool? loading,
+    Map<String, Map<String, String>>? coverHeaders,
   }) {
     return LibraryState(
       entries: entries ?? this.entries,
@@ -54,6 +57,7 @@ class LibraryState {
       sort: sort ?? this.sort,
       searchQuery: searchQuery ?? this.searchQuery,
       loading: loading ?? this.loading,
+      coverHeaders: coverHeaders ?? this.coverHeaders,
     );
   }
 }
