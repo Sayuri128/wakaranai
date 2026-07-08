@@ -142,6 +142,7 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
                 mangaActivityHistoryCubit:
                     context.read<MangaActivityHistoryCubit>(),
                 themeCubit: context.read<ThemeCubit>(),
+                libraryCubit: context.read<LibraryCubit>(),
                 importExportService: ImportExportService(
                   concreteDataRepository: RepositoryProvider.of(context),
                   chapterActivityRepository: RepositoryProvider.of(context),

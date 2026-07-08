@@ -7,6 +7,8 @@ import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/repositories/database/extension_source_repository.dart';
+import 'package:wakaranai/services/configs_service/extension_resolver.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
 import 'package:wakaranai/ui/services/anime/anime_concrete_viewer/anime_concrete_viewer.dart';
@@ -19,15 +21,31 @@ class LibraryConcreteViewerData {
   const LibraryConcreteViewerData({required this.entry});
 }
 
-class LibraryConcreteViewer extends StatelessWidget {
+class LibraryConcreteViewer extends StatefulWidget {
   const LibraryConcreteViewer({super.key, required this.data});
 
   final LibraryConcreteViewerData data;
 
   @override
+  State<LibraryConcreteViewer> createState() => _LibraryConcreteViewerState();
+}
+
+class _LibraryConcreteViewerState extends State<LibraryConcreteViewer> {
+  late final Future<ExtensionDomain?> _extension;
+
+  @override
+  void initState() {
+    super.initState();
+    _extension = ExtensionResolver(
+      extensionRepository: context.read<ExtensionRepository>(),
+      extensionSourceRepository: context.read<ExtensionSourceRepository>(),
+    ).resolve(widget.data.entry.extensionUid);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<ExtensionDomain?>(
-      future: context.read<ExtensionRepository>().getByUid(data.entry.extensionUid),
+      future: _extension,
       builder: (BuildContext context, AsyncSnapshot<ExtensionDomain?> snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return Scaffold(
@@ -56,10 +74,10 @@ class LibraryConcreteViewer extends StatelessWidget {
             builder: (MangaApiClient client, ConfigInfo configInfo) =>
                 MangaConcreteViewer(
               data: MangaConcreteViewerData(
-                uid: data.entry.uid,
+                uid: widget.data.entry.uid,
                 coverHeaders: const <String, String>{},
-                galleryCover: data.entry.cover,
-                galleryData: data.entry.dataJson,
+                galleryCover: widget.data.entry.cover,
+                galleryData: widget.data.entry.dataJson,
                 client: client,
                 configInfo: configInfo,
                 fromLibrary: true,
@@ -73,9 +91,9 @@ class LibraryConcreteViewer extends StatelessWidget {
           builder: (AnimeApiClient client, ConfigInfo configInfo) =>
               AnimeConcreteViewer(
             data: AnimeConcreteViewerData(
-              uid: data.entry.uid,
-              galleryData: data.entry.dataJson,
-              galleryCover: data.entry.cover,
+              uid: widget.data.entry.uid,
+              galleryData: widget.data.entry.dataJson,
+              galleryCover: widget.data.entry.cover,
               client: client,
               configInfo: configInfo,
               fromLibrary: true,

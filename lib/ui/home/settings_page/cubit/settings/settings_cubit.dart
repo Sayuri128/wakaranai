@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/data/domain/import_export/import_export_model.dart';
@@ -69,6 +70,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       required this.animeActivityHistoryCubit,
       required this.importExportService,
       required this.themeCubit,
+      required this.libraryCubit,
       required this.database,
       ImportExportNotificationService? notificationService})
       : notificationService =
@@ -79,6 +81,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   final ImportExportService importExportService;
   final ImportExportNotificationService notificationService;
   final ThemeCubit themeCubit;
+  final LibraryCubit libraryCubit;
   final MangaActivityHistoryCubit mangaActivityHistoryCubit;
   final AnimeActivityHistoryCubit animeActivityHistoryCubit;
 
@@ -421,6 +424,10 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> _refreshAfterImport(Set<ExportSection> sections) async {
     if (sections.contains(ExportSection.sources)) {
       remoteConfigsCubit.init();
+    }
+    if (sections.contains(ExportSection.library) ||
+        sections.contains(ExportSection.categories)) {
+      libraryCubit.init();
     }
     if (sections.contains(ExportSection.history)) {
       animeActivityHistoryCubit.init();
