@@ -18,6 +18,38 @@
   "home_navigation_bar_sources_title": "Explore",
   "home_navigation_bar_activity_history_title": "History",
   "home_navigation_bar_settings_title": "Settings",
+  "home_navigation_bar_library_title": "Library",
+  "library_empty_title": "Your library is empty",
+  "library_empty_message": "Tap the heart on a title to add it here",
+  "library_category_all": "All",
+  "library_category_uncategorized": "Uncategorized",
+  "library_sort_title": "Sort by",
+  "library_sort_added_newest": "Recently added",
+  "library_sort_added_oldest": "Oldest added",
+  "library_sort_alphabetical": "Title",
+  "library_sort_last_read": "Last read",
+  "library_manage_categories": "Manage categories",
+  "library_add_category": "Add category",
+  "library_category_name_hint": "Category name",
+  "library_rename_category": "Rename",
+  "library_delete_category": "Delete",
+  "library_move_to_category": "Move to category",
+  "library_remove": "Remove from library",
+  "library_no_category": "No category",
+  "library_source_unavailable_title": "Source unavailable",
+  "library_source_unavailable_message": "The extension for this title is no longer installed",
+  "library_selected_count": "{count} selected",
+  "@library_selected_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "library_select_all": "Select all",
+  "common_add": "Add",
+  "common_cancel": "Cancel",
+  "common_save": "Save",
   "home_fetching_mangas_configs_error": "Error occurred during fetching manga configs",
   "home_configs_source_initializing_error": "Error occurred during initializing configs {name} source",
   "@_EXTENSION_SOURCES_PAGE": {},

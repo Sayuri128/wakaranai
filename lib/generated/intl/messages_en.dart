@@ -27,13 +27,15 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m2(name) =>
       "Error occurred during initializing configs ${name} source";
 
-  static String m3(query) => "We couldn\'t find anything for “${query}”";
+  static String m3(count) => "${count} selected";
 
-  static String m4(query) => "Results for “${query}”";
+  static String m4(query) => "We couldn\'t find anything for “${query}”";
 
-  static String m5(version) => "New version ${version} available";
+  static String m5(query) => "Results for “${query}”";
 
-  static String m6(IMPORTED, TOTAL) =>
+  static String m6(version) => "New version ${version} available";
+
+  static String m7(IMPORTED, TOTAL) =>
       "Activity history imported ${IMPORTED} out of ${TOTAL} activities";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -106,7 +108,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "chapter_viewer_right_to_left_read_mode":
         MessageLookupByLibrary.simpleMessage("Right to left"),
     "chapter_viewer_webtoon": MessageLookupByLibrary.simpleMessage("Webtoon"),
+    "common_add": MessageLookupByLibrary.simpleMessage("Add"),
+    "common_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
     "common_ok_button": MessageLookupByLibrary.simpleMessage("OK"),
+    "common_save": MessageLookupByLibrary.simpleMessage("Save"),
     "concrete_selection_clear": MessageLookupByLibrary.simpleMessage("Clear"),
     "concrete_selection_count": m1,
     "concrete_selection_invert": MessageLookupByLibrary.simpleMessage("Invert"),
@@ -177,6 +182,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_manga_group_title": MessageLookupByLibrary.simpleMessage("Manga"),
     "home_navigation_bar_activity_history_title":
         MessageLookupByLibrary.simpleMessage("History"),
+    "home_navigation_bar_library_title": MessageLookupByLibrary.simpleMessage(
+      "Library",
+    ),
     "home_navigation_bar_settings_title": MessageLookupByLibrary.simpleMessage(
       "Settings",
     ),
@@ -193,6 +201,51 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_remote_configs_page_appbar_title":
         MessageLookupByLibrary.simpleMessage("Extensions"),
     "home_sources_button": MessageLookupByLibrary.simpleMessage("Sources"),
+    "library_add_category": MessageLookupByLibrary.simpleMessage(
+      "Add category",
+    ),
+    "library_category_all": MessageLookupByLibrary.simpleMessage("All"),
+    "library_category_name_hint": MessageLookupByLibrary.simpleMessage(
+      "Category name",
+    ),
+    "library_category_uncategorized": MessageLookupByLibrary.simpleMessage(
+      "Uncategorized",
+    ),
+    "library_delete_category": MessageLookupByLibrary.simpleMessage("Delete"),
+    "library_empty_message": MessageLookupByLibrary.simpleMessage(
+      "Tap the heart on a title to add it here",
+    ),
+    "library_empty_title": MessageLookupByLibrary.simpleMessage(
+      "Your library is empty",
+    ),
+    "library_manage_categories": MessageLookupByLibrary.simpleMessage(
+      "Manage categories",
+    ),
+    "library_move_to_category": MessageLookupByLibrary.simpleMessage(
+      "Move to category",
+    ),
+    "library_no_category": MessageLookupByLibrary.simpleMessage("No category"),
+    "library_remove": MessageLookupByLibrary.simpleMessage(
+      "Remove from library",
+    ),
+    "library_rename_category": MessageLookupByLibrary.simpleMessage("Rename"),
+    "library_select_all": MessageLookupByLibrary.simpleMessage("Select all"),
+    "library_selected_count": m3,
+    "library_sort_added_newest": MessageLookupByLibrary.simpleMessage(
+      "Recently added",
+    ),
+    "library_sort_added_oldest": MessageLookupByLibrary.simpleMessage(
+      "Oldest added",
+    ),
+    "library_sort_alphabetical": MessageLookupByLibrary.simpleMessage("Title"),
+    "library_sort_last_read": MessageLookupByLibrary.simpleMessage("Last read"),
+    "library_sort_title": MessageLookupByLibrary.simpleMessage("Sort by"),
+    "library_source_unavailable_message": MessageLookupByLibrary.simpleMessage(
+      "The extension for this title is no longer installed",
+    ),
+    "library_source_unavailable_title": MessageLookupByLibrary.simpleMessage(
+      "Source unavailable",
+    ),
     "save_image_error": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t save image",
     ),
@@ -210,7 +263,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_error_title": MessageLookupByLibrary.simpleMessage(
       "Something went wrong",
     ),
-    "service_view_no_results_message": m3,
+    "service_view_no_results_message": m4,
     "service_view_no_results_title": MessageLookupByLibrary.simpleMessage(
       "No results",
     ),
@@ -219,7 +272,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_retry_button_title": MessageLookupByLibrary.simpleMessage(
       "Retry",
     ),
-    "service_view_search_results_for": m4,
+    "service_view_search_results_for": m5,
     "service_viewer_search_field_hint_text":
         MessageLookupByLibrary.simpleMessage("Search"),
     "settings_about_section_title": MessageLookupByLibrary.simpleMessage(
@@ -275,7 +328,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_default_reader_mode_title": MessageLookupByLibrary.simpleMessage(
       "Default reader mode",
     ),
-    "settings_download_latest_release": m5,
+    "settings_download_latest_release": m6,
     "settings_export_activity_history_button":
         MessageLookupByLibrary.simpleMessage("Export activity history"),
     "settings_export_activity_history_error":
@@ -292,7 +345,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Error occurred during importing activity history",
         ),
-    "settings_import_activity_history_success": m6,
+    "settings_import_activity_history_success": m7,
     "settings_import_export_info_export_body": MessageLookupByLibrary.simpleMessage(
       "Saves all your manga and anime reading history into a single JSON file that you can back up or move to another device.",
     ),

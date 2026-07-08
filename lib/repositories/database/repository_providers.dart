@@ -3,9 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
+import 'package:wakaranai/repositories/database/category_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
+import 'package:wakaranai/repositories/database/library_entry_repository.dart';
 
 Widget repositoryProviders(BuildContext context, {required Widget child}) {
   return MultiRepositoryProvider(
@@ -49,7 +51,17 @@ Widget repositoryProviders(BuildContext context, {required Widget child}) {
         create: (context) => AnimeEpisodeActivityRepository(
           database: context.read<WakaranaiDatabase>(),
         ),
-      )
+      ),
+      RepositoryProvider(
+        create: (context) => CategoryRepository(
+          database: context.read<WakaranaiDatabase>(),
+        ),
+      ),
+      RepositoryProvider(
+        create: (context) => LibraryEntryRepository(
+          database: context.read<WakaranaiDatabase>(),
+        ),
+      ),
     ],
     child: child,
   );

@@ -2413,6 +2413,812 @@ class AnimeEpisodeActivityTableCompanion
   }
 }
 
+class $CategoryTableTable extends CategoryTable
+    with TableInfo<$CategoryTableTable, CategoryTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CategoryTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      clientDefault: () => DateTime.now());
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant<int>(0));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, createdAt, updatedAt, name, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'category_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<CategoryTableData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CategoryTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CategoryTableData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+    );
+  }
+
+  @override
+  $CategoryTableTable createAlias(String alias) {
+    return $CategoryTableTable(attachedDatabase, alias);
+  }
+}
+
+class CategoryTableData extends DataClass
+    implements Insertable<CategoryTableData> {
+  final int id;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final String name;
+  final int sortOrder;
+  const CategoryTableData(
+      {required this.id,
+      required this.createdAt,
+      this.updatedAt,
+      required this.name,
+      required this.sortOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['name'] = Variable<String>(name);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  CategoryTableCompanion toCompanion(bool nullToAbsent) {
+    return CategoryTableCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      name: Value(name),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory CategoryTableData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CategoryTableData(
+      id: serializer.fromJson<int>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      name: serializer.fromJson<String>(json['name']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'name': serializer.toJson<String>(name),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  CategoryTableData copyWith(
+          {int? id,
+          DateTime? createdAt,
+          Value<DateTime?> updatedAt = const Value.absent(),
+          String? name,
+          int? sortOrder}) =>
+      CategoryTableData(
+        id: id ?? this.id,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+        name: name ?? this.name,
+        sortOrder: sortOrder ?? this.sortOrder,
+      );
+  CategoryTableData copyWithCompanion(CategoryTableCompanion data) {
+    return CategoryTableData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      name: data.name.present ? data.name.value : this.name,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CategoryTableData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('name: $name, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, createdAt, updatedAt, name, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CategoryTableData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.name == this.name &&
+          other.sortOrder == this.sortOrder);
+}
+
+class CategoryTableCompanion extends UpdateCompanion<CategoryTableData> {
+  final Value<int> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<String> name;
+  final Value<int> sortOrder;
+  const CategoryTableCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.name = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+  });
+  CategoryTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    required String name,
+    this.sortOrder = const Value.absent(),
+  }) : name = Value(name);
+  static Insertable<CategoryTableData> custom({
+    Expression<int>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? name,
+    Expression<int>? sortOrder,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (name != null) 'name': name,
+      if (sortOrder != null) 'sort_order': sortOrder,
+    });
+  }
+
+  CategoryTableCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime>? createdAt,
+      Value<DateTime?>? updatedAt,
+      Value<String>? name,
+      Value<int>? sortOrder}) {
+    return CategoryTableCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      name: name ?? this.name,
+      sortOrder: sortOrder ?? this.sortOrder,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CategoryTableCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('name: $name, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LibraryEntryTableTable extends LibraryEntryTable
+    with TableInfo<$LibraryEntryTableTable, LibraryEntryTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LibraryEntryTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      clientDefault: () => DateTime.now());
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+      'uid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _extensionUidMeta =
+      const VerificationMeta('extensionUid');
+  @override
+  late final GeneratedColumn<String> extensionUid = GeneratedColumn<String>(
+      'extension_uid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _coverMeta = const VerificationMeta('cover');
+  @override
+  late final GeneratedColumn<String> cover = GeneratedColumn<String>(
+      'cover', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+      'data', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _categoryIdMeta =
+      const VerificationMeta('categoryId');
+  @override
+  late final GeneratedColumn<int> categoryId = GeneratedColumn<int>(
+      'category_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES category_table (id)'));
+  static const VerificationMeta _lastReadAtMeta =
+      const VerificationMeta('lastReadAt');
+  @override
+  late final GeneratedColumn<DateTime> lastReadAt = GeneratedColumn<DateTime>(
+      'last_read_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        createdAt,
+        updatedAt,
+        uid,
+        extensionUid,
+        title,
+        cover,
+        data,
+        categoryId,
+        lastReadAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'library_entry_table';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<LibraryEntryTableData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid']!, _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('extension_uid')) {
+      context.handle(
+          _extensionUidMeta,
+          extensionUid.isAcceptableOrUnknown(
+              data['extension_uid']!, _extensionUidMeta));
+    } else if (isInserting) {
+      context.missing(_extensionUidMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('cover')) {
+      context.handle(
+          _coverMeta, cover.isAcceptableOrUnknown(data['cover']!, _coverMeta));
+    }
+    if (data.containsKey('data')) {
+      context.handle(
+          _dataMeta, this.data.isAcceptableOrUnknown(data['data']!, _dataMeta));
+    }
+    if (data.containsKey('category_id')) {
+      context.handle(
+          _categoryIdMeta,
+          categoryId.isAcceptableOrUnknown(
+              data['category_id']!, _categoryIdMeta));
+    }
+    if (data.containsKey('last_read_at')) {
+      context.handle(
+          _lastReadAtMeta,
+          lastReadAt.isAcceptableOrUnknown(
+              data['last_read_at']!, _lastReadAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LibraryEntryTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LibraryEntryTableData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
+      uid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
+      extensionUid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}extension_uid'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      cover: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover']),
+      data: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}data']),
+      categoryId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}category_id']),
+      lastReadAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}last_read_at']),
+    );
+  }
+
+  @override
+  $LibraryEntryTableTable createAlias(String alias) {
+    return $LibraryEntryTableTable(attachedDatabase, alias);
+  }
+}
+
+class LibraryEntryTableData extends DataClass
+    implements Insertable<LibraryEntryTableData> {
+  final int id;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final String uid;
+  final String extensionUid;
+  final String title;
+  final String? cover;
+  final String? data;
+  final int? categoryId;
+  final DateTime? lastReadAt;
+  const LibraryEntryTableData(
+      {required this.id,
+      required this.createdAt,
+      this.updatedAt,
+      required this.uid,
+      required this.extensionUid,
+      required this.title,
+      this.cover,
+      this.data,
+      this.categoryId,
+      this.lastReadAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['uid'] = Variable<String>(uid);
+    map['extension_uid'] = Variable<String>(extensionUid);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || cover != null) {
+      map['cover'] = Variable<String>(cover);
+    }
+    if (!nullToAbsent || data != null) {
+      map['data'] = Variable<String>(data);
+    }
+    if (!nullToAbsent || categoryId != null) {
+      map['category_id'] = Variable<int>(categoryId);
+    }
+    if (!nullToAbsent || lastReadAt != null) {
+      map['last_read_at'] = Variable<DateTime>(lastReadAt);
+    }
+    return map;
+  }
+
+  LibraryEntryTableCompanion toCompanion(bool nullToAbsent) {
+    return LibraryEntryTableCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      uid: Value(uid),
+      extensionUid: Value(extensionUid),
+      title: Value(title),
+      cover:
+          cover == null && nullToAbsent ? const Value.absent() : Value(cover),
+      data: data == null && nullToAbsent ? const Value.absent() : Value(data),
+      categoryId: categoryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categoryId),
+      lastReadAt: lastReadAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastReadAt),
+    );
+  }
+
+  factory LibraryEntryTableData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LibraryEntryTableData(
+      id: serializer.fromJson<int>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      uid: serializer.fromJson<String>(json['uid']),
+      extensionUid: serializer.fromJson<String>(json['extensionUid']),
+      title: serializer.fromJson<String>(json['title']),
+      cover: serializer.fromJson<String?>(json['cover']),
+      data: serializer.fromJson<String?>(json['data']),
+      categoryId: serializer.fromJson<int?>(json['categoryId']),
+      lastReadAt: serializer.fromJson<DateTime?>(json['lastReadAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'uid': serializer.toJson<String>(uid),
+      'extensionUid': serializer.toJson<String>(extensionUid),
+      'title': serializer.toJson<String>(title),
+      'cover': serializer.toJson<String?>(cover),
+      'data': serializer.toJson<String?>(data),
+      'categoryId': serializer.toJson<int?>(categoryId),
+      'lastReadAt': serializer.toJson<DateTime?>(lastReadAt),
+    };
+  }
+
+  LibraryEntryTableData copyWith(
+          {int? id,
+          DateTime? createdAt,
+          Value<DateTime?> updatedAt = const Value.absent(),
+          String? uid,
+          String? extensionUid,
+          String? title,
+          Value<String?> cover = const Value.absent(),
+          Value<String?> data = const Value.absent(),
+          Value<int?> categoryId = const Value.absent(),
+          Value<DateTime?> lastReadAt = const Value.absent()}) =>
+      LibraryEntryTableData(
+        id: id ?? this.id,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+        uid: uid ?? this.uid,
+        extensionUid: extensionUid ?? this.extensionUid,
+        title: title ?? this.title,
+        cover: cover.present ? cover.value : this.cover,
+        data: data.present ? data.value : this.data,
+        categoryId: categoryId.present ? categoryId.value : this.categoryId,
+        lastReadAt: lastReadAt.present ? lastReadAt.value : this.lastReadAt,
+      );
+  LibraryEntryTableData copyWithCompanion(LibraryEntryTableCompanion data) {
+    return LibraryEntryTableData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      uid: data.uid.present ? data.uid.value : this.uid,
+      extensionUid: data.extensionUid.present
+          ? data.extensionUid.value
+          : this.extensionUid,
+      title: data.title.present ? data.title.value : this.title,
+      cover: data.cover.present ? data.cover.value : this.cover,
+      data: data.data.present ? data.data.value : this.data,
+      categoryId:
+          data.categoryId.present ? data.categoryId.value : this.categoryId,
+      lastReadAt:
+          data.lastReadAt.present ? data.lastReadAt.value : this.lastReadAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryEntryTableData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('extensionUid: $extensionUid, ')
+          ..write('title: $title, ')
+          ..write('cover: $cover, ')
+          ..write('data: $data, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('lastReadAt: $lastReadAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, createdAt, updatedAt, uid, extensionUid,
+      title, cover, data, categoryId, lastReadAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LibraryEntryTableData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.uid == this.uid &&
+          other.extensionUid == this.extensionUid &&
+          other.title == this.title &&
+          other.cover == this.cover &&
+          other.data == this.data &&
+          other.categoryId == this.categoryId &&
+          other.lastReadAt == this.lastReadAt);
+}
+
+class LibraryEntryTableCompanion
+    extends UpdateCompanion<LibraryEntryTableData> {
+  final Value<int> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<String> uid;
+  final Value<String> extensionUid;
+  final Value<String> title;
+  final Value<String?> cover;
+  final Value<String?> data;
+  final Value<int?> categoryId;
+  final Value<DateTime?> lastReadAt;
+  const LibraryEntryTableCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.uid = const Value.absent(),
+    this.extensionUid = const Value.absent(),
+    this.title = const Value.absent(),
+    this.cover = const Value.absent(),
+    this.data = const Value.absent(),
+    this.categoryId = const Value.absent(),
+    this.lastReadAt = const Value.absent(),
+  });
+  LibraryEntryTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    required String uid,
+    required String extensionUid,
+    required String title,
+    this.cover = const Value.absent(),
+    this.data = const Value.absent(),
+    this.categoryId = const Value.absent(),
+    this.lastReadAt = const Value.absent(),
+  })  : uid = Value(uid),
+        extensionUid = Value(extensionUid),
+        title = Value(title);
+  static Insertable<LibraryEntryTableData> custom({
+    Expression<int>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? uid,
+    Expression<String>? extensionUid,
+    Expression<String>? title,
+    Expression<String>? cover,
+    Expression<String>? data,
+    Expression<int>? categoryId,
+    Expression<DateTime>? lastReadAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (uid != null) 'uid': uid,
+      if (extensionUid != null) 'extension_uid': extensionUid,
+      if (title != null) 'title': title,
+      if (cover != null) 'cover': cover,
+      if (data != null) 'data': data,
+      if (categoryId != null) 'category_id': categoryId,
+      if (lastReadAt != null) 'last_read_at': lastReadAt,
+    });
+  }
+
+  LibraryEntryTableCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime>? createdAt,
+      Value<DateTime?>? updatedAt,
+      Value<String>? uid,
+      Value<String>? extensionUid,
+      Value<String>? title,
+      Value<String?>? cover,
+      Value<String?>? data,
+      Value<int?>? categoryId,
+      Value<DateTime?>? lastReadAt}) {
+    return LibraryEntryTableCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      uid: uid ?? this.uid,
+      extensionUid: extensionUid ?? this.extensionUid,
+      title: title ?? this.title,
+      cover: cover ?? this.cover,
+      data: data ?? this.data,
+      categoryId: categoryId ?? this.categoryId,
+      lastReadAt: lastReadAt ?? this.lastReadAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (extensionUid.present) {
+      map['extension_uid'] = Variable<String>(extensionUid.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (cover.present) {
+      map['cover'] = Variable<String>(cover.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
+    if (categoryId.present) {
+      map['category_id'] = Variable<int>(categoryId.value);
+    }
+    if (lastReadAt.present) {
+      map['last_read_at'] = Variable<DateTime>(lastReadAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryEntryTableCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('extensionUid: $extensionUid, ')
+          ..write('title: $title, ')
+          ..write('cover: $cover, ')
+          ..write('data: $data, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('lastReadAt: $lastReadAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$WakaranaiDatabase extends GeneratedDatabase {
   _$WakaranaiDatabase(QueryExecutor e) : super(e);
   $WakaranaiDatabaseManager get managers => $WakaranaiDatabaseManager(this);
@@ -2425,6 +3231,9 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
       $ChapterActivityTableTable(this);
   late final $AnimeEpisodeActivityTableTable animeEpisodeActivityTable =
       $AnimeEpisodeActivityTableTable(this);
+  late final $CategoryTableTable categoryTable = $CategoryTableTable(this);
+  late final $LibraryEntryTableTable libraryEntryTable =
+      $LibraryEntryTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2434,7 +3243,9 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
         extensionTable,
         concreteDataTable,
         chapterActivityTable,
-        animeEpisodeActivityTable
+        animeEpisodeActivityTable,
+        categoryTable,
+        libraryEntryTable
       ];
 }
 
@@ -2672,9 +3483,10 @@ final class $$ExtensionTableTableReferences extends BaseReferences<
               db.extensionTable.uid, db.concreteDataTable.extensionUid));
 
   $$ConcreteDataTableTableProcessedTableManager get concreteDataTableRefs {
-    final manager =
-        $$ConcreteDataTableTableTableManager($_db, $_db.concreteDataTable)
-            .filter((f) => f.extensionUid.uid($_item.uid));
+    final manager = $$ConcreteDataTableTableTableManager(
+            $_db, $_db.concreteDataTable)
+        .filter(
+            (f) => f.extensionUid.uid.sqlEquals($_itemColumn<String>('uid')!));
 
     final cache =
         $_typedResult.readTableOrNull(_concreteDataTableRefsTable($_db));
@@ -2976,7 +3788,8 @@ class $$ExtensionTableTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (concreteDataTableRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<ExtensionTableData,
+                            $ExtensionTableTable, ConcreteDataTableData>(
                         currentTable: table,
                         referencedTable: $$ExtensionTableTableReferences
                             ._concreteDataTableRefsTable(db),
@@ -3039,8 +3852,10 @@ final class $$ConcreteDataTableTableReferences extends BaseReferences<
           db.concreteDataTable.extensionUid, db.extensionTable.uid));
 
   $$ExtensionTableTableProcessedTableManager get extensionUid {
+    final $_column = $_itemColumn<String>('extension_uid')!;
+
     final manager = $$ExtensionTableTableTableManager($_db, $_db.extensionTable)
-        .filter((f) => f.uid($_item.extensionUid!));
+        .filter((f) => f.uid.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_extensionUidTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -3058,7 +3873,7 @@ final class $$ConcreteDataTableTableReferences extends BaseReferences<
       get chapterActivityTableRefs {
     final manager =
         $$ChapterActivityTableTableTableManager($_db, $_db.chapterActivityTable)
-            .filter((f) => f.concreteId.id($_item.id));
+            .filter((f) => f.concreteId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache =
         $_typedResult.readTableOrNull(_chapterActivityTableRefsTable($_db));
@@ -3077,7 +3892,7 @@ final class $$ConcreteDataTableTableReferences extends BaseReferences<
       get animeEpisodeActivityTableRefs {
     final manager = $$AnimeEpisodeActivityTableTableTableManager(
             $_db, $_db.animeEpisodeActivityTable)
-        .filter((f) => f.concreteId.id($_item.id));
+        .filter((f) => f.concreteId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult
         .readTableOrNull(_animeEpisodeActivityTableRefsTable($_db));
@@ -3445,7 +4260,8 @@ class $$ConcreteDataTableTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (chapterActivityTableRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<ConcreteDataTableData,
+                            $ConcreteDataTableTable, ChapterActivityTableData>(
                         currentTable: table,
                         referencedTable: $$ConcreteDataTableTableReferences
                             ._chapterActivityTableRefsTable(db),
@@ -3457,7 +4273,10 @@ class $$ConcreteDataTableTableTableManager extends RootTableManager<
                                 .where((e) => e.concreteId == item.id),
                         typedResults: items),
                   if (animeEpisodeActivityTableRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<
+                            ConcreteDataTableData,
+                            $ConcreteDataTableTable,
+                            AnimeEpisodeActivityTableData>(
                         currentTable: table,
                         referencedTable: $$ConcreteDataTableTableReferences
                             ._animeEpisodeActivityTableRefsTable(db),
@@ -3527,9 +4346,11 @@ final class $$ChapterActivityTableTableReferences extends BaseReferences<
           db.chapterActivityTable.concreteId, db.concreteDataTable.id));
 
   $$ConcreteDataTableTableProcessedTableManager get concreteId {
+    final $_column = $_itemColumn<int>('concrete_id')!;
+
     final manager =
         $$ConcreteDataTableTableTableManager($_db, $_db.concreteDataTable)
-            .filter((f) => f.id($_item.concreteId!));
+            .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_concreteIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -3879,9 +4700,11 @@ final class $$AnimeEpisodeActivityTableTableReferences extends BaseReferences<
           db.animeEpisodeActivityTable.concreteId, db.concreteDataTable.id));
 
   $$ConcreteDataTableTableProcessedTableManager get concreteId {
+    final $_column = $_itemColumn<int>('concrete_id')!;
+
     final manager =
         $$ConcreteDataTableTableTableManager($_db, $_db.concreteDataTable)
-            .filter((f) => f.id($_item.concreteId!));
+            .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_concreteIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -4196,6 +5019,612 @@ typedef $$AnimeEpisodeActivityTableTableProcessedTableManager
         ),
         AnimeEpisodeActivityTableData,
         PrefetchHooks Function({bool concreteId})>;
+typedef $$CategoryTableTableCreateCompanionBuilder = CategoryTableCompanion
+    Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  required String name,
+  Value<int> sortOrder,
+});
+typedef $$CategoryTableTableUpdateCompanionBuilder = CategoryTableCompanion
+    Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  Value<String> name,
+  Value<int> sortOrder,
+});
+
+final class $$CategoryTableTableReferences extends BaseReferences<
+    _$WakaranaiDatabase, $CategoryTableTable, CategoryTableData> {
+  $$CategoryTableTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$LibraryEntryTableTable,
+      List<LibraryEntryTableData>> _libraryEntryTableRefsTable(
+          _$WakaranaiDatabase db) =>
+      MultiTypedResultKey.fromTable(db.libraryEntryTable,
+          aliasName: $_aliasNameGenerator(
+              db.categoryTable.id, db.libraryEntryTable.categoryId));
+
+  $$LibraryEntryTableTableProcessedTableManager get libraryEntryTableRefs {
+    final manager =
+        $$LibraryEntryTableTableTableManager($_db, $_db.libraryEntryTable)
+            .filter((f) => f.categoryId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_libraryEntryTableRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$CategoryTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $CategoryTableTable> {
+  $$CategoryTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> libraryEntryTableRefs(
+      Expression<bool> Function($$LibraryEntryTableTableFilterComposer f) f) {
+    final $$LibraryEntryTableTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.libraryEntryTable,
+        getReferencedColumn: (t) => t.categoryId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LibraryEntryTableTableFilterComposer(
+              $db: $db,
+              $table: $db.libraryEntryTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$CategoryTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $CategoryTableTable> {
+  $$CategoryTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CategoryTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $CategoryTableTable> {
+  $$CategoryTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  Expression<T> libraryEntryTableRefs<T extends Object>(
+      Expression<T> Function($$LibraryEntryTableTableAnnotationComposer a) f) {
+    final $$LibraryEntryTableTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.libraryEntryTable,
+            getReferencedColumn: (t) => t.categoryId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$LibraryEntryTableTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.libraryEntryTable,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+}
+
+class $$CategoryTableTableTableManager extends RootTableManager<
+    _$WakaranaiDatabase,
+    $CategoryTableTable,
+    CategoryTableData,
+    $$CategoryTableTableFilterComposer,
+    $$CategoryTableTableOrderingComposer,
+    $$CategoryTableTableAnnotationComposer,
+    $$CategoryTableTableCreateCompanionBuilder,
+    $$CategoryTableTableUpdateCompanionBuilder,
+    (CategoryTableData, $$CategoryTableTableReferences),
+    CategoryTableData,
+    PrefetchHooks Function({bool libraryEntryTableRefs})> {
+  $$CategoryTableTableTableManager(
+      _$WakaranaiDatabase db, $CategoryTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CategoryTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CategoryTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CategoryTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+          }) =>
+              CategoryTableCompanion(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            name: name,
+            sortOrder: sortOrder,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            required String name,
+            Value<int> sortOrder = const Value.absent(),
+          }) =>
+              CategoryTableCompanion.insert(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            name: name,
+            sortOrder: sortOrder,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$CategoryTableTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({libraryEntryTableRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (libraryEntryTableRefs) db.libraryEntryTable
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (libraryEntryTableRefs)
+                    await $_getPrefetchedData<CategoryTableData,
+                            $CategoryTableTable, LibraryEntryTableData>(
+                        currentTable: table,
+                        referencedTable: $$CategoryTableTableReferences
+                            ._libraryEntryTableRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$CategoryTableTableReferences(db, table, p0)
+                                .libraryEntryTableRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.categoryId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$CategoryTableTableProcessedTableManager = ProcessedTableManager<
+    _$WakaranaiDatabase,
+    $CategoryTableTable,
+    CategoryTableData,
+    $$CategoryTableTableFilterComposer,
+    $$CategoryTableTableOrderingComposer,
+    $$CategoryTableTableAnnotationComposer,
+    $$CategoryTableTableCreateCompanionBuilder,
+    $$CategoryTableTableUpdateCompanionBuilder,
+    (CategoryTableData, $$CategoryTableTableReferences),
+    CategoryTableData,
+    PrefetchHooks Function({bool libraryEntryTableRefs})>;
+typedef $$LibraryEntryTableTableCreateCompanionBuilder
+    = LibraryEntryTableCompanion Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  required String uid,
+  required String extensionUid,
+  required String title,
+  Value<String?> cover,
+  Value<String?> data,
+  Value<int?> categoryId,
+  Value<DateTime?> lastReadAt,
+});
+typedef $$LibraryEntryTableTableUpdateCompanionBuilder
+    = LibraryEntryTableCompanion Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  Value<String> uid,
+  Value<String> extensionUid,
+  Value<String> title,
+  Value<String?> cover,
+  Value<String?> data,
+  Value<int?> categoryId,
+  Value<DateTime?> lastReadAt,
+});
+
+final class $$LibraryEntryTableTableReferences extends BaseReferences<
+    _$WakaranaiDatabase, $LibraryEntryTableTable, LibraryEntryTableData> {
+  $$LibraryEntryTableTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $CategoryTableTable _categoryIdTable(_$WakaranaiDatabase db) =>
+      db.categoryTable.createAlias($_aliasNameGenerator(
+          db.libraryEntryTable.categoryId, db.categoryTable.id));
+
+  $$CategoryTableTableProcessedTableManager? get categoryId {
+    final $_column = $_itemColumn<int>('category_id');
+    if ($_column == null) return null;
+    final manager = $$CategoryTableTableTableManager($_db, $_db.categoryTable)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_categoryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$LibraryEntryTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $LibraryEntryTableTable> {
+  $$LibraryEntryTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get uid => $composableBuilder(
+      column: $table.uid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get extensionUid => $composableBuilder(
+      column: $table.extensionUid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get cover => $composableBuilder(
+      column: $table.cover, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get data => $composableBuilder(
+      column: $table.data, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastReadAt => $composableBuilder(
+      column: $table.lastReadAt, builder: (column) => ColumnFilters(column));
+
+  $$CategoryTableTableFilterComposer get categoryId {
+    final $$CategoryTableTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.categoryId,
+        referencedTable: $db.categoryTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CategoryTableTableFilterComposer(
+              $db: $db,
+              $table: $db.categoryTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$LibraryEntryTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $LibraryEntryTableTable> {
+  $$LibraryEntryTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get uid => $composableBuilder(
+      column: $table.uid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get extensionUid => $composableBuilder(
+      column: $table.extensionUid,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get cover => $composableBuilder(
+      column: $table.cover, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get data => $composableBuilder(
+      column: $table.data, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastReadAt => $composableBuilder(
+      column: $table.lastReadAt, builder: (column) => ColumnOrderings(column));
+
+  $$CategoryTableTableOrderingComposer get categoryId {
+    final $$CategoryTableTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.categoryId,
+        referencedTable: $db.categoryTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CategoryTableTableOrderingComposer(
+              $db: $db,
+              $table: $db.categoryTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$LibraryEntryTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $LibraryEntryTableTable> {
+  $$LibraryEntryTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
+
+  GeneratedColumn<String> get extensionUid => $composableBuilder(
+      column: $table.extensionUid, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get cover =>
+      $composableBuilder(column: $table.cover, builder: (column) => column);
+
+  GeneratedColumn<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastReadAt => $composableBuilder(
+      column: $table.lastReadAt, builder: (column) => column);
+
+  $$CategoryTableTableAnnotationComposer get categoryId {
+    final $$CategoryTableTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.categoryId,
+        referencedTable: $db.categoryTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CategoryTableTableAnnotationComposer(
+              $db: $db,
+              $table: $db.categoryTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$LibraryEntryTableTableTableManager extends RootTableManager<
+    _$WakaranaiDatabase,
+    $LibraryEntryTableTable,
+    LibraryEntryTableData,
+    $$LibraryEntryTableTableFilterComposer,
+    $$LibraryEntryTableTableOrderingComposer,
+    $$LibraryEntryTableTableAnnotationComposer,
+    $$LibraryEntryTableTableCreateCompanionBuilder,
+    $$LibraryEntryTableTableUpdateCompanionBuilder,
+    (LibraryEntryTableData, $$LibraryEntryTableTableReferences),
+    LibraryEntryTableData,
+    PrefetchHooks Function({bool categoryId})> {
+  $$LibraryEntryTableTableTableManager(
+      _$WakaranaiDatabase db, $LibraryEntryTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LibraryEntryTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LibraryEntryTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LibraryEntryTableTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<String> uid = const Value.absent(),
+            Value<String> extensionUid = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> cover = const Value.absent(),
+            Value<String?> data = const Value.absent(),
+            Value<int?> categoryId = const Value.absent(),
+            Value<DateTime?> lastReadAt = const Value.absent(),
+          }) =>
+              LibraryEntryTableCompanion(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            uid: uid,
+            extensionUid: extensionUid,
+            title: title,
+            cover: cover,
+            data: data,
+            categoryId: categoryId,
+            lastReadAt: lastReadAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            required String uid,
+            required String extensionUid,
+            required String title,
+            Value<String?> cover = const Value.absent(),
+            Value<String?> data = const Value.absent(),
+            Value<int?> categoryId = const Value.absent(),
+            Value<DateTime?> lastReadAt = const Value.absent(),
+          }) =>
+              LibraryEntryTableCompanion.insert(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            uid: uid,
+            extensionUid: extensionUid,
+            title: title,
+            cover: cover,
+            data: data,
+            categoryId: categoryId,
+            lastReadAt: lastReadAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$LibraryEntryTableTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({categoryId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (categoryId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.categoryId,
+                    referencedTable:
+                        $$LibraryEntryTableTableReferences._categoryIdTable(db),
+                    referencedColumn: $$LibraryEntryTableTableReferences
+                        ._categoryIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$LibraryEntryTableTableProcessedTableManager = ProcessedTableManager<
+    _$WakaranaiDatabase,
+    $LibraryEntryTableTable,
+    LibraryEntryTableData,
+    $$LibraryEntryTableTableFilterComposer,
+    $$LibraryEntryTableTableOrderingComposer,
+    $$LibraryEntryTableTableAnnotationComposer,
+    $$LibraryEntryTableTableCreateCompanionBuilder,
+    $$LibraryEntryTableTableUpdateCompanionBuilder,
+    (LibraryEntryTableData, $$LibraryEntryTableTableReferences),
+    LibraryEntryTableData,
+    PrefetchHooks Function({bool categoryId})>;
 
 class $WakaranaiDatabaseManager {
   final _$WakaranaiDatabase _db;
@@ -4211,4 +5640,8 @@ class $WakaranaiDatabaseManager {
   $$AnimeEpisodeActivityTableTableTableManager get animeEpisodeActivityTable =>
       $$AnimeEpisodeActivityTableTableTableManager(
           _db, _db.animeEpisodeActivityTable);
+  $$CategoryTableTableTableManager get categoryTable =>
+      $$CategoryTableTableTableManager(_db, _db.categoryTable);
+  $$LibraryEntryTableTableTableManager get libraryEntryTable =>
+      $$LibraryEntryTableTableTableManager(_db, _db.libraryEntryTable);
 }

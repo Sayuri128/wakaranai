@@ -6,10 +6,12 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 import 'package:wakaranai/data/entities/anime_episode_activity_table.dart';
+import 'package:wakaranai/data/entities/category_table.dart';
 import 'package:wakaranai/data/entities/chapter_activity_table.dart';
 import 'package:wakaranai/data/entities/concrete_data_table.dart';
 import 'package:wakaranai/data/entities/extension_source_table.dart';
 import 'package:wakaranai/data/entities/extension_table.dart';
+import 'package:wakaranai/data/entities/library_entry_table.dart';
 
 part 'wakaranai_database.g.dart';
 
@@ -19,6 +21,8 @@ part 'wakaranai_database.g.dart';
   ConcreteDataTable,
   ChapterActivityTable,
   AnimeEpisodeActivityTable,
+  CategoryTable,
+  LibraryEntryTable,
 ])
 class WakaranaiDatabase extends _$WakaranaiDatabase {
   WakaranaiDatabase() : super(_openConnection());
@@ -40,11 +44,15 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
             await m.createTable(animeEpisodeActivityTable);
 
           }
+          if (from < 4) {
+            await m.createTable(categoryTable);
+            await m.createTable(libraryEntryTable);
+          }
         },
       );
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 }
 
 LazyDatabase _openConnection() {

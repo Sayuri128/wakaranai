@@ -4,6 +4,7 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/activity_history_page/acitvity_history_page.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_page.dart';
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
+import 'package:wakaranai/ui/home/library_page/library_page.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_page.dart';
 import 'package:wakaranai/ui/home/widgets/bottom_navigation_bar_container.dart';
 import 'package:wakaranai/ui/home/widgets/bottom_navigation_bar_item_widget.dart';
@@ -23,6 +24,10 @@ class _HomeViewState extends State<HomeView> {
 
   final List<BottomNavigationBarItemWidgetData> navigationItem =
       <BottomNavigationBarItemWidgetData>[
+    BottomNavigationBarItemWidgetData(
+      text: S.current.home_navigation_bar_library_title,
+      icon: Icons.collections_bookmark_rounded,
+    ),
     BottomNavigationBarItemWidgetData(
       text: S.current.home_navigation_bar_sources_title,
       icon: Icons.explore_rounded,
@@ -90,17 +95,19 @@ class _HomeViewState extends State<HomeView> {
 
   Widget _buildBody(int page) {
     switch (page) {
-      // case 0:
-      //   return LibraryPage();
       case 0:
+        return LibraryPage(
+          key: const PageStorageKey<String>('library_page'),
+        );
+      case 1:
         return ConfigPage(
           key: const PageStorageKey<String>('configs_page'),
         );
-      case 1:
+      case 2:
         return ActivityHistoryPage(
           key: const PageStorageKey<String>('activity_history_page'),
         );
-      case 2:
+      case 3:
         return SettingsPage(
           key: const PageStorageKey<String>('settings_page'),
         );

@@ -210,6 +210,241 @@ class S {
     );
   }
 
+  /// `Library`
+  String get home_navigation_bar_library_title {
+    return Intl.message(
+      'Library',
+      name: 'home_navigation_bar_library_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your library is empty`
+  String get library_empty_title {
+    return Intl.message(
+      'Your library is empty',
+      name: 'library_empty_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tap the heart on a title to add it here`
+  String get library_empty_message {
+    return Intl.message(
+      'Tap the heart on a title to add it here',
+      name: 'library_empty_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All`
+  String get library_category_all {
+    return Intl.message(
+      'All',
+      name: 'library_category_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Uncategorized`
+  String get library_category_uncategorized {
+    return Intl.message(
+      'Uncategorized',
+      name: 'library_category_uncategorized',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sort by`
+  String get library_sort_title {
+    return Intl.message(
+      'Sort by',
+      name: 'library_sort_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recently added`
+  String get library_sort_added_newest {
+    return Intl.message(
+      'Recently added',
+      name: 'library_sort_added_newest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Oldest added`
+  String get library_sort_added_oldest {
+    return Intl.message(
+      'Oldest added',
+      name: 'library_sort_added_oldest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Title`
+  String get library_sort_alphabetical {
+    return Intl.message(
+      'Title',
+      name: 'library_sort_alphabetical',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Last read`
+  String get library_sort_last_read {
+    return Intl.message(
+      'Last read',
+      name: 'library_sort_last_read',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manage categories`
+  String get library_manage_categories {
+    return Intl.message(
+      'Manage categories',
+      name: 'library_manage_categories',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add category`
+  String get library_add_category {
+    return Intl.message(
+      'Add category',
+      name: 'library_add_category',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Category name`
+  String get library_category_name_hint {
+    return Intl.message(
+      'Category name',
+      name: 'library_category_name_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rename`
+  String get library_rename_category {
+    return Intl.message(
+      'Rename',
+      name: 'library_rename_category',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get library_delete_category {
+    return Intl.message(
+      'Delete',
+      name: 'library_delete_category',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Move to category`
+  String get library_move_to_category {
+    return Intl.message(
+      'Move to category',
+      name: 'library_move_to_category',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove from library`
+  String get library_remove {
+    return Intl.message(
+      'Remove from library',
+      name: 'library_remove',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No category`
+  String get library_no_category {
+    return Intl.message(
+      'No category',
+      name: 'library_no_category',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Source unavailable`
+  String get library_source_unavailable_title {
+    return Intl.message(
+      'Source unavailable',
+      name: 'library_source_unavailable_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The extension for this title is no longer installed`
+  String get library_source_unavailable_message {
+    return Intl.message(
+      'The extension for this title is no longer installed',
+      name: 'library_source_unavailable_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} selected`
+  String library_selected_count(int count) {
+    return Intl.message(
+      '$count selected',
+      name: 'library_selected_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Select all`
+  String get library_select_all {
+    return Intl.message(
+      'Select all',
+      name: 'library_select_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add`
+  String get common_add {
+    return Intl.message('Add', name: 'common_add', desc: '', args: []);
+  }
+
+  /// `Cancel`
+  String get common_cancel {
+    return Intl.message('Cancel', name: 'common_cancel', desc: '', args: []);
+  }
+
+  /// `Save`
+  String get common_save {
+    return Intl.message('Save', name: 'common_save', desc: '', args: []);
+  }
+
   /// `Error occurred during fetching manga configs`
   String get home_fetching_mangas_configs_error {
     return Intl.message(

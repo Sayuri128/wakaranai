@@ -9,6 +9,7 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page_arguments.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/my_extension_sources_page.dart';
+import 'package:wakaranai/ui/home/library_page/library_concrete_viewer.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/anime_concrete_viewer/anime_concrete_viewer.dart';
@@ -94,6 +95,9 @@ class _AppViewState extends State<AppView> {
               WebBrowserPage(data: settings.arguments as WebBrowserData),
           Routes.iframeAnimePlayer: (BuildContext context) => AnimeIframePlayer(
               data: settings.arguments as AnimeIframePlayerData),
+          Routes.libraryConcreteViewer: (BuildContext context) =>
+              LibraryConcreteViewer(
+                  data: settings.arguments as LibraryConcreteViewerData),
           Routes.myExtensionSources: (BuildContext context) =>
               const MyExtensionSourcesPage(),
           Routes.addExtensionSource: (BuildContext context) => AddExtensionPage(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:capyscript/api_clients/anime_api_client.dart';
@@ -11,7 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
+import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
+import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
@@ -75,6 +78,30 @@ class AnimeConcreteViewer extends StatelessWidget
     } else {
       return _buildConcreteBody(init: true);
     }
+  }
+
+  Widget _buildFavoriteButton(
+      BuildContext context, AnimeConcreteView concreteView) {
+    return BlocBuilder<LibraryCubit, LibraryState>(
+      builder: (BuildContext context, LibraryState libState) {
+        final bool isFavorite = libState.entries
+            .any((LibraryEntryDomain e) => e.uid == concreteView.uid);
+        return ConcreteFavoriteButton(
+          isFavorite: isFavorite,
+          onTap: () => context.read<LibraryCubit>().toggleFavorite(
+                LibraryEntryDomain(
+                  id: 0,
+                  uid: concreteView.uid,
+                  extensionUid: data.configInfo.uid,
+                  title: concreteView.title,
+                  cover: concreteView.cover,
+                  data: jsonEncode(data.galleryData),
+                  createdAt: DateTime.now(),
+                ),
+              ),
+        );
+      },
+    );
   }
 
   Widget _buildConcreteBody({required bool init}) {
@@ -227,6 +254,12 @@ class AnimeConcreteViewer extends StatelessWidget
                 left: 0,
                 child: ConcreteBackButton(),
               ),
+              if (initialized && concreteView != null)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: _buildFavoriteButton(context, concreteView),
+                ),
               if (initialized) getSelectionOverlay(context, state),
             ],
           );

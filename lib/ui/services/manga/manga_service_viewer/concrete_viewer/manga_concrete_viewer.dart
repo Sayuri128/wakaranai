@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
@@ -10,10 +11,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
+import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
+import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
+import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
@@ -34,6 +38,7 @@ class MangaConcreteViewerData {
   final Map<String, dynamic> galleryData;
   final MangaApiClient client;
   final ConfigInfo configInfo;
+  final bool fromLibrary;
 
   const MangaConcreteViewerData({
     required this.uid,
@@ -42,6 +47,7 @@ class MangaConcreteViewerData {
     required this.galleryData,
     required this.client,
     required this.configInfo,
+    this.fromLibrary = false,
   });
 }
 
@@ -59,7 +65,47 @@ class MangaConcreteViewer extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
+    if (data.fromLibrary) {
+      return WebBrowserWrapper<MangaApiClient>(
+        configInfo: data.configInfo,
+        apiClient: data.client,
+        onInterceptorInitialized: () {
+          _scaffoldKey.currentContext
+              ?.read<
+                  ConcreteViewCubit<MangaApiClient, MangaConcreteView,
+                      MangaGalleryView>>()
+              .getConcrete(data.uid, data.galleryData);
+        },
+        builder: (BuildContext context, Completer<bool> completer) =>
+            _wrapWithBrowserInterceptorCubit(
+                child: _buildConcreteBody(false), completer: completer),
+      );
+    }
     return _buildConcreteBody(true);
+  }
+
+  Widget _buildFavoriteButton(
+      BuildContext context, MangaConcreteView concreteView) {
+    return BlocBuilder<LibraryCubit, LibraryState>(
+      builder: (BuildContext context, LibraryState libState) {
+        final bool isFavorite = libState.entries
+            .any((LibraryEntryDomain e) => e.uid == concreteView.uid);
+        return ConcreteFavoriteButton(
+          isFavorite: isFavorite,
+          onTap: () => context.read<LibraryCubit>().toggleFavorite(
+                LibraryEntryDomain(
+                  id: 0,
+                  uid: concreteView.uid,
+                  extensionUid: data.configInfo.uid,
+                  title: concreteView.title,
+                  cover: concreteView.cover,
+                  data: jsonEncode(data.galleryData),
+                  createdAt: DateTime.now(),
+                ),
+              ),
+        );
+      },
+    );
   }
 
   Widget _buildConcreteBody(bool init) {
@@ -82,7 +128,6 @@ class MangaConcreteViewer extends StatelessWidget
     );
   }
 
-  // ignore: unused_element
   Widget _wrapWithBrowserInterceptorCubit(
       {required Widget child, required Completer<bool> completer}) {
     if (data.configInfo.protectorConfig?.inAppBrowserInterceptor ?? false) {
@@ -220,6 +265,12 @@ class MangaConcreteViewer extends StatelessWidget
                 left: 0,
                 child: ConcreteBackButton(),
               ),
+              if (initialized && concreteView != null)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: _buildFavoriteButton(context, concreteView),
+                ),
               if (initialized) getSelectionOverlay(context, state),
             ],
           );

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
+import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
@@ -59,6 +60,13 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
           BlocProvider<ThemeCubit>(
             lazy: false,
             create: (BuildContext context) => ThemeCubit()..init(),
+          ),
+          BlocProvider<LibraryCubit>(
+            lazy: false,
+            create: (BuildContext context) => LibraryCubit(
+              libraryEntryRepository: RepositoryProvider.of(context),
+              categoryRepository: RepositoryProvider.of(context),
+            )..init(),
           ),
           BlocProvider<HomePageCubit>(
             create: (BuildContext context) => HomePageCubit(),
