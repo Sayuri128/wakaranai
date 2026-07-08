@@ -56,9 +56,8 @@ class _LibraryPageState extends State<LibraryPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       _buildHeader(context, state),
-                      if (!_selectionMode &&
-                          (state.categories.isNotEmpty ||
-                              _hasUncategorized(state)))
+                      if (state.categories.isNotEmpty ||
+                          _hasUncategorized(state))
                         _buildCategoryChips(context, state),
                       Expanded(child: _buildGrid(context, state)),
                     ],
@@ -98,38 +97,72 @@ class _LibraryPageState extends State<LibraryPage> {
                 shadowColor: Colors.black.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(18),
                 clipBehavior: Clip.antiAlias,
-                child: Padding(
-                  padding: const EdgeInsets.all(6),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: _SelectionAction(
-                          icon: Icons.drive_file_move_outline,
-                          label: S.current.library_move_to_category,
-                          color: AppColors.primary,
-                          onTap: () => _showBulkMoveSheet(context, state),
-                        ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 10, 8, 6),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Text(
+                              S.current.library_selected_count(_selected.length),
+                              style: semibold(size: 15),
+                            ),
+                          ),
+                          _CircleIconButton(
+                            icon: Icons.select_all_rounded,
+                            small: true,
+                            onTap: () => _selectAllVisible(state),
+                          ),
+                          const SizedBox(width: 6),
+                          _CircleIconButton(
+                            icon: Icons.close_rounded,
+                            small: true,
+                            onTap: _clearSelection,
+                          ),
+                        ],
                       ),
-                      Container(
-                        width: 1,
-                        height: 28,
-                        color: AppColors.overlay(0.08),
+                    ),
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: AppColors.overlay(0.06),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(6),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: _SelectionAction(
+                              icon: Icons.drive_file_move_outline,
+                              label: S.current.library_move_to_category,
+                              color: AppColors.primary,
+                              onTap: () => _showBulkMoveSheet(context, state),
+                            ),
+                          ),
+                          Container(
+                            width: 1,
+                            height: 28,
+                            color: AppColors.overlay(0.08),
+                          ),
+                          Expanded(
+                            child: _SelectionAction(
+                              icon: Icons.delete_outline_rounded,
+                              label: S.current.library_remove,
+                              color: AppColors.red,
+                              onTap: () {
+                                context
+                                    .read<LibraryCubit>()
+                                    .removeMany(_selected.toList());
+                                _clearSelection();
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                      Expanded(
-                        child: _SelectionAction(
-                          icon: Icons.delete_outline_rounded,
-                          label: S.current.library_remove,
-                          color: AppColors.red,
-                          onTap: () {
-                            context
-                                .read<LibraryCubit>()
-                                .removeMany(_selected.toList());
-                            _clearSelection();
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -155,35 +188,6 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   Widget _buildHeader(BuildContext context, LibraryState state) {
-    if (_selectionMode) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
-        child: Row(
-          children: <Widget>[
-            _CircleIconButton(
-              icon: Icons.close_rounded,
-              onTap: _clearSelection,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                S.current.library_selected_count(_selected.length),
-                style: semibold(size: 20),
-              ),
-            ),
-            _CircleIconButton(
-              icon: Icons.select_all_rounded,
-              onTap: () => setState(() {
-                _selected
-                  ..clear()
-                  ..addAll(_visibleEntries(state)
-                      .map((LibraryEntryDomain e) => e.uid));
-              }),
-            ),
-          ],
-        ),
-      );
-    }
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
       child: Row(
@@ -206,6 +210,14 @@ class _LibraryPageState extends State<LibraryPage> {
         ],
       ),
     );
+  }
+
+  void _selectAllVisible(LibraryState state) {
+    setState(() {
+      _selected
+        ..clear()
+        ..addAll(_visibleEntries(state).map((LibraryEntryDomain e) => e.uid));
+    });
   }
 
   Widget _buildCategoryChips(BuildContext context, LibraryState state) {
@@ -260,7 +272,7 @@ class _LibraryPageState extends State<LibraryPage> {
             (constraints.maxWidth / 180).floor().clamp(2, 6);
         final double itemWidth = constraints.maxWidth / crossAxisCount;
         return GridView.builder(
-          padding: EdgeInsets.fromLTRB(12, 4, 12, _selectionMode ? 120 : 24),
+          padding: EdgeInsets.fromLTRB(12, 4, 12, _selectionMode ? 150 : 24),
           physics: const BouncingScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
