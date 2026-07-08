@@ -394,17 +394,6 @@ class SettingsPage extends StatelessWidget {
 
     if (sections == null || sections.isEmpty || !context.mounted) return;
 
-    final String? path = picked.path;
-    if (path != null && cubit.backgroundImportSupported) {
-      final bool started = await cubit.importInBackground(
-        bundle,
-        sections,
-        path,
-      );
-      if (started) return;
-    }
-
-    if (!context.mounted) return;
     await cubit.importBundle(context, bundle, sections);
   }
 
