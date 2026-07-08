@@ -35,13 +35,13 @@ void main() {
     addTearDown(raw.dispose);
 
     final WakaranaiDatabase first = await _open(raw);
-    expect(await _userVersion(first), 7);
+    expect(await _userVersion(first), 8);
     await first.close();
 
     raw.execute('PRAGMA user_version = 5;');
 
     final WakaranaiDatabase second = await _open(raw);
-    expect(await _userVersion(second), 7);
+    expect(await _userVersion(second), 8);
     await second.close();
   });
 
@@ -57,7 +57,7 @@ void main() {
     raw.execute('PRAGMA user_version = 5;');
 
     final WakaranaiDatabase second = await _open(raw);
-    expect(await _userVersion(second), 7);
+    expect(await _userVersion(second), 8);
 
     final List<QueryRow> concreteCols = await second
         .customSelect('PRAGMA table_info(concrete_data_table);')
@@ -74,6 +74,56 @@ void main() {
       isTrue,
     );
 
+    await second.close();
+  });
+
+  test('upgrade from v7 creates the library update table and flags', () async {
+    final Database raw = sqlite3.openInMemory();
+    addTearDown(raw.dispose);
+
+    final WakaranaiDatabase first = await _open(raw);
+    await first.close();
+
+    raw.execute('DROP TABLE library_update_table;');
+    raw.execute('ALTER TABLE library_entry_table DROP COLUMN track_updates;');
+    raw.execute('ALTER TABLE library_entry_table DROP COLUMN notify_updates;');
+    raw.execute('PRAGMA user_version = 7;');
+
+    final WakaranaiDatabase second = await _open(raw);
+    expect(await _userVersion(second), 8);
+
+    final List<QueryRow> tables = await second
+        .customSelect(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'library_update_table';")
+        .get();
+    expect(tables, isNotEmpty);
+
+    final List<QueryRow> entryCols = await second
+        .customSelect('PRAGMA table_info(library_entry_table);')
+        .get();
+    expect(
+      entryCols.any((QueryRow r) => r.data['name'] == 'track_updates'),
+      isTrue,
+    );
+    expect(
+      entryCols.any((QueryRow r) => r.data['name'] == 'notify_updates'),
+      isTrue,
+    );
+
+    await second.close();
+  });
+
+  test('upgrade to v8 is idempotent when the table already exists', () async {
+    final Database raw = sqlite3.openInMemory();
+    addTearDown(raw.dispose);
+
+    final WakaranaiDatabase first = await _open(raw);
+    await first.close();
+
+    raw.execute('PRAGMA user_version = 7;');
+
+    final WakaranaiDatabase second = await _open(raw);
+    expect(await _userVersion(second), 8);
     await second.close();
   });
 }

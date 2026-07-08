@@ -17,4 +17,8 @@ class LibraryEntryTable extends BaseTable {
       integer().nullable().references(CategoryTable, #id)();
 
   DateTimeColumn get lastReadAt => dateTime().nullable()();
+
+  BoolColumn get trackUpdates => boolean().withDefault(const Constant(true))();
+
+  BoolColumn get notifyUpdates => boolean().withDefault(const Constant(true))();
 }

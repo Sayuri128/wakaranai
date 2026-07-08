@@ -13,6 +13,7 @@ import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/data/entities/extension_source_table.dart';
 import 'package:wakaranai/data/entities/extension_table.dart';
 import 'package:wakaranai/data/entities/library_entry_table.dart';
+import 'package:wakaranai/data/entities/library_update_table.dart';
 
 part 'wakaranai_database.g.dart';
 
@@ -25,6 +26,7 @@ part 'wakaranai_database.g.dart';
   CategoryTable,
   LibraryEntryTable,
   DownloadTable,
+  LibraryUpdateTable,
 ])
 class WakaranaiDatabase extends _$WakaranaiDatabase {
   WakaranaiDatabase() : super(_openConnection());
@@ -65,6 +67,13 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
             await _addColumnIfMissing(
                 m, downloadTable, downloadTable.concreteCover);
           }
+          if (from < 8) {
+            await _createTableIfMissing(m, libraryUpdateTable);
+            await _addColumnIfMissing(
+                m, libraryEntryTable, libraryEntryTable.trackUpdates);
+            await _addColumnIfMissing(
+                m, libraryEntryTable, libraryEntryTable.notifyUpdates);
+          }
         },
       );
 
@@ -77,6 +86,22 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
     await m.addColumn(table, column);
   }
 
+  Future<void> _createTableIfMissing(
+    Migrator m,
+    TableInfo<Table, dynamic> table,
+  ) async {
+    if (await _hasTable(table.actualTableName)) return;
+    await m.createTable(table);
+  }
+
+  Future<bool> _hasTable(String table) async {
+    final List<QueryRow> rows = await customSelect(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?;",
+      variables: <Variable<Object>>[Variable<String>(table)],
+    ).get();
+    return rows.isNotEmpty;
+  }
+
   Future<bool> _hasColumn(String table, String column) async {
     final List<QueryRow> rows =
         await customSelect('PRAGMA table_info($table);').get();
@@ -84,7 +109,7 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
   }
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 }
 
 LazyDatabase _openConnection() {

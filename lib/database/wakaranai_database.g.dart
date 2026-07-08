@@ -3384,6 +3384,36 @@ class $LibraryEntryTableTable extends LibraryEntryTable
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _trackUpdatesMeta = const VerificationMeta(
+    'trackUpdates',
+  );
+  @override
+  late final GeneratedColumn<bool> trackUpdates = GeneratedColumn<bool>(
+    'track_updates',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("track_updates" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _notifyUpdatesMeta = const VerificationMeta(
+    'notifyUpdates',
+  );
+  @override
+  late final GeneratedColumn<bool> notifyUpdates = GeneratedColumn<bool>(
+    'notify_updates',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("notify_updates" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -3396,6 +3426,8 @@ class $LibraryEntryTableTable extends LibraryEntryTable
     data,
     categoryId,
     lastReadAt,
+    trackUpdates,
+    notifyUpdates,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3478,6 +3510,24 @@ class $LibraryEntryTableTable extends LibraryEntryTable
         ),
       );
     }
+    if (data.containsKey('track_updates')) {
+      context.handle(
+        _trackUpdatesMeta,
+        trackUpdates.isAcceptableOrUnknown(
+          data['track_updates']!,
+          _trackUpdatesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notify_updates')) {
+      context.handle(
+        _notifyUpdatesMeta,
+        notifyUpdates.isAcceptableOrUnknown(
+          data['notify_updates']!,
+          _notifyUpdatesMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -3527,6 +3577,14 @@ class $LibraryEntryTableTable extends LibraryEntryTable
         DriftSqlType.dateTime,
         data['${effectivePrefix}last_read_at'],
       ),
+      trackUpdates: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}track_updates'],
+      )!,
+      notifyUpdates: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}notify_updates'],
+      )!,
     );
   }
 
@@ -3548,6 +3606,8 @@ class LibraryEntryTableData extends DataClass
   final String? data;
   final int? categoryId;
   final DateTime? lastReadAt;
+  final bool trackUpdates;
+  final bool notifyUpdates;
   const LibraryEntryTableData({
     required this.id,
     required this.createdAt,
@@ -3559,6 +3619,8 @@ class LibraryEntryTableData extends DataClass
     this.data,
     this.categoryId,
     this.lastReadAt,
+    required this.trackUpdates,
+    required this.notifyUpdates,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3583,6 +3645,8 @@ class LibraryEntryTableData extends DataClass
     if (!nullToAbsent || lastReadAt != null) {
       map['last_read_at'] = Variable<DateTime>(lastReadAt);
     }
+    map['track_updates'] = Variable<bool>(trackUpdates);
+    map['notify_updates'] = Variable<bool>(notifyUpdates);
     return map;
   }
 
@@ -3606,6 +3670,8 @@ class LibraryEntryTableData extends DataClass
       lastReadAt: lastReadAt == null && nullToAbsent
           ? const Value.absent()
           : Value(lastReadAt),
+      trackUpdates: Value(trackUpdates),
+      notifyUpdates: Value(notifyUpdates),
     );
   }
 
@@ -3625,6 +3691,8 @@ class LibraryEntryTableData extends DataClass
       data: serializer.fromJson<String?>(json['data']),
       categoryId: serializer.fromJson<int?>(json['categoryId']),
       lastReadAt: serializer.fromJson<DateTime?>(json['lastReadAt']),
+      trackUpdates: serializer.fromJson<bool>(json['trackUpdates']),
+      notifyUpdates: serializer.fromJson<bool>(json['notifyUpdates']),
     );
   }
   @override
@@ -3641,6 +3709,8 @@ class LibraryEntryTableData extends DataClass
       'data': serializer.toJson<String?>(data),
       'categoryId': serializer.toJson<int?>(categoryId),
       'lastReadAt': serializer.toJson<DateTime?>(lastReadAt),
+      'trackUpdates': serializer.toJson<bool>(trackUpdates),
+      'notifyUpdates': serializer.toJson<bool>(notifyUpdates),
     };
   }
 
@@ -3655,6 +3725,8 @@ class LibraryEntryTableData extends DataClass
     Value<String?> data = const Value.absent(),
     Value<int?> categoryId = const Value.absent(),
     Value<DateTime?> lastReadAt = const Value.absent(),
+    bool? trackUpdates,
+    bool? notifyUpdates,
   }) => LibraryEntryTableData(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -3666,6 +3738,8 @@ class LibraryEntryTableData extends DataClass
     data: data.present ? data.value : this.data,
     categoryId: categoryId.present ? categoryId.value : this.categoryId,
     lastReadAt: lastReadAt.present ? lastReadAt.value : this.lastReadAt,
+    trackUpdates: trackUpdates ?? this.trackUpdates,
+    notifyUpdates: notifyUpdates ?? this.notifyUpdates,
   );
   LibraryEntryTableData copyWithCompanion(LibraryEntryTableCompanion data) {
     return LibraryEntryTableData(
@@ -3685,6 +3759,12 @@ class LibraryEntryTableData extends DataClass
       lastReadAt: data.lastReadAt.present
           ? data.lastReadAt.value
           : this.lastReadAt,
+      trackUpdates: data.trackUpdates.present
+          ? data.trackUpdates.value
+          : this.trackUpdates,
+      notifyUpdates: data.notifyUpdates.present
+          ? data.notifyUpdates.value
+          : this.notifyUpdates,
     );
   }
 
@@ -3700,7 +3780,9 @@ class LibraryEntryTableData extends DataClass
           ..write('cover: $cover, ')
           ..write('data: $data, ')
           ..write('categoryId: $categoryId, ')
-          ..write('lastReadAt: $lastReadAt')
+          ..write('lastReadAt: $lastReadAt, ')
+          ..write('trackUpdates: $trackUpdates, ')
+          ..write('notifyUpdates: $notifyUpdates')
           ..write(')'))
         .toString();
   }
@@ -3717,6 +3799,8 @@ class LibraryEntryTableData extends DataClass
     data,
     categoryId,
     lastReadAt,
+    trackUpdates,
+    notifyUpdates,
   );
   @override
   bool operator ==(Object other) =>
@@ -3731,7 +3815,9 @@ class LibraryEntryTableData extends DataClass
           other.cover == this.cover &&
           other.data == this.data &&
           other.categoryId == this.categoryId &&
-          other.lastReadAt == this.lastReadAt);
+          other.lastReadAt == this.lastReadAt &&
+          other.trackUpdates == this.trackUpdates &&
+          other.notifyUpdates == this.notifyUpdates);
 }
 
 class LibraryEntryTableCompanion
@@ -3746,6 +3832,8 @@ class LibraryEntryTableCompanion
   final Value<String?> data;
   final Value<int?> categoryId;
   final Value<DateTime?> lastReadAt;
+  final Value<bool> trackUpdates;
+  final Value<bool> notifyUpdates;
   const LibraryEntryTableCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -3757,6 +3845,8 @@ class LibraryEntryTableCompanion
     this.data = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.lastReadAt = const Value.absent(),
+    this.trackUpdates = const Value.absent(),
+    this.notifyUpdates = const Value.absent(),
   });
   LibraryEntryTableCompanion.insert({
     this.id = const Value.absent(),
@@ -3769,6 +3859,8 @@ class LibraryEntryTableCompanion
     this.data = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.lastReadAt = const Value.absent(),
+    this.trackUpdates = const Value.absent(),
+    this.notifyUpdates = const Value.absent(),
   }) : uid = Value(uid),
        extensionUid = Value(extensionUid),
        title = Value(title);
@@ -3783,6 +3875,8 @@ class LibraryEntryTableCompanion
     Expression<String>? data,
     Expression<int>? categoryId,
     Expression<DateTime>? lastReadAt,
+    Expression<bool>? trackUpdates,
+    Expression<bool>? notifyUpdates,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3795,6 +3889,8 @@ class LibraryEntryTableCompanion
       if (data != null) 'data': data,
       if (categoryId != null) 'category_id': categoryId,
       if (lastReadAt != null) 'last_read_at': lastReadAt,
+      if (trackUpdates != null) 'track_updates': trackUpdates,
+      if (notifyUpdates != null) 'notify_updates': notifyUpdates,
     });
   }
 
@@ -3809,6 +3905,8 @@ class LibraryEntryTableCompanion
     Value<String?>? data,
     Value<int?>? categoryId,
     Value<DateTime?>? lastReadAt,
+    Value<bool>? trackUpdates,
+    Value<bool>? notifyUpdates,
   }) {
     return LibraryEntryTableCompanion(
       id: id ?? this.id,
@@ -3821,6 +3919,8 @@ class LibraryEntryTableCompanion
       data: data ?? this.data,
       categoryId: categoryId ?? this.categoryId,
       lastReadAt: lastReadAt ?? this.lastReadAt,
+      trackUpdates: trackUpdates ?? this.trackUpdates,
+      notifyUpdates: notifyUpdates ?? this.notifyUpdates,
     );
   }
 
@@ -3857,6 +3957,12 @@ class LibraryEntryTableCompanion
     if (lastReadAt.present) {
       map['last_read_at'] = Variable<DateTime>(lastReadAt.value);
     }
+    if (trackUpdates.present) {
+      map['track_updates'] = Variable<bool>(trackUpdates.value);
+    }
+    if (notifyUpdates.present) {
+      map['notify_updates'] = Variable<bool>(notifyUpdates.value);
+    }
     return map;
   }
 
@@ -3872,7 +3978,9 @@ class LibraryEntryTableCompanion
           ..write('cover: $cover, ')
           ..write('data: $data, ')
           ..write('categoryId: $categoryId, ')
-          ..write('lastReadAt: $lastReadAt')
+          ..write('lastReadAt: $lastReadAt, ')
+          ..write('trackUpdates: $trackUpdates, ')
+          ..write('notifyUpdates: $notifyUpdates')
           ..write(')'))
         .toString();
   }
@@ -4791,6 +4899,723 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
   }
 }
 
+class $LibraryUpdateTableTable extends LibraryUpdateTable
+    with TableInfo<$LibraryUpdateTableTable, LibraryUpdateTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LibraryUpdateTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: () => DateTime.now(),
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _libraryEntryUidMeta = const VerificationMeta(
+    'libraryEntryUid',
+  );
+  @override
+  late final GeneratedColumn<String> libraryEntryUid = GeneratedColumn<String>(
+    'library_entry_uid',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _extensionUidMeta = const VerificationMeta(
+    'extensionUid',
+  );
+  @override
+  late final GeneratedColumn<String> extensionUid = GeneratedColumn<String>(
+    'extension_uid',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _concreteTitleMeta = const VerificationMeta(
+    'concreteTitle',
+  );
+  @override
+  late final GeneratedColumn<String> concreteTitle = GeneratedColumn<String>(
+    'concrete_title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _concreteCoverMeta = const VerificationMeta(
+    'concreteCover',
+  );
+  @override
+  late final GeneratedColumn<String> concreteCover = GeneratedColumn<String>(
+    'concrete_cover',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<UpdateMediaType, int> mediaType =
+      GeneratedColumn<int>(
+        'media_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<UpdateMediaType>(
+        $LibraryUpdateTableTable.$convertermediaType,
+      );
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+    'data',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _seenMeta = const VerificationMeta('seen');
+  @override
+  late final GeneratedColumn<bool> seen = GeneratedColumn<bool>(
+    'seen',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("seen" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    uid,
+    libraryEntryUid,
+    extensionUid,
+    title,
+    concreteTitle,
+    concreteCover,
+    mediaType,
+    data,
+    seen,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'library_update_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LibraryUpdateTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('library_entry_uid')) {
+      context.handle(
+        _libraryEntryUidMeta,
+        libraryEntryUid.isAcceptableOrUnknown(
+          data['library_entry_uid']!,
+          _libraryEntryUidMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_libraryEntryUidMeta);
+    }
+    if (data.containsKey('extension_uid')) {
+      context.handle(
+        _extensionUidMeta,
+        extensionUid.isAcceptableOrUnknown(
+          data['extension_uid']!,
+          _extensionUidMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_extensionUidMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('concrete_title')) {
+      context.handle(
+        _concreteTitleMeta,
+        concreteTitle.isAcceptableOrUnknown(
+          data['concrete_title']!,
+          _concreteTitleMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_concreteTitleMeta);
+    }
+    if (data.containsKey('concrete_cover')) {
+      context.handle(
+        _concreteCoverMeta,
+        concreteCover.isAcceptableOrUnknown(
+          data['concrete_cover']!,
+          _concreteCoverMeta,
+        ),
+      );
+    }
+    if (data.containsKey('data')) {
+      context.handle(
+        _dataMeta,
+        this.data.isAcceptableOrUnknown(data['data']!, _dataMeta),
+      );
+    }
+    if (data.containsKey('seen')) {
+      context.handle(
+        _seenMeta,
+        seen.isAcceptableOrUnknown(data['seen']!, _seenMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LibraryUpdateTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LibraryUpdateTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      )!,
+      libraryEntryUid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}library_entry_uid'],
+      )!,
+      extensionUid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}extension_uid'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      concreteTitle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}concrete_title'],
+      )!,
+      concreteCover: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}concrete_cover'],
+      ),
+      mediaType: $LibraryUpdateTableTable.$convertermediaType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}media_type'],
+        )!,
+      ),
+      data: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}data'],
+      ),
+      seen: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}seen'],
+      )!,
+    );
+  }
+
+  @override
+  $LibraryUpdateTableTable createAlias(String alias) {
+    return $LibraryUpdateTableTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<UpdateMediaType, int, int> $convertermediaType =
+      const EnumIndexConverter<UpdateMediaType>(UpdateMediaType.values);
+}
+
+class LibraryUpdateTableData extends DataClass
+    implements Insertable<LibraryUpdateTableData> {
+  final int id;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final String uid;
+  final String libraryEntryUid;
+  final String extensionUid;
+  final String title;
+  final String concreteTitle;
+  final String? concreteCover;
+  final UpdateMediaType mediaType;
+  final String? data;
+  final bool seen;
+  const LibraryUpdateTableData({
+    required this.id,
+    required this.createdAt,
+    this.updatedAt,
+    required this.uid,
+    required this.libraryEntryUid,
+    required this.extensionUid,
+    required this.title,
+    required this.concreteTitle,
+    this.concreteCover,
+    required this.mediaType,
+    this.data,
+    required this.seen,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['uid'] = Variable<String>(uid);
+    map['library_entry_uid'] = Variable<String>(libraryEntryUid);
+    map['extension_uid'] = Variable<String>(extensionUid);
+    map['title'] = Variable<String>(title);
+    map['concrete_title'] = Variable<String>(concreteTitle);
+    if (!nullToAbsent || concreteCover != null) {
+      map['concrete_cover'] = Variable<String>(concreteCover);
+    }
+    {
+      map['media_type'] = Variable<int>(
+        $LibraryUpdateTableTable.$convertermediaType.toSql(mediaType),
+      );
+    }
+    if (!nullToAbsent || data != null) {
+      map['data'] = Variable<String>(data);
+    }
+    map['seen'] = Variable<bool>(seen);
+    return map;
+  }
+
+  LibraryUpdateTableCompanion toCompanion(bool nullToAbsent) {
+    return LibraryUpdateTableCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      uid: Value(uid),
+      libraryEntryUid: Value(libraryEntryUid),
+      extensionUid: Value(extensionUid),
+      title: Value(title),
+      concreteTitle: Value(concreteTitle),
+      concreteCover: concreteCover == null && nullToAbsent
+          ? const Value.absent()
+          : Value(concreteCover),
+      mediaType: Value(mediaType),
+      data: data == null && nullToAbsent ? const Value.absent() : Value(data),
+      seen: Value(seen),
+    );
+  }
+
+  factory LibraryUpdateTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LibraryUpdateTableData(
+      id: serializer.fromJson<int>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      uid: serializer.fromJson<String>(json['uid']),
+      libraryEntryUid: serializer.fromJson<String>(json['libraryEntryUid']),
+      extensionUid: serializer.fromJson<String>(json['extensionUid']),
+      title: serializer.fromJson<String>(json['title']),
+      concreteTitle: serializer.fromJson<String>(json['concreteTitle']),
+      concreteCover: serializer.fromJson<String?>(json['concreteCover']),
+      mediaType: $LibraryUpdateTableTable.$convertermediaType.fromJson(
+        serializer.fromJson<int>(json['mediaType']),
+      ),
+      data: serializer.fromJson<String?>(json['data']),
+      seen: serializer.fromJson<bool>(json['seen']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'uid': serializer.toJson<String>(uid),
+      'libraryEntryUid': serializer.toJson<String>(libraryEntryUid),
+      'extensionUid': serializer.toJson<String>(extensionUid),
+      'title': serializer.toJson<String>(title),
+      'concreteTitle': serializer.toJson<String>(concreteTitle),
+      'concreteCover': serializer.toJson<String?>(concreteCover),
+      'mediaType': serializer.toJson<int>(
+        $LibraryUpdateTableTable.$convertermediaType.toJson(mediaType),
+      ),
+      'data': serializer.toJson<String?>(data),
+      'seen': serializer.toJson<bool>(seen),
+    };
+  }
+
+  LibraryUpdateTableData copyWith({
+    int? id,
+    DateTime? createdAt,
+    Value<DateTime?> updatedAt = const Value.absent(),
+    String? uid,
+    String? libraryEntryUid,
+    String? extensionUid,
+    String? title,
+    String? concreteTitle,
+    Value<String?> concreteCover = const Value.absent(),
+    UpdateMediaType? mediaType,
+    Value<String?> data = const Value.absent(),
+    bool? seen,
+  }) => LibraryUpdateTableData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    uid: uid ?? this.uid,
+    libraryEntryUid: libraryEntryUid ?? this.libraryEntryUid,
+    extensionUid: extensionUid ?? this.extensionUid,
+    title: title ?? this.title,
+    concreteTitle: concreteTitle ?? this.concreteTitle,
+    concreteCover: concreteCover.present
+        ? concreteCover.value
+        : this.concreteCover,
+    mediaType: mediaType ?? this.mediaType,
+    data: data.present ? data.value : this.data,
+    seen: seen ?? this.seen,
+  );
+  LibraryUpdateTableData copyWithCompanion(LibraryUpdateTableCompanion data) {
+    return LibraryUpdateTableData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      uid: data.uid.present ? data.uid.value : this.uid,
+      libraryEntryUid: data.libraryEntryUid.present
+          ? data.libraryEntryUid.value
+          : this.libraryEntryUid,
+      extensionUid: data.extensionUid.present
+          ? data.extensionUid.value
+          : this.extensionUid,
+      title: data.title.present ? data.title.value : this.title,
+      concreteTitle: data.concreteTitle.present
+          ? data.concreteTitle.value
+          : this.concreteTitle,
+      concreteCover: data.concreteCover.present
+          ? data.concreteCover.value
+          : this.concreteCover,
+      mediaType: data.mediaType.present ? data.mediaType.value : this.mediaType,
+      data: data.data.present ? data.data.value : this.data,
+      seen: data.seen.present ? data.seen.value : this.seen,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryUpdateTableData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('libraryEntryUid: $libraryEntryUid, ')
+          ..write('extensionUid: $extensionUid, ')
+          ..write('title: $title, ')
+          ..write('concreteTitle: $concreteTitle, ')
+          ..write('concreteCover: $concreteCover, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('data: $data, ')
+          ..write('seen: $seen')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    uid,
+    libraryEntryUid,
+    extensionUid,
+    title,
+    concreteTitle,
+    concreteCover,
+    mediaType,
+    data,
+    seen,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LibraryUpdateTableData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.uid == this.uid &&
+          other.libraryEntryUid == this.libraryEntryUid &&
+          other.extensionUid == this.extensionUid &&
+          other.title == this.title &&
+          other.concreteTitle == this.concreteTitle &&
+          other.concreteCover == this.concreteCover &&
+          other.mediaType == this.mediaType &&
+          other.data == this.data &&
+          other.seen == this.seen);
+}
+
+class LibraryUpdateTableCompanion
+    extends UpdateCompanion<LibraryUpdateTableData> {
+  final Value<int> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<String> uid;
+  final Value<String> libraryEntryUid;
+  final Value<String> extensionUid;
+  final Value<String> title;
+  final Value<String> concreteTitle;
+  final Value<String?> concreteCover;
+  final Value<UpdateMediaType> mediaType;
+  final Value<String?> data;
+  final Value<bool> seen;
+  const LibraryUpdateTableCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.uid = const Value.absent(),
+    this.libraryEntryUid = const Value.absent(),
+    this.extensionUid = const Value.absent(),
+    this.title = const Value.absent(),
+    this.concreteTitle = const Value.absent(),
+    this.concreteCover = const Value.absent(),
+    this.mediaType = const Value.absent(),
+    this.data = const Value.absent(),
+    this.seen = const Value.absent(),
+  });
+  LibraryUpdateTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    required String uid,
+    required String libraryEntryUid,
+    required String extensionUid,
+    required String title,
+    required String concreteTitle,
+    this.concreteCover = const Value.absent(),
+    required UpdateMediaType mediaType,
+    this.data = const Value.absent(),
+    this.seen = const Value.absent(),
+  }) : uid = Value(uid),
+       libraryEntryUid = Value(libraryEntryUid),
+       extensionUid = Value(extensionUid),
+       title = Value(title),
+       concreteTitle = Value(concreteTitle),
+       mediaType = Value(mediaType);
+  static Insertable<LibraryUpdateTableData> custom({
+    Expression<int>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? uid,
+    Expression<String>? libraryEntryUid,
+    Expression<String>? extensionUid,
+    Expression<String>? title,
+    Expression<String>? concreteTitle,
+    Expression<String>? concreteCover,
+    Expression<int>? mediaType,
+    Expression<String>? data,
+    Expression<bool>? seen,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (uid != null) 'uid': uid,
+      if (libraryEntryUid != null) 'library_entry_uid': libraryEntryUid,
+      if (extensionUid != null) 'extension_uid': extensionUid,
+      if (title != null) 'title': title,
+      if (concreteTitle != null) 'concrete_title': concreteTitle,
+      if (concreteCover != null) 'concrete_cover': concreteCover,
+      if (mediaType != null) 'media_type': mediaType,
+      if (data != null) 'data': data,
+      if (seen != null) 'seen': seen,
+    });
+  }
+
+  LibraryUpdateTableCompanion copyWith({
+    Value<int>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime?>? updatedAt,
+    Value<String>? uid,
+    Value<String>? libraryEntryUid,
+    Value<String>? extensionUid,
+    Value<String>? title,
+    Value<String>? concreteTitle,
+    Value<String?>? concreteCover,
+    Value<UpdateMediaType>? mediaType,
+    Value<String?>? data,
+    Value<bool>? seen,
+  }) {
+    return LibraryUpdateTableCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      uid: uid ?? this.uid,
+      libraryEntryUid: libraryEntryUid ?? this.libraryEntryUid,
+      extensionUid: extensionUid ?? this.extensionUid,
+      title: title ?? this.title,
+      concreteTitle: concreteTitle ?? this.concreteTitle,
+      concreteCover: concreteCover ?? this.concreteCover,
+      mediaType: mediaType ?? this.mediaType,
+      data: data ?? this.data,
+      seen: seen ?? this.seen,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (libraryEntryUid.present) {
+      map['library_entry_uid'] = Variable<String>(libraryEntryUid.value);
+    }
+    if (extensionUid.present) {
+      map['extension_uid'] = Variable<String>(extensionUid.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (concreteTitle.present) {
+      map['concrete_title'] = Variable<String>(concreteTitle.value);
+    }
+    if (concreteCover.present) {
+      map['concrete_cover'] = Variable<String>(concreteCover.value);
+    }
+    if (mediaType.present) {
+      map['media_type'] = Variable<int>(
+        $LibraryUpdateTableTable.$convertermediaType.toSql(mediaType.value),
+      );
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
+    if (seen.present) {
+      map['seen'] = Variable<bool>(seen.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryUpdateTableCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('libraryEntryUid: $libraryEntryUid, ')
+          ..write('extensionUid: $extensionUid, ')
+          ..write('title: $title, ')
+          ..write('concreteTitle: $concreteTitle, ')
+          ..write('concreteCover: $concreteCover, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('data: $data, ')
+          ..write('seen: $seen')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$WakaranaiDatabase extends GeneratedDatabase {
   _$WakaranaiDatabase(QueryExecutor e) : super(e);
   $WakaranaiDatabaseManager get managers => $WakaranaiDatabaseManager(this);
@@ -4807,6 +5632,8 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
   late final $LibraryEntryTableTable libraryEntryTable =
       $LibraryEntryTableTable(this);
   late final $DownloadTableTable downloadTable = $DownloadTableTable(this);
+  late final $LibraryUpdateTableTable libraryUpdateTable =
+      $LibraryUpdateTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4820,6 +5647,7 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
     categoryTable,
     libraryEntryTable,
     downloadTable,
+    libraryUpdateTable,
   ];
 }
 
@@ -6538,6 +7366,8 @@ typedef $$LibraryEntryTableTableCreateCompanionBuilder =
       Value<String?> data,
       Value<int?> categoryId,
       Value<DateTime?> lastReadAt,
+      Value<bool> trackUpdates,
+      Value<bool> notifyUpdates,
     });
 typedef $$LibraryEntryTableTableUpdateCompanionBuilder =
     LibraryEntryTableCompanion Function({
@@ -6551,6 +7381,8 @@ typedef $$LibraryEntryTableTableUpdateCompanionBuilder =
       Value<String?> data,
       Value<int?> categoryId,
       Value<DateTime?> lastReadAt,
+      Value<bool> trackUpdates,
+      Value<bool> notifyUpdates,
     });
 
 class $$LibraryEntryTableTableFilterComposer
@@ -6609,6 +7441,16 @@ class $$LibraryEntryTableTableFilterComposer
 
   ColumnFilters<DateTime> get lastReadAt => $composableBuilder(
     column: $table.lastReadAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get trackUpdates => $composableBuilder(
+    column: $table.trackUpdates,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get notifyUpdates => $composableBuilder(
+    column: $table.notifyUpdates,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -6671,6 +7513,16 @@ class $$LibraryEntryTableTableOrderingComposer
     column: $table.lastReadAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get trackUpdates => $composableBuilder(
+    column: $table.trackUpdates,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get notifyUpdates => $composableBuilder(
+    column: $table.notifyUpdates,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$LibraryEntryTableTableAnnotationComposer
@@ -6715,6 +7567,16 @@ class $$LibraryEntryTableTableAnnotationComposer
 
   GeneratedColumn<DateTime> get lastReadAt => $composableBuilder(
     column: $table.lastReadAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get trackUpdates => $composableBuilder(
+    column: $table.trackUpdates,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get notifyUpdates => $composableBuilder(
+    column: $table.notifyUpdates,
     builder: (column) => column,
   );
 }
@@ -6769,6 +7631,8 @@ class $$LibraryEntryTableTableTableManager
                 Value<String?> data = const Value.absent(),
                 Value<int?> categoryId = const Value.absent(),
                 Value<DateTime?> lastReadAt = const Value.absent(),
+                Value<bool> trackUpdates = const Value.absent(),
+                Value<bool> notifyUpdates = const Value.absent(),
               }) => LibraryEntryTableCompanion(
                 id: id,
                 createdAt: createdAt,
@@ -6780,6 +7644,8 @@ class $$LibraryEntryTableTableTableManager
                 data: data,
                 categoryId: categoryId,
                 lastReadAt: lastReadAt,
+                trackUpdates: trackUpdates,
+                notifyUpdates: notifyUpdates,
               ),
           createCompanionCallback:
               ({
@@ -6793,6 +7659,8 @@ class $$LibraryEntryTableTableTableManager
                 Value<String?> data = const Value.absent(),
                 Value<int?> categoryId = const Value.absent(),
                 Value<DateTime?> lastReadAt = const Value.absent(),
+                Value<bool> trackUpdates = const Value.absent(),
+                Value<bool> notifyUpdates = const Value.absent(),
               }) => LibraryEntryTableCompanion.insert(
                 id: id,
                 createdAt: createdAt,
@@ -6804,6 +7672,8 @@ class $$LibraryEntryTableTableTableManager
                 data: data,
                 categoryId: categoryId,
                 lastReadAt: lastReadAt,
+                trackUpdates: trackUpdates,
+                notifyUpdates: notifyUpdates,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -7262,6 +8132,355 @@ typedef $$DownloadTableTableProcessedTableManager =
       DownloadTableData,
       PrefetchHooks Function()
     >;
+typedef $$LibraryUpdateTableTableCreateCompanionBuilder =
+    LibraryUpdateTableCompanion Function({
+      Value<int> id,
+      Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      required String uid,
+      required String libraryEntryUid,
+      required String extensionUid,
+      required String title,
+      required String concreteTitle,
+      Value<String?> concreteCover,
+      required UpdateMediaType mediaType,
+      Value<String?> data,
+      Value<bool> seen,
+    });
+typedef $$LibraryUpdateTableTableUpdateCompanionBuilder =
+    LibraryUpdateTableCompanion Function({
+      Value<int> id,
+      Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<String> uid,
+      Value<String> libraryEntryUid,
+      Value<String> extensionUid,
+      Value<String> title,
+      Value<String> concreteTitle,
+      Value<String?> concreteCover,
+      Value<UpdateMediaType> mediaType,
+      Value<String?> data,
+      Value<bool> seen,
+    });
+
+class $$LibraryUpdateTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $LibraryUpdateTableTable> {
+  $$LibraryUpdateTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get libraryEntryUid => $composableBuilder(
+    column: $table.libraryEntryUid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get concreteTitle => $composableBuilder(
+    column: $table.concreteTitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get concreteCover => $composableBuilder(
+    column: $table.concreteCover,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<UpdateMediaType, UpdateMediaType, int>
+  get mediaType => $composableBuilder(
+    column: $table.mediaType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get data => $composableBuilder(
+    column: $table.data,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get seen => $composableBuilder(
+    column: $table.seen,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LibraryUpdateTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $LibraryUpdateTableTable> {
+  $$LibraryUpdateTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get libraryEntryUid => $composableBuilder(
+    column: $table.libraryEntryUid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get concreteTitle => $composableBuilder(
+    column: $table.concreteTitle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get concreteCover => $composableBuilder(
+    column: $table.concreteCover,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get mediaType => $composableBuilder(
+    column: $table.mediaType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get data => $composableBuilder(
+    column: $table.data,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get seen => $composableBuilder(
+    column: $table.seen,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LibraryUpdateTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $LibraryUpdateTableTable> {
+  $$LibraryUpdateTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
+
+  GeneratedColumn<String> get libraryEntryUid => $composableBuilder(
+    column: $table.libraryEntryUid,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get concreteTitle => $composableBuilder(
+    column: $table.concreteTitle,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get concreteCover => $composableBuilder(
+    column: $table.concreteCover,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<UpdateMediaType, int> get mediaType =>
+      $composableBuilder(column: $table.mediaType, builder: (column) => column);
+
+  GeneratedColumn<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => column);
+
+  GeneratedColumn<bool> get seen =>
+      $composableBuilder(column: $table.seen, builder: (column) => column);
+}
+
+class $$LibraryUpdateTableTableTableManager
+    extends
+        RootTableManager<
+          _$WakaranaiDatabase,
+          $LibraryUpdateTableTable,
+          LibraryUpdateTableData,
+          $$LibraryUpdateTableTableFilterComposer,
+          $$LibraryUpdateTableTableOrderingComposer,
+          $$LibraryUpdateTableTableAnnotationComposer,
+          $$LibraryUpdateTableTableCreateCompanionBuilder,
+          $$LibraryUpdateTableTableUpdateCompanionBuilder,
+          (
+            LibraryUpdateTableData,
+            BaseReferences<
+              _$WakaranaiDatabase,
+              $LibraryUpdateTableTable,
+              LibraryUpdateTableData
+            >,
+          ),
+          LibraryUpdateTableData,
+          PrefetchHooks Function()
+        > {
+  $$LibraryUpdateTableTableTableManager(
+    _$WakaranaiDatabase db,
+    $LibraryUpdateTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LibraryUpdateTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LibraryUpdateTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LibraryUpdateTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<String> uid = const Value.absent(),
+                Value<String> libraryEntryUid = const Value.absent(),
+                Value<String> extensionUid = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> concreteTitle = const Value.absent(),
+                Value<String?> concreteCover = const Value.absent(),
+                Value<UpdateMediaType> mediaType = const Value.absent(),
+                Value<String?> data = const Value.absent(),
+                Value<bool> seen = const Value.absent(),
+              }) => LibraryUpdateTableCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                uid: uid,
+                libraryEntryUid: libraryEntryUid,
+                extensionUid: extensionUid,
+                title: title,
+                concreteTitle: concreteTitle,
+                concreteCover: concreteCover,
+                mediaType: mediaType,
+                data: data,
+                seen: seen,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                required String uid,
+                required String libraryEntryUid,
+                required String extensionUid,
+                required String title,
+                required String concreteTitle,
+                Value<String?> concreteCover = const Value.absent(),
+                required UpdateMediaType mediaType,
+                Value<String?> data = const Value.absent(),
+                Value<bool> seen = const Value.absent(),
+              }) => LibraryUpdateTableCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                uid: uid,
+                libraryEntryUid: libraryEntryUid,
+                extensionUid: extensionUid,
+                title: title,
+                concreteTitle: concreteTitle,
+                concreteCover: concreteCover,
+                mediaType: mediaType,
+                data: data,
+                seen: seen,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LibraryUpdateTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$WakaranaiDatabase,
+      $LibraryUpdateTableTable,
+      LibraryUpdateTableData,
+      $$LibraryUpdateTableTableFilterComposer,
+      $$LibraryUpdateTableTableOrderingComposer,
+      $$LibraryUpdateTableTableAnnotationComposer,
+      $$LibraryUpdateTableTableCreateCompanionBuilder,
+      $$LibraryUpdateTableTableUpdateCompanionBuilder,
+      (
+        LibraryUpdateTableData,
+        BaseReferences<
+          _$WakaranaiDatabase,
+          $LibraryUpdateTableTable,
+          LibraryUpdateTableData
+        >,
+      ),
+      LibraryUpdateTableData,
+      PrefetchHooks Function()
+    >;
 
 class $WakaranaiDatabaseManager {
   final _$WakaranaiDatabase _db;
@@ -7285,4 +8504,6 @@ class $WakaranaiDatabaseManager {
       $$LibraryEntryTableTableTableManager(_db, _db.libraryEntryTable);
   $$DownloadTableTableTableManager get downloadTable =>
       $$DownloadTableTableTableManager(_db, _db.downloadTable);
+  $$LibraryUpdateTableTableTableManager get libraryUpdateTable =>
+      $$LibraryUpdateTableTableTableManager(_db, _db.libraryUpdateTable);
 }

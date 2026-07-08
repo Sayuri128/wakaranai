@@ -9,6 +9,7 @@ import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
+import 'package:wakaranai/repositories/database/library_update_repository.dart';
 
 Widget repositoryProviders(BuildContext context, {required Widget child}) {
   return MultiRepositoryProvider(
@@ -65,6 +66,11 @@ Widget repositoryProviders(BuildContext context, {required Widget child}) {
       ),
       RepositoryProvider(
         create: (context) => DownloadRepository(
+          database: context.read<WakaranaiDatabase>(),
+        ),
+      ),
+      RepositoryProvider(
+        create: (context) => LibraryUpdateRepository(
           database: context.read<WakaranaiDatabase>(),
         ),
       ),

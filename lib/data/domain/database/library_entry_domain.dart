@@ -12,6 +12,8 @@ class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
   final String? data;
   final int? categoryId;
   final DateTime? lastReadAt;
+  final bool trackUpdates;
+  final bool notifyUpdates;
 
   Map<String, dynamic> get dataJson =>
       data != null ? jsonDecode(data!) as Map<String, dynamic> : {};
@@ -25,6 +27,8 @@ class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
     this.data,
     this.categoryId,
     this.lastReadAt,
+    this.trackUpdates = true,
+    this.notifyUpdates = true,
     required super.createdAt,
     super.updatedAt,
   });
@@ -39,6 +43,8 @@ class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
         data: data.data,
         categoryId: data.categoryId,
         lastReadAt: data.lastReadAt,
+        trackUpdates: data.trackUpdates,
+        notifyUpdates: data.notifyUpdates,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
       );
@@ -56,6 +62,8 @@ class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
         data: Value(data),
         categoryId: Value(categoryId),
         lastReadAt: Value(lastReadAt),
+        trackUpdates: Value(trackUpdates),
+        notifyUpdates: Value(notifyUpdates),
         createdAt: Value(createdAt),
       );
     }
@@ -69,6 +77,8 @@ class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
       data: Value(data),
       categoryId: Value(categoryId),
       lastReadAt: Value(lastReadAt),
+      trackUpdates: Value(trackUpdates),
+      notifyUpdates: Value(notifyUpdates),
       createdAt: Value(createdAt),
       updatedAt: Value(update ? DateTime.now() : updatedAt),
     );
@@ -78,6 +88,8 @@ class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
     int? categoryId,
     bool clearCategory = false,
     DateTime? lastReadAt,
+    bool? trackUpdates,
+    bool? notifyUpdates,
   }) =>
       LibraryEntryDomain(
         id: id,
@@ -88,6 +100,8 @@ class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
         data: data,
         categoryId: clearCategory ? null : (categoryId ?? this.categoryId),
         lastReadAt: lastReadAt ?? this.lastReadAt,
+        trackUpdates: trackUpdates ?? this.trackUpdates,
+        notifyUpdates: notifyUpdates ?? this.notifyUpdates,
         createdAt: createdAt,
         updatedAt: updatedAt,
       );
