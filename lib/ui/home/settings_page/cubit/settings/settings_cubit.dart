@@ -227,7 +227,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       logger.e(e);
       SnackBars.showErrorSnackBar(
         context: context,
-        error: S.current.settings_import_activity_history_error,
+        error: S.current.settings_import_error,
       );
       return null;
     }
@@ -404,7 +404,7 @@ class SettingsCubit extends Cubit<SettingsState> {
 
       await notificationService.showComplete(
         title: S.current.settings_import_notification_complete,
-        body: S.current.settings_import_activity_history_success(
+        body: S.current.settings_import_success(
             result.imported, result.total),
       );
 
@@ -420,7 +420,7 @@ class SettingsCubit extends Cubit<SettingsState> {
         await themeCubit.init();
       }
 
-      final String message = S.current.settings_import_activity_history_success(
+      final String message = S.current.settings_import_success(
           result.imported, result.total);
 
       SnackBars.showSnackBar(
@@ -434,7 +434,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       await notificationService.cancelProgress();
       SnackBars.showErrorSnackBar(
         context: context,
-        error: S.current.settings_import_activity_history_error,
+        error: S.current.settings_import_error,
       );
     } finally {
       if (settingsImported) {
@@ -501,7 +501,7 @@ class SettingsCubit extends Cubit<SettingsState> {
 
         SnackBars.showSnackBar(
           context: context,
-          message: S.current.settings_import_activity_history_success(
+          message: S.current.settings_import_success(
               importedElements, numberOfElements),
         );
 
@@ -511,7 +511,7 @@ class SettingsCubit extends Cubit<SettingsState> {
         logger.e(e);
         SnackBars.showErrorSnackBar(
           context: context,
-          error: S.current.settings_import_activity_history_error,
+          error: S.current.settings_import_error,
         );
       } finally {
         emit(state.copyWith(loading: false, clearProgress: true));
@@ -546,13 +546,13 @@ class SettingsCubit extends Cubit<SettingsState> {
 
         SnackBars.showSnackBar(
           context: context,
-          message: S.current.settings_export_activity_history_success,
+          message: S.current.settings_export_success,
         );
       } catch (e) {
         await notificationService.cancelProgress();
         SnackBars.showErrorSnackBar(
           context: context,
-          error: S.current.settings_export_activity_history_error,
+          error: S.current.settings_export_error,
         );
       } finally {
         emit(state.copyWith(loading: false, clearProgress: true));

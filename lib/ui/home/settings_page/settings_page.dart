@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
@@ -28,21 +28,21 @@ class SettingsPage extends StatelessWidget {
         listenWhen: (SettingsState previous, SettingsState current) =>
             current is SettingsInitialized && current.outcome != null,
         listener: (BuildContext context, SettingsState state) {
-          final ImportOutcome outcome =
-              (state as SettingsInitialized).outcome!;
+          final ImportOutcome outcome = (state as SettingsInitialized).outcome!;
           context.read<SettingsCubit>().clearOutcome();
 
           if (!outcome.success) {
             SnackBars.showErrorSnackBar(
               context: context,
-              error: S.current.settings_import_activity_history_error,
+              error: S.current.settings_import_error,
             );
             return;
           }
 
-          final String message = S.current
-              .settings_import_activity_history_success(
-                  outcome.imported, outcome.total);
+          final String message = S.current.settings_import_success(
+            outcome.imported,
+            outcome.total,
+          );
           SnackBars.showSnackBar(
             context: context,
             message: outcome.skipped > 0
@@ -106,8 +106,7 @@ class SettingsPage extends StatelessWidget {
                 style: medium(size: 13, color: AppColors.mainGrey),
               ),
               const SizedBox(width: 4),
-              Icon(Icons.chevron_right_rounded,
-                  color: AppColors.mainGrey),
+              Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
             ],
           ),
           onTap: () => _showThemePicker(context, current),
@@ -139,7 +138,9 @@ class SettingsPage extends StatelessWidget {
   }
 
   Widget _buildStatisticsSection(
-      BuildContext context, SettingsInitialized state) {
+    BuildContext context,
+    SettingsInitialized state,
+  ) {
     return _SettingsSection(
       title: S.current.settings_statistics_section_title,
       tiles: <Widget>[
@@ -147,8 +148,10 @@ class SettingsPage extends StatelessWidget {
           icon: Icons.bar_chart_rounded,
           title: S.current.settings_reading_statistics_title,
           subtitle: S.current.settings_reading_statistics_subtitle,
-          trailing:
-              Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
+          trailing: Icon(
+            Icons.chevron_right_rounded,
+            color: AppColors.mainGrey,
+          ),
           onTap: () =>
               Navigator.of(context).pushNamed(Routes.readingStatistics),
         ),
@@ -160,13 +163,12 @@ class SettingsPage extends StatelessWidget {
             value: state.collectStatistics,
             activeThumbColor: AppColors.mainBlack,
             activeTrackColor: AppColors.primary,
-            onChanged: (bool value) => context
-                .read<SettingsCubit>()
-                .onChangedCollectStatistics(value),
+            onChanged: (bool value) =>
+                context.read<SettingsCubit>().onChangedCollectStatistics(value),
           ),
-          onTap: () => context
-              .read<SettingsCubit>()
-              .onChangedCollectStatistics(!state.collectStatistics),
+          onTap: () => context.read<SettingsCubit>().onChangedCollectStatistics(
+            !state.collectStatistics,
+          ),
         ),
       ],
     );
@@ -187,8 +189,7 @@ class SettingsPage extends StatelessWidget {
                 style: medium(size: 13, color: AppColors.mainGrey),
               ),
               const SizedBox(width: 4),
-              Icon(Icons.chevron_right_rounded,
-                  color: AppColors.mainGrey),
+              Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
             ],
           ),
           onTap: () => _showReaderModePicker(context, state.defaultMode),
@@ -205,8 +206,10 @@ class SettingsPage extends StatelessWidget {
           icon: Icons.download_rounded,
           title: S.current.settings_downloads_title,
           subtitle: S.current.settings_downloads_subtitle,
-          trailing:
-              Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
+          trailing: Icon(
+            Icons.chevron_right_rounded,
+            color: AppColors.mainGrey,
+          ),
           onTap: () => Navigator.of(context).pushNamed(Routes.downloads),
         ),
       ],
@@ -260,8 +263,11 @@ class SettingsPage extends StatelessWidget {
 
     final String? path = picked.path;
     if (path != null && cubit.backgroundImportSupported) {
-      final bool started =
-          await cubit.importInBackground(bundle, sections, path);
+      final bool started = await cubit.importInBackground(
+        bundle,
+        sections,
+        path,
+      );
       if (started) return;
     }
 
@@ -272,9 +278,7 @@ class SettingsPage extends StatelessWidget {
   Widget _buildActivitySection(BuildContext context) {
     return _SettingsSection(
       title: S.current.home_navigation_bar_activity_history_title,
-      action: _InfoButton(
-        onTap: () => _showImportExportInfo(context),
-      ),
+      action: _InfoButton(onTap: () => _showImportExportInfo(context)),
       tiles: <Widget>[
         _SettingsTile(
           icon: Icons.file_upload_outlined,
@@ -308,11 +312,11 @@ class SettingsPage extends StatelessWidget {
         _SettingsTile(
           icon: Icons.bug_report_outlined,
           title: S.current.settings_submit_issue,
-          trailing:
-              Icon(Icons.open_in_new_rounded, color: AppColors.mainGrey),
+          trailing: Icon(Icons.open_in_new_rounded, color: AppColors.mainGrey),
           onTap: () => launchUrl(
             Uri.parse(
-                "https://github.com/Sayuri128/wakaranai/issues/new/choose"),
+              "https://github.com/Sayuri128/wakaranai/issues/new/choose",
+            ),
           ),
         ),
       ],
@@ -389,7 +393,9 @@ class SettingsPage extends StatelessWidget {
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 14),
+                              horizontal: 20,
+                              vertical: 14,
+                            ),
                             child: Row(
                               children: <Widget>[
                                 _ThemeSwatch(palette: AppPalette.fromId(id)),
@@ -406,8 +412,11 @@ class SettingsPage extends StatelessWidget {
                                   ),
                                 ),
                                 if (id == current)
-                                  Icon(Icons.check_rounded,
-                                      color: AppColors.primary, size: 20),
+                                  Icon(
+                                    Icons.check_rounded,
+                                    color: AppColors.primary,
+                                    size: 20,
+                                  ),
                               ],
                             ),
                           ),
@@ -458,12 +467,16 @@ class SettingsPage extends StatelessWidget {
               for (final ChapterViewMode mode in ChapterViewMode.values)
                 InkWell(
                   onTap: () {
-                    context.read<SettingsCubit>().onChangedDefaultReadMode(mode);
+                    context.read<SettingsCubit>().onChangedDefaultReadMode(
+                      mode,
+                    );
                     Navigator.of(sheetContext).pop();
                   },
                   child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
                     child: Row(
                       children: <Widget>[
                         Expanded(
@@ -478,8 +491,11 @@ class SettingsPage extends StatelessWidget {
                           ),
                         ),
                         if (mode == current)
-                          Icon(Icons.check_rounded,
-                              color: AppColors.primary, size: 20),
+                          Icon(
+                            Icons.check_rounded,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
                       ],
                     ),
                   ),
@@ -548,13 +564,13 @@ class SettingsPage extends StatelessWidget {
       builder: (BuildContext dialogContext) => ConfirmationDialog(
         destructive: true,
         icon: Icons.cleaning_services_rounded,
-        title:
-            S.current.settings_clear_cookies_cache_dialog_confirmation_title,
+        title: S.current.settings_clear_cookies_cache_dialog_confirmation_title,
         message:
             S.current.settings_clear_cookies_cache_dialog_confirmation_message,
         yesText:
             S.current.settings_clear_cookies_cache_dialog_confirmation_ok_label,
-        noText: S.current
+        noText: S
+            .current
             .settings_clear_cookies_cache_dialog_confirmation_cancel_label,
       ),
     ).then((bool? confirmed) {
@@ -582,10 +598,13 @@ class SettingsPage extends StatelessWidget {
         title:
             S.current.settings_clear_activity_history_dialog_confirmation_title,
         message: S
-            .current.settings_clear_activity_history_dialog_confirmation_message,
-        yesText: S.current
+            .current
+            .settings_clear_activity_history_dialog_confirmation_message,
+        yesText: S
+            .current
             .settings_clear_activity_history_dialog_confirmation_ok_label,
-        noText: S.current
+        noText: S
+            .current
             .settings_clear_activity_history_dialog_confirmation_cancel_label,
       ),
     ).then((bool? confirmed) {
@@ -638,20 +657,22 @@ class _UpdateBanner extends StatelessWidget {
                         color: AppColors.primary.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(Icons.system_update_rounded,
-                          color: AppColors.primary),
+                      child: Icon(
+                        Icons.system_update_rounded,
+                        color: AppColors.primary,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Text(
                         S.current.settings_download_latest_release(
-                            state.releaseData.latestVersion),
+                          state.releaseData.latestVersion,
+                        ),
                         style: semibold(size: 15, color: AppColors.primary),
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Icon(Icons.download_rounded,
-                        color: AppColors.primary),
+                    Icon(Icons.download_rounded, color: AppColors.primary),
                   ],
                 ),
               ),
@@ -758,8 +779,7 @@ class _SettingsTile extends StatelessWidget {
                     title,
                     style: medium(
                       size: 15,
-                      color:
-                          destructive ? AppColors.red : AppColors.mainWhite,
+                      color: destructive ? AppColors.red : AppColors.mainWhite,
                     ),
                   ),
                   if (subtitle != null) ...<Widget>[
@@ -798,8 +818,11 @@ class _InfoButton extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(6),
-          child: Icon(Icons.info_outline_rounded,
-              size: 18, color: AppColors.mainGrey),
+          child: Icon(
+            Icons.info_outline_rounded,
+            size: 18,
+            color: AppColors.mainGrey,
+          ),
         ),
       ),
     );
@@ -838,10 +861,7 @@ class _InfoParagraph extends StatelessWidget {
             children: <Widget>[
               Text(title, style: semibold(size: 15)),
               const SizedBox(height: 4),
-              Text(
-                body,
-                style: regular(size: 13, color: AppColors.mainGrey),
-              ),
+              Text(body, style: regular(size: 13, color: AppColors.mainGrey)),
             ],
           ),
         ),
@@ -863,9 +883,7 @@ class _ThemeSwatch extends StatelessWidget {
       decoration: BoxDecoration(
         color: palette.background,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: palette.overlayBase.withValues(alpha: 0.14),
-        ),
+        border: Border.all(color: palette.overlayBase.withValues(alpha: 0.14)),
       ),
       child: Center(
         child: Container(

@@ -120,7 +120,7 @@ Future<bool> runImportTask(Map<String, dynamic>? inputData) async {
 
     await notifications.showComplete(
       title: S.current.settings_import_notification_complete,
-      body: S.current.settings_import_activity_history_success(
+      body: S.current.settings_import_success(
           result.imported, result.total),
     );
 

@@ -1249,31 +1249,21 @@ class S {
     );
   }
 
-  /// `Export activity history`
-  String get settings_export_activity_history_button {
+  /// `Export complete`
+  String get settings_export_success {
     return Intl.message(
-      'Export activity history',
-      name: 'settings_export_activity_history_button',
+      'Export complete',
+      name: 'settings_export_success',
       desc: '',
       args: [],
     );
   }
 
-  /// `Activity history exported successfully`
-  String get settings_export_activity_history_success {
+  /// `Export failed`
+  String get settings_export_error {
     return Intl.message(
-      'Activity history exported successfully',
-      name: 'settings_export_activity_history_success',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Error occurred during exporting activity history`
-  String get settings_export_activity_history_error {
-    return Intl.message(
-      'Error occurred during exporting activity history',
-      name: 'settings_export_activity_history_error',
+      'Export failed',
+      name: 'settings_export_error',
       desc: '',
       args: [],
     );
@@ -1299,10 +1289,10 @@ class S {
     );
   }
 
-  /// `Saves all your manga and anime reading history into a single JSON file that you can back up or move to another device.`
+  /// `Saves the sections you pick — reading history, library, categories, extension sources and settings — into a single JSON file you can back up or move to another device.`
   String get settings_import_export_info_export_body {
     return Intl.message(
-      'Saves all your manga and anime reading history into a single JSON file that you can back up or move to another device.',
+      'Saves the sections you pick — reading history, library, categories, extension sources and settings — into a single JSON file you can back up or move to another device.',
       name: 'settings_import_export_info_export_body',
       desc: '',
       args: [],
@@ -1319,44 +1309,31 @@ class S {
     );
   }
 
-  /// `Loads history from a previously exported JSON file and merges it with what you already have — existing entries are updated and new ones are added, nothing is deleted.`
+  /// `Loads a previously exported JSON file and merges the sections you pick with what you already have — existing entries are updated and new ones are added, nothing is deleted.`
   String get settings_import_export_info_import_body {
     return Intl.message(
-      'Loads history from a previously exported JSON file and merges it with what you already have — existing entries are updated and new ones are added, nothing is deleted.',
+      'Loads a previously exported JSON file and merges the sections you pick with what you already have — existing entries are updated and new ones are added, nothing is deleted.',
       name: 'settings_import_export_info_import_body',
       desc: '',
       args: [],
     );
   }
 
-  /// `Import activity history`
-  String get settings_import_activity_history_button {
+  /// `Imported {imported} of {total} items`
+  String settings_import_success(Object imported, Object total) {
     return Intl.message(
-      'Import activity history',
-      name: 'settings_import_activity_history_button',
+      'Imported $imported of $total items',
+      name: 'settings_import_success',
       desc: '',
-      args: [],
+      args: [imported, total],
     );
   }
 
-  /// `Activity history imported {IMPORTED} out of {TOTAL} activities`
-  String settings_import_activity_history_success(
-    Object IMPORTED,
-    Object TOTAL,
-  ) {
+  /// `Import failed`
+  String get settings_import_error {
     return Intl.message(
-      'Activity history imported $IMPORTED out of $TOTAL activities',
-      name: 'settings_import_activity_history_success',
-      desc: '',
-      args: [IMPORTED, TOTAL],
-    );
-  }
-
-  /// `Error occurred during importing activity history`
-  String get settings_import_activity_history_error {
-    return Intl.message(
-      'Error occurred during importing activity history',
-      name: 'settings_import_activity_history_error',
+      'Import failed',
+      name: 'settings_import_error',
       desc: '',
       args: [],
     );

@@ -41,10 +41,10 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m9(version) => "New version ${version} available";
 
-  static String m10(IMPORTED, TOTAL) =>
-      "Activity history imported ${IMPORTED} out of ${TOTAL} activities";
+  static String m10(count) => "${count} skipped";
 
-  static String m11(count) => "${count} skipped";
+  static String m11(imported, total) =>
+      "Imported ${imported} of ${total} items";
 
   static String m12(count) => "${count} activities";
 
@@ -425,18 +425,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_downloads_title": MessageLookupByLibrary.simpleMessage(
       "Downloads",
     ),
-    "settings_export_activity_history_button":
-        MessageLookupByLibrary.simpleMessage("Export activity history"),
-    "settings_export_activity_history_error":
-        MessageLookupByLibrary.simpleMessage(
-          "Error occurred during exporting activity history",
-        ),
-    "settings_export_activity_history_success":
-        MessageLookupByLibrary.simpleMessage(
-          "Activity history exported successfully",
-        ),
     "settings_export_data_button": MessageLookupByLibrary.simpleMessage(
       "Export data",
+    ),
+    "settings_export_error": MessageLookupByLibrary.simpleMessage(
+      "Export failed",
     ),
     "settings_export_notification_complete":
         MessageLookupByLibrary.simpleMessage("Export complete"),
@@ -452,23 +445,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_export_sheet_title": MessageLookupByLibrary.simpleMessage(
       "Export data",
     ),
-    "settings_import_activity_history_button":
-        MessageLookupByLibrary.simpleMessage("Import activity history"),
-    "settings_import_activity_history_error":
-        MessageLookupByLibrary.simpleMessage(
-          "Error occurred during importing activity history",
-        ),
-    "settings_import_activity_history_success": m10,
+    "settings_export_success": MessageLookupByLibrary.simpleMessage(
+      "Export complete",
+    ),
     "settings_import_data_button": MessageLookupByLibrary.simpleMessage(
       "Import data",
     ),
+    "settings_import_error": MessageLookupByLibrary.simpleMessage(
+      "Import failed",
+    ),
     "settings_import_export_info_export_body": MessageLookupByLibrary.simpleMessage(
-      "Saves all your manga and anime reading history into a single JSON file that you can back up or move to another device.",
+      "Saves the sections you pick — reading history, library, categories, extension sources and settings — into a single JSON file you can back up or move to another device.",
     ),
     "settings_import_export_info_export_title":
         MessageLookupByLibrary.simpleMessage("Export"),
     "settings_import_export_info_import_body": MessageLookupByLibrary.simpleMessage(
-      "Loads history from a previously exported JSON file and merges it with what you already have — existing entries are updated and new ones are added, nothing is deleted.",
+      "Loads a previously exported JSON file and merges the sections you pick with what you already have — existing entries are updated and new ones are added, nothing is deleted.",
     ),
     "settings_import_export_info_import_title":
         MessageLookupByLibrary.simpleMessage("Import"),
@@ -489,7 +481,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_import_sheet_title": MessageLookupByLibrary.simpleMessage(
       "Import data",
     ),
-    "settings_import_skipped": m11,
+    "settings_import_skipped": m10,
+    "settings_import_success": m11,
     "settings_progress_preparing": MessageLookupByLibrary.simpleMessage(
       "Preparing…",
     ),
