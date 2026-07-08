@@ -50,7 +50,7 @@ class _SearchFieldState extends State<SearchField> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       curve: Curves.easeOutCubic,
-      height: _focused ? 48 : 40,
+      height: 48,
       decoration: BoxDecoration(
         color: AppColors.overlay(_focused ? 0.08 : 0.06),
         borderRadius: BorderRadius.circular(24),
@@ -62,11 +62,11 @@ class _SearchFieldState extends State<SearchField> {
       ),
       child: Row(
         children: <Widget>[
-          const SizedBox(width: 14),
+          const SizedBox(width: 16),
           Icon(
             Icons.search_rounded,
             color: _focused ? AppColors.primary : AppColors.mainGrey,
-            size: _focused ? 22 : 20,
+            size: 22,
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -77,13 +77,12 @@ class _SearchFieldState extends State<SearchField> {
               onSubmitted: widget.onSubmitted,
               textInputAction: TextInputAction.search,
               cursorColor: AppColors.primary,
-              style: medium(size: _focused ? 16 : 15),
+              style: medium(size: 16),
               decoration: InputDecoration(
                 isCollapsed: true,
                 border: InputBorder.none,
                 hintText: widget.hintText,
-                hintStyle:
-                    medium(size: _focused ? 16 : 15, color: AppColors.mainGrey),
+                hintStyle: medium(size: 16, color: AppColors.mainGrey),
               ),
             ),
           ),
