@@ -7,12 +7,9 @@ part of 'remote_script.dart';
 // **************************************************************************
 
 RemoteScript _$RemoteScriptFromJson(Map json) => RemoteScript(
-      path: json['path'] as String,
-      script: json['script'] as String,
-    );
+  path: json['path'] as String,
+  script: json['script'] as String,
+);
 
 Map<String, dynamic> _$RemoteScriptToJson(RemoteScript instance) =>
-    <String, dynamic>{
-      'path': instance.path,
-      'script': instance.script,
-    };
+    <String, dynamic>{'path': instance.path, 'script': instance.script};

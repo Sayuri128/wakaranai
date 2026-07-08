@@ -14,14 +14,15 @@ RepoConfigsResponse _$RepoConfigsResponseFromJson(Map json) =>
           .toList(),
       configs: (json['configs'] as List<dynamic>)
           .map(
-              (e) => RemoteConfig.fromJson(Map<String, dynamic>.from(e as Map)))
+            (e) => RemoteConfig.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList(),
     );
 
 Map<String, dynamic> _$RepoConfigsResponseToJson(
-        RepoConfigsResponse instance) =>
-    <String, dynamic>{
-      'status': instance.status,
-      'availableCategories': instance.availableCategories,
-      'configs': instance.configs.map((e) => e.toJson()).toList(),
-    };
+  RepoConfigsResponse instance,
+) => <String, dynamic>{
+  'status': instance.status,
+  'availableCategories': instance.availableCategories,
+  'configs': instance.configs.map((e) => e.toJson()).toList(),
+};

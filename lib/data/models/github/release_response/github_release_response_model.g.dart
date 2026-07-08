@@ -22,17 +22,17 @@ GithubReleaseResponseModel _$GithubReleaseResponseModelFromJson(Map json) =>
     );
 
 Map<String, dynamic> _$GithubReleaseResponseModelToJson(
-        GithubReleaseResponseModel instance) =>
-    <String, dynamic>{
-      'url': instance.url,
-      'html_url': instance.htmlUrl,
-      'assets_url': instance.assetsUrl,
-      'upload_url': instance.uploadUrl,
-      'tarball_url': instance.tarballUrl,
-      'zipball_url': instance.zipballUrl,
-      'id': instance.id,
-      'node_id': instance.nodeId,
-      'tag_name': instance.tagName,
-      'target_commitish': instance.targetCommitish,
-      'name': instance.name,
-    };
+  GithubReleaseResponseModel instance,
+) => <String, dynamic>{
+  'url': instance.url,
+  'html_url': instance.htmlUrl,
+  'assets_url': instance.assetsUrl,
+  'upload_url': instance.uploadUrl,
+  'tarball_url': instance.tarballUrl,
+  'zipball_url': instance.zipballUrl,
+  'id': instance.id,
+  'node_id': instance.nodeId,
+  'tag_name': instance.tagName,
+  'target_commitish': instance.targetCommitish,
+  'name': instance.name,
+};

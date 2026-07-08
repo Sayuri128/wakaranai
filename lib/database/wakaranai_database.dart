@@ -29,7 +29,6 @@ part 'wakaranai_database.g.dart';
 class WakaranaiDatabase extends _$WakaranaiDatabase {
   WakaranaiDatabase() : super(_openConnection());
 
-  /// Test-only: lets a test drive the migration against an in-memory database.
   WakaranaiDatabase.forTesting(super.executor);
 
   @override
@@ -67,10 +66,6 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
         },
       );
 
-  /// `ALTER TABLE ... ADD COLUMN` is not idempotent, and drift does not wrap
-  /// [MigrationStrategy.onUpgrade] in a transaction: if a later step fails the
-  /// schema version is never persisted, so the whole upgrade replays on the
-  /// next open and re-adding an existing column throws. Guard each add.
   Future<void> _addColumnIfMissing(
     Migrator m,
     TableInfo<Table, dynamic> table,

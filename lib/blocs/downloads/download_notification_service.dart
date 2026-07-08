@@ -2,9 +2,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
 
-/// Thin wrapper around flutter_local_notifications for download progress.
-/// Every call is best-effort: a notification failure must never break a
-/// download, so failures are logged and swallowed.
 class DownloadNotificationService {
   static const int _progressId = 8801;
   static const int _completeId = 8802;

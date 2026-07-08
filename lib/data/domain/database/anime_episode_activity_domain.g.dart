@@ -23,16 +23,16 @@ AnimeEpisodeActivityDomain _$AnimeEpisodeActivityDomainFromJson(Map json) =>
     );
 
 Map<String, dynamic> _$AnimeEpisodeActivityDomainToJson(
-        AnimeEpisodeActivityDomain instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt?.toIso8601String(),
-      'title': instance.title,
-      'uid': instance.uid,
-      'concreteId': instance.concreteId,
-      'timestamp': instance.timestamp,
-      'data': instance.data,
-      'watchedTime': instance.watchedTime,
-      'totalTime': instance.totalTime,
-    };
+  AnimeEpisodeActivityDomain instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'createdAt': instance.createdAt.toIso8601String(),
+  'updatedAt': instance.updatedAt?.toIso8601String(),
+  'title': instance.title,
+  'uid': instance.uid,
+  'concreteId': instance.concreteId,
+  'timestamp': instance.timestamp,
+  'data': instance.data,
+  'watchedTime': instance.watchedTime,
+  'totalTime': instance.totalTime,
+};

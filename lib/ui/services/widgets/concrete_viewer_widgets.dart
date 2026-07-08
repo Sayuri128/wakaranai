@@ -4,8 +4,7 @@ import 'package:wakaranai/ui/widgets/shimmer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
-/// Inline notice shown on the concrete view when it was rebuilt from cache
-/// because the source could not be reached (offline).
+/// Notice shown when the concrete view was rebuilt from cache (offline).
 class ConcreteOfflineBanner extends StatelessWidget {
   const ConcreteOfflineBanner({super.key});
 

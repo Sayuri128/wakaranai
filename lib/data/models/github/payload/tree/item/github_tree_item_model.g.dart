@@ -14,9 +14,9 @@ GithubTreeItemModel _$GithubTreeItemModelFromJson(Map json) =>
     );
 
 Map<String, dynamic> _$GithubTreeItemModelToJson(
-        GithubTreeItemModel instance) =>
-    <String, dynamic>{
-      'name': instance.name,
-      'path': instance.path,
-      'contentType': instance.contentType,
-    };
+  GithubTreeItemModel instance,
+) => <String, dynamic>{
+  'name': instance.name,
+  'path': instance.path,
+  'contentType': instance.contentType,
+};

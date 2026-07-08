@@ -7,11 +7,12 @@ part of 'github_blob_model.dart';
 // **************************************************************************
 
 GithubBlobModel _$GithubBlobModelFromJson(Map json) => GithubBlobModel(
-      rawLines:
-          (json['rawLines'] as List<dynamic>).map((e) => e as String).toList(),
-      displayName: json['displayName'] as String,
-      displayUrl: json['displayUrl'] as String,
-    );
+  rawLines: (json['rawLines'] as List<dynamic>)
+      .map((e) => e as String)
+      .toList(),
+  displayName: json['displayName'] as String,
+  displayUrl: json['displayUrl'] as String,
+);
 
 Map<String, dynamic> _$GithubBlobModelToJson(GithubBlobModel instance) =>
     <String, dynamic>{

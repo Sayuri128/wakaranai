@@ -7,19 +7,19 @@ part of 'github_repo_model.dart';
 // **************************************************************************
 
 GithubRepoModel _$GithubRepoModelFromJson(Map json) => GithubRepoModel(
-      id: (json['id'] as num).toInt(),
-      defaultBranch: json['defaultBranch'] as String,
-      name: json['name'] as String,
-      ownerLogin: json['ownerLogin'] as String,
-      currentUserCanPush: json['currentUserCanPush'] as bool,
-      isFork: json['isFork'] as bool,
-      isEmpty: json['isEmpty'] as bool,
-      createdAt: json['createdAt'] as String,
-      ownerAvatar: json['ownerAvatar'] as String,
-      public: json['public'] as bool,
-      private: json['private'] as bool,
-      isOrgOwned: json['isOrgOwned'] as bool,
-    );
+  id: (json['id'] as num).toInt(),
+  defaultBranch: json['defaultBranch'] as String,
+  name: json['name'] as String,
+  ownerLogin: json['ownerLogin'] as String,
+  currentUserCanPush: json['currentUserCanPush'] as bool,
+  isFork: json['isFork'] as bool,
+  isEmpty: json['isEmpty'] as bool,
+  createdAt: json['createdAt'] as String,
+  ownerAvatar: json['ownerAvatar'] as String,
+  public: json['public'] as bool,
+  private: json['private'] as bool,
+  isOrgOwned: json['isOrgOwned'] as bool,
+);
 
 Map<String, dynamic> _$GithubRepoModelToJson(GithubRepoModel instance) =>
     <String, dynamic>{

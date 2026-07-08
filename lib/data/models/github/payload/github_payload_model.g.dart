@@ -7,19 +7,22 @@ part of 'github_payload_model.dart';
 // **************************************************************************
 
 GithubPayloadModel _$GithubPayloadModelFromJson(Map json) => GithubPayloadModel(
-      path: json['path'] as String,
-      repo: GithubRepoModel.fromJson(
-          Map<String, dynamic>.from(json['repo'] as Map)),
-      tree: json['tree'] == null
-          ? null
-          : GithubTreeModel.fromJson(
-              Map<String, dynamic>.from(json['tree'] as Map)),
-      blob: json['blob'] == null
-          ? null
-          : GithubBlobModel.fromJson(
-              Map<String, dynamic>.from(json['blob'] as Map)),
-      title: json['title'] as String?,
-    );
+  path: json['path'] as String,
+  repo: GithubRepoModel.fromJson(
+    Map<String, dynamic>.from(json['repo'] as Map),
+  ),
+  tree: json['tree'] == null
+      ? null
+      : GithubTreeModel.fromJson(
+          Map<String, dynamic>.from(json['tree'] as Map),
+        ),
+  blob: json['blob'] == null
+      ? null
+      : GithubBlobModel.fromJson(
+          Map<String, dynamic>.from(json['blob'] as Map),
+        ),
+  title: json['title'] as String?,
+);
 
 Map<String, dynamic> _$GithubPayloadModelToJson(GithubPayloadModel instance) =>
     <String, dynamic>{

@@ -172,8 +172,6 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       } catch (e, s) {
         logger.e(e);
         logger.e(s);
-        // Loading the adjacent chapter failed (e.g. offline and it is not
-        // downloaded). Stay on the current chapter instead of hanging.
         emit(state);
       }
     }

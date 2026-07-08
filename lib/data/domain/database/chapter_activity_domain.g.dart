@@ -23,16 +23,16 @@ ChapterActivityDomain _$ChapterActivityDomainFromJson(Map json) =>
     );
 
 Map<String, dynamic> _$ChapterActivityDomainToJson(
-        ChapterActivityDomain instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt?.toIso8601String(),
-      'title': instance.title,
-      'uid': instance.uid,
-      'concreteId': instance.concreteId,
-      'timestamp': instance.timestamp,
-      'data': instance.data,
-      'readPages': instance.readPages,
-      'totalPages': instance.totalPages,
-    };
+  ChapterActivityDomain instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'createdAt': instance.createdAt.toIso8601String(),
+  'updatedAt': instance.updatedAt?.toIso8601String(),
+  'title': instance.title,
+  'uid': instance.uid,
+  'concreteId': instance.concreteId,
+  'timestamp': instance.timestamp,
+  'data': instance.data,
+  'readPages': instance.readPages,
+  'totalPages': instance.totalPages,
+};

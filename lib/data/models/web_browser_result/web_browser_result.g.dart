@@ -14,9 +14,9 @@ WebBrowserPageResult _$WebBrowserPageResultFromJson(Map json) =>
     );
 
 Map<String, dynamic> _$WebBrowserPageResultToJson(
-        WebBrowserPageResult instance) =>
-    <String, dynamic>{
-      'headers': instance.headers,
-      'cookies': instance.cookies,
-      'body': instance.body,
-    };
+  WebBrowserPageResult instance,
+) => <String, dynamic>{
+  'headers': instance.headers,
+  'cookies': instance.cookies,
+  'body': instance.body,
+};

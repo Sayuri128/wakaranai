@@ -42,9 +42,6 @@ class _LaunchContext {
   });
 }
 
-/// Opens a downloaded chapter straight in the reader, offline. Rebuilds the
-/// client from the cached extension script and reconstructs the chapter/group
-/// from the cached concrete view (falling back to a single-chapter group).
 class DownloadReaderLauncher extends StatelessWidget {
   const DownloadReaderLauncher({super.key, required this.data});
 
