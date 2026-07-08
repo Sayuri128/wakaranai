@@ -270,5 +270,84 @@
     "placeholders": {
       "count": {}
     }
+  },
+  "updates_notification_channel_name": "Library updates",
+  "updates_notification_title": "{count} new items",
+  "@updates_notification_title": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "updates_notification_summary": "Across {count} titles",
+  "@updates_notification_summary": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "updates_notification_line": "{title} · {count} new",
+  "@updates_notification_line": {
+    "placeholders": {
+      "title": {},
+      "count": {}
+    }
+  },
+  "updates_notification_more": "and {count} more titles",
+  "@updates_notification_more": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "updates_title": "Updates",
+  "updates_empty_title": "No new updates",
+  "updates_empty_message": "New chapters and episodes for titles in your library will appear here",
+  "updates_mark_all_seen": "Mark all as seen",
+  "updates_clear": "Clear updates",
+  "updates_checking": "Checking for updates…",
+  "updates_check_failed": "{count} sources could not be checked",
+  "@updates_check_failed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "updates_check_none": "No new updates found",
+  "updates_check_found": "{count} new items found",
+  "@updates_check_found": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "updates_time_now": "Just now",
+  "updates_time_minutes": "{count}m ago",
+  "@updates_time_minutes": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "updates_time_hours": "{count}h ago",
+  "@updates_time_hours": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "updates_time_days": "{count}d ago",
+  "@updates_time_days": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "library_track_updates": "Check for updates",
+  "library_mute_notifications": "Mute notifications",
+  "library_unmute_notifications": "Unmute notifications",
+  "settings_updates_section": "Updates",
+  "settings_check_updates": "Check library for updates",
+  "settings_check_updates_subtitle": "Periodically look for new chapters and episodes in the background",
+  "settings_update_notifications": "Update notifications",
+  "settings_update_notifications_subtitle": "Show a notification when new items are found",
+  "settings_update_frequency": "Check frequency",
+  "settings_update_frequency_value": "Every {hours} hours",
+  "@settings_update_frequency_value": {
+    "placeholders": {
+      "hours": {}
+    }
   }
 }

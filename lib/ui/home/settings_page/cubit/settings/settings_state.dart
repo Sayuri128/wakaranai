@@ -14,6 +14,12 @@ class SettingsInitialized extends SettingsState {
 
   final bool collectStatistics;
 
+  final bool checkUpdates;
+
+  final bool updateNotifications;
+
+  final int updateFrequencyHours;
+
   final bool loading;
 
   final ImportExportProgress? progress;
@@ -24,6 +30,9 @@ class SettingsInitialized extends SettingsState {
     required this.defaultMode,
     required this.showNsfw,
     required this.collectStatistics,
+    required this.checkUpdates,
+    required this.updateNotifications,
+    required this.updateFrequencyHours,
     this.loading = false,
     this.progress,
     this.outcome,
@@ -33,6 +42,9 @@ class SettingsInitialized extends SettingsState {
     ChapterViewMode? defaultMode,
     bool? showNsfw,
     bool? collectStatistics,
+    bool? checkUpdates,
+    bool? updateNotifications,
+    int? updateFrequencyHours,
     bool? loading,
     ImportExportProgress? progress,
     bool clearProgress = false,
@@ -43,6 +55,9 @@ class SettingsInitialized extends SettingsState {
       defaultMode: defaultMode ?? this.defaultMode,
       showNsfw: showNsfw ?? this.showNsfw,
       collectStatistics: collectStatistics ?? this.collectStatistics,
+      checkUpdates: checkUpdates ?? this.checkUpdates,
+      updateNotifications: updateNotifications ?? this.updateNotifications,
+      updateFrequencyHours: updateFrequencyHours ?? this.updateFrequencyHours,
       loading: loading ?? this.loading,
       progress: clearProgress ? null : (progress ?? this.progress),
       outcome: clearOutcome ? null : (outcome ?? this.outcome),

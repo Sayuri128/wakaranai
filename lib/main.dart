@@ -10,12 +10,13 @@ import 'package:workmanager/workmanager.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
+import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/repositories/database/repository_providers.dart';
+import 'package:wakaranai/services/background/background_tasks.dart';
 import 'package:wakaranai/services/import_export/import_export_service.dart';
-import 'package:wakaranai/services/import_export/import_export_task.dart';
 import 'package:wakaranai/ui/app_view.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
@@ -44,7 +45,7 @@ void main() async {
 
   if (!kIsWeb && Platform.isAndroid) {
     try {
-      await Workmanager().initialize(importExportCallbackDispatcher);
+      await Workmanager().initialize(backgroundCallbackDispatcher);
     } catch (e) {
       logger.w('Failed to initialize Workmanager: $e');
     }
@@ -81,6 +82,16 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
             create: (BuildContext context) => LibraryCubit(
               libraryEntryRepository: RepositoryProvider.of(context),
               categoryRepository: RepositoryProvider.of(context),
+              libraryUpdateRepository: RepositoryProvider.of(context),
+            )..init(),
+          ),
+          BlocProvider<LibraryUpdatesCubit>(
+            lazy: false,
+            create: (BuildContext context) => LibraryUpdatesCubit(
+              libraryEntryRepository: RepositoryProvider.of(context),
+              libraryUpdateRepository: RepositoryProvider.of(context),
+              concreteDataRepository: RepositoryProvider.of(context),
+              extensionRepository: RepositoryProvider.of(context),
             )..init(),
           ),
           BlocProvider<DownloadManagerCubit>(

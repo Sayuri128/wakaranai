@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
+import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/data/domain/database/category_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/services/library_updates/library_update_service.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
 import 'package:wakaranai/ui/home/library_page/library_concrete_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -198,6 +201,15 @@ class _LibraryPageState extends State<LibraryPage> {
               style: semibold(size: 24),
             ),
           ),
+          BlocBuilder<LibraryUpdatesCubit, LibraryUpdatesState>(
+            builder: (BuildContext context, LibraryUpdatesState updatesState) {
+              return _UpdatesButton(
+                unseenCount: updatesState.unseenCount,
+                onTap: () => Navigator.of(context).pushNamed(Routes.updates),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
           _CircleIconButton(
             icon: Icons.sort_rounded,
             onTap: () => _showSortSheet(context, state),
@@ -250,6 +262,30 @@ class _LibraryPageState extends State<LibraryPage> {
     );
   }
 
+  Future<void> _onRefresh(BuildContext context) async {
+    final LibraryUpdatesCubit cubit = context.read<LibraryUpdatesCubit>();
+    final LibraryUpdateCheckResult? result = await cubit.checkNow();
+
+    if (result == null || !context.mounted) return;
+
+    if (result.updates.isNotEmpty) {
+      SnackBars.showSnackBar(
+        context: context,
+        message: S.current.updates_check_found(result.updates.length),
+      );
+    } else if (result.failed > 0) {
+      SnackBars.showErrorSnackBar(
+        context: context,
+        error: S.current.updates_check_failed(result.failed),
+      );
+    } else {
+      SnackBars.showSnackBar(
+        context: context,
+        message: S.current.updates_check_none,
+      );
+    }
+  }
+
   Widget _buildGrid(BuildContext context, LibraryState state) {
     if (state.loading) {
       return Center(
@@ -258,42 +294,65 @@ class _LibraryPageState extends State<LibraryPage> {
     }
 
     final List<LibraryEntryDomain> entries = _visibleEntries(state);
-    if (entries.isEmpty) {
-      return ServiceViewerMessage(
-        icon: Icons.favorite_border_rounded,
-        title: S.current.library_empty_title,
-        message: S.current.library_empty_message,
-      );
-    }
 
+    return RefreshIndicator(
+      onRefresh: () => _onRefresh(context),
+      color: AppColors.primary,
+      backgroundColor: AppColors.dialogSurface,
+      child: entries.isEmpty
+          ? _buildEmpty()
+          : LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                final int crossAxisCount =
+                    (constraints.maxWidth / 180).floor().clamp(2, 6);
+                final double itemWidth = constraints.maxWidth / crossAxisCount;
+                return GridView.builder(
+                  padding:
+                      EdgeInsets.fromLTRB(12, 4, 12, _selectionMode ? 150 : 24),
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: GalleryViewCard.aspectRatio(itemWidth),
+                  ),
+                  itemCount: entries.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final LibraryEntryDomain entry = entries[index];
+                    return _LibraryCard(
+                      entry: entry,
+                      selected: _selected.contains(entry.uid),
+                      selectionMode: _selectionMode,
+                      onTap: () => _selectionMode
+                          ? _toggleSelect(entry.uid)
+                          : _openEntry(context, entry),
+                      onLongPress: () => _toggleSelect(entry.uid),
+                      onMenu: () => _showEntryActions(context, state, entry),
+                    );
+                  },
+                );
+              },
+            ),
+    );
+  }
+
+  Widget _buildEmpty() {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final int crossAxisCount =
-            (constraints.maxWidth / 180).floor().clamp(2, 6);
-        final double itemWidth = constraints.maxWidth / crossAxisCount;
-        return GridView.builder(
-          padding: EdgeInsets.fromLTRB(12, 4, 12, _selectionMode ? 150 : 24),
-          physics: const BouncingScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            childAspectRatio: GalleryViewCard.aspectRatio(itemWidth),
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
           ),
-          itemCount: entries.length,
-          itemBuilder: (BuildContext context, int index) {
-            final LibraryEntryDomain entry = entries[index];
-            return _LibraryCard(
-              entry: entry,
-              selected: _selected.contains(entry.uid),
-              selectionMode: _selectionMode,
-              onTap: () => _selectionMode
-                  ? _toggleSelect(entry.uid)
-                  : _openEntry(context, entry),
-              onLongPress: () => _toggleSelect(entry.uid),
-              onMenu: () => _showEntryActions(context, state, entry),
-            );
-          },
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: ServiceViewerMessage(
+              icon: Icons.favorite_border_rounded,
+              title: S.current.library_empty_title,
+              message: S.current.library_empty_message,
+            ),
+          ),
         );
       },
     );
@@ -350,6 +409,31 @@ class _LibraryPageState extends State<LibraryPage> {
             onTap: () {
               Navigator.of(context).pop();
               _showMoveToCategorySheet(context, state, entry);
+            },
+          ),
+          _SheetRow(
+            icon: Icons.autorenew_rounded,
+            label: S.current.library_track_updates,
+            selected: entry.trackUpdates,
+            onTap: () {
+              context
+                  .read<LibraryCubit>()
+                  .setTrackUpdates(entry, !entry.trackUpdates);
+              Navigator.of(context).pop();
+            },
+          ),
+          _SheetRow(
+            icon: entry.notifyUpdates
+                ? Icons.notifications_off_outlined
+                : Icons.notifications_active_outlined,
+            label: entry.notifyUpdates
+                ? S.current.library_mute_notifications
+                : S.current.library_unmute_notifications,
+            onTap: () {
+              context
+                  .read<LibraryCubit>()
+                  .setNotifyUpdates(entry, !entry.notifyUpdates);
+              Navigator.of(context).pop();
             },
           ),
           _SheetRow(
@@ -777,6 +861,45 @@ class _SelectablePill extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _UpdatesButton extends StatelessWidget {
+  const _UpdatesButton({required this.unseenCount, required this.onTap});
+
+  final int unseenCount;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: <Widget>[
+        _CircleIconButton(
+          icon: Icons.notifications_none_rounded,
+          onTap: onTap,
+        ),
+        if (unseenCount > 0)
+          Positioned(
+            top: -2,
+            right: -2,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              constraints: const BoxConstraints(minWidth: 16),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.backgroundColor, width: 1.5),
+              ),
+              child: Text(
+                unseenCount > 99 ? '99+' : '$unseenCount',
+                textAlign: TextAlign.center,
+                style: medium(size: 10, color: AppColors.mainBlack),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

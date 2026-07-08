@@ -46,10 +46,30 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m11(imported, total) =>
       "Imported ${imported} of ${total} items";
 
-  static String m12(count) => "${count} activities";
+  static String m12(hours) => "Every ${hours} hours";
 
-  static String m13(current, longest) =>
+  static String m13(count) => "${count} activities";
+
+  static String m14(current, longest) =>
       "Current ${current} · Longest ${longest}";
+
+  static String m15(count) => "${count} sources could not be checked";
+
+  static String m16(count) => "${count} new items found";
+
+  static String m17(title, count) => "${title} · ${count} new";
+
+  static String m18(count) => "and ${count} more titles";
+
+  static String m19(count) => "Across ${count} titles";
+
+  static String m20(count) => "${count} new items";
+
+  static String m21(count) => "${count}d ago";
+
+  static String m22(count) => "${count}h ago";
+
+  static String m23(count) => "${count}m ago";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -307,6 +327,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "library_move_to_category": MessageLookupByLibrary.simpleMessage(
       "Move to category",
     ),
+    "library_mute_notifications": MessageLookupByLibrary.simpleMessage(
+      "Mute notifications",
+    ),
     "library_no_category": MessageLookupByLibrary.simpleMessage("No category"),
     "library_remove": MessageLookupByLibrary.simpleMessage(
       "Remove from library",
@@ -328,6 +351,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "library_source_unavailable_title": MessageLookupByLibrary.simpleMessage(
       "Source unavailable",
+    ),
+    "library_track_updates": MessageLookupByLibrary.simpleMessage(
+      "Check for updates",
+    ),
+    "library_unmute_notifications": MessageLookupByLibrary.simpleMessage(
+      "Unmute notifications",
     ),
     "save_image_error": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t save image",
@@ -363,6 +392,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settings_appearance_section_title": MessageLookupByLibrary.simpleMessage(
       "Appearance",
+    ),
+    "settings_check_updates": MessageLookupByLibrary.simpleMessage(
+      "Check library for updates",
+    ),
+    "settings_check_updates_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Periodically look for new chapters and episodes in the background",
     ),
     "settings_clear_activity_history": MessageLookupByLibrary.simpleMessage(
       "Clear activity history",
@@ -525,6 +560,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_theme_title": MessageLookupByLibrary.simpleMessage("Theme"),
     "settings_transfer_notification_channel_name":
         MessageLookupByLibrary.simpleMessage("Import & export"),
+    "settings_update_frequency": MessageLookupByLibrary.simpleMessage(
+      "Check frequency",
+    ),
+    "settings_update_frequency_value": m12,
+    "settings_update_notifications": MessageLookupByLibrary.simpleMessage(
+      "Update notifications",
+    ),
+    "settings_update_notifications_subtitle":
+        MessageLookupByLibrary.simpleMessage(
+          "Show a notification when new items are found",
+        ),
+    "settings_updates_section": MessageLookupByLibrary.simpleMessage("Updates"),
     "stats_activity_section_title": MessageLookupByLibrary.simpleMessage(
       "Activity",
     ),
@@ -549,7 +596,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "stats_heatmap_less": MessageLookupByLibrary.simpleMessage("Less"),
     "stats_heatmap_more": MessageLookupByLibrary.simpleMessage("More"),
-    "stats_heatmap_week_count": m12,
+    "stats_heatmap_week_count": m13,
     "stats_kpi_active_days": MessageLookupByLibrary.simpleMessage(
       "Active days",
     ),
@@ -570,8 +617,38 @@ class MessageLookup extends MessageLookupByLibrary {
     "stats_sources_section_title": MessageLookupByLibrary.simpleMessage(
       "Top sources",
     ),
-    "stats_streak_summary": m13,
+    "stats_streak_summary": m14,
     "stats_title": MessageLookupByLibrary.simpleMessage("Statistics"),
+    "updates_check_failed": m15,
+    "updates_check_found": m16,
+    "updates_check_none": MessageLookupByLibrary.simpleMessage(
+      "No new updates found",
+    ),
+    "updates_checking": MessageLookupByLibrary.simpleMessage(
+      "Checking for updates…",
+    ),
+    "updates_clear": MessageLookupByLibrary.simpleMessage("Clear updates"),
+    "updates_empty_message": MessageLookupByLibrary.simpleMessage(
+      "New chapters and episodes for titles in your library will appear here",
+    ),
+    "updates_empty_title": MessageLookupByLibrary.simpleMessage(
+      "No new updates",
+    ),
+    "updates_mark_all_seen": MessageLookupByLibrary.simpleMessage(
+      "Mark all as seen",
+    ),
+    "updates_notification_channel_name": MessageLookupByLibrary.simpleMessage(
+      "Library updates",
+    ),
+    "updates_notification_line": m17,
+    "updates_notification_more": m18,
+    "updates_notification_summary": m19,
+    "updates_notification_title": m20,
+    "updates_time_days": m21,
+    "updates_time_hours": m22,
+    "updates_time_minutes": m23,
+    "updates_time_now": MessageLookupByLibrary.simpleMessage("Just now"),
+    "updates_title": MessageLookupByLibrary.simpleMessage("Updates"),
     "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage("Done"),
   };
 }

@@ -2243,6 +2243,281 @@ class S {
       args: [count],
     );
   }
+
+  /// `Library updates`
+  String get updates_notification_channel_name {
+    return Intl.message(
+      'Library updates',
+      name: 'updates_notification_channel_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} new items`
+  String updates_notification_title(Object count) {
+    return Intl.message(
+      '$count new items',
+      name: 'updates_notification_title',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Across {count} titles`
+  String updates_notification_summary(Object count) {
+    return Intl.message(
+      'Across $count titles',
+      name: 'updates_notification_summary',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{title} · {count} new`
+  String updates_notification_line(Object title, Object count) {
+    return Intl.message(
+      '$title · $count new',
+      name: 'updates_notification_line',
+      desc: '',
+      args: [title, count],
+    );
+  }
+
+  /// `and {count} more titles`
+  String updates_notification_more(Object count) {
+    return Intl.message(
+      'and $count more titles',
+      name: 'updates_notification_more',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Updates`
+  String get updates_title {
+    return Intl.message('Updates', name: 'updates_title', desc: '', args: []);
+  }
+
+  /// `No new updates`
+  String get updates_empty_title {
+    return Intl.message(
+      'No new updates',
+      name: 'updates_empty_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New chapters and episodes for titles in your library will appear here`
+  String get updates_empty_message {
+    return Intl.message(
+      'New chapters and episodes for titles in your library will appear here',
+      name: 'updates_empty_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mark all as seen`
+  String get updates_mark_all_seen {
+    return Intl.message(
+      'Mark all as seen',
+      name: 'updates_mark_all_seen',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear updates`
+  String get updates_clear {
+    return Intl.message(
+      'Clear updates',
+      name: 'updates_clear',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Checking for updates…`
+  String get updates_checking {
+    return Intl.message(
+      'Checking for updates…',
+      name: 'updates_checking',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} sources could not be checked`
+  String updates_check_failed(Object count) {
+    return Intl.message(
+      '$count sources could not be checked',
+      name: 'updates_check_failed',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `No new updates found`
+  String get updates_check_none {
+    return Intl.message(
+      'No new updates found',
+      name: 'updates_check_none',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} new items found`
+  String updates_check_found(Object count) {
+    return Intl.message(
+      '$count new items found',
+      name: 'updates_check_found',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Just now`
+  String get updates_time_now {
+    return Intl.message(
+      'Just now',
+      name: 'updates_time_now',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count}m ago`
+  String updates_time_minutes(Object count) {
+    return Intl.message(
+      '${count}m ago',
+      name: 'updates_time_minutes',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count}h ago`
+  String updates_time_hours(Object count) {
+    return Intl.message(
+      '${count}h ago',
+      name: 'updates_time_hours',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count}d ago`
+  String updates_time_days(Object count) {
+    return Intl.message(
+      '${count}d ago',
+      name: 'updates_time_days',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Check for updates`
+  String get library_track_updates {
+    return Intl.message(
+      'Check for updates',
+      name: 'library_track_updates',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mute notifications`
+  String get library_mute_notifications {
+    return Intl.message(
+      'Mute notifications',
+      name: 'library_mute_notifications',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unmute notifications`
+  String get library_unmute_notifications {
+    return Intl.message(
+      'Unmute notifications',
+      name: 'library_unmute_notifications',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Updates`
+  String get settings_updates_section {
+    return Intl.message(
+      'Updates',
+      name: 'settings_updates_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check library for updates`
+  String get settings_check_updates {
+    return Intl.message(
+      'Check library for updates',
+      name: 'settings_check_updates',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Periodically look for new chapters and episodes in the background`
+  String get settings_check_updates_subtitle {
+    return Intl.message(
+      'Periodically look for new chapters and episodes in the background',
+      name: 'settings_check_updates_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update notifications`
+  String get settings_update_notifications {
+    return Intl.message(
+      'Update notifications',
+      name: 'settings_update_notifications',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show a notification when new items are found`
+  String get settings_update_notifications_subtitle {
+    return Intl.message(
+      'Show a notification when new items are found',
+      name: 'settings_update_notifications_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check frequency`
+  String get settings_update_frequency {
+    return Intl.message(
+      'Check frequency',
+      name: 'settings_update_frequency',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Every {hours} hours`
+  String settings_update_frequency_value(Object hours) {
+    return Intl.message(
+      'Every $hours hours',
+      name: 'settings_update_frequency_value',
+      desc: '',
+      args: [hours],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

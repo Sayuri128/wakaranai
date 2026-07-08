@@ -74,6 +74,7 @@ class SettingsPage extends StatelessWidget {
                     _buildAppearanceSection(context),
                     _buildReaderSection(context, state),
                     _buildContentSection(context, state),
+                    _buildUpdatesSection(context, state),
                     _buildStatisticsSection(context, state),
                     _buildStorageSection(context),
                     _buildActivitySection(context),
@@ -134,6 +135,138 @@ class SettingsPage extends StatelessWidget {
               context.read<SettingsCubit>().onChangedShowNsfw(!state.showNsfw),
         ),
       ],
+    );
+  }
+
+  Widget _buildUpdatesSection(BuildContext context, SettingsInitialized state) {
+    final SettingsCubit cubit = context.read<SettingsCubit>();
+
+    return _SettingsSection(
+      title: S.current.settings_updates_section,
+      tiles: <Widget>[
+        if (cubit.backgroundUpdatesSupported)
+          _SettingsTile(
+            icon: Icons.autorenew_rounded,
+            title: S.current.settings_check_updates,
+            subtitle: S.current.settings_check_updates_subtitle,
+            trailing: Switch(
+              value: state.checkUpdates,
+              activeThumbColor: AppColors.mainBlack,
+              activeTrackColor: AppColors.primary,
+              onChanged: (bool value) => cubit.onChangedCheckUpdates(value),
+            ),
+            onTap: () => cubit.onChangedCheckUpdates(!state.checkUpdates),
+          ),
+        if (cubit.backgroundUpdatesSupported && state.checkUpdates)
+          _SettingsTile(
+            icon: Icons.schedule_rounded,
+            title: S.current.settings_update_frequency,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  S.current
+                      .settings_update_frequency_value(state.updateFrequencyHours),
+                  style: medium(size: 13, color: AppColors.mainGrey),
+                ),
+                const SizedBox(width: 4),
+                Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
+              ],
+            ),
+            onTap: () =>
+                _showUpdateFrequencyPicker(context, state.updateFrequencyHours),
+          ),
+        _SettingsTile(
+          icon: state.updateNotifications
+              ? Icons.notifications_active_rounded
+              : Icons.notifications_off_rounded,
+          title: S.current.settings_update_notifications,
+          subtitle: S.current.settings_update_notifications_subtitle,
+          trailing: Switch(
+            value: state.updateNotifications,
+            activeThumbColor: AppColors.mainBlack,
+            activeTrackColor: AppColors.primary,
+            onChanged: (bool value) => cubit.onChangedUpdateNotifications(value),
+          ),
+          onTap: () =>
+              cubit.onChangedUpdateNotifications(!state.updateNotifications),
+        ),
+      ],
+    );
+  }
+
+  void _showUpdateFrequencyPicker(BuildContext context, int current) {
+    const List<int> options = <int>[6, 12, 24, 48];
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.backgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(top: 12, bottom: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.overlay(0.18),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                child: Text(
+                  S.current.settings_update_frequency,
+                  style: semibold(size: 18),
+                ),
+              ),
+              for (final int hours in options)
+                InkWell(
+                  onTap: () {
+                    context.read<SettingsCubit>().onChangedUpdateFrequency(hours);
+                    Navigator.of(sheetContext).pop();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            S.current.settings_update_frequency_value(hours),
+                            style: medium(
+                              size: 15,
+                              color: hours == current
+                                  ? AppColors.primary
+                                  : AppColors.mainWhite,
+                            ),
+                          ),
+                        ),
+                        if (hours == current)
+                          Icon(
+                            Icons.check_rounded,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
     );
   }
 

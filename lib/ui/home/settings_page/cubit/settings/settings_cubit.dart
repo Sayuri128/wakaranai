@@ -21,6 +21,8 @@ import 'package:wakaranai/services/import_export/import_export_notification_serv
 import 'package:wakaranai/services/import_export/import_export_service.dart';
 import 'package:wakaranai/services/import_export/import_export_task.dart';
 import 'package:wakaranai/services/import_export/import_task_store.dart';
+import 'package:wakaranai/services/library_updates/library_update_notification_service.dart';
+import 'package:wakaranai/services/library_updates/library_update_task.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
 import 'package:wakaranai/services/import_export/export_section_labels.dart';
 import 'package:workmanager/workmanager.dart';
@@ -142,6 +144,9 @@ class SettingsCubit extends Cubit<SettingsState> {
         defaultMode: await _settingsService.getDefaultReaderMode(),
         showNsfw: await _settingsService.getShowNsfw(),
         collectStatistics: await _settingsService.getCollectStatistics(),
+        checkUpdates: await _settingsService.getCheckUpdates(),
+        updateNotifications: await _settingsService.getUpdateNotifications(),
+        updateFrequencyHours: await _settingsService.getUpdateFrequencyHours(),
       ),
     );
 
@@ -163,6 +168,63 @@ class SettingsCubit extends Cubit<SettingsState> {
     if (state is! SettingsInitialized) return;
     await _settingsService.setCollectStatistics(value);
     emit(state.copyWith(collectStatistics: value));
+  }
+
+  bool get backgroundUpdatesSupported => !kIsWeb && Platform.isAndroid;
+
+  void onChangedCheckUpdates(bool value) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) return;
+    await _settingsService.setCheckUpdates(value);
+    emit(state.copyWith(checkUpdates: value));
+    await _rescheduleUpdateTask(
+      enabled: value,
+      frequencyHours: state.updateFrequencyHours,
+    );
+  }
+
+  void onChangedUpdateNotifications(bool value) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) return;
+    await _settingsService.setUpdateNotifications(value);
+    emit(state.copyWith(updateNotifications: value));
+    if (value) {
+      await LibraryUpdateNotificationService().requestPermission();
+    }
+  }
+
+  void onChangedUpdateFrequency(int hours) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) return;
+    await _settingsService.setUpdateFrequencyHours(hours);
+    emit(state.copyWith(updateFrequencyHours: hours));
+    await _rescheduleUpdateTask(
+      enabled: state.checkUpdates,
+      frequencyHours: hours,
+    );
+  }
+
+  Future<void> _rescheduleUpdateTask({
+    required bool enabled,
+    required int frequencyHours,
+  }) async {
+    if (!backgroundUpdatesSupported) return;
+
+    try {
+      if (!enabled) {
+        await cancelLibraryUpdateTask();
+        return;
+      }
+
+      await LibraryUpdateNotificationService().requestPermission();
+      await registerLibraryUpdateTask(
+        frequencyHours: frequencyHours,
+        localeName: Intl.getCurrentLocale(),
+      );
+    } catch (e, s) {
+      logger.e(e);
+      logger.e(s);
+    }
   }
 
   Future<void> deleteActivityHistory(BuildContext context) async {

@@ -17,7 +17,6 @@ import 'package:wakaranai/services/import_export/export_section_labels.dart';
 import 'package:wakaranai/services/import_export/import_export_notification_service.dart';
 import 'package:wakaranai/services/import_export/import_export_service.dart';
 import 'package:wakaranai/services/import_export/import_task_store.dart';
-import 'package:workmanager/workmanager.dart';
 
 const String importTaskName = 'wakaranai.import';
 const String importTaskUniqueName = 'wakaranai.import.oneoff';
@@ -25,16 +24,6 @@ const String importTaskUniqueName = 'wakaranai.import.oneoff';
 const String importTaskPathKey = 'path';
 const String importTaskSectionsKey = 'sections';
 const String importTaskLocaleKey = 'locale';
-
-@pragma('vm:entry-point')
-void importExportCallbackDispatcher() {
-  Workmanager().executeTask(
-    (String taskName, Map<String, dynamic>? inputData) async {
-      if (taskName != importTaskName) return true;
-      return runImportTask(inputData);
-    },
-  );
-}
 
 Future<bool> runImportTask(Map<String, dynamic>? inputData) async {
   DartPluginRegistrant.ensureInitialized();

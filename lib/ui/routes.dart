@@ -14,4 +14,5 @@ class Routes {
   static const String readingStatistics = '/readingStatistics';
   static const String downloads = '/downloads';
   static const String downloadReader = '/downloadReader';
+  static const String updates = '/updates';
 }

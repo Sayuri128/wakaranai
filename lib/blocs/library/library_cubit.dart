@@ -5,6 +5,7 @@ import 'package:wakaranai/data/domain/database/category_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/repositories/database/category_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
+import 'package:wakaranai/repositories/database/library_update_repository.dart';
 
 part 'library_state.dart';
 
@@ -14,10 +15,12 @@ class LibraryCubit extends Cubit<LibraryState> {
   LibraryCubit({
     required this.libraryEntryRepository,
     required this.categoryRepository,
+    required this.libraryUpdateRepository,
   }) : super(const LibraryState());
 
   final LibraryEntryRepository libraryEntryRepository;
   final CategoryRepository categoryRepository;
+  final LibraryUpdateRepository libraryUpdateRepository;
 
   StreamSubscription<List<LibraryEntryDomain>>? _entriesSub;
   StreamSubscription<List<CategoryDomain>>? _categoriesSub;
@@ -47,7 +50,7 @@ class LibraryCubit extends Cubit<LibraryState> {
     final LibraryEntryDomain? existing =
         await libraryEntryRepository.getByUid(entry.uid);
     if (existing != null) {
-      await libraryEntryRepository.deleteByUid(entry.uid);
+      await removeFromLibrary(entry.uid);
     } else {
       await libraryEntryRepository.create(entry);
     }
@@ -55,6 +58,15 @@ class LibraryCubit extends Cubit<LibraryState> {
 
   Future<void> removeFromLibrary(String uid) async {
     await libraryEntryRepository.deleteByUid(uid);
+    await libraryUpdateRepository.deleteByEntryUid(uid);
+  }
+
+  Future<void> setTrackUpdates(LibraryEntryDomain entry, bool value) async {
+    await libraryEntryRepository.update(entry.copyWith(trackUpdates: value));
+  }
+
+  Future<void> setNotifyUpdates(LibraryEntryDomain entry, bool value) async {
+    await libraryEntryRepository.update(entry.copyWith(notifyUpdates: value));
   }
 
   Future<void> markRead(String uid) async {
@@ -84,7 +96,7 @@ class LibraryCubit extends Cubit<LibraryState> {
 
   Future<void> removeMany(Iterable<String> uids) async {
     for (final String uid in uids) {
-      await libraryEntryRepository.deleteByUid(uid);
+      await removeFromLibrary(uid);
     }
   }
 

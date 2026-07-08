@@ -9,8 +9,53 @@ class SettingsService {
   static const String themeIdPrefsKey = 'APP_THEME_ID';
   static const String showNsfwPrefsKey = 'SHOW_NSFW';
   static const String collectStatisticsPrefsKey = 'COLLECT_STATISTICS';
+  static const String checkUpdatesPrefsKey = 'CHECK_LIBRARY_UPDATES';
+  static const String updateNotificationsPrefsKey = 'UPDATE_NOTIFICATIONS';
+  static const String updateFrequencyPrefsKey = 'UPDATE_FREQUENCY_HOURS';
+
+  static const int defaultUpdateFrequencyHours = 12;
 
   SharedPreferences? _prefs;
+
+  Future<bool> getCheckUpdates() async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    return _prefs!.getBool(checkUpdatesPrefsKey) ?? false;
+  }
+
+  Future<void> setCheckUpdates(bool value) async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    await _prefs!.setBool(checkUpdatesPrefsKey, value);
+  }
+
+  Future<bool> getUpdateNotifications({bool reload = false}) async {
+    _prefs ??= await SharedPreferences.getInstance();
+    if (reload) {
+      await _prefs!.reload();
+    }
+
+    return _prefs!.getBool(updateNotificationsPrefsKey) ?? true;
+  }
+
+  Future<void> setUpdateNotifications(bool value) async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    await _prefs!.setBool(updateNotificationsPrefsKey, value);
+  }
+
+  Future<int> getUpdateFrequencyHours() async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    return _prefs!.getInt(updateFrequencyPrefsKey) ??
+        defaultUpdateFrequencyHours;
+  }
+
+  Future<void> setUpdateFrequencyHours(int value) async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    await _prefs!.setInt(updateFrequencyPrefsKey, value);
+  }
 
   Future<bool> getShowNsfw() async {
     _prefs ??= await SharedPreferences.getInstance();
