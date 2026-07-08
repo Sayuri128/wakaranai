@@ -28,10 +28,9 @@ class S {
   static const AppLocalizationDelegate delegate = AppLocalizationDelegate();
 
   static Future<S> load(Locale locale) {
-    final name =
-        (locale.countryCode?.isEmpty ?? false)
-            ? locale.languageCode
-            : locale.toString();
+    final name = (locale.countryCode?.isEmpty ?? false)
+        ? locale.languageCode
+        : locale.toString();
     final localeName = Intl.canonicalizedLocale(name);
     return initializeMessages(localeName).then((_) {
       Intl.defaultLocale = localeName;
@@ -1975,6 +1974,196 @@ class S {
       name: 'downloads_chapters_summary',
       desc: '',
       args: [done, total],
+    );
+  }
+
+  /// `Export data`
+  String get settings_export_data_button {
+    return Intl.message(
+      'Export data',
+      name: 'settings_export_data_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import data`
+  String get settings_import_data_button {
+    return Intl.message(
+      'Import data',
+      name: 'settings_import_data_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Export data`
+  String get settings_export_sheet_title {
+    return Intl.message(
+      'Export data',
+      name: 'settings_export_sheet_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import data`
+  String get settings_import_sheet_title {
+    return Intl.message(
+      'Import data',
+      name: 'settings_import_sheet_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Export`
+  String get settings_export_sheet_confirm {
+    return Intl.message(
+      'Export',
+      name: 'settings_export_sheet_confirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import`
+  String get settings_import_sheet_confirm {
+    return Intl.message(
+      'Import',
+      name: 'settings_import_sheet_confirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select all`
+  String get settings_export_select_all {
+    return Intl.message(
+      'Select all',
+      name: 'settings_export_select_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This file has nothing to import`
+  String get settings_import_nothing_to_import {
+    return Intl.message(
+      'This file has nothing to import',
+      name: 'settings_import_nothing_to_import',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} skipped`
+  String settings_import_skipped(Object count) {
+    return Intl.message(
+      '$count skipped',
+      name: 'settings_import_skipped',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Reading history`
+  String get export_section_history {
+    return Intl.message(
+      'Reading history',
+      name: 'export_section_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chapters read and episodes watched`
+  String get export_section_history_subtitle {
+    return Intl.message(
+      'Chapters read and episodes watched',
+      name: 'export_section_history_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Library`
+  String get export_section_library {
+    return Intl.message(
+      'Library',
+      name: 'export_section_library',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Titles you added to your library`
+  String get export_section_library_subtitle {
+    return Intl.message(
+      'Titles you added to your library',
+      name: 'export_section_library_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Categories`
+  String get export_section_categories {
+    return Intl.message(
+      'Categories',
+      name: 'export_section_categories',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Library categories`
+  String get export_section_categories_subtitle {
+    return Intl.message(
+      'Library categories',
+      name: 'export_section_categories_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Extension sources`
+  String get export_section_sources {
+    return Intl.message(
+      'Extension sources',
+      name: 'export_section_sources',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Repositories you added`
+  String get export_section_sources_subtitle {
+    return Intl.message(
+      'Repositories you added',
+      name: 'export_section_sources_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Settings`
+  String get export_section_settings {
+    return Intl.message(
+      'Settings',
+      name: 'export_section_settings',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Theme, reader mode and toggles`
+  String get export_section_settings_subtitle {
+    return Intl.message(
+      'Theme, reader mode and toggles',
+      name: 'export_section_settings_subtitle',
+      desc: '',
+      args: [],
     );
   }
 

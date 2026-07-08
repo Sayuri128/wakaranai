@@ -1,17 +1,17 @@
 import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:wakaranai/blocs/theme/theme_cubit.dart';
+import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/data/domain/import_export/import_export_model.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
+import 'package:wakaranai/services/import_export/import_export_service.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
@@ -27,15 +27,26 @@ import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dar
 
 part 'settings_state.dart';
 
+class PickedImport {
+  final ExportBundle? bundle;
+  final ImportExportMode? legacy;
+
+  const PickedImport({this.bundle, this.legacy});
+}
+
 class SettingsCubit extends Cubit<SettingsState> {
   SettingsCubit(
       {required this.remoteConfigsCubit,
       required this.mangaActivityHistoryCubit,
       required this.animeActivityHistoryCubit,
+      required this.importExportService,
+      required this.themeCubit,
       required this.database})
       : super(SettingsInitial());
 
   final WakaranaiDatabase database;
+  final ImportExportService importExportService;
+  final ThemeCubit themeCubit;
   final MangaActivityHistoryCubit mangaActivityHistoryCubit;
   final AnimeActivityHistoryCubit animeActivityHistoryCubit;
 
@@ -45,7 +56,6 @@ class SettingsCubit extends Cubit<SettingsState> {
   ChapterActivityRepository get chapterActivityRepository =>
       mangaActivityHistoryCubit.chapterActivityRepository;
 
-  static const int importExportVersion = 1;
 
   // static final DefaultConfigsServiceItem = ConfigsSourceItem(
   //     baseUrl:
@@ -115,28 +125,94 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit((state as SettingsInitialized).copyWith(defaultMode: mode));
   }
 
-  void importActivityHistory(BuildContext context) async {
+  Future<PickedImport?> pickImport(BuildContext context) async {
+    try {
+      final pickResult = await FilePicker.platform.pickFiles(
+        allowedExtensions: ["json"],
+        allowMultiple: false,
+        type: FileType.custom,
+      );
+
+      if (pickResult == null) return null;
+      if (!pickResult.isSinglePick) return null;
+      if (pickResult.files.isEmpty) return null;
+
+      final str = await pickResult.files[0].xFile.readAsString();
+      final Map<String, dynamic> json =
+          jsonDecode(str) as Map<String, dynamic>;
+      final int version = (json['version'] as num?)?.toInt() ?? 1;
+
+      if (version >= ImportExportService.exportVersion) {
+        return PickedImport(bundle: ExportBundle.fromJson(json));
+      }
+      return PickedImport(legacy: ImportExportMode.fromJson(json));
+    } catch (e) {
+      logger.e(e);
+      SnackBars.showErrorSnackBar(
+        context: context,
+        error: S.current.settings_import_activity_history_error,
+      );
+      return null;
+    }
+  }
+
+  Future<void> importBundle(
+    BuildContext context,
+    ExportBundle bundle,
+    Set<ExportSection> sections,
+  ) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) return;
+
+    emit(state.copyWith(loading: true));
+    bool settingsImported = false;
+
+    try {
+      final ImportResult result =
+          await importExportService.applyImport(bundle, sections);
+
+      if (sections.contains(ExportSection.sources)) {
+        remoteConfigsCubit.init();
+      }
+      if (sections.contains(ExportSection.history)) {
+        animeActivityHistoryCubit.init();
+        mangaActivityHistoryCubit.init();
+      }
+      if (sections.contains(ExportSection.settings)) {
+        settingsImported = true;
+        await themeCubit.init();
+      }
+
+      final String message = S.current.settings_import_activity_history_success(
+          result.imported, result.total);
+
+      SnackBars.showSnackBar(
+        context: context,
+        message: result.skipped > 0
+            ? '$message · ${S.current.settings_import_skipped(result.skipped)}'
+            : message,
+      );
+    } catch (e) {
+      logger.e(e);
+      SnackBars.showErrorSnackBar(
+        context: context,
+        error: S.current.settings_import_activity_history_error,
+      );
+    } finally {
+      if (settingsImported) {
+        init();
+      } else {
+        emit(state.copyWith(loading: false));
+      }
+    }
+  }
+
+  Future<void> importLegacy(BuildContext context, ImportExportMode data) async {
     final state = this.state;
     if (state is SettingsInitialized) {
       emit(state.copyWith(loading: true));
 
       try {
-        final pickResult = await FilePicker.platform.pickFiles(
-          allowedExtensions: ["json"],
-          allowMultiple: false,
-          type: FileType.custom,
-        );
-
-        if (pickResult == null) return;
-        if (!pickResult.isSinglePick) return;
-        if (pickResult.files.isEmpty) return;
-
-        final file = pickResult.files[0];
-
-        final str = await file.xFile.readAsString();
-
-        final data = ImportExportMode.fromJson(jsonDecode(str));
-
         final numberOfElements = data.mangaChapterActivities.length +
             data.animeEpisodeActivities.length;
         int importedElements = 0;
@@ -205,23 +281,19 @@ class SettingsCubit extends Cubit<SettingsState> {
     }
   }
 
-  void exportActivityHistory(BuildContext context) async {
+  Future<void> exportData(
+      BuildContext context, Set<ExportSection> sections) async {
     final state = this.state;
     if (state is SettingsInitialized) {
       emit(state.copyWith(loading: true));
 
       try {
-        // Prepare the export data structure
-        final exportData = ImportExportMode(
-            exportedAt: DateTime.now(),
-            version: importExportVersion,
-            mangaChapterActivities: await chapterActivityRepository.getAll(),
-            animeEpisodeActivities:
-                await animeEpisodeActivityRepository.getAll());
+        final ExportBundle bundle =
+            await importExportService.buildExport(sections);
 
         await FileSaver.instance.saveAs(
           name: 'wakaranai_export_${DateTime.now().toIso8601String()}',
-          bytes: utf8.encode(jsonEncode(exportData.toJson())),
+          bytes: utf8.encode(jsonEncode(bundle.toJson())),
           ext: 'json',
           mimeType: MimeType.json,
         );

@@ -7,9 +7,12 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/utils/app_palette.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
+import 'package:wakaranai/ui/home/settings_page/import_export_sheet.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
+import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -190,6 +193,53 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
+  Future<void> _startExport(BuildContext context) async {
+    final SettingsCubit cubit = context.read<SettingsCubit>();
+
+    final Set<ExportSection>? sections = await showImportExportSheet(
+      context,
+      available: ExportSection.values.toSet(),
+      title: S.current.settings_export_sheet_title,
+      confirmLabel: S.current.settings_export_sheet_confirm,
+    );
+
+    if (sections == null || sections.isEmpty || !context.mounted) return;
+    await cubit.exportData(context, sections);
+  }
+
+  Future<void> _startImport(BuildContext context) async {
+    final SettingsCubit cubit = context.read<SettingsCubit>();
+
+    final PickedImport? picked = await cubit.pickImport(context);
+    if (picked == null || !context.mounted) return;
+
+    if (picked.legacy != null) {
+      await cubit.importLegacy(context, picked.legacy!);
+      return;
+    }
+
+    final ExportBundle bundle = picked.bundle!;
+    final Set<ExportSection> available = bundle.availableSections;
+
+    if (available.isEmpty) {
+      SnackBars.showErrorSnackBar(
+        context: context,
+        error: S.current.settings_import_nothing_to_import,
+      );
+      return;
+    }
+
+    final Set<ExportSection>? sections = await showImportExportSheet(
+      context,
+      available: available,
+      title: S.current.settings_import_sheet_title,
+      confirmLabel: S.current.settings_import_sheet_confirm,
+    );
+
+    if (sections == null || sections.isEmpty || !context.mounted) return;
+    await cubit.importBundle(context, bundle, sections);
+  }
+
   Widget _buildActivitySection(BuildContext context) {
     return _SettingsSection(
       title: S.current.home_navigation_bar_activity_history_title,
@@ -199,15 +249,13 @@ class SettingsPage extends StatelessWidget {
       tiles: <Widget>[
         _SettingsTile(
           icon: Icons.file_upload_outlined,
-          title: S.current.settings_export_activity_history_button,
-          onTap: () =>
-              context.read<SettingsCubit>().exportActivityHistory(context),
+          title: S.current.settings_export_data_button,
+          onTap: () => _startExport(context),
         ),
         _SettingsTile(
           icon: Icons.file_download_outlined,
-          title: S.current.settings_import_activity_history_button,
-          onTap: () =>
-              context.read<SettingsCubit>().importActivityHistory(context),
+          title: S.current.settings_import_data_button,
+          onTap: () => _startImport(context),
         ),
         _SettingsTile(
           icon: Icons.cleaning_services_rounded,

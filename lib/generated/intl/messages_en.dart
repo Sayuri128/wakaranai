@@ -44,9 +44,11 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m10(IMPORTED, TOTAL) =>
       "Activity history imported ${IMPORTED} out of ${TOTAL} activities";
 
-  static String m11(count) => "${count} activities";
+  static String m11(count) => "${count} skipped";
 
-  static String m12(current, longest) =>
+  static String m12(count) => "${count} activities";
+
+  static String m13(current, longest) =>
       "Current ${current} · Longest ${longest}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -193,6 +195,32 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_status_failed": MessageLookupByLibrary.simpleMessage("Failed"),
     "downloads_status_queued": MessageLookupByLibrary.simpleMessage("Queued"),
     "downloads_title": MessageLookupByLibrary.simpleMessage("Downloads"),
+    "export_section_categories": MessageLookupByLibrary.simpleMessage(
+      "Categories",
+    ),
+    "export_section_categories_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Library categories",
+    ),
+    "export_section_history": MessageLookupByLibrary.simpleMessage(
+      "Reading history",
+    ),
+    "export_section_history_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Chapters read and episodes watched",
+    ),
+    "export_section_library": MessageLookupByLibrary.simpleMessage("Library"),
+    "export_section_library_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Titles you added to your library",
+    ),
+    "export_section_settings": MessageLookupByLibrary.simpleMessage("Settings"),
+    "export_section_settings_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Theme, reader mode and toggles",
+    ),
+    "export_section_sources": MessageLookupByLibrary.simpleMessage(
+      "Extension sources",
+    ),
+    "export_section_sources_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Repositories you added",
+    ),
     "extension_source_page_error_adding_source":
         MessageLookupByLibrary.simpleMessage(
           "Error occurred during adding source",
@@ -407,6 +435,18 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Activity history exported successfully",
         ),
+    "settings_export_data_button": MessageLookupByLibrary.simpleMessage(
+      "Export data",
+    ),
+    "settings_export_select_all": MessageLookupByLibrary.simpleMessage(
+      "Select all",
+    ),
+    "settings_export_sheet_confirm": MessageLookupByLibrary.simpleMessage(
+      "Export",
+    ),
+    "settings_export_sheet_title": MessageLookupByLibrary.simpleMessage(
+      "Export data",
+    ),
     "settings_import_activity_history_button":
         MessageLookupByLibrary.simpleMessage("Import activity history"),
     "settings_import_activity_history_error":
@@ -414,6 +454,9 @@ class MessageLookup extends MessageLookupByLibrary {
           "Error occurred during importing activity history",
         ),
     "settings_import_activity_history_success": m10,
+    "settings_import_data_button": MessageLookupByLibrary.simpleMessage(
+      "Import data",
+    ),
     "settings_import_export_info_export_body": MessageLookupByLibrary.simpleMessage(
       "Saves all your manga and anime reading history into a single JSON file that you can back up or move to another device.",
     ),
@@ -427,6 +470,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_import_export_info_title": MessageLookupByLibrary.simpleMessage(
       "Import & export",
     ),
+    "settings_import_nothing_to_import": MessageLookupByLibrary.simpleMessage(
+      "This file has nothing to import",
+    ),
+    "settings_import_sheet_confirm": MessageLookupByLibrary.simpleMessage(
+      "Import",
+    ),
+    "settings_import_sheet_title": MessageLookupByLibrary.simpleMessage(
+      "Import data",
+    ),
+    "settings_import_skipped": m11,
     "settings_reader_section_title": MessageLookupByLibrary.simpleMessage(
       "Reader",
     ),
@@ -488,7 +541,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "stats_heatmap_less": MessageLookupByLibrary.simpleMessage("Less"),
     "stats_heatmap_more": MessageLookupByLibrary.simpleMessage("More"),
-    "stats_heatmap_week_count": m11,
+    "stats_heatmap_week_count": m12,
     "stats_kpi_active_days": MessageLookupByLibrary.simpleMessage(
       "Active days",
     ),
@@ -509,7 +562,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "stats_sources_section_title": MessageLookupByLibrary.simpleMessage(
       "Top sources",
     ),
-    "stats_streak_summary": m12,
+    "stats_streak_summary": m13,
     "stats_title": MessageLookupByLibrary.simpleMessage("Statistics"),
     "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage("Done"),
   };

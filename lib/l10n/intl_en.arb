@@ -228,6 +228,30 @@
       "total": {}
     }
   },
+  "settings_export_data_button": "Export data",
+  "settings_import_data_button": "Import data",
+  "settings_export_sheet_title": "Export data",
+  "settings_import_sheet_title": "Import data",
+  "settings_export_sheet_confirm": "Export",
+  "settings_import_sheet_confirm": "Import",
+  "settings_export_select_all": "Select all",
+  "settings_import_nothing_to_import": "This file has nothing to import",
+  "settings_import_skipped": "{count} skipped",
+  "@settings_import_skipped": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "export_section_history": "Reading history",
+  "export_section_history_subtitle": "Chapters read and episodes watched",
+  "export_section_library": "Library",
+  "export_section_library_subtitle": "Titles you added to your library",
+  "export_section_categories": "Categories",
+  "export_section_categories_subtitle": "Library categories",
+  "export_section_sources": "Extension sources",
+  "export_section_sources_subtitle": "Repositories you added",
+  "export_section_settings": "Settings",
+  "export_section_settings_subtitle": "Theme, reader mode and toggles",
   "downloads_notification_channel_name": "Downloads",
   "downloads_notification_downloading_title": "Downloading",
   "downloads_notification_complete_title": "Download complete",

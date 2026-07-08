@@ -10,6 +10,7 @@ import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/repositories/database/repository_providers.dart';
+import 'package:wakaranai/services/import_export/import_export_service.dart';
 import 'package:wakaranai/ui/app_view.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
@@ -116,6 +117,16 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
                     context.read<AnimeActivityHistoryCubit>(),
                 mangaActivityHistoryCubit:
                     context.read<MangaActivityHistoryCubit>(),
+                themeCubit: context.read<ThemeCubit>(),
+                importExportService: ImportExportService(
+                  concreteDataRepository: RepositoryProvider.of(context),
+                  chapterActivityRepository: RepositoryProvider.of(context),
+                  animeEpisodeActivityRepository:
+                      RepositoryProvider.of(context),
+                  categoryRepository: RepositoryProvider.of(context),
+                  libraryEntryRepository: RepositoryProvider.of(context),
+                  extensionSourceRepository: RepositoryProvider.of(context),
+                ),
                 database: context.read<WakaranaiDatabase>())
               ..init(),
           ),
