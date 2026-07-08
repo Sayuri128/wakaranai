@@ -10,6 +10,7 @@ import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
 import 'package:wakaranai/ui/home/library_page/library_concrete_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/widgets/search_field.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -27,24 +28,23 @@ class LibraryPage extends StatefulWidget {
 class _LibraryPageState extends State<LibraryPage> {
   int _selectedCategory = _allCategoryId;
   final Set<String> _selected = <String>{};
-  final TextEditingController _searchController = TextEditingController();
 
-  bool _searchOpen = false;
+  late final TextEditingController _searchController;
 
   bool get _selectionMode => _selected.isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(
+      text: context.read<LibraryCubit>().state.searchQuery,
+    );
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
-  }
-
-  void _openSearch() => setState(() => _searchOpen = true);
-
-  void _closeSearch(BuildContext context) {
-    _searchController.clear();
-    context.read<LibraryCubit>().setSearchQuery('');
-    setState(() => _searchOpen = false);
   }
 
   void _toggleSelect(String uid) {
@@ -62,14 +62,9 @@ class _LibraryPageState extends State<LibraryPage> {
     return BlocBuilder<LibraryCubit, LibraryState>(
       builder: (BuildContext context, LibraryState state) {
         return PopScope<Object?>(
-          canPop: !_selectionMode && !_searchOpen,
+          canPop: !_selectionMode,
           onPopInvokedWithResult: (bool didPop, Object? result) {
-            if (didPop) return;
-            if (_selectionMode) {
-              _clearSelection();
-            } else if (_searchOpen) {
-              _closeSearch(context);
-            }
+            if (!didPop && _selectionMode) _clearSelection();
           },
           child: Scaffold(
             backgroundColor: AppColors.backgroundColor,
@@ -81,7 +76,7 @@ class _LibraryPageState extends State<LibraryPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       _buildHeader(context, state),
-                      if (_searchOpen) _buildSearchField(context),
+                      _buildSearchField(context),
                       if (state.categories.isNotEmpty ||
                           _hasUncategorized(state))
                         _buildCategoryChips(context, state),
@@ -225,11 +220,6 @@ class _LibraryPageState extends State<LibraryPage> {
               style: semibold(size: 24),
             ),
           ),
-          _CircleIconButton(
-            icon: _searchOpen ? Icons.search_off_rounded : Icons.search_rounded,
-            onTap: () => _searchOpen ? _closeSearch(context) : _openSearch(),
-          ),
-          const SizedBox(width: 8),
           BlocBuilder<LibraryUpdatesCubit, LibraryUpdatesState>(
             builder: (BuildContext context, LibraryUpdatesState updatesState) {
               return _UpdatesButton(
@@ -256,54 +246,12 @@ class _LibraryPageState extends State<LibraryPage> {
   Widget _buildSearchField(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      child: Container(
-        height: 48,
-        decoration: BoxDecoration(
-          color: AppColors.overlay(0.08),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.overlay(0.10)),
-        ),
-        child: Row(
-          children: <Widget>[
-            const SizedBox(width: 16),
-            Icon(Icons.search_rounded, color: AppColors.mainGrey, size: 22),
-            const SizedBox(width: 10),
-            Expanded(
-              child: TextField(
-                controller: _searchController,
-                autofocus: true,
-                onChanged: (String value) =>
-                    context.read<LibraryCubit>().setSearchQuery(value),
-                textInputAction: TextInputAction.search,
-                cursorColor: AppColors.primary,
-                style: medium(size: 16),
-                decoration: InputDecoration(
-                  isCollapsed: true,
-                  border: InputBorder.none,
-                  hintText: S.current.library_search_hint,
-                  hintStyle: medium(size: 16, color: AppColors.mainGrey),
-                ),
-              ),
-            ),
-            ValueListenableBuilder<TextEditingValue>(
-              valueListenable: _searchController,
-              builder: (BuildContext context, TextEditingValue value, _) {
-                if (value.text.isEmpty) {
-                  return const SizedBox(width: 12);
-                }
-                return IconButton(
-                  splashRadius: 20,
-                  icon: Icon(Icons.close_rounded,
-                      color: AppColors.mainGrey, size: 20),
-                  onPressed: () {
-                    _searchController.clear();
-                    context.read<LibraryCubit>().setSearchQuery('');
-                  },
-                );
-              },
-            ),
-          ],
-        ),
+      child: SearchField(
+        controller: _searchController,
+        hintText: S.current.library_search_hint,
+        onChanged: (String value) =>
+            context.read<LibraryCubit>().setSearchQuery(value),
+        onClear: () => context.read<LibraryCubit>().setSearchQuery(''),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
+import 'package:wakaranai/ui/widgets/search_field.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -53,69 +54,15 @@ class ServiceViewerHeader extends StatelessWidget {
             ),
             if (configInfo.searchAvailable) ...<Widget>[
               const SizedBox(height: 12),
-              _buildSearchField(context),
+              SearchField(
+                controller: searchController,
+                hintText: S.current.service_viewer_search_field_hint_text,
+                onSubmitted: (String value) => cubit.search(value),
+                onClear: () => cubit.search(''),
+              ),
             ],
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSearchField(BuildContext context) {
-    return Container(
-      height: 48,
-      decoration: BoxDecoration(
-        color: AppColors.overlay(0.08),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: AppColors.overlay(0.10),
-        ),
-      ),
-      child: Row(
-        children: <Widget>[
-          const SizedBox(width: 16),
-          Icon(
-            Icons.search_rounded,
-            color: AppColors.mainGrey,
-            size: 22,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: TextField(
-              controller: searchController,
-              onSubmitted: (String value) => cubit.search(value),
-              textInputAction: TextInputAction.search,
-              cursorColor: AppColors.primary,
-              style: medium(size: 16),
-              decoration: InputDecoration(
-                isCollapsed: true,
-                border: InputBorder.none,
-                hintText: S.current.service_viewer_search_field_hint_text,
-                hintStyle: medium(size: 16, color: AppColors.mainGrey),
-              ),
-            ),
-          ),
-          ValueListenableBuilder<TextEditingValue>(
-            valueListenable: searchController,
-            builder: (BuildContext context, TextEditingValue value, _) {
-              if (value.text.isEmpty) {
-                return const SizedBox(width: 12);
-              }
-              return IconButton(
-                splashRadius: 20,
-                icon: Icon(
-                  Icons.close_rounded,
-                  color: AppColors.mainGrey,
-                  size: 20,
-                ),
-                onPressed: () {
-                  searchController.clear();
-                  cubit.search('');
-                },
-              );
-            },
-          ),
-        ],
       ),
     );
   }
