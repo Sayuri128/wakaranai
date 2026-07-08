@@ -18,12 +18,15 @@ class SettingsInitialized extends SettingsState {
 
   final ImportExportProgress? progress;
 
+  final ImportOutcome? outcome;
+
   const SettingsInitialized({
     required this.defaultMode,
     required this.showNsfw,
     required this.collectStatistics,
     this.loading = false,
     this.progress,
+    this.outcome,
   });
 
   SettingsInitialized copyWith({
@@ -33,6 +36,8 @@ class SettingsInitialized extends SettingsState {
     bool? loading,
     ImportExportProgress? progress,
     bool clearProgress = false,
+    ImportOutcome? outcome,
+    bool clearOutcome = false,
   }) {
     return SettingsInitialized(
       defaultMode: defaultMode ?? this.defaultMode,
@@ -40,6 +45,7 @@ class SettingsInitialized extends SettingsState {
       collectStatistics: collectStatistics ?? this.collectStatistics,
       loading: loading ?? this.loading,
       progress: clearProgress ? null : (progress ?? this.progress),
+      outcome: clearOutcome ? null : (outcome ?? this.outcome),
     );
   }
 }

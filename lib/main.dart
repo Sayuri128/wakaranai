@@ -1,8 +1,12 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
+import 'package:workmanager/workmanager.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
@@ -11,6 +15,7 @@ import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/repositories/database/repository_providers.dart';
 import 'package:wakaranai/services/import_export/import_export_service.dart';
+import 'package:wakaranai/services/import_export/import_export_task.dart';
 import 'package:wakaranai/ui/app_view.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
@@ -36,6 +41,14 @@ void main() async {
   ));
 
   await dotenv.load(fileName: '.env');
+
+  if (!kIsWeb && Platform.isAndroid) {
+    try {
+      await Workmanager().initialize(importExportCallbackDispatcher);
+    } catch (e) {
+      logger.w('Failed to initialize Workmanager: $e');
+    }
+  }
 
   runApp(const WakaranaiApp());
 }

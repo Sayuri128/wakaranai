@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/services/import_export/export_section_labels.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -23,36 +24,6 @@ Future<Set<ExportSection>?> showImportExportSheet(
       confirmLabel: confirmLabel,
     ),
   );
-}
-
-String exportSectionTitle(ExportSection section) {
-  switch (section) {
-    case ExportSection.history:
-      return S.current.export_section_history;
-    case ExportSection.library:
-      return S.current.export_section_library;
-    case ExportSection.categories:
-      return S.current.export_section_categories;
-    case ExportSection.sources:
-      return S.current.export_section_sources;
-    case ExportSection.settings:
-      return S.current.export_section_settings;
-  }
-}
-
-String _sectionSubtitle(ExportSection section) {
-  switch (section) {
-    case ExportSection.history:
-      return S.current.export_section_history_subtitle;
-    case ExportSection.library:
-      return S.current.export_section_library_subtitle;
-    case ExportSection.categories:
-      return S.current.export_section_categories_subtitle;
-    case ExportSection.sources:
-      return S.current.export_section_sources_subtitle;
-    case ExportSection.settings:
-      return S.current.export_section_settings_subtitle;
-  }
 }
 
 IconData _sectionIcon(ExportSection section) {
@@ -255,7 +226,7 @@ class _SectionRow extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _sectionSubtitle(section),
+                        exportSectionSubtitle(section),
                         style: regular(size: 12, color: AppColors.mainGrey),
                       ),
                     ],

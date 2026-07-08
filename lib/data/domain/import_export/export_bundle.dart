@@ -1,8 +1,19 @@
+import 'package:collection/collection.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'export_bundle.g.dart';
 
 enum ExportSection { history, library, categories, sources, settings }
+
+String encodeExportSections(Set<ExportSection> sections) =>
+    sections.map((ExportSection s) => s.name).join(',');
+
+Set<ExportSection> decodeExportSections(String raw) => raw
+    .split(',')
+    .map((String name) => ExportSection.values
+        .firstWhereOrNull((ExportSection s) => s.name == name))
+    .whereType<ExportSection>()
+    .toSet();
 
 @JsonSerializable(explicitToJson: true)
 class ExportBundle {

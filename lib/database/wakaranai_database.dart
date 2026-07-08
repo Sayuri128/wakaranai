@@ -34,6 +34,8 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
   @override
   MigrationStrategy get migration => MigrationStrategy(
         beforeOpen: (details) async {
+          await customStatement('PRAGMA journal_mode = WAL;');
+          await customStatement('PRAGMA busy_timeout = 8000;');
         },
         onCreate: (m) async {
           await m.createAll();

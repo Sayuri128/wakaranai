@@ -24,7 +24,32 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      body: BlocBuilder<SettingsCubit, SettingsState>(
+      body: BlocConsumer<SettingsCubit, SettingsState>(
+        listenWhen: (SettingsState previous, SettingsState current) =>
+            current is SettingsInitialized && current.outcome != null,
+        listener: (BuildContext context, SettingsState state) {
+          final ImportOutcome outcome =
+              (state as SettingsInitialized).outcome!;
+          context.read<SettingsCubit>().clearOutcome();
+
+          if (!outcome.success) {
+            SnackBars.showErrorSnackBar(
+              context: context,
+              error: S.current.settings_import_activity_history_error,
+            );
+            return;
+          }
+
+          final String message = S.current
+              .settings_import_activity_history_success(
+                  outcome.imported, outcome.total);
+          SnackBars.showSnackBar(
+            context: context,
+            message: outcome.skipped > 0
+                ? '$message · ${S.current.settings_import_skipped(outcome.skipped)}'
+                : message,
+          );
+        },
         builder: (BuildContext context, SettingsState state) {
           if (state is! SettingsInitialized) {
             return Center(
@@ -232,6 +257,15 @@ class SettingsPage extends StatelessWidget {
     );
 
     if (sections == null || sections.isEmpty || !context.mounted) return;
+
+    final String? path = picked.path;
+    if (path != null && cubit.backgroundImportSupported) {
+      final bool started =
+          await cubit.importInBackground(bundle, sections, path);
+      if (started) return;
+    }
+
+    if (!context.mounted) return;
     await cubit.importBundle(context, bundle, sections);
   }
 

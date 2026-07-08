@@ -1,8 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/data/domain/import_export/import_export_model.dart';
@@ -13,8 +19,11 @@ import 'package:wakaranai/repositories/database/anime_episode_activity_repositor
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/services/import_export/import_export_notification_service.dart';
 import 'package:wakaranai/services/import_export/import_export_service.dart';
+import 'package:wakaranai/services/import_export/import_export_task.dart';
+import 'package:wakaranai/services/import_export/import_task_store.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
-import 'package:wakaranai/ui/home/settings_page/import_export_sheet.dart';
+import 'package:wakaranai/services/import_export/export_section_labels.dart';
+import 'package:workmanager/workmanager.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
@@ -32,8 +41,23 @@ part 'settings_state.dart';
 class PickedImport {
   final ExportBundle? bundle;
   final ImportExportMode? legacy;
+  final String? path;
 
-  const PickedImport({this.bundle, this.legacy});
+  const PickedImport({this.bundle, this.legacy, this.path});
+}
+
+class ImportOutcome {
+  final bool success;
+  final int imported;
+  final int total;
+  final int skipped;
+
+  const ImportOutcome({
+    required this.success,
+    this.imported = 0,
+    this.total = 0,
+    this.skipped = 0,
+  });
 }
 
 class SettingsCubit extends Cubit<SettingsState> {
@@ -72,6 +96,11 @@ class SettingsCubit extends Cubit<SettingsState> {
   final RemoteConfigsCubit remoteConfigsCubit;
 
   final SettingsService _settingsService = SettingsService();
+  final ImportTaskStore importTaskStore = ImportTaskStore();
+
+  Timer? _importWatcher;
+  Set<ExportSection> _importedSections = <ExportSection>{};
+  bool _resumeChecked = false;
 
   DateTime _lastProgressEmit = DateTime.fromMillisecondsSinceEpoch(0);
 
@@ -115,6 +144,11 @@ class SettingsCubit extends Cubit<SettingsState> {
         collectStatistics: await _settingsService.getCollectStatistics(),
       ),
     );
+
+    if (!_resumeChecked && backgroundImportSupported) {
+      _resumeChecked = true;
+      await resumeImportWatcherIfNeeded();
+    }
   }
 
   void onChangedShowNsfw(bool value) async {
@@ -183,7 +217,10 @@ class SettingsCubit extends Cubit<SettingsState> {
       final int version = (json['version'] as num?)?.toInt() ?? 1;
 
       if (version >= ImportExportService.exportVersion) {
-        return PickedImport(bundle: ExportBundle.fromJson(json));
+        return PickedImport(
+          bundle: ExportBundle.fromJson(json),
+          path: await _stagePendingImport(str),
+        );
       }
       return PickedImport(legacy: ImportExportMode.fromJson(json));
     } catch (e) {
@@ -194,6 +231,155 @@ class SettingsCubit extends Cubit<SettingsState> {
       );
       return null;
     }
+  }
+
+  Future<String?> _stagePendingImport(String contents) async {
+    try {
+      final Directory docs = await getApplicationDocumentsDirectory();
+      final File file = File(p.join(docs.path, 'pending_import.json'));
+      await file.writeAsString(contents);
+      return file.path;
+    } catch (e) {
+      logger.w('Failed to stage import file: $e');
+      return null;
+    }
+  }
+
+  bool get backgroundImportSupported => !kIsWeb && Platform.isAndroid;
+
+  Future<bool> importInBackground(
+    ExportBundle bundle,
+    Set<ExportSection> sections,
+    String path,
+  ) async {
+    try {
+      await notificationService.requestPermission();
+      await importTaskStore.clear();
+      await importTaskStore.setRunning();
+
+      await Workmanager().registerOneOffTask(
+        importTaskUniqueName,
+        importTaskName,
+        existingWorkPolicy: ExistingWorkPolicy.replace,
+        inputData: <String, dynamic>{
+          importTaskPathKey: path,
+          importTaskSectionsKey: encodeExportSections(sections),
+          importTaskLocaleKey: Intl.getCurrentLocale(),
+        },
+      );
+
+      _importedSections = sections;
+      final state = this.state;
+      if (state is SettingsInitialized) {
+        emit(state.copyWith(loading: true, clearProgress: true));
+      }
+      _startImportWatcher();
+      return true;
+    } catch (e, s) {
+      logger.e(e);
+      logger.e(s);
+      await importTaskStore.clear();
+      return false;
+    }
+  }
+
+  void _startImportWatcher() {
+    _importWatcher?.cancel();
+    _importWatcher = Timer.periodic(
+      const Duration(milliseconds: 700),
+      (_) => _pollImportTask(),
+    );
+  }
+
+  Future<void> resumeImportWatcherIfNeeded() async {
+    final ImportTaskSnapshot snapshot = await importTaskStore.read();
+    if (snapshot.status == ImportTaskStatus.running) {
+      final state = this.state;
+      if (state is SettingsInitialized) {
+        emit(state.copyWith(loading: true));
+      }
+      _startImportWatcher();
+    } else if (snapshot.status == ImportTaskStatus.done ||
+        snapshot.status == ImportTaskStatus.failed) {
+      await _pollImportTask();
+    }
+  }
+
+  Future<void> _pollImportTask() async {
+    final ImportTaskSnapshot snapshot = await importTaskStore.read();
+    final state = this.state;
+    if (state is! SettingsInitialized) return;
+
+    switch (snapshot.status) {
+      case ImportTaskStatus.running:
+        emit(state.copyWith(
+          loading: true,
+          progress: ImportExportProgress(
+            section: snapshot.section,
+            processed: snapshot.processed,
+            total: snapshot.total,
+            exporting: false,
+          ),
+        ));
+        break;
+      case ImportTaskStatus.done:
+        _importWatcher?.cancel();
+        _importWatcher = null;
+        await importTaskStore.clear();
+        await _refreshAfterImport(_importedSections);
+        emit((this.state as SettingsInitialized).copyWith(
+          loading: false,
+          clearProgress: true,
+          outcome: ImportOutcome(
+            success: true,
+            imported: snapshot.imported,
+            total: snapshot.total,
+            skipped: snapshot.skipped,
+          ),
+        ));
+        break;
+      case ImportTaskStatus.failed:
+        _importWatcher?.cancel();
+        _importWatcher = null;
+        await importTaskStore.clear();
+        emit(state.copyWith(
+          loading: false,
+          clearProgress: true,
+          outcome: const ImportOutcome(success: false),
+        ));
+        break;
+      case ImportTaskStatus.idle:
+        _importWatcher?.cancel();
+        _importWatcher = null;
+        emit(state.copyWith(loading: false, clearProgress: true));
+        break;
+    }
+  }
+
+  Future<void> _refreshAfterImport(Set<ExportSection> sections) async {
+    if (sections.contains(ExportSection.sources)) {
+      remoteConfigsCubit.init();
+    }
+    if (sections.contains(ExportSection.history)) {
+      animeActivityHistoryCubit.init();
+      mangaActivityHistoryCubit.init();
+    }
+    if (sections.contains(ExportSection.settings)) {
+      await themeCubit.init();
+      init();
+    }
+  }
+
+  void clearOutcome() {
+    final state = this.state;
+    if (state is! SettingsInitialized) return;
+    emit(state.copyWith(clearOutcome: true));
+  }
+
+  @override
+  Future<void> close() {
+    _importWatcher?.cancel();
+    return super.close();
   }
 
   Future<void> importBundle(
