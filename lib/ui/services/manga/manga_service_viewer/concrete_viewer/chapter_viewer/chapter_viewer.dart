@@ -19,6 +19,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:transparent_pointer/transparent_pointer.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
@@ -71,11 +72,22 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   bool _initialized = false;
 
+  late final AnimationController _sliderController;
+  double _sliderFrom = 1;
+  double _sliderTarget = 1;
+  double? _seekOverride;
+  ChapterViewMode? _lastMode;
+  int _lastPage = -1;
+
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
     _itemScrollController = ItemScrollController();
+    _sliderController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
 
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.immersiveSticky,
@@ -104,6 +116,7 @@ class _ChapterViewerState extends State<ChapterViewer>
   @override
   void dispose() {
     _chapterViewCubit.close();
+    _sliderController.dispose();
     _pageController.dispose();
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.manual,
@@ -133,18 +146,31 @@ class _ChapterViewerState extends State<ChapterViewer>
             current is ChapterViewInitialized &&
             (!_initialized ||
                 (previous is ChapterViewInitialized &&
-                    current.mode != previous.mode)),
+                    (current.mode != previous.mode ||
+                        current.currentPage != previous.currentPage))),
         listener: (BuildContext context, ChapterViewState state) {
           if (state is ChapterViewInitialized) {
+            final bool isInit = !_initialized;
+            final bool modeChanged =
+                _lastMode != null && state.mode != _lastMode;
             _initialized = true;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (state.mode == ChapterViewMode.webtoon) {
-                _itemScrollController.jumpTo(
-                    index: max(0, state.currentPage - 1));
-              } else {
-                _pageController.jumpToPage(max(0, state.currentPage - 1));
-              }
-            });
+
+            if (isInit || modeChanged) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (state.mode == ChapterViewMode.webtoon) {
+                  _itemScrollController.jumpTo(
+                      index: max(0, state.currentPage - 1));
+                } else {
+                  _pageController.jumpToPage(max(0, state.currentPage - 1));
+                }
+              });
+              _animateSliderTo(state, animate: false);
+            } else if (state.currentPage != _lastPage) {
+              _animateSliderTo(state, animate: _seekOverride == null);
+            }
+
+            _lastMode = state.mode;
+            _lastPage = state.currentPage;
           }
         },
         builder: (BuildContext context, ChapterViewState state) {
@@ -175,10 +201,27 @@ class _ChapterViewerState extends State<ChapterViewer>
               ],
             );
           } else if (state is ChapterViewError) {
-            return Center(
-              child: Text(
-                state.message,
-              ),
+            return Stack(
+              children: <Widget>[
+                ServiceViewerMessage(
+                  icon: Icons.error_outline_rounded,
+                  title: S.current.concrete_viewer_error_title,
+                  message: state.message,
+                ),
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: _buildRoundButton(
+                        icon: Icons.arrow_back_rounded,
+                        onTap: () => Navigator.of(context).pop(),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             );
           } else {
             return const Center(
@@ -188,31 +231,30 @@ class _ChapterViewerState extends State<ChapterViewer>
         });
   }
 
-  Positioned _buildPageCounter(
+  Widget _buildPageCounter(
       BuildContext context, ChapterViewInitialized state) {
     return Positioned(
-      bottom: 0,
+      bottom: MediaQuery.of(context).padding.bottom + 20,
       right: 0,
       left: 0,
-      child: Container(
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.0),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: AppColors.mainBlack.withOpacity(0.25),
-                  blurRadius: 24,
-                  spreadRadius: 24)
-            ]),
-        child: Center(
-            child: Text(
-          '${state.currentPage}/${state.totalPages}',
-          style: medium(size: 18, color: AppColors.mainWhite).copyWith(
-            shadows: <Shadow>[
-              BoxShadow(
-                  color: AppColors.mainBlack, blurRadius: 4, spreadRadius: 4)
-            ],
+      child: IgnorePointer(
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 200),
+          opacity: state.controlsVisible ? 0.0 : 1.0,
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.55),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '${state.currentPage}/${state.totalPages}',
+                style: medium(size: 13, color: AppColors.mainWhite),
+              ),
+            ),
           ),
-        )),
+        ),
       ),
     );
   }
@@ -244,7 +286,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                   width: MediaQuery.of(context).size.width * .2,
                   decoration: BoxDecoration(
                       color: _showGestureOverlay
-                          ? AppColors.primary.withOpacity(0.25)
+                          ? AppColors.primary.withValues(alpha: 0.25)
                           : Colors.transparent),
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
@@ -280,7 +322,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                   width: MediaQuery.of(context).size.width * .2,
                   decoration: BoxDecoration(
                       color: _showGestureOverlay
-                          ? AppColors.primary.withOpacity(0.25)
+                          ? AppColors.primary.withValues(alpha: 0.25)
                           : Colors.transparent),
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
@@ -308,188 +350,230 @@ class _ChapterViewerState extends State<ChapterViewer>
     );
   }
 
-  Padding _buildControls(BuildContext context, ChapterViewInitialized state) {
-    return Padding(
-      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 350),
-        switchInCurve: Curves.easeIn,
-        switchOutCurve: Curves.easeOut,
-        transitionBuilder: (Widget child, Animation<double> animation) =>
-            FadeTransition(opacity: animation, child: child),
-        child: state.controlsVisible
-            ? _buildControlsView(context, state)
-            : const SizedBox(),
+  Widget _buildControls(BuildContext context, ChapterViewInitialized state) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 350),
+      switchInCurve: Curves.easeIn,
+      switchOutCurve: Curves.easeOut,
+      transitionBuilder: (Widget child, Animation<double> animation) =>
+          FadeTransition(opacity: animation, child: child),
+      child: state.controlsVisible
+          ? _buildControlsView(context, state)
+          : const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildControlsView(
+      BuildContext context, ChapterViewInitialized state) {
+    final String title = state.group.elements
+        .firstWhere(
+            (Chapter element) => element.uid == state.currentPages.chapterUid)
+        .title;
+
+    return Column(
+      children: <Widget>[
+        _buildTopBar(context, title),
+        const Spacer(),
+        _buildBottomBar(context, state),
+      ],
+    );
+  }
+
+  Widget _buildTopBar(BuildContext context, String title) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+          16, MediaQuery.of(context).padding.top + 10, 16, 28),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: <Color>[Colors.black87, Colors.transparent],
+        ),
+      ),
+      child: Text(
+        title,
+        style: semibold(size: 16),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
 
-  Padding _buildControlsView(
-      BuildContext context, ChapterViewInitialized state) {
-    final double centeredElementWidth = MediaQuery.of(context).size.width - 144;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+  Widget _buildBottomBar(BuildContext context, ChapterViewInitialized state) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+          16, 40, 16, MediaQuery.of(context).padding.bottom + 16),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: <Color>[Colors.black87, Colors.transparent],
+        ),
+      ),
       child: Column(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          const SizedBox(
-            height: 16.0,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Flexible(
-                  child: Container(
-                    decoration: BoxDecoration(boxShadow: <BoxShadow>[
-                      BoxShadow(
-                          color: AppColors.mainBlack.withOpacity(0.25),
-                          blurRadius: 24,
-                          spreadRadius: 24)
-                    ]),
-                    child: Text(
-                        state.group.elements
-                            .firstWhere((Chapter element) =>
-                                element.uid == state.currentPages.chapterUid)
-                            .title,
-                        style: medium(size: 18),
-                        maxLines: 4,
-                        softWrap: true,
-                        overflow: TextOverflow.ellipsis),
-                  ),
-                ),
-              ],
+          Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '${state.currentPage}/${state.totalPages}',
+                style: medium(size: 13, color: AppColors.mainWhite),
+              ),
             ),
           ),
-          const Spacer(),
-          Stack(
-            alignment: Alignment.bottomCenter,
+          const SizedBox(height: 14),
+          Row(
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 32.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    InkWell(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: const BoxDecoration(
-                            color: AppColors.backgroundColor,
-                            shape: BoxShape.circle),
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: AppColors.mainWhite,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 12,
-                    ),
-                    Center(
-                      child: Container(
-                        width: centeredElementWidth,
-                        decoration: BoxDecoration(
-                            color: AppColors.backgroundColor,
-                            borderRadius: BorderRadius.circular(8.0)),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          child: FlutterSlider(
-                            values: <double>[state.currentPage.toDouble()],
-                            min: 1,
-                            max: state.totalPages.toDouble(),
-                            jump: true,
-                            handlerHeight: 24,
-                            handlerWidth: 24,
-                            onDragCompleted: (_, index, __) {
-                              switch (state.mode) {
-                                case ChapterViewMode.rightToLeft:
-                                case ChapterViewMode.leftToRight:
-                                  _pageController.jumpToPage(min(
-                                      (index as double).toInt() - 1,
-                                      state.currentPages.value.length - 1));
-                                  break;
-                                case ChapterViewMode.webtoon:
-                                  _itemScrollController.jumpTo(
-                                    index: min((index).toInt(),
-                                        state.currentPages.value.length - 1),
-                                    alignment:
-                                        index == state.totalPages.toDouble() - 1
-                                            ? 1
-                                            : 0,
-                                  );
-                                  break;
-                              }
-
-                              _canLoadNext = (index).toInt() - 1 ==
-                                  state.currentPages.value.length - 1;
-                              _canLoadPrevious = (index).toInt() - 1 == 0;
-                              if (mounted) {
-                                setState(() {});
-                              }
-                            },
-                            tooltip: FlutterSliderTooltip(
-                                custom: (v) => CachedNetworkImage(
-                                      httpHeaders: state.headers,
-                                      imageUrl: state.currentPages.value[min(
-                                          (v as double).toInt(),
-                                          state.currentPages.value.length - 1)],
-                                      progressIndicatorBuilder:
-                                          (BuildContext context, String url,
-                                                  DownloadProgress progress) =>
-                                              CircularProgressIndicator(
-                                        value: progress.progress ?? 0.01,
-                                        color: AppColors.mainWhite,
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                textStyle: regular(color: AppColors.mainWhite)),
-                            trackBar: FlutterSliderTrackBar(
-                                inactiveTrackBar: BoxDecoration(
-                                    color: AppColors.mainGrey,
-                                    borderRadius: BorderRadius.circular(16.0)),
-                                activeTrackBar: BoxDecoration(
-                                    color: AppColors.primary,
-                                    borderRadius: BorderRadius.circular(16.0))),
-                            handler: FlutterSliderHandler(
-                                child: const SizedBox(),
-                                decoration: const BoxDecoration(
-                                    color: AppColors.mainWhite,
-                                    shape: BoxShape.circle)),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 12,
-                    ),
-                    InkWell(
-                        onTap: () {
-                          _showBottomSheetSettings(context, state);
-                        },
-                        child: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: const BoxDecoration(
-                              color: AppColors.backgroundColor,
-                              shape: BoxShape.circle),
-                          child: const Icon(
-                            Icons.settings_rounded,
-                            color: AppColors.mainWhite,
-                          ),
-                        ))
-                  ],
-                ),
+              _buildRoundButton(
+                icon: Icons.arrow_back_rounded,
+                onTap: () => Navigator.of(context).pop(),
+              ),
+              const SizedBox(width: 12),
+              Expanded(child: _buildSlider(context, state)),
+              const SizedBox(width: 12),
+              _buildRoundButton(
+                icon: Icons.settings_rounded,
+                onTap: () => _showBottomSheetSettings(context, state),
               ),
             ],
-          )
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildRoundButton(
+      {required IconData icon, required VoidCallback onTap}) {
+    return Material(
+      color: Colors.black.withValues(alpha: 0.45),
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(11),
+          child: Icon(icon, color: AppColors.mainWhite, size: 22),
+        ),
+      ),
+    );
+  }
+
+  double _currentSliderValue() {
+    return _sliderFrom +
+        (_sliderTarget - _sliderFrom) *
+            Curves.easeOut.transform(_sliderController.value);
+  }
+
+  void _animateSliderTo(ChapterViewInitialized state,
+      {required bool animate}) {
+    final double maxValue = max(2, state.totalPages).toDouble();
+    final double target = state.currentPage.toDouble().clamp(1.0, maxValue);
+    _sliderFrom = _currentSliderValue();
+    _sliderTarget = target;
+    if (animate) {
+      _sliderController
+        ..reset()
+        ..forward();
+    } else {
+      _sliderController.value = 1.0;
+    }
+  }
+
+  Widget _buildSlider(BuildContext context, ChapterViewInitialized state) {
+    final double maxValue = max(2, state.totalPages).toDouble();
+
+    return AnimatedBuilder(
+      animation: _sliderController,
+      builder: (BuildContext context, Widget? child) {
+        final double value =
+            (_seekOverride ?? _currentSliderValue()).clamp(1.0, maxValue);
+        return FlutterSlider(
+          values: <double>[value],
+          min: 1,
+          max: maxValue,
+          jump: true,
+          handlerHeight: 20,
+          handlerWidth: 20,
+          onDragStarted: (_, lower, __) {
+            _seekOverride = (lower as num).toDouble();
+            _sliderController.stop();
+          },
+          onDragging: (_, lower, __) {
+            _seekOverride = (lower as num).toDouble();
+          },
+          onDragCompleted: (_, index, __) {
+            final double dragged = (index as num).toDouble();
+            _seekOverride = dragged;
+            _sliderFrom = dragged;
+            _sliderTarget = dragged;
+            _sliderController.value = 1.0;
+            switch (state.mode) {
+              case ChapterViewMode.rightToLeft:
+              case ChapterViewMode.leftToRight:
+                _pageController.jumpToPage(min(dragged.toInt() - 1,
+                    state.currentPages.value.length - 1));
+                break;
+              case ChapterViewMode.webtoon:
+                _itemScrollController.jumpTo(
+                  index: min(
+                      dragged.toInt(), state.currentPages.value.length - 1),
+                  alignment: dragged == state.totalPages.toDouble() - 1 ? 1 : 0,
+                );
+                break;
+            }
+
+            _canLoadNext =
+                dragged.toInt() - 1 == state.currentPages.value.length - 1;
+            _canLoadPrevious = dragged.toInt() - 1 == 0;
+            if (mounted) {
+              setState(() {});
+            }
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _seekOverride = null;
+              if (mounted) {
+                setState(() {});
+              }
+            });
+          },
+          tooltip: FlutterSliderTooltip(
+              custom: (v) => ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: CachedNetworkImage(
+                      httpHeaders: state.headers,
+                      imageUrl: state.currentPages.value[min(
+                          (v as double).toInt(),
+                          state.currentPages.value.length - 1)],
+                      progressIndicatorBuilder: (BuildContext context,
+                              String url, DownloadProgress progress) =>
+                          CircularProgressIndicator(
+                        value: progress.progress ?? 0.01,
+                        color: AppColors.mainWhite,
+                      ),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+              textStyle: regular(color: AppColors.mainWhite)),
+          trackBar: FlutterSliderTrackBar(
+              activeTrackBarHeight: 5,
+              inactiveTrackBarHeight: 5,
+              inactiveTrackBar: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(16.0)),
+              activeTrackBar: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(16.0))),
+          handler: FlutterSliderHandler(
+              child: const SizedBox(),
+              decoration: const BoxDecoration(
+                  color: AppColors.primary, shape: BoxShape.circle)),
+        );
+      },
     );
   }
 
@@ -662,10 +746,15 @@ class _ChapterViewerState extends State<ChapterViewer>
       duration: const Duration(milliseconds: 350),
       child: (_canLoadPrevious && state.canGetPreviousPages) ||
               (_canLoadNext && state.canGetNextPages)
-          ? ElevatedButton(
-              style: ButtonStyle(
-                  backgroundColor:
-                      WidgetStateProperty.all(AppColors.backgroundColor)),
+          ? ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.mainBlack,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
+              ),
               onPressed: () {
                 if (_canLoadNext && state.canGetNextPages) {
                   context.read<ChapterViewCubit>().onPagesChanged(
@@ -685,18 +774,21 @@ class _ChapterViewerState extends State<ChapterViewer>
                       });
                 }
               },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  _canLoadNext && state.canGetNextPages
-                      ? S.current.chapter_viewer_next_chapter_button_title
-                      : _canLoadPrevious && state.canGetPreviousPages
-                          ? S.current
-                              .chapter_viewer_previous_chapter_button_title
-                          : "",
-                  style: medium(size: 16),
-                ),
-              ))
+              icon: Icon(
+                _canLoadNext && state.canGetNextPages
+                    ? Icons.arrow_forward_rounded
+                    : Icons.arrow_back_rounded,
+                size: 20,
+              ),
+              label: Text(
+                _canLoadNext && state.canGetNextPages
+                    ? S.current.chapter_viewer_next_chapter_button_title
+                    : _canLoadPrevious && state.canGetPreviousPages
+                        ? S.current.chapter_viewer_previous_chapter_button_title
+                        : "",
+                style: semibold(size: 15, color: AppColors.mainBlack),
+              ),
+            )
           : const SizedBox(),
     );
   }
