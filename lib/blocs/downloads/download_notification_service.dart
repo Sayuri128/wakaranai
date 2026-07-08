@@ -15,7 +15,7 @@ class DownloadNotificationService {
   Future<void> _ensureInitialized() async {
     if (_initialized) return;
     const AndroidInitializationSettings android =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('ic_stat_download');
     const DarwinInitializationSettings darwin = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
