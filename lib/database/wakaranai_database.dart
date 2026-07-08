@@ -29,6 +29,9 @@ part 'wakaranai_database.g.dart';
 class WakaranaiDatabase extends _$WakaranaiDatabase {
   WakaranaiDatabase() : super(_openConnection());
 
+  /// Test-only: lets a test drive the migration against an in-memory database.
+  WakaranaiDatabase.forTesting(super.executor);
+
   @override
   MigrationStrategy get migration => MigrationStrategy(
         beforeOpen: (details) async {
@@ -54,14 +57,34 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
             await m.createTable(downloadTable);
           }
           if (from < 6) {
-            await m.addColumn(
-                concreteDataTable, concreteDataTable.concreteJson);
+            await _addColumnIfMissing(
+                m, concreteDataTable, concreteDataTable.concreteJson);
           }
           if (from < 7) {
-            await m.addColumn(downloadTable, downloadTable.concreteCover);
+            await _addColumnIfMissing(
+                m, downloadTable, downloadTable.concreteCover);
           }
         },
       );
+
+  /// `ALTER TABLE ... ADD COLUMN` is not idempotent, and drift does not wrap
+  /// [MigrationStrategy.onUpgrade] in a transaction: if a later step fails the
+  /// schema version is never persisted, so the whole upgrade replays on the
+  /// next open and re-adding an existing column throws. Guard each add.
+  Future<void> _addColumnIfMissing(
+    Migrator m,
+    TableInfo<Table, dynamic> table,
+    GeneratedColumn column,
+  ) async {
+    if (await _hasColumn(table.actualTableName, column.name)) return;
+    await m.addColumn(table, column);
+  }
+
+  Future<bool> _hasColumn(String table, String column) async {
+    final List<QueryRow> rows =
+        await customSelect('PRAGMA table_info($table);').get();
+    return rows.any((QueryRow row) => row.data['name'] == column);
+  }
 
   @override
   int get schemaVersion => 7;
