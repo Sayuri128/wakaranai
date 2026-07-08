@@ -235,7 +235,9 @@ class MangaConcreteViewer extends StatelessWidget
                             MangaConcreteView, MangaGalleryView>) ...<Widget>[
                           _buildErrorMessage(context, state)
                         ] else ...<Widget>[
-                          const ConcreteContentSkeleton(),
+                          ConcreteContentSkeleton(
+                            showCover: data.galleryCover == null,
+                          ),
                         ],
                       ]),
                     ),

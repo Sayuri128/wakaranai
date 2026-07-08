@@ -363,7 +363,9 @@ class ConcreteListTile extends StatelessWidget {
 
 /// Shimmer skeleton for the title-details + list section while loading.
 class ConcreteContentSkeleton extends StatelessWidget {
-  const ConcreteContentSkeleton({super.key});
+  const ConcreteContentSkeleton({super.key, this.showCover = false});
+
+  final bool showCover;
 
   @override
   Widget build(BuildContext context) {
@@ -371,6 +373,12 @@ class ConcreteContentSkeleton extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          if (showCover)
+            ShimmerBox(
+              width: double.infinity,
+              height: MediaQuery.of(context).size.height * 0.5,
+              borderRadius: 0,
+            ),
           const SizedBox(height: 24),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),

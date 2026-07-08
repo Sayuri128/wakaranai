@@ -225,7 +225,9 @@ class AnimeConcreteViewer extends StatelessWidget
                             AnimeConcreteView, AnimeGalleryView>) ...<Widget>[
                           _buildErrorMessage(context, state),
                         ] else ...<Widget>[
-                          const ConcreteContentSkeleton(),
+                          ConcreteContentSkeleton(
+                            showCover: data.galleryCover == null,
+                          ),
                         ],
                       ]),
                     ),
