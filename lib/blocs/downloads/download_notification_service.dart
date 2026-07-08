@@ -46,10 +46,15 @@ class DownloadNotificationService {
     required String chapterTitle,
     required int progress,
     required int max,
+    int queueIndex = 0,
+    int queueTotal = 0,
   }) async {
     try {
       await _ensureInitialized();
       final bool indeterminate = max <= 0;
+      final String subText = queueTotal > 1
+          ? '${S.current.downloads_status_downloading} · $queueIndex/$queueTotal'
+          : S.current.downloads_status_downloading;
       final AndroidNotificationDetails android = AndroidNotificationDetails(
         _channelId,
         S.current.downloads_notification_channel_name,
@@ -62,6 +67,7 @@ class DownloadNotificationService {
         indeterminate: indeterminate,
         maxProgress: indeterminate ? 0 : max,
         progress: indeterminate ? 0 : progress.clamp(0, max),
+        subText: subText,
       );
       await _plugin.show(
         _progressId,

@@ -13,7 +13,6 @@ import 'package:wakaranai/blocs/downloads/download_notification_service.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
-import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
 
@@ -59,7 +58,10 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   final Set<String> _cancelled = <String>{};
   bool _processing = false;
   int _completedInBatch = 0;
+  int _batchIndex = 0;
   bool _permissionRequested = false;
+
+  int get _batchTotal => _batchIndex + _jobs.length;
 
   StreamSubscription<List<DownloadDomain>>? _sub;
 
@@ -85,6 +87,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     required String chapterUid,
     required String title,
     required Map<String, dynamic>? data,
+    bool autoStart = true,
   }) async {
     final DownloadDomain? existing =
         await downloadRepository.getByUid(chapterUid);
@@ -138,6 +141,12 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       unawaited(notificationService.requestPermission());
     }
 
+    if (autoStart) {
+      startQueue();
+    }
+  }
+
+  void startQueue() {
     unawaited(_process());
   }
 
@@ -145,6 +154,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     if (_processing) return;
     _processing = true;
     _completedInBatch = 0;
+    _batchIndex = 0;
     try {
       while (_jobs.isNotEmpty) {
         final _DownloadJob job = _jobs.removeFirst();
@@ -152,15 +162,18 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
           _cancelled.remove(job.chapterUid);
           continue;
         }
+        _batchIndex++;
         final bool completed = await _runJob(job);
         if (completed) _completedInBatch++;
       }
     } finally {
       _processing = false;
+      _batchIndex = 0;
       await notificationService.showComplete(_completedInBatch);
       _completedInBatch = 0;
     }
   }
+
 
   Future<bool> _runJob(_DownloadJob job) async {
     DownloadDomain? row = await downloadRepository.getByUid(job.chapterUid);
@@ -170,11 +183,12 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       await downloadRepository
           .update(row.copyWith(status: DownloadStatus.downloading));
       await notificationService.showProgress(
-        title:
-            '${job.concreteTitle} · ${S.current.downloads_status_downloading}',
+        title: job.concreteTitle,
         chapterTitle: job.title,
         progress: 0,
         max: 0,
+        queueIndex: _batchIndex,
+        queueTotal: _batchTotal,
       );
 
       final pages =
@@ -219,11 +233,12 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         row = row!.copyWith(downloadedPages: i + 1);
         await downloadRepository.update(row);
         await notificationService.showProgress(
-          title:
-              '${job.concreteTitle} · ${S.current.downloads_status_downloading}',
+          title: job.concreteTitle,
           chapterTitle: job.title,
           progress: i + 1,
           max: pages.value.length,
+          queueIndex: _batchIndex,
+          queueTotal: _batchTotal,
         );
       }
 

@@ -18,6 +18,7 @@ dependencies:
     git:
       url: https://github.com/Sayuri128/capyscript
       ref: dev
+      
 
   logger: ^2.4.0
   path: ^1.8.3
@@ -59,10 +60,6 @@ dependencies:
 dependency_overrides:
   intl: 0.20.2
   watcher: ^1.1.0
-  # Local capyscript checkout (new stable `dev`). Drop once the fix is pushed
-  # and the git ref above is bumped.
-  capyscript:
-    path: ../../StudioProjects/capyscript
 
 flutter_intl:
   enabled: true

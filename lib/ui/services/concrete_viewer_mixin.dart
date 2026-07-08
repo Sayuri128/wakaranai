@@ -40,9 +40,11 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView<dynamic>,
         chapterUid: uid,
         title: element.title,
         data: element.data,
+        autoStart: false,
       );
     }
 
+    manager.startQueue();
     getConcreteViewCubit(context).clearSelection();
   }
 
