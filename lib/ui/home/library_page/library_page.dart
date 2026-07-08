@@ -8,7 +8,6 @@ import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
 import 'package:wakaranai/ui/home/library_page/library_concrete_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
-import 'package:wakaranai/ui/widgets/selection_action_bar.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -80,25 +79,63 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   Widget _buildSelectionBar(BuildContext context, LibraryState state) {
-    return SelectionActionBar(
-      visible: _selectionMode,
-      countLabel: S.current.library_selected_count(_selected.length),
-      actions: <SelectionAction>[
-        SelectionAction(
-          icon: Icons.drive_file_move_outline,
-          label: S.current.library_move_to_category,
-          onTap: () => _showBulkMoveSheet(context, state),
+    return AnimatedSlide(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+      offset: _selectionMode ? Offset.zero : const Offset(0, 1.6),
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 180),
+        opacity: _selectionMode ? 1 : 0,
+        child: IgnorePointer(
+          ignoring: !_selectionMode,
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Material(
+                color: AppColors.dialogSurface,
+                elevation: 10,
+                shadowColor: Colors.black.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(18),
+                clipBehavior: Clip.antiAlias,
+                child: Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: _SelectionAction(
+                          icon: Icons.drive_file_move_outline,
+                          label: S.current.library_move_to_category,
+                          color: AppColors.primary,
+                          onTap: () => _showBulkMoveSheet(context, state),
+                        ),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 28,
+                        color: AppColors.overlay(0.08),
+                      ),
+                      Expanded(
+                        child: _SelectionAction(
+                          icon: Icons.delete_outline_rounded,
+                          label: S.current.library_remove,
+                          color: AppColors.red,
+                          onTap: () {
+                            context
+                                .read<LibraryCubit>()
+                                .removeMany(_selected.toList());
+                            _clearSelection();
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
-        SelectionAction(
-          icon: Icons.delete_outline_rounded,
-          label: S.current.library_remove,
-          color: AppColors.red,
-          onTap: () {
-            context.read<LibraryCubit>().removeMany(_selected.toList());
-            _clearSelection();
-          },
-        ),
-      ],
+      ),
     );
   }
 
@@ -567,6 +604,50 @@ class _CategoryChipData {
 
   final int id;
   final String label;
+}
+
+class _SelectionAction extends StatelessWidget {
+  const _SelectionAction({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(icon, color: color, size: 20),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  label,
+                  style: medium(size: 14, color: color),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _LibraryCard extends StatelessWidget {
