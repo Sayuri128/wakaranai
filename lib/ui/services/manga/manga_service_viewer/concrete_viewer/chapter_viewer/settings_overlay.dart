@@ -67,7 +67,7 @@ class _SettingsOverlayState extends State<SettingsOverlay>
                     child: Container(
                       width: 48,
                       height: 48,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: AppColors.backgroundColor),
                       child: Material(

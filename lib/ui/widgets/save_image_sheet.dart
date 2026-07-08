@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/image_saver/image_saver.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -29,7 +29,7 @@ Future<void> showSaveImageSheet(
                 height: 4,
                 margin: const EdgeInsets.only(top: 12, bottom: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
+                  color: AppColors.overlay(0.18),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

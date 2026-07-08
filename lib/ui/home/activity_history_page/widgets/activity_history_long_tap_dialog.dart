@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -28,7 +28,7 @@ class ActivityHistoryLongTapDialog<TDomain extends BaseActivityDomain>
               height: 4,
               margin: const EdgeInsets.only(top: 12, bottom: 12),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.18),
+                color: AppColors.overlay(0.18),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -54,7 +54,7 @@ class ActivityHistoryLongTapDialog<TDomain extends BaseActivityDomain>
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Row(
                 children: <Widget>[
-                  const Icon(Icons.delete_outline_rounded,
+                  Icon(Icons.delete_outline_rounded,
                       color: AppColors.red, size: 22),
                   const SizedBox(width: 14),
                   Text(

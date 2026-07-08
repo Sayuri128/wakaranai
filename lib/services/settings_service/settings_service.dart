@@ -1,12 +1,31 @@
 import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
+import 'package:wakaranai/utils/app_palette.dart';
 
 class SettingsService {
   static const String defaultReaderModePrefsKey = 'DEFAULT_CHAPTER_READER_MODE';
   static const String defaultConfigsSourceIdKey = 'DEFAULT_CONFIGS_SOURCE_ID';
+  static const String themeIdPrefsKey = 'APP_THEME_ID';
 
   SharedPreferences? _prefs;
+
+  Future<AppThemeId> getThemeId() async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    final String? stored = _prefs!.getString(themeIdPrefsKey);
+
+    return AppThemeId.values.firstWhereOrNull(
+          (AppThemeId id) => id.name == stored,
+        ) ??
+        AppThemeId.midnight;
+  }
+
+  Future<void> setThemeId(AppThemeId id) async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    await _prefs!.setString(themeIdPrefsKey, id.name);
+  }
 
   Future<ChapterViewMode> getDefaultReaderMode() async {
     _prefs ??= await SharedPreferences.getInstance();

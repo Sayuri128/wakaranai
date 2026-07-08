@@ -339,7 +339,7 @@ class MangaConcreteViewer extends StatelessWidget
             style: regular(color: AppColors.mainGrey, size: 12),
           ),
         if (hasTimestamp && hasProgress)
-          const Text('  ·  ', style: TextStyle(color: AppColors.mainGrey)),
+          Text('  ·  ', style: TextStyle(color: AppColors.mainGrey)),
         if (hasProgress)
           Text(
             "${activity.readPages}/${activity.totalPages}",

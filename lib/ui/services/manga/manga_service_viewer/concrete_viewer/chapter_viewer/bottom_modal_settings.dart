@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
@@ -46,7 +46,7 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
                 height: 4,
                 margin: const EdgeInsets.only(top: 12, bottom: 20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
+                  color: AppColors.overlay(0.18),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -105,7 +105,7 @@ class _ModeChip extends StatelessWidget {
     return Material(
       color: selected
           ? AppColors.primary
-          : Colors.white.withValues(alpha: 0.06),
+          : AppColors.overlay(0.06),
       borderRadius: BorderRadius.circular(12),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -149,7 +149,7 @@ class _SwitchRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white.withValues(alpha: 0.04),
+      color: AppColors.overlay(0.04),
       borderRadius: BorderRadius.circular(14),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -167,7 +167,7 @@ class _SwitchRow extends StatelessWidget {
                 activeThumbColor: AppColors.mainBlack,
                 activeTrackColor: AppColors.primary,
                 inactiveThumbColor: AppColors.mainWhite,
-                inactiveTrackColor: Colors.white.withValues(alpha: 0.12),
+                inactiveTrackColor: AppColors.overlay(0.12),
               ),
             ],
           ),

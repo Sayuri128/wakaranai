@@ -225,6 +225,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_about_section_title": MessageLookupByLibrary.simpleMessage(
       "About",
     ),
+    "settings_appearance_section_title": MessageLookupByLibrary.simpleMessage(
+      "Appearance",
+    ),
     "settings_clear_activity_history": MessageLookupByLibrary.simpleMessage(
       "Clear activity history",
     ),
@@ -308,6 +311,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_submit_issue": MessageLookupByLibrary.simpleMessage(
       "Submit issue/feature request/extension request",
     ),
+    "settings_theme_amoled": MessageLookupByLibrary.simpleMessage("AMOLED"),
+    "settings_theme_dracula": MessageLookupByLibrary.simpleMessage("Dracula"),
+    "settings_theme_ember": MessageLookupByLibrary.simpleMessage("Ember"),
+    "settings_theme_light": MessageLookupByLibrary.simpleMessage("Light"),
+    "settings_theme_midnight": MessageLookupByLibrary.simpleMessage("Midnight"),
+    "settings_theme_ocean": MessageLookupByLibrary.simpleMessage("Ocean"),
+    "settings_theme_sakura": MessageLookupByLibrary.simpleMessage("Sakura"),
+    "settings_theme_sepia": MessageLookupByLibrary.simpleMessage("Sepia"),
+    "settings_theme_sky": MessageLookupByLibrary.simpleMessage("Sky"),
+    "settings_theme_title": MessageLookupByLibrary.simpleMessage("Theme"),
     "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage("Done"),
   };
 }

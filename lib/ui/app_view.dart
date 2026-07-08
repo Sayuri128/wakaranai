@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wakaranai/blocs/auth/authentication_cubit.dart';
+import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page_arguments.dart';
@@ -16,10 +18,9 @@ import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
 import 'package:wakaranai/ui/splashscreen/splashscreen_view.dart';
-import 'package:wakaranai/utils/text_styles.dart';
+import 'package:wakaranai/utils/app_colors.dart';
 
 import '../main.dart';
-import '../utils/app_colors.dart';
 import 'home/home_view.dart';
 
 class AppView extends StatefulWidget {
@@ -34,30 +35,31 @@ class _AppViewState extends State<AppView> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (BuildContext context, ThemeState themeState) {
+        AppColors.apply(themeState.palette);
+
+        final Brightness brightness = themeState.palette.brightness;
+        final Brightness iconBrightness = brightness == Brightness.dark
+            ? Brightness.light
+            : Brightness.dark;
+        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: iconBrightness,
+          statusBarBrightness: brightness,
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarIconBrightness: iconBrightness,
+          systemNavigationBarContrastEnforced: false,
+        ));
+
+        return _buildApp(themeState);
+      },
+    );
+  }
+
+  Widget _buildApp(ThemeState themeState) {
     return MaterialApp(
-      theme: ThemeData.dark().copyWith(
-          elevatedButtonTheme: ElevatedButtonThemeData(
-              style: ButtonStyle(
-                  padding:
-                      const WidgetStatePropertyAll<EdgeInsets>(
-                          EdgeInsets.all(4.0)))),
-          navigationBarTheme: NavigationBarThemeData(
-              labelTextStyle: WidgetStateProperty.all(
-                  medium(size: 16, color: AppColors.mainWhite)),
-              indicatorColor: AppColors.primary.withOpacity(0.9),
-              iconTheme: WidgetStateProperty.all(
-                  const IconThemeData(color: AppColors.mainWhite))),
-          dialogTheme: const DialogThemeData(
-              surfaceTintColor: AppColors.backgroundColor),
-          cardTheme:
-              const CardThemeData(surfaceTintColor: AppColors.backgroundColor),
-          pageTransitionsTheme: const PageTransitionsTheme(
-              builders: <TargetPlatform, PageTransitionsBuilder>{
-                TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-                TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-                TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-                TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-              })),
+      theme: themeState.palette.toThemeData(),
       debugShowCheckedModeBanner: false,
       navigatorKey: WakaranaiApp.navigatorKey,
       localizationsDelegates: const <LocalizationsDelegate>[

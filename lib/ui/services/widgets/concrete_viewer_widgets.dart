@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/widgets/shimmer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -19,8 +19,8 @@ class ConcreteBackButton extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: () => Navigator.of(context).maybePop(),
-            child: const Padding(
-              padding: EdgeInsets.all(8),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
               child: Icon(Icons.arrow_back_rounded,
                   color: AppColors.mainWhite, size: 22),
             ),
@@ -39,7 +39,7 @@ class ConcreteCoverScrim extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const IgnorePointer(
+    return IgnorePointer(
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -50,7 +50,7 @@ class ConcreteCoverScrim extends StatelessWidget {
               Colors.transparent,
               AppColors.backgroundColor,
             ],
-            stops: <double>[0.0, 0.55, 1.0],
+            stops: const <double>[0.0, 0.55, 1.0],
           ),
         ),
       ),
@@ -69,7 +69,7 @@ class ConcreteTagChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.06),
+        color: AppColors.overlay(0.06),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(label.trim(),
@@ -100,7 +100,7 @@ class ConcreteSectionHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
+              color: AppColors.overlay(0.08),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text('$count',
@@ -139,7 +139,7 @@ class ConcreteGroupSelector extends StatelessWidget {
           return Material(
             color: selected
                 ? AppColors.primary
-                : Colors.white.withValues(alpha: 0.06),
+                : AppColors.overlay(0.06),
             borderRadius: BorderRadius.circular(12),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
@@ -265,7 +265,7 @@ class ConcreteListTile extends StatelessWidget {
         child: Material(
           color: selected
               ? AppColors.primary.withValues(alpha: 0.16)
-              : Colors.white.withValues(alpha: 0.04),
+              : AppColors.overlay(0.04),
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
@@ -293,8 +293,8 @@ class ConcreteListTile extends StatelessWidget {
                               value: progress,
                               minHeight: 4,
                               backgroundColor:
-                                  Colors.white.withValues(alpha: 0.08),
-                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                  AppColors.overlay(0.08),
+                              valueColor: AlwaysStoppedAnimation<Color>(
                                   AppColors.primary),
                             ),
                           ),

@@ -1,4 +1,4 @@
-import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+﻿import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
@@ -72,7 +72,7 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeOutCubic,
               turns: _expanded ? 0.5 : 0.0,
-              child: const Icon(Icons.keyboard_arrow_down_rounded,
+              child: Icon(Icons.keyboard_arrow_down_rounded,
                   color: AppColors.mainGrey),
             ),
           ],
@@ -85,7 +85,7 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
+        color: AppColors.overlay(0.08),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text('$count', style: medium(size: 12, color: AppColors.mainGrey)),

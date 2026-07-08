@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
+import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/utils/app_palette.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
@@ -20,7 +22,7 @@ class SettingsPage extends StatelessWidget {
       body: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (BuildContext context, SettingsState state) {
           if (state is! SettingsInitialized) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
@@ -39,6 +41,7 @@ class SettingsPage extends StatelessWidget {
                       child: _SettingsHeader(),
                     ),
                     const _UpdateBanner(),
+                    _buildAppearanceSection(context),
                     _buildReaderSection(context, state),
                     _buildActivitySection(context),
                     _buildAboutSection(context),
@@ -48,7 +51,7 @@ class SettingsPage extends StatelessWidget {
               if (state.loading)
                 ColoredBox(
                   color: Colors.black.withValues(alpha: 0.5),
-                  child: const Center(
+                  child: Center(
                     child:
                         CircularProgressIndicator(color: AppColors.primary),
                   ),
@@ -57,6 +60,32 @@ class SettingsPage extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildAppearanceSection(BuildContext context) {
+    final AppThemeId current = context.watch<ThemeCubit>().state.id;
+    return _SettingsSection(
+      title: S.current.settings_appearance_section_title,
+      tiles: <Widget>[
+        _SettingsTile(
+          icon: Icons.palette_outlined,
+          title: S.current.settings_theme_title,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                _themeName(current),
+                style: medium(size: 13, color: AppColors.mainGrey),
+              ),
+              const SizedBox(width: 4),
+              Icon(Icons.chevron_right_rounded,
+                  color: AppColors.mainGrey),
+            ],
+          ),
+          onTap: () => _showThemePicker(context, current),
+        ),
+      ],
     );
   }
 
@@ -75,7 +104,7 @@ class SettingsPage extends StatelessWidget {
                 style: medium(size: 13, color: AppColors.mainGrey),
               ),
               const SizedBox(width: 4),
-              const Icon(Icons.chevron_right_rounded,
+              Icon(Icons.chevron_right_rounded,
                   color: AppColors.mainGrey),
             ],
           ),
@@ -127,13 +156,118 @@ class SettingsPage extends StatelessWidget {
           icon: Icons.bug_report_outlined,
           title: S.current.settings_submit_issue,
           trailing:
-              const Icon(Icons.open_in_new_rounded, color: AppColors.mainGrey),
+              Icon(Icons.open_in_new_rounded, color: AppColors.mainGrey),
           onTap: () => launchUrl(
             Uri.parse(
                 "https://github.com/Sayuri128/wakaranai/issues/new/choose"),
           ),
         ),
       ],
+    );
+  }
+
+  String _themeName(AppThemeId id) {
+    switch (id) {
+      case AppThemeId.midnight:
+        return S.current.settings_theme_midnight;
+      case AppThemeId.amoled:
+        return S.current.settings_theme_amoled;
+      case AppThemeId.light:
+        return S.current.settings_theme_light;
+      case AppThemeId.ocean:
+        return S.current.settings_theme_ocean;
+      case AppThemeId.dracula:
+        return S.current.settings_theme_dracula;
+      case AppThemeId.ember:
+        return S.current.settings_theme_ember;
+      case AppThemeId.sky:
+        return S.current.settings_theme_sky;
+      case AppThemeId.sakura:
+        return S.current.settings_theme_sakura;
+      case AppThemeId.sepia:
+        return S.current.settings_theme_sepia;
+    }
+  }
+
+  void _showThemePicker(BuildContext context, AppThemeId current) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.backgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(top: 12, bottom: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.overlay(0.18),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                child: Text(
+                  S.current.settings_theme_title,
+                  style: semibold(size: 18),
+                ),
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      for (final AppThemeId id in AppThemeId.values)
+                        InkWell(
+                          onTap: () {
+                            context.read<ThemeCubit>().changeTheme(id);
+                            Navigator.of(sheetContext).pop();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 14),
+                            child: Row(
+                              children: <Widget>[
+                                _ThemeSwatch(palette: AppPalette.fromId(id)),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Text(
+                                    _themeName(id),
+                                    style: medium(
+                                      size: 15,
+                                      color: id == current
+                                          ? AppColors.primary
+                                          : AppColors.mainWhite,
+                                    ),
+                                  ),
+                                ),
+                                if (id == current)
+                                  Icon(Icons.check_rounded,
+                                      color: AppColors.primary, size: 20),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -156,7 +290,7 @@ class SettingsPage extends StatelessWidget {
                   height: 4,
                   margin: const EdgeInsets.only(top: 12, bottom: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.18),
+                    color: AppColors.overlay(0.18),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -191,7 +325,7 @@ class SettingsPage extends StatelessWidget {
                           ),
                         ),
                         if (mode == current)
-                          const Icon(Icons.check_rounded,
+                          Icon(Icons.check_rounded,
                               color: AppColors.primary, size: 20),
                       ],
                     ),
@@ -226,7 +360,7 @@ class SettingsPage extends StatelessWidget {
                     height: 4,
                     margin: const EdgeInsets.only(top: 12, bottom: 16),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.18),
+                      color: AppColors.overlay(0.18),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -351,7 +485,7 @@ class _UpdateBanner extends StatelessWidget {
                         color: AppColors.primary.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.system_update_rounded,
+                      child: Icon(Icons.system_update_rounded,
                           color: AppColors.primary),
                     ),
                     const SizedBox(width: 14),
@@ -363,7 +497,7 @@ class _UpdateBanner extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(Icons.download_rounded,
+                    Icon(Icons.download_rounded,
                         color: AppColors.primary),
                   ],
                 ),
@@ -404,7 +538,7 @@ class _SettingsSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Material(
-            color: Colors.white.withValues(alpha: 0.04),
+            color: AppColors.overlay(0.04),
             borderRadius: BorderRadius.circular(16),
             clipBehavior: Clip.antiAlias,
             child: Column(
@@ -414,7 +548,7 @@ class _SettingsSection extends StatelessWidget {
                     Divider(
                       height: 1,
                       indent: 64,
-                      color: Colors.white.withValues(alpha: 0.06),
+                      color: AppColors.overlay(0.06),
                     ),
                   tiles[i],
                 ],
@@ -490,13 +624,13 @@ class _InfoButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white.withValues(alpha: 0.06),
+      color: AppColors.overlay(0.06),
       shape: const CircleBorder(),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: const Padding(
-          padding: EdgeInsets.all(6),
+        child: Padding(
+          padding: const EdgeInsets.all(6),
           child: Icon(Icons.info_outline_rounded,
               size: 18, color: AppColors.mainGrey),
         ),
@@ -545,6 +679,37 @@ class _InfoParagraph extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ThemeSwatch extends StatelessWidget {
+  const _ThemeSwatch({required this.palette});
+
+  final AppPalette palette;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: palette.background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: palette.overlayBase.withValues(alpha: 0.14),
+        ),
+      ),
+      child: Center(
+        child: Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            color: palette.primary,
+            shape: BoxShape.circle,
+          ),
+        ),
+      ),
     );
   }
 }

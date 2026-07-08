@@ -28,7 +28,7 @@ class ApiControllerWrapper<T extends ApiClient> extends StatelessWidget {
           if (state is ApiClientControllerInitialized<T>) {
             return builder(state.apiClient, state.configInfo);
           }
-          return const Material(
+          return Material(
             color: AppColors.backgroundColor,
             child: Center(
               child: CircularProgressIndicator(color: AppColors.primary),

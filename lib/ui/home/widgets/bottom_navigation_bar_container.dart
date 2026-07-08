@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:wakaranai/ui/home/widgets/bottom_navigation_bar_item_widget.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
@@ -20,7 +20,7 @@ class BottomNavigationBarContainer extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.backgroundColor,
         border: Border(
-          top: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
+          top: BorderSide(color: AppColors.overlay(0.06)),
         ),
       ),
       child: SafeArea(

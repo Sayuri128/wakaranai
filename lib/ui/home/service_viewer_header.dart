@@ -1,4 +1,4 @@
-import 'package:capyscript/api_clients/api_client.dart';
+﻿import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
@@ -65,16 +65,16 @@ class ServiceViewerHeader extends StatelessWidget {
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
+        color: AppColors.overlay(0.08),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.10),
+          color: AppColors.overlay(0.10),
         ),
       ),
       child: Row(
         children: <Widget>[
           const SizedBox(width: 16),
-          const Icon(
+          Icon(
             Icons.search_rounded,
             color: AppColors.mainGrey,
             size: 22,
@@ -103,7 +103,7 @@ class ServiceViewerHeader extends StatelessWidget {
               }
               return IconButton(
                 splashRadius: 20,
-                icon: const Icon(
+                icon: Icon(
                   Icons.close_rounded,
                   color: AppColors.mainGrey,
                   size: 20,

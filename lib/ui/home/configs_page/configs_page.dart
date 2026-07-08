@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
@@ -109,7 +109,7 @@ class ConfigPage extends StatelessWidget {
 
   Widget _buildSourcesButton(BuildContext context) {
     return Material(
-      color: Colors.white.withValues(alpha: 0.08),
+      color: AppColors.overlay(0.08),
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
@@ -127,7 +127,7 @@ class ConfigPage extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              const Icon(Icons.swap_horiz_rounded,
+              Icon(Icons.swap_horiz_rounded,
                   size: 18, color: AppColors.mainWhite),
               const SizedBox(width: 6),
               Text(S.current.home_sources_button, style: medium(size: 14)),

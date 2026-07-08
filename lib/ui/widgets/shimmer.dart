@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
-const Color _shimmerBase = Color(0xFF3A3A3A);
-const Color _shimmerHighlight = Color(0xFF4C4C4C);
+import 'package:wakaranai/utils/app_colors.dart';
 
 /// Wraps [child] and sweeps a moving highlight across every non-transparent
 /// pixel of it, producing a shimmer/skeleton loading effect. Pair with
@@ -38,10 +36,10 @@ class _ShimmerState extends State<Shimmer>
           blendMode: BlendMode.srcATop,
           shaderCallback: (Rect bounds) {
             return LinearGradient(
-              colors: const <Color>[
-                _shimmerBase,
-                _shimmerHighlight,
-                _shimmerBase,
+              colors: <Color>[
+                AppColors.shimmerBase,
+                AppColors.shimmerHighlight,
+                AppColors.shimmerBase,
               ],
               stops: const <double>[0.1, 0.5, 0.9],
               begin: const Alignment(-1.0, -0.3),
@@ -90,7 +88,7 @@ class ShimmerBox extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: _shimmerBase,
+        color: AppColors.shimmerBase,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     );

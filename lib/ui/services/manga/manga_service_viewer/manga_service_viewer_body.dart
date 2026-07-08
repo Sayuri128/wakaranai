@@ -1,4 +1,4 @@
-import 'package:capyscript/api_clients/manga_api_client.dart';
+﻿import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/manga_gallery_view.dart';
 import 'package:flutter/material.dart';
@@ -91,7 +91,7 @@ class MangaServiceViewBody extends StatelessWidget {
                     child: _buildGrid(context),
                   ),
                   if (initialized && stateInitialized.loading)
-                    const Positioned(
+                    Positioned(
                       top: 0,
                       left: 0,
                       right: 0,
@@ -154,7 +154,7 @@ class MangaServiceViewBody extends StatelessWidget {
       child: Align(
         alignment: Alignment.centerLeft,
         child: InputChip(
-          backgroundColor: Colors.white.withValues(alpha: 0.08),
+          backgroundColor: AppColors.overlay(0.08),
           side: BorderSide.none,
           label: Text(
             S.of(context).service_view_search_results_for(
@@ -207,7 +207,7 @@ class MangaServiceViewBody extends StatelessWidget {
         OutlinedButton.icon(
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.mainWhite,
-            side: const BorderSide(color: AppColors.mainGrey),
+            side: BorderSide(color: AppColors.mainGrey),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

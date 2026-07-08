@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -98,7 +98,7 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
       height: 44,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.06),
+        color: AppColors.overlay(0.06),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Stack(
@@ -318,7 +318,7 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
               Expanded(
                 child: Divider(
                   height: 1,
-                  color: Colors.white.withValues(alpha: 0.08),
+                  color: AppColors.overlay(0.08),
                 ),
               ),
             ],
@@ -352,7 +352,7 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: Material(
-        color: Colors.white.withValues(alpha: 0.04),
+        color: AppColors.overlay(0.04),
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
@@ -408,9 +408,9 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
                                   value: progress,
                                   minHeight: 4,
                                   backgroundColor:
-                                      Colors.white.withValues(alpha: 0.08),
+                                      AppColors.overlay(0.08),
                                   valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
+                                      AlwaysStoppedAnimation<Color>(
                                           AppColors.primary),
                                 ),
                               ),
@@ -457,9 +457,9 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
   }
 
   Widget _buildCoverPlaceholder() {
-    return const ColoredBox(
-      color: Color(0xFF3A3A3A),
-      child: Center(
+    return ColoredBox(
+      color: AppColors.shimmerBase,
+      child: const Center(
         child: Icon(Icons.image_rounded, color: Colors.white24, size: 20),
       ),
     );

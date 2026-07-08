@@ -24,13 +24,13 @@ class PrimaryInputWidget extends StatelessWidget {
             labelText: label,
             contentPadding:
                 const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            enabledBorder: const OutlineInputBorder(
+            enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: AppColors.secondary, width: 1)),
-            errorBorder: const OutlineInputBorder(
+            errorBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: AppColors.red, width: 1)),
-            focusedErrorBorder: const OutlineInputBorder(
+            focusedErrorBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: AppColors.red, width: 1)),
-            focusedBorder: const OutlineInputBorder(
+            focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: AppColors.primary, width: 1))));
   }
 }

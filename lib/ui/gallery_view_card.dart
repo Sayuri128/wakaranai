@@ -32,7 +32,7 @@ class GalleryViewCard extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10.0),
         child: Material(
-          color: const Color(0xFF3A3A3A),
+          color: AppColors.shimmerBase,
           child: Stack(
             fit: StackFit.expand,
             children: <Widget>[
@@ -79,7 +79,7 @@ class GalleryViewCard extends StatelessWidget {
                           child: Text(
                             title,
                             maxLines: 3,
-                            style: medium().copyWith(
+                            style: medium(color: AppColors.onMedia).copyWith(
                               shadows: const <Shadow>[
                                 Shadow(color: Colors.black, blurRadius: 4),
                               ],

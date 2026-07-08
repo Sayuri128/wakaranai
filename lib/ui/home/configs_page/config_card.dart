@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -22,7 +22,7 @@ class ConfigCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Material(
-        color: Colors.white.withValues(alpha: 0.04),
+        color: AppColors.overlay(0.04),
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
@@ -62,7 +62,7 @@ class ConfigCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.chevron_right_rounded,
+                Icon(Icons.chevron_right_rounded,
                     color: AppColors.mainGrey),
               ],
             ),
@@ -101,9 +101,9 @@ class ConfigCard extends StatelessWidget {
   }
 
   Widget _buildLogoPlaceholder() {
-    return const ColoredBox(
-      color: Color(0xFF3A3A3A),
-      child: Center(
+    return ColoredBox(
+      color: AppColors.shimmerBase,
+      child: const Center(
         child: Icon(Icons.extension_rounded, color: Colors.white24, size: 24),
       ),
     );

@@ -93,16 +93,16 @@ class _HomeViewState extends State<HomeView> {
       // case 0:
       //   return LibraryPage();
       case 0:
-        return const ConfigPage(
-          key: PageStorageKey<String>('configs_page'),
+        return ConfigPage(
+          key: const PageStorageKey<String>('configs_page'),
         );
       case 1:
-        return const ActivityHistoryPage(
-          key: PageStorageKey<String>('activity_history_page'),
+        return ActivityHistoryPage(
+          key: const PageStorageKey<String>('activity_history_page'),
         );
       case 2:
-        return const SettingsPage(
-          key: PageStorageKey<String>('settings_page'),
+        return SettingsPage(
+          key: const PageStorageKey<String>('settings_page'),
         );
     }
     return const SizedBox();

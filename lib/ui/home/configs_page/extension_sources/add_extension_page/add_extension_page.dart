@@ -126,7 +126,7 @@ class _AddExtensionPageState extends State<AddExtensionPage> {
       titleSpacing: 0,
       leading: IconButton(
         onPressed: () => Navigator.of(context).pop(),
-        icon: const Icon(Icons.arrow_back_rounded, color: AppColors.mainWhite),
+        icon: Icon(Icons.arrow_back_rounded, color: AppColors.mainWhite),
       ),
       title: Text(
         widget.arguments.update

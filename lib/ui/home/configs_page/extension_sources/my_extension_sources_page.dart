@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wakaranai/data/domain/database/extension_source_type.dart';
@@ -52,7 +52,7 @@ class MyExtensionSourcesPage extends StatelessWidget {
       titleSpacing: 0,
       leading: IconButton(
         onPressed: () => Navigator.of(context).pop(),
-        icon: const Icon(Icons.arrow_back_rounded, color: AppColors.mainWhite),
+        icon: Icon(Icons.arrow_back_rounded, color: AppColors.mainWhite),
       ),
       title: Text(
         S.current.extension_sources_page_appbar_title,
@@ -64,7 +64,7 @@ class MyExtensionSourcesPage extends StatelessWidget {
             launchUrl(Uri.parse(
                 "https://github.com/${Env.appRepoOrg}/${Env.appRepoName}/blob/master/docs/inapp_docs/external_extension_sources.md"));
           },
-          icon: const Icon(Icons.info_outline_rounded,
+          icon: Icon(Icons.info_outline_rounded,
               color: AppColors.mainGrey),
         ),
       ],
@@ -235,7 +235,7 @@ class MyExtensionSourcesPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Material(
-        color: Colors.white.withValues(alpha: 0.04),
+        color: AppColors.overlay(0.04),
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
@@ -294,14 +294,14 @@ class MyExtensionSourcesPage extends StatelessWidget {
                   IconButton(
                     onPressed: onEdit,
                     splashRadius: 20,
-                    icon: const Icon(Icons.edit_outlined,
+                    icon: Icon(Icons.edit_outlined,
                         color: AppColors.mainGrey, size: 20),
                   ),
                 if (onDelete != null)
                   IconButton(
                     onPressed: onDelete,
                     splashRadius: 20,
-                    icon: const Icon(Icons.delete_outline_rounded,
+                    icon: Icon(Icons.delete_outline_rounded,
                         color: AppColors.red, size: 20),
                   ),
               ],

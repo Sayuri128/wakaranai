@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
-
-const Color _dialogSurface = Color(0xFF3A3A3A);
 
 class ConfirmationDialog extends StatelessWidget {
   const ConfirmationDialog({
@@ -31,7 +29,7 @@ class ConfirmationDialog extends StatelessWidget {
         icon ?? (destructive ? Icons.warning_amber_rounded : Icons.help_outline_rounded);
 
     return Dialog(
-      backgroundColor: _dialogSurface,
+      backgroundColor: AppColors.dialogSurface,
       surfaceTintColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -64,7 +62,7 @@ class ConfirmationDialog extends StatelessWidget {
                   child: _DialogButton(
                     label: noText,
                     onPressed: () => Navigator.of(context).pop(false),
-                    background: Colors.white.withValues(alpha: 0.06),
+                    background: AppColors.overlay(0.06),
                     foreground: AppColors.mainWhite,
                   ),
                 ),
@@ -106,7 +104,7 @@ class InfoDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: _dialogSurface,
+      backgroundColor: AppColors.dialogSurface,
       surfaceTintColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

@@ -660,6 +660,111 @@ class S {
     );
   }
 
+  /// `Appearance`
+  String get settings_appearance_section_title {
+    return Intl.message(
+      'Appearance',
+      name: 'settings_appearance_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Theme`
+  String get settings_theme_title {
+    return Intl.message(
+      'Theme',
+      name: 'settings_theme_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Midnight`
+  String get settings_theme_midnight {
+    return Intl.message(
+      'Midnight',
+      name: 'settings_theme_midnight',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `AMOLED`
+  String get settings_theme_amoled {
+    return Intl.message(
+      'AMOLED',
+      name: 'settings_theme_amoled',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Light`
+  String get settings_theme_light {
+    return Intl.message(
+      'Light',
+      name: 'settings_theme_light',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ocean`
+  String get settings_theme_ocean {
+    return Intl.message(
+      'Ocean',
+      name: 'settings_theme_ocean',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dracula`
+  String get settings_theme_dracula {
+    return Intl.message(
+      'Dracula',
+      name: 'settings_theme_dracula',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ember`
+  String get settings_theme_ember {
+    return Intl.message(
+      'Ember',
+      name: 'settings_theme_ember',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sky`
+  String get settings_theme_sky {
+    return Intl.message('Sky', name: 'settings_theme_sky', desc: '', args: []);
+  }
+
+  /// `Sakura`
+  String get settings_theme_sakura {
+    return Intl.message(
+      'Sakura',
+      name: 'settings_theme_sakura',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sepia`
+  String get settings_theme_sepia {
+    return Intl.message(
+      'Sepia',
+      name: 'settings_theme_sepia',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `About`
   String get settings_about_section_title {
     return Intl.message(

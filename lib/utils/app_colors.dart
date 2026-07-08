@@ -1,20 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:wakaranai/utils/app_palette.dart';
 
 class AppColors {
-  static const Color backgroundColor = Color(0xFF303030);
-  static final Color mainBlack = Colors.black.withAlpha(155);
-  static final Color shadowColor = Colors.black.withOpacity(0.2);
-  static const Color mainWhite = Colors.white;
+  AppColors._();
 
-  static const Color secondary = Color(0xFF00D3AC);
-  static const Color primary = Color(0xFF00E676);
+  static AppPalette _active = AppPalette.midnight;
 
-  static const Color mediumLight = Color(0xFF00BADA);
-  static const Color mediumLight2 = Color(0xFF009EF1);
+  static AppPalette get palette => _active;
 
-  static const Color mediumDark = Color(0xFF007CE9);
-  static const Color mediumDark2 = Color(0xFF3F54C2);
+  static void apply(AppPalette palette) {
+    _active = palette;
+  }
 
-  static const Color mainGrey = Colors.grey;
-  static const Color red = Colors.redAccent;
+  static Brightness get brightness => _active.brightness;
+
+  static Color get backgroundColor => _active.background;
+  static Color get mainWhite => _active.onBackground;
+  static Color get mainGrey => _active.secondaryText;
+  static Color get mainBlack => _active.onPrimary;
+
+  static Color get primary => _active.primary;
+  static Color get secondary => _active.secondary;
+  static Color get mediumLight => _active.mediumLight;
+  static Color get mediumLight2 => _active.mediumLight2;
+  static Color get mediumDark => _active.mediumDark;
+  static Color get mediumDark2 => _active.mediumDark2;
+  static Color get red => _active.red;
+
+  static Color get shadowColor => _active.shadow;
+  static Color get dialogSurface => _active.dialogSurface;
+  static Color get shimmerBase => _active.shimmerBase;
+  static Color get shimmerHighlight => _active.shimmerHighlight;
+  static Color get onMedia => _active.onMedia;
+
+  static Color overlay(double alpha) =>
+      _active.overlayBase.withValues(alpha: alpha);
 }

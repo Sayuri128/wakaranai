@@ -1,4 +1,4 @@
-import 'dart:math';
+﻿import 'dart:math';
 
 import 'package:another_xlider/another_xlider.dart';
 import 'package:another_xlider/models/handler.dart';
@@ -226,7 +226,7 @@ class _ChapterViewerState extends State<ChapterViewer>
               ],
             );
           } else {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
@@ -420,7 +420,7 @@ class _ChapterViewerState extends State<ChapterViewer>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
+                color: AppColors.overlay(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -565,14 +565,14 @@ class _ChapterViewerState extends State<ChapterViewer>
               activeTrackBarHeight: 5,
               inactiveTrackBarHeight: 5,
               inactiveTrackBar: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.25),
+                  color: AppColors.overlay(0.25),
                   borderRadius: BorderRadius.circular(16.0)),
               activeTrackBar: BoxDecoration(
                   color: AppColors.primary,
                   borderRadius: BorderRadius.circular(16.0))),
           handler: FlutterSliderHandler(
               child: const SizedBox(),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                   color: AppColors.primary, shape: BoxShape.circle)),
         );
       },

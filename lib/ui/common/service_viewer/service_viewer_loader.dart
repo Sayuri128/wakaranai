@@ -14,13 +14,13 @@ class ServiceViewerLoader extends StatelessWidget {
       bloc: cubit,
       builder: (BuildContext context, Object? state) {
         if (state is ServiceViewInitialized && state.loading) {
-          return const Column(
+          return Column(
             children: <Widget>[
-              SizedBox(
+              const SizedBox(
                 height: 24,
               ),
               CircularProgressIndicator(color: AppColors.primary),
-              SizedBox(
+              const SizedBox(
                 height: 24,
               ),
             ],

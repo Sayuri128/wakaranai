@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -41,14 +41,14 @@ class OutlinedTextFormField extends StatelessWidget {
         hintStyle: regular(size: 14, color: AppColors.mainGrey),
         errorStyle: regular(size: 12, color: AppColors.red),
         filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.04),
+        fillColor: AppColors.overlay(0.04),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        enabledBorder: _border(Colors.white.withValues(alpha: 0.10)),
+        enabledBorder: _border(AppColors.overlay(0.10)),
         focusedBorder: _border(AppColors.primary, width: 1.5),
         errorBorder: _border(AppColors.red),
         focusedErrorBorder: _border(AppColors.red, width: 1.5),
-        disabledBorder: _border(Colors.white.withValues(alpha: 0.06)),
+        disabledBorder: _border(AppColors.overlay(0.06)),
       ),
     );
   }

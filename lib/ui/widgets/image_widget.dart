@@ -53,7 +53,7 @@ class _ImageWidgetState extends State<ImageWidget> {
       return SizedBox(
         height: MediaQuery.of(context).size.height * 0.7,
         width: MediaQuery.of(context).size.width,
-        child: const Center(
+        child: Center(
           child: CircularProgressIndicator(
             color: AppColors.primary,
           ),

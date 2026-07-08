@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
+import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/repositories/database/repository_providers.dart';
@@ -26,6 +27,7 @@ final Logger logger = Logger(
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent, // transparent status bar
   ));
@@ -54,6 +56,10 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
       context,
       child: MultiBlocProvider(
         providers: [
+          BlocProvider<ThemeCubit>(
+            lazy: false,
+            create: (BuildContext context) => ThemeCubit()..init(),
+          ),
           BlocProvider<HomePageCubit>(
             create: (BuildContext context) => HomePageCubit(),
           ),
