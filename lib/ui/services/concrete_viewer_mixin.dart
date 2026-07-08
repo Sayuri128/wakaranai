@@ -25,7 +25,7 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView<dynamic>,
       children: <Widget>[
         Positioned(
           right: 16.0,
-          bottom: 16.0,
+          bottom: 16.0 + MediaQuery.of(context).padding.bottom,
           child: AnimatedOpacity(
             duration: const Duration(milliseconds: 200),
             opacity: selecting ? 0.0 : 1.0,

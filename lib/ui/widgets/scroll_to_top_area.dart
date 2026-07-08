@@ -51,7 +51,7 @@ class _ScrollToTopAreaState extends State<ScrollToTopArea> {
         ),
         Positioned(
           right: 16,
-          bottom: 16,
+          bottom: 16 + MediaQuery.of(context).padding.bottom,
           child: AnimatedScale(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOutBack,
