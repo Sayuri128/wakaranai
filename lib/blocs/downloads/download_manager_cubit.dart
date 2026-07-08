@@ -136,11 +136,6 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       data: data,
     ));
 
-    if (!_permissionRequested) {
-      _permissionRequested = true;
-      unawaited(notificationService.requestPermission());
-    }
-
     if (autoStart) {
       startQueue();
     }
@@ -150,12 +145,24 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     unawaited(_process());
   }
 
+  Future<void> _ensurePermission() async {
+    if (_permissionRequested) return;
+    _permissionRequested = true;
+    try {
+      await notificationService.requestPermission();
+    } catch (e, s) {
+      logger.w('Failed to request download notification permission: $e');
+      logger.w(s);
+    }
+  }
+
   Future<void> _process() async {
     if (_processing) return;
     _processing = true;
     _completedInBatch = 0;
     _batchIndex = 0;
     try {
+      await _ensurePermission();
       while (_jobs.isNotEmpty) {
         final _DownloadJob job = _jobs.removeFirst();
         if (_cancelled.contains(job.chapterUid)) {
