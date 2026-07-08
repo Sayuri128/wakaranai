@@ -9,6 +9,7 @@ import 'package:wakaranai/services/protector_storage/protector_storage_service.d
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
+import 'package:wakaranai/ui/home/settings_page/import_export_progress_overlay.dart';
 import 'package:wakaranai/ui/home/settings_page/import_export_sheet.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
@@ -56,13 +57,7 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               if (state.loading)
-                ColoredBox(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  child: Center(
-                    child:
-                        CircularProgressIndicator(color: AppColors.primary),
-                  ),
-                ),
+                ImportExportProgressOverlay(progress: state.progress),
             ],
           );
         },

@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/category_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
@@ -32,6 +33,26 @@ class ImportResult {
   });
 }
 
+class ImportExportProgress {
+  final ExportSection? section;
+  final int processed;
+  final int total;
+  final bool exporting;
+
+  const ImportExportProgress({
+    this.section,
+    required this.processed,
+    required this.total,
+    required this.exporting,
+  });
+
+  double? get value =>
+      total <= 0 ? null : (processed / total).clamp(0.0, 1.0).toDouble();
+}
+
+typedef ImportExportProgressCallback = void Function(
+    ImportExportProgress progress);
+
 class ImportExportService {
   ImportExportService({
     required this.concreteDataRepository,
@@ -53,7 +74,10 @@ class ImportExportService {
   final ExtensionSourceRepository extensionSourceRepository;
   final SettingsService settingsService;
 
-  Future<ExportBundle> buildExport(Set<ExportSection> sections) async {
+  Future<ExportBundle> buildExport(
+    Set<ExportSection> sections, {
+    ImportExportProgressCallback? onProgress,
+  }) async {
     List<ExportConcrete>? concreteData;
     List<ExportChapterActivity>? chapterActivities;
     List<ExportAnimeEpisodeActivity>? episodeActivities;
@@ -62,7 +86,22 @@ class ImportExportService {
     List<ExportExtensionSource>? extensionSources;
     ExportSettings? settings;
 
+    final int totalSteps = sections.length;
+    int step = 0;
+
+    void report(ExportSection? section) {
+      onProgress?.call(ImportExportProgress(
+        section: section,
+        processed: step,
+        total: totalSteps,
+        exporting: true,
+      ));
+    }
+
+    report(null);
+
     if (sections.contains(ExportSection.history)) {
+      report(ExportSection.history);
       final List<ConcreteDataDomain> concretes =
           await concreteDataRepository.getAll();
       final Map<int, String> uidById = <int, String>{
@@ -109,11 +148,14 @@ class ImportExportService {
                 createdAt: a.createdAt,
               ))
           .toList();
+
+      step++;
     }
 
     final List<CategoryDomain> allCategories = await categoryRepository.getAll();
 
     if (sections.contains(ExportSection.categories)) {
+      report(ExportSection.categories);
       categories = allCategories
           .map((CategoryDomain c) => ExportCategory(
                 name: c.name,
@@ -121,9 +163,11 @@ class ImportExportService {
                 createdAt: c.createdAt,
               ))
           .toList();
+      step++;
     }
 
     if (sections.contains(ExportSection.library)) {
+      report(ExportSection.library);
       final Map<int, String> categoryNameById = <int, String>{
         for (final CategoryDomain c in allCategories) c.id: c.name,
       };
@@ -140,9 +184,11 @@ class ImportExportService {
                 createdAt: e.createdAt,
               ))
           .toList();
+      step++;
     }
 
     if (sections.contains(ExportSection.sources)) {
+      report(ExportSection.sources);
       extensionSources = (await extensionSourceRepository.getAll())
           .map((ExtensionSourceDomain s) => ExportExtensionSource(
                 name: s.name,
@@ -151,16 +197,21 @@ class ImportExportService {
                 createdAt: s.createdAt,
               ))
           .toList();
+      step++;
     }
 
     if (sections.contains(ExportSection.settings)) {
+      report(ExportSection.settings);
       settings = ExportSettings(
         themeId: (await settingsService.getThemeId()).name,
         defaultReaderMode: (await settingsService.getDefaultReaderMode()).name,
         showNsfw: await settingsService.getShowNsfw(),
         collectStatistics: await settingsService.getCollectStatistics(),
       );
+      step++;
     }
+
+    report(null);
 
     return ExportBundle(
       version: exportVersion,
@@ -175,18 +226,63 @@ class ImportExportService {
     );
   }
 
+  int countImportItems(ExportBundle bundle, Set<ExportSection> sections) {
+    int count = 0;
+    if (sections.contains(ExportSection.history)) {
+      count += bundle.concreteData?.length ?? 0;
+      count += bundle.mangaChapterActivities?.length ?? 0;
+      count += bundle.animeEpisodeActivities?.length ?? 0;
+    }
+    if (sections.contains(ExportSection.categories)) {
+      count += bundle.categories?.length ?? 0;
+    }
+    if (sections.contains(ExportSection.library)) {
+      count += bundle.libraryEntries?.length ?? 0;
+    }
+    if (sections.contains(ExportSection.sources)) {
+      count += bundle.extensionSources?.length ?? 0;
+    }
+    if (sections.contains(ExportSection.settings) && bundle.settings != null) {
+      count += 1;
+    }
+    return count;
+  }
+
   Future<ImportResult> applyImport(
     ExportBundle bundle,
-    Set<ExportSection> sections,
-  ) async {
+    Set<ExportSection> sections, {
+    ImportExportProgressCallback? onProgress,
+  }) async {
     int imported = 0;
     int total = 0;
     int skipped = 0;
 
+    final int steps = countImportItems(bundle, sections);
+    int processed = 0;
+
+    void tick(ExportSection section) {
+      processed++;
+      onProgress?.call(ImportExportProgress(
+        section: section,
+        processed: processed,
+        total: steps,
+        exporting: false,
+      ));
+    }
+
+    onProgress?.call(ImportExportProgress(
+      processed: 0,
+      total: steps,
+      exporting: false,
+    ));
+
     Map<String, int> concreteIdByUid = <String, int>{};
 
     if (sections.contains(ExportSection.history)) {
-      concreteIdByUid = await _importConcreteData(bundle.concreteData);
+      concreteIdByUid = await _importConcreteData(
+        bundle.concreteData,
+        onItem: () => tick(ExportSection.history),
+      );
 
       final List<ExportChapterActivity> chapters =
           bundle.mangaChapterActivities ?? <ExportChapterActivity>[];
@@ -199,10 +295,12 @@ class ImportExportService {
             await _resolveConcreteId(activity.concreteUid, concreteIdByUid);
         if (concreteId == null) {
           skipped++;
+          tick(ExportSection.history);
           continue;
         }
         await _upsertChapterActivity(activity, concreteId);
         imported++;
+        tick(ExportSection.history);
       }
 
       for (final ExportAnimeEpisodeActivity activity in episodes) {
@@ -210,10 +308,12 @@ class ImportExportService {
             await _resolveConcreteId(activity.concreteUid, concreteIdByUid);
         if (concreteId == null) {
           skipped++;
+          tick(ExportSection.history);
           continue;
         }
         await _upsertEpisodeActivity(activity, concreteId);
         imported++;
+        tick(ExportSection.history);
       }
     }
 
@@ -223,7 +323,10 @@ class ImportExportService {
       final List<ExportCategory> categories =
           bundle.categories ?? <ExportCategory>[];
       total += categories.length;
-      categoryIdByName = await _importCategories(categories);
+      categoryIdByName = await _importCategories(
+        categories,
+        onItem: () => tick(ExportSection.categories),
+      );
       imported += categories.length;
     }
 
@@ -235,6 +338,7 @@ class ImportExportService {
       for (final ExportLibraryEntry entry in entries) {
         await _upsertLibraryEntry(entry, categoryIdByName);
         imported++;
+        tick(ExportSection.library);
       }
     }
 
@@ -246,6 +350,7 @@ class ImportExportService {
       for (final ExportExtensionSource source in sources) {
         await _upsertExtensionSource(source);
         imported++;
+        tick(ExportSection.sources);
       }
     }
 
@@ -253,13 +358,16 @@ class ImportExportService {
       total += 1;
       await _applySettings(bundle.settings!);
       imported += 1;
+      tick(ExportSection.settings);
     }
 
     return ImportResult(imported: imported, total: total, skipped: skipped);
   }
 
   Future<Map<String, int>> _importConcreteData(
-      List<ExportConcrete>? concretes) async {
+    List<ExportConcrete>? concretes, {
+    VoidCallback? onItem,
+  }) async {
     final Map<String, int> byUid = <String, int>{};
     for (final ExportConcrete concrete in concretes ?? <ExportConcrete>[]) {
       final ConcreteDataDomain? saved = await concreteDataRepository
@@ -280,6 +388,7 @@ class ImportExportService {
       if (saved != null) {
         byUid[concrete.uid] = saved.id;
       }
+      onItem?.call();
     }
     return byUid;
   }
@@ -355,7 +464,9 @@ class ImportExportService {
   }
 
   Future<Map<String, int>> _importCategories(
-      List<ExportCategory> categories) async {
+    List<ExportCategory> categories, {
+    VoidCallback? onItem,
+  }) async {
     final Map<String, int> byName = <String, int>{};
 
     for (final ExportCategory category in categories) {
@@ -364,6 +475,7 @@ class ImportExportService {
 
       if (existing != null) {
         byName[category.name] = existing.id;
+        onItem?.call();
         continue;
       }
 
@@ -378,6 +490,7 @@ class ImportExportService {
       if (created != null) {
         byName[category.name] = created.id;
       }
+      onItem?.call();
     }
 
     return byName;

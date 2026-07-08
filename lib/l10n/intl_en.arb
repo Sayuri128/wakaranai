@@ -235,6 +235,12 @@
   "settings_export_sheet_confirm": "Export",
   "settings_import_sheet_confirm": "Import",
   "settings_export_select_all": "Select all",
+  "settings_export_progress_title": "Exporting",
+  "settings_import_progress_title": "Importing",
+  "settings_progress_preparing": "Preparing…",
+  "settings_export_notification_complete": "Export complete",
+  "settings_import_notification_complete": "Import complete",
+  "settings_transfer_notification_channel_name": "Import & export",
   "settings_import_nothing_to_import": "This file has nothing to import",
   "settings_import_skipped": "{count} skipped",
   "@settings_import_skipped": {

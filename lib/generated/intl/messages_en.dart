@@ -438,6 +438,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_export_data_button": MessageLookupByLibrary.simpleMessage(
       "Export data",
     ),
+    "settings_export_notification_complete":
+        MessageLookupByLibrary.simpleMessage("Export complete"),
+    "settings_export_progress_title": MessageLookupByLibrary.simpleMessage(
+      "Exporting",
+    ),
     "settings_export_select_all": MessageLookupByLibrary.simpleMessage(
       "Select all",
     ),
@@ -473,6 +478,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_import_nothing_to_import": MessageLookupByLibrary.simpleMessage(
       "This file has nothing to import",
     ),
+    "settings_import_notification_complete":
+        MessageLookupByLibrary.simpleMessage("Import complete"),
+    "settings_import_progress_title": MessageLookupByLibrary.simpleMessage(
+      "Importing",
+    ),
     "settings_import_sheet_confirm": MessageLookupByLibrary.simpleMessage(
       "Import",
     ),
@@ -480,6 +490,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Import data",
     ),
     "settings_import_skipped": m11,
+    "settings_progress_preparing": MessageLookupByLibrary.simpleMessage(
+      "Preparing…",
+    ),
     "settings_reader_section_title": MessageLookupByLibrary.simpleMessage(
       "Reader",
     ),
@@ -517,6 +530,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_theme_sepia": MessageLookupByLibrary.simpleMessage("Sepia"),
     "settings_theme_sky": MessageLookupByLibrary.simpleMessage("Sky"),
     "settings_theme_title": MessageLookupByLibrary.simpleMessage("Theme"),
+    "settings_transfer_notification_channel_name":
+        MessageLookupByLibrary.simpleMessage("Import & export"),
     "stats_activity_section_title": MessageLookupByLibrary.simpleMessage(
       "Activity",
     ),

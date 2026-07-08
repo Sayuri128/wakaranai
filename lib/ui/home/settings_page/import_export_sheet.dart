@@ -25,7 +25,7 @@ Future<Set<ExportSection>?> showImportExportSheet(
   );
 }
 
-String _sectionTitle(ExportSection section) {
+String exportSectionTitle(ExportSection section) {
   switch (section) {
     case ExportSection.history:
       return S.current.export_section_history;
@@ -245,7 +245,7 @@ class _SectionRow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        _sectionTitle(section),
+                        exportSectionTitle(section),
                         style: medium(
                           size: 15,
                           color: selected

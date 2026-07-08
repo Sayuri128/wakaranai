@@ -11,8 +11,10 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
+import 'package:wakaranai/services/import_export/import_export_notification_service.dart';
 import 'package:wakaranai/services/import_export/import_export_service.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
+import 'package:wakaranai/ui/home/settings_page/import_export_sheet.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
@@ -41,11 +43,15 @@ class SettingsCubit extends Cubit<SettingsState> {
       required this.animeActivityHistoryCubit,
       required this.importExportService,
       required this.themeCubit,
-      required this.database})
-      : super(SettingsInitial());
+      required this.database,
+      ImportExportNotificationService? notificationService})
+      : notificationService =
+            notificationService ?? ImportExportNotificationService(),
+        super(SettingsInitial());
 
   final WakaranaiDatabase database;
   final ImportExportService importExportService;
+  final ImportExportNotificationService notificationService;
   final ThemeCubit themeCubit;
   final MangaActivityHistoryCubit mangaActivityHistoryCubit;
   final AnimeActivityHistoryCubit animeActivityHistoryCubit;
@@ -66,6 +72,40 @@ class SettingsCubit extends Cubit<SettingsState> {
   final RemoteConfigsCubit remoteConfigsCubit;
 
   final SettingsService _settingsService = SettingsService();
+
+  DateTime _lastProgressEmit = DateTime.fromMillisecondsSinceEpoch(0);
+
+  void _onProgress(ImportExportProgress progress) {
+    final state = this.state;
+    if (state is! SettingsInitialized) return;
+
+    final DateTime now = DateTime.now();
+    final bool finished =
+        progress.total > 0 && progress.processed >= progress.total;
+
+    if (!finished &&
+        now.difference(_lastProgressEmit) < const Duration(milliseconds: 60)) {
+      return;
+    }
+
+    _lastProgressEmit = now;
+    emit(state.copyWith(progress: progress));
+
+    try {
+      notificationService.showProgress(
+        title: progress.exporting
+            ? S.current.settings_export_progress_title
+            : S.current.settings_import_progress_title,
+        body: progress.section != null
+            ? exportSectionTitle(progress.section!)
+            : S.current.settings_progress_preparing,
+        processed: progress.processed,
+        total: progress.total,
+      );
+    } catch (e) {
+      logger.w('Failed to publish transfer progress: $e');
+    }
+  }
 
   void init() async {
     emit(
@@ -164,12 +204,23 @@ class SettingsCubit extends Cubit<SettingsState> {
     final state = this.state;
     if (state is! SettingsInitialized) return;
 
-    emit(state.copyWith(loading: true));
+    emit(state.copyWith(loading: true, clearProgress: true));
     bool settingsImported = false;
 
     try {
-      final ImportResult result =
-          await importExportService.applyImport(bundle, sections);
+      await notificationService.requestPermission();
+
+      final ImportResult result = await importExportService.applyImport(
+        bundle,
+        sections,
+        onProgress: _onProgress,
+      );
+
+      await notificationService.showComplete(
+        title: S.current.settings_import_notification_complete,
+        body: S.current.settings_import_activity_history_success(
+            result.imported, result.total),
+      );
 
       if (sections.contains(ExportSection.sources)) {
         remoteConfigsCubit.init();
@@ -194,6 +245,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       );
     } catch (e) {
       logger.e(e);
+      await notificationService.cancelProgress();
       SnackBars.showErrorSnackBar(
         context: context,
         error: S.current.settings_import_activity_history_error,
@@ -202,7 +254,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       if (settingsImported) {
         init();
       } else {
-        emit(state.copyWith(loading: false));
+        emit(state.copyWith(loading: false, clearProgress: true));
       }
     }
   }
@@ -276,7 +328,7 @@ class SettingsCubit extends Cubit<SettingsState> {
           error: S.current.settings_import_activity_history_error,
         );
       } finally {
-        emit(state.copyWith(loading: false));
+        emit(state.copyWith(loading: false, clearProgress: true));
       }
     }
   }
@@ -285,11 +337,15 @@ class SettingsCubit extends Cubit<SettingsState> {
       BuildContext context, Set<ExportSection> sections) async {
     final state = this.state;
     if (state is SettingsInitialized) {
-      emit(state.copyWith(loading: true));
+      emit(state.copyWith(loading: true, clearProgress: true));
 
       try {
-        final ExportBundle bundle =
-            await importExportService.buildExport(sections);
+        await notificationService.requestPermission();
+
+        final ExportBundle bundle = await importExportService.buildExport(
+          sections,
+          onProgress: _onProgress,
+        );
 
         await FileSaver.instance.saveAs(
           name: 'wakaranai_export_${DateTime.now().toIso8601String()}',
@@ -298,17 +354,22 @@ class SettingsCubit extends Cubit<SettingsState> {
           mimeType: MimeType.json,
         );
 
+        await notificationService.showComplete(
+          title: S.current.settings_export_notification_complete,
+        );
+
         SnackBars.showSnackBar(
           context: context,
           message: S.current.settings_export_activity_history_success,
         );
       } catch (e) {
+        await notificationService.cancelProgress();
         SnackBars.showErrorSnackBar(
           context: context,
           error: S.current.settings_export_activity_history_error,
         );
       } finally {
-        emit(state.copyWith(loading: false));
+        emit(state.copyWith(loading: false, clearProgress: true));
       }
     }
   }

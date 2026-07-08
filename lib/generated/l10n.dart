@@ -2047,6 +2047,66 @@ class S {
     );
   }
 
+  /// `Exporting`
+  String get settings_export_progress_title {
+    return Intl.message(
+      'Exporting',
+      name: 'settings_export_progress_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Importing`
+  String get settings_import_progress_title {
+    return Intl.message(
+      'Importing',
+      name: 'settings_import_progress_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Preparing…`
+  String get settings_progress_preparing {
+    return Intl.message(
+      'Preparing…',
+      name: 'settings_progress_preparing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Export complete`
+  String get settings_export_notification_complete {
+    return Intl.message(
+      'Export complete',
+      name: 'settings_export_notification_complete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import complete`
+  String get settings_import_notification_complete {
+    return Intl.message(
+      'Import complete',
+      name: 'settings_import_notification_complete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import & export`
+  String get settings_transfer_notification_channel_name {
+    return Intl.message(
+      'Import & export',
+      name: 'settings_transfer_notification_channel_name',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `This file has nothing to import`
   String get settings_import_nothing_to_import {
     return Intl.message(

@@ -247,6 +247,85 @@ void main() {
     await target.dispose();
   });
 
+  test('import reports progress that ends at the item count', () async {
+    final _Env source = _Env();
+    final ConcreteDataDomain a = await _addConcrete(source, 'manga-a');
+    await _addChapterActivity(source, a.id, 'ch-1');
+    await _addChapterActivity(source, a.id, 'ch-2');
+
+    final ExportBundle bundle = _roundTrip(
+      await source.service.buildExport(<ExportSection>{ExportSection.history}),
+    );
+    await source.dispose();
+
+    final _Env target = _Env();
+    final List<ImportExportProgress> seen = <ImportExportProgress>[];
+
+    final int expected = target.service
+        .countImportItems(bundle, <ExportSection>{ExportSection.history});
+    expect(expected, 3);
+
+    await target.service.applyImport(
+      bundle,
+      <ExportSection>{ExportSection.history},
+      onProgress: seen.add,
+    );
+
+    expect(seen.first.processed, 0);
+    expect(seen.last.processed, expected);
+    expect(seen.last.total, expected);
+    expect(seen.last.value, 1.0);
+    expect(seen.every((ImportExportProgress p) => !p.exporting), isTrue);
+    expect(
+      seen.map((ImportExportProgress p) => p.processed).toList(),
+      <int>[0, 1, 2, 3],
+    );
+
+    await target.dispose();
+  });
+
+  test('export reports one step per selected section', () async {
+    final _Env env = _Env();
+    await _addConcrete(env, 'manga-a');
+
+    final List<ImportExportProgress> seen = <ImportExportProgress>[];
+    const Set<ExportSection> sections = <ExportSection>{
+      ExportSection.history,
+      ExportSection.settings,
+    };
+
+    await env.service.buildExport(sections, onProgress: seen.add);
+
+    expect(seen.every((ImportExportProgress p) => p.exporting), isTrue);
+    expect(seen.every((ImportExportProgress p) => p.total == 2), isTrue);
+    expect(seen.last.processed, 2);
+    expect(seen.last.value, 1.0);
+    expect(
+      seen.map((ImportExportProgress p) => p.section).contains(
+            ExportSection.history,
+          ),
+      isTrue,
+    );
+
+    await env.dispose();
+  });
+
+  test('progress value is null when there is nothing to do', () async {
+    final _Env env = _Env();
+    final List<ImportExportProgress> seen = <ImportExportProgress>[];
+
+    await env.service.applyImport(
+      ExportBundle(version: 2, exportedAt: DateTime(2024)),
+      <ExportSection>{ExportSection.history},
+      onProgress: seen.add,
+    );
+
+    expect(seen.single.total, 0);
+    expect(seen.single.value, isNull);
+
+    await env.dispose();
+  });
+
   test('only the selected sections are exported', () async {
     final _Env env = _Env();
     await _addConcrete(env, 'manga-a');
