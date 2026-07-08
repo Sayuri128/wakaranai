@@ -1777,6 +1777,196 @@ class S {
       args: [],
     );
   }
+
+  /// `Download`
+  String get concrete_selection_download {
+    return Intl.message(
+      'Download',
+      name: 'concrete_selection_download',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Offline — showing cached content. Only downloaded chapters can be opened.`
+  String get concrete_offline_banner {
+    return Intl.message(
+      'Offline — showing cached content. Only downloaded chapters can be opened.',
+      name: 'concrete_offline_banner',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Storage`
+  String get settings_storage_section_title {
+    return Intl.message(
+      'Storage',
+      name: 'settings_storage_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloads`
+  String get settings_downloads_title {
+    return Intl.message(
+      'Downloads',
+      name: 'settings_downloads_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manage downloaded chapters`
+  String get settings_downloads_subtitle {
+    return Intl.message(
+      'Manage downloaded chapters',
+      name: 'settings_downloads_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloads`
+  String get downloads_title {
+    return Intl.message(
+      'Downloads',
+      name: 'downloads_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No downloads`
+  String get downloads_empty_title {
+    return Intl.message(
+      'No downloads',
+      name: 'downloads_empty_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chapters you download for offline reading will appear here.`
+  String get downloads_empty_message {
+    return Intl.message(
+      'Chapters you download for offline reading will appear here.',
+      name: 'downloads_empty_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Queued`
+  String get downloads_status_queued {
+    return Intl.message(
+      'Queued',
+      name: 'downloads_status_queued',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading`
+  String get downloads_status_downloading {
+    return Intl.message(
+      'Downloading',
+      name: 'downloads_status_downloading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed`
+  String get downloads_status_failed {
+    return Intl.message(
+      'Failed',
+      name: 'downloads_status_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete all`
+  String get downloads_delete_all {
+    return Intl.message(
+      'Delete all',
+      name: 'downloads_delete_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete all downloads?`
+  String get downloads_delete_all_confirmation_title {
+    return Intl.message(
+      'Delete all downloads?',
+      name: 'downloads_delete_all_confirmation_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This will remove every downloaded chapter from this device.`
+  String get downloads_delete_all_confirmation_message {
+    return Intl.message(
+      'This will remove every downloaded chapter from this device.',
+      name: 'downloads_delete_all_confirmation_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete download?`
+  String get downloads_delete_confirmation_title {
+    return Intl.message(
+      'Delete download?',
+      name: 'downloads_delete_confirmation_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This chapter will be removed from this device.`
+  String get downloads_delete_confirmation_message {
+    return Intl.message(
+      'This chapter will be removed from this device.',
+      name: 'downloads_delete_confirmation_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get downloads_confirm_delete {
+    return Intl.message(
+      'Delete',
+      name: 'downloads_confirm_delete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get downloads_confirm_cancel {
+    return Intl.message(
+      'Cancel',
+      name: 'downloads_confirm_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{done}/{total} pages`
+  String downloads_pages_progress(Object done, Object total) {
+    return Intl.message(
+      '$done/$total pages',
+      name: 'downloads_pages_progress',
+      desc: '',
+      args: [done, total],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

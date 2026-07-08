@@ -1,8 +1,12 @@
 import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
+import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
@@ -13,6 +17,32 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView<dynamic>,
     G extends GalleryView> {
   ConcreteViewCubit<T, C, G> getConcreteViewCubit(BuildContext context) {
     return context.read<ConcreteViewCubit<T, C, G>>();
+  }
+
+  Future<void> _downloadSelected(
+      BuildContext context, ConcreteViewInitialized<T, C, G> state) async {
+    if (state.configInfo.type != ConfigInfoType.MANGA) return;
+    if (state.domain == null || state.apiClient is! MangaApiClient) return;
+
+    final DownloadManagerCubit manager = context.read<DownloadManagerCubit>();
+    final elements = state.concreteView.groups[state.groupIndex].elements;
+
+    for (final String uid in List<String>.of(state.selection)) {
+      final ElementOfElementsGroupOfConcrete element = elements.firstWhere(
+          (ElementOfElementsGroupOfConcrete e) => e.uid == uid);
+      await manager.enqueueChapter(
+        client: state.apiClient as MangaApiClient,
+        extensionUid: state.configInfo.uid,
+        concreteUid: state.concreteView.uid,
+        concreteId: state.domain!.id,
+        concreteTitle: state.concreteView.title,
+        chapterUid: uid,
+        title: element.title,
+        data: element.data,
+      );
+    }
+
+    getConcreteViewCubit(context).clearSelection();
   }
 
   Widget getSelectionOverlay(
@@ -53,6 +83,13 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView<dynamic>,
                   state.selection.length,
                 ),
             actions: <SelectionAction>[
+              if (state.configInfo.type == ConfigInfoType.MANGA)
+                SelectionAction(
+                  icon: Icons.download_outlined,
+                  label: S.of(context).concrete_selection_download,
+                  color: AppColors.primary,
+                  onTap: () => _downloadSelected(context, state),
+                ),
               SelectionAction(
                 icon: Icons.done_all,
                 label: S.of(context).concrete_selection_mark_read,

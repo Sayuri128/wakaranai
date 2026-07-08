@@ -9,6 +9,8 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/add_extension_page/add_extension_page_arguments.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/my_extension_sources_page.dart';
+import 'package:wakaranai/ui/home/downloads_page/download_reader_launcher.dart';
+import 'package:wakaranai/ui/home/downloads_page/downloads_page.dart';
 import 'package:wakaranai/ui/home/library_page/library_concrete_viewer.dart';
 import 'package:wakaranai/ui/home/stats_page/cubit/stats_cubit.dart';
 import 'package:wakaranai/ui/home/stats_page/stats_page.dart';
@@ -111,6 +113,10 @@ class _AppViewState extends State<AppView> {
                 )..init(),
                 child: const StatsPage(),
               ),
+          Routes.downloads: (BuildContext context) => const DownloadsPage(),
+          Routes.downloadReader: (BuildContext context) =>
+              DownloadReaderLauncher(
+                  data: settings.arguments as DownloadReaderData),
           Routes.myExtensionSources: (BuildContext context) =>
               const MyExtensionSourcesPage(),
           Routes.addExtensionSource: (BuildContext context) => AddExtensionPage(

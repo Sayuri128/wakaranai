@@ -195,5 +195,30 @@
   "concrete_selection_mark_unread": "Unread",
   "concrete_selection_select_all": "All",
   "concrete_selection_invert": "Invert",
-  "concrete_selection_clear": "Clear"
+  "concrete_selection_clear": "Clear",
+  "concrete_selection_download": "Download",
+  "concrete_offline_banner": "Offline — showing cached content. Only downloaded chapters can be opened.",
+  "settings_storage_section_title": "Storage",
+  "settings_downloads_title": "Downloads",
+  "settings_downloads_subtitle": "Manage downloaded chapters",
+  "downloads_title": "Downloads",
+  "downloads_empty_title": "No downloads",
+  "downloads_empty_message": "Chapters you download for offline reading will appear here.",
+  "downloads_status_queued": "Queued",
+  "downloads_status_downloading": "Downloading",
+  "downloads_status_failed": "Failed",
+  "downloads_delete_all": "Delete all",
+  "downloads_delete_all_confirmation_title": "Delete all downloads?",
+  "downloads_delete_all_confirmation_message": "This will remove every downloaded chapter from this device.",
+  "downloads_delete_confirmation_title": "Delete download?",
+  "downloads_delete_confirmation_message": "This chapter will be removed from this device.",
+  "downloads_confirm_delete": "Delete",
+  "downloads_confirm_cancel": "Cancel",
+  "downloads_pages_progress": "{done}/{total} pages",
+  "@downloads_pages_progress": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  }
 }

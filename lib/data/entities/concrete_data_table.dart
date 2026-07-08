@@ -13,4 +13,6 @@ class ConcreteDataTable extends BaseTable {
   TextColumn get cover => text().nullable()();
 
   TextColumn get data => text().nullable()();
+
+  TextColumn get concreteJson => text().nullable()();
 }

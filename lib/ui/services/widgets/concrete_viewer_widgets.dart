@@ -4,6 +4,38 @@ import 'package:wakaranai/ui/widgets/shimmer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
+/// Inline notice shown on the concrete view when it was rebuilt from cache
+/// because the source could not be reached (offline).
+class ConcreteOfflineBanner extends StatelessWidget {
+  const ConcreteOfflineBanner({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.overlay(0.06),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: <Widget>[
+            Icon(Icons.cloud_off_rounded, size: 18, color: AppColors.mainGrey),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                S.current.concrete_offline_banner,
+                style: regular(size: 12, color: AppColors.mainGrey),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Floating circular favorite (add-to-library) button placed over the cover.
 class ConcreteFavoriteButton extends StatelessWidget {
   const ConcreteFavoriteButton({
@@ -279,6 +311,7 @@ class ConcreteListTile extends StatelessWidget {
     this.progress,
     this.selected = false,
     this.dim = false,
+    this.trailing,
   });
 
   final String title;
@@ -286,6 +319,7 @@ class ConcreteListTile extends StatelessWidget {
   final double? progress;
   final bool selected;
   final bool dim;
+  final Widget? trailing;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
 
@@ -340,6 +374,10 @@ class ConcreteListTile extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
+                  if (trailing != null && !selected) ...<Widget>[
+                    trailing!,
+                    const SizedBox(width: 6),
+                  ],
                   Icon(
                     selected
                         ? Icons.check_circle_rounded

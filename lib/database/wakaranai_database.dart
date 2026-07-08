@@ -9,6 +9,7 @@ import 'package:wakaranai/data/entities/anime_episode_activity_table.dart';
 import 'package:wakaranai/data/entities/category_table.dart';
 import 'package:wakaranai/data/entities/chapter_activity_table.dart';
 import 'package:wakaranai/data/entities/concrete_data_table.dart';
+import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/data/entities/extension_source_table.dart';
 import 'package:wakaranai/data/entities/extension_table.dart';
 import 'package:wakaranai/data/entities/library_entry_table.dart';
@@ -23,6 +24,7 @@ part 'wakaranai_database.g.dart';
   AnimeEpisodeActivityTable,
   CategoryTable,
   LibraryEntryTable,
+  DownloadTable,
 ])
 class WakaranaiDatabase extends _$WakaranaiDatabase {
   WakaranaiDatabase() : super(_openConnection());
@@ -48,11 +50,18 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
             await m.createTable(categoryTable);
             await m.createTable(libraryEntryTable);
           }
+          if (from < 5) {
+            await m.createTable(downloadTable);
+          }
+          if (from < 6) {
+            await m.addColumn(
+                concreteDataTable, concreteDataTable.concreteJson);
+          }
         },
       );
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 6;
 }
 
 LazyDatabase _openConnection() {

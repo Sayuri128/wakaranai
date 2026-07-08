@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
+/// Height of the [SelectionActionBar] content excluding the bottom safe-area
+/// inset. Scrollable content behind the bar should reserve this much extra
+/// bottom padding while selecting so the last item is not hidden.
+const double kSelectionActionBarContentHeight = 116;
+
 class SelectionAction {
   final IconData icon;
   final String label;

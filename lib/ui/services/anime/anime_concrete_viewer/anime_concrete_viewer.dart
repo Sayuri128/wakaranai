@@ -25,6 +25,7 @@ import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
 import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
+import 'package:wakaranai/ui/widgets/selection_action_bar.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/heroes.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -193,6 +194,10 @@ class AnimeConcreteViewer extends StatelessWidget
                             _buildCover(concreteView!.cover, context),
                           const SizedBox(height: 16),
                           _buildTitle(concreteView!),
+                          if (state.offline) ...<Widget>[
+                            const SizedBox(height: 16),
+                            const ConcreteOfflineBanner(),
+                          ],
                           if (concreteView.tags.isNotEmpty) ...<Widget>[
                             const SizedBox(height: 16),
                             _buildTags(context, concreteView),
@@ -249,7 +254,10 @@ class AnimeConcreteViewer extends StatelessWidget
                       ),
                     SliverToBoxAdapter(
                       child: SizedBox(
-                          height: 24 + MediaQuery.of(context).padding.bottom),
+                          height: (initialized && state.selection.isNotEmpty
+                                  ? 24 + kSelectionActionBarContentHeight
+                                  : 24) +
+                              MediaQuery.of(context).padding.bottom),
                     ),
                   ],
                 ),

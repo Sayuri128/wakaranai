@@ -46,6 +46,7 @@ class SettingsPage extends StatelessWidget {
                     _buildReaderSection(context, state),
                     _buildContentSection(context, state),
                     _buildStatisticsSection(context, state),
+                    _buildStorageSection(context),
                     _buildActivitySection(context),
                     _buildAboutSection(context),
                   ],
@@ -168,6 +169,22 @@ class SettingsPage extends StatelessWidget {
             ],
           ),
           onTap: () => _showReaderModePicker(context, state.defaultMode),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStorageSection(BuildContext context) {
+    return _SettingsSection(
+      title: S.current.settings_storage_section_title,
+      tiles: <Widget>[
+        _SettingsTile(
+          icon: Icons.download_rounded,
+          title: S.current.settings_downloads_title,
+          subtitle: S.current.settings_downloads_subtitle,
+          trailing:
+              Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
+          onTap: () => Navigator.of(context).pushNamed(Routes.downloads),
         ),
       ],
     );

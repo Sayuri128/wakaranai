@@ -5,6 +5,7 @@ import 'package:wakaranai/repositories/database/anime_episode_activity_repositor
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/category_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
@@ -59,6 +60,11 @@ Widget repositoryProviders(BuildContext context, {required Widget child}) {
       ),
       RepositoryProvider(
         create: (context) => LibraryEntryRepository(
+          database: context.read<WakaranaiDatabase>(),
+        ),
+      ),
+      RepositoryProvider(
+        create: (context) => DownloadRepository(
           database: context.read<WakaranaiDatabase>(),
         ),
       ),

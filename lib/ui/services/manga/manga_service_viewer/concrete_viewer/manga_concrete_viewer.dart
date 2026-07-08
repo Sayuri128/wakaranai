@@ -11,9 +11,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
+import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
+import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
+import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
@@ -22,8 +25,11 @@ import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
+import 'package:wakaranai/ui/services/widgets/chapter_download_button.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
+import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/ui/widgets/image_widget.dart';
+import 'package:wakaranai/ui/widgets/selection_action_bar.dart';
 import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/heroes.dart';
@@ -203,6 +209,10 @@ class MangaConcreteViewer extends StatelessWidget
                             _buildCover(concreteView!.cover, context),
                           const SizedBox(height: 16),
                           _buildTitle(concreteView!),
+                          if (state.offline) ...<Widget>[
+                            const SizedBox(height: 16),
+                            const ConcreteOfflineBanner(),
+                          ],
                           if (concreteView.tags.isNotEmpty) ...<Widget>[
                             const SizedBox(height: 16),
                             _buildTags(context, concreteView),
@@ -260,7 +270,10 @@ class MangaConcreteViewer extends StatelessWidget
                       ),
                     SliverToBoxAdapter(
                       child: SizedBox(
-                          height: 24 + MediaQuery.of(context).padding.bottom),
+                          height: (initialized && state.selection.isNotEmpty
+                                  ? 24 + kSelectionActionBarContentHeight
+                                  : 24) +
+                              MediaQuery.of(context).padding.bottom),
                     ),
                   ],
                 ),
@@ -338,6 +351,7 @@ class MangaConcreteViewer extends StatelessWidget
       selected: concreteViewInitialized.selection.contains(chapter.uid),
       dim: chapterActivityDomain?.isCompleted == true,
       progress: progress,
+      trailing: _buildDownloadButton(context, chapter, concreteViewInitialized),
       subtitle: _buildChapterSubtitle(chapter, chapterActivityDomain),
       onLongPress: () {
         context
@@ -375,6 +389,72 @@ class MangaConcreteViewer extends StatelessWidget
         }
       },
     );
+  }
+
+  Widget _buildDownloadButton(
+      BuildContext context,
+      Chapter chapter,
+      ConcreteViewInitialized<MangaApiClient, MangaConcreteView,
+              MangaGalleryView>
+          state) {
+    return BlocBuilder<DownloadManagerCubit, DownloadManagerState>(
+      builder: (BuildContext context, DownloadManagerState dlState) {
+        final download = dlState.forChapter(chapter.uid);
+        return ChapterDownloadButton(
+          download: download,
+          onDownload: () => _enqueueChapter(context, chapter, state),
+          onRetry: () => _enqueueChapter(context, chapter, state),
+          onDelete: () {
+            if (download != null) {
+              _onDeleteDownload(context, download);
+            }
+          },
+        );
+      },
+    );
+  }
+
+  void _onDeleteDownload(BuildContext context, DownloadDomain download) {
+    final DownloadManagerCubit cubit = context.read<DownloadManagerCubit>();
+
+    if (download.status != DownloadStatus.done) {
+      cubit.deleteDownload(download);
+      return;
+    }
+
+    showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) => ConfirmationDialog(
+        title: S.current.downloads_delete_confirmation_title,
+        message: S.current.downloads_delete_confirmation_message,
+        yesText: S.current.downloads_confirm_delete,
+        noText: S.current.downloads_confirm_cancel,
+        destructive: true,
+      ),
+    ).then((bool? confirmed) {
+      if (confirmed == true) {
+        cubit.deleteDownload(download);
+      }
+    });
+  }
+
+  void _enqueueChapter(
+      BuildContext context,
+      Chapter chapter,
+      ConcreteViewInitialized<MangaApiClient, MangaConcreteView,
+              MangaGalleryView>
+          state) {
+    if (state.domain == null) return;
+    context.read<DownloadManagerCubit>().enqueueChapter(
+          client: data.client,
+          extensionUid: data.configInfo.uid,
+          concreteUid: state.concreteView.uid,
+          concreteId: state.domain!.id,
+          concreteTitle: state.concreteView.title,
+          chapterUid: chapter.uid,
+          title: chapter.title,
+          data: chapter.data,
+        );
   }
 
   Widget? _buildChapterSubtitle(

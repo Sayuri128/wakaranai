@@ -23,6 +23,7 @@ class ConcreteViewInitialized<
   final Map<String, AnimeEpisodeActivityDomain> animeEpisodeActivities;
   final Map<String, String> imageHeaders;
   final List<String> selection;
+  final bool offline;
 
   const ConcreteViewInitialized({
     required this.concreteView,
@@ -35,6 +36,7 @@ class ConcreteViewInitialized<
     required this.animeEpisodeActivities,
     required this.imageHeaders,
     required this.selection,
+    this.offline = false,
   });
 
   ConcreteViewInitialized<T, C, G> copyWith({
@@ -48,6 +50,7 @@ class ConcreteViewInitialized<
     Map<String, ChapterActivityDomain>? chapterActivities,
     Map<String, AnimeEpisodeActivityDomain>? animeEpisodeActivities,
     List<String>? selection,
+    bool? offline,
   }) {
     return ConcreteViewInitialized<T, C, G>(
       concreteView: concreteView ?? this.concreteView,
@@ -61,6 +64,7 @@ class ConcreteViewInitialized<
       animeEpisodeActivities:
           animeEpisodeActivities ?? this.animeEpisodeActivities,
       selection: selection ?? this.selection,
+      offline: offline ?? this.offline,
     );
   }
 }

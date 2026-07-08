@@ -5,8 +5,10 @@ import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart'
 import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
+import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/manga_concrete_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
@@ -50,6 +52,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
         concreteView.toConcreteDataDomain(
           data: galleryData,
           extensionUid: state.configInfo.uid,
+          concreteJson: jsonEncode((concreteView as dynamic).toJson()),
         ),
         by: (tbl) => tbl.uid,
         where: (tbl) => tbl.uid,
@@ -91,6 +94,9 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       logger.e(e);
       logger.e(s);
 
+      final bool loadedOffline = await _tryLoadOffline(uid, galleryData);
+      if (loadedOffline) return;
+
       emit(
         ConcreteViewError<T, C, G>(
           message: e.toString(),
@@ -98,6 +104,55 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
           configInfo: state.configInfo,
         ),
       );
+    }
+  }
+
+  Future<bool> _tryLoadOffline(
+      String uid, Map<String, dynamic> galleryData) async {
+    try {
+      final ConcreteDataDomain? cached =
+          await concreteDataRepository.getByUid(uid);
+      if (cached?.concreteJson == null) return false;
+
+      final Map<String, dynamic> json =
+          jsonDecode(cached!.concreteJson!) as Map<String, dynamic>;
+
+      final ConcreteView<dynamic> concreteView =
+          state.configInfo.type == ConfigInfoType.ANIME
+              ? AnimeConcreteView.fromJson(json)
+              : MangaConcreteView.fromJson(json);
+
+      final Map<String, ChapterActivityDomain> chapterActivities = {};
+      final Map<String, AnimeEpisodeActivityDomain> animeEpisodeActivities = {};
+
+      if (state.configInfo.type == ConfigInfoType.MANGA) {
+        chapterActivities
+            .addAll(await _fetchMangaChapterActivities(concreteView));
+      } else {
+        animeEpisodeActivities
+            .addAll(await _fetchAnimeEpisodeActivities(concreteView));
+      }
+
+      emit(
+        ConcreteViewInitialized<T, C, G>(
+          concreteView: concreteView as dynamic,
+          apiClient: state.apiClient,
+          configInfo: state.configInfo,
+          domain: cached,
+          groupIndex: concreteView.groups.isNotEmpty ? 0 : -1,
+          imageHeaders: const <String, String>{},
+          chapterActivities: chapterActivities,
+          animeEpisodeActivities: animeEpisodeActivities,
+          order: ConcreteViewOrder.def,
+          selection: const <String>[],
+          offline: true,
+        ),
+      );
+      return true;
+    } catch (e, s) {
+      logger.e(e);
+      logger.e(s);
+      return false;
     }
   }
 

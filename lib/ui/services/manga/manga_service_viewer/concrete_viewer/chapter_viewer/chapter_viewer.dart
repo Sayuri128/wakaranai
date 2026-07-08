@@ -4,7 +4,6 @@ import 'package:another_xlider/another_xlider.dart';
 import 'package:another_xlider/models/handler.dart';
 import 'package:another_xlider/models/tooltip/tooltip.dart';
 import 'package:another_xlider/models/trackbar.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
@@ -23,6 +22,8 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/repositories/database/download_repository.dart';
+import 'package:wakaranai/utils/page_image.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
@@ -103,6 +104,7 @@ class _ChapterViewerState extends State<ChapterViewer>
       itemScrollController: _itemScrollController,
       chapterActivityRepository: context.read<ChapterActivityRepository>(),
       concreteDataRepository: context.read<ConcreteDataRepository>(),
+      downloadRepository: context.read<DownloadRepository>(),
     )..init(
         widget.data,
         pagesLoaded: (int current, int total) {
@@ -546,18 +548,23 @@ class _ChapterViewerState extends State<ChapterViewer>
           tooltip: FlutterSliderTooltip(
               custom: (v) => ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: CachedNetworkImage(
-                      httpHeaders: state.headers,
-                      imageUrl: state.currentPages.value[min(
-                          (v as double).toInt(),
-                          state.currentPages.value.length - 1)],
-                      progressIndicatorBuilder: (BuildContext context,
-                              String url, DownloadProgress progress) =>
-                          CircularProgressIndicator(
-                        value: progress.progress ?? 0.01,
-                        color: AppColors.mainWhite,
-                      ),
+                    child: Image(
+                      image: pageImageProvider(
+                          state.currentPages.value[min((v as double).toInt(),
+                              state.currentPages.value.length - 1)],
+                          state.headers),
                       fit: BoxFit.cover,
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? progress) {
+                        if (progress == null) return child;
+                        return CircularProgressIndicator(
+                          value: progress.expectedTotalBytes != null
+                              ? progress.cumulativeBytesLoaded /
+                                  progress.expectedTotalBytes!
+                              : 0.01,
+                          color: AppColors.mainWhite,
+                        );
+                      },
                     ),
                   ),
               textStyle: regular(color: AppColors.mainWhite)),
@@ -662,9 +669,8 @@ class _ChapterViewerState extends State<ChapterViewer>
                   maxScale: PhotoViewComputedScale.covered * 3.0,
                   basePosition: Alignment.center,
                   filterQuality: FilterQuality.medium,
-                  imageProvider: CachedNetworkImageProvider(
-                      state.currentPages.value[index],
-                      headers: state.headers));
+                  imageProvider: pageImageProvider(
+                      state.currentPages.value[index], state.headers));
             });
       case ChapterViewMode.webtoon:
         return NotificationListener<ScrollUpdateNotification>(
@@ -707,20 +713,26 @@ class _ChapterViewerState extends State<ChapterViewer>
                               .onPageChanged(index + 1, state.currentPages);
                         }
                       },
-                      child: CachedNetworkImage(
-                        imageUrl: state.currentPages.value[index],
-                        httpHeaders: state.headers,
-                        progressIndicatorBuilder: (BuildContext context,
-                                String url, DownloadProgress progress) =>
-                            SizedBox(
-                          height: MediaQuery.of(context).size.height,
-                          width: MediaQuery.of(context).size.width,
-                          child: Center(
-                            child: CircularProgressIndicator(
+                      child: Image(
+                        image: pageImageProvider(
+                            state.currentPages.value[index], state.headers),
+                        loadingBuilder: (BuildContext context, Widget child,
+                            ImageChunkEvent? progress) {
+                          if (progress == null) return child;
+                          return SizedBox(
+                            height: MediaQuery.of(context).size.height,
+                            width: MediaQuery.of(context).size.width,
+                            child: Center(
+                              child: CircularProgressIndicator(
                                 color: AppColors.primary,
-                                value: progress.progress ?? 0),
-                          ),
-                        ),
+                                value: progress.expectedTotalBytes != null
+                                    ? progress.cumulativeBytesLoaded /
+                                        progress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     )));
     }

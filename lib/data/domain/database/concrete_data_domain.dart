@@ -11,6 +11,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
   final String title;
   final String? cover;
   final String? data;
+  final String? concreteJson;
 
   Map<String, dynamic> get dataJson => data != null ? jsonDecode(data!) : {};
 
@@ -22,6 +23,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
         title: data.title,
         cover: data.cover,
         data: data.data,
+        concreteJson: data.concreteJson,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
       );
@@ -37,6 +39,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
         title: Value(title),
         cover: Value(cover),
         data: Value(data),
+        concreteJson: Value(concreteJson),
         createdAt: Value(createdAt),
       );
     }
@@ -48,6 +51,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
       title: Value(title),
       cover: Value(cover),
       data: Value(data),
+      concreteJson: Value(concreteJson),
       createdAt: Value(createdAt),
       updatedAt: Value(update ? DateTime.now() : updatedAt),
     );
@@ -60,6 +64,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
     String? title,
     String? cover,
     String? data,
+    String? concreteJson,
   }) {
     return ConcreteDataDomain(
       id: id ?? this.id,
@@ -68,6 +73,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
       title: title ?? this.title,
       cover: cover ?? this.cover,
       data: data ?? this.data,
+      concreteJson: concreteJson ?? this.concreteJson,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -80,6 +86,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
     required this.title,
     this.cover,
     this.data,
+    this.concreteJson,
     required super.createdAt,
     super.updatedAt,
   });
@@ -89,6 +96,7 @@ extension ConcreteViewExtension on ConcreteView<dynamic> {
   ConcreteDataDomain toConcreteDataDomain({
     required Map<String, dynamic> data,
     required String extensionUid,
+    String? concreteJson,
   }) =>
       ConcreteDataDomain(
         id: 0,
@@ -97,6 +105,7 @@ extension ConcreteViewExtension on ConcreteView<dynamic> {
         title: title,
         cover: cover,
         data: jsonEncode(data),
+        concreteJson: concreteJson,
         createdAt: DateTime.now(),
       );
 }

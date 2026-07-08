@@ -1039,9 +1039,24 @@ class $ConcreteDataTableTable extends ConcreteDataTable
   late final GeneratedColumn<String> data = GeneratedColumn<String>(
       'data', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _concreteJsonMeta =
+      const VerificationMeta('concreteJson');
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, createdAt, updatedAt, uid, extensionUid, title, cover, data];
+  late final GeneratedColumn<String> concreteJson = GeneratedColumn<String>(
+      'concrete_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        createdAt,
+        updatedAt,
+        uid,
+        extensionUid,
+        title,
+        cover,
+        data,
+        concreteJson
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1092,6 +1107,12 @@ class $ConcreteDataTableTable extends ConcreteDataTable
       context.handle(
           _dataMeta, this.data.isAcceptableOrUnknown(data['data']!, _dataMeta));
     }
+    if (data.containsKey('concrete_json')) {
+      context.handle(
+          _concreteJsonMeta,
+          concreteJson.isAcceptableOrUnknown(
+              data['concrete_json']!, _concreteJsonMeta));
+    }
     return context;
   }
 
@@ -1117,6 +1138,8 @@ class $ConcreteDataTableTable extends ConcreteDataTable
           .read(DriftSqlType.string, data['${effectivePrefix}cover']),
       data: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}data']),
+      concreteJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}concrete_json']),
     );
   }
 
@@ -1136,6 +1159,7 @@ class ConcreteDataTableData extends DataClass
   final String title;
   final String? cover;
   final String? data;
+  final String? concreteJson;
   const ConcreteDataTableData(
       {required this.id,
       required this.createdAt,
@@ -1144,7 +1168,8 @@ class ConcreteDataTableData extends DataClass
       required this.extensionUid,
       required this.title,
       this.cover,
-      this.data});
+      this.data,
+      this.concreteJson});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1162,6 +1187,9 @@ class ConcreteDataTableData extends DataClass
     if (!nullToAbsent || data != null) {
       map['data'] = Variable<String>(data);
     }
+    if (!nullToAbsent || concreteJson != null) {
+      map['concrete_json'] = Variable<String>(concreteJson);
+    }
     return map;
   }
 
@@ -1178,6 +1206,9 @@ class ConcreteDataTableData extends DataClass
       cover:
           cover == null && nullToAbsent ? const Value.absent() : Value(cover),
       data: data == null && nullToAbsent ? const Value.absent() : Value(data),
+      concreteJson: concreteJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(concreteJson),
     );
   }
 
@@ -1193,6 +1224,7 @@ class ConcreteDataTableData extends DataClass
       title: serializer.fromJson<String>(json['title']),
       cover: serializer.fromJson<String?>(json['cover']),
       data: serializer.fromJson<String?>(json['data']),
+      concreteJson: serializer.fromJson<String?>(json['concreteJson']),
     );
   }
   @override
@@ -1207,6 +1239,7 @@ class ConcreteDataTableData extends DataClass
       'title': serializer.toJson<String>(title),
       'cover': serializer.toJson<String?>(cover),
       'data': serializer.toJson<String?>(data),
+      'concreteJson': serializer.toJson<String?>(concreteJson),
     };
   }
 
@@ -1218,7 +1251,8 @@ class ConcreteDataTableData extends DataClass
           String? extensionUid,
           String? title,
           Value<String?> cover = const Value.absent(),
-          Value<String?> data = const Value.absent()}) =>
+          Value<String?> data = const Value.absent(),
+          Value<String?> concreteJson = const Value.absent()}) =>
       ConcreteDataTableData(
         id: id ?? this.id,
         createdAt: createdAt ?? this.createdAt,
@@ -1228,6 +1262,8 @@ class ConcreteDataTableData extends DataClass
         title: title ?? this.title,
         cover: cover.present ? cover.value : this.cover,
         data: data.present ? data.value : this.data,
+        concreteJson:
+            concreteJson.present ? concreteJson.value : this.concreteJson,
       );
   ConcreteDataTableData copyWithCompanion(ConcreteDataTableCompanion data) {
     return ConcreteDataTableData(
@@ -1241,6 +1277,9 @@ class ConcreteDataTableData extends DataClass
       title: data.title.present ? data.title.value : this.title,
       cover: data.cover.present ? data.cover.value : this.cover,
       data: data.data.present ? data.data.value : this.data,
+      concreteJson: data.concreteJson.present
+          ? data.concreteJson.value
+          : this.concreteJson,
     );
   }
 
@@ -1254,14 +1293,15 @@ class ConcreteDataTableData extends DataClass
           ..write('extensionUid: $extensionUid, ')
           ..write('title: $title, ')
           ..write('cover: $cover, ')
-          ..write('data: $data')
+          ..write('data: $data, ')
+          ..write('concreteJson: $concreteJson')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, createdAt, updatedAt, uid, extensionUid, title, cover, data);
+  int get hashCode => Object.hash(id, createdAt, updatedAt, uid, extensionUid,
+      title, cover, data, concreteJson);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1273,7 +1313,8 @@ class ConcreteDataTableData extends DataClass
           other.extensionUid == this.extensionUid &&
           other.title == this.title &&
           other.cover == this.cover &&
-          other.data == this.data);
+          other.data == this.data &&
+          other.concreteJson == this.concreteJson);
 }
 
 class ConcreteDataTableCompanion
@@ -1286,6 +1327,7 @@ class ConcreteDataTableCompanion
   final Value<String> title;
   final Value<String?> cover;
   final Value<String?> data;
+  final Value<String?> concreteJson;
   const ConcreteDataTableCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1295,6 +1337,7 @@ class ConcreteDataTableCompanion
     this.title = const Value.absent(),
     this.cover = const Value.absent(),
     this.data = const Value.absent(),
+    this.concreteJson = const Value.absent(),
   });
   ConcreteDataTableCompanion.insert({
     this.id = const Value.absent(),
@@ -1305,6 +1348,7 @@ class ConcreteDataTableCompanion
     required String title,
     this.cover = const Value.absent(),
     this.data = const Value.absent(),
+    this.concreteJson = const Value.absent(),
   })  : uid = Value(uid),
         extensionUid = Value(extensionUid),
         title = Value(title);
@@ -1317,6 +1361,7 @@ class ConcreteDataTableCompanion
     Expression<String>? title,
     Expression<String>? cover,
     Expression<String>? data,
+    Expression<String>? concreteJson,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1327,6 +1372,7 @@ class ConcreteDataTableCompanion
       if (title != null) 'title': title,
       if (cover != null) 'cover': cover,
       if (data != null) 'data': data,
+      if (concreteJson != null) 'concrete_json': concreteJson,
     });
   }
 
@@ -1338,7 +1384,8 @@ class ConcreteDataTableCompanion
       Value<String>? extensionUid,
       Value<String>? title,
       Value<String?>? cover,
-      Value<String?>? data}) {
+      Value<String?>? data,
+      Value<String?>? concreteJson}) {
     return ConcreteDataTableCompanion(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
@@ -1348,6 +1395,7 @@ class ConcreteDataTableCompanion
       title: title ?? this.title,
       cover: cover ?? this.cover,
       data: data ?? this.data,
+      concreteJson: concreteJson ?? this.concreteJson,
     );
   }
 
@@ -1378,6 +1426,9 @@ class ConcreteDataTableCompanion
     if (data.present) {
       map['data'] = Variable<String>(data.value);
     }
+    if (concreteJson.present) {
+      map['concrete_json'] = Variable<String>(concreteJson.value);
+    }
     return map;
   }
 
@@ -1391,7 +1442,8 @@ class ConcreteDataTableCompanion
           ..write('extensionUid: $extensionUid, ')
           ..write('title: $title, ')
           ..write('cover: $cover, ')
-          ..write('data: $data')
+          ..write('data: $data, ')
+          ..write('concreteJson: $concreteJson')
           ..write(')'))
         .toString();
   }
@@ -3219,6 +3271,728 @@ class LibraryEntryTableCompanion
   }
 }
 
+class $DownloadTableTable extends DownloadTable
+    with TableInfo<$DownloadTableTable, DownloadTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DownloadTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      clientDefault: () => DateTime.now());
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+      'uid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _extensionUidMeta =
+      const VerificationMeta('extensionUid');
+  @override
+  late final GeneratedColumn<String> extensionUid = GeneratedColumn<String>(
+      'extension_uid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _concreteUidMeta =
+      const VerificationMeta('concreteUid');
+  @override
+  late final GeneratedColumn<String> concreteUid = GeneratedColumn<String>(
+      'concrete_uid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _concreteIdMeta =
+      const VerificationMeta('concreteId');
+  @override
+  late final GeneratedColumn<int> concreteId = GeneratedColumn<int>(
+      'concrete_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES concrete_data_table (id)'));
+  static const VerificationMeta _concreteTitleMeta =
+      const VerificationMeta('concreteTitle');
+  @override
+  late final GeneratedColumn<String> concreteTitle = GeneratedColumn<String>(
+      'concrete_title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  late final GeneratedColumnWithTypeConverter<DownloadStatus, int> status =
+      GeneratedColumn<int>('status', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<DownloadStatus>($DownloadTableTable.$converterstatus);
+  static const VerificationMeta _downloadedPagesMeta =
+      const VerificationMeta('downloadedPages');
+  @override
+  late final GeneratedColumn<int> downloadedPages = GeneratedColumn<int>(
+      'downloaded_pages', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _totalPagesMeta =
+      const VerificationMeta('totalPages');
+  @override
+  late final GeneratedColumn<int> totalPages = GeneratedColumn<int>(
+      'total_pages', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _dirPathMeta =
+      const VerificationMeta('dirPath');
+  @override
+  late final GeneratedColumn<String> dirPath = GeneratedColumn<String>(
+      'dir_path', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _headersMeta =
+      const VerificationMeta('headers');
+  @override
+  late final GeneratedColumn<String> headers = GeneratedColumn<String>(
+      'headers', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+      'data', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        createdAt,
+        updatedAt,
+        uid,
+        extensionUid,
+        concreteUid,
+        concreteId,
+        concreteTitle,
+        title,
+        status,
+        downloadedPages,
+        totalPages,
+        dirPath,
+        headers,
+        data
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'download_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<DownloadTableData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid']!, _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('extension_uid')) {
+      context.handle(
+          _extensionUidMeta,
+          extensionUid.isAcceptableOrUnknown(
+              data['extension_uid']!, _extensionUidMeta));
+    } else if (isInserting) {
+      context.missing(_extensionUidMeta);
+    }
+    if (data.containsKey('concrete_uid')) {
+      context.handle(
+          _concreteUidMeta,
+          concreteUid.isAcceptableOrUnknown(
+              data['concrete_uid']!, _concreteUidMeta));
+    } else if (isInserting) {
+      context.missing(_concreteUidMeta);
+    }
+    if (data.containsKey('concrete_id')) {
+      context.handle(
+          _concreteIdMeta,
+          concreteId.isAcceptableOrUnknown(
+              data['concrete_id']!, _concreteIdMeta));
+    } else if (isInserting) {
+      context.missing(_concreteIdMeta);
+    }
+    if (data.containsKey('concrete_title')) {
+      context.handle(
+          _concreteTitleMeta,
+          concreteTitle.isAcceptableOrUnknown(
+              data['concrete_title']!, _concreteTitleMeta));
+    } else if (isInserting) {
+      context.missing(_concreteTitleMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('downloaded_pages')) {
+      context.handle(
+          _downloadedPagesMeta,
+          downloadedPages.isAcceptableOrUnknown(
+              data['downloaded_pages']!, _downloadedPagesMeta));
+    }
+    if (data.containsKey('total_pages')) {
+      context.handle(
+          _totalPagesMeta,
+          totalPages.isAcceptableOrUnknown(
+              data['total_pages']!, _totalPagesMeta));
+    }
+    if (data.containsKey('dir_path')) {
+      context.handle(_dirPathMeta,
+          dirPath.isAcceptableOrUnknown(data['dir_path']!, _dirPathMeta));
+    } else if (isInserting) {
+      context.missing(_dirPathMeta);
+    }
+    if (data.containsKey('headers')) {
+      context.handle(_headersMeta,
+          headers.isAcceptableOrUnknown(data['headers']!, _headersMeta));
+    }
+    if (data.containsKey('data')) {
+      context.handle(
+          _dataMeta, this.data.isAcceptableOrUnknown(data['data']!, _dataMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DownloadTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DownloadTableData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
+      uid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uid'])!,
+      extensionUid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}extension_uid'])!,
+      concreteUid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}concrete_uid'])!,
+      concreteId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}concrete_id'])!,
+      concreteTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}concrete_title'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      status: $DownloadTableTable.$converterstatus.fromSql(attachedDatabase
+          .typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}status'])!),
+      downloadedPages: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}downloaded_pages'])!,
+      totalPages: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}total_pages'])!,
+      dirPath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}dir_path'])!,
+      headers: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}headers']),
+      data: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}data']),
+    );
+  }
+
+  @override
+  $DownloadTableTable createAlias(String alias) {
+    return $DownloadTableTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<DownloadStatus, int, int> $converterstatus =
+      const EnumIndexConverter<DownloadStatus>(DownloadStatus.values);
+}
+
+class DownloadTableData extends DataClass
+    implements Insertable<DownloadTableData> {
+  final int id;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final String uid;
+  final String extensionUid;
+  final String concreteUid;
+  final int concreteId;
+  final String concreteTitle;
+  final String title;
+  final DownloadStatus status;
+  final int downloadedPages;
+  final int totalPages;
+  final String dirPath;
+  final String? headers;
+  final String? data;
+  const DownloadTableData(
+      {required this.id,
+      required this.createdAt,
+      this.updatedAt,
+      required this.uid,
+      required this.extensionUid,
+      required this.concreteUid,
+      required this.concreteId,
+      required this.concreteTitle,
+      required this.title,
+      required this.status,
+      required this.downloadedPages,
+      required this.totalPages,
+      required this.dirPath,
+      this.headers,
+      this.data});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['uid'] = Variable<String>(uid);
+    map['extension_uid'] = Variable<String>(extensionUid);
+    map['concrete_uid'] = Variable<String>(concreteUid);
+    map['concrete_id'] = Variable<int>(concreteId);
+    map['concrete_title'] = Variable<String>(concreteTitle);
+    map['title'] = Variable<String>(title);
+    {
+      map['status'] =
+          Variable<int>($DownloadTableTable.$converterstatus.toSql(status));
+    }
+    map['downloaded_pages'] = Variable<int>(downloadedPages);
+    map['total_pages'] = Variable<int>(totalPages);
+    map['dir_path'] = Variable<String>(dirPath);
+    if (!nullToAbsent || headers != null) {
+      map['headers'] = Variable<String>(headers);
+    }
+    if (!nullToAbsent || data != null) {
+      map['data'] = Variable<String>(data);
+    }
+    return map;
+  }
+
+  DownloadTableCompanion toCompanion(bool nullToAbsent) {
+    return DownloadTableCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      uid: Value(uid),
+      extensionUid: Value(extensionUid),
+      concreteUid: Value(concreteUid),
+      concreteId: Value(concreteId),
+      concreteTitle: Value(concreteTitle),
+      title: Value(title),
+      status: Value(status),
+      downloadedPages: Value(downloadedPages),
+      totalPages: Value(totalPages),
+      dirPath: Value(dirPath),
+      headers: headers == null && nullToAbsent
+          ? const Value.absent()
+          : Value(headers),
+      data: data == null && nullToAbsent ? const Value.absent() : Value(data),
+    );
+  }
+
+  factory DownloadTableData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DownloadTableData(
+      id: serializer.fromJson<int>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      uid: serializer.fromJson<String>(json['uid']),
+      extensionUid: serializer.fromJson<String>(json['extensionUid']),
+      concreteUid: serializer.fromJson<String>(json['concreteUid']),
+      concreteId: serializer.fromJson<int>(json['concreteId']),
+      concreteTitle: serializer.fromJson<String>(json['concreteTitle']),
+      title: serializer.fromJson<String>(json['title']),
+      status: $DownloadTableTable.$converterstatus
+          .fromJson(serializer.fromJson<int>(json['status'])),
+      downloadedPages: serializer.fromJson<int>(json['downloadedPages']),
+      totalPages: serializer.fromJson<int>(json['totalPages']),
+      dirPath: serializer.fromJson<String>(json['dirPath']),
+      headers: serializer.fromJson<String?>(json['headers']),
+      data: serializer.fromJson<String?>(json['data']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'uid': serializer.toJson<String>(uid),
+      'extensionUid': serializer.toJson<String>(extensionUid),
+      'concreteUid': serializer.toJson<String>(concreteUid),
+      'concreteId': serializer.toJson<int>(concreteId),
+      'concreteTitle': serializer.toJson<String>(concreteTitle),
+      'title': serializer.toJson<String>(title),
+      'status': serializer
+          .toJson<int>($DownloadTableTable.$converterstatus.toJson(status)),
+      'downloadedPages': serializer.toJson<int>(downloadedPages),
+      'totalPages': serializer.toJson<int>(totalPages),
+      'dirPath': serializer.toJson<String>(dirPath),
+      'headers': serializer.toJson<String?>(headers),
+      'data': serializer.toJson<String?>(data),
+    };
+  }
+
+  DownloadTableData copyWith(
+          {int? id,
+          DateTime? createdAt,
+          Value<DateTime?> updatedAt = const Value.absent(),
+          String? uid,
+          String? extensionUid,
+          String? concreteUid,
+          int? concreteId,
+          String? concreteTitle,
+          String? title,
+          DownloadStatus? status,
+          int? downloadedPages,
+          int? totalPages,
+          String? dirPath,
+          Value<String?> headers = const Value.absent(),
+          Value<String?> data = const Value.absent()}) =>
+      DownloadTableData(
+        id: id ?? this.id,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+        uid: uid ?? this.uid,
+        extensionUid: extensionUid ?? this.extensionUid,
+        concreteUid: concreteUid ?? this.concreteUid,
+        concreteId: concreteId ?? this.concreteId,
+        concreteTitle: concreteTitle ?? this.concreteTitle,
+        title: title ?? this.title,
+        status: status ?? this.status,
+        downloadedPages: downloadedPages ?? this.downloadedPages,
+        totalPages: totalPages ?? this.totalPages,
+        dirPath: dirPath ?? this.dirPath,
+        headers: headers.present ? headers.value : this.headers,
+        data: data.present ? data.value : this.data,
+      );
+  DownloadTableData copyWithCompanion(DownloadTableCompanion data) {
+    return DownloadTableData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      uid: data.uid.present ? data.uid.value : this.uid,
+      extensionUid: data.extensionUid.present
+          ? data.extensionUid.value
+          : this.extensionUid,
+      concreteUid:
+          data.concreteUid.present ? data.concreteUid.value : this.concreteUid,
+      concreteId:
+          data.concreteId.present ? data.concreteId.value : this.concreteId,
+      concreteTitle: data.concreteTitle.present
+          ? data.concreteTitle.value
+          : this.concreteTitle,
+      title: data.title.present ? data.title.value : this.title,
+      status: data.status.present ? data.status.value : this.status,
+      downloadedPages: data.downloadedPages.present
+          ? data.downloadedPages.value
+          : this.downloadedPages,
+      totalPages:
+          data.totalPages.present ? data.totalPages.value : this.totalPages,
+      dirPath: data.dirPath.present ? data.dirPath.value : this.dirPath,
+      headers: data.headers.present ? data.headers.value : this.headers,
+      data: data.data.present ? data.data.value : this.data,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DownloadTableData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('extensionUid: $extensionUid, ')
+          ..write('concreteUid: $concreteUid, ')
+          ..write('concreteId: $concreteId, ')
+          ..write('concreteTitle: $concreteTitle, ')
+          ..write('title: $title, ')
+          ..write('status: $status, ')
+          ..write('downloadedPages: $downloadedPages, ')
+          ..write('totalPages: $totalPages, ')
+          ..write('dirPath: $dirPath, ')
+          ..write('headers: $headers, ')
+          ..write('data: $data')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      createdAt,
+      updatedAt,
+      uid,
+      extensionUid,
+      concreteUid,
+      concreteId,
+      concreteTitle,
+      title,
+      status,
+      downloadedPages,
+      totalPages,
+      dirPath,
+      headers,
+      data);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DownloadTableData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.uid == this.uid &&
+          other.extensionUid == this.extensionUid &&
+          other.concreteUid == this.concreteUid &&
+          other.concreteId == this.concreteId &&
+          other.concreteTitle == this.concreteTitle &&
+          other.title == this.title &&
+          other.status == this.status &&
+          other.downloadedPages == this.downloadedPages &&
+          other.totalPages == this.totalPages &&
+          other.dirPath == this.dirPath &&
+          other.headers == this.headers &&
+          other.data == this.data);
+}
+
+class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
+  final Value<int> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<String> uid;
+  final Value<String> extensionUid;
+  final Value<String> concreteUid;
+  final Value<int> concreteId;
+  final Value<String> concreteTitle;
+  final Value<String> title;
+  final Value<DownloadStatus> status;
+  final Value<int> downloadedPages;
+  final Value<int> totalPages;
+  final Value<String> dirPath;
+  final Value<String?> headers;
+  final Value<String?> data;
+  const DownloadTableCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.uid = const Value.absent(),
+    this.extensionUid = const Value.absent(),
+    this.concreteUid = const Value.absent(),
+    this.concreteId = const Value.absent(),
+    this.concreteTitle = const Value.absent(),
+    this.title = const Value.absent(),
+    this.status = const Value.absent(),
+    this.downloadedPages = const Value.absent(),
+    this.totalPages = const Value.absent(),
+    this.dirPath = const Value.absent(),
+    this.headers = const Value.absent(),
+    this.data = const Value.absent(),
+  });
+  DownloadTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    required String uid,
+    required String extensionUid,
+    required String concreteUid,
+    required int concreteId,
+    required String concreteTitle,
+    required String title,
+    required DownloadStatus status,
+    this.downloadedPages = const Value.absent(),
+    this.totalPages = const Value.absent(),
+    required String dirPath,
+    this.headers = const Value.absent(),
+    this.data = const Value.absent(),
+  })  : uid = Value(uid),
+        extensionUid = Value(extensionUid),
+        concreteUid = Value(concreteUid),
+        concreteId = Value(concreteId),
+        concreteTitle = Value(concreteTitle),
+        title = Value(title),
+        status = Value(status),
+        dirPath = Value(dirPath);
+  static Insertable<DownloadTableData> custom({
+    Expression<int>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? uid,
+    Expression<String>? extensionUid,
+    Expression<String>? concreteUid,
+    Expression<int>? concreteId,
+    Expression<String>? concreteTitle,
+    Expression<String>? title,
+    Expression<int>? status,
+    Expression<int>? downloadedPages,
+    Expression<int>? totalPages,
+    Expression<String>? dirPath,
+    Expression<String>? headers,
+    Expression<String>? data,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (uid != null) 'uid': uid,
+      if (extensionUid != null) 'extension_uid': extensionUid,
+      if (concreteUid != null) 'concrete_uid': concreteUid,
+      if (concreteId != null) 'concrete_id': concreteId,
+      if (concreteTitle != null) 'concrete_title': concreteTitle,
+      if (title != null) 'title': title,
+      if (status != null) 'status': status,
+      if (downloadedPages != null) 'downloaded_pages': downloadedPages,
+      if (totalPages != null) 'total_pages': totalPages,
+      if (dirPath != null) 'dir_path': dirPath,
+      if (headers != null) 'headers': headers,
+      if (data != null) 'data': data,
+    });
+  }
+
+  DownloadTableCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime>? createdAt,
+      Value<DateTime?>? updatedAt,
+      Value<String>? uid,
+      Value<String>? extensionUid,
+      Value<String>? concreteUid,
+      Value<int>? concreteId,
+      Value<String>? concreteTitle,
+      Value<String>? title,
+      Value<DownloadStatus>? status,
+      Value<int>? downloadedPages,
+      Value<int>? totalPages,
+      Value<String>? dirPath,
+      Value<String?>? headers,
+      Value<String?>? data}) {
+    return DownloadTableCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      uid: uid ?? this.uid,
+      extensionUid: extensionUid ?? this.extensionUid,
+      concreteUid: concreteUid ?? this.concreteUid,
+      concreteId: concreteId ?? this.concreteId,
+      concreteTitle: concreteTitle ?? this.concreteTitle,
+      title: title ?? this.title,
+      status: status ?? this.status,
+      downloadedPages: downloadedPages ?? this.downloadedPages,
+      totalPages: totalPages ?? this.totalPages,
+      dirPath: dirPath ?? this.dirPath,
+      headers: headers ?? this.headers,
+      data: data ?? this.data,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (extensionUid.present) {
+      map['extension_uid'] = Variable<String>(extensionUid.value);
+    }
+    if (concreteUid.present) {
+      map['concrete_uid'] = Variable<String>(concreteUid.value);
+    }
+    if (concreteId.present) {
+      map['concrete_id'] = Variable<int>(concreteId.value);
+    }
+    if (concreteTitle.present) {
+      map['concrete_title'] = Variable<String>(concreteTitle.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<int>(
+          $DownloadTableTable.$converterstatus.toSql(status.value));
+    }
+    if (downloadedPages.present) {
+      map['downloaded_pages'] = Variable<int>(downloadedPages.value);
+    }
+    if (totalPages.present) {
+      map['total_pages'] = Variable<int>(totalPages.value);
+    }
+    if (dirPath.present) {
+      map['dir_path'] = Variable<String>(dirPath.value);
+    }
+    if (headers.present) {
+      map['headers'] = Variable<String>(headers.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DownloadTableCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('extensionUid: $extensionUid, ')
+          ..write('concreteUid: $concreteUid, ')
+          ..write('concreteId: $concreteId, ')
+          ..write('concreteTitle: $concreteTitle, ')
+          ..write('title: $title, ')
+          ..write('status: $status, ')
+          ..write('downloadedPages: $downloadedPages, ')
+          ..write('totalPages: $totalPages, ')
+          ..write('dirPath: $dirPath, ')
+          ..write('headers: $headers, ')
+          ..write('data: $data')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$WakaranaiDatabase extends GeneratedDatabase {
   _$WakaranaiDatabase(QueryExecutor e) : super(e);
   $WakaranaiDatabaseManager get managers => $WakaranaiDatabaseManager(this);
@@ -3234,6 +4008,7 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
   late final $CategoryTableTable categoryTable = $CategoryTableTable(this);
   late final $LibraryEntryTableTable libraryEntryTable =
       $LibraryEntryTableTable(this);
+  late final $DownloadTableTable downloadTable = $DownloadTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3245,7 +4020,8 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
         chapterActivityTable,
         animeEpisodeActivityTable,
         categoryTable,
-        libraryEntryTable
+        libraryEntryTable,
+        downloadTable
       ];
 }
 
@@ -3829,6 +4605,7 @@ typedef $$ConcreteDataTableTableCreateCompanionBuilder
   required String title,
   Value<String?> cover,
   Value<String?> data,
+  Value<String?> concreteJson,
 });
 typedef $$ConcreteDataTableTableUpdateCompanionBuilder
     = ConcreteDataTableCompanion Function({
@@ -3840,6 +4617,7 @@ typedef $$ConcreteDataTableTableUpdateCompanionBuilder
   Value<String> title,
   Value<String?> cover,
   Value<String?> data,
+  Value<String?> concreteJson,
 });
 
 final class $$ConcreteDataTableTableReferences extends BaseReferences<
@@ -3899,6 +4677,21 @@ final class $$ConcreteDataTableTableReferences extends BaseReferences<
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
+
+  static MultiTypedResultKey<$DownloadTableTable, List<DownloadTableData>>
+      _downloadTableRefsTable(_$WakaranaiDatabase db) =>
+          MultiTypedResultKey.fromTable(db.downloadTable,
+              aliasName: $_aliasNameGenerator(
+                  db.concreteDataTable.id, db.downloadTable.concreteId));
+
+  $$DownloadTableTableProcessedTableManager get downloadTableRefs {
+    final manager = $$DownloadTableTableTableManager($_db, $_db.downloadTable)
+        .filter((f) => f.concreteId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_downloadTableRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$ConcreteDataTableTableFilterComposer
@@ -3930,6 +4723,9 @@ class $$ConcreteDataTableTableFilterComposer
 
   ColumnFilters<String> get data => $composableBuilder(
       column: $table.data, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get concreteJson => $composableBuilder(
+      column: $table.concreteJson, builder: (column) => ColumnFilters(column));
 
   $$ExtensionTableTableFilterComposer get extensionUid {
     final $$ExtensionTableTableFilterComposer composer = $composerBuilder(
@@ -3996,6 +4792,27 @@ class $$ConcreteDataTableTableFilterComposer
                 ));
     return f(composer);
   }
+
+  Expression<bool> downloadTableRefs(
+      Expression<bool> Function($$DownloadTableTableFilterComposer f) f) {
+    final $$DownloadTableTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.downloadTable,
+        getReferencedColumn: (t) => t.concreteId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DownloadTableTableFilterComposer(
+              $db: $db,
+              $table: $db.downloadTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$ConcreteDataTableTableOrderingComposer
@@ -4027,6 +4844,10 @@ class $$ConcreteDataTableTableOrderingComposer
 
   ColumnOrderings<String> get data => $composableBuilder(
       column: $table.data, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get concreteJson => $composableBuilder(
+      column: $table.concreteJson,
+      builder: (column) => ColumnOrderings(column));
 
   $$ExtensionTableTableOrderingComposer get extensionUid {
     final $$ExtensionTableTableOrderingComposer composer = $composerBuilder(
@@ -4078,6 +4899,9 @@ class $$ConcreteDataTableTableAnnotationComposer
 
   GeneratedColumn<String> get data =>
       $composableBuilder(column: $table.data, builder: (column) => column);
+
+  GeneratedColumn<String> get concreteJson => $composableBuilder(
+      column: $table.concreteJson, builder: (column) => column);
 
   $$ExtensionTableTableAnnotationComposer get extensionUid {
     final $$ExtensionTableTableAnnotationComposer composer = $composerBuilder(
@@ -4145,6 +4969,27 @@ class $$ConcreteDataTableTableAnnotationComposer
                 ));
     return f(composer);
   }
+
+  Expression<T> downloadTableRefs<T extends Object>(
+      Expression<T> Function($$DownloadTableTableAnnotationComposer a) f) {
+    final $$DownloadTableTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.downloadTable,
+        getReferencedColumn: (t) => t.concreteId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DownloadTableTableAnnotationComposer(
+              $db: $db,
+              $table: $db.downloadTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$ConcreteDataTableTableTableManager extends RootTableManager<
@@ -4161,7 +5006,8 @@ class $$ConcreteDataTableTableTableManager extends RootTableManager<
     PrefetchHooks Function(
         {bool extensionUid,
         bool chapterActivityTableRefs,
-        bool animeEpisodeActivityTableRefs})> {
+        bool animeEpisodeActivityTableRefs,
+        bool downloadTableRefs})> {
   $$ConcreteDataTableTableTableManager(
       _$WakaranaiDatabase db, $ConcreteDataTableTable table)
       : super(TableManagerState(
@@ -4183,6 +5029,7 @@ class $$ConcreteDataTableTableTableManager extends RootTableManager<
             Value<String> title = const Value.absent(),
             Value<String?> cover = const Value.absent(),
             Value<String?> data = const Value.absent(),
+            Value<String?> concreteJson = const Value.absent(),
           }) =>
               ConcreteDataTableCompanion(
             id: id,
@@ -4193,6 +5040,7 @@ class $$ConcreteDataTableTableTableManager extends RootTableManager<
             title: title,
             cover: cover,
             data: data,
+            concreteJson: concreteJson,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -4203,6 +5051,7 @@ class $$ConcreteDataTableTableTableManager extends RootTableManager<
             required String title,
             Value<String?> cover = const Value.absent(),
             Value<String?> data = const Value.absent(),
+            Value<String?> concreteJson = const Value.absent(),
           }) =>
               ConcreteDataTableCompanion.insert(
             id: id,
@@ -4213,6 +5062,7 @@ class $$ConcreteDataTableTableTableManager extends RootTableManager<
             title: title,
             cover: cover,
             data: data,
+            concreteJson: concreteJson,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
@@ -4223,12 +5073,14 @@ class $$ConcreteDataTableTableTableManager extends RootTableManager<
           prefetchHooksCallback: (
               {extensionUid = false,
               chapterActivityTableRefs = false,
-              animeEpisodeActivityTableRefs = false}) {
+              animeEpisodeActivityTableRefs = false,
+              downloadTableRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
                 if (chapterActivityTableRefs) db.chapterActivityTable,
-                if (animeEpisodeActivityTableRefs) db.animeEpisodeActivityTable
+                if (animeEpisodeActivityTableRefs) db.animeEpisodeActivityTable,
+                if (downloadTableRefs) db.downloadTable
               ],
               addJoins: <
                   T extends TableManagerState<
@@ -4286,6 +5138,19 @@ class $$ConcreteDataTableTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.concreteId == item.id),
+                        typedResults: items),
+                  if (downloadTableRefs)
+                    await $_getPrefetchedData<ConcreteDataTableData,
+                            $ConcreteDataTableTable, DownloadTableData>(
+                        currentTable: table,
+                        referencedTable: $$ConcreteDataTableTableReferences
+                            ._downloadTableRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ConcreteDataTableTableReferences(db, table, p0)
+                                .downloadTableRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.concreteId == item.id),
                         typedResults: items)
                 ];
               },
@@ -4308,7 +5173,8 @@ typedef $$ConcreteDataTableTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function(
         {bool extensionUid,
         bool chapterActivityTableRefs,
-        bool animeEpisodeActivityTableRefs})>;
+        bool animeEpisodeActivityTableRefs,
+        bool downloadTableRefs})>;
 typedef $$ChapterActivityTableTableCreateCompanionBuilder
     = ChapterActivityTableCompanion Function({
   Value<int> id,
@@ -5625,6 +6491,435 @@ typedef $$LibraryEntryTableTableProcessedTableManager = ProcessedTableManager<
     (LibraryEntryTableData, $$LibraryEntryTableTableReferences),
     LibraryEntryTableData,
     PrefetchHooks Function({bool categoryId})>;
+typedef $$DownloadTableTableCreateCompanionBuilder = DownloadTableCompanion
+    Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  required String uid,
+  required String extensionUid,
+  required String concreteUid,
+  required int concreteId,
+  required String concreteTitle,
+  required String title,
+  required DownloadStatus status,
+  Value<int> downloadedPages,
+  Value<int> totalPages,
+  required String dirPath,
+  Value<String?> headers,
+  Value<String?> data,
+});
+typedef $$DownloadTableTableUpdateCompanionBuilder = DownloadTableCompanion
+    Function({
+  Value<int> id,
+  Value<DateTime> createdAt,
+  Value<DateTime?> updatedAt,
+  Value<String> uid,
+  Value<String> extensionUid,
+  Value<String> concreteUid,
+  Value<int> concreteId,
+  Value<String> concreteTitle,
+  Value<String> title,
+  Value<DownloadStatus> status,
+  Value<int> downloadedPages,
+  Value<int> totalPages,
+  Value<String> dirPath,
+  Value<String?> headers,
+  Value<String?> data,
+});
+
+final class $$DownloadTableTableReferences extends BaseReferences<
+    _$WakaranaiDatabase, $DownloadTableTable, DownloadTableData> {
+  $$DownloadTableTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ConcreteDataTableTable _concreteIdTable(_$WakaranaiDatabase db) =>
+      db.concreteDataTable.createAlias($_aliasNameGenerator(
+          db.downloadTable.concreteId, db.concreteDataTable.id));
+
+  $$ConcreteDataTableTableProcessedTableManager get concreteId {
+    final $_column = $_itemColumn<int>('concrete_id')!;
+
+    final manager =
+        $$ConcreteDataTableTableTableManager($_db, $_db.concreteDataTable)
+            .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_concreteIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$DownloadTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $DownloadTableTable> {
+  $$DownloadTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get uid => $composableBuilder(
+      column: $table.uid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get extensionUid => $composableBuilder(
+      column: $table.extensionUid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get concreteUid => $composableBuilder(
+      column: $table.concreteUid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get concreteTitle => $composableBuilder(
+      column: $table.concreteTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<DownloadStatus, DownloadStatus, int>
+      get status => $composableBuilder(
+          column: $table.status,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnFilters<int> get downloadedPages => $composableBuilder(
+      column: $table.downloadedPages,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get totalPages => $composableBuilder(
+      column: $table.totalPages, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dirPath => $composableBuilder(
+      column: $table.dirPath, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get headers => $composableBuilder(
+      column: $table.headers, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get data => $composableBuilder(
+      column: $table.data, builder: (column) => ColumnFilters(column));
+
+  $$ConcreteDataTableTableFilterComposer get concreteId {
+    final $$ConcreteDataTableTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.concreteId,
+        referencedTable: $db.concreteDataTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ConcreteDataTableTableFilterComposer(
+              $db: $db,
+              $table: $db.concreteDataTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$DownloadTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $DownloadTableTable> {
+  $$DownloadTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get uid => $composableBuilder(
+      column: $table.uid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get extensionUid => $composableBuilder(
+      column: $table.extensionUid,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get concreteUid => $composableBuilder(
+      column: $table.concreteUid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get concreteTitle => $composableBuilder(
+      column: $table.concreteTitle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get downloadedPages => $composableBuilder(
+      column: $table.downloadedPages,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get totalPages => $composableBuilder(
+      column: $table.totalPages, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dirPath => $composableBuilder(
+      column: $table.dirPath, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get headers => $composableBuilder(
+      column: $table.headers, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get data => $composableBuilder(
+      column: $table.data, builder: (column) => ColumnOrderings(column));
+
+  $$ConcreteDataTableTableOrderingComposer get concreteId {
+    final $$ConcreteDataTableTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.concreteId,
+        referencedTable: $db.concreteDataTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ConcreteDataTableTableOrderingComposer(
+              $db: $db,
+              $table: $db.concreteDataTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$DownloadTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $DownloadTableTable> {
+  $$DownloadTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
+
+  GeneratedColumn<String> get extensionUid => $composableBuilder(
+      column: $table.extensionUid, builder: (column) => column);
+
+  GeneratedColumn<String> get concreteUid => $composableBuilder(
+      column: $table.concreteUid, builder: (column) => column);
+
+  GeneratedColumn<String> get concreteTitle => $composableBuilder(
+      column: $table.concreteTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DownloadStatus, int> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get downloadedPages => $composableBuilder(
+      column: $table.downloadedPages, builder: (column) => column);
+
+  GeneratedColumn<int> get totalPages => $composableBuilder(
+      column: $table.totalPages, builder: (column) => column);
+
+  GeneratedColumn<String> get dirPath =>
+      $composableBuilder(column: $table.dirPath, builder: (column) => column);
+
+  GeneratedColumn<String> get headers =>
+      $composableBuilder(column: $table.headers, builder: (column) => column);
+
+  GeneratedColumn<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => column);
+
+  $$ConcreteDataTableTableAnnotationComposer get concreteId {
+    final $$ConcreteDataTableTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.concreteId,
+            referencedTable: $db.concreteDataTable,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ConcreteDataTableTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.concreteDataTable,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
+class $$DownloadTableTableTableManager extends RootTableManager<
+    _$WakaranaiDatabase,
+    $DownloadTableTable,
+    DownloadTableData,
+    $$DownloadTableTableFilterComposer,
+    $$DownloadTableTableOrderingComposer,
+    $$DownloadTableTableAnnotationComposer,
+    $$DownloadTableTableCreateCompanionBuilder,
+    $$DownloadTableTableUpdateCompanionBuilder,
+    (DownloadTableData, $$DownloadTableTableReferences),
+    DownloadTableData,
+    PrefetchHooks Function({bool concreteId})> {
+  $$DownloadTableTableTableManager(
+      _$WakaranaiDatabase db, $DownloadTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DownloadTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DownloadTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DownloadTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<String> uid = const Value.absent(),
+            Value<String> extensionUid = const Value.absent(),
+            Value<String> concreteUid = const Value.absent(),
+            Value<int> concreteId = const Value.absent(),
+            Value<String> concreteTitle = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<DownloadStatus> status = const Value.absent(),
+            Value<int> downloadedPages = const Value.absent(),
+            Value<int> totalPages = const Value.absent(),
+            Value<String> dirPath = const Value.absent(),
+            Value<String?> headers = const Value.absent(),
+            Value<String?> data = const Value.absent(),
+          }) =>
+              DownloadTableCompanion(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            uid: uid,
+            extensionUid: extensionUid,
+            concreteUid: concreteUid,
+            concreteId: concreteId,
+            concreteTitle: concreteTitle,
+            title: title,
+            status: status,
+            downloadedPages: downloadedPages,
+            totalPages: totalPages,
+            dirPath: dirPath,
+            headers: headers,
+            data: data,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            required String uid,
+            required String extensionUid,
+            required String concreteUid,
+            required int concreteId,
+            required String concreteTitle,
+            required String title,
+            required DownloadStatus status,
+            Value<int> downloadedPages = const Value.absent(),
+            Value<int> totalPages = const Value.absent(),
+            required String dirPath,
+            Value<String?> headers = const Value.absent(),
+            Value<String?> data = const Value.absent(),
+          }) =>
+              DownloadTableCompanion.insert(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            uid: uid,
+            extensionUid: extensionUid,
+            concreteUid: concreteUid,
+            concreteId: concreteId,
+            concreteTitle: concreteTitle,
+            title: title,
+            status: status,
+            downloadedPages: downloadedPages,
+            totalPages: totalPages,
+            dirPath: dirPath,
+            headers: headers,
+            data: data,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$DownloadTableTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({concreteId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (concreteId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.concreteId,
+                    referencedTable:
+                        $$DownloadTableTableReferences._concreteIdTable(db),
+                    referencedColumn:
+                        $$DownloadTableTableReferences._concreteIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$DownloadTableTableProcessedTableManager = ProcessedTableManager<
+    _$WakaranaiDatabase,
+    $DownloadTableTable,
+    DownloadTableData,
+    $$DownloadTableTableFilterComposer,
+    $$DownloadTableTableOrderingComposer,
+    $$DownloadTableTableAnnotationComposer,
+    $$DownloadTableTableCreateCompanionBuilder,
+    $$DownloadTableTableUpdateCompanionBuilder,
+    (DownloadTableData, $$DownloadTableTableReferences),
+    DownloadTableData,
+    PrefetchHooks Function({bool concreteId})>;
 
 class $WakaranaiDatabaseManager {
   final _$WakaranaiDatabase _db;
@@ -5644,4 +6939,6 @@ class $WakaranaiDatabaseManager {
       $$CategoryTableTableTableManager(_db, _db.categoryTable);
   $$LibraryEntryTableTableTableManager get libraryEntryTable =>
       $$LibraryEntryTableTableTableManager(_db, _db.libraryEntryTable);
+  $$DownloadTableTableTableManager get downloadTable =>
+      $$DownloadTableTableTableManager(_db, _db.downloadTable);
 }

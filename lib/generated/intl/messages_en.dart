@@ -24,23 +24,25 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m1(count) => "${count} selected";
 
-  static String m2(name) =>
+  static String m2(done, total) => "${done}/${total} pages";
+
+  static String m3(name) =>
       "Error occurred during initializing configs ${name} source";
 
-  static String m3(count) => "${count} selected";
+  static String m4(count) => "${count} selected";
 
-  static String m4(query) => "We couldn\'t find anything for “${query}”";
+  static String m5(query) => "We couldn\'t find anything for “${query}”";
 
-  static String m5(query) => "Results for “${query}”";
+  static String m6(query) => "Results for “${query}”";
 
-  static String m6(version) => "New version ${version} available";
+  static String m7(version) => "New version ${version} available";
 
-  static String m7(IMPORTED, TOTAL) =>
+  static String m8(IMPORTED, TOTAL) =>
       "Activity history imported ${IMPORTED} out of ${TOTAL} activities";
 
-  static String m8(count) => "${count} activities";
+  static String m9(count) => "${count} activities";
 
-  static String m9(current, longest) =>
+  static String m10(current, longest) =>
       "Current ${current} · Longest ${longest}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -117,8 +119,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "common_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
     "common_ok_button": MessageLookupByLibrary.simpleMessage("OK"),
     "common_save": MessageLookupByLibrary.simpleMessage("Save"),
+    "concrete_offline_banner": MessageLookupByLibrary.simpleMessage(
+      "Offline — showing cached content. Only downloaded chapters can be opened.",
+    ),
     "concrete_selection_clear": MessageLookupByLibrary.simpleMessage("Clear"),
     "concrete_selection_count": m1,
+    "concrete_selection_download": MessageLookupByLibrary.simpleMessage(
+      "Download",
+    ),
     "concrete_selection_invert": MessageLookupByLibrary.simpleMessage("Invert"),
     "concrete_selection_mark_read": MessageLookupByLibrary.simpleMessage(
       "Read",
@@ -143,6 +151,35 @@ class MessageLookup extends MessageLookupByLibrary {
     "concrete_viewer_retry_button": MessageLookupByLibrary.simpleMessage(
       "Retry",
     ),
+    "downloads_confirm_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
+    "downloads_confirm_delete": MessageLookupByLibrary.simpleMessage("Delete"),
+    "downloads_delete_all": MessageLookupByLibrary.simpleMessage("Delete all"),
+    "downloads_delete_all_confirmation_message":
+        MessageLookupByLibrary.simpleMessage(
+          "This will remove every downloaded chapter from this device.",
+        ),
+    "downloads_delete_all_confirmation_title":
+        MessageLookupByLibrary.simpleMessage("Delete all downloads?"),
+    "downloads_delete_confirmation_message":
+        MessageLookupByLibrary.simpleMessage(
+          "This chapter will be removed from this device.",
+        ),
+    "downloads_delete_confirmation_title": MessageLookupByLibrary.simpleMessage(
+      "Delete download?",
+    ),
+    "downloads_empty_message": MessageLookupByLibrary.simpleMessage(
+      "Chapters you download for offline reading will appear here.",
+    ),
+    "downloads_empty_title": MessageLookupByLibrary.simpleMessage(
+      "No downloads",
+    ),
+    "downloads_pages_progress": m2,
+    "downloads_status_downloading": MessageLookupByLibrary.simpleMessage(
+      "Downloading",
+    ),
+    "downloads_status_failed": MessageLookupByLibrary.simpleMessage("Failed"),
+    "downloads_status_queued": MessageLookupByLibrary.simpleMessage("Queued"),
+    "downloads_title": MessageLookupByLibrary.simpleMessage("Downloads"),
     "extension_source_page_error_adding_source":
         MessageLookupByLibrary.simpleMessage(
           "Error occurred during adding source",
@@ -177,7 +214,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "extension_sources_page_wakaranai_github_repo_title":
         MessageLookupByLibrary.simpleMessage("Wakaranai Extensions"),
     "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Anime"),
-    "home_configs_source_initializing_error": m2,
+    "home_configs_source_initializing_error": m3,
     "home_extensions_error_title": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t load extensions",
     ),
@@ -235,7 +272,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "library_rename_category": MessageLookupByLibrary.simpleMessage("Rename"),
     "library_select_all": MessageLookupByLibrary.simpleMessage("Select all"),
-    "library_selected_count": m3,
+    "library_selected_count": m4,
     "library_sort_added_newest": MessageLookupByLibrary.simpleMessage(
       "Recently added",
     ),
@@ -268,7 +305,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_error_title": MessageLookupByLibrary.simpleMessage(
       "Something went wrong",
     ),
-    "service_view_no_results_message": m4,
+    "service_view_no_results_message": m5,
     "service_view_no_results_title": MessageLookupByLibrary.simpleMessage(
       "No results",
     ),
@@ -277,7 +314,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_retry_button_title": MessageLookupByLibrary.simpleMessage(
       "Retry",
     ),
-    "service_view_search_results_for": m5,
+    "service_view_search_results_for": m6,
     "service_viewer_search_field_hint_text":
         MessageLookupByLibrary.simpleMessage("Search"),
     "settings_about_section_title": MessageLookupByLibrary.simpleMessage(
@@ -340,7 +377,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_default_reader_mode_title": MessageLookupByLibrary.simpleMessage(
       "Default reader mode",
     ),
-    "settings_download_latest_release": m6,
+    "settings_download_latest_release": m7,
+    "settings_downloads_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Manage downloaded chapters",
+    ),
+    "settings_downloads_title": MessageLookupByLibrary.simpleMessage(
+      "Downloads",
+    ),
     "settings_export_activity_history_button":
         MessageLookupByLibrary.simpleMessage("Export activity history"),
     "settings_export_activity_history_error":
@@ -357,7 +400,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Error occurred during importing activity history",
         ),
-    "settings_import_activity_history_success": m7,
+    "settings_import_activity_history_success": m8,
     "settings_import_export_info_export_body": MessageLookupByLibrary.simpleMessage(
       "Saves all your manga and anime reading history into a single JSON file that you can back up or move to another device.",
     ),
@@ -391,6 +434,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settings_statistics_section_title": MessageLookupByLibrary.simpleMessage(
       "Statistics",
+    ),
+    "settings_storage_section_title": MessageLookupByLibrary.simpleMessage(
+      "Storage",
     ),
     "settings_submit_issue": MessageLookupByLibrary.simpleMessage(
       "Submit issue/feature request/extension request",
@@ -429,7 +475,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "stats_heatmap_less": MessageLookupByLibrary.simpleMessage("Less"),
     "stats_heatmap_more": MessageLookupByLibrary.simpleMessage("More"),
-    "stats_heatmap_week_count": m8,
+    "stats_heatmap_week_count": m9,
     "stats_kpi_active_days": MessageLookupByLibrary.simpleMessage(
       "Active days",
     ),
@@ -450,7 +496,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "stats_sources_section_title": MessageLookupByLibrary.simpleMessage(
       "Top sources",
     ),
-    "stats_streak_summary": m9,
+    "stats_streak_summary": m10,
     "stats_title": MessageLookupByLibrary.simpleMessage("Statistics"),
     "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage("Done"),
   };

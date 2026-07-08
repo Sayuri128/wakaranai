@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
+import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
@@ -66,6 +67,12 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
             create: (BuildContext context) => LibraryCubit(
               libraryEntryRepository: RepositoryProvider.of(context),
               categoryRepository: RepositoryProvider.of(context),
+            )..init(),
+          ),
+          BlocProvider<DownloadManagerCubit>(
+            lazy: false,
+            create: (BuildContext context) => DownloadManagerCubit(
+              downloadRepository: RepositoryProvider.of(context),
             )..init(),
           ),
           BlocProvider<HomePageCubit>(
