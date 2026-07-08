@@ -202,18 +202,20 @@ class AnimeServiceViewerBody extends StatelessWidget {
           icon: const Icon(Icons.refresh_rounded),
           label: Text(S.of(context).service_view_retry_button_title),
         ),
-        OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.mainWhite,
-            side: BorderSide(color: AppColors.mainGrey),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        if (configInfo.protectorConfig != null)
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.mainWhite,
+              side: BorderSide(color: AppColors.mainGrey),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14)),
+            ),
+            onPressed: () => openWebView(context, apiClient, configInfo),
+            icon: const Icon(Icons.public_rounded),
+            label: Text(S.of(context).service_view_open_web_view_button_title),
           ),
-          onPressed: () => openWebView(context, apiClient, configInfo),
-          icon: const Icon(Icons.public_rounded),
-          label: Text(S.of(context).service_view_open_web_view_button_title),
-        ),
       ],
     );
   }

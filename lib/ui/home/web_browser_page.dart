@@ -132,11 +132,14 @@ Future<void> getHeaders(
 
 Future<void> openWebView(
     BuildContext context, ApiClient apiClient, ConfigInfo config) async {
+  final ProtectorConfig? protectorConfig = config.protectorConfig;
+  if (protectorConfig == null) return;
+
   final String uid = '${config.name}_${config.version}';
   final Object? result = await Navigator.of(context).pushNamed(
       Routes.webBrowser,
       arguments: WebBrowserData(
-          config: config.protectorConfig!,
+          config: protectorConfig,
           protectorStorageItem:
               await ProtectorStorageService().getItem(uid: uid)));
   if (result != null && result is WebBrowserPageResult) {
