@@ -24,25 +24,29 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m1(count) => "${count} selected";
 
-  static String m2(done, total) => "${done}/${total} pages";
+  static String m2(done, total) => "${done}/${total} chapters downloaded";
 
-  static String m3(name) =>
+  static String m3(count) => "${count} chapters downloaded";
+
+  static String m4(done, total) => "${done}/${total} pages";
+
+  static String m5(name) =>
       "Error occurred during initializing configs ${name} source";
 
-  static String m4(count) => "${count} selected";
+  static String m6(count) => "${count} selected";
 
-  static String m5(query) => "We couldn\'t find anything for “${query}”";
+  static String m7(query) => "We couldn\'t find anything for “${query}”";
 
-  static String m6(query) => "Results for “${query}”";
+  static String m8(query) => "Results for “${query}”";
 
-  static String m7(version) => "New version ${version} available";
+  static String m9(version) => "New version ${version} available";
 
-  static String m8(IMPORTED, TOTAL) =>
+  static String m10(IMPORTED, TOTAL) =>
       "Activity history imported ${IMPORTED} out of ${TOTAL} activities";
 
-  static String m9(count) => "${count} activities";
+  static String m11(count) => "${count} activities";
 
-  static String m10(current, longest) =>
+  static String m12(current, longest) =>
       "Current ${current} · Longest ${longest}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -151,6 +155,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "concrete_viewer_retry_button": MessageLookupByLibrary.simpleMessage(
       "Retry",
     ),
+    "downloads_chapters_summary": m2,
     "downloads_confirm_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
     "downloads_confirm_delete": MessageLookupByLibrary.simpleMessage("Delete"),
     "downloads_delete_all": MessageLookupByLibrary.simpleMessage("Delete all"),
@@ -173,7 +178,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_empty_title": MessageLookupByLibrary.simpleMessage(
       "No downloads",
     ),
-    "downloads_pages_progress": m2,
+    "downloads_notification_channel_name": MessageLookupByLibrary.simpleMessage(
+      "Downloads",
+    ),
+    "downloads_notification_complete_body": m3,
+    "downloads_notification_complete_title":
+        MessageLookupByLibrary.simpleMessage("Download complete"),
+    "downloads_notification_downloading_title":
+        MessageLookupByLibrary.simpleMessage("Downloading"),
+    "downloads_pages_progress": m4,
     "downloads_status_downloading": MessageLookupByLibrary.simpleMessage(
       "Downloading",
     ),
@@ -214,7 +227,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "extension_sources_page_wakaranai_github_repo_title":
         MessageLookupByLibrary.simpleMessage("Wakaranai Extensions"),
     "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Anime"),
-    "home_configs_source_initializing_error": m3,
+    "home_configs_source_initializing_error": m5,
     "home_extensions_error_title": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t load extensions",
     ),
@@ -272,7 +285,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "library_rename_category": MessageLookupByLibrary.simpleMessage("Rename"),
     "library_select_all": MessageLookupByLibrary.simpleMessage("Select all"),
-    "library_selected_count": m4,
+    "library_selected_count": m6,
     "library_sort_added_newest": MessageLookupByLibrary.simpleMessage(
       "Recently added",
     ),
@@ -305,7 +318,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_error_title": MessageLookupByLibrary.simpleMessage(
       "Something went wrong",
     ),
-    "service_view_no_results_message": m5,
+    "service_view_no_results_message": m7,
     "service_view_no_results_title": MessageLookupByLibrary.simpleMessage(
       "No results",
     ),
@@ -314,7 +327,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_retry_button_title": MessageLookupByLibrary.simpleMessage(
       "Retry",
     ),
-    "service_view_search_results_for": m6,
+    "service_view_search_results_for": m8,
     "service_viewer_search_field_hint_text":
         MessageLookupByLibrary.simpleMessage("Search"),
     "settings_about_section_title": MessageLookupByLibrary.simpleMessage(
@@ -377,7 +390,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_default_reader_mode_title": MessageLookupByLibrary.simpleMessage(
       "Default reader mode",
     ),
-    "settings_download_latest_release": m7,
+    "settings_download_latest_release": m9,
     "settings_downloads_subtitle": MessageLookupByLibrary.simpleMessage(
       "Manage downloaded chapters",
     ),
@@ -400,7 +413,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Error occurred during importing activity history",
         ),
-    "settings_import_activity_history_success": m8,
+    "settings_import_activity_history_success": m10,
     "settings_import_export_info_export_body": MessageLookupByLibrary.simpleMessage(
       "Saves all your manga and anime reading history into a single JSON file that you can back up or move to another device.",
     ),
@@ -475,7 +488,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "stats_heatmap_less": MessageLookupByLibrary.simpleMessage("Less"),
     "stats_heatmap_more": MessageLookupByLibrary.simpleMessage("More"),
-    "stats_heatmap_week_count": m9,
+    "stats_heatmap_week_count": m11,
     "stats_kpi_active_days": MessageLookupByLibrary.simpleMessage(
       "Active days",
     ),
@@ -496,7 +509,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "stats_sources_section_title": MessageLookupByLibrary.simpleMessage(
       "Top sources",
     ),
-    "stats_streak_summary": m10,
+    "stats_streak_summary": m12,
     "stats_title": MessageLookupByLibrary.simpleMessage("Statistics"),
     "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage("Done"),
   };

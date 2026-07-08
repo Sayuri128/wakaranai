@@ -11,6 +11,7 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
   final String concreteUid;
   final int concreteId;
   final String concreteTitle;
+  final String? concreteCover;
   final String title;
   final DownloadStatus status;
   final int downloadedPages;
@@ -37,6 +38,7 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
     required this.concreteUid,
     required this.concreteId,
     required this.concreteTitle,
+    this.concreteCover,
     required this.title,
     required this.status,
     required this.downloadedPages,
@@ -55,6 +57,7 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
         concreteUid: data.concreteUid,
         concreteId: data.concreteId,
         concreteTitle: data.concreteTitle,
+        concreteCover: data.concreteCover,
         title: data.title,
         status: data.status,
         downloadedPages: data.downloadedPages,
@@ -76,6 +79,7 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
         concreteUid: Value(concreteUid),
         concreteId: Value(concreteId),
         concreteTitle: Value(concreteTitle),
+        concreteCover: Value(concreteCover),
         title: Value(title),
         status: Value(status),
         downloadedPages: Value(downloadedPages),
@@ -118,6 +122,7 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
         concreteUid: concreteUid,
         concreteId: concreteId,
         concreteTitle: concreteTitle,
+        concreteCover: concreteCover,
         title: title,
         status: status ?? this.status,
         downloadedPages: downloadedPages ?? this.downloadedPages,

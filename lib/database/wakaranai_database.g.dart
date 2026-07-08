@@ -3332,6 +3332,12 @@ class $DownloadTableTable extends DownloadTable
   late final GeneratedColumn<String> concreteTitle = GeneratedColumn<String>(
       'concrete_title', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _concreteCoverMeta =
+      const VerificationMeta('concreteCover');
+  @override
+  late final GeneratedColumn<String> concreteCover = GeneratedColumn<String>(
+      'concrete_cover', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
@@ -3385,6 +3391,7 @@ class $DownloadTableTable extends DownloadTable
         concreteUid,
         concreteId,
         concreteTitle,
+        concreteCover,
         title,
         status,
         downloadedPages,
@@ -3452,6 +3459,12 @@ class $DownloadTableTable extends DownloadTable
     } else if (isInserting) {
       context.missing(_concreteTitleMeta);
     }
+    if (data.containsKey('concrete_cover')) {
+      context.handle(
+          _concreteCoverMeta,
+          concreteCover.isAcceptableOrUnknown(
+              data['concrete_cover']!, _concreteCoverMeta));
+    }
     if (data.containsKey('title')) {
       context.handle(
           _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
@@ -3509,6 +3522,8 @@ class $DownloadTableTable extends DownloadTable
           .read(DriftSqlType.int, data['${effectivePrefix}concrete_id'])!,
       concreteTitle: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}concrete_title'])!,
+      concreteCover: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}concrete_cover']),
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       status: $DownloadTableTable.$converterstatus.fromSql(attachedDatabase
@@ -3546,6 +3561,7 @@ class DownloadTableData extends DataClass
   final String concreteUid;
   final int concreteId;
   final String concreteTitle;
+  final String? concreteCover;
   final String title;
   final DownloadStatus status;
   final int downloadedPages;
@@ -3562,6 +3578,7 @@ class DownloadTableData extends DataClass
       required this.concreteUid,
       required this.concreteId,
       required this.concreteTitle,
+      this.concreteCover,
       required this.title,
       required this.status,
       required this.downloadedPages,
@@ -3582,6 +3599,9 @@ class DownloadTableData extends DataClass
     map['concrete_uid'] = Variable<String>(concreteUid);
     map['concrete_id'] = Variable<int>(concreteId);
     map['concrete_title'] = Variable<String>(concreteTitle);
+    if (!nullToAbsent || concreteCover != null) {
+      map['concrete_cover'] = Variable<String>(concreteCover);
+    }
     map['title'] = Variable<String>(title);
     {
       map['status'] =
@@ -3611,6 +3631,9 @@ class DownloadTableData extends DataClass
       concreteUid: Value(concreteUid),
       concreteId: Value(concreteId),
       concreteTitle: Value(concreteTitle),
+      concreteCover: concreteCover == null && nullToAbsent
+          ? const Value.absent()
+          : Value(concreteCover),
       title: Value(title),
       status: Value(status),
       downloadedPages: Value(downloadedPages),
@@ -3635,6 +3658,7 @@ class DownloadTableData extends DataClass
       concreteUid: serializer.fromJson<String>(json['concreteUid']),
       concreteId: serializer.fromJson<int>(json['concreteId']),
       concreteTitle: serializer.fromJson<String>(json['concreteTitle']),
+      concreteCover: serializer.fromJson<String?>(json['concreteCover']),
       title: serializer.fromJson<String>(json['title']),
       status: $DownloadTableTable.$converterstatus
           .fromJson(serializer.fromJson<int>(json['status'])),
@@ -3657,6 +3681,7 @@ class DownloadTableData extends DataClass
       'concreteUid': serializer.toJson<String>(concreteUid),
       'concreteId': serializer.toJson<int>(concreteId),
       'concreteTitle': serializer.toJson<String>(concreteTitle),
+      'concreteCover': serializer.toJson<String?>(concreteCover),
       'title': serializer.toJson<String>(title),
       'status': serializer
           .toJson<int>($DownloadTableTable.$converterstatus.toJson(status)),
@@ -3677,6 +3702,7 @@ class DownloadTableData extends DataClass
           String? concreteUid,
           int? concreteId,
           String? concreteTitle,
+          Value<String?> concreteCover = const Value.absent(),
           String? title,
           DownloadStatus? status,
           int? downloadedPages,
@@ -3693,6 +3719,8 @@ class DownloadTableData extends DataClass
         concreteUid: concreteUid ?? this.concreteUid,
         concreteId: concreteId ?? this.concreteId,
         concreteTitle: concreteTitle ?? this.concreteTitle,
+        concreteCover:
+            concreteCover.present ? concreteCover.value : this.concreteCover,
         title: title ?? this.title,
         status: status ?? this.status,
         downloadedPages: downloadedPages ?? this.downloadedPages,
@@ -3717,6 +3745,9 @@ class DownloadTableData extends DataClass
       concreteTitle: data.concreteTitle.present
           ? data.concreteTitle.value
           : this.concreteTitle,
+      concreteCover: data.concreteCover.present
+          ? data.concreteCover.value
+          : this.concreteCover,
       title: data.title.present ? data.title.value : this.title,
       status: data.status.present ? data.status.value : this.status,
       downloadedPages: data.downloadedPages.present
@@ -3741,6 +3772,7 @@ class DownloadTableData extends DataClass
           ..write('concreteUid: $concreteUid, ')
           ..write('concreteId: $concreteId, ')
           ..write('concreteTitle: $concreteTitle, ')
+          ..write('concreteCover: $concreteCover, ')
           ..write('title: $title, ')
           ..write('status: $status, ')
           ..write('downloadedPages: $downloadedPages, ')
@@ -3762,6 +3794,7 @@ class DownloadTableData extends DataClass
       concreteUid,
       concreteId,
       concreteTitle,
+      concreteCover,
       title,
       status,
       downloadedPages,
@@ -3781,6 +3814,7 @@ class DownloadTableData extends DataClass
           other.concreteUid == this.concreteUid &&
           other.concreteId == this.concreteId &&
           other.concreteTitle == this.concreteTitle &&
+          other.concreteCover == this.concreteCover &&
           other.title == this.title &&
           other.status == this.status &&
           other.downloadedPages == this.downloadedPages &&
@@ -3799,6 +3833,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
   final Value<String> concreteUid;
   final Value<int> concreteId;
   final Value<String> concreteTitle;
+  final Value<String?> concreteCover;
   final Value<String> title;
   final Value<DownloadStatus> status;
   final Value<int> downloadedPages;
@@ -3815,6 +3850,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     this.concreteUid = const Value.absent(),
     this.concreteId = const Value.absent(),
     this.concreteTitle = const Value.absent(),
+    this.concreteCover = const Value.absent(),
     this.title = const Value.absent(),
     this.status = const Value.absent(),
     this.downloadedPages = const Value.absent(),
@@ -3832,6 +3868,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     required String concreteUid,
     required int concreteId,
     required String concreteTitle,
+    this.concreteCover = const Value.absent(),
     required String title,
     required DownloadStatus status,
     this.downloadedPages = const Value.absent(),
@@ -3856,6 +3893,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     Expression<String>? concreteUid,
     Expression<int>? concreteId,
     Expression<String>? concreteTitle,
+    Expression<String>? concreteCover,
     Expression<String>? title,
     Expression<int>? status,
     Expression<int>? downloadedPages,
@@ -3873,6 +3911,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
       if (concreteUid != null) 'concrete_uid': concreteUid,
       if (concreteId != null) 'concrete_id': concreteId,
       if (concreteTitle != null) 'concrete_title': concreteTitle,
+      if (concreteCover != null) 'concrete_cover': concreteCover,
       if (title != null) 'title': title,
       if (status != null) 'status': status,
       if (downloadedPages != null) 'downloaded_pages': downloadedPages,
@@ -3892,6 +3931,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
       Value<String>? concreteUid,
       Value<int>? concreteId,
       Value<String>? concreteTitle,
+      Value<String?>? concreteCover,
       Value<String>? title,
       Value<DownloadStatus>? status,
       Value<int>? downloadedPages,
@@ -3908,6 +3948,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
       concreteUid: concreteUid ?? this.concreteUid,
       concreteId: concreteId ?? this.concreteId,
       concreteTitle: concreteTitle ?? this.concreteTitle,
+      concreteCover: concreteCover ?? this.concreteCover,
       title: title ?? this.title,
       status: status ?? this.status,
       downloadedPages: downloadedPages ?? this.downloadedPages,
@@ -3945,6 +3986,9 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     if (concreteTitle.present) {
       map['concrete_title'] = Variable<String>(concreteTitle.value);
     }
+    if (concreteCover.present) {
+      map['concrete_cover'] = Variable<String>(concreteCover.value);
+    }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
@@ -3981,6 +4025,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
           ..write('concreteUid: $concreteUid, ')
           ..write('concreteId: $concreteId, ')
           ..write('concreteTitle: $concreteTitle, ')
+          ..write('concreteCover: $concreteCover, ')
           ..write('title: $title, ')
           ..write('status: $status, ')
           ..write('downloadedPages: $downloadedPages, ')
@@ -6501,6 +6546,7 @@ typedef $$DownloadTableTableCreateCompanionBuilder = DownloadTableCompanion
   required String concreteUid,
   required int concreteId,
   required String concreteTitle,
+  Value<String?> concreteCover,
   required String title,
   required DownloadStatus status,
   Value<int> downloadedPages,
@@ -6519,6 +6565,7 @@ typedef $$DownloadTableTableUpdateCompanionBuilder = DownloadTableCompanion
   Value<String> concreteUid,
   Value<int> concreteId,
   Value<String> concreteTitle,
+  Value<String?> concreteCover,
   Value<String> title,
   Value<DownloadStatus> status,
   Value<int> downloadedPages,
@@ -6579,6 +6626,9 @@ class $$DownloadTableTableFilterComposer
 
   ColumnFilters<String> get concreteTitle => $composableBuilder(
       column: $table.concreteTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get concreteCover => $composableBuilder(
+      column: $table.concreteCover, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnFilters(column));
@@ -6657,6 +6707,10 @@ class $$DownloadTableTableOrderingComposer
       column: $table.concreteTitle,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get concreteCover => $composableBuilder(
+      column: $table.concreteCover,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnOrderings(column));
 
@@ -6729,6 +6783,9 @@ class $$DownloadTableTableAnnotationComposer
 
   GeneratedColumn<String> get concreteTitle => $composableBuilder(
       column: $table.concreteTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get concreteCover => $composableBuilder(
+      column: $table.concreteCover, builder: (column) => column);
 
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
@@ -6805,6 +6862,7 @@ class $$DownloadTableTableTableManager extends RootTableManager<
             Value<String> concreteUid = const Value.absent(),
             Value<int> concreteId = const Value.absent(),
             Value<String> concreteTitle = const Value.absent(),
+            Value<String?> concreteCover = const Value.absent(),
             Value<String> title = const Value.absent(),
             Value<DownloadStatus> status = const Value.absent(),
             Value<int> downloadedPages = const Value.absent(),
@@ -6822,6 +6880,7 @@ class $$DownloadTableTableTableManager extends RootTableManager<
             concreteUid: concreteUid,
             concreteId: concreteId,
             concreteTitle: concreteTitle,
+            concreteCover: concreteCover,
             title: title,
             status: status,
             downloadedPages: downloadedPages,
@@ -6839,6 +6898,7 @@ class $$DownloadTableTableTableManager extends RootTableManager<
             required String concreteUid,
             required int concreteId,
             required String concreteTitle,
+            Value<String?> concreteCover = const Value.absent(),
             required String title,
             required DownloadStatus status,
             Value<int> downloadedPages = const Value.absent(),
@@ -6856,6 +6916,7 @@ class $$DownloadTableTableTableManager extends RootTableManager<
             concreteUid: concreteUid,
             concreteId: concreteId,
             concreteTitle: concreteTitle,
+            concreteCover: concreteCover,
             title: title,
             status: status,
             downloadedPages: downloadedPages,

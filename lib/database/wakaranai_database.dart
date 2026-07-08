@@ -57,11 +57,14 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
             await m.addColumn(
                 concreteDataTable, concreteDataTable.concreteJson);
           }
+          if (from < 7) {
+            await m.addColumn(downloadTable, downloadTable.concreteCover);
+          }
         },
       );
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 }
 
 LazyDatabase _openConnection() {

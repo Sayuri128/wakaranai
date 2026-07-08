@@ -1,11 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
+import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/downloads_page/download_reader_launcher.dart';
+import 'package:wakaranai/ui/home/library_page/library_concrete_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -57,7 +61,7 @@ class DownloadsPage extends StatelessWidget {
       children:
           grouped.entries.expand((MapEntry<String, List<DownloadDomain>> e) {
         return <Widget>[
-          _GroupHeader(title: e.value.first.concreteTitle),
+          _GroupHeader(downloads: e.value),
           ...e.value.map((DownloadDomain d) => _DownloadTile(download: d)),
         ];
       }).toList(),
@@ -114,19 +118,110 @@ class _Header extends StatelessWidget {
 }
 
 class _GroupHeader extends StatelessWidget {
-  const _GroupHeader({required this.title});
+  const _GroupHeader({required this.downloads});
 
-  final String title;
+  final List<DownloadDomain> downloads;
 
   @override
   Widget build(BuildContext context) {
+    final DownloadDomain sample = downloads.first;
+    final int doneCount = downloads
+        .where((DownloadDomain d) => d.status == DownloadStatus.done)
+        .length;
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-      child: Text(
-        title,
-        style: semibold(size: 16),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => _openConcrete(context, sample),
+          child: Row(
+            children: <Widget>[
+              _Cover(url: sample.concreteCover),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      sample.concreteTitle,
+                      style: semibold(size: 16),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      S.current.downloads_chapters_summary(
+                          doneCount, downloads.length),
+                      style: regular(size: 12, color: AppColors.mainGrey),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openConcrete(
+      BuildContext context, DownloadDomain sample) async {
+    final ConcreteDataRepository repo = context.read<ConcreteDataRepository>();
+    final cached = await repo.getByUid(sample.concreteUid);
+    if (!context.mounted) return;
+
+    final LibraryEntryDomain entry = LibraryEntryDomain(
+      id: 0,
+      uid: sample.concreteUid,
+      extensionUid: sample.extensionUid,
+      title: sample.concreteTitle,
+      cover: sample.concreteCover ?? cached?.cover,
+      data: cached?.data,
+      createdAt: DateTime.now(),
+    );
+
+    Navigator.of(context).pushNamed(
+      Routes.libraryConcreteViewer,
+      arguments: LibraryConcreteViewerData(entry: entry),
+    );
+  }
+}
+
+class _Cover extends StatelessWidget {
+  const _Cover({required this.url});
+
+  final String? url;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: SizedBox(
+        width: 48,
+        height: 64,
+        child: url == null
+            ? _placeholder()
+            : CachedNetworkImage(
+                imageUrl: url!,
+                fit: BoxFit.cover,
+                placeholder: (BuildContext context, String _) => _placeholder(),
+                errorWidget: (BuildContext context, String _, Object __) =>
+                    _placeholder(),
+              ),
+      ),
+    );
+  }
+
+  Widget _placeholder() {
+    return ColoredBox(
+      color: AppColors.overlay(0.08),
+      child: Center(
+        child:
+            Icon(Icons.menu_book_rounded, color: AppColors.mainGrey, size: 22),
       ),
     );
   }

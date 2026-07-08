@@ -9,9 +9,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:wakaranai/blocs/downloads/download_notification_service.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
+import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
 
@@ -23,6 +25,7 @@ class _DownloadJob {
   final String concreteUid;
   final int concreteId;
   final String concreteTitle;
+  final String? concreteCover;
   final String chapterUid;
   final String title;
   final Map<String, dynamic>? data;
@@ -33,6 +36,7 @@ class _DownloadJob {
     required this.concreteUid,
     required this.concreteId,
     required this.concreteTitle,
+    required this.concreteCover,
     required this.chapterUid,
     required this.title,
     required this.data,
@@ -40,15 +44,22 @@ class _DownloadJob {
 }
 
 class DownloadManagerCubit extends Cubit<DownloadManagerState> {
-  DownloadManagerCubit({required this.downloadRepository})
-      : super(const DownloadManagerState());
+  DownloadManagerCubit({
+    required this.downloadRepository,
+    DownloadNotificationService? notificationService,
+  })  : notificationService =
+            notificationService ?? DownloadNotificationService(),
+        super(const DownloadManagerState());
 
   final DownloadRepository downloadRepository;
+  final DownloadNotificationService notificationService;
 
   final Dio _dio = Dio();
   final Queue<_DownloadJob> _jobs = Queue<_DownloadJob>();
   final Set<String> _cancelled = <String>{};
   bool _processing = false;
+  int _completedInBatch = 0;
+  bool _permissionRequested = false;
 
   StreamSubscription<List<DownloadDomain>>? _sub;
 
@@ -70,6 +81,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     required String concreteUid,
     required int concreteId,
     required String concreteTitle,
+    required String? concreteCover,
     required String chapterUid,
     required String title,
     required Map<String, dynamic>? data,
@@ -96,6 +108,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         concreteUid: concreteUid,
         concreteId: concreteId,
         concreteTitle: concreteTitle,
+        concreteCover: concreteCover,
         title: title,
         status: DownloadStatus.queued,
         downloadedPages: 0,
@@ -114,10 +127,16 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       concreteUid: concreteUid,
       concreteId: concreteId,
       concreteTitle: concreteTitle,
+      concreteCover: concreteCover,
       chapterUid: chapterUid,
       title: title,
       data: data,
     ));
+
+    if (!_permissionRequested) {
+      _permissionRequested = true;
+      unawaited(notificationService.requestPermission());
+    }
 
     unawaited(_process());
   }
@@ -125,6 +144,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   Future<void> _process() async {
     if (_processing) return;
     _processing = true;
+    _completedInBatch = 0;
     try {
       while (_jobs.isNotEmpty) {
         final _DownloadJob job = _jobs.removeFirst();
@@ -132,20 +152,30 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
           _cancelled.remove(job.chapterUid);
           continue;
         }
-        await _runJob(job);
+        final bool completed = await _runJob(job);
+        if (completed) _completedInBatch++;
       }
     } finally {
       _processing = false;
+      await notificationService.showComplete(_completedInBatch);
+      _completedInBatch = 0;
     }
   }
 
-  Future<void> _runJob(_DownloadJob job) async {
+  Future<bool> _runJob(_DownloadJob job) async {
     DownloadDomain? row = await downloadRepository.getByUid(job.chapterUid);
-    if (row == null) return;
+    if (row == null) return false;
 
     try {
       await downloadRepository
           .update(row.copyWith(status: DownloadStatus.downloading));
+      await notificationService.showProgress(
+        title:
+            '${job.concreteTitle} · ${S.current.downloads_status_downloading}',
+        chapterTitle: job.title,
+        progress: 0,
+        max: 0,
+      );
 
       final pages =
           await job.client.getPages(uid: job.chapterUid, data: job.data);
@@ -167,7 +197,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       for (int i = 0; i < pages.value.length; i++) {
         if (_cancelled.contains(job.chapterUid)) {
           _cancelled.remove(job.chapterUid);
-          return;
+          return false;
         }
 
         final String url = pages.value[i];
@@ -188,6 +218,13 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
 
         row = row!.copyWith(downloadedPages: i + 1);
         await downloadRepository.update(row);
+        await notificationService.showProgress(
+          title:
+              '${job.concreteTitle} · ${S.current.downloads_status_downloading}',
+          chapterTitle: job.title,
+          progress: i + 1,
+          max: pages.value.length,
+        );
       }
 
       await downloadRepository.update(row!.copyWith(
@@ -195,6 +232,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         downloadedPages: pages.value.length,
         totalPages: pages.value.length,
       ));
+      return true;
     } catch (e, s) {
       logger.e(e);
       logger.e(s);
@@ -204,6 +242,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         await downloadRepository
             .update(current.copyWith(status: DownloadStatus.failed));
       }
+      return false;
     }
   }
 
@@ -218,6 +257,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       concreteUid: download.concreteUid,
       concreteId: download.concreteId,
       concreteTitle: download.concreteTitle,
+      concreteCover: download.concreteCover,
       chapterUid: download.uid,
       title: download.title,
       data: data ??
@@ -243,7 +283,8 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   }
 
   Future<void> deleteAll() async {
-    final List<DownloadDomain> rows = List<DownloadDomain>.from(state.downloads);
+    final List<DownloadDomain> rows =
+        List<DownloadDomain>.from(state.downloads);
     for (final DownloadDomain row in rows) {
       await deleteDownload(row);
     }

@@ -451,6 +451,7 @@ class MangaConcreteViewer extends StatelessWidget
           concreteUid: state.concreteView.uid,
           concreteId: state.domain!.id,
           concreteTitle: state.concreteView.title,
+          concreteCover: state.concreteView.cover,
           chapterUid: chapter.uid,
           title: chapter.title,
           data: chapter.data,

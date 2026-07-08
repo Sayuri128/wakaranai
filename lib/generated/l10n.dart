@@ -1967,6 +1967,56 @@ class S {
       args: [done, total],
     );
   }
+
+  /// `{done}/{total} chapters downloaded`
+  String downloads_chapters_summary(Object done, Object total) {
+    return Intl.message(
+      '$done/$total chapters downloaded',
+      name: 'downloads_chapters_summary',
+      desc: '',
+      args: [done, total],
+    );
+  }
+
+  /// `Downloads`
+  String get downloads_notification_channel_name {
+    return Intl.message(
+      'Downloads',
+      name: 'downloads_notification_channel_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading`
+  String get downloads_notification_downloading_title {
+    return Intl.message(
+      'Downloading',
+      name: 'downloads_notification_downloading_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download complete`
+  String get downloads_notification_complete_title {
+    return Intl.message(
+      'Download complete',
+      name: 'downloads_notification_complete_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} chapters downloaded`
+  String downloads_notification_complete_body(Object count) {
+    return Intl.message(
+      '$count chapters downloaded',
+      name: 'downloads_notification_complete_body',
+      desc: '',
+      args: [count],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

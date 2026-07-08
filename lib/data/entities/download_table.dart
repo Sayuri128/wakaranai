@@ -15,6 +15,8 @@ class DownloadTable extends BaseTable {
 
   TextColumn get concreteTitle => text()();
 
+  TextColumn get concreteCover => text().nullable()();
+
   TextColumn get title => text()();
 
   IntColumn get status => intEnum<DownloadStatus>()();

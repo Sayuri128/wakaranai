@@ -220,5 +220,21 @@
       "done": {},
       "total": {}
     }
+  },
+  "downloads_chapters_summary": "{done}/{total} chapters downloaded",
+  "@downloads_chapters_summary": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  },
+  "downloads_notification_channel_name": "Downloads",
+  "downloads_notification_downloading_title": "Downloading",
+  "downloads_notification_complete_title": "Download complete",
+  "downloads_notification_complete_body": "{count} chapters downloaded",
+  "@downloads_notification_complete_body": {
+    "placeholders": {
+      "count": {}
+    }
   }
 }
