@@ -8,6 +8,7 @@ class SettingsService {
   static const String defaultConfigsSourceIdKey = 'DEFAULT_CONFIGS_SOURCE_ID';
   static const String themeIdPrefsKey = 'APP_THEME_ID';
   static const String showNsfwPrefsKey = 'SHOW_NSFW';
+  static const String collectStatisticsPrefsKey = 'COLLECT_STATISTICS';
 
   SharedPreferences? _prefs;
 
@@ -21,6 +22,18 @@ class SettingsService {
     _prefs ??= await SharedPreferences.getInstance();
 
     await _prefs!.setBool(showNsfwPrefsKey, value);
+  }
+
+  Future<bool> getCollectStatistics() async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    return _prefs!.getBool(collectStatisticsPrefsKey) ?? true;
+  }
+
+  Future<void> setCollectStatistics(bool value) async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    await _prefs!.setBool(collectStatisticsPrefsKey, value);
   }
 
   Future<AppThemeId> getThemeId() async {

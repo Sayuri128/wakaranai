@@ -38,6 +38,11 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m7(IMPORTED, TOTAL) =>
       "Activity history imported ${IMPORTED} out of ${TOTAL} activities";
 
+  static String m8(count) => "${count} activities";
+
+  static String m9(current, longest) =>
+      "Current ${current} · Longest ${longest}";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "activity_history_anime_appbar_title": MessageLookupByLibrary.simpleMessage(
@@ -322,6 +327,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_clear_history_title": MessageLookupByLibrary.simpleMessage(
       "Clear history",
     ),
+    "settings_collect_statistics_subtitle":
+        MessageLookupByLibrary.simpleMessage(
+          "Track activity to build statistics",
+        ),
+    "settings_collect_statistics_title": MessageLookupByLibrary.simpleMessage(
+      "Collect statistics",
+    ),
     "settings_content_section_title": MessageLookupByLibrary.simpleMessage(
       "Content",
     ),
@@ -362,6 +374,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_reader_section_title": MessageLookupByLibrary.simpleMessage(
       "Reader",
     ),
+    "settings_reading_statistics_subtitle":
+        MessageLookupByLibrary.simpleMessage(
+          "View your reading and watching activity",
+        ),
+    "settings_reading_statistics_title": MessageLookupByLibrary.simpleMessage(
+      "Reading statistics",
+    ),
     "settings_service_viewer_filters_title":
         MessageLookupByLibrary.simpleMessage("Filters"),
     "settings_show_nsfw_subtitle": MessageLookupByLibrary.simpleMessage(
@@ -369,6 +388,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settings_show_nsfw_title": MessageLookupByLibrary.simpleMessage(
       "Show NSFW sources",
+    ),
+    "settings_statistics_section_title": MessageLookupByLibrary.simpleMessage(
+      "Statistics",
     ),
     "settings_submit_issue": MessageLookupByLibrary.simpleMessage(
       "Submit issue/feature request/extension request",
@@ -383,6 +405,53 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_theme_sepia": MessageLookupByLibrary.simpleMessage("Sepia"),
     "settings_theme_sky": MessageLookupByLibrary.simpleMessage("Sky"),
     "settings_theme_title": MessageLookupByLibrary.simpleMessage("Theme"),
+    "stats_activity_section_title": MessageLookupByLibrary.simpleMessage(
+      "Activity",
+    ),
+    "stats_disabled_message": MessageLookupByLibrary.simpleMessage(
+      "Enable statistics collection to see your reading and watching activity here.",
+    ),
+    "stats_disabled_title": MessageLookupByLibrary.simpleMessage(
+      "Statistics are off",
+    ),
+    "stats_empty_message": MessageLookupByLibrary.simpleMessage(
+      "Start reading or watching to build up your statistics.",
+    ),
+    "stats_empty_title": MessageLookupByLibrary.simpleMessage(
+      "No activity yet",
+    ),
+    "stats_enable_button": MessageLookupByLibrary.simpleMessage("Enable"),
+    "stats_error_title": MessageLookupByLibrary.simpleMessage(
+      "Couldn\'t load statistics",
+    ),
+    "stats_heatmap_hint": MessageLookupByLibrary.simpleMessage(
+      "Tap a week for details",
+    ),
+    "stats_heatmap_less": MessageLookupByLibrary.simpleMessage("Less"),
+    "stats_heatmap_more": MessageLookupByLibrary.simpleMessage("More"),
+    "stats_heatmap_week_count": m8,
+    "stats_kpi_active_days": MessageLookupByLibrary.simpleMessage(
+      "Active days",
+    ),
+    "stats_kpi_chapters_read": MessageLookupByLibrary.simpleMessage(
+      "Chapters read",
+    ),
+    "stats_kpi_day_streak": MessageLookupByLibrary.simpleMessage("Day streak"),
+    "stats_kpi_episodes_watched": MessageLookupByLibrary.simpleMessage(
+      "Episodes watched",
+    ),
+    "stats_kpi_pages_read": MessageLookupByLibrary.simpleMessage("Pages read"),
+    "stats_kpi_time_watched": MessageLookupByLibrary.simpleMessage(
+      "Time watched",
+    ),
+    "stats_overview_section_title": MessageLookupByLibrary.simpleMessage(
+      "Overview",
+    ),
+    "stats_sources_section_title": MessageLookupByLibrary.simpleMessage(
+      "Top sources",
+    ),
+    "stats_streak_summary": m9,
+    "stats_title": MessageLookupByLibrary.simpleMessage("Statistics"),
     "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage("Done"),
   };
 }

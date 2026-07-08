@@ -935,6 +935,56 @@ class S {
     );
   }
 
+  /// `Statistics`
+  String get settings_statistics_section_title {
+    return Intl.message(
+      'Statistics',
+      name: 'settings_statistics_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reading statistics`
+  String get settings_reading_statistics_title {
+    return Intl.message(
+      'Reading statistics',
+      name: 'settings_reading_statistics_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View your reading and watching activity`
+  String get settings_reading_statistics_subtitle {
+    return Intl.message(
+      'View your reading and watching activity',
+      name: 'settings_reading_statistics_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Collect statistics`
+  String get settings_collect_statistics_title {
+    return Intl.message(
+      'Collect statistics',
+      name: 'settings_collect_statistics_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Track activity to build statistics`
+  String get settings_collect_statistics_subtitle {
+    return Intl.message(
+      'Track activity to build statistics',
+      name: 'settings_collect_statistics_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Theme`
   String get settings_theme_title {
     return Intl.message(
@@ -1308,6 +1358,201 @@ class S {
     return Intl.message(
       'Error occurred during importing activity history',
       name: 'settings_import_activity_history_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Statistics`
+  String get stats_title {
+    return Intl.message('Statistics', name: 'stats_title', desc: '', args: []);
+  }
+
+  /// `Overview`
+  String get stats_overview_section_title {
+    return Intl.message(
+      'Overview',
+      name: 'stats_overview_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Activity`
+  String get stats_activity_section_title {
+    return Intl.message(
+      'Activity',
+      name: 'stats_activity_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Top sources`
+  String get stats_sources_section_title {
+    return Intl.message(
+      'Top sources',
+      name: 'stats_sources_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chapters read`
+  String get stats_kpi_chapters_read {
+    return Intl.message(
+      'Chapters read',
+      name: 'stats_kpi_chapters_read',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pages read`
+  String get stats_kpi_pages_read {
+    return Intl.message(
+      'Pages read',
+      name: 'stats_kpi_pages_read',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Episodes watched`
+  String get stats_kpi_episodes_watched {
+    return Intl.message(
+      'Episodes watched',
+      name: 'stats_kpi_episodes_watched',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Time watched`
+  String get stats_kpi_time_watched {
+    return Intl.message(
+      'Time watched',
+      name: 'stats_kpi_time_watched',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Day streak`
+  String get stats_kpi_day_streak {
+    return Intl.message(
+      'Day streak',
+      name: 'stats_kpi_day_streak',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Active days`
+  String get stats_kpi_active_days {
+    return Intl.message(
+      'Active days',
+      name: 'stats_kpi_active_days',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current {current} · Longest {longest}`
+  String stats_streak_summary(Object current, Object longest) {
+    return Intl.message(
+      'Current $current · Longest $longest',
+      name: 'stats_streak_summary',
+      desc: '',
+      args: [current, longest],
+    );
+  }
+
+  /// `Less`
+  String get stats_heatmap_less {
+    return Intl.message('Less', name: 'stats_heatmap_less', desc: '', args: []);
+  }
+
+  /// `More`
+  String get stats_heatmap_more {
+    return Intl.message('More', name: 'stats_heatmap_more', desc: '', args: []);
+  }
+
+  /// `Tap a week for details`
+  String get stats_heatmap_hint {
+    return Intl.message(
+      'Tap a week for details',
+      name: 'stats_heatmap_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} activities`
+  String stats_heatmap_week_count(Object count) {
+    return Intl.message(
+      '$count activities',
+      name: 'stats_heatmap_week_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Statistics are off`
+  String get stats_disabled_title {
+    return Intl.message(
+      'Statistics are off',
+      name: 'stats_disabled_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enable statistics collection to see your reading and watching activity here.`
+  String get stats_disabled_message {
+    return Intl.message(
+      'Enable statistics collection to see your reading and watching activity here.',
+      name: 'stats_disabled_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enable`
+  String get stats_enable_button {
+    return Intl.message(
+      'Enable',
+      name: 'stats_enable_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No activity yet`
+  String get stats_empty_title {
+    return Intl.message(
+      'No activity yet',
+      name: 'stats_empty_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start reading or watching to build up your statistics.`
+  String get stats_empty_message {
+    return Intl.message(
+      'Start reading or watching to build up your statistics.',
+      name: 'stats_empty_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load statistics`
+  String get stats_error_title {
+    return Intl.message(
+      'Couldn\'t load statistics',
+      name: 'stats_error_title',
       desc: '',
       args: [],
     );

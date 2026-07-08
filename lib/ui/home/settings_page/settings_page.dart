@@ -6,6 +6,7 @@ import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/utils/app_palette.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
+import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
@@ -44,6 +45,7 @@ class SettingsPage extends StatelessWidget {
                     _buildAppearanceSection(context),
                     _buildReaderSection(context, state),
                     _buildContentSection(context, state),
+                    _buildStatisticsSection(context, state),
                     _buildActivitySection(context),
                     _buildAboutSection(context),
                   ],
@@ -107,6 +109,40 @@ class SettingsPage extends StatelessWidget {
           ),
           onTap: () =>
               context.read<SettingsCubit>().onChangedShowNsfw(!state.showNsfw),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatisticsSection(
+      BuildContext context, SettingsInitialized state) {
+    return _SettingsSection(
+      title: S.current.settings_statistics_section_title,
+      tiles: <Widget>[
+        _SettingsTile(
+          icon: Icons.bar_chart_rounded,
+          title: S.current.settings_reading_statistics_title,
+          subtitle: S.current.settings_reading_statistics_subtitle,
+          trailing:
+              Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
+          onTap: () =>
+              Navigator.of(context).pushNamed(Routes.readingStatistics),
+        ),
+        _SettingsTile(
+          icon: Icons.insights_rounded,
+          title: S.current.settings_collect_statistics_title,
+          subtitle: S.current.settings_collect_statistics_subtitle,
+          trailing: Switch(
+            value: state.collectStatistics,
+            activeThumbColor: AppColors.mainBlack,
+            activeTrackColor: AppColors.primary,
+            onChanged: (bool value) => context
+                .read<SettingsCubit>()
+                .onChangedCollectStatistics(value),
+          ),
+          onTap: () => context
+              .read<SettingsCubit>()
+              .onChangedCollectStatistics(!state.collectStatistics),
         ),
       ],
     );

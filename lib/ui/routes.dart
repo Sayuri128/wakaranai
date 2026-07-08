@@ -11,4 +11,5 @@ class Routes {
   static const String webBrowser = '/webBrowser';
   static const String iframeAnimePlayer = '/iframeAnimePlayer';
   static const String libraryConcreteViewer = '/libraryConcreteViewer';
+  static const String readingStatistics = '/readingStatistics';
 }
