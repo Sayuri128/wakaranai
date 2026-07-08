@@ -43,6 +43,7 @@ class SettingsPage extends StatelessWidget {
                     const _UpdateBanner(),
                     _buildAppearanceSection(context),
                     _buildReaderSection(context, state),
+                    _buildContentSection(context, state),
                     _buildActivitySection(context),
                     _buildAboutSection(context),
                   ],
@@ -84,6 +85,28 @@ class SettingsPage extends StatelessWidget {
             ],
           ),
           onTap: () => _showThemePicker(context, current),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContentSection(BuildContext context, SettingsInitialized state) {
+    return _SettingsSection(
+      title: S.current.settings_content_section_title,
+      tiles: <Widget>[
+        _SettingsTile(
+          icon: Icons.explicit_rounded,
+          title: S.current.settings_show_nsfw_title,
+          subtitle: S.current.settings_show_nsfw_subtitle,
+          trailing: Switch(
+            value: state.showNsfw,
+            activeThumbColor: AppColors.mainBlack,
+            activeTrackColor: AppColors.primary,
+            onChanged: (bool value) =>
+                context.read<SettingsCubit>().onChangedShowNsfw(value),
+          ),
+          onTap: () =>
+              context.read<SettingsCubit>().onChangedShowNsfw(!state.showNsfw),
         ),
       ],
     );
@@ -565,6 +588,7 @@ class _SettingsTile extends StatelessWidget {
   const _SettingsTile({
     required this.icon,
     required this.title,
+    this.subtitle,
     this.trailing,
     this.onTap,
     this.destructive = false,
@@ -572,6 +596,7 @@ class _SettingsTile extends StatelessWidget {
 
   final IconData icon;
   final String title;
+  final String? subtitle;
   final Widget? trailing;
   final VoidCallback? onTap;
   final bool destructive;
@@ -596,13 +621,25 @@ class _SettingsTile extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                title,
-                style: medium(
-                  size: 15,
-                  color:
-                      destructive ? AppColors.red : AppColors.mainWhite,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    title,
+                    style: medium(
+                      size: 15,
+                      color:
+                          destructive ? AppColors.red : AppColors.mainWhite,
+                    ),
+                  ),
+                  if (subtitle != null) ...<Widget>[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle!,
+                      style: regular(size: 12, color: AppColors.mainGrey),
+                    ),
+                  ],
+                ],
               ),
             ),
             if (trailing != null) ...<Widget>[

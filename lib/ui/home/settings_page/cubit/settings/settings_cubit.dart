@@ -61,8 +61,16 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(
       SettingsInitialized(
         defaultMode: await _settingsService.getDefaultReaderMode(),
+        showNsfw: await _settingsService.getShowNsfw(),
       ),
     );
+  }
+
+  void onChangedShowNsfw(bool value) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) return;
+    await _settingsService.setShowNsfw(value);
+    emit(state.copyWith(showNsfw: value));
   }
 
   Future<void> deleteActivityHistory(BuildContext context) async {

@@ -269,6 +269,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_clear_history_title": MessageLookupByLibrary.simpleMessage(
       "Clear history",
     ),
+    "settings_content_section_title": MessageLookupByLibrary.simpleMessage(
+      "Content",
+    ),
     "settings_default_reader_mode_title": MessageLookupByLibrary.simpleMessage(
       "Default reader mode",
     ),
@@ -308,6 +311,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settings_service_viewer_filters_title":
         MessageLookupByLibrary.simpleMessage("Filters"),
+    "settings_show_nsfw_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Display extensions marked as adult content",
+    ),
+    "settings_show_nsfw_title": MessageLookupByLibrary.simpleMessage(
+      "Show NSFW sources",
+    ),
     "settings_submit_issue": MessageLookupByLibrary.simpleMessage(
       "Submit issue/feature request/extension request",
     ),

@@ -670,6 +670,36 @@ class S {
     );
   }
 
+  /// `Content`
+  String get settings_content_section_title {
+    return Intl.message(
+      'Content',
+      name: 'settings_content_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show NSFW sources`
+  String get settings_show_nsfw_title {
+    return Intl.message(
+      'Show NSFW sources',
+      name: 'settings_show_nsfw_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Display extensions marked as adult content`
+  String get settings_show_nsfw_subtitle {
+    return Intl.message(
+      'Display extensions marked as adult content',
+      name: 'settings_show_nsfw_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Theme`
   String get settings_theme_title {
     return Intl.message(

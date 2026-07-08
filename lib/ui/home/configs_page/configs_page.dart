@@ -2,10 +2,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
+import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_group.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_list_skeleton.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/extension_sources_page_result.dart';
+import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -139,7 +141,16 @@ class ConfigPage extends StatelessWidget {
   }
 
   List<Widget> _buildLoaded(BuildContext context, RemoteConfigsLoaded state) {
-    if (state.mangaRemoteConfigs.isEmpty && state.animeRemoteConfigs.isEmpty) {
+    final SettingsState settingsState = context.watch<SettingsCubit>().state;
+    final bool showNsfw =
+        settingsState is SettingsInitialized && settingsState.showNsfw;
+
+    final List<BaseExtension> mangaConfigs =
+        _filterNsfw(state.mangaRemoteConfigs, showNsfw);
+    final List<BaseExtension> animeConfigs =
+        _filterNsfw(state.animeRemoteConfigs, showNsfw);
+
+    if (mangaConfigs.isEmpty && animeConfigs.isEmpty) {
       return <Widget>[
         SliverFillRemaining(
           hasScrollBody: false,
@@ -153,19 +164,27 @@ class ConfigPage extends StatelessWidget {
     }
 
     return <Widget>[
-      if (state.mangaRemoteConfigs.isNotEmpty)
+      if (mangaConfigs.isNotEmpty)
         ConfigsGroup(
           key: const ValueKey<String>('manga'),
           title: S.current.home_manga_group_title,
-          remoteConfigs: state.mangaRemoteConfigs,
+          remoteConfigs: mangaConfigs,
         ),
-      if (state.animeRemoteConfigs.isNotEmpty)
+      if (animeConfigs.isNotEmpty)
         ConfigsGroup(
           key: const ValueKey<String>('anime'),
           title: S.current.home_anime_group_title,
-          remoteConfigs: state.animeRemoteConfigs,
+          remoteConfigs: animeConfigs,
         ),
       const SliverToBoxAdapter(child: SizedBox(height: 24)),
     ];
+  }
+
+  List<BaseExtension> _filterNsfw(
+      List<BaseExtension> configs, bool showNsfw) {
+    if (showNsfw) return configs;
+    return configs
+        .where((BaseExtension e) => !e.config.nsfw)
+        .toList(growable: false);
   }
 }
