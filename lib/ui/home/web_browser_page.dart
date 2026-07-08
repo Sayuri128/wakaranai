@@ -135,13 +135,13 @@ Future<void> openWebView(
   final ProtectorConfig? protectorConfig = config.protectorConfig;
   if (protectorConfig == null) return;
 
-  final String uid = '${config.name}_${config.version}';
+  final String uid = ProtectorStorageService.sessionKey(config);
   final Object? result = await Navigator.of(context).pushNamed(
       Routes.webBrowser,
       arguments: WebBrowserData(
           config: protectorConfig,
           protectorStorageItem:
-              await ProtectorStorageService().getItem(uid: uid)));
+              await ProtectorStorageService().getItemForConfig(config)));
   if (result != null && result is WebBrowserPageResult) {
     await apiClient.passProtector(
         body: result.body, headers: result.headers, cookies: result.cookies);

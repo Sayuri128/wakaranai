@@ -249,8 +249,8 @@ class LibraryUpdateService {
       await ready.future.timeout(_interceptorTimeout);
     }
 
-    final ProtectorStorageItem? stored = await ProtectorStorageService()
-        .getItem(uid: '${config.name}_${config.version}');
+    final ProtectorStorageItem? stored =
+        await ProtectorStorageService().getItemForConfig(config);
 
     if (stored == null) {
       throw Exception('Protector for ${config.name} has not been passed yet');

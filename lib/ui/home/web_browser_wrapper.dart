@@ -77,10 +77,10 @@ class _WebBrowserWrapperState extends State<WebBrowserWrapper> {
   }
 
   Future<void> _init() async {
-    final String uid = '${widget.configInfo.name}_${widget.configInfo.version}';
+    final String uid = ProtectorStorageService.sessionKey(widget.configInfo);
 
     final ProtectorStorageItem? cachedProtector =
-        await ProtectorStorageService().getItem(uid: uid);
+        await ProtectorStorageService().getItemForConfig(widget.configInfo);
     if (cachedProtector == null) {
       final Object? result = await Navigator.of(context).pushNamed(
           Routes.webBrowser,
