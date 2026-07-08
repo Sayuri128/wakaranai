@@ -20,6 +20,7 @@ import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.d
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
 import 'package:wakaranai/ui/widgets/image_widget.dart';
+import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/heroes.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -393,15 +394,22 @@ class MangaConcreteViewer extends StatelessWidget
       flightShuttleBuilder: Heroes.crossfadeFlightShuttle,
       child: Material(
         type: MaterialType.transparency,
-        child: Stack(
-          children: <Widget>[
-            ImageWidget(
-              uid: data.uid,
-              url: cover,
-              headers: data.coverHeaders,
-            ),
-            const Positioned.fill(child: ConcreteCoverScrim()),
-          ],
+        child: GestureDetector(
+          onLongPress: () => showSaveImageSheet(
+            context,
+            url: cover,
+            headers: data.coverHeaders,
+          ),
+          child: Stack(
+            children: <Widget>[
+              ImageWidget(
+                uid: data.uid,
+                url: cover,
+                headers: data.coverHeaders,
+              ),
+              const Positioned.fill(child: ConcreteCoverScrim()),
+            ],
+          ),
         ),
       ),
     );

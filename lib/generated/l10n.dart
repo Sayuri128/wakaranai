@@ -65,6 +65,46 @@ class S {
     return Intl.message('OK', name: 'common_ok_button', desc: '', args: []);
   }
 
+  /// `Image`
+  String get save_image_sheet_title {
+    return Intl.message(
+      'Image',
+      name: 'save_image_sheet_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save as…`
+  String get save_image_save_button {
+    return Intl.message(
+      'Save as…',
+      name: 'save_image_save_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Image saved`
+  String get save_image_success {
+    return Intl.message(
+      'Image saved',
+      name: 'save_image_success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't save image`
+  String get save_image_error {
+    return Intl.message(
+      'Couldn\'t save image',
+      name: 'save_image_error',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Manga`
   String get home_manga_group_title {
     return Intl.message(

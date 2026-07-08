@@ -193,6 +193,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_remote_configs_page_appbar_title":
         MessageLookupByLibrary.simpleMessage("Extensions"),
     "home_sources_button": MessageLookupByLibrary.simpleMessage("Sources"),
+    "save_image_error": MessageLookupByLibrary.simpleMessage(
+      "Couldn\'t save image",
+    ),
+    "save_image_save_button": MessageLookupByLibrary.simpleMessage("Save as…"),
+    "save_image_sheet_title": MessageLookupByLibrary.simpleMessage("Image"),
+    "save_image_success": MessageLookupByLibrary.simpleMessage("Image saved"),
     "service_view_clear_search": MessageLookupByLibrary.simpleMessage("Clear"),
     "service_view_empty_message": MessageLookupByLibrary.simpleMessage(
       "Pull down to refresh",

@@ -21,6 +21,7 @@ import 'package:wakaranai/ui/services/anime/anime_iframe_player/anime_iframe_pla
 import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
+import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/heroes.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -367,25 +368,28 @@ class AnimeConcreteViewer extends StatelessWidget
       flightShuttleBuilder: Heroes.crossfadeFlightShuttle,
       child: Material(
         type: MaterialType.transparency,
-        child: Stack(
-          children: <Widget>[
-            CachedNetworkImage(
-              imageUrl: cover,
-              width: MediaQuery.of(context).size.width,
-              fit: BoxFit.cover,
-              progressIndicatorBuilder: (BuildContext context, String url,
-                      DownloadProgress progress) =>
-                  SizedBox(
-                height: MediaQuery.of(context).size.height * 0.7,
+        child: GestureDetector(
+          onLongPress: () => showSaveImageSheet(context, url: cover),
+          child: Stack(
+            children: <Widget>[
+              CachedNetworkImage(
+                imageUrl: cover,
                 width: MediaQuery.of(context).size.width,
-                child: Center(
-                  child: CircularProgressIndicator(
-                      color: AppColors.primary, value: progress.progress),
+                fit: BoxFit.cover,
+                progressIndicatorBuilder: (BuildContext context, String url,
+                        DownloadProgress progress) =>
+                    SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                        color: AppColors.primary, value: progress.progress),
+                  ),
                 ),
               ),
-            ),
-            const Positioned.fill(child: ConcreteCoverScrim()),
-          ],
+              const Positioned.fill(child: ConcreteCoverScrim()),
+            ],
+          ),
         ),
       ),
     );

@@ -14,6 +14,7 @@ import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:transparent_pointer/transparent_pointer.dart';
@@ -27,6 +28,7 @@ import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_cubit.dar
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/bottom_modal_settings.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
+import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -598,6 +600,16 @@ class _ChapterViewerState extends State<ChapterViewer>
       onTap: () {
         context.read<ChapterViewCubit>().onChangeVisibility();
       },
+      onLongPress: () {
+        if (state.currentPages.value.isEmpty) return;
+        final int index = (state.currentPage - 1)
+            .clamp(0, state.currentPages.value.length - 1);
+        showSaveImageSheet(
+          context,
+          url: state.currentPages.value[index],
+          headers: state.headers,
+        );
+      },
       behavior: HitTestBehavior.translucent,
       child: _buildPageViewerPage(state, context),
     );
@@ -645,10 +657,11 @@ class _ChapterViewerState extends State<ChapterViewer>
             },
             builder: (BuildContext context, int index) {
               return PhotoViewGalleryPageOptions(
-                  minScale: 0.1,
-                  maxScale: 0.5,
+                  initialScale: PhotoViewComputedScale.contained,
+                  minScale: PhotoViewComputedScale.contained,
+                  maxScale: PhotoViewComputedScale.covered * 3.0,
                   basePosition: Alignment.center,
-                  tightMode: true,
+                  filterQuality: FilterQuality.medium,
                   imageProvider: CachedNetworkImageProvider(
                       state.currentPages.value[index],
                       headers: state.headers));
