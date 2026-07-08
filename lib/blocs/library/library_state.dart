@@ -4,14 +4,23 @@ class LibraryState {
   final List<LibraryEntryDomain> entries;
   final List<CategoryDomain> categories;
   final LibrarySort sort;
+  final String searchQuery;
   final bool loading;
 
   const LibraryState({
     this.entries = const <LibraryEntryDomain>[],
     this.categories = const <CategoryDomain>[],
     this.sort = LibrarySort.addedNewest,
+    this.searchQuery = '',
     this.loading = true,
   });
+
+  bool get searching => searchQuery.isNotEmpty;
+
+  bool matchesSearch(LibraryEntryDomain entry) {
+    if (searchQuery.isEmpty) return true;
+    return entry.title.toLowerCase().contains(searchQuery.toLowerCase());
+  }
 
   List<LibraryEntryDomain> sortedEntries(List<LibraryEntryDomain> source) {
     final List<LibraryEntryDomain> list = List<LibraryEntryDomain>.of(source);
@@ -36,12 +45,14 @@ class LibraryState {
     List<LibraryEntryDomain>? entries,
     List<CategoryDomain>? categories,
     LibrarySort? sort,
+    String? searchQuery,
     bool? loading,
   }) {
     return LibraryState(
       entries: entries ?? this.entries,
       categories: categories ?? this.categories,
       sort: sort ?? this.sort,
+      searchQuery: searchQuery ?? this.searchQuery,
       loading: loading ?? this.loading,
     );
   }

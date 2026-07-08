@@ -104,6 +104,10 @@ class LibraryCubit extends Cubit<LibraryState> {
     emit(state.copyWith(sort: sort));
   }
 
+  void setSearchQuery(String query) {
+    emit(state.copyWith(searchQuery: query.trim()));
+  }
+
   Future<void> addCategory(String name) async {
     final int nextOrder = state.categories.isEmpty
         ? 0

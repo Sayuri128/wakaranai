@@ -27,8 +27,25 @@ class LibraryPage extends StatefulWidget {
 class _LibraryPageState extends State<LibraryPage> {
   int _selectedCategory = _allCategoryId;
   final Set<String> _selected = <String>{};
+  final TextEditingController _searchController = TextEditingController();
+
+  bool _searchOpen = false;
 
   bool get _selectionMode => _selected.isNotEmpty;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _openSearch() => setState(() => _searchOpen = true);
+
+  void _closeSearch(BuildContext context) {
+    _searchController.clear();
+    context.read<LibraryCubit>().setSearchQuery('');
+    setState(() => _searchOpen = false);
+  }
 
   void _toggleSelect(String uid) {
     setState(() {
@@ -45,9 +62,14 @@ class _LibraryPageState extends State<LibraryPage> {
     return BlocBuilder<LibraryCubit, LibraryState>(
       builder: (BuildContext context, LibraryState state) {
         return PopScope<Object?>(
-          canPop: !_selectionMode,
+          canPop: !_selectionMode && !_searchOpen,
           onPopInvokedWithResult: (bool didPop, Object? result) {
-            if (!didPop && _selectionMode) _clearSelection();
+            if (didPop) return;
+            if (_selectionMode) {
+              _clearSelection();
+            } else if (_searchOpen) {
+              _closeSearch(context);
+            }
           },
           child: Scaffold(
             backgroundColor: AppColors.backgroundColor,
@@ -59,6 +81,7 @@ class _LibraryPageState extends State<LibraryPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       _buildHeader(context, state),
+                      if (_searchOpen) _buildSearchField(context),
                       if (state.categories.isNotEmpty ||
                           _hasUncategorized(state))
                         _buildCategoryChips(context, state),
@@ -187,6 +210,7 @@ class _LibraryPageState extends State<LibraryPage> {
       entries = entries
           .where((LibraryEntryDomain e) => e.categoryId == _selectedCategory);
     }
+    entries = entries.where(state.matchesSearch);
     return state.sortedEntries(entries.toList());
   }
 
@@ -201,6 +225,11 @@ class _LibraryPageState extends State<LibraryPage> {
               style: semibold(size: 24),
             ),
           ),
+          _CircleIconButton(
+            icon: _searchOpen ? Icons.search_off_rounded : Icons.search_rounded,
+            onTap: () => _searchOpen ? _closeSearch(context) : _openSearch(),
+          ),
+          const SizedBox(width: 8),
           BlocBuilder<LibraryUpdatesCubit, LibraryUpdatesState>(
             builder: (BuildContext context, LibraryUpdatesState updatesState) {
               return _UpdatesButton(
@@ -220,6 +249,61 @@ class _LibraryPageState extends State<LibraryPage> {
             onTap: () => _showManageCategoriesSheet(context, state),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSearchField(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Container(
+        height: 48,
+        decoration: BoxDecoration(
+          color: AppColors.overlay(0.08),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.overlay(0.10)),
+        ),
+        child: Row(
+          children: <Widget>[
+            const SizedBox(width: 16),
+            Icon(Icons.search_rounded, color: AppColors.mainGrey, size: 22),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                autofocus: true,
+                onChanged: (String value) =>
+                    context.read<LibraryCubit>().setSearchQuery(value),
+                textInputAction: TextInputAction.search,
+                cursorColor: AppColors.primary,
+                style: medium(size: 16),
+                decoration: InputDecoration(
+                  isCollapsed: true,
+                  border: InputBorder.none,
+                  hintText: S.current.library_search_hint,
+                  hintStyle: medium(size: 16, color: AppColors.mainGrey),
+                ),
+              ),
+            ),
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _searchController,
+              builder: (BuildContext context, TextEditingValue value, _) {
+                if (value.text.isEmpty) {
+                  return const SizedBox(width: 12);
+                }
+                return IconButton(
+                  splashRadius: 20,
+                  icon: Icon(Icons.close_rounded,
+                      color: AppColors.mainGrey, size: 20),
+                  onPressed: () {
+                    _searchController.clear();
+                    context.read<LibraryCubit>().setSearchQuery('');
+                  },
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -300,7 +384,7 @@ class _LibraryPageState extends State<LibraryPage> {
       color: AppColors.primary,
       backgroundColor: AppColors.dialogSurface,
       child: entries.isEmpty
-          ? _buildEmpty()
+          ? _buildEmpty(state)
           : LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
                 final int crossAxisCount =
@@ -338,7 +422,7 @@ class _LibraryPageState extends State<LibraryPage> {
     );
   }
 
-  Widget _buildEmpty() {
+  Widget _buildEmpty(LibraryState state) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         return SingleChildScrollView(
@@ -347,11 +431,18 @@ class _LibraryPageState extends State<LibraryPage> {
           ),
           child: ConstrainedBox(
             constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: ServiceViewerMessage(
-              icon: Icons.favorite_border_rounded,
-              title: S.current.library_empty_title,
-              message: S.current.library_empty_message,
-            ),
+            child: state.searching
+                ? ServiceViewerMessage(
+                    icon: Icons.search_off_rounded,
+                    title: S.current.library_search_no_results_title,
+                    message: S.current
+                        .library_search_no_results_message(state.searchQuery),
+                  )
+                : ServiceViewerMessage(
+                    icon: Icons.favorite_border_rounded,
+                    title: S.current.library_empty_title,
+                    message: S.current.library_empty_message,
+                  ),
           ),
         );
       },

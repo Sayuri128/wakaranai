@@ -429,6 +429,36 @@ class S {
     );
   }
 
+  /// `Search library`
+  String get library_search_hint {
+    return Intl.message(
+      'Search library',
+      name: 'library_search_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No matches`
+  String get library_search_no_results_title {
+    return Intl.message(
+      'No matches',
+      name: 'library_search_no_results_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nothing in your library matches “{query}”`
+  String library_search_no_results_message(Object query) {
+    return Intl.message(
+      'Nothing in your library matches “$query”',
+      name: 'library_search_no_results_message',
+      desc: '',
+      args: [query],
+    );
+  }
+
   /// `Add`
   String get common_add {
     return Intl.message('Add', name: 'common_add', desc: '', args: []);

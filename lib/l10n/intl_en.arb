@@ -47,6 +47,14 @@
     }
   },
   "library_select_all": "Select all",
+  "library_search_hint": "Search library",
+  "library_search_no_results_title": "No matches",
+  "library_search_no_results_message": "Nothing in your library matches “{query}”",
+  "@library_search_no_results_message": {
+    "placeholders": {
+      "query": {}
+    }
+  },
   "common_add": "Add",
   "common_cancel": "Cancel",
   "common_save": "Save",
