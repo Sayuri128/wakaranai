@@ -47,6 +47,20 @@ class AnimeConcreteViewerData {
       required this.client,
       required this.configInfo,
       this.fromLibrary = false});
+
+  AnimeConcreteViewerData copyWith({
+    AnimeApiClient? client,
+    ConfigInfo? configInfo,
+  }) {
+    return AnimeConcreteViewerData(
+      uid: uid,
+      galleryData: galleryData,
+      galleryCover: galleryCover,
+      client: client ?? this.client,
+      configInfo: configInfo ?? this.configInfo,
+      fromLibrary: fromLibrary,
+    );
+  }
 }
 
 class AnimeConcreteViewer extends StatelessWidget

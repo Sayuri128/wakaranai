@@ -90,7 +90,7 @@ class AnimeActivityHistoryCubit extends Cubit<AnimeActivityHistoryState>
           configInfo: extension.config,
           client: apiClient,
           galleryData: concrete.dataJson,
-          galleryCover: null,
+          galleryCover: concrete.cover,
         ),
       ),
     )

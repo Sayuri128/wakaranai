@@ -93,11 +93,14 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
           );
         },
         onInterceptorInitialized: () {
-          if (widget.data.nextViewerData != null) {
+          final AnimeConcreteViewerData? nextViewerData =
+              widget.data.nextViewerData;
+          if (nextViewerData != null) {
             Navigator.of(context)
                 .pushNamed(
               Routes.animeConcreteViewer,
-              arguments: widget.data.nextViewerData,
+              arguments: nextViewerData.copyWith(
+                  client: apiClient, configInfo: configInfo),
             )
                 .then((_) {
               if (Navigator.of(context).canPop()) {

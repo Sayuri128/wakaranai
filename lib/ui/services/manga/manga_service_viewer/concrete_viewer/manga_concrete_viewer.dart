@@ -55,6 +55,21 @@ class MangaConcreteViewerData {
     required this.configInfo,
     this.fromLibrary = false,
   });
+
+  MangaConcreteViewerData copyWith({
+    MangaApiClient? client,
+    ConfigInfo? configInfo,
+  }) {
+    return MangaConcreteViewerData(
+      uid: uid,
+      coverHeaders: coverHeaders,
+      galleryCover: galleryCover,
+      galleryData: galleryData,
+      client: client ?? this.client,
+      configInfo: configInfo ?? this.configInfo,
+      fromLibrary: fromLibrary,
+    );
+  }
 }
 
 class MangaConcreteViewer extends StatelessWidget

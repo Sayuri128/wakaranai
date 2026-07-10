@@ -115,7 +115,7 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
           coverHeaders: coverHeaders,
           client: apiClient,
           configInfo: extension.config,
-          galleryCover: null,
+          galleryCover: concrete.cover,
         ),
       ),
     )

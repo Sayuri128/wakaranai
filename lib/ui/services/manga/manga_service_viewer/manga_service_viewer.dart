@@ -96,11 +96,14 @@ class _MangaServiceViewState extends State<MangaServiceView> {
           );
         },
         onInterceptorInitialized: () {
-          if (widget.data.nextViewerData != null) {
+          final MangaConcreteViewerData? nextViewerData =
+              widget.data.nextViewerData;
+          if (nextViewerData != null) {
             Navigator.of(context)
                 .pushNamed(
               Routes.mangaConcreteViewer,
-              arguments: widget.data.nextViewerData,
+              arguments: nextViewerData.copyWith(
+                  client: apiClient, configInfo: configInfo),
             )
                 .then((_) {
               if (Navigator.of(context).canPop()) {
