@@ -1,33 +1,50 @@
 import 'package:dio/dio.dart';
-import 'package:retrofit/retrofit.dart';
 import 'package:wakaranai/data/models/github/github_response_model.dart';
 
-part 'github_configs_repository.g.dart';
-
-@RestApi(baseUrl: "https://github.com/")
-abstract class GithubConfigsRepository {
+class GithubConfigsRepository {
   static const String mangaDirectory = 'manga';
   static const String animeDirectory = 'anime';
 
-  factory GithubConfigsRepository(Dio dio) = _GithubConfigsRepository;
+  GithubConfigsRepository(this._dio);
 
-  @GET('/{org}/{repo}/tree/{branch}/{directory}')
+  final Dio _dio;
+
+  static const String _baseUrl = 'https://github.com/';
+
   Future<GithubResponseModel> getDirectories(
-    @Path() String org,
-    @Path() String repo, {
-    @Path() required String directory,
-    @Path() String branch = 'main',
-    @Header("max-age") int maxAge = 300,
-    @Header("accept") String accept = "application/json",
-  });
+    String org,
+    String repo, {
+    required String directory,
+    String branch = 'main',
+    int maxAge = 300,
+    String accept = 'application/json',
+  }) async {
+    final Response<Map<String, dynamic>> response =
+        await _dio.get<Map<String, dynamic>>(
+      '$_baseUrl$org/$repo/tree/$branch/$directory',
+      options: Options(
+        headers: <String, dynamic>{'max-age': maxAge, 'accept': accept},
+        responseType: ResponseType.json,
+      ),
+    );
+    return GithubResponseModel.fromJson(response.data!);
+  }
 
-  @GET("/{org}/{repo}/raw/{branch}/{concrete}")
   Future<String> getConcreteContent({
-    @Path() required String org,
-    @Path() required String repo,
-    @Path() required String concrete,
-    @Path() String branch = 'main',
-    @Header("max-age") int maxAge = 300,
-    @Header("accept") String accept = "application/json",
-  });
+    required String org,
+    required String repo,
+    required String concrete,
+    String branch = 'main',
+    int maxAge = 300,
+    String accept = 'application/json',
+  }) async {
+    final Response<String> response = await _dio.get<String>(
+      '$_baseUrl$org/$repo/raw/$branch/$concrete',
+      options: Options(
+        headers: <String, dynamic>{'max-age': maxAge, 'accept': accept},
+        responseType: ResponseType.plain,
+      ),
+    );
+    return response.data!;
+  }
 }

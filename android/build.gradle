@@ -12,6 +12,19 @@ subprojects {
 subprojects {
     project.evaluationDependsOn(':app')
 }
+// flutter_avif_android (up to 3.1.0) ships the same plugin class as both .java
+// and .kt; drop its Kotlin copy so only the Java one compiles.
+gradle.projectsEvaluated {
+    def avif = rootProject.findProject(':flutter_avif_android')
+    if (avif != null) {
+        avif.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            exclude('**/FlutterAvifPlugin.kt')
+            kotlinOptions {
+                jvmTarget = "11"
+            }
+        }
+    }
+}
 
 tasks.register("clean", Delete) {
     delete rootProject.buildDir

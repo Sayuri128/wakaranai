@@ -1,19 +1,30 @@
 import 'package:dio/dio.dart';
-import 'package:retrofit/http.dart';
-import 'package:retrofit/retrofit.dart';
 import 'package:wakaranai/data/models/configs_repo/configs_response/repo_configs_response.dart';
 import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 
-part 'local_configs_repository.g.dart';
+class LocalConfigsRepository {
+  LocalConfigsRepository(this._dio, {this.baseUrl = ''});
 
-@RestApi(baseUrl: String.fromEnvironment('LOCAL_REPOSITORY_URL'))
-abstract class LocalConfigsRepository {
-  factory LocalConfigsRepository(Dio dio, {String baseUrl}) =
-      _LocalConfigsRepository;
+  final Dio _dio;
+  final String baseUrl;
 
-  @GET('/configs')
-  Future<RepoConfigsResponse> getConfigs(@Query("category") String category);
+  Future<RepoConfigsResponse> getConfigs(String category) async {
+    final Response<Map<String, dynamic>> response =
+        await _dio.get<Map<String, dynamic>>(
+      '$baseUrl/configs',
+      queryParameters: <String, dynamic>{'category': category},
+      options: Options(responseType: ResponseType.json),
+    );
+    return RepoConfigsResponse.fromJson(response.data!);
+  }
 
-  @GET("/script")
-  Future<RemoteScript> getScript(@Query("path") String path);
+  Future<RemoteScript> getScript(String path) async {
+    final Response<Map<String, dynamic>> response =
+        await _dio.get<Map<String, dynamic>>(
+      '$baseUrl/script',
+      queryParameters: <String, dynamic>{'path': path},
+      options: Options(responseType: ResponseType.json),
+    );
+    return RemoteScript.fromJson(response.data!);
+  }
 }

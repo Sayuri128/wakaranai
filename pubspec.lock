@@ -210,14 +210,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.2"
-  code_builder:
-    dependency: transitive
-    description:
-      name: code_builder
-      sha256: "6a6cab2ba4680d6423f34a9b972a4c9a94ebe1b62ecec4e1a1f2cba91fd1319d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.11.1"
   collection:
     dependency: "direct main"
     description:
@@ -330,6 +322,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.7"
+  exif:
+    dependency: transitive
+    description:
+      name: exif
+      sha256: a7980fdb3b7ffcd0b035e5b8a5e1eef7cadfe90ea6a4e85ebb62f87b96c7a172
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.3.0"
   fake_async:
     dependency: transitive
     description:
@@ -383,6 +383,70 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_avif:
+    dependency: "direct main"
+    description:
+      name: flutter_avif
+      sha256: "6035f073189c1ae134affa73338c2eca79bf412e9abdb8f8628fdefcccff4444"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
+  flutter_avif_android:
+    dependency: transitive
+    description:
+      name: flutter_avif_android
+      sha256: "1da135ea0d74225fae3154f954f9ba4cf7aa5e56b30d9851fcfc0ddecab9d8c5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
+  flutter_avif_ios:
+    dependency: transitive
+    description:
+      name: flutter_avif_ios
+      sha256: "3daaa599d8fe0193d3ade6cafa1fd4f166d4063b8d499c7c311ce1d170b2759f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
+  flutter_avif_linux:
+    dependency: transitive
+    description:
+      name: flutter_avif_linux
+      sha256: dd6179edca12c720761b3acc678d7f15208eb8647adbac5a6a90f52d4ba56e2d
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
+  flutter_avif_macos:
+    dependency: transitive
+    description:
+      name: flutter_avif_macos
+      sha256: "8e39f365dfc5713d4527f07a92399184857ea30eced85f82171bfd0a45e2c73b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
+  flutter_avif_platform_interface:
+    dependency: "direct main"
+    description:
+      name: flutter_avif_platform_interface
+      sha256: f5c110bdb7de2d4ab4902bfe2ec331fe24bc19b6d54f00ac4fa165effc0edcda
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
+  flutter_avif_web:
+    dependency: transitive
+    description:
+      name: flutter_avif_web
+      sha256: db2ff395b08cbfe9116e48ac65c428ba21a9159972ea019f8d7be580ff6cf6e8
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
+  flutter_avif_windows:
+    dependency: transitive
+    description:
+      name: flutter_avif_windows
+      sha256: e0c7722df305a6621f4ecdd83098025c705bcf0e8ce9519e03c6f515abcf351d
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   flutter_bloc:
     dependency: "direct main"
     description:
@@ -946,10 +1010,10 @@ packages:
     dependency: transitive
     description:
       name: protobuf
-      sha256: "75ec242d22e950bdcc79ee38dd520ce4ee0bc491d7fadc4ea47694604d22bf06"
+      sha256: "68645b24e0716782e58948f8467fd42a880f255096a821f9e7d0ec625b00c84d"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0"
+    version: "3.1.0"
   provider:
     dependency: transitive
     description:
@@ -990,22 +1054,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.0"
-  retrofit:
-    dependency: "direct main"
-    description:
-      name: retrofit
-      sha256: "0f629ed26b2c48c66fe54bd548313c6fdf7955be18bff37e08a46dd3f97f8eaf"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.9.2"
-  retrofit_generator:
-    dependency: "direct dev"
-    description:
-      name: retrofit_generator
-      sha256: "0c6468f776e449de3886b0d68fa668943e005d884e618487fdf8b1323becdf88"
-      url: "https://pub.dev"
-    source: hosted
-    version: "10.2.7"
   rxdart:
     dependency: transitive
     description:
@@ -1090,10 +1138,10 @@ packages:
     dependency: transitive
     description:
       name: shelf_web_socket
-      sha256: cc36c297b52866d203dbf9332263c94becc2fe0ceaa9681d07b6ef9807023b67
+      sha256: "9ca081be41c60190ebcb4766b2486a7d50261db7bd0f5d9615f2d653637a84c1"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "1.0.4"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -1419,22 +1467,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
-  web_socket:
-    dependency: transitive
-    description:
-      name: web_socket
-      sha256: "3c12d96c0c9a4eec095246debcea7b86c0324f22df69893d538fcc6f1b8cce83"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.6"
   web_socket_channel:
     dependency: transitive
     description:
       name: web_socket_channel
-      sha256: "9f187088ed104edd8662ca07af4b124465893caf063ba29758f97af57e61da8f"
+      sha256: d88238e5eac9a42bb43ca4e721edba3c08c6354d4a53063afaa568516217621b
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
+    version: "2.4.0"
   win32:
     dependency: transitive
     description:
