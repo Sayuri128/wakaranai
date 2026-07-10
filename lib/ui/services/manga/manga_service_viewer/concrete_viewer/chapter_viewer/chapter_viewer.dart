@@ -63,6 +63,8 @@ class _ChapterViewerState extends State<ChapterViewer>
     with TickerProviderStateMixin {
   final GlobalKey _scaffoldKey = GlobalKey();
 
+  final Map<String, Size> _pageSizes = <String, Size>{};
+
   late final ChapterViewCubit _chapterViewCubit;
 
   late final PageController _pageController;
@@ -254,7 +256,7 @@ class _ChapterViewerState extends State<ChapterViewer>
               ),
               child: Text(
                 '${state.currentPage}/${state.totalPages}',
-                style: medium(size: 13, color: AppColors.mainWhite),
+                style: medium(size: 13, color: AppColors.onMedia),
               ),
             ),
           ),
@@ -375,6 +377,7 @@ class _ChapterViewerState extends State<ChapterViewer>
         .title;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         _buildTopBar(context, title),
         const Spacer(),
@@ -386,17 +389,22 @@ class _ChapterViewerState extends State<ChapterViewer>
   Widget _buildTopBar(BuildContext context, String title) {
     return Container(
       padding: EdgeInsets.fromLTRB(
-          16, MediaQuery.of(context).padding.top + 10, 16, 28),
-      decoration: const BoxDecoration(
+          16, MediaQuery.of(context).padding.top + 10, 16, 40),
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: <Color>[Colors.black87, Colors.transparent],
+          colors: <Color>[
+            Colors.black.withValues(alpha: 0.6),
+            Colors.black.withValues(alpha: 0.3),
+            Colors.transparent,
+          ],
+          stops: const <double>[0.0, 0.55, 1.0],
         ),
       ),
       child: Text(
         title,
-        style: semibold(size: 16),
+        style: semibold(size: 16, color: AppColors.onMedia),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
@@ -407,11 +415,16 @@ class _ChapterViewerState extends State<ChapterViewer>
     return Container(
       padding: EdgeInsets.fromLTRB(
           16, 40, 16, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.bottomCenter,
           end: Alignment.topCenter,
-          colors: <Color>[Colors.black87, Colors.transparent],
+          colors: <Color>[
+            Colors.black.withValues(alpha: 0.65),
+            Colors.black.withValues(alpha: 0.3),
+            Colors.transparent,
+          ],
+          stops: const <double>[0.0, 0.6, 1.0],
         ),
       ),
       child: Column(
@@ -422,12 +435,12 @@ class _ChapterViewerState extends State<ChapterViewer>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
               decoration: BoxDecoration(
-                color: AppColors.overlay(0.1),
+                color: Colors.white.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 '${state.currentPage}/${state.totalPages}',
-                style: medium(size: 13, color: AppColors.mainWhite),
+                style: medium(size: 13, color: AppColors.onMedia),
               ),
             ),
           ),
@@ -455,14 +468,16 @@ class _ChapterViewerState extends State<ChapterViewer>
   Widget _buildRoundButton(
       {required IconData icon, required VoidCallback onTap}) {
     return Material(
-      color: Colors.black.withValues(alpha: 0.45),
-      shape: const CircleBorder(),
+      color: Colors.black.withValues(alpha: 0.55),
+      shape: CircleBorder(
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(11),
-          child: Icon(icon, color: AppColors.mainWhite, size: 22),
+          child: Icon(icon, color: AppColors.onMedia, size: 22),
         ),
       ),
     );
@@ -562,12 +577,12 @@ class _ChapterViewerState extends State<ChapterViewer>
                               ? progress.cumulativeBytesLoaded /
                                   progress.expectedTotalBytes!
                               : 0.01,
-                          color: AppColors.mainWhite,
+                          color: AppColors.onMedia,
                         );
                       },
                     ),
                   ),
-              textStyle: regular(color: AppColors.mainWhite)),
+              textStyle: regular(color: AppColors.onMedia)),
           trackBar: FlutterSliderTrackBar(
               activeTrackBarHeight: 5,
               inactiveTrackBarHeight: 5,
@@ -663,14 +678,38 @@ class _ChapterViewerState extends State<ChapterViewer>
               setState(() {});
             },
             builder: (BuildContext context, int index) {
-              return PhotoViewGalleryPageOptions(
+              final String page = state.currentPages.value[index];
+              return PhotoViewGalleryPageOptions.customChild(
                   initialScale: PhotoViewComputedScale.contained,
                   minScale: PhotoViewComputedScale.contained,
                   maxScale: PhotoViewComputedScale.covered * 3.0,
                   basePosition: Alignment.center,
-                  filterQuality: FilterQuality.medium,
-                  imageProvider: pageImageProvider(
-                      state.currentPages.value[index], state.headers));
+                  // photo_view only applies zoom through its Transform when
+                  // filterQuality is none; otherwise it scales the Image widget
+                  // it builds, which a custom child never receives. PageImage
+                  // does its own filtering.
+                  filterQuality: FilterQuality.none,
+                  childSize: _pageSizes[page],
+                  child: PageImage(
+                    path: page,
+                    headers: state.headers,
+                    intrinsic: true,
+                    onSizeResolved: (Size size) {
+                      if (_pageSizes[page] != size && mounted) {
+                        setState(() => _pageSizes[page] = size);
+                      }
+                    },
+                    loadingBuilder: (BuildContext context) =>
+                        SizedBox.fromSize(
+                      size: MediaQuery.of(context).size,
+                    ),
+                    errorBuilder:
+                        (BuildContext context, VoidCallback retry) =>
+                            SizedBox.fromSize(
+                      size: MediaQuery.of(context).size,
+                      child: _buildPageError(retry),
+                    ),
+                  ));
             });
       case ChapterViewMode.webtoon:
         return NotificationListener<ScrollUpdateNotification>(
@@ -713,29 +752,55 @@ class _ChapterViewerState extends State<ChapterViewer>
                               .onPageChanged(index + 1, state.currentPages);
                         }
                       },
-                      child: Image(
-                        image: pageImageProvider(
-                            state.currentPages.value[index], state.headers),
-                        loadingBuilder: (BuildContext context, Widget child,
-                            ImageChunkEvent? progress) {
-                          if (progress == null) return child;
-                          return SizedBox(
-                            height: MediaQuery.of(context).size.height,
-                            width: MediaQuery.of(context).size.width,
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                color: AppColors.primary,
-                                value: progress.expectedTotalBytes != null
-                                    ? progress.cumulativeBytesLoaded /
-                                        progress.expectedTotalBytes!
-                                    : null,
-                              ),
-                            ),
-                          );
-                        },
+                      child: PageImage(
+                        path: state.currentPages.value[index],
+                        headers: state.headers,
+                        errorBuilder:
+                            (BuildContext context, VoidCallback retry) =>
+                                SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          child: _buildPageError(retry),
+                        ),
+                        loadingBuilder: (BuildContext context) => SizedBox(
+                          height: MediaQuery.of(context).size.height,
+                          width: MediaQuery.of(context).size.width,
+                          child: Center(
+                            child:
+                                CircularProgressIndicator(color: AppColors.primary),
+                          ),
+                        ),
                       ),
                     )));
     }
+  }
+
+  Widget _buildPageError(VoidCallback onRetry) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(Icons.broken_image_rounded,
+              size: 48, color: AppColors.onMedia.withValues(alpha: 0.6)),
+          const SizedBox(height: 12),
+          TextButton.icon(
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.white.withValues(alpha: 0.12),
+              foregroundColor: AppColors.onMedia,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded, size: 18),
+            label: Text(
+              S.current.concrete_viewer_retry_button,
+              style: medium(size: 14, color: AppColors.onMedia),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Container _buildBackground(BuildContext context) {
