@@ -193,6 +193,7 @@ class ImportExportService {
           .map((ExtensionSourceDomain s) => ExportExtensionSource(
                 name: s.name,
                 url: s.url,
+                ref: s.ref,
                 type: encodeEnum(s.type),
                 createdAt: s.createdAt,
               ))
@@ -544,6 +545,7 @@ class ImportExportService {
         id: 0,
         name: source.name,
         url: source.url,
+        ref: source.ref,
         type: decodeEnum(ExtensionSourceType.values, source.type) ??
             ExtensionSourceType.github,
         createdAt: source.createdAt,

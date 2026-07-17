@@ -72,6 +72,15 @@ class $ExtensionSourceTableTable extends ExtensionSourceTable
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _refMeta = const VerificationMeta('ref');
+  @override
+  late final GeneratedColumn<String> ref = GeneratedColumn<String>(
+    'ref',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -80,6 +89,7 @@ class $ExtensionSourceTableTable extends ExtensionSourceTable
     type,
     name,
     url,
+    ref,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -132,6 +142,12 @@ class $ExtensionSourceTableTable extends ExtensionSourceTable
     } else if (isInserting) {
       context.missing(_urlMeta);
     }
+    if (data.containsKey('ref')) {
+      context.handle(
+        _refMeta,
+        ref.isAcceptableOrUnknown(data['ref']!, _refMeta),
+      );
+    }
     return context;
   }
 
@@ -168,6 +184,10 @@ class $ExtensionSourceTableTable extends ExtensionSourceTable
         DriftSqlType.string,
         data['${effectivePrefix}url'],
       )!,
+      ref: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ref'],
+      ),
     );
   }
 
@@ -185,6 +205,7 @@ class ExtensionSourceTableData extends DataClass
   final String type;
   final String name;
   final String url;
+  final String? ref;
   const ExtensionSourceTableData({
     required this.id,
     required this.createdAt,
@@ -192,6 +213,7 @@ class ExtensionSourceTableData extends DataClass
     required this.type,
     required this.name,
     required this.url,
+    this.ref,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -204,6 +226,9 @@ class ExtensionSourceTableData extends DataClass
     map['type'] = Variable<String>(type);
     map['name'] = Variable<String>(name);
     map['url'] = Variable<String>(url);
+    if (!nullToAbsent || ref != null) {
+      map['ref'] = Variable<String>(ref);
+    }
     return map;
   }
 
@@ -217,6 +242,7 @@ class ExtensionSourceTableData extends DataClass
       type: Value(type),
       name: Value(name),
       url: Value(url),
+      ref: ref == null && nullToAbsent ? const Value.absent() : Value(ref),
     );
   }
 
@@ -232,6 +258,7 @@ class ExtensionSourceTableData extends DataClass
       type: serializer.fromJson<String>(json['type']),
       name: serializer.fromJson<String>(json['name']),
       url: serializer.fromJson<String>(json['url']),
+      ref: serializer.fromJson<String?>(json['ref']),
     );
   }
   @override
@@ -244,6 +271,7 @@ class ExtensionSourceTableData extends DataClass
       'type': serializer.toJson<String>(type),
       'name': serializer.toJson<String>(name),
       'url': serializer.toJson<String>(url),
+      'ref': serializer.toJson<String?>(ref),
     };
   }
 
@@ -254,6 +282,7 @@ class ExtensionSourceTableData extends DataClass
     String? type,
     String? name,
     String? url,
+    Value<String?> ref = const Value.absent(),
   }) => ExtensionSourceTableData(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -261,6 +290,7 @@ class ExtensionSourceTableData extends DataClass
     type: type ?? this.type,
     name: name ?? this.name,
     url: url ?? this.url,
+    ref: ref.present ? ref.value : this.ref,
   );
   ExtensionSourceTableData copyWithCompanion(
     ExtensionSourceTableCompanion data,
@@ -272,6 +302,7 @@ class ExtensionSourceTableData extends DataClass
       type: data.type.present ? data.type.value : this.type,
       name: data.name.present ? data.name.value : this.name,
       url: data.url.present ? data.url.value : this.url,
+      ref: data.ref.present ? data.ref.value : this.ref,
     );
   }
 
@@ -283,13 +314,15 @@ class ExtensionSourceTableData extends DataClass
           ..write('updatedAt: $updatedAt, ')
           ..write('type: $type, ')
           ..write('name: $name, ')
-          ..write('url: $url')
+          ..write('url: $url, ')
+          ..write('ref: $ref')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, createdAt, updatedAt, type, name, url);
+  int get hashCode =>
+      Object.hash(id, createdAt, updatedAt, type, name, url, ref);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -299,7 +332,8 @@ class ExtensionSourceTableData extends DataClass
           other.updatedAt == this.updatedAt &&
           other.type == this.type &&
           other.name == this.name &&
-          other.url == this.url);
+          other.url == this.url &&
+          other.ref == this.ref);
 }
 
 class ExtensionSourceTableCompanion
@@ -310,6 +344,7 @@ class ExtensionSourceTableCompanion
   final Value<String> type;
   final Value<String> name;
   final Value<String> url;
+  final Value<String?> ref;
   const ExtensionSourceTableCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -317,6 +352,7 @@ class ExtensionSourceTableCompanion
     this.type = const Value.absent(),
     this.name = const Value.absent(),
     this.url = const Value.absent(),
+    this.ref = const Value.absent(),
   });
   ExtensionSourceTableCompanion.insert({
     this.id = const Value.absent(),
@@ -325,6 +361,7 @@ class ExtensionSourceTableCompanion
     required String type,
     required String name,
     required String url,
+    this.ref = const Value.absent(),
   }) : type = Value(type),
        name = Value(name),
        url = Value(url);
@@ -335,6 +372,7 @@ class ExtensionSourceTableCompanion
     Expression<String>? type,
     Expression<String>? name,
     Expression<String>? url,
+    Expression<String>? ref,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -343,6 +381,7 @@ class ExtensionSourceTableCompanion
       if (type != null) 'type': type,
       if (name != null) 'name': name,
       if (url != null) 'url': url,
+      if (ref != null) 'ref': ref,
     });
   }
 
@@ -353,6 +392,7 @@ class ExtensionSourceTableCompanion
     Value<String>? type,
     Value<String>? name,
     Value<String>? url,
+    Value<String?>? ref,
   }) {
     return ExtensionSourceTableCompanion(
       id: id ?? this.id,
@@ -361,6 +401,7 @@ class ExtensionSourceTableCompanion
       type: type ?? this.type,
       name: name ?? this.name,
       url: url ?? this.url,
+      ref: ref ?? this.ref,
     );
   }
 
@@ -385,6 +426,9 @@ class ExtensionSourceTableCompanion
     if (url.present) {
       map['url'] = Variable<String>(url.value);
     }
+    if (ref.present) {
+      map['ref'] = Variable<String>(ref.value);
+    }
     return map;
   }
 
@@ -396,7 +440,8 @@ class ExtensionSourceTableCompanion
           ..write('updatedAt: $updatedAt, ')
           ..write('type: $type, ')
           ..write('name: $name, ')
-          ..write('url: $url')
+          ..write('url: $url, ')
+          ..write('ref: $ref')
           ..write(')'))
         .toString();
   }
@@ -5659,6 +5704,7 @@ typedef $$ExtensionSourceTableTableCreateCompanionBuilder =
       required String type,
       required String name,
       required String url,
+      Value<String?> ref,
     });
 typedef $$ExtensionSourceTableTableUpdateCompanionBuilder =
     ExtensionSourceTableCompanion Function({
@@ -5668,6 +5714,7 @@ typedef $$ExtensionSourceTableTableUpdateCompanionBuilder =
       Value<String> type,
       Value<String> name,
       Value<String> url,
+      Value<String?> ref,
     });
 
 class $$ExtensionSourceTableTableFilterComposer
@@ -5706,6 +5753,11 @@ class $$ExtensionSourceTableTableFilterComposer
 
   ColumnFilters<String> get url => $composableBuilder(
     column: $table.url,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ref => $composableBuilder(
+    column: $table.ref,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -5748,6 +5800,11 @@ class $$ExtensionSourceTableTableOrderingComposer
     column: $table.url,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get ref => $composableBuilder(
+    column: $table.ref,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ExtensionSourceTableTableAnnotationComposer
@@ -5776,6 +5833,9 @@ class $$ExtensionSourceTableTableAnnotationComposer
 
   GeneratedColumn<String> get url =>
       $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<String> get ref =>
+      $composableBuilder(column: $table.ref, builder: (column) => column);
 }
 
 class $$ExtensionSourceTableTableTableManager
@@ -5827,6 +5887,7 @@ class $$ExtensionSourceTableTableTableManager
                 Value<String> type = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String> url = const Value.absent(),
+                Value<String?> ref = const Value.absent(),
               }) => ExtensionSourceTableCompanion(
                 id: id,
                 createdAt: createdAt,
@@ -5834,6 +5895,7 @@ class $$ExtensionSourceTableTableTableManager
                 type: type,
                 name: name,
                 url: url,
+                ref: ref,
               ),
           createCompanionCallback:
               ({
@@ -5843,6 +5905,7 @@ class $$ExtensionSourceTableTableTableManager
                 required String type,
                 required String name,
                 required String url,
+                Value<String?> ref = const Value.absent(),
               }) => ExtensionSourceTableCompanion.insert(
                 id: id,
                 createdAt: createdAt,
@@ -5850,6 +5913,7 @@ class $$ExtensionSourceTableTableTableManager
                 type: type,
                 name: name,
                 url: url,
+                ref: ref,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

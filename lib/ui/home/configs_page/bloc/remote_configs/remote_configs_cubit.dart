@@ -62,6 +62,7 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
       id: source.id,
       type: ExtensionSourceType.github,
       url: source.url,
+      ref: source.ref,
     ));
   }
 
@@ -101,6 +102,7 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
           _configsService = GitHubConfigsService(
             githubParserResult.org,
             githubParserResult.repo,
+            branch: source.ref,
           );
           break;
       }

@@ -7,6 +7,7 @@ import 'package:wakaranai/utils/enum_converters.dart';
 class ExtensionSourceDomain extends BaseDomain<ExtensionSourceTableCompanion> {
   final String name;
   final String url;
+  final String? ref;
   final ExtensionSourceType type;
 
   ExtensionSourceDomain({
@@ -14,6 +15,7 @@ class ExtensionSourceDomain extends BaseDomain<ExtensionSourceTableCompanion> {
     required this.name,
     required this.url,
     required this.type,
+    this.ref,
     required super.createdAt,
     required super.updatedAt,
   });
@@ -23,6 +25,7 @@ class ExtensionSourceDomain extends BaseDomain<ExtensionSourceTableCompanion> {
         id: data.id,
         name: data.name,
         url: data.url,
+        ref: data.ref,
         type: decodeEnum(ExtensionSourceType.values, data.type)!,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
@@ -37,6 +40,7 @@ class ExtensionSourceDomain extends BaseDomain<ExtensionSourceTableCompanion> {
       return ExtensionSourceTableCompanion(
         name: Value(name),
         url: Value(url),
+        ref: Value(ref),
         type: Value(type.toString()),
         createdAt: Value(createdAt),
       );
@@ -46,6 +50,7 @@ class ExtensionSourceDomain extends BaseDomain<ExtensionSourceTableCompanion> {
       id: Value(id),
       name: Value(name),
       url: Value(url),
+      ref: Value(ref),
       type: Value(encodeEnum(type)),
       createdAt: Value(createdAt),
       updatedAt: Value(update ? DateTime.now() : updatedAt),
@@ -55,12 +60,14 @@ class ExtensionSourceDomain extends BaseDomain<ExtensionSourceTableCompanion> {
   ExtensionSourceDomain copyWith({
     String? name,
     String? url,
+    String? ref,
     ExtensionSourceType? type,
   }) {
     return ExtensionSourceDomain(
       id: id,
       name: name ?? this.name,
       url: url ?? this.url,
+      ref: ref ?? this.ref,
       type: type ?? this.type,
       createdAt: createdAt,
       updatedAt: updatedAt,

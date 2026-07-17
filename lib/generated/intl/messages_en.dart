@@ -108,6 +108,20 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Edit Source"),
     "add_extension_source_page_appbar_title":
         MessageLookupByLibrary.simpleMessage("Add Source"),
+    "add_extension_source_page_branch_default_option":
+        MessageLookupByLibrary.simpleMessage("Default branch"),
+    "add_extension_source_page_branch_fetch_button":
+        MessageLookupByLibrary.simpleMessage("Fetch"),
+    "add_extension_source_page_branch_fetch_error":
+        MessageLookupByLibrary.simpleMessage("Couldn\'t load branches"),
+    "add_extension_source_page_branch_field_label":
+        MessageLookupByLibrary.simpleMessage("Branch"),
+    "add_extension_source_page_branch_helper_text":
+        MessageLookupByLibrary.simpleMessage(
+          "Optional. Fetch the repository\'s branches to target a staging ref.",
+        ),
+    "add_extension_source_page_branch_invalid_url_error":
+        MessageLookupByLibrary.simpleMessage("Enter a valid GitHub URL first"),
     "add_extension_source_page_description":
         MessageLookupByLibrary.simpleMessage(
           "Add a GitHub repository that hosts Wakaranai extensions.",

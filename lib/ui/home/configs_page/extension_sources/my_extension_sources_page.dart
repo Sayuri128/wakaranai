@@ -162,6 +162,7 @@ class MyExtensionSourcesPage extends StatelessWidget {
                     ExtensionSourcesPageResult(
                       id: source.id,
                       url: source.url,
+                      ref: source.ref,
                       type: source.type,
                       name: source.name,
                     ),
@@ -174,6 +175,7 @@ class MyExtensionSourcesPage extends StatelessWidget {
                     arguments: AddExtensionPageArguments(
                       name: source.name,
                       url: source.url,
+                      ref: source.ref,
                       type: source.type,
                       update: true,
                     ),
@@ -185,6 +187,7 @@ class MyExtensionSourcesPage extends StatelessWidget {
                             source.copyWith(
                               name: res.name,
                               url: res.url,
+                              ref: res.ref,
                               type: res.type,
                             ),
                           );

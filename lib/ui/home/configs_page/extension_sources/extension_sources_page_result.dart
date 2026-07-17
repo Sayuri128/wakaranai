@@ -3,6 +3,7 @@ import 'package:wakaranai/data/domain/database/extension_source_type.dart';
 class ExtensionSourcesPageResult {
   final int? id;
   final String url;
+  final String? ref;
   final ExtensionSourceType type;
   final String name;
 
@@ -11,5 +12,6 @@ class ExtensionSourcesPageResult {
     required this.url,
     required this.type,
     required this.name,
+    this.ref,
   });
 }

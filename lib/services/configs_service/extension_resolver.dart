@@ -71,16 +71,18 @@ class ExtensionResolver {
     final List<ConfigsService> services = <ConfigsService>[];
     final Set<String> seen = <String>{};
 
-    void addGithub(String org, String repo) {
+    void addGithub(String org, String repo, {String? branch}) {
       if (seen.add('$org/$repo'.toLowerCase())) {
-        services.add(GitHubConfigsService(org, repo));
+        services.add(GitHubConfigsService(org, repo, branch: branch));
       }
     }
 
     for (final ExtensionSourceDomain source
         in await extensionSourceRepository.getAll()) {
       final parsed = GithubUrlParser(url: source.url).parse();
-      if (parsed != null) addGithub(parsed.org, parsed.repo);
+      if (parsed != null) {
+        addGithub(parsed.org, parsed.repo, branch: source.ref);
+      }
     }
 
     addGithub(Env.configsSourceOrg, Env.configsSourceRepo);

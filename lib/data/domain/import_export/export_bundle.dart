@@ -198,6 +198,7 @@ class ExportLibraryEntry {
 class ExportExtensionSource {
   final String name;
   final String url;
+  final String? ref;
   final String type;
   final DateTime createdAt;
 
@@ -206,6 +207,7 @@ class ExportExtensionSource {
     required this.url,
     required this.type,
     required this.createdAt,
+    this.ref,
   });
 
   factory ExportExtensionSource.fromJson(Map<String, dynamic> json) =>

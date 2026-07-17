@@ -9,15 +9,16 @@ import 'package:wakaranai/services/configs_service/capyscript_import_bundler.dar
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 
 class GitHubConfigsService implements ConfigsService {
-  static const String _branch = 'feature/sessionGroup';
+  static const String defaultBranch = 'feature/sessionGroup';
   static const String _mangaDirectory = 'manga';
   static const String _animeDirectory = 'anime';
   static const String _indexPath = 'index.json';
 
   final String org;
   final String repository;
+  final String branch;
 
-  final Dio _dio = Dio(
+  static final Dio _sharedDio = Dio(
     BaseOptions(
       validateStatus: (_) => true,
       headers: <String, String>{
@@ -26,9 +27,38 @@ class GitHubConfigsService implements ConfigsService {
     ),
   );
 
+  Dio get _dio => _sharedDio;
+
   Future<List<RemoteConfig>>? _configsFuture;
 
-  GitHubConfigsService(this.org, this.repository);
+  GitHubConfigsService(this.org, this.repository, {String? branch})
+      : branch = (branch != null && branch.isNotEmpty) ? branch : defaultBranch;
+
+  static Future<List<String>> fetchBranches(String org, String repository) async {
+    final List<String> branches = <String>[];
+
+    for (int page = 1; page <= 5; page++) {
+      final Response<List<dynamic>> response = await _sharedDio.get<List<dynamic>>(
+        'https://api.github.com/repos/$org/$repository/branches',
+        queryParameters: <String, dynamic>{'per_page': 100, 'page': page},
+      );
+
+      if (response.statusCode != 200 || response.data == null) {
+        throw Exception('Failed to load branches from $org/$repository');
+      }
+
+      final List<String> pageBranches = response.data!
+          .whereType<Map<String, dynamic>>()
+          .map((Map<String, dynamic> item) => item['name'] as String)
+          .toList();
+
+      branches.addAll(pageBranches);
+
+      if (pageBranches.length < 100) break;
+    }
+
+    return branches;
+  }
 
   @override
   Future<List<RemoteConfig>> getMangaConfigs() async {
@@ -63,7 +93,7 @@ class GitHubConfigsService implements ConfigsService {
 
   Future<List<RemoteConfig>> _fetchConfigs() async {
     final Response<String> response = await _dio.get<String>(
-      'https://raw.githubusercontent.com/$org/$repository/$_branch/$_indexPath',
+      'https://raw.githubusercontent.com/$org/$repository/$branch/$_indexPath',
       options: Options(responseType: ResponseType.plain),
     );
 
@@ -137,7 +167,7 @@ class GitHubConfigsService implements ConfigsService {
   ) async {
     final Response<List<dynamic>> response = await _dio.get<List<dynamic>>(
       'https://api.github.com/repos/$org/$repository/contents/$directory',
-      queryParameters: <String, dynamic>{'ref': _branch},
+      queryParameters: <String, dynamic>{'ref': branch},
     );
 
     if (response.statusCode != 200 || response.data == null) {
@@ -171,7 +201,7 @@ class GitHubConfigsService implements ConfigsService {
 
   Future<String> _getRawContent(String path) async {
     final Response<String> response = await _dio.get<String>(
-      'https://raw.githubusercontent.com/$org/$repository/$_branch/$path',
+      'https://raw.githubusercontent.com/$org/$repository/$branch/$path',
       options: Options(responseType: ResponseType.plain),
     );
 

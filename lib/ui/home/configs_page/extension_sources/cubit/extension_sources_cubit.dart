@@ -70,6 +70,7 @@ class ExtensionSourcesCubit extends Cubit<ExtensionSourcesState> {
         id: 0,
         name: data.name,
         url: data.url,
+        ref: data.ref,
         type: data.type,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),

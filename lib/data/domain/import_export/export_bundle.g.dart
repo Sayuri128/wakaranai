@@ -181,6 +181,7 @@ ExportExtensionSource _$ExportExtensionSourceFromJson(Map json) =>
       url: json['url'] as String,
       type: json['type'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      ref: json['ref'] as String?,
     );
 
 Map<String, dynamic> _$ExportExtensionSourceToJson(
@@ -188,6 +189,7 @@ Map<String, dynamic> _$ExportExtensionSourceToJson(
 ) => <String, dynamic>{
   'name': instance.name,
   'url': instance.url,
+  'ref': instance.ref,
   'type': instance.type,
   'createdAt': instance.createdAt.toIso8601String(),
 };

@@ -7,4 +7,6 @@ class ExtensionSourceTable extends BaseTable {
   TextColumn get name => text()();
 
   TextColumn get url => text()();
+
+  TextColumn get ref => text().nullable()();
 }

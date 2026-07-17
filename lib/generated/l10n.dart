@@ -694,6 +694,66 @@ class S {
     );
   }
 
+  /// `Branch`
+  String get add_extension_source_page_branch_field_label {
+    return Intl.message(
+      'Branch',
+      name: 'add_extension_source_page_branch_field_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Optional. Fetch the repository's branches to target a staging ref.`
+  String get add_extension_source_page_branch_helper_text {
+    return Intl.message(
+      'Optional. Fetch the repository\'s branches to target a staging ref.',
+      name: 'add_extension_source_page_branch_helper_text',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Default branch`
+  String get add_extension_source_page_branch_default_option {
+    return Intl.message(
+      'Default branch',
+      name: 'add_extension_source_page_branch_default_option',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fetch`
+  String get add_extension_source_page_branch_fetch_button {
+    return Intl.message(
+      'Fetch',
+      name: 'add_extension_source_page_branch_fetch_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a valid GitHub URL first`
+  String get add_extension_source_page_branch_invalid_url_error {
+    return Intl.message(
+      'Enter a valid GitHub URL first',
+      name: 'add_extension_source_page_branch_invalid_url_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load branches`
+  String get add_extension_source_page_branch_fetch_error {
+    return Intl.message(
+      'Couldn\'t load branches',
+      name: 'add_extension_source_page_branch_fetch_error',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Save`
   String get add_extension_source_page_add_button_title {
     return Intl.message(
