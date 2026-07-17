@@ -884,6 +884,76 @@ class S {
     );
   }
 
+  /// `Filters`
+  String get gallery_filters_button_label {
+    return Intl.message(
+      'Filters',
+      name: 'gallery_filters_button_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Filters`
+  String get gallery_filters_sheet_title {
+    return Intl.message(
+      'Filters',
+      name: 'gallery_filters_sheet_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reset`
+  String get gallery_filters_reset_button {
+    return Intl.message(
+      'Reset',
+      name: 'gallery_filters_reset_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Apply`
+  String get gallery_filters_apply_button {
+    return Intl.message(
+      'Apply',
+      name: 'gallery_filters_apply_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Apply ({count})`
+  String gallery_filters_apply_button_count(Object count) {
+    return Intl.message(
+      'Apply ($count)',
+      name: 'gallery_filters_apply_button_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Enter a value`
+  String get gallery_filters_one_of_any_hint {
+    return Intl.message(
+      'Enter a value',
+      name: 'gallery_filters_one_of_any_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Type and add`
+  String get gallery_filters_multiple_of_any_hint {
+    return Intl.message(
+      'Type and add',
+      name: 'gallery_filters_multiple_of_any_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Next`
   String get chapter_viewer_next_chapter_button_title {
     return Intl.message(

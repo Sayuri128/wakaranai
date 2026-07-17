@@ -211,6 +211,17 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
     return imagesHeaders;
   }
 
+  void applyFilters(Map<String, FilterData> filters) {
+    final ServiceViewState<T, G> current = state;
+    if (current is! ServiceViewInitialized<T, G>) {
+      return;
+    }
+
+    emit(current.copyWith(selectedFilters: filters));
+
+    search(current.searchQuery.isEmpty ? null : current.searchQuery);
+  }
+
   void removeFilter(String param) {
     if (state is ServiceViewInitialized<T, G>) {
       final ServiceViewInitialized<T, G> state =
