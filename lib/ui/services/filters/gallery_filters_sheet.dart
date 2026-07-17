@@ -181,14 +181,20 @@ class _GalleryFiltersSheetState extends State<_GalleryFiltersSheet> {
                       style: semibold(size: 18),
                     ),
                   ),
-                  if (_activeCount > 0)
-                    TextButton(
-                      onPressed: _reset,
-                      child: Text(
-                        S.current.gallery_filters_reset_button,
-                        style: medium(size: 13, color: AppColors.mainGrey),
+                  AnimatedOpacity(
+                    opacity: _activeCount > 0 ? 1 : 0,
+                    duration: const Duration(milliseconds: 150),
+                    child: IgnorePointer(
+                      ignoring: _activeCount == 0,
+                      child: TextButton(
+                        onPressed: _reset,
+                        child: Text(
+                          S.current.gallery_filters_reset_button,
+                          style: medium(size: 13, color: AppColors.mainGrey),
+                        ),
                       ),
                     ),
+                  ),
                 ],
               ),
             ),
@@ -230,6 +236,21 @@ class _GalleryFiltersSheetState extends State<_GalleryFiltersSheet> {
     }
   }
 
+  String _labelFor(List<String>? labels, int index, String fallback) {
+    if (labels != null && index < labels.length) return labels[index];
+    return fallback;
+  }
+
+  String _groupLabelFor(
+      List<List<String>>? labels, int group, int index, String fallback) {
+    if (labels != null &&
+        group < labels.length &&
+        index < labels[group].length) {
+      return labels[group][index];
+    }
+    return fallback;
+  }
+
   Widget _sectionLabel(String text) => Padding(
         padding: const EdgeInsets.only(bottom: 10),
         child: Text(text, style: medium(size: 14)),
@@ -259,10 +280,11 @@ class _GalleryFiltersSheetState extends State<_GalleryFiltersSheet> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: filter.values.map((String value) {
+          children: List<Widget>.generate(filter.values.length, (int i) {
+            final String value = filter.values[i];
             final bool active = selected == value;
             return _Pill(
-              label: value,
+              label: _labelFor(filter.labels, i, value),
               selected: active,
               onTap: () => setState(() {
                 if (active) {
@@ -272,7 +294,7 @@ class _GalleryFiltersSheetState extends State<_GalleryFiltersSheet> {
                 }
               }),
             );
-          }).toList(),
+          }),
         ),
       ],
     );
@@ -294,10 +316,12 @@ class _GalleryFiltersSheetState extends State<_GalleryFiltersSheet> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: filter.values[group].map((String value) {
+            children:
+                List<Widget>.generate(filter.values[group].length, (int i) {
+              final String value = filter.values[group][i];
               final bool active = selected[group].contains(value);
               return _Pill(
-                label: value,
+                label: _groupLabelFor(filter.labels, group, i, value),
                 selected: active,
                 onTap: () => setState(() {
                   if (active) {
@@ -307,7 +331,7 @@ class _GalleryFiltersSheetState extends State<_GalleryFiltersSheet> {
                   }
                 }),
               );
-            }).toList(),
+            }),
           ),
         ],
       ],
