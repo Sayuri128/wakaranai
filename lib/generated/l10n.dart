@@ -954,6 +954,56 @@ class S {
     );
   }
 
+  /// `From`
+  String get gallery_filters_range_from_hint {
+    return Intl.message(
+      'From',
+      name: 'gallery_filters_range_from_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `To`
+  String get gallery_filters_range_to_hint {
+    return Intl.message(
+      'To',
+      name: 'gallery_filters_range_to_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search`
+  String get gallery_filters_option_search_hint {
+    return Intl.message(
+      'Search',
+      name: 'gallery_filters_option_search_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `+{count} more — refine your search`
+  String gallery_filters_more_options(Object count) {
+    return Intl.message(
+      '+$count more — refine your search',
+      name: 'gallery_filters_more_options',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `No matches`
+  String get gallery_filters_no_matches {
+    return Intl.message(
+      'No matches',
+      name: 'gallery_filters_no_matches',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Next`
   String get chapter_viewer_next_chapter_button_title {
     return Intl.message(
