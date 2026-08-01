@@ -9,7 +9,7 @@ import 'package:wakaranai/services/configs_service/capyscript_import_bundler.dar
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 
 class GitHubConfigsService implements ConfigsService {
-  static const String defaultBranch = 'feature/sessionGroup';
+  static const String defaultBranch = 'main';
   static const String _mangaDirectory = 'manga';
   static const String _animeDirectory = 'anime';
   static const String _indexPath = 'index.json';
