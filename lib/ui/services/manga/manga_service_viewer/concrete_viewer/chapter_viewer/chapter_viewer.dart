@@ -112,6 +112,10 @@ class _ChapterViewerState extends State<ChapterViewer>
         pagesLoaded: (int current, int total) {
           _canLoadNext = current == total;
           _canLoadPrevious = current == 1;
+          final ChapterViewState state = _chapterViewCubit.state;
+          if (state is ChapterViewInitialized) {
+            _prefetchAround(state, current - 1);
+          }
           if (mounted) {
             setState(() {});
           }
@@ -637,6 +641,20 @@ class _ChapterViewerState extends State<ChapterViewer>
     );
   }
 
+  static const int _prefetchRadius = 2;
+
+  double _webtoonCacheExtent(BuildContext context) =>
+      MediaQuery.sizeOf(context).height * 2;
+
+  void _prefetchAround(ChapterViewInitialized state, int index) {
+    final List<String> pages = state.currentPages.value;
+    if (pages.isEmpty) return;
+
+    final int start = max(0, index - _prefetchRadius);
+    final int end = min(pages.length - 1, index + _prefetchRadius);
+    prefetchPages(pages.sublist(start, end + 1), state.headers);
+  }
+
   Widget _buildPageViewerPage(
       ChapterViewInitialized state, BuildContext context) {
     switch (state.mode) {
@@ -664,6 +682,7 @@ class _ChapterViewerState extends State<ChapterViewer>
             itemCount: state.currentPages.value.length,
             reverse: state.mode == ChapterViewMode.rightToLeft,
             onPageChanged: (int index) {
+              _prefetchAround(state, index);
               context.read<ChapterViewCubit>().onPageChanged(
                   index + 1, state.currentPages, onDone: (Pages currentPages) {
                 if (index == 0) {
@@ -740,13 +759,14 @@ class _ChapterViewerState extends State<ChapterViewer>
                 physics: const AlwaysScrollableScrollPhysics(
                     parent: BouncingScrollPhysics()),
                 itemCount: state.currentPages.value.length,
-                minCacheExtent: 99999,
+                minCacheExtent: _webtoonCacheExtent(context),
                 padding: EdgeInsets.zero,
                 itemBuilder: (BuildContext context, int index) =>
                     VisibilityDetector(
                       key: ValueKey(state.currentPages.value[index]),
                       onVisibilityChanged: (VisibilityInfo info) {
                         if (info.visibleFraction > 0) {
+                          _prefetchAround(state, index);
                           context
                               .read<ChapterViewCubit>()
                               .onPageChanged(index + 1, state.currentPages);

@@ -1,24 +1,18 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_avif_platform_interface/flutter_avif_platform_interface.dart'
-    as avif_platform;
-import 'package:flutter_avif_platform_interface/models/frame.pb.dart'
-    as avif_models;
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:wakaranai/utils/page_bitmap.dart';
+import 'package:wakaranai/utils/page_bitmap_cache.dart';
+
+export 'package:wakaranai/utils/page_bitmap.dart'
+    show PageBitmap, isLocalPagePath, loadPageBitmap;
 
 // Conservative cap for the thumbnail provider only. Page rendering never uses
 // it: the engine already clamps a decode to the GPU max texture size, and
 // hardcoding a smaller limit throws away resolution on capable devices.
 const int _thumbnailMaxDimension = 2048;
-
-bool isLocalPagePath(String path) =>
-    !path.startsWith('http') && !path.startsWith('data:');
 
 ImageProvider pageImageProvider(String path, Map<String, String> headers) {
   return PageImageProvider(path, headers);
@@ -26,101 +20,13 @@ ImageProvider pageImageProvider(String path, Map<String, String> headers) {
 
 Future<void> evictPage(String path, Map<String, String> headers) async {
   PaintingBinding.instance.imageCache.evict(PageImageProvider(path, headers));
-  if (!isLocalPagePath(path)) {
-    await DefaultCacheManager().removeFile(path);
+  await PageBitmapCache.instance.evict(path);
+}
+
+void prefetchPages(Iterable<String> paths, Map<String, String> headers) {
+  for (final String path in paths) {
+    PageBitmapCache.instance.prefetch(path, headers);
   }
-}
-
-Future<Uint8List> _loadPageBytes(
-    String path, Map<String, String> headers) async {
-  if (path.startsWith('data:')) {
-    return base64Decode(path.split(',').last);
-  }
-  if (isLocalPagePath(path)) {
-    return File(path).readAsBytes();
-  }
-  final File file =
-      await DefaultCacheManager().getSingleFile(path, headers: headers);
-  return file.readAsBytes();
-}
-
-bool _isAvif(Uint8List bytes) {
-  if (bytes.length < 12) {
-    return false;
-  }
-  const String ftyp = 'ftyp';
-  for (int i = 0; i < 4; i++) {
-    if (bytes[4 + i] != ftyp.codeUnitAt(i)) {
-      return false;
-    }
-  }
-  return bytes[8] == 0x61 && bytes[9] == 0x76 && bytes[10] == 0x69;
-}
-
-Future<avif_models.Frame> _decodeAvifFrame(Uint8List bytes) {
-  return avif_platform.FlutterAvifPlatform.api
-      .decodeSingleFrameImage(avifBytes: bytes);
-}
-
-Uint8List _framePixels(avif_models.Frame frame) {
-  final List<int> data = frame.data;
-  return data is Uint8List ? data : Uint8List.fromList(data);
-}
-
-/// A decoded page. [image] is whatever the engine produced — Impeller clamps
-/// each axis independently to the GPU max texture size, so for tall webtoon
-/// strips it is shorter than [height] and must be drawn stretched back to
-/// [aspectRatio] rather than at its own dimensions.
-class PageBitmap {
-  const PageBitmap(this.image, this.width, this.height);
-
-  final ui.Image image;
-  final int width;
-  final int height;
-
-  Size get size => Size(width.toDouble(), height.toDouble());
-  double get aspectRatio => width / height;
-
-  void dispose() => image.dispose();
-}
-
-Future<PageBitmap> loadPageBitmap(
-    String path, Map<String, String> headers) async {
-  final Uint8List bytes = await _loadPageBytes(path, headers);
-  if (_isAvif(bytes)) {
-    final avif_models.Frame frame = await _decodeAvifFrame(bytes);
-    final ui.Image image =
-        await _rawImage(_framePixels(frame), frame.width, frame.height);
-    return PageBitmap(image, frame.width, frame.height);
-  }
-
-  final ui.ImmutableBuffer buffer =
-      await ui.ImmutableBuffer.fromUint8List(bytes);
-  final ui.ImageDescriptor descriptor =
-      await ui.ImageDescriptor.encoded(buffer);
-  final int width = descriptor.width;
-  final int height = descriptor.height;
-  final ui.Codec codec = await descriptor.instantiateCodec();
-  final ui.FrameInfo frame = await codec.getNextFrame();
-  descriptor.dispose();
-  codec.dispose();
-  return PageBitmap(frame.image, width, height);
-}
-
-Future<ui.Image> _rawImage(Uint8List pixels, int width, int height) async {
-  final ui.ImmutableBuffer buffer =
-      await ui.ImmutableBuffer.fromUint8List(pixels);
-  final ui.ImageDescriptor descriptor = ui.ImageDescriptor.raw(
-    buffer,
-    width: width,
-    height: height,
-    pixelFormat: ui.PixelFormat.rgba8888,
-  );
-  final ui.Codec codec = await descriptor.instantiateCodec();
-  final ui.FrameInfo frame = await codec.getNextFrame();
-  descriptor.dispose();
-  codec.dispose();
-  return frame.image;
 }
 
 /// Renders a page at the highest resolution the GPU allows, correcting the
@@ -155,6 +61,7 @@ class PageImage extends StatefulWidget {
 class _PageImageState extends State<PageImage> {
   PageBitmap? _bitmap;
   Object? _error;
+  PageBitmapLease? _lease;
 
   @override
   void initState() {
@@ -166,7 +73,7 @@ class _PageImageState extends State<PageImage> {
   void didUpdateWidget(PageImage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.path != widget.path) {
-      _bitmap?.dispose();
+      _releaseCurrent();
       _bitmap = null;
       _error = null;
       _load();
@@ -175,16 +82,22 @@ class _PageImageState extends State<PageImage> {
 
   @override
   void dispose() {
-    _bitmap?.dispose();
+    _releaseCurrent();
     super.dispose();
   }
 
+  void _releaseCurrent() {
+    _lease?.release();
+    _lease = null;
+  }
+
   Future<void> _load() async {
+    final PageBitmapLease lease =
+        PageBitmapCache.instance.acquire(widget.path, widget.headers);
+    _lease = lease;
     try {
-      final PageBitmap bitmap =
-          await loadPageBitmap(widget.path, widget.headers);
-      if (!mounted) {
-        bitmap.dispose();
+      final PageBitmap bitmap = await lease.bitmap;
+      if (!mounted || !identical(_lease, lease)) {
         return;
       }
       setState(() {
@@ -193,7 +106,7 @@ class _PageImageState extends State<PageImage> {
       });
       widget.onSizeResolved?.call(bitmap.size);
     } catch (e) {
-      if (!mounted) {
+      if (!mounted || !identical(_lease, lease)) {
         return;
       }
       setState(() => _error = e);
@@ -201,9 +114,24 @@ class _PageImageState extends State<PageImage> {
   }
 
   Future<void> _retry() async {
-    setState(() => _error = null);
+    _releaseCurrent();
+    setState(() {
+      _error = null;
+      _bitmap = null;
+    });
     await evictPage(widget.path, widget.headers);
     await _load();
+  }
+
+  Widget _placeholder(BuildContext context) {
+    final Widget child =
+        widget.loadingBuilder?.call(context) ?? const SizedBox();
+    if (widget.intrinsic) return child;
+
+    final Size? known = PageBitmapCache.instance.knownSize(widget.path);
+    if (known == null) return child;
+    return AspectRatio(
+        aspectRatio: known.width / known.height, child: child);
   }
 
   @override
@@ -213,7 +141,7 @@ class _PageImageState extends State<PageImage> {
     }
     final PageBitmap? bitmap = _bitmap;
     if (bitmap == null) {
-      return widget.loadingBuilder?.call(context) ?? const SizedBox();
+      return _placeholder(context);
     }
     final CustomPaint painter = CustomPaint(
       size: widget.intrinsic ? bitmap.size : Size.infinite,
@@ -269,8 +197,8 @@ class PageImageProvider extends ImageProvider<PageImageProvider> {
   }
 
   Future<ui.Codec> _loadCodec(ImageDecoderCallback decode) async {
-    final Uint8List bytes = await _loadPageBytes(path, headers);
-    if (_isAvif(bytes)) {
+    final Uint8List bytes = await loadPageBytes(path, headers);
+    if (isAvif(bytes)) {
       return _decodeAvif(bytes);
     }
     final ui.ImmutableBuffer buffer =
@@ -291,16 +219,17 @@ class PageImageProvider extends ImageProvider<PageImageProvider> {
   }
 
   static Future<ui.Codec> _decodeAvif(Uint8List bytes) async {
-    final avif_models.Frame frame = await _decodeAvifFrame(bytes);
+    final avifFrame = await decodeAvifFrame(bytes);
     final ui.ImmutableBuffer buffer =
-        await ui.ImmutableBuffer.fromUint8List(_framePixels(frame));
+        await ui.ImmutableBuffer.fromUint8List(framePixels(avifFrame));
     final ui.ImageDescriptor descriptor = ui.ImageDescriptor.raw(
       buffer,
-      width: frame.width,
-      height: frame.height,
+      width: avifFrame.width,
+      height: avifFrame.height,
       pixelFormat: ui.PixelFormat.rgba8888,
     );
-    final ui.TargetImageSize target = _fitTargetSize(frame.width, frame.height);
+    final ui.TargetImageSize target =
+        _fitTargetSize(avifFrame.width, avifFrame.height);
     return descriptor.instantiateCodec(
       targetWidth: target.width,
       targetHeight: target.height,
