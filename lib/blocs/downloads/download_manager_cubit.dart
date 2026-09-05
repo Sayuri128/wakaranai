@@ -66,6 +66,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   int _completedInBatch = 0;
   int _batchIndex = 0;
   bool _permissionRequested = false;
+  bool _recovered = false;
 
   int get _batchTotal => _batchIndex + _jobs.length;
 
@@ -76,6 +77,24 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     _sub = downloadRepository.watchAll().listen((List<DownloadDomain> rows) {
       emit(state.copyWith(downloads: rows));
     });
+
+    if (!_recovered) {
+      _recovered = true;
+      unawaited(_recoverInterrupted());
+    }
+  }
+
+  Future<void> _recoverInterrupted() async {
+    final List<DownloadDomain> rows = await downloadRepository.getAll();
+
+    for (final DownloadDomain row in rows) {
+      if (row.status != DownloadStatus.queued &&
+          row.status != DownloadStatus.downloading) {
+        continue;
+      }
+      await downloadRepository
+          .update(row.copyWith(status: DownloadStatus.failed));
+    }
   }
 
   bool isDownloaded(String chapterUid) {

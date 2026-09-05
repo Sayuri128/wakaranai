@@ -162,6 +162,47 @@ void main() {
     expect(row!.status, DownloadStatus.failed);
     expect(notifications.completed, -1);
   });
+
+  test('a queued row orphaned by a restart is recovered as failed', () async {
+    await _enqueue(cubit, client, 'orphan', autoStart: false);
+
+    final DownloadDomain? queued = await repository.getByUid('orphan');
+    expect(queued!.status, DownloadStatus.queued);
+
+    await cubit.close();
+
+    final DownloadManagerCubit restarted = DownloadManagerCubit(
+      downloadRepository: repository,
+      notificationService: notifications,
+    )..init();
+    addTearDown(restarted.close);
+
+    final DownloadDomain? recovered =
+        await _awaitStatus(repository, 'orphan', DownloadStatus.failed);
+    expect(recovered!.status, DownloadStatus.failed,
+        reason: 'an in-memory job is gone after a restart, so the row must '
+            'not stay queued forever');
+  });
+
+  test('a recovered download can be enqueued again', () async {
+    await _enqueue(cubit, client, 'retryable', autoStart: false);
+    await cubit.close();
+
+    final DownloadManagerCubit restarted = DownloadManagerCubit(
+      downloadRepository: repository,
+      notificationService: notifications,
+    )..init();
+    addTearDown(restarted.close);
+
+    await _awaitStatus(repository, 'retryable', DownloadStatus.failed);
+
+    await _enqueue(restarted, client, 'retryable', autoStart: true);
+
+    final DownloadDomain? done =
+        await _awaitStatus(repository, 'retryable', DownloadStatus.done);
+    expect(done!.status, DownloadStatus.done);
+  });
+
 }
 
 Future<void> _settle(_RecordingNotifications notifications) async {
