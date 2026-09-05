@@ -34,7 +34,7 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
 
   ConfigsService get configService => _configsService;
 
-  void init() async {
+  Future<void> init() async {
     await defaultExtensionRepository.init();
 
     final int? defaultId =
@@ -65,6 +65,11 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
       url: source.url,
       ref: source.ref,
     ));
+  }
+
+  Future<void> refresh() async {
+    _configsService.invalidate();
+    await init();
   }
 
   Future<void> getConfigs({required String sourceName}) async {

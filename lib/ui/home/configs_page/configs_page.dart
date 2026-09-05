@@ -35,14 +35,7 @@ class ConfigPage extends StatelessWidget {
   Widget _buildRemoteConfigs(BuildContext context, RemoteConfigsState state) {
     return RefreshIndicator(
       color: AppColors.primary,
-      onRefresh: () {
-        return Future.delayed(
-          const Duration(milliseconds: 300),
-          () {
-            context.read<RemoteConfigsCubit>().init();
-          },
-        );
-      },
+      onRefresh: () => context.read<RemoteConfigsCubit>().refresh(),
       child: CustomScrollView(
         slivers: <Widget>[
           _buildAppBar(context, state),

@@ -76,6 +76,7 @@ class GitHubConfigsService implements ConfigsService {
         .toList();
   }
 
+  @override
   void invalidate() {
     _configsFuture = null;
   }

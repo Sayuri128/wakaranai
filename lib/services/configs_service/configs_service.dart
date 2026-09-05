@@ -6,4 +6,6 @@ abstract class ConfigsService {
   Future<List<BaseExtension>> getAnimeConfigs();
 
   Future<RemoteScript> getRemoteScript(String path);
+
+  void invalidate();
 }

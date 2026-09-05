@@ -34,6 +34,9 @@ class RepoConfigsService implements ConfigsService {
   }
 
   @override
+  void invalidate() {}
+
+  @override
   Future<RemoteScript> getRemoteScript(String path) async {
     return CapyscriptImportBundler.bundle(
       entryPath: path,

@@ -423,7 +423,7 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   Future<void> _refreshAfterImport(Set<ExportSection> sections) async {
     if (sections.contains(ExportSection.sources)) {
-      remoteConfigsCubit.init();
+      await remoteConfigsCubit.init();
     }
     if (sections.contains(ExportSection.library) ||
         sections.contains(ExportSection.categories)) {
@@ -478,7 +478,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       );
 
       if (sections.contains(ExportSection.sources)) {
-        remoteConfigsCubit.init();
+        await remoteConfigsCubit.init();
       }
       if (sections.contains(ExportSection.history)) {
         animeActivityHistoryCubit.init();
