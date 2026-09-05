@@ -1,4 +1,5 @@
 ﻿import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
@@ -97,21 +98,21 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
     BaseExtension remoteConfig,
   ) async {
     if (remoteConfig.config.type == ConfigInfoType.MANGA) {
-      Navigator.of(context)
+      unawaited(Navigator.of(context)
           .pushNamed(
               Routes.mangaServiceViewer,
               arguments: MangaServiceViewData(remoteConfig: remoteConfig))
           .then((_) {
         context.read<MangaActivityHistoryCubit>().init();
-      });
+      }));
     } else if (remoteConfig.config.type == ConfigInfoType.ANIME) {
-      Navigator.of(context)
+      unawaited(Navigator.of(context)
           .pushNamed(
               Routes.animeServiceViewer,
               arguments: AnimeServiceViewerData(remoteConfig: remoteConfig))
           .then((_) {
         context.read<AnimeActivityHistoryCubit>().init();
-      });
+      }));
     }
   }
 }

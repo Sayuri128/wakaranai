@@ -269,8 +269,9 @@ class LibraryUpdateService {
 
     if (protector.inAppBrowserInterceptor) {
       final Completer<bool> ready = Completer<bool>();
-      final BrowserInterceptorCubit interceptor = BrowserInterceptorCubit()
-        ..init(url: protector.pingUrl, initCompleter: ready);
+      final BrowserInterceptorCubit interceptor = BrowserInterceptorCubit();
+      unawaited(
+          interceptor.init(url: protector.pingUrl, initCompleter: ready));
       _interceptors[config.uid] = interceptor;
 
       await client.passWebBrowserInterceptorController(controller: interceptor);

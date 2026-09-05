@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -49,8 +50,37 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       DefaultMangaReaderRepository();
   final int initialPage;
 
+  static const Duration _activityWriteDelay = Duration(seconds: 1);
+
+  Timer? _activityDebounce;
+  ChapterActivityDomain? _pendingActivity;
+
   ChapterViewInitialized get stateInitialized =>
       state as ChapterViewInitialized;
+
+  void _scheduleActivityWrite(ChapterActivityDomain activity) {
+    _pendingActivity = activity;
+    _activityDebounce?.cancel();
+    _activityDebounce = Timer(_activityWriteDelay, () {
+      unawaited(_flushActivity());
+    });
+  }
+
+  Future<void> _flushActivity() async {
+    _activityDebounce?.cancel();
+    _activityDebounce = null;
+
+    final ChapterActivityDomain? activity = _pendingActivity;
+    _pendingActivity = null;
+    if (activity == null) return;
+
+    await chapterActivityRepository
+        .createUpdateBy<$ChapterActivityTableTable, String>(
+      activity,
+      by: (tbl) => tbl.uid,
+      where: (tbl) => tbl.uid,
+    );
+  }
 
   bool isLocalPages(Pages pages) =>
       pages.value.isNotEmpty && isLocalPagePath(pages.value.first);
@@ -210,6 +240,8 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       }
     }
 
+    await _flushActivity();
+
     final concreteData = state.concreteData;
     if (concreteData != null) {
       await chapterActivityRepository
@@ -249,39 +281,35 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
   }
 
   void onPageChanged(int index, Pages currentPages,
-      {void Function(Pages)? onDone}) async {
-    if (state is ChapterViewInitialized &&
-        currentPages.chapterUid == stateInitialized.currentPages.chapterUid) {
-      onDone?.call(stateInitialized.currentPages);
-      final concreteData = stateInitialized.concreteData;
-      if (concreteData != null && stateInitialized.currentPage < index) {
-        final chapter = stateInitialized.group.elements.firstWhere(
-            (Chapter element) => element.uid == currentPages.chapterUid);
-
-        await chapterActivityRepository
-            .createUpdateBy<$ChapterActivityTableTable, String>(
-          ChapterActivityDomain(
-            uid: chapter.uid,
-            concreteId: concreteData.id,
-            readPages: index,
-            id: 0,
-            timestamp: chapter.timestamp,
-            data: jsonEncode(chapter.data),
-            title: chapter.title,
-            totalPages: currentPages.value.length,
-            createdAt: concreteData.createdAt,
-          ),
-          by: (tbl) => tbl.uid,
-          where: (tbl) => tbl.uid,
-        );
-      }
-      // Re-check: an awaited DB write above may have yielded to another
-      // handler (e.g. onPagesChanged) that changed the state.
-      if (state is ChapterViewInitialized &&
-          currentPages.chapterUid == stateInitialized.currentPages.chapterUid) {
-        emit(stateInitialized.copyWith(currentPage: index));
-      }
+      {void Function(Pages)? onDone}) {
+    if (state is! ChapterViewInitialized) return;
+    if (currentPages.chapterUid != stateInitialized.currentPages.chapterUid) {
+      return;
     }
+
+    onDone?.call(stateInitialized.currentPages);
+
+    final concreteData = stateInitialized.concreteData;
+    if (concreteData != null && stateInitialized.currentPage < index) {
+      final chapter = stateInitialized.group.elements.firstWhere(
+          (Chapter element) => element.uid == currentPages.chapterUid);
+
+      _scheduleActivityWrite(
+        ChapterActivityDomain(
+          uid: chapter.uid,
+          concreteId: concreteData.id,
+          readPages: index,
+          id: 0,
+          timestamp: chapter.timestamp,
+          data: jsonEncode(chapter.data),
+          title: chapter.title,
+          totalPages: currentPages.value.length,
+          createdAt: concreteData.createdAt,
+        ),
+      );
+    }
+
+    emit(stateInitialized.copyWith(currentPage: index));
   }
 
   void onSetControls(bool value) {
@@ -295,6 +323,13 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       emit((state as ChapterViewInitialized).copyWith(
           controlsVisible: !(state as ChapterViewInitialized).controlsVisible));
     }
+  }
+
+  @override
+  Future<void> close() {
+    _activityDebounce?.cancel();
+    unawaited(_flushActivity());
+    return super.close();
   }
 
   void onModeChanged(ChapterViewMode mode) {

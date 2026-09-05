@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
@@ -165,7 +166,7 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
           loading: true,
         ));
       }
-      getGallery(query: "");
+      unawaited(getGallery(query: ""));
       return;
     }
 

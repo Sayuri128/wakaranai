@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:flutter/material.dart';
@@ -106,7 +107,7 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
       data: concrete.dataJson,
     );
 
-    Navigator.of(context)
+    unawaited(Navigator.of(context)
         .pushNamed(
       Routes.mangaServiceViewer,
       arguments: MangaServiceViewData(
@@ -123,6 +124,6 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
     )
         .then((_) {
       init();
-    });
+    }));
   }
 }

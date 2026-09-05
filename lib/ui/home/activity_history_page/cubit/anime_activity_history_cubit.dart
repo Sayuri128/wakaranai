@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:flutter/cupertino.dart';
@@ -77,7 +78,7 @@ class AnimeActivityHistoryCubit extends Cubit<AnimeActivityHistoryState>
 
     final apiClient = AnimeApiClient(code: extension.sourceCode);
 
-    Navigator.of(context)
+    unawaited(Navigator.of(context)
         .pushNamed(
       Routes.animeServiceViewer,
       arguments: AnimeServiceViewerData(
@@ -93,7 +94,7 @@ class AnimeActivityHistoryCubit extends Cubit<AnimeActivityHistoryState>
     )
         .then((_) {
       init();
-    });
+    }));
   }
 
   Future<void> onDelete(

@@ -1,4 +1,5 @@
 ﻿import 'package:capyscript/api_clients/anime_api_client.dart';
+import 'dart:async';
 import 'package:capyscript/modules/waka_models/models/anime/anime_gallery_view/anime_gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +84,7 @@ class AnimeServiceViewerBody extends StatelessWidget {
                         return;
                       }
                       if (initialized && !stateInitialized.loading) {
-                        _cubit(context).getGallery();
+                        unawaited(_cubit(context).getGallery());
                       }
                     },
                     child: _buildGrid(context),

@@ -15,8 +15,8 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
     implements HttpInterceptorController {
   BrowserInterceptorCubit() : super(BrowserInterceptorInitial());
 
-  late final InAppWebViewController _inAppWebViewController;
-  late final HeadlessInAppWebView _headlessInAppWebView;
+  InAppWebViewController? _inAppWebViewController;
+  HeadlessInAppWebView? _headlessInAppWebView;
 
   Future<void> init({
     required String url,
@@ -28,15 +28,11 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
         initialSettings: getDefaultBrowserSettings(),
         onWebViewCreated: _onWebViewCreated(url),
         onProgressChanged: _onProgressChanged,
-        onUpdateVisitedHistory: (InAppWebViewController controller,
-            WebUri? loadedUrl, bool? androidIsReload) async {
-          await _onPageLoaded(loadedUrl, controller, url, initCompleter);
-        },
         onLoadStop:
             (InAppWebViewController controller, WebUri? loadedUrl) async {
           await _onPageLoaded(loadedUrl, controller, url, initCompleter);
         });
-    await _headlessInAppWebView.run();
+    await _headlessInAppWebView!.run();
   }
 
   Future<void> _onPageLoaded(
@@ -88,15 +84,15 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
               coo.addAll(cookie);
             },
             pingUrl: url,
-            controller: _inAppWebViewController);
+            controller: controller);
 
         // logger.i(data);
 
         pageLoaded(body: result.value, data: data, headers: data, cookies: coo);
 
-        try {
+        if (!initCompleter.isCompleted) {
           initCompleter.complete(true);
-        } catch (_) {}
+        }
       }
     }
   }
@@ -155,12 +151,15 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
           body: body),
     );
 
-    _inAppWebViewController.loadUrl(
-        urlRequest: URLRequest(
-            url: WebUri(url),
-            method: method,
-            body: body != null ? Uint8List.fromList(utf8.encode(body)) : null,
-            headers: headers));
+    final InAppWebViewController? controller = _inAppWebViewController;
+    if (controller != null) {
+      unawaited(controller.loadUrl(
+          urlRequest: URLRequest(
+              url: WebUri(url),
+              method: method,
+              body: body != null ? Uint8List.fromList(utf8.encode(body)) : null,
+              headers: headers)));
+    }
 
     return completer.future;
   }
@@ -188,15 +187,18 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
       }
       await Future.delayed(const Duration(milliseconds: 250));
 
-      String? documentState = await _inAppWebViewController.evaluateJavascript(
-          source: 'document.readyState');
+      final InAppWebViewController? controller = _inAppWebViewController;
+      if (controller == null) return null;
+
+      String? documentState =
+          await controller.evaluateJavascript(source: 'document.readyState');
 
       int documentStateAttempts = 0;
 
       while (documentState != 'complete') {
         await Future.delayed(const Duration(milliseconds: 100));
-        documentState = await _inAppWebViewController.evaluateJavascript(
-            source: 'document.readyState');
+        documentState =
+            await controller.evaluateJavascript(source: 'document.readyState');
         documentStateAttempts++;
 
         // TODO: Make this configurable with a parameter in capyscript
@@ -211,16 +213,17 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
       }
 
       final CallAsyncJavaScriptResult? res =
-          await _inAppWebViewController.callAsyncJavaScript(functionBody: code);
+          await controller.callAsyncJavaScript(functionBody: code);
 
       // logger.d(res);
 
       if (res == null || res.error != null || res.value == null) {
         _jsAttempts++;
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future.delayed(Duration(milliseconds: 100 * _jsAttempts));
         return await executeJsScript(code);
       }
 
+      _jsAttempts = 0;
       return res.value;
     } catch (e) {
       return null;
@@ -229,7 +232,9 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
 
   @override
   Future<void> close() {
-    _headlessInAppWebView.dispose();
+    _headlessInAppWebView?.dispose();
+    _headlessInAppWebView = null;
+    _inAppWebViewController = null;
     return super.close();
   }
 }

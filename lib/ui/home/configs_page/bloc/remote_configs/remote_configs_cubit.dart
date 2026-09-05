@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
@@ -69,7 +70,7 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   Future<void> getConfigs({required String sourceName}) async {
     emit(RemoteConfigsLoading());
 
-    Future.wait(<Future<List<BaseExtension>>>[
+    await Future.wait(<Future<List<BaseExtension>>>[
       _configsService.getMangaConfigs(),
       _configsService.getAnimeConfigs()
     ]).then((List<List<BaseExtension>> value) {

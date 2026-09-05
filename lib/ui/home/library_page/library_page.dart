@@ -33,6 +33,9 @@ class _LibraryPageState extends State<LibraryPage> {
 
   bool get _selectionMode => _selected.isNotEmpty;
 
+  List<LibraryEntryDomain>? _visibleCache;
+  Object? _visibleCacheKey;
+
   @override
   void initState() {
     super.initState();
@@ -198,6 +201,25 @@ class _LibraryPageState extends State<LibraryPage> {
       state.categories.isNotEmpty;
 
   List<LibraryEntryDomain> _visibleEntries(LibraryState state) {
+    final Object key = Object.hash(
+      identityHashCode(state.entries),
+      state.searchQuery,
+      state.sort,
+      _selectedCategory,
+    );
+
+    final List<LibraryEntryDomain>? cached = _visibleCache;
+    if (cached != null && _visibleCacheKey == key) {
+      return cached;
+    }
+
+    final List<LibraryEntryDomain> computed = _computeVisibleEntries(state);
+    _visibleCache = computed;
+    _visibleCacheKey = key;
+    return computed;
+  }
+
+  List<LibraryEntryDomain> _computeVisibleEntries(LibraryState state) {
     Iterable<LibraryEntryDomain> entries = state.entries;
     if (_selectedCategory == _uncategorizedId) {
       entries = entries.where((LibraryEntryDomain e) => e.categoryId == null);

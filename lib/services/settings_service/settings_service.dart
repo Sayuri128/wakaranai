@@ -115,7 +115,7 @@ class SettingsService {
     }
 
     defaultMode = ChapterViewMode.rightToLeft;
-    _prefs!.setString(
+    await _prefs!.setString(
         defaultReaderModePrefsKey, ChapterViewMode.rightToLeft.toString());
 
     return defaultMode;
@@ -124,6 +124,6 @@ class SettingsService {
   Future<void> setDefaultReaderMode(ChapterViewMode mode) async {
     _prefs ??= await SharedPreferences.getInstance();
 
-    _prefs!.setString(defaultReaderModePrefsKey, mode.toString());
+    await _prefs!.setString(defaultReaderModePrefsKey, mode.toString());
   }
 }

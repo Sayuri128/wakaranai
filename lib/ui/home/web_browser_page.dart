@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/protector_config/protector_config.dart';
@@ -71,7 +72,7 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
               padding: const EdgeInsets.all(48.0),
               child: ElevatedButton(
                   onPressed: () async {
-                    getHeaders(
+                    await getHeaders(
                         done: (Map<String, String> headers,
                             Map<String, String> cookies) async {
                           if (!mounted) return;

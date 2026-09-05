@@ -14,6 +14,7 @@ class GitHubConfigsService implements ConfigsService {
   static const String _mangaDirectory = 'manga';
   static const String _animeDirectory = 'anime';
   static const String _indexPath = 'index.json';
+  static const int _maxConcurrentFetches = 6;
 
   final String org;
   final String repository;
@@ -43,7 +44,7 @@ class GitHubConfigsService implements ConfigsService {
       );
 
       if (response.statusCode != 200 || response.data == null) {
-        throw Exception('Failed to load branches from $org/$repository');
+        _throwForResponse(response, 'branches from $org/$repository');
       }
 
       final List<String> pageBranches = response.data!
@@ -75,6 +76,24 @@ class GitHubConfigsService implements ConfigsService {
         .toList();
   }
 
+  void invalidate() {
+    _configsFuture = null;
+  }
+
+  static Never _throwForResponse(Response<dynamic> response, String what) {
+    if (response.statusCode == 403 || response.statusCode == 429) {
+      final String? remaining =
+          response.headers.value('x-ratelimit-remaining');
+      if (remaining == '0' || response.statusCode == 429) {
+        throw Exception(
+          'GitHub rate limit reached while loading $what. '
+          'Try again later.',
+        );
+      }
+    }
+    throw Exception('Failed to load $what (HTTP ${response.statusCode})');
+  }
+
   Future<List<RemoteConfig>> _loadConfigs() {
     final Future<List<RemoteConfig>>? existing = _configsFuture;
     if (existing != null) {
@@ -101,9 +120,7 @@ class GitHubConfigsService implements ConfigsService {
     }
 
     if (response.statusCode != 200 || response.data == null) {
-      throw Exception(
-        'Failed to load $_indexPath from $org/$repository',
-      );
+      _throwForResponse(response, '$_indexPath from $org/$repository');
     }
 
     final Map<String, dynamic> decoded =
@@ -132,15 +149,21 @@ class GitHubConfigsService implements ConfigsService {
     final List<GithubTreeItemModel> directories =
         await _getDirectories(directory);
 
-    return Future.wait(
-      directories.map((GithubTreeItemModel e) async {
-        return await _getConfig(
-          treeItem: e,
-          directory: directory,
-          category: category,
-        );
-      }),
-    );
+    final List<RemoteConfig> configs = <RemoteConfig>[];
+
+    for (int i = 0; i < directories.length; i += _maxConcurrentFetches) {
+      final int end =
+          (i + _maxConcurrentFetches).clamp(0, directories.length);
+      configs.addAll(await Future.wait(
+        directories.sublist(i, end).map((GithubTreeItemModel e) => _getConfig(
+              treeItem: e,
+              directory: directory,
+              category: category,
+            )),
+      ));
+    }
+
+    return configs;
   }
 
   Future<RemoteConfig> _getConfig({
@@ -170,9 +193,8 @@ class GitHubConfigsService implements ConfigsService {
     );
 
     if (response.statusCode != 200 || response.data == null) {
-      throw Exception(
-        'Failed to load GitHub directory $directory from $org/$repository',
-      );
+      _throwForResponse(
+          response, 'GitHub directory $directory from $org/$repository');
     }
 
     return response.data!
@@ -205,9 +227,7 @@ class GitHubConfigsService implements ConfigsService {
     );
 
     if (response.statusCode != 200 || response.data == null) {
-      throw Exception(
-        'Failed to load GitHub file $path from $org/$repository',
-      );
+      _throwForResponse(response, 'GitHub file $path from $org/$repository');
     }
 
     return response.data!;

@@ -27,7 +27,7 @@ class AnimeIframePlayerCubit extends Cubit<AnimeIframePlayerState> {
     final concreteData = await concreteDataRepository.getByUid(anime.uid);
 
     if (concreteData != null) {
-      animeEpisodeActivityRepository
+      await animeEpisodeActivityRepository
           .createUpdateBy<$AnimeEpisodeActivityTableTable, String>(
         AnimeEpisodeActivityDomain(
           id: 0,

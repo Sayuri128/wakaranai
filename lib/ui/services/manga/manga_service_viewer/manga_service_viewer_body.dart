@@ -1,4 +1,5 @@
 ﻿import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'dart:async';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/manga_gallery_view.dart';
 import 'package:flutter/material.dart';
@@ -85,7 +86,7 @@ class MangaServiceViewBody extends StatelessWidget {
                         return;
                       }
                       if (initialized && !stateInitialized.loading) {
-                        _cubit(context).getGallery();
+                        unawaited(_cubit(context).getGallery());
                       }
                     },
                     child: _buildGrid(context),
