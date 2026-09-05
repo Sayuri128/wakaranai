@@ -69,6 +69,8 @@ class LibraryUpdateService {
   final ConcreteViewFetcher? fetcher;
 
   static const Duration _interceptorTimeout = Duration(seconds: 30);
+  static const Duration _entryTimeout = Duration(seconds: 90);
+  static const int _maxConcurrentExtensions = 3;
 
   final Map<String, Future<ApiClient>> _clients = <String, Future<ApiClient>>{};
   final Map<String, BrowserInterceptorCubit> _interceptors =
@@ -90,8 +92,16 @@ class LibraryUpdateService {
     onProgress?.call(
         LibraryUpdateProgress(processed: 0, total: entries.length));
 
-    try {
-      for (final LibraryEntryDomain entry in entries) {
+    final Map<String, List<LibraryEntryDomain>> byExtension =
+        <String, List<LibraryEntryDomain>>{};
+    for (final LibraryEntryDomain entry in entries) {
+      byExtension
+          .putIfAbsent(entry.extensionUid, () => <LibraryEntryDomain>[])
+          .add(entry);
+    }
+
+    Future<void> runGroup(List<LibraryEntryDomain> group) async {
+      for (final LibraryEntryDomain entry in group) {
         try {
           final List<LibraryUpdateDomain> found = await _checkEntry(entry);
           updates.addAll(found);
@@ -109,6 +119,17 @@ class LibraryUpdateService {
           total: entries.length,
           title: entry.title,
         ));
+      }
+    }
+
+    try {
+      final List<List<LibraryEntryDomain>> groups =
+          byExtension.values.toList();
+
+      for (int i = 0; i < groups.length; i += _maxConcurrentExtensions) {
+        final int end =
+            (i + _maxConcurrentExtensions).clamp(0, groups.length);
+        await Future.wait(groups.sublist(i, end).map(runGroup));
       }
     } finally {
       await dispose();
@@ -131,9 +152,10 @@ class LibraryUpdateService {
 
     final ConfigInfo config = extension.config;
 
-    final ConcreteView<dynamic> concreteView = fetcher != null
-        ? await fetcher!(extension, entry)
-        : await _fetchViaClient(extension, entry);
+    final ConcreteView<dynamic> concreteView = await (fetcher != null
+            ? fetcher!(extension, entry)
+            : _fetchViaClient(extension, entry))
+        .timeout(_entryTimeout);
 
     final ConcreteDataDomain? cached =
         await concreteDataRepository.getByUid(entry.uid);
@@ -143,7 +165,13 @@ class LibraryUpdateService {
       return const <LibraryUpdateDomain>[];
     }
 
-    final Set<String> knownUids = _elementUidsFromJson(cached!.concreteJson!);
+    final Set<String>? knownUids = _elementUidsFromJson(cached!.concreteJson!);
+
+    if (knownUids == null) {
+      await _saveSnapshot(entry, concreteView, config);
+      return const <LibraryUpdateDomain>[];
+    }
+
     final Set<String> recordedUids =
         await libraryUpdateRepository.getUidsForEntry(entry.uid);
 
@@ -275,7 +303,7 @@ class LibraryUpdateService {
     _clients.clear();
   }
 
-  Set<String> _elementUidsFromJson(String rawJson) {
+  Set<String>? _elementUidsFromJson(String rawJson) {
     final Set<String> uids = <String>{};
     try {
       final Map<String, dynamic> json =
@@ -292,6 +320,7 @@ class LibraryUpdateService {
       }
     } catch (e) {
       logger.w('Failed to parse cached concrete snapshot: $e');
+      return null;
     }
     return uids;
   }

@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/downloads/download_notification_service.dart';
+import 'package:wakaranai/data/domain/database/download_domain.dart';
+import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
 
@@ -14,6 +16,16 @@ import "manga_models";
 
 function getPages(uid, data) {
     return buildPages({"uid": uid, "value": ["data:image/png;base64,iVBORw0KGgo="]});
+}
+
+function getImageHeaders(uid, data) { return {}; }
+''';
+
+const String _emptyPageScript = '''
+import "manga_models";
+
+function getPages(uid, data) {
+    return buildPages({"uid": uid, "value": ["data:image/png;base64,"]});
 }
 
 function getImageHeaders(uid, data) { return {}; }
@@ -136,6 +148,20 @@ void main() {
     expect(notifications.queueLabels, everyElement('1/1'));
     expect(notifications.completed, 1);
   });
+
+  test('a page that resolves to no bytes fails instead of completing empty',
+      () async {
+    final MangaApiClient emptyClient = MangaApiClient(code: _emptyPageScript);
+
+    await _enqueue(cubit, emptyClient, 'empty', autoStart: true);
+
+    final DownloadDomain? row =
+        await _awaitStatus(repository, 'empty', DownloadStatus.failed);
+
+    expect(row, isNotNull);
+    expect(row!.status, DownloadStatus.failed);
+    expect(notifications.completed, -1);
+  });
 }
 
 Future<void> _settle(_RecordingNotifications notifications) async {
@@ -143,4 +169,18 @@ Future<void> _settle(_RecordingNotifications notifications) async {
   while (notifications.completed < 0 && DateTime.now().isBefore(deadline)) {
     await Future<void>.delayed(const Duration(milliseconds: 5));
   }
+}
+
+Future<DownloadDomain?> _awaitStatus(
+  DownloadRepository repository,
+  String uid,
+  DownloadStatus status,
+) async {
+  final DateTime deadline = DateTime.now().add(const Duration(seconds: 15));
+  while (DateTime.now().isBefore(deadline)) {
+    final DownloadDomain? row = await repository.getByUid(uid);
+    if (row != null && row.status == status) return row;
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+  }
+  return repository.getByUid(uid);
 }

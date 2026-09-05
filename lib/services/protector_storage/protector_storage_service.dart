@@ -50,6 +50,20 @@ class ProtectorStorageService {
   }
 
   Future<void> clear() async {
-    await _secureStorage.deleteAll();
+    final Map<String, String> all = await _secureStorage.readAll();
+
+    for (final MapEntry<String, String> entry in all.entries) {
+      if (!_isProtectorItem(entry.value)) continue;
+      await _secureStorage.delete(key: entry.key);
+    }
+  }
+
+  bool _isProtectorItem(String raw) {
+    try {
+      ProtectorStorageItem.fromJson(jsonDecode(raw));
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }

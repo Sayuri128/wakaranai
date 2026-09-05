@@ -234,4 +234,29 @@ void main() {
     expect(result.failed, 1);
     expect(result.updates, isEmpty);
   });
+
+  test('an unreadable snapshot reports nothing rather than every chapter',
+      () async {
+    await harness.libraryEntryRepository.create(_entry());
+
+    await harness.service(_returns(_view(<String>['c1', 'c2']))).check();
+
+    final snapshot = await harness.concreteDataRepository.getByUid(_titleUid);
+    await harness.concreteDataRepository.update(
+      snapshot!.copyWith(concreteJson: 'not json at all'),
+    );
+
+    final LibraryUpdateCheckResult result = await harness
+        .service(_returns(_view(<String>['c1', 'c2', 'c3'])))
+        .check();
+
+    expect(result.updates, isEmpty);
+    expect(result.checked, 1);
+    expect(await harness.libraryUpdateRepository.getAll(), isEmpty);
+
+    final refreshed =
+        await harness.concreteDataRepository.getByUid(_titleUid);
+    expect(refreshed?.concreteJson, isNot('not json at all'),
+        reason: 'the snapshot must be rewritten so the next run recovers');
+  });
 }

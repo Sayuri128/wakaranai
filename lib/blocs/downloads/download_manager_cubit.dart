@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'dart:io';
 
 import 'package:capyscript/api_clients/manga_api_client.dart';
@@ -54,9 +55,13 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   final DownloadRepository downloadRepository;
   final DownloadNotificationService notificationService;
 
+  static const Duration _progressPersistInterval = Duration(milliseconds: 700);
+  static const int _pageAttempts = 3;
+
   final Dio _dio = createDio();
   final Queue<_DownloadJob> _jobs = Queue<_DownloadJob>();
   final Set<String> _cancelled = <String>{};
+  final Map<String, CancelToken> _inFlight = <String, CancelToken>{};
   bool _processing = false;
   int _completedInBatch = 0;
   int _batchIndex = 0;
@@ -177,7 +182,9 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     } finally {
       _processing = false;
       _batchIndex = 0;
-      await notificationService.showComplete(_completedInBatch);
+      if (_completedInBatch > 0) {
+        await notificationService.showComplete(_completedInBatch);
+      }
       _completedInBatch = 0;
     }
   }
@@ -186,6 +193,9 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   Future<bool> _runJob(_DownloadJob job) async {
     DownloadDomain? row = await downloadRepository.getByUid(job.chapterUid);
     if (row == null) return false;
+
+    final CancelToken cancelToken = CancelToken();
+    _inFlight[job.chapterUid] = cancelToken;
 
     try {
       await downloadRepository
@@ -216,6 +226,8 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       );
       await downloadRepository.update(row);
 
+      DateTime lastPublish = DateTime.fromMillisecondsSinceEpoch(0);
+
       for (int i = 0; i < pages.value.length; i++) {
         if (_cancelled.contains(job.chapterUid)) {
           _cancelled.remove(job.chapterUid);
@@ -225,29 +237,29 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         final String url = pages.value[i];
         final File file = File(p.join(dir.path, _pageFileName(i)));
 
-        if (url.startsWith('data:')) {
-          await file.writeAsBytes(base64Decode(url.split(',').last));
-        } else {
-          final Response<List<int>> response = await _dio.get<List<int>>(
-            url,
-            options: Options(
-              responseType: ResponseType.bytes,
-              headers: headers,
-            ),
-          );
-          await file.writeAsBytes(response.data ?? <int>[]);
-        }
+        await _writePage(
+          url: url,
+          file: file,
+          headers: headers,
+          cancelToken: cancelToken,
+        );
 
         row = row!.copyWith(downloadedPages: i + 1);
-        await downloadRepository.update(row);
-        await notificationService.showProgress(
-          title: job.concreteTitle,
-          chapterTitle: job.title,
-          progress: i + 1,
-          max: pages.value.length,
-          queueIndex: _batchIndex,
-          queueTotal: _batchTotal,
-        );
+
+        final bool last = i == pages.value.length - 1;
+        final DateTime now = DateTime.now();
+        if (last || now.difference(lastPublish) >= _progressPersistInterval) {
+          lastPublish = now;
+          await downloadRepository.update(row);
+          await notificationService.showProgress(
+            title: job.concreteTitle,
+            chapterTitle: job.title,
+            progress: i + 1,
+            max: pages.value.length,
+            queueIndex: _batchIndex,
+            queueTotal: _batchTotal,
+          );
+        }
       }
 
       await downloadRepository.update(row!.copyWith(
@@ -257,7 +269,10 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       ));
       return true;
     } catch (e, s) {
-      logger.e(e);
+      if (e is DioException && CancelToken.isCancel(e)) {
+        return false;
+      }
+      logger.e('Download failed for ${job.chapterUid}: $e');
       logger.e(s);
       final DownloadDomain? current =
           await downloadRepository.getByUid(job.chapterUid);
@@ -266,7 +281,56 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
             .update(current.copyWith(status: DownloadStatus.failed));
       }
       return false;
+    } finally {
+      _inFlight.remove(job.chapterUid);
     }
+  }
+
+  Future<void> _writePage({
+    required String url,
+    required File file,
+    required Map<String, String> headers,
+    required CancelToken cancelToken,
+  }) async {
+    if (url.startsWith('data:')) {
+      final Uint8List bytes = base64Decode(url.split(',').last);
+      if (bytes.isEmpty) {
+        throw StateError('Empty inline page data');
+      }
+      await file.writeAsBytes(bytes);
+      return;
+    }
+
+    Object? lastError;
+
+    for (int attempt = 1; attempt <= _pageAttempts; attempt++) {
+      try {
+        final Response<List<int>> response = await _dio.get<List<int>>(
+          url,
+          cancelToken: cancelToken,
+          options: Options(
+            responseType: ResponseType.bytes,
+            headers: headers,
+          ),
+        );
+
+        final List<int>? data = response.data;
+        if (data == null || data.isEmpty) {
+          throw StateError('Empty response for $url');
+        }
+
+        await file.writeAsBytes(data);
+        return;
+      } catch (e) {
+        if (e is DioException && CancelToken.isCancel(e)) rethrow;
+        lastError = e;
+        if (attempt < _pageAttempts) {
+          await Future<void>.delayed(Duration(milliseconds: 300 * attempt));
+        }
+      }
+    }
+
+    throw StateError('Failed to download $url: $lastError');
   }
 
   Future<void> retry({
@@ -293,6 +357,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   Future<void> deleteDownload(DownloadDomain download) async {
     _cancelled.add(download.uid);
     _jobs.removeWhere((_DownloadJob j) => j.chapterUid == download.uid);
+    _inFlight.remove(download.uid)?.cancel('deleted');
     await downloadRepository.deleteByUid(download.uid);
     await _deleteDir(download.dirPath);
   }
@@ -338,8 +403,9 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
 
   static String _sanitize(String value) {
     final String cleaned = value.replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_');
-    if (cleaned.length <= 80) return cleaned;
-    return '${cleaned.substring(0, 80)}_${value.hashCode.toUnsigned(32)}';
+    final String suffix = value.hashCode.toUnsigned(32).toRadixString(16);
+    if (cleaned.length <= 80) return '${cleaned}_$suffix';
+    return '${cleaned.substring(0, 80)}_$suffix';
   }
 
   static String _pageFileName(int index) =>
