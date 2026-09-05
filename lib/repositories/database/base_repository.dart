@@ -1,10 +1,16 @@
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
+import 'package:wakaranai/main.dart';
 
 abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
     extends BaseRepositoryConverters<TDomain, TCompanion, TData> {
   final WakaranaiDatabase database;
+
+  void _logFailure(String operation, Object error, StackTrace stackTrace) {
+    logger.e('$runtimeType.$operation failed: $error');
+    logger.e(stackTrace);
+  }
 
   Future<TDomain?> createUpdateBy<TTable, TValue>(
     TDomain domain, {
@@ -31,7 +37,8 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
           return await create(domain);
         }
       });
-    } catch (e) {
+    } catch (e, s) {
+      _logFailure('createUpdateBy', e, s);
       return null;
     }
   }
@@ -46,7 +53,8 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
       await (updateStatement()..where((tbl) => where(tbl).equals(value)))
           .write(domain.toDrift(update: true));
       return get(domain.id);
-    } catch (e) {
+    } catch (e, s) {
+      _logFailure('updateBy', e, s);
       return null;
     }
   }
@@ -71,9 +79,10 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
 
               return combinedCondition!;
             }))
-          .getSingle();
-      return fromDrift(res);
-    } catch (e) {
+          .getSingleOrNull();
+      return res == null ? null : fromDrift(res);
+    } catch (e, s) {
+      _logFailure('getByComplex', e, s);
       return null;
     }
   }
@@ -86,9 +95,10 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
     try {
       final res = await (selectStatement()
             ..where((tbl) => where(tbl).equals(value)))
-          .getSingle();
-      return fromDrift(res);
-    } catch (e) {
+          .getSingleOrNull();
+      return res == null ? null : fromDrift(res);
+    } catch (e, s) {
+      _logFailure('getBy', e, s);
       return null;
     }
   }
@@ -96,10 +106,11 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
   Future<TDomain?> get(int id) async {
     try {
       final res = await (selectStatement()..where((tbl) => tbl.id.equals(id)))
-          .getSingle();
+          .getSingleOrNull();
 
-      return fromDrift(res);
-    } catch (e) {
+      return res == null ? null : fromDrift(res);
+    } catch (e, s) {
+      _logFailure('get', e, s);
       return null;
     }
   }
@@ -109,7 +120,8 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
       final res = await (selectStatement()..where((tbl) => tbl.id.equals(id)))
           .getSingleOrNull();
       return res != null;
-    } catch (e) {
+    } catch (e, s) {
+      _logFailure('exists', e, s);
       return false;
     }
   }
@@ -120,7 +132,8 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
         create: true,
       ));
       return get(insertedId);
-    } catch (e) {
+    } catch (e, s) {
+      _logFailure('create', e, s);
       return null;
     }
   }
@@ -131,7 +144,8 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
     try {
       final res = await (selectStatement()..orderBy(orderBy)).get();
       return res.map((e) => fromDrift(e)).toList();
-    } catch (e) {
+    } catch (e, s) {
+      _logFailure('getAll', e, s);
       return [];
     }
   }
@@ -146,7 +160,8 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
             ..where((tbl) => where(tbl).equals(value)))
           .get();
       return res.map((e) => fromDrift(e)).toList();
-    } catch (e) {
+    } catch (e, s) {
+      _logFailure('getAllBy', e, s);
       return [];
     }
   }
@@ -156,23 +171,24 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
     bool update = true,
   }) async {
     try {
-      final res = await (updateStatement()
-            ..where((tbl) => tbl.id.equals(domain.id)))
-          .write(domain.toDrift(update: false));
+      await (updateStatement()..where((tbl) => tbl.id.equals(domain.id)))
+          .write(domain.toDrift(update: update));
       return get(domain.id);
-    } catch (e) {
+    } catch (e, s) {
+      _logFailure('update', e, s);
       return null;
     }
   }
 
-  Future<TDomain?> delete(TDomain domain) async {
+  Future<bool> delete(TDomain domain) async {
     try {
-      final res = await (deleteStatement()
-            ..where((tbl) => tbl.id.equals(domain.id)))
-          .go();
-      return get(domain.id);
-    } catch (e) {
-      return null;
+      final int affected =
+          await (deleteStatement()..where((tbl) => tbl.id.equals(domain.id)))
+              .go();
+      return affected > 0;
+    } catch (e, s) {
+      _logFailure('delete', e, s);
+      return false;
     }
   }
 
@@ -183,7 +199,8 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
     try {
       return await (deleteStatement()..where((tbl) => where(tbl).equals(value)))
           .go();
-    } catch (e) {
+    } catch (e, s) {
+      _logFailure('deleteBy', e, s);
       return 0;
     }
   }
@@ -191,7 +208,8 @@ abstract class BaseRepository<TDomain extends BaseDomain, TCompanion, TData>
   Future<int> deleteAll() async {
     try {
       return await deleteStatement().go();
-    } catch (e) {
+    } catch (e, s) {
+      _logFailure('deleteAll', e, s);
       return 0;
     }
   }

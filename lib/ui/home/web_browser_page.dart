@@ -89,9 +89,9 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
                   },
                   style: ButtonStyle(
                       backgroundColor:
-                          MaterialStateProperty.all(AppColors.primary),
-                      shadowColor: MaterialStateProperty.all(
-                          AppColors.primary.withOpacity(0.35))),
+                          WidgetStateProperty.all(AppColors.primary),
+                      shadowColor: WidgetStateProperty.all(
+                          AppColors.primary.withValues(alpha: 0.35))),
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: Text(

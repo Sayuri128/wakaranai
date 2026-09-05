@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wakaranai/data/domain/base_domain.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 

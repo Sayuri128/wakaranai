@@ -46,6 +46,7 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
   @override
   void dispose() {
     _searchController.dispose();
+    _refreshController.dispose();
     super.dispose();
   }
 

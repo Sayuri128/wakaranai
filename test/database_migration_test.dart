@@ -35,13 +35,13 @@ void main() {
     addTearDown(raw.dispose);
 
     final WakaranaiDatabase first = await _open(raw);
-    expect(await _userVersion(first), 8);
+    expect(await _userVersion(first), first.schemaVersion);
     await first.close();
 
     raw.execute('PRAGMA user_version = 5;');
 
     final WakaranaiDatabase second = await _open(raw);
-    expect(await _userVersion(second), 8);
+    expect(await _userVersion(second), second.schemaVersion);
     await second.close();
   });
 
@@ -57,7 +57,7 @@ void main() {
     raw.execute('PRAGMA user_version = 5;');
 
     final WakaranaiDatabase second = await _open(raw);
-    expect(await _userVersion(second), 8);
+    expect(await _userVersion(second), second.schemaVersion);
 
     final List<QueryRow> concreteCols = await second
         .customSelect('PRAGMA table_info(concrete_data_table);')
@@ -90,7 +90,7 @@ void main() {
     raw.execute('PRAGMA user_version = 7;');
 
     final WakaranaiDatabase second = await _open(raw);
-    expect(await _userVersion(second), 8);
+    expect(await _userVersion(second), second.schemaVersion);
 
     final List<QueryRow> tables = await second
         .customSelect(
@@ -123,7 +123,31 @@ void main() {
     raw.execute('PRAGMA user_version = 7;');
 
     final WakaranaiDatabase second = await _open(raw);
-    expect(await _userVersion(second), 8);
+    expect(await _userVersion(second), second.schemaVersion);
+    await second.close();
+  });
+
+  test('upgrade from v8 adds the extension source ref column', () async {
+    final Database raw = sqlite3.openInMemory();
+    addTearDown(raw.dispose);
+
+    final WakaranaiDatabase first = await _open(raw);
+    await first.close();
+
+    raw.execute('ALTER TABLE extension_source_table DROP COLUMN ref;');
+    raw.execute('PRAGMA user_version = 8;');
+
+    final WakaranaiDatabase second = await _open(raw);
+    expect(await _userVersion(second), second.schemaVersion);
+
+    final List<QueryRow> sourceCols = await second
+        .customSelect('PRAGMA table_info(extension_source_table);')
+        .get();
+    expect(
+      sourceCols.any((QueryRow r) => r.data['name'] == 'ref'),
+      isTrue,
+    );
+
     await second.close();
   });
 }

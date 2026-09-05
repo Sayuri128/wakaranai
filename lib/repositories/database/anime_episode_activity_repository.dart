@@ -1,4 +1,4 @@
-import 'package:drift/src/runtime/query_builder/query_builder.dart';
+import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/base_repository.dart';

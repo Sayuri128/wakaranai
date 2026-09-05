@@ -1,4 +1,4 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
@@ -74,11 +74,6 @@ class AnimeActivityHistoryCubit extends Cubit<AnimeActivityHistoryState>
     }
 
     final apiClient = AnimeApiClient(code: extension.sourceCode);
-
-    final coverHeaders = await apiClient.getImageHeaders(
-      uid: concrete.uid,
-      data: concrete.dataJson,
-    );
 
     Navigator.of(context)
         .pushNamed(

@@ -13,6 +13,7 @@ import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
+import 'package:wakaranai/env.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/services/configs_service/extension_resolver.dart';
@@ -25,12 +26,8 @@ import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_his
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
-import 'repositories/database/anime_episode_activity_repository.dart';
-import 'repositories/database/chapter_activity_repository.dart';
 import 'ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'ui/home/settings_page/cubit/settings/settings_cubit.dart';
-
-const bool debug = true;
 
 final Logger logger = Logger(
   filter: ProductionFilter(),
@@ -44,6 +41,7 @@ void main() async {
   ));
 
   await dotenv.load(fileName: '.env');
+  Env.validate();
 
   if (!kIsWeb && Platform.isAndroid) {
     try {

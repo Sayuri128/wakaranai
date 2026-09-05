@@ -47,6 +47,7 @@ class _MangaServiceViewState extends State<MangaServiceView> {
   @override
   void dispose() {
     _searchController.dispose();
+    _refreshController.dispose();
     super.dispose();
   }
 

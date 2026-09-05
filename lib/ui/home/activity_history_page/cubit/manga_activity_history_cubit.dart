@@ -1,4 +1,4 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
