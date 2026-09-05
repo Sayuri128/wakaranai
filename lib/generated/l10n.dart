@@ -179,6 +179,21 @@ class S {
     );
   }
 
+  /// `Couldn't load this extension`
+  String get api_client_error_title {
+    return Intl.message(
+      'Couldn\'t load this extension',
+      name: 'api_client_error_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Go back`
+  String get common_go_back {
+    return Intl.message('Go back', name: 'common_go_back', desc: '', args: []);
+  }
+
   /// `Explore`
   String get home_navigation_bar_sources_title {
     return Intl.message(

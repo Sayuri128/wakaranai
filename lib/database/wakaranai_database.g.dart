@@ -5679,6 +5679,30 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
   late final $DownloadTableTable downloadTable = $DownloadTableTable(this);
   late final $LibraryUpdateTableTable libraryUpdateTable =
       $LibraryUpdateTableTable(this);
+  late final Index concreteDataUid = Index(
+    'concrete_data_uid',
+    'CREATE UNIQUE INDEX concrete_data_uid ON concrete_data_table (uid)',
+  );
+  late final Index chapterActivityUid = Index(
+    'chapter_activity_uid',
+    'CREATE UNIQUE INDEX chapter_activity_uid ON chapter_activity_table (uid)',
+  );
+  late final Index animeEpisodeActivityUid = Index(
+    'anime_episode_activity_uid',
+    'CREATE UNIQUE INDEX anime_episode_activity_uid ON anime_episode_activity_table (uid)',
+  );
+  late final Index libraryEntryUid = Index(
+    'library_entry_uid',
+    'CREATE UNIQUE INDEX library_entry_uid ON library_entry_table (uid)',
+  );
+  late final Index downloadUid = Index(
+    'download_uid',
+    'CREATE UNIQUE INDEX download_uid ON download_table (uid)',
+  );
+  late final Index libraryUpdateUid = Index(
+    'library_update_uid',
+    'CREATE UNIQUE INDEX library_update_uid ON library_update_table (uid)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5693,6 +5717,12 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
     libraryEntryTable,
     downloadTable,
     libraryUpdateTable,
+    concreteDataUid,
+    chapterActivityUid,
+    animeEpisodeActivityUid,
+    libraryEntryUid,
+    downloadUid,
+    libraryUpdateUid,
   ];
 }
 

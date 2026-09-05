@@ -30,8 +30,10 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
   final ConcreteDataRepository concreteDataRepository;
   final ChapterActivityRepository chapterActivityRepository;
 
-  void init() async {
-    emit(ActivityHistoryLoading());
+  void init({bool silent = false}) async {
+    if (!silent) {
+      emit(ActivityHistoryLoading());
+    }
 
     try {
       final data =

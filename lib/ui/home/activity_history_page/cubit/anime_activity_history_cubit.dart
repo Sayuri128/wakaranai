@@ -30,8 +30,10 @@ class AnimeActivityHistoryCubit extends Cubit<AnimeActivityHistoryState>
   final ConcreteDataRepository concreteDataRepository;
   final AnimeEpisodeActivityRepository animeEpisodeActivityRepository;
 
-  void init() async {
-    emit(AnimeActivityHistoryLoading());
+  void init({bool silent = false}) async {
+    if (!silent) {
+      emit(AnimeActivityHistoryLoading());
+    }
 
     try {
       final data = await animeEpisodeActivityRepository.getAll(

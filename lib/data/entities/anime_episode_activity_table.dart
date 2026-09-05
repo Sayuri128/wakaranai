@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import 'package:wakaranai/data/entities/base_table.dart';
 import 'package:wakaranai/data/entities/concrete_data_table.dart';
 
+@TableIndex(name: 'anime_episode_activity_uid', columns: <Symbol>{#uid}, unique: true)
 class AnimeEpisodeActivityTable extends BaseTable {
 
   TextColumn get uid => text()();

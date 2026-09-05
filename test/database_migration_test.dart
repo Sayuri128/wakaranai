@@ -150,4 +150,71 @@ void main() {
 
     await second.close();
   });
+
+  test('upgrade from v9 dedupes uids and creates the unique indexes', () async {
+    final Database raw = sqlite3.openInMemory();
+    addTearDown(raw.dispose);
+
+    final WakaranaiDatabase first = await _open(raw);
+    await first.close();
+
+    raw.execute('DROP INDEX library_entry_uid;');
+    raw.execute('DROP INDEX download_uid;');
+    raw.execute('DROP INDEX concrete_data_uid;');
+    raw.execute('DROP INDEX chapter_activity_uid;');
+    raw.execute('DROP INDEX anime_episode_activity_uid;');
+    raw.execute('DROP INDEX library_update_uid;');
+
+    for (int i = 0; i < 3; i++) {
+      raw.execute(
+        'INSERT INTO library_entry_table '
+        '(uid, extension_uid, title, track_updates, notify_updates, created_at) '
+        "VALUES ('dupe', 'ext', 'Title $i', 1, 1, $i);",
+      );
+    }
+
+    raw.execute('PRAGMA user_version = 9;');
+
+    final WakaranaiDatabase second = await _open(raw);
+    expect(await _userVersion(second), second.schemaVersion);
+
+    final List<QueryRow> rows = await second
+        .customSelect(
+            "SELECT id, title FROM library_entry_table WHERE uid = 'dupe';")
+        .get();
+    expect(rows, hasLength(1));
+    expect(rows.single.data['title'], 'Title 0');
+
+    final List<QueryRow> indexes = await second
+        .customSelect(
+            "SELECT name FROM sqlite_master WHERE type = 'index' AND name = 'library_entry_uid';")
+        .get();
+    expect(indexes, isNotEmpty);
+
+    await second.close();
+  });
+
+  test('the unique uid index rejects a duplicate insert', () async {
+    final Database raw = sqlite3.openInMemory();
+    addTearDown(raw.dispose);
+
+    final WakaranaiDatabase db = await _open(raw);
+
+    raw.execute(
+      'INSERT INTO library_entry_table '
+      '(uid, extension_uid, title, track_updates, notify_updates, created_at) '
+      "VALUES ('only-once', 'ext', 'First', 1, 1, 0);",
+    );
+
+    expect(
+      () => raw.execute(
+        'INSERT INTO library_entry_table '
+        '(uid, extension_uid, title, track_updates, notify_updates, created_at) '
+        "VALUES ('only-once', 'ext', 'Second', 1, 1, 1);",
+      ),
+      throwsA(isA<SqliteException>()),
+    );
+
+    await db.close();
+  });
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:dio/dio.dart';
+import 'package:wakaranai/utils/http_client.dart';
 import 'package:wakaranai/data/models/github/payload/tree/item/github_tree_item_model.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/data/models/remote_script/remote_script.dart';
@@ -18,13 +19,11 @@ class GitHubConfigsService implements ConfigsService {
   final String repository;
   final String branch;
 
-  static final Dio _sharedDio = Dio(
-    BaseOptions(
-      validateStatus: (_) => true,
-      headers: <String, String>{
-        'accept': 'application/vnd.github+json',
-      },
-    ),
+  static final Dio _sharedDio = createDio(
+    acceptAllStatuses: true,
+    headers: <String, String>{
+      'accept': 'application/vnd.github+json',
+    },
   );
 
   Dio get _dio => _sharedDio;

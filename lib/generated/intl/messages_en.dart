@@ -147,6 +147,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "add_extension_source_page_url_field_label":
         MessageLookupByLibrary.simpleMessage("URL"),
     "anime_concrete_viewer_watched_at_title": m0,
+    "api_client_error_title": MessageLookupByLibrary.simpleMessage(
+      "Couldn\'t load this extension",
+    ),
     "app_name": MessageLookupByLibrary.simpleMessage("Wakaranai"),
     "chapter_viewer_bottom_modal_settings_reading_mode_title":
         MessageLookupByLibrary.simpleMessage("Reading Mode"),
@@ -163,6 +166,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "chapter_viewer_webtoon": MessageLookupByLibrary.simpleMessage("Webtoon"),
     "common_add": MessageLookupByLibrary.simpleMessage("Add"),
     "common_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
+    "common_go_back": MessageLookupByLibrary.simpleMessage("Go back"),
     "common_ok_button": MessageLookupByLibrary.simpleMessage("OK"),
     "common_save": MessageLookupByLibrary.simpleMessage("Save"),
     "concrete_offline_banner": MessageLookupByLibrary.simpleMessage(

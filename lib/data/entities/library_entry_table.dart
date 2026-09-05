@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:wakaranai/data/entities/base_table.dart';
 import 'package:wakaranai/data/entities/category_table.dart';
 
+@TableIndex(name: 'library_entry_uid', columns: <Symbol>{#uid}, unique: true)
 class LibraryEntryTable extends BaseTable {
   TextColumn get uid => text()();
 

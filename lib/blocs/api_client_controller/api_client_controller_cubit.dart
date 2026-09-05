@@ -13,6 +13,12 @@ import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_config
 
 part 'api_client_controller_state.dart';
 
+Future<ApiClient> _buildAnimeApiClient(String code) async =>
+    AnimeApiClient(code: code);
+
+Future<ApiClient> _buildMangaApiClient(String code) async =>
+    MangaApiClient(code: code);
+
 class ApiClientControllerCubit<T extends ApiClient, C>
     extends Cubit<ApiClientControllerState> {
   ApiClientControllerCubit({
@@ -25,57 +31,71 @@ class ApiClientControllerCubit<T extends ApiClient, C>
   final ExtensionRepository extensionRepository;
   final BaseExtension? remoteConfig;
 
-  void buildApiClient() async {
-    if (remoteConfig != null) {
-      try {
-        late String script;
+  Future<void> buildApiClient() async {
+    final BaseExtension? extension = remoteConfig;
 
-        if (remoteConfig is RemoteConfig) {
-          script = (await remoteConfigsCubit.configService
-                  .getRemoteScript((remoteConfig as RemoteConfig).path))
-              .script;
-          await extensionRepository.createUpdateByUid(
-            ExtensionDomain(
-              id: 0,
-              config: remoteConfig!.config,
-              sourceCode: script,
-              createdAt: DateTime.now(),
-            ),
-          );
-        } else if (remoteConfig is ExtensionDomain) {
-          script = (remoteConfig as ExtensionDomain).sourceCode;
-        } else {
-          throw Exception("Invalid remote config type");
-        }
-
-        switch (remoteConfig!.config.type) {
-          case ConfigInfoType.ANIME:
-            compute<String, ApiClient>(
-                    (String message) async => AnimeApiClient(code: message),
-                    script)
-                .then((ApiClient value) {
-              emit(ApiClientControllerInitialized<AnimeApiClient>(
-                  apiClient: value as AnimeApiClient,
-                  configInfo: remoteConfig!.config));
-            });
-            break;
-          case ConfigInfoType.MANGA:
-            compute<String, ApiClient>(
-                    (String message) async => MangaApiClient(code: message),
-                    script)
-                .then((ApiClient value) {
-              emit(ApiClientControllerInitialized<MangaApiClient>(
-                  apiClient: value as MangaApiClient,
-                  configInfo: remoteConfig!.config));
-            });
-            break;
-        }
-      } catch (e, s) {
-        logger.e(e);
-        logger.e(s);
-        emit(ApiClientControllerError(message: "Error getting remote script"));
-        return;
-      }
+    if (extension == null) {
+      emit(ApiClientControllerError(message: 'No extension was selected'));
+      return;
     }
+
+    if (state is ApiClientControllerError) {
+      emit(const ApiClientControllerState());
+    }
+
+    try {
+      final String script = await _resolveScript(extension);
+      final ConfigInfo config = extension.config;
+
+      final ApiClient client = await compute<String, ApiClient>(
+        config.type == ConfigInfoType.ANIME
+            ? _buildAnimeApiClient
+            : _buildMangaApiClient,
+        script,
+      );
+
+      if (isClosed) return;
+
+      switch (config.type) {
+        case ConfigInfoType.ANIME:
+          emit(ApiClientControllerInitialized<AnimeApiClient>(
+              apiClient: client as AnimeApiClient, configInfo: config));
+          break;
+        case ConfigInfoType.MANGA:
+          emit(ApiClientControllerInitialized<MangaApiClient>(
+              apiClient: client as MangaApiClient, configInfo: config));
+          break;
+      }
+    } catch (e, s) {
+      logger.e('Failed to build api client for ${remoteConfig?.config.uid}: $e');
+      logger.e(s);
+      if (isClosed) return;
+      emit(ApiClientControllerError(message: e.toString()));
+    }
+  }
+
+  Future<String> _resolveScript(BaseExtension extension) async {
+    if (extension is ExtensionDomain) {
+      return extension.sourceCode;
+    }
+
+    if (extension is RemoteConfig) {
+      final String script = (await remoteConfigsCubit.configService
+              .getRemoteScript(extension.path))
+          .script;
+
+      await extensionRepository.createUpdateByUid(
+        ExtensionDomain(
+          id: 0,
+          config: extension.config,
+          sourceCode: script,
+          createdAt: DateTime.now(),
+        ),
+      );
+
+      return script;
+    }
+
+    throw Exception('Invalid remote config type ${extension.runtimeType}');
   }
 }

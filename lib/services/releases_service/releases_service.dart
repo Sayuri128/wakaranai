@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'package:wakaranai/utils/http_client.dart';
 import 'package:wakaranai/data/domain/app_version.dart';
 import 'package:wakaranai/data/domain/latest_release_data.dart';
 import 'package:wakaranai/data/models/github/release_response/github_release_response_model.dart';
@@ -8,7 +8,7 @@ import 'package:wakaranai/repositories/releases_repository/github/github_release
 
 class ReleasesService {
   final GithubReleasesRepository _githubReleasesRepository =
-      GithubReleasesRepository(Dio());
+      GithubReleasesRepository(createDio());
 
   Future<LatestReleaseData?> getLatestReleaseDownloadUrl() async {
     try {

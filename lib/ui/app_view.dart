@@ -5,6 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wakaranai/blocs/auth/authentication_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
+import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
+import 'package:wakaranai/blocs/library/library_cubit.dart';
+import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
+import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
+import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
@@ -39,8 +44,35 @@ class AppView extends StatefulWidget {
   State<AppView> createState() => _AppViewState();
 }
 
-class _AppViewState extends State<AppView> {
+class _AppViewState extends State<AppView> with WidgetsBindingObserver {
   final HeroController _heroController = HeroController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state != AppLifecycleState.resumed) return;
+    _resyncBackgroundWrites();
+  }
+
+  void _resyncBackgroundWrites() {
+    context.read<LibraryCubit>().init();
+    context.read<LibraryUpdatesCubit>().init();
+    context.read<DownloadManagerCubit>().init();
+    context.read<MangaActivityHistoryCubit>().init(silent: true);
+    context.read<AnimeActivityHistoryCubit>().init(silent: true);
+  }
 
   @override
   Widget build(BuildContext context) {

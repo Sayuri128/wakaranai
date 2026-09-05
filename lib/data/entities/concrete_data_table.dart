@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:wakaranai/data/entities/base_table.dart';
 import 'package:wakaranai/data/entities/extension_table.dart';
 
+@TableIndex(name: 'concrete_data_uid', columns: <Symbol>{#uid}, unique: true)
 class ConcreteDataTable extends BaseTable {
 
   TextColumn get uid => text()();

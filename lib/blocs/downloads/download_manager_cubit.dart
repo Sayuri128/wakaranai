@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:wakaranai/utils/http_client.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -53,7 +54,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   final DownloadRepository downloadRepository;
   final DownloadNotificationService notificationService;
 
-  final Dio _dio = Dio();
+  final Dio _dio = createDio();
   final Queue<_DownloadJob> _jobs = Queue<_DownloadJob>();
   final Set<String> _cancelled = <String>{};
   bool _processing = false;

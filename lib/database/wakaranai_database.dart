@@ -78,8 +78,56 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
             await _addColumnIfMissing(
                 m, extensionSourceTable, extensionSourceTable.ref);
           }
+          if (from < 10) {
+            for (final TableInfo<Table, dynamic> table
+                in _uidUniqueTables) {
+              await _dropDuplicateUids(table.actualTableName);
+            }
+            for (final Index index in _uidUniqueIndexes) {
+              await _createIndexIfMissing(m, index);
+            }
+          }
         },
       );
+
+  List<TableInfo<Table, dynamic>> get _uidUniqueTables =>
+      <TableInfo<Table, dynamic>>[
+        concreteDataTable,
+        chapterActivityTable,
+        animeEpisodeActivityTable,
+        libraryEntryTable,
+        downloadTable,
+        libraryUpdateTable,
+      ];
+
+  List<Index> get _uidUniqueIndexes => <Index>[
+        concreteDataUid,
+        chapterActivityUid,
+        animeEpisodeActivityUid,
+        libraryEntryUid,
+        downloadUid,
+        libraryUpdateUid,
+      ];
+
+  Future<void> _dropDuplicateUids(String table) async {
+    await customStatement(
+      'DELETE FROM $table WHERE id NOT IN '
+      '(SELECT MIN(id) FROM $table GROUP BY uid);',
+    );
+  }
+
+  Future<void> _createIndexIfMissing(Migrator m, Index index) async {
+    if (await _hasIndex(index.entityName)) return;
+    await m.createIndex(index);
+  }
+
+  Future<bool> _hasIndex(String name) async {
+    final List<QueryRow> rows = await customSelect(
+      "SELECT name FROM sqlite_master WHERE type = 'index' AND name = ?;",
+      variables: <Variable<Object>>[Variable<String>(name)],
+    ).get();
+    return rows.isNotEmpty;
+  }
 
   Future<void> _addColumnIfMissing(
     Migrator m,
@@ -113,7 +161,7 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
   }
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 }
 
 LazyDatabase _openConnection() {
