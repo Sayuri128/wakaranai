@@ -52,3 +52,5 @@ app.*.map.json
 /android/local.properties
 *.jks
 *.keystore
+
+/smt.sqlite
