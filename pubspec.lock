@@ -166,10 +166,10 @@ packages:
     description:
       path: "."
       ref: dev
-      resolved-ref: "3c00eaaa0d4506d9585c056fd8dc54e8e4514496"
+      resolved-ref: f7658a382a8179e0db18c3ebbc9677c0ecc34753
       url: "https://github.com/Sayuri128/capyscript"
     source: git
-    version: "0.2.0"
+    version: "0.4.0"
   characters:
     dependency: transitive
     description:
