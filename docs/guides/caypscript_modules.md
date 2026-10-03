@@ -30,6 +30,41 @@ function main() {
 }
 ```
 
+**(capyscript 0.4+)** Encoders:
+
+```capyscript
+import "converter";
+
+function main() {
+    print(base64Encode("hello")); // aGVsbG8=
+    print(base64Decode("aGVsbG8")); // hello (padding optional)
+    print(urlEncode("a b&c")); // a%20b%26c
+    print(urlDecode("a%20b%26c")); // a b&c
+}
+```
+
+---
+
+## Regex
+
+**(capyscript 0.4+)** Regular expressions use Dart/JavaScript syntax. Every function takes an
+optional last `flags` argument: `i` (ignore case), `m` (multi-line), `s` (`.` matches newlines).
+
+```capyscript
+import "regex";
+
+function main() {
+    print(regexTest("chapter \d+", "Chapter 12", "i")); // true
+    print(regexMatch("vol\.(\d+) ch\.(\d+)", "vol.3 ch.27")); // [vol.3 ch.27, 3, 27]
+    print(regexMatchAll("id=(\d+)", "id=1&id=22")); // [[id=1, 1], [id=22, 22]]
+    print(regexSplit("\s*,\s*", "a , b,c")); // [a, b, c]
+    print(regexReplace("(\w+)@(\w+)", "a@b", "$2 at $1")); // b at a
+}
+```
+
+`regexMatch` returns `null` when nothing matches. In `regexReplace`, `$1` inserts a group and `$$`
+a literal dollar. Backtick strings are handy for patterns with quotes: `` `"id":\s*(\d+)` ``.
+
 --- 
 
 ## Date
@@ -133,6 +168,10 @@ function httpGet(url, params, paths, headers, throughWeb) {
 * `throughWeb` is a boolean that specifies whether to use the webview to make the request or not
 
 only `url` is required, the rest are optional.
+
+Query values in `params` are URL-encoded for you (from capyscript 0.4; older versions sent them
+raw), while `paths` substitutions are inserted verbatim. Requests that don't go through the webview
+time out after 60 seconds.
 
 To make it easier to use, you can also use maps as function arguments:
 
