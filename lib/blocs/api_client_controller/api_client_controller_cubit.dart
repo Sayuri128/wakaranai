@@ -80,6 +80,14 @@ class ApiClientControllerCubit<T extends ApiClient, C>
     }
 
     if (extension is RemoteConfig) {
+      final ExtensionDomain? cached =
+          await extensionRepository.getByUid(extension.config.uid);
+      if (cached != null &&
+          extension.revision != null &&
+          cached.revision == extension.revision) {
+        return cached.sourceCode;
+      }
+
       final String script = (await remoteConfigsCubit.configService
               .getRemoteScript(extension.path))
           .script;
@@ -89,6 +97,7 @@ class ApiClientControllerCubit<T extends ApiClient, C>
           id: 0,
           config: extension.config,
           sourceCode: script,
+          revision: extension.revision,
           createdAt: DateTime.now(),
         ),
       );

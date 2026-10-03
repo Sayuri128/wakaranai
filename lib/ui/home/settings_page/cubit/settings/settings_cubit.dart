@@ -106,6 +106,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   Timer? _importWatcher;
   Set<ExportSection> _importedSections = <ExportSection>{};
   bool _resumeChecked = false;
+  bool _updateTaskSynced = false;
 
   DateTime _lastProgressEmit = DateTime.fromMillisecondsSinceEpoch(0);
 
@@ -156,6 +157,23 @@ class SettingsCubit extends Cubit<SettingsState> {
     if (!_resumeChecked && backgroundImportSupported) {
       _resumeChecked = true;
       await resumeImportWatcherIfNeeded();
+    }
+
+    final current = state;
+    if (!_updateTaskSynced &&
+        backgroundUpdatesSupported &&
+        current is SettingsInitialized &&
+        current.checkUpdates) {
+      _updateTaskSynced = true;
+      try {
+        await registerLibraryUpdateTask(
+          frequencyHours: current.updateFrequencyHours,
+          localeName: Intl.getCurrentLocale(),
+        );
+      } catch (e, s) {
+        logger.e(e);
+        logger.e(s);
+      }
     }
   }
 

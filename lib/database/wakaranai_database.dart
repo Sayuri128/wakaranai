@@ -87,6 +87,11 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
               await _createIndexIfMissing(m, index);
             }
           }
+          if (from < 11) {
+            await _addColumnIfMissing(
+                m, extensionTable, extensionTable.configJson);
+            await _addColumnIfMissing(m, extensionTable, extensionTable.revision);
+          }
         },
       );
 
@@ -161,7 +166,7 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
   }
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 }
 
 LazyDatabase _openConnection() {

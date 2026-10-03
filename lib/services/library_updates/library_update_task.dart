@@ -2,12 +2,15 @@ import 'dart:ui' show DartPluginRegistrant;
 
 import 'package:flutter/widgets.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
+import 'package:wakaranai/env.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
 import 'package:wakaranai/repositories/database/library_update_repository.dart';
+import 'package:wakaranai/services/configs_service/extension_resolver.dart';
 import 'package:wakaranai/services/library_updates/library_update_notification_service.dart';
 import 'package:wakaranai/services/library_updates/library_update_service.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
@@ -17,6 +20,8 @@ const String libraryUpdateTaskName = 'wakaranai.library_update';
 const String libraryUpdateTaskUniqueName = 'wakaranai.library_update.periodic';
 
 const String libraryUpdateTaskLocaleKey = 'locale';
+const String libraryUpdateTaskConfigsOrgKey = 'configsOrg';
+const String libraryUpdateTaskConfigsRepoKey = 'configsRepo';
 
 Future<void> registerLibraryUpdateTask({
   required int frequencyHours,
@@ -30,6 +35,8 @@ Future<void> registerLibraryUpdateTask({
     constraints: Constraints(networkType: NetworkType.connected),
     inputData: <String, dynamic>{
       libraryUpdateTaskLocaleKey: localeName,
+      libraryUpdateTaskConfigsOrgKey: Env.configsSourceOrg,
+      libraryUpdateTaskConfigsRepoKey: Env.configsSourceRepo,
     },
   );
 }
@@ -53,6 +60,17 @@ Future<bool> runLibraryUpdateTask(Map<String, dynamic>? inputData) async {
     if (!await settings.getCheckUpdates()) return true;
 
     database = WakaranaiDatabase();
+
+    try {
+      await ExtensionResolver(
+        extensionRepository: ExtensionRepository(database: database),
+        extensionSourceRepository: ExtensionSourceRepository(database: database),
+        officialOrg: inputData?[libraryUpdateTaskConfigsOrgKey] as String?,
+        officialRepo: inputData?[libraryUpdateTaskConfigsRepoKey] as String?,
+      ).refreshOutdated();
+    } catch (e) {
+      logger.w('Extension update check failed: $e');
+    }
 
     final LibraryUpdateService service = LibraryUpdateService(
       libraryEntryRepository: LibraryEntryRepository(database: database),

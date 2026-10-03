@@ -598,6 +598,28 @@ class $ExtensionTableTable extends ExtensionTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _configJsonMeta = const VerificationMeta(
+    'configJson',
+  );
+  @override
+  late final GeneratedColumn<String> configJson = GeneratedColumn<String>(
+    'config_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<String> revision = GeneratedColumn<String>(
+    'revision',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -613,6 +635,8 @@ class $ExtensionTableTable extends ExtensionTable
     sourceCode,
     searchAvailable,
     protectorConfig,
+    configJson,
+    revision,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -725,6 +749,18 @@ class $ExtensionTableTable extends ExtensionTable
         ),
       );
     }
+    if (data.containsKey('config_json')) {
+      context.handle(
+        _configJsonMeta,
+        configJson.isAcceptableOrUnknown(data['config_json']!, _configJsonMeta),
+      );
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    }
     return context;
   }
 
@@ -786,6 +822,14 @@ class $ExtensionTableTable extends ExtensionTable
         DriftSqlType.string,
         data['${effectivePrefix}protector_config'],
       ),
+      configJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}config_json'],
+      ),
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}revision'],
+      ),
     );
   }
 
@@ -810,6 +854,8 @@ class ExtensionTableData extends DataClass
   final String sourceCode;
   final bool searchAvailable;
   final String? protectorConfig;
+  final String? configJson;
+  final String? revision;
   const ExtensionTableData({
     required this.id,
     required this.createdAt,
@@ -824,6 +870,8 @@ class ExtensionTableData extends DataClass
     required this.sourceCode,
     required this.searchAvailable,
     this.protectorConfig,
+    this.configJson,
+    this.revision,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -844,6 +892,12 @@ class ExtensionTableData extends DataClass
     map['search_available'] = Variable<bool>(searchAvailable);
     if (!nullToAbsent || protectorConfig != null) {
       map['protector_config'] = Variable<String>(protectorConfig);
+    }
+    if (!nullToAbsent || configJson != null) {
+      map['config_json'] = Variable<String>(configJson);
+    }
+    if (!nullToAbsent || revision != null) {
+      map['revision'] = Variable<String>(revision);
     }
     return map;
   }
@@ -867,6 +921,12 @@ class ExtensionTableData extends DataClass
       protectorConfig: protectorConfig == null && nullToAbsent
           ? const Value.absent()
           : Value(protectorConfig),
+      configJson: configJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(configJson),
+      revision: revision == null && nullToAbsent
+          ? const Value.absent()
+          : Value(revision),
     );
   }
 
@@ -889,6 +949,8 @@ class ExtensionTableData extends DataClass
       sourceCode: serializer.fromJson<String>(json['sourceCode']),
       searchAvailable: serializer.fromJson<bool>(json['searchAvailable']),
       protectorConfig: serializer.fromJson<String?>(json['protectorConfig']),
+      configJson: serializer.fromJson<String?>(json['configJson']),
+      revision: serializer.fromJson<String?>(json['revision']),
     );
   }
   @override
@@ -908,6 +970,8 @@ class ExtensionTableData extends DataClass
       'sourceCode': serializer.toJson<String>(sourceCode),
       'searchAvailable': serializer.toJson<bool>(searchAvailable),
       'protectorConfig': serializer.toJson<String?>(protectorConfig),
+      'configJson': serializer.toJson<String?>(configJson),
+      'revision': serializer.toJson<String?>(revision),
     };
   }
 
@@ -925,6 +989,8 @@ class ExtensionTableData extends DataClass
     String? sourceCode,
     bool? searchAvailable,
     Value<String?> protectorConfig = const Value.absent(),
+    Value<String?> configJson = const Value.absent(),
+    Value<String?> revision = const Value.absent(),
   }) => ExtensionTableData(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -941,6 +1007,8 @@ class ExtensionTableData extends DataClass
     protectorConfig: protectorConfig.present
         ? protectorConfig.value
         : this.protectorConfig,
+    configJson: configJson.present ? configJson.value : this.configJson,
+    revision: revision.present ? revision.value : this.revision,
   );
   ExtensionTableData copyWithCompanion(ExtensionTableCompanion data) {
     return ExtensionTableData(
@@ -963,6 +1031,10 @@ class ExtensionTableData extends DataClass
       protectorConfig: data.protectorConfig.present
           ? data.protectorConfig.value
           : this.protectorConfig,
+      configJson: data.configJson.present
+          ? data.configJson.value
+          : this.configJson,
+      revision: data.revision.present ? data.revision.value : this.revision,
     );
   }
 
@@ -981,7 +1053,9 @@ class ExtensionTableData extends DataClass
           ..write('nsfw: $nsfw, ')
           ..write('sourceCode: $sourceCode, ')
           ..write('searchAvailable: $searchAvailable, ')
-          ..write('protectorConfig: $protectorConfig')
+          ..write('protectorConfig: $protectorConfig, ')
+          ..write('configJson: $configJson, ')
+          ..write('revision: $revision')
           ..write(')'))
         .toString();
   }
@@ -1001,6 +1075,8 @@ class ExtensionTableData extends DataClass
     sourceCode,
     searchAvailable,
     protectorConfig,
+    configJson,
+    revision,
   );
   @override
   bool operator ==(Object other) =>
@@ -1018,7 +1094,9 @@ class ExtensionTableData extends DataClass
           other.nsfw == this.nsfw &&
           other.sourceCode == this.sourceCode &&
           other.searchAvailable == this.searchAvailable &&
-          other.protectorConfig == this.protectorConfig);
+          other.protectorConfig == this.protectorConfig &&
+          other.configJson == this.configJson &&
+          other.revision == this.revision);
 }
 
 class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
@@ -1035,6 +1113,8 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
   final Value<String> sourceCode;
   final Value<bool> searchAvailable;
   final Value<String?> protectorConfig;
+  final Value<String?> configJson;
+  final Value<String?> revision;
   const ExtensionTableCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1049,6 +1129,8 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     this.sourceCode = const Value.absent(),
     this.searchAvailable = const Value.absent(),
     this.protectorConfig = const Value.absent(),
+    this.configJson = const Value.absent(),
+    this.revision = const Value.absent(),
   });
   ExtensionTableCompanion.insert({
     this.id = const Value.absent(),
@@ -1064,6 +1146,8 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     required String sourceCode,
     required bool searchAvailable,
     this.protectorConfig = const Value.absent(),
+    this.configJson = const Value.absent(),
+    this.revision = const Value.absent(),
   }) : uid = Value(uid),
        name = Value(name),
        type = Value(type),
@@ -1087,6 +1171,8 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     Expression<String>? sourceCode,
     Expression<bool>? searchAvailable,
     Expression<String>? protectorConfig,
+    Expression<String>? configJson,
+    Expression<String>? revision,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1102,6 +1188,8 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
       if (sourceCode != null) 'source_code': sourceCode,
       if (searchAvailable != null) 'search_available': searchAvailable,
       if (protectorConfig != null) 'protector_config': protectorConfig,
+      if (configJson != null) 'config_json': configJson,
+      if (revision != null) 'revision': revision,
     });
   }
 
@@ -1119,6 +1207,8 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     Value<String>? sourceCode,
     Value<bool>? searchAvailable,
     Value<String?>? protectorConfig,
+    Value<String?>? configJson,
+    Value<String?>? revision,
   }) {
     return ExtensionTableCompanion(
       id: id ?? this.id,
@@ -1134,6 +1224,8 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
       sourceCode: sourceCode ?? this.sourceCode,
       searchAvailable: searchAvailable ?? this.searchAvailable,
       protectorConfig: protectorConfig ?? this.protectorConfig,
+      configJson: configJson ?? this.configJson,
+      revision: revision ?? this.revision,
     );
   }
 
@@ -1179,6 +1271,12 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     if (protectorConfig.present) {
       map['protector_config'] = Variable<String>(protectorConfig.value);
     }
+    if (configJson.present) {
+      map['config_json'] = Variable<String>(configJson.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<String>(revision.value);
+    }
     return map;
   }
 
@@ -1197,7 +1295,9 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
           ..write('nsfw: $nsfw, ')
           ..write('sourceCode: $sourceCode, ')
           ..write('searchAvailable: $searchAvailable, ')
-          ..write('protectorConfig: $protectorConfig')
+          ..write('protectorConfig: $protectorConfig, ')
+          ..write('configJson: $configJson, ')
+          ..write('revision: $revision')
           ..write(')'))
         .toString();
   }
@@ -5989,6 +6089,8 @@ typedef $$ExtensionTableTableCreateCompanionBuilder =
       required String sourceCode,
       required bool searchAvailable,
       Value<String?> protectorConfig,
+      Value<String?> configJson,
+      Value<String?> revision,
     });
 typedef $$ExtensionTableTableUpdateCompanionBuilder =
     ExtensionTableCompanion Function({
@@ -6005,6 +6107,8 @@ typedef $$ExtensionTableTableUpdateCompanionBuilder =
       Value<String> sourceCode,
       Value<bool> searchAvailable,
       Value<String?> protectorConfig,
+      Value<String?> configJson,
+      Value<String?> revision,
     });
 
 class $$ExtensionTableTableFilterComposer
@@ -6078,6 +6182,16 @@ class $$ExtensionTableTableFilterComposer
 
   ColumnFilters<String> get protectorConfig => $composableBuilder(
     column: $table.protectorConfig,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get configJson => $composableBuilder(
+    column: $table.configJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get revision => $composableBuilder(
+    column: $table.revision,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -6155,6 +6269,16 @@ class $$ExtensionTableTableOrderingComposer
     column: $table.protectorConfig,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get configJson => $composableBuilder(
+    column: $table.configJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ExtensionTableTableAnnotationComposer
@@ -6210,6 +6334,14 @@ class $$ExtensionTableTableAnnotationComposer
     column: $table.protectorConfig,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get configJson => $composableBuilder(
+    column: $table.configJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
 }
 
 class $$ExtensionTableTableTableManager
@@ -6262,6 +6394,8 @@ class $$ExtensionTableTableTableManager
                 Value<String> sourceCode = const Value.absent(),
                 Value<bool> searchAvailable = const Value.absent(),
                 Value<String?> protectorConfig = const Value.absent(),
+                Value<String?> configJson = const Value.absent(),
+                Value<String?> revision = const Value.absent(),
               }) => ExtensionTableCompanion(
                 id: id,
                 createdAt: createdAt,
@@ -6276,6 +6410,8 @@ class $$ExtensionTableTableTableManager
                 sourceCode: sourceCode,
                 searchAvailable: searchAvailable,
                 protectorConfig: protectorConfig,
+                configJson: configJson,
+                revision: revision,
               ),
           createCompanionCallback:
               ({
@@ -6292,6 +6428,8 @@ class $$ExtensionTableTableTableManager
                 required String sourceCode,
                 required bool searchAvailable,
                 Value<String?> protectorConfig = const Value.absent(),
+                Value<String?> configJson = const Value.absent(),
+                Value<String?> revision = const Value.absent(),
               }) => ExtensionTableCompanion.insert(
                 id: id,
                 createdAt: createdAt,
@@ -6306,6 +6444,8 @@ class $$ExtensionTableTableTableManager
                 sourceCode: sourceCode,
                 searchAvailable: searchAvailable,
                 protectorConfig: protectorConfig,
+                configJson: configJson,
+                revision: revision,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

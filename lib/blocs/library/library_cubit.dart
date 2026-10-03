@@ -38,9 +38,19 @@ class LibraryCubit extends Cubit<LibraryState> {
       <String, Map<String, String>>{};
   final Set<String> _resolvingExtensions = <String>{};
 
+  bool _extensionsRefreshed = false;
+
   void init() {
     _entriesSub?.cancel();
     _categoriesSub?.cancel();
+
+    if (!_extensionsRefreshed) {
+      _extensionsRefreshed = true;
+      unawaited(extensionResolver.refreshOutdated().catchError((Object e) {
+        logger.w('Extension update check failed: $e');
+        return 0;
+      }));
+    }
 
     _entriesSub = libraryEntryRepository.watchAll().listen(
       (List<LibraryEntryDomain> entries) {

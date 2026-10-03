@@ -12,10 +12,12 @@ class RemoteConfig with BaseExtension {
   Map<String, dynamic> toJson() => _$RemoteConfigToJson(this);
 
   final String path;
+  final String? revision;
   @override
   final ConfigInfo config;
   const RemoteConfig({
     required this.path,
     required this.config,
+    this.revision,
   });
 }
