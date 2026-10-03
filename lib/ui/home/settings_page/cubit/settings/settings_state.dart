@@ -20,6 +20,8 @@ class SettingsInitialized extends SettingsState {
 
   final int updateFrequencyHours;
 
+  final bool useLocalExtensionServer;
+
   final bool loading;
 
   final ImportExportProgress? progress;
@@ -33,6 +35,7 @@ class SettingsInitialized extends SettingsState {
     required this.checkUpdates,
     required this.updateNotifications,
     required this.updateFrequencyHours,
+    this.useLocalExtensionServer = false,
     this.loading = false,
     this.progress,
     this.outcome,
@@ -45,6 +48,7 @@ class SettingsInitialized extends SettingsState {
     bool? checkUpdates,
     bool? updateNotifications,
     int? updateFrequencyHours,
+    bool? useLocalExtensionServer,
     bool? loading,
     ImportExportProgress? progress,
     bool clearProgress = false,
@@ -58,6 +62,8 @@ class SettingsInitialized extends SettingsState {
       checkUpdates: checkUpdates ?? this.checkUpdates,
       updateNotifications: updateNotifications ?? this.updateNotifications,
       updateFrequencyHours: updateFrequencyHours ?? this.updateFrequencyHours,
+      useLocalExtensionServer:
+          useLocalExtensionServer ?? this.useLocalExtensionServer,
       loading: loading ?? this.loading,
       progress: clearProgress ? null : (progress ?? this.progress),
       outcome: clearOutcome ? null : (outcome ?? this.outcome),

@@ -135,6 +135,16 @@
   "settings_content_section_title": "Content",
   "settings_show_nsfw_title": "Show NSFW sources",
   "settings_show_nsfw_subtitle": "Display extensions marked as adult content",
+  "settings_developer_section": "Developer",
+  "settings_local_extension_server_title": "Local extension server",
+  "settings_local_extension_server_subtitle": "Load extensions from {url}",
+  "@settings_local_extension_server_subtitle": {
+    "placeholders": {
+      "url": {}
+    }
+  },
+  "settings_local_extension_server_missing": "Set LOCAL_REPOSITORY_URL in .env to enable",
+  "local_extension_server_source_name": "Local server",
   "settings_statistics_section_title": "Statistics",
   "settings_reading_statistics_title": "Reading statistics",
   "settings_reading_statistics_subtitle": "View your reading and watching activity",

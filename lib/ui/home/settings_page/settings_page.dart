@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
+import 'package:wakaranai/env.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/utils/app_palette.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
@@ -11,6 +13,7 @@ import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/home/settings_page/import_export_progress_overlay.dart';
 import 'package:wakaranai/ui/home/settings_page/import_export_sheet.dart';
+import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
@@ -74,6 +77,7 @@ class SettingsPage extends StatelessWidget {
                     _buildAppearanceSection(context),
                     _buildReaderSection(context, state),
                     _buildContentSection(context, state),
+                    if (kDebugMode) _buildDeveloperSection(context, state),
                     _buildUpdatesSection(context, state),
                     _buildStatisticsSection(context, state),
                     _buildStorageSection(context),
@@ -133,6 +137,39 @@ class SettingsPage extends StatelessWidget {
           ),
           onTap: () =>
               context.read<SettingsCubit>().onChangedShowNsfw(!state.showNsfw),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDeveloperSection(
+      BuildContext context, SettingsInitialized state) {
+    final String url = Env.localRepoUrl;
+    final bool available = url.isNotEmpty;
+
+    Future<void> toggle(bool value) async {
+      await context.read<SettingsCubit>().onChangedUseLocalExtensionServer(value);
+      await context.read<RemoteConfigsCubit>().refresh();
+    }
+
+    return _SettingsSection(
+      title: S.current.settings_developer_section,
+      tiles: <Widget>[
+        _SettingsTile(
+          icon: Icons.developer_mode_rounded,
+          title: S.current.settings_local_extension_server_title,
+          subtitle: available
+              ? S.current.settings_local_extension_server_subtitle(url)
+              : S.current.settings_local_extension_server_missing,
+          trailing: Switch(
+            value: available && state.useLocalExtensionServer,
+            activeThumbColor: AppColors.mainBlack,
+            activeTrackColor: AppColors.primary,
+            onChanged: available ? toggle : null,
+          ),
+          onTap: available
+              ? () => toggle(!state.useLocalExtensionServer)
+              : null,
         ),
       ],
     );

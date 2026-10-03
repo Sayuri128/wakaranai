@@ -12,6 +12,8 @@ class SettingsService {
   static const String checkUpdatesPrefsKey = 'CHECK_LIBRARY_UPDATES';
   static const String updateNotificationsPrefsKey = 'UPDATE_NOTIFICATIONS';
   static const String updateFrequencyPrefsKey = 'UPDATE_FREQUENCY_HOURS';
+  static const String useLocalExtensionServerPrefsKey =
+      'USE_LOCAL_EXTENSION_SERVER';
 
   static const int defaultUpdateFrequencyHours = 12;
 
@@ -67,6 +69,18 @@ class SettingsService {
     _prefs ??= await SharedPreferences.getInstance();
 
     await _prefs!.setBool(showNsfwPrefsKey, value);
+  }
+
+  Future<bool> getUseLocalExtensionServer() async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    return _prefs!.getBool(useLocalExtensionServerPrefsKey) ?? false;
+  }
+
+  Future<void> setUseLocalExtensionServer(bool value) async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    await _prefs!.setBool(useLocalExtensionServerPrefsKey, value);
   }
 
   Future<bool> getCollectStatistics() async {

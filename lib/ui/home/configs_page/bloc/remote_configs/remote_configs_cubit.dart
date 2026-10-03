@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/data/domain/database/extension_source_type.dart';
@@ -10,6 +10,7 @@ import 'package:wakaranai/repositories/database/extension_source_repository.dart
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 import 'package:wakaranai/services/configs_service/github_configs_service.dart';
 import 'package:wakaranai/services/configs_service/repo_configs_service.dart';
+import 'package:wakaranai/services/settings_service/settings_service.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/extension_sources_page_result.dart';
 import 'package:wakaranai/utils/github_url_parser.dart';
 
@@ -22,11 +23,10 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
     required this.extensionSourceRepository,
   }) : super(RemoteConfigsLoading());
 
-  ConfigsService _configsService =
-      GitHubConfigsService(Env.configsSourceOrg, Env.configsSourceRepo);
+  ConfigsService _configsService = _officialService();
 
-  // ConfigsService _configsService =
-  //     RepoConfigsService(url: Env.localRepoUrl);
+  static ConfigsService _officialService() =>
+      GitHubConfigsService(Env.configsSourceOrg, Env.configsSourceRepo);
 
   final DefaultExtensionRepository defaultExtensionRepository =
       DefaultExtensionRepository();
@@ -35,6 +35,17 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   ConfigsService get configService => _configsService;
 
   Future<void> init() async {
+    if (kDebugMode &&
+        Env.localRepoUrl.isNotEmpty &&
+        await SettingsService().getUseLocalExtensionServer()) {
+      _configsService = RepoConfigsService(url: Env.localRepoUrl);
+      await getConfigs(sourceName: S.current.local_extension_server_source_name);
+      return;
+    }
+    if (_configsService is RepoConfigsService) {
+      _configsService = _officialService();
+    }
+
     await defaultExtensionRepository.init();
 
     final int? defaultId =

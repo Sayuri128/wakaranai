@@ -52,30 +52,32 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m14(imported, total) =>
       "Imported ${imported} of ${total} items";
 
-  static String m15(hours) => "Every ${hours} hours";
+  static String m15(url) => "Load extensions from ${url}";
 
-  static String m16(count) => "${count} activities";
+  static String m16(hours) => "Every ${hours} hours";
 
-  static String m17(current, longest) =>
+  static String m17(count) => "${count} activities";
+
+  static String m18(current, longest) =>
       "Current ${current} · Longest ${longest}";
 
-  static String m18(count) => "${count} sources could not be checked";
+  static String m19(count) => "${count} sources could not be checked";
 
-  static String m19(count) => "${count} new items found";
+  static String m20(count) => "${count} new items found";
 
-  static String m20(title, count) => "${title} · ${count} new";
+  static String m21(title, count) => "${title} · ${count} new";
 
-  static String m21(count) => "and ${count} more titles";
+  static String m22(count) => "and ${count} more titles";
 
-  static String m22(count) => "Across ${count} titles";
+  static String m23(count) => "Across ${count} titles";
 
-  static String m23(count) => "${count} new items";
+  static String m24(count) => "${count} new items";
 
-  static String m24(count) => "${count}d ago";
+  static String m25(count) => "${count}d ago";
 
-  static String m25(count) => "${count}h ago";
+  static String m26(count) => "${count}h ago";
 
-  static String m26(count) => "${count}m ago";
+  static String m27(count) => "${count}m ago";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -418,6 +420,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "library_unmute_notifications": MessageLookupByLibrary.simpleMessage(
       "Unmute notifications",
     ),
+    "local_extension_server_source_name": MessageLookupByLibrary.simpleMessage(
+      "Local server",
+    ),
     "save_image_error": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t save image",
     ),
@@ -513,6 +518,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_default_reader_mode_title": MessageLookupByLibrary.simpleMessage(
       "Default reader mode",
     ),
+    "settings_developer_section": MessageLookupByLibrary.simpleMessage(
+      "Developer",
+    ),
     "settings_download_latest_release": m12,
     "settings_downloads_subtitle": MessageLookupByLibrary.simpleMessage(
       "Manage downloaded chapters",
@@ -578,6 +586,13 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settings_import_skipped": m13,
     "settings_import_success": m14,
+    "settings_local_extension_server_missing":
+        MessageLookupByLibrary.simpleMessage(
+          "Set LOCAL_REPOSITORY_URL in .env to enable",
+        ),
+    "settings_local_extension_server_subtitle": m15,
+    "settings_local_extension_server_title":
+        MessageLookupByLibrary.simpleMessage("Local extension server"),
     "settings_progress_preparing": MessageLookupByLibrary.simpleMessage(
       "Preparing…",
     ),
@@ -623,7 +638,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_update_frequency": MessageLookupByLibrary.simpleMessage(
       "Check frequency",
     ),
-    "settings_update_frequency_value": m15,
+    "settings_update_frequency_value": m16,
     "settings_update_notifications": MessageLookupByLibrary.simpleMessage(
       "Update notifications",
     ),
@@ -656,7 +671,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "stats_heatmap_less": MessageLookupByLibrary.simpleMessage("Less"),
     "stats_heatmap_more": MessageLookupByLibrary.simpleMessage("More"),
-    "stats_heatmap_week_count": m16,
+    "stats_heatmap_week_count": m17,
     "stats_kpi_active_days": MessageLookupByLibrary.simpleMessage(
       "Active days",
     ),
@@ -677,10 +692,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "stats_sources_section_title": MessageLookupByLibrary.simpleMessage(
       "Top sources",
     ),
-    "stats_streak_summary": m17,
+    "stats_streak_summary": m18,
     "stats_title": MessageLookupByLibrary.simpleMessage("Statistics"),
-    "updates_check_failed": m18,
-    "updates_check_found": m19,
+    "updates_check_failed": m19,
+    "updates_check_found": m20,
     "updates_check_none": MessageLookupByLibrary.simpleMessage(
       "No new updates found",
     ),
@@ -700,13 +715,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "updates_notification_channel_name": MessageLookupByLibrary.simpleMessage(
       "Library updates",
     ),
-    "updates_notification_line": m20,
-    "updates_notification_more": m21,
-    "updates_notification_summary": m22,
-    "updates_notification_title": m23,
-    "updates_time_days": m24,
-    "updates_time_hours": m25,
-    "updates_time_minutes": m26,
+    "updates_notification_line": m21,
+    "updates_notification_more": m22,
+    "updates_notification_summary": m23,
+    "updates_notification_title": m24,
+    "updates_time_days": m25,
+    "updates_time_hours": m26,
+    "updates_time_minutes": m27,
     "updates_time_now": MessageLookupByLibrary.simpleMessage("Just now"),
     "updates_title": MessageLookupByLibrary.simpleMessage("Updates"),
     "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage("Done"),

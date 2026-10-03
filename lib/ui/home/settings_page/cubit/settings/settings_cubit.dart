@@ -151,6 +151,8 @@ class SettingsCubit extends Cubit<SettingsState> {
         checkUpdates: await _settingsService.getCheckUpdates(),
         updateNotifications: await _settingsService.getUpdateNotifications(),
         updateFrequencyHours: await _settingsService.getUpdateFrequencyHours(),
+        useLocalExtensionServer:
+            await _settingsService.getUseLocalExtensionServer(),
       ),
     );
 
@@ -175,6 +177,13 @@ class SettingsCubit extends Cubit<SettingsState> {
         logger.e(s);
       }
     }
+  }
+
+  Future<void> onChangedUseLocalExtensionServer(bool value) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) return;
+    await _settingsService.setUseLocalExtensionServer(value);
+    emit(state.copyWith(useLocalExtensionServer: value));
   }
 
   void onChangedShowNsfw(bool value) async {

@@ -1159,6 +1159,56 @@ class S {
     );
   }
 
+  /// `Developer`
+  String get settings_developer_section {
+    return Intl.message(
+      'Developer',
+      name: 'settings_developer_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Local extension server`
+  String get settings_local_extension_server_title {
+    return Intl.message(
+      'Local extension server',
+      name: 'settings_local_extension_server_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Load extensions from {url}`
+  String settings_local_extension_server_subtitle(Object url) {
+    return Intl.message(
+      'Load extensions from $url',
+      name: 'settings_local_extension_server_subtitle',
+      desc: '',
+      args: [url],
+    );
+  }
+
+  /// `Set LOCAL_REPOSITORY_URL in .env to enable`
+  String get settings_local_extension_server_missing {
+    return Intl.message(
+      'Set LOCAL_REPOSITORY_URL in .env to enable',
+      name: 'settings_local_extension_server_missing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Local server`
+  String get local_extension_server_source_name {
+    return Intl.message(
+      'Local server',
+      name: 'local_extension_server_source_name',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Statistics`
   String get settings_statistics_section_title {
     return Intl.message(
