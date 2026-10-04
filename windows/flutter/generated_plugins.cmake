@@ -3,7 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  dynamic_color
   file_saver
   flutter_avif_windows
   flutter_inappwebview_windows
