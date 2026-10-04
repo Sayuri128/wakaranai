@@ -228,6 +228,11 @@ class MangaConcreteViewer extends StatelessWidget
                             const SizedBox(height: 16),
                             const ConcreteOfflineBanner(),
                           ],
+                          if (ConcreteMetadataRow.hasContent(
+                              concreteView)) ...<Widget>[
+                            const SizedBox(height: 12),
+                            ConcreteMetadataRow(view: concreteView),
+                          ],
                           if (concreteView.tags.isNotEmpty) ...<Widget>[
                             const SizedBox(height: 16),
                             _buildTags(context, concreteView),

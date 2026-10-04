@@ -317,8 +317,13 @@ function main() {
       "description": "",
       "tags": [],
       "groups": [],
-      "status", statusAnnounce(),
+      "status": statusAnnounce(),
       "alternativeTitles": [],
+      "authors": ["Author"],
+      "artists": ["Artist"],
+      "year": 2019,
+      "rating": 8.7,
+      "url": "https://example.com/title",
     });
 }
 
@@ -340,6 +345,16 @@ Parameters:
     * `statusPaused` - Paused
     * `statusReleased` - Released
     * `statusUndefined` - Undefined
+
+Optional details, shown under the title in the app (capyscript 0.4+; older app builds ignore them, so
+they are safe to pass):
+
+* `authors` / `artists` — lists of names; artists that are also authors are shown once.
+* `year` — release year, a number or a numeric string.
+* `rating` — 0–10, a number or a numeric string (`"8,7"` works); values outside are clamped.
+* `url` — the title's page on the site, opened by the "Open website" link.
+
+The same optional details work in the anime `buildConcrete`.
 
 ---
 

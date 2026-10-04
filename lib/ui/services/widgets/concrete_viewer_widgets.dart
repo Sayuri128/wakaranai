@@ -1,4 +1,6 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/widgets/shimmer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -463,6 +465,85 @@ class ConcreteContentSkeleton extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+class ConcreteMetadataRow extends StatelessWidget {
+  const ConcreteMetadataRow({super.key, required this.view});
+
+  final ConcreteView<dynamic> view;
+
+  static bool hasContent(ConcreteView<dynamic> view) =>
+      view.authors.isNotEmpty ||
+      view.artists.isNotEmpty ||
+      view.year != null ||
+      view.rating != null ||
+      view.url != null;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<String> artists = view.artists
+        .where((String a) => !view.authors.contains(a))
+        .toList();
+    final num? rating = view.rating;
+    final String? url = view.url;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Wrap(
+        spacing: 16,
+        runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: <Widget>[
+          if (view.authors.isNotEmpty)
+            _item(Icons.person_outline_rounded,
+                S.current.concrete_viewer_by_authors(view.authors.join(', '))),
+          if (artists.isNotEmpty)
+            _item(Icons.brush_rounded,
+                S.current.concrete_viewer_art_by(artists.join(', '))),
+          if (view.year != null)
+            _item(Icons.calendar_today_rounded, view.year.toString()),
+          if (rating != null)
+            _item(Icons.star_rounded, _formatRating(rating),
+                iconColor: AppColors.primary),
+          if (url != null)
+            InkWell(
+              borderRadius: BorderRadius.circular(8),
+              splashColor: AppColors.mediumLight.withValues(alpha: 0.2),
+              onTap: () => launchUrl(Uri.parse(url),
+                  mode: LaunchMode.externalApplication),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: _item(Icons.open_in_new_rounded,
+                    S.current.concrete_viewer_open_website,
+                    iconColor: AppColors.primary,
+                    textColor: AppColors.primary),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  static String _formatRating(num rating) => rating == rating.roundToDouble()
+      ? rating.toInt().toString()
+      : rating.toStringAsFixed(1);
+
+  Widget _item(IconData icon, String text,
+      {Color? iconColor, Color? textColor}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Icon(icon, size: 16, color: iconColor ?? AppColors.mainGrey),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            text,
+            style: regular(size: 13, color: textColor ?? AppColors.mainGrey),
+          ),
+        ),
+      ],
     );
   }
 }

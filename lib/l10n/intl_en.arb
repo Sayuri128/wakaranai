@@ -136,6 +136,19 @@
   "settings_show_nsfw_title": "Show NSFW sources",
   "settings_show_nsfw_subtitle": "Display extensions marked as adult content",
   "settings_developer_section": "Developer",
+  "concrete_viewer_by_authors": "By {names}",
+  "@concrete_viewer_by_authors": {
+    "placeholders": {
+      "names": {}
+    }
+  },
+  "concrete_viewer_art_by": "Art by {names}",
+  "@concrete_viewer_art_by": {
+    "placeholders": {
+      "names": {}
+    }
+  },
+  "concrete_viewer_open_website": "Open website",
   "settings_local_extension_server_title": "Local extension server",
   "settings_local_extension_server_subtitle": "Load extensions from {url}",
   "@settings_local_extension_server_subtitle": {

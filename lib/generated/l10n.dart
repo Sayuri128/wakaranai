@@ -1169,6 +1169,36 @@ class S {
     );
   }
 
+  /// `By {names}`
+  String concrete_viewer_by_authors(Object names) {
+    return Intl.message(
+      'By $names',
+      name: 'concrete_viewer_by_authors',
+      desc: '',
+      args: [names],
+    );
+  }
+
+  /// `Art by {names}`
+  String concrete_viewer_art_by(Object names) {
+    return Intl.message(
+      'Art by $names',
+      name: 'concrete_viewer_art_by',
+      desc: '',
+      args: [names],
+    );
+  }
+
+  /// `Open website`
+  String get concrete_viewer_open_website {
+    return Intl.message(
+      'Open website',
+      name: 'concrete_viewer_open_website',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Local extension server`
   String get settings_local_extension_server_title {
     return Intl.message(
