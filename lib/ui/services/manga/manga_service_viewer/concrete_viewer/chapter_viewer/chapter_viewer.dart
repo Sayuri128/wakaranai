@@ -20,7 +20,15 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:transparent_pointer/transparent_pointer.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:wakaranai/blocs/language_packs/language_packs_cubit.dart';
+import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/repositories/database/page_translation_repository.dart';
+import 'package:wakaranai/repositories/shared_pref/title_translation_languages_repository.dart';
+import 'package:wakaranai/services/page_translation/page_language.dart';
+import 'package:wakaranai/services/page_translation/page_translation_service.dart';
+import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
+import 'package:wakaranai/services/page_translation/title_languages.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
@@ -29,9 +37,14 @@ import 'package:wakaranai/utils/page_image.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
+import 'package:wakaranai/ui/services/cubits/page_translation/page_translation_cubit.dart';
+import 'package:wakaranai/ui/services/widgets/page_translation/translated_page.dart';
+import 'package:wakaranai/ui/services/widgets/page_translation/translation_languages_sheet.dart';
+import 'package:wakaranai/ui/services/widgets/page_translation/translation_models_sheet.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/bottom_modal_settings.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
+import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -69,6 +82,7 @@ class _ChapterViewerState extends State<ChapterViewer>
   final Map<String, Size> _pageSizes = <String, Size>{};
 
   late final ChapterViewCubit _chapterViewCubit;
+  PageTranslationCubit? _translationCubit;
 
   late final PageController _pageController;
   late final ItemScrollController _itemScrollController;
@@ -101,6 +115,38 @@ class _ChapterViewerState extends State<ChapterViewer>
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     unawaited(WakelockPlus.enable());
 
+    final PageTranslationSettings translationSettings = context
+        .read<PageTranslationSettingsCubit>()
+        .state;
+    if (translationSettings.enabled) {
+      final PageTranslationRepository translationRepository = context
+          .read<PageTranslationRepository>();
+      final LanguagePacksCubit languagePacks = context
+          .read<LanguagePacksCubit>();
+      final TitleTranslationLanguagesRepository languagesRepository =
+          TitleTranslationLanguagesRepository();
+      final String extensionUid = widget.data.configInfo.uid;
+      final String concreteUid = widget.data.concreteView.uid;
+      _translationCubit = PageTranslationCubit(
+        backendFactory: (TitleLanguages languages) => PageTranslationService(
+          repository: translationRepository,
+          settings: translationSettings,
+          languages: languages,
+        ),
+        ensurePacks: (TitleLanguages languages) =>
+            languagePacks.ensure(languages.packs),
+        onLanguagesChanged: (TitleLanguages languages) =>
+            languagesRepository.set(extensionUid, concreteUid, languages),
+      );
+      unawaited(
+        languagesRepository.get(extensionUid, concreteUid).then((
+          TitleLanguages? saved,
+        ) {
+          if (saved != null) _translationCubit?.restoreLanguages(saved);
+        }),
+      );
+    }
+
     _chapterViewCubit =
         ChapterViewCubit(
           apiClient: widget.data.apiClient,
@@ -131,6 +177,7 @@ class _ChapterViewerState extends State<ChapterViewer>
   void dispose() {
     unawaited(WakelockPlus.disable());
     _chapterViewCubit.close();
+    _translationCubit?.close();
     _sliderController.dispose();
     _pageController.dispose();
     SystemChrome.setEnabledSystemUIMode(
@@ -146,9 +193,244 @@ class _ChapterViewerState extends State<ChapterViewer>
       value: _chapterViewCubit,
       child: Scaffold(
         key: _scaffoldKey,
-        body: _buildPage(),
+        body: _translationCubit == null
+            ? _buildPage()
+            : BlocListener<PageTranslationCubit, PageTranslationState>(
+                bloc: _translationCubit,
+                listenWhen:
+                    (
+                      PageTranslationState previous,
+                      PageTranslationState current,
+                    ) =>
+                        previous.phase != current.phase ||
+                        previous.downloadFailed != current.downloadFailed,
+                listener: _onTranslationPhase,
+                child: _buildPage(),
+              ),
         backgroundColor: AppColors.mainBlack,
       ),
+    );
+  }
+
+  Future<void> _onTranslationPhase(
+    BuildContext context,
+    PageTranslationState translation,
+  ) async {
+    final PageTranslationCubit cubit = _translationCubit!;
+    if (translation.downloadFailed) {
+      SnackBars.showErrorSnackBar(
+        context: context,
+        error: S.current.page_translation_models_failed,
+      );
+    }
+    switch (translation.phase) {
+      case PageTranslationPhase.active:
+        final ChapterViewState state = _chapterViewCubit.state;
+        if (state is ChapterViewInitialized) {
+          _requestTranslations(state, state.currentPage - 1);
+        }
+        break;
+      case PageTranslationPhase.choosingLanguages:
+        final TitleLanguages? chosen = await showTranslationLanguagesSheet(
+          context,
+          initial: _defaultTranslationLanguages(),
+          confirmLabel: S.current.page_translation_languages_start,
+        );
+        if (chosen != null) {
+          await cubit.setLanguages(chosen);
+        } else {
+          cubit.dismissPrompt();
+        }
+        break;
+      case PageTranslationPhase.needsModels:
+        final bool confirmed = await showTranslationModelsSheet(
+          context,
+          languages: translation.languages!,
+          wifiOnly: context.read<PageTranslationSettingsCubit>().state.wifiOnly,
+        );
+        if (confirmed) {
+          await cubit.downloadModels();
+        } else {
+          cubit.dismissPrompt();
+        }
+        break;
+      case PageTranslationPhase.off:
+      case PageTranslationPhase.preparing:
+      case PageTranslationPhase.downloading:
+        break;
+    }
+  }
+
+  TitleLanguages _defaultTranslationLanguages() {
+    return TitleLanguages(
+      source:
+          PageLanguage.sourceForExtension(widget.data.configInfo.language) ??
+          PageLanguage.japanese,
+      target: context.read<PageTranslationSettingsCubit>().state.target,
+    );
+  }
+
+  Future<void> _editTranslationLanguages() async {
+    final PageTranslationCubit? cubit = _translationCubit;
+    if (cubit == null) return;
+    final TitleLanguages? chosen = await showTranslationLanguagesSheet(
+      context,
+      initial: cubit.state.languages ?? _defaultTranslationLanguages(),
+      confirmLabel: S.current.page_translation_languages_save,
+    );
+    if (chosen != null) await cubit.setLanguages(chosen);
+  }
+
+  void _requestTranslations(ChapterViewInitialized state, int index) {
+    final PageTranslationCubit? cubit = _translationCubit;
+    final List<String> pages = state.currentPages.value;
+    if (cubit == null || !cubit.state.active || pages.isEmpty) return;
+
+    final int start = index.clamp(0, pages.length - 1);
+    final int end = min(pages.length - 1, start + _translateAhead);
+    cubit.request(pages.sublist(start, end + 1), state.headers);
+  }
+
+  String? _currentPagePath(ChapterViewInitialized state) {
+    final List<String> pages = state.currentPages.value;
+    if (pages.isEmpty) return null;
+    return pages[(state.currentPage - 1).clamp(0, pages.length - 1)];
+  }
+
+  Widget _buildTranslationStatus(
+    BuildContext context,
+    ChapterViewInitialized state,
+  ) {
+    final PageTranslationCubit? cubit = _translationCubit;
+    final String? path = _currentPagePath(state);
+    if (cubit == null || path == null) return const SizedBox.shrink();
+
+    return BlocBuilder<PageTranslationCubit, PageTranslationState>(
+      bloc: cubit,
+      builder: (BuildContext context, PageTranslationState translation) {
+        final PageTranslationStatus? status = translation.entry(path)?.status;
+        final bool downloading =
+            translation.phase == PageTranslationPhase.downloading;
+        final bool visible =
+            downloading ||
+            (translation.active &&
+                status != null &&
+                status != PageTranslationStatus.done);
+
+        final LanguagePacksState packs = context
+            .watch<LanguagePacksCubit>()
+            .state;
+        final String label = downloading
+            ? (packs.batchTotal > 0
+                  ? S.current.page_translation_models_downloading_progress(
+                      (packs.batchDone + 1).clamp(1, packs.batchTotal),
+                      packs.batchTotal,
+                    )
+                  : S.current.page_translation_models_downloading)
+            : switch (status) {
+                PageTranslationStatus.failed =>
+                  S.current.page_translation_status_failed,
+                PageTranslationStatus.modelPending =>
+                  S.current.page_translation_status_model_pending,
+                _ => S.current.page_translation_status_translating,
+              };
+        final bool failed =
+            !downloading && status == PageTranslationStatus.failed;
+
+        return AnimatedPositioned(
+          duration: const Duration(milliseconds: 200),
+          left: 16,
+          bottom:
+              MediaQuery.of(context).padding.bottom +
+              (state.controlsVisible ? 136 : 56),
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 200),
+            opacity: visible ? 1 : 0,
+            child: IgnorePointer(
+              ignoring: !visible || !failed,
+              child: GestureDetector(
+                onTap: () => cubit.retry(path),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 7,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.65),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      if (failed)
+                        Icon(
+                          Icons.refresh_rounded,
+                          size: 16,
+                          color: AppColors.onMedia,
+                        )
+                      else
+                        SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      const SizedBox(width: 8),
+                      Text(
+                        label,
+                        style: medium(size: 12, color: AppColors.onMedia),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTranslateButton() {
+    return BlocBuilder<PageTranslationCubit, PageTranslationState>(
+      bloc: _translationCubit,
+      builder: (BuildContext context, PageTranslationState translation) {
+        final bool on =
+            translation.phase != PageTranslationPhase.off &&
+            translation.phase != PageTranslationPhase.needsModels;
+        return Material(
+          color: on ? AppColors.primary : Colors.black.withValues(alpha: 0.55),
+          shape: CircleBorder(
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: translation.busy ? null : _translationCubit!.toggle,
+            child: Padding(
+              padding: const EdgeInsets.all(11),
+              child: SizedBox(
+                width: 22,
+                height: 22,
+                child: translation.busy
+                    ? Padding(
+                        padding: const EdgeInsets.all(2),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.mainBlack,
+                        ),
+                      )
+                    : Icon(
+                        Icons.translate_rounded,
+                        color: on ? AppColors.mainBlack : AppColors.onMedia,
+                        size: 22,
+                      ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -196,6 +478,7 @@ class _ChapterViewerState extends State<ChapterViewer>
               _buildControls(context, state),
               _buildLoaders(context, state),
               _buildPageCounter(context, state),
+              _buildTranslationStatus(context, state),
             ],
           );
         } else if (state is ChapterViewError) {
@@ -471,6 +754,10 @@ class _ChapterViewerState extends State<ChapterViewer>
               const SizedBox(width: 12),
               Expanded(child: _buildSlider(context, state)),
               const SizedBox(width: 12),
+              if (_translationCubit != null) ...<Widget>[
+                _buildTranslateButton(),
+                const SizedBox(width: 8),
+              ],
               _buildRoundButton(
                 icon: Icons.settings_rounded,
                 onTap: () => _showBottomSheetSettings(context, state),
@@ -652,6 +939,13 @@ class _ChapterViewerState extends State<ChapterViewer>
       builder: (_) => BottomModalSettings(
         chapterViewCubit: context.read<ChapterViewCubit>(),
         state: state,
+        translationLanguages: _translationCubit == null
+            ? null
+            : (_translationCubit!.state.languages ??
+                  _defaultTranslationLanguages()),
+        onEditTranslationLanguages: _translationCubit == null
+            ? null
+            : _editTranslationLanguages,
       ),
     );
   }
@@ -679,6 +973,7 @@ class _ChapterViewerState extends State<ChapterViewer>
   }
 
   static const int _prefetchRadius = 2;
+  static const int _translateAhead = 2;
   static const double _autoAdvanceOverscroll = 96;
 
   bool _maybeAutoAdvance(
@@ -717,6 +1012,7 @@ class _ChapterViewerState extends State<ChapterViewer>
     final int start = max(0, index - _prefetchRadius);
     final int end = min(pages.length - 1, index + _prefetchRadius);
     prefetchPages(pages.sublist(start, end + 1), state.headers);
+    _requestTranslations(state, index);
   }
 
   Widget _buildPageViewerPage(
@@ -781,22 +1077,26 @@ class _ChapterViewerState extends State<ChapterViewer>
                 // does its own filtering.
                 filterQuality: FilterQuality.none,
                 childSize: _pageSizes[page],
-                child: PageImage(
+                child: TranslatedPage(
+                  cubit: _translationCubit,
                   path: page,
-                  headers: state.headers,
-                  intrinsic: true,
-                  onSizeResolved: (Size size) {
-                    if (_pageSizes[page] != size && mounted) {
-                      setState(() => _pageSizes[page] = size);
-                    }
-                  },
-                  loadingBuilder: (BuildContext context) =>
-                      SizedBox.fromSize(size: MediaQuery.of(context).size),
-                  errorBuilder: (BuildContext context, VoidCallback retry) =>
-                      SizedBox.fromSize(
-                        size: MediaQuery.of(context).size,
-                        child: _buildPageError(retry),
-                      ),
+                  child: PageImage(
+                    path: page,
+                    headers: state.headers,
+                    intrinsic: true,
+                    onSizeResolved: (Size size) {
+                      if (_pageSizes[page] != size && mounted) {
+                        setState(() => _pageSizes[page] = size);
+                      }
+                    },
+                    loadingBuilder: (BuildContext context) =>
+                        SizedBox.fromSize(size: MediaQuery.of(context).size),
+                    errorBuilder: (BuildContext context, VoidCallback retry) =>
+                        SizedBox.fromSize(
+                          size: MediaQuery.of(context).size,
+                          child: _buildPageError(retry),
+                        ),
+                  ),
                 ),
               );
             },
@@ -847,20 +1147,26 @@ class _ChapterViewerState extends State<ChapterViewer>
                       );
                     }
                   },
-                  child: PageImage(
+                  child: TranslatedPage(
+                    cubit: _translationCubit,
                     path: state.currentPages.value[index],
-                    headers: state.headers,
-                    errorBuilder: (BuildContext context, VoidCallback retry) =>
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.5,
-                          child: _buildPageError(retry),
-                        ),
-                    loadingBuilder: (BuildContext context) => SizedBox(
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.primary,
+                    child: PageImage(
+                      path: state.currentPages.value[index],
+                      headers: state.headers,
+                      errorBuilder:
+                          (BuildContext context, VoidCallback retry) =>
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.5,
+                                child: _buildPageError(retry),
+                              ),
+                      loadingBuilder: (BuildContext context) => SizedBox(
+                        height: MediaQuery.of(context).size.height,
+                        width: MediaQuery.of(context).size.width,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
                         ),
                       ),
                     ),

@@ -28,6 +28,9 @@ import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
 import 'blocs/auth/authentication_cubit.dart';
 import 'ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'ui/home/settings_page/cubit/settings/settings_cubit.dart';
+import 'blocs/page_translation_settings/page_translation_settings_cubit.dart';
+import 'blocs/language_packs/language_packs_cubit.dart';
+import 'services/page_translation/engines/page_translation_engines.dart';
 
 final Logger logger = Logger(
   filter: ProductionFilter(),
@@ -134,6 +137,18 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
                 animeEpisodeActivityRepository: RepositoryProvider.of(context))
               ..init(),
             lazy: false,
+          ),
+          BlocProvider<PageTranslationSettingsCubit>(
+            create: (BuildContext context) =>
+                PageTranslationSettingsCubit()..init(),
+            lazy: false,
+          ),
+          BlocProvider<LanguagePacksCubit>(
+            create: (BuildContext context) => LanguagePacksCubit(
+              store: PageTranslationEngines.translatorById(null).models?.call(),
+              wifiOnly: () =>
+                  context.read<PageTranslationSettingsCubit>().state.wifiOnly,
+            ),
           ),
           BlocProvider<LatestReleaseCubit>(
             create: (BuildContext context) => LatestReleaseCubit()..init(),

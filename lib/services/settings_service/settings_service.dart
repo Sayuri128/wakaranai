@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wakaranai/services/page_translation/page_language.dart';
+import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_palette.dart';
 
@@ -14,6 +16,15 @@ class SettingsService {
   static const String updateFrequencyPrefsKey = 'UPDATE_FREQUENCY_HOURS';
   static const String useLocalExtensionServerPrefsKey =
       'USE_LOCAL_EXTENSION_SERVER';
+  static const String pageTranslationEnabledPrefsKey =
+      'PAGE_TRANSLATION_ENABLED';
+  static const String pageTranslationTargetPrefsKey = 'PAGE_TRANSLATION_TARGET';
+  static const String pageTranslationWifiOnlyPrefsKey =
+      'PAGE_TRANSLATION_WIFI_ONLY';
+  static const String pageTranslationOcrEnginePrefsKey =
+      'PAGE_TRANSLATION_OCR_ENGINE';
+  static const String pageTranslationTranslatorPrefsKey =
+      'PAGE_TRANSLATION_TRANSLATOR';
 
   static const int defaultUpdateFrequencyHours = 12;
 
@@ -81,6 +92,34 @@ class SettingsService {
     _prefs ??= await SharedPreferences.getInstance();
 
     await _prefs!.setBool(useLocalExtensionServerPrefsKey, value);
+  }
+
+  Future<PageTranslationSettings> getPageTranslationSettings() async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    return PageTranslationSettings(
+      enabled: _prefs!.getBool(pageTranslationEnabledPrefsKey) ?? false,
+      target: PageLanguage.targetByCode(
+              _prefs!.getString(pageTranslationTargetPrefsKey)) ??
+          PageLanguage.english,
+      wifiOnly: _prefs!.getBool(pageTranslationWifiOnlyPrefsKey) ?? true,
+      ocrEngine: _prefs!.getString(pageTranslationOcrEnginePrefsKey),
+      translator: _prefs!.getString(pageTranslationTranslatorPrefsKey),
+    );
+  }
+
+  Future<void> setPageTranslationSettings(
+      PageTranslationSettings settings) async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    await _prefs!.setBool(pageTranslationEnabledPrefsKey, settings.enabled);
+    await _prefs!
+        .setString(pageTranslationTargetPrefsKey, settings.target.code);
+    await _prefs!.setBool(pageTranslationWifiOnlyPrefsKey, settings.wifiOnly);
+    await _prefs!
+        .setString(pageTranslationOcrEnginePrefsKey, settings.ocrEngineId);
+    await _prefs!
+        .setString(pageTranslationTranslatorPrefsKey, settings.translatorId);
   }
 
   Future<bool> getCollectStatistics() async {

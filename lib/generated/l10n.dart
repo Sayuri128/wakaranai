@@ -2823,6 +2823,589 @@ class S {
       args: [hours],
     );
   }
+
+  /// `Page translation`
+  String get settings_page_translation_title {
+    return Intl.message(
+      'Page translation',
+      name: 'settings_page_translation_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Experimental · recognize and translate text on pages`
+  String get settings_page_translation_subtitle {
+    return Intl.message(
+      'Experimental · recognize and translate text on pages',
+      name: 'settings_page_translation_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Page translation`
+  String get page_translation_settings_title {
+    return Intl.message(
+      'Page translation',
+      name: 'page_translation_settings_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Experimental`
+  String get page_translation_settings_experimental {
+    return Intl.message(
+      'Experimental',
+      name: 'page_translation_settings_experimental',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enable page translation`
+  String get page_translation_settings_enable {
+    return Intl.message(
+      'Enable page translation',
+      name: 'page_translation_settings_enable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Adds a translate button to the reader. Text is recognized and translated on your device.`
+  String get page_translation_settings_enable_subtitle {
+    return Intl.message(
+      'Adds a translate button to the reader. Text is recognized and translated on your device.',
+      name: 'page_translation_settings_enable_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Languages`
+  String get page_translation_settings_languages_section {
+    return Intl.message(
+      'Languages',
+      name: 'page_translation_settings_languages_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translate to`
+  String get page_translation_settings_target {
+    return Intl.message(
+      'Translate to',
+      name: 'page_translation_settings_target',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Language packs`
+  String get page_translation_settings_packs_section {
+    return Intl.message(
+      'Language packs',
+      name: 'page_translation_settings_packs_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloaded`
+  String get page_translation_settings_pack_downloaded {
+    return Intl.message(
+      'Downloaded',
+      name: 'page_translation_settings_pack_downloaded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not downloaded · about 30 MB`
+  String get page_translation_settings_pack_missing {
+    return Intl.message(
+      'Not downloaded · about 30 MB',
+      name: 'page_translation_settings_pack_missing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download`
+  String get page_translation_settings_download_pack {
+    return Intl.message(
+      'Download',
+      name: 'page_translation_settings_download_pack',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get page_translation_settings_delete_pack {
+    return Intl.message(
+      'Delete',
+      name: 'page_translation_settings_delete_pack',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download on Wi-Fi only`
+  String get page_translation_settings_wifi_only {
+    return Intl.message(
+      'Download on Wi-Fi only',
+      name: 'page_translation_settings_wifi_only',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Text recognition`
+  String get page_translation_settings_ocr_title {
+    return Intl.message(
+      'Text recognition',
+      name: 'page_translation_settings_ocr_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Japanese, Korean and Chinese recognition is provided by Google Play services and downloads automatically the first time it is used.`
+  String get page_translation_settings_ocr_note {
+    return Intl.message(
+      'Japanese, Korean and Chinese recognition is provided by Google Play services and downloads automatically the first time it is used.',
+      name: 'page_translation_settings_ocr_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Storage`
+  String get page_translation_settings_storage_section {
+    return Intl.message(
+      'Storage',
+      name: 'page_translation_settings_storage_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear translated pages`
+  String get page_translation_settings_clear_cache {
+    return Intl.message(
+      'Clear translated pages',
+      name: 'page_translation_settings_clear_cache',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} pages saved`
+  String page_translation_settings_clear_cache_subtitle(Object count) {
+    return Intl.message(
+      '$count pages saved',
+      name: 'page_translation_settings_clear_cache_subtitle',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Clear translated pages?`
+  String get page_translation_settings_clear_cache_confirm_title {
+    return Intl.message(
+      'Clear translated pages?',
+      name: 'page_translation_settings_clear_cache_confirm_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pages will be translated again the next time you open them.`
+  String get page_translation_settings_clear_cache_confirm_message {
+    return Intl.message(
+      'Pages will be translated again the next time you open them.',
+      name: 'page_translation_settings_clear_cache_confirm_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear`
+  String get page_translation_settings_clear_cache_confirm_ok {
+    return Intl.message(
+      'Clear',
+      name: 'page_translation_settings_clear_cache_confirm_ok',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download language packs`
+  String get page_translation_models_title {
+    return Intl.message(
+      'Download language packs',
+      name: 'page_translation_models_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translating {source} to {target} needs on-device language packs, about 30 MB each. They are downloaded once, and pages are then translated entirely on your device.`
+  String page_translation_models_message(Object source, Object target) {
+    return Intl.message(
+      'Translating $source to $target needs on-device language packs, about 30 MB each. They are downloaded once, and pages are then translated entirely on your device.',
+      name: 'page_translation_models_message',
+      desc: '',
+      args: [source, target],
+    );
+  }
+
+  /// `Downloads wait for Wi-Fi. You can change this in Settings → Page translation.`
+  String get page_translation_models_wifi_note {
+    return Intl.message(
+      'Downloads wait for Wi-Fi. You can change this in Settings → Page translation.',
+      name: 'page_translation_models_wifi_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download`
+  String get page_translation_models_download {
+    return Intl.message(
+      'Download',
+      name: 'page_translation_models_download',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not now`
+  String get page_translation_models_cancel {
+    return Intl.message(
+      'Not now',
+      name: 'page_translation_models_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading language packs…`
+  String get page_translation_models_downloading {
+    return Intl.message(
+      'Downloading language packs…',
+      name: 'page_translation_models_downloading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't download language packs`
+  String get page_translation_models_failed {
+    return Intl.message(
+      'Couldn\'t download language packs',
+      name: 'page_translation_models_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translating page…`
+  String get page_translation_status_translating {
+    return Intl.message(
+      'Translating page…',
+      name: 'page_translation_status_translating',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translation failed · tap to retry`
+  String get page_translation_status_failed {
+    return Intl.message(
+      'Translation failed · tap to retry',
+      name: 'page_translation_status_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Preparing text recognition…`
+  String get page_translation_status_model_pending {
+    return Intl.message(
+      'Preparing text recognition…',
+      name: 'page_translation_status_model_pending',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Original`
+  String get page_translation_original_label {
+    return Intl.message(
+      'Original',
+      name: 'page_translation_original_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translation`
+  String get page_translation_translation_label {
+    return Intl.message(
+      'Translation',
+      name: 'page_translation_translation_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy original`
+  String get page_translation_copy_original {
+    return Intl.message(
+      'Copy original',
+      name: 'page_translation_copy_original',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy translation`
+  String get page_translation_copy_translation {
+    return Intl.message(
+      'Copy translation',
+      name: 'page_translation_copy_translation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show original`
+  String get page_translation_show_original {
+    return Intl.message(
+      'Show original',
+      name: 'page_translation_show_original',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show translation`
+  String get page_translation_show_translation {
+    return Intl.message(
+      'Show translation',
+      name: 'page_translation_show_translation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copied`
+  String get page_translation_copied {
+    return Intl.message(
+      'Copied',
+      name: 'page_translation_copied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Default for titles you translate for the first time. Each title remembers its own languages.`
+  String get page_translation_settings_target_subtitle {
+    return Intl.message(
+      'Default for titles you translate for the first time. Each title remembers its own languages.',
+      name: 'page_translation_settings_target_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translation languages`
+  String get page_translation_languages_title {
+    return Intl.message(
+      'Translation languages',
+      name: 'page_translation_languages_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saved for this title only.`
+  String get page_translation_languages_subtitle {
+    return Intl.message(
+      'Saved for this title only.',
+      name: 'page_translation_languages_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Text on pages`
+  String get page_translation_languages_from {
+    return Intl.message(
+      'Text on pages',
+      name: 'page_translation_languages_from',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translate to`
+  String get page_translation_languages_to {
+    return Intl.message(
+      'Translate to',
+      name: 'page_translation_languages_to',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translate`
+  String get page_translation_languages_start {
+    return Intl.message(
+      'Translate',
+      name: 'page_translation_languages_start',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save`
+  String get page_translation_languages_save {
+    return Intl.message(
+      'Save',
+      name: 'page_translation_languages_save',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading language packs {current}/{total}…`
+  String page_translation_models_downloading_progress(
+    Object current,
+    Object total,
+  ) {
+    return Intl.message(
+      'Downloading language packs $current/$total…',
+      name: 'page_translation_models_downloading_progress',
+      desc: '',
+      args: [current, total],
+    );
+  }
+
+  /// `Language packs`
+  String get language_packs_title {
+    return Intl.message(
+      'Language packs',
+      name: 'language_packs_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Each pack is about 30 MB. You only need the languages you translate from and to.`
+  String get language_packs_hint {
+    return Intl.message(
+      'Each pack is about 30 MB. You only need the languages you translate from and to.',
+      name: 'language_packs_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Each pack is about 30 MB. You only need the languages you translate from and to. Downloads wait for Wi-Fi.`
+  String get language_packs_hint_wifi {
+    return Intl.message(
+      'Each pack is about 30 MB. You only need the languages you translate from and to. Downloads wait for Wi-Fi.',
+      name: 'language_packs_hint_wifi',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloaded`
+  String get language_packs_downloaded_section {
+    return Intl.message(
+      'Downloaded',
+      name: 'language_packs_downloaded_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Available`
+  String get language_packs_available_section {
+    return Intl.message(
+      'Available',
+      name: 'language_packs_available_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading {current} of {total}`
+  String language_packs_queue_progress(Object current, Object total) {
+    return Intl.message(
+      'Downloading $current of $total',
+      name: 'language_packs_queue_progress',
+      desc: '',
+      args: [current, total],
+    );
+  }
+
+  /// `Queued · #{position}`
+  String language_packs_queued(Object position) {
+    return Intl.message(
+      'Queued · #$position',
+      name: 'language_packs_queued',
+      desc: '',
+      args: [position],
+    );
+  }
+
+  /// `Download failed`
+  String get language_packs_failed {
+    return Intl.message(
+      'Download failed',
+      name: 'language_packs_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get language_packs_retry {
+    return Intl.message(
+      'Retry',
+      name: 'language_packs_retry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get language_packs_cancel {
+    return Intl.message(
+      'Cancel',
+      name: 'language_packs_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} downloaded`
+  String language_packs_downloaded_count(Object count) {
+    return Intl.message(
+      '$count downloaded',
+      name: 'language_packs_downloaded_count',
+      desc: '',
+      args: [count],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

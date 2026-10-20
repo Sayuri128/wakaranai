@@ -5761,6 +5761,570 @@ class LibraryUpdateTableCompanion
   }
 }
 
+class $PageTranslationTableTable extends PageTranslationTable
+    with TableInfo<$PageTranslationTableTable, PageTranslationTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PageTranslationTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: () => DateTime.now(),
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pagePathMeta = const VerificationMeta(
+    'pagePath',
+  );
+  @override
+  late final GeneratedColumn<String> pagePath = GeneratedColumn<String>(
+    'page_path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _engineMeta = const VerificationMeta('engine');
+  @override
+  late final GeneratedColumn<String> engine = GeneratedColumn<String>(
+    'engine',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceLanguageMeta = const VerificationMeta(
+    'sourceLanguage',
+  );
+  @override
+  late final GeneratedColumn<String> sourceLanguage = GeneratedColumn<String>(
+    'source_language',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetLanguageMeta = const VerificationMeta(
+    'targetLanguage',
+  );
+  @override
+  late final GeneratedColumn<String> targetLanguage = GeneratedColumn<String>(
+    'target_language',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _resultJsonMeta = const VerificationMeta(
+    'resultJson',
+  );
+  @override
+  late final GeneratedColumn<String> resultJson = GeneratedColumn<String>(
+    'result_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    uid,
+    pagePath,
+    engine,
+    sourceLanguage,
+    targetLanguage,
+    resultJson,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'page_translation_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PageTranslationTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('page_path')) {
+      context.handle(
+        _pagePathMeta,
+        pagePath.isAcceptableOrUnknown(data['page_path']!, _pagePathMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pagePathMeta);
+    }
+    if (data.containsKey('engine')) {
+      context.handle(
+        _engineMeta,
+        engine.isAcceptableOrUnknown(data['engine']!, _engineMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_engineMeta);
+    }
+    if (data.containsKey('source_language')) {
+      context.handle(
+        _sourceLanguageMeta,
+        sourceLanguage.isAcceptableOrUnknown(
+          data['source_language']!,
+          _sourceLanguageMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceLanguageMeta);
+    }
+    if (data.containsKey('target_language')) {
+      context.handle(
+        _targetLanguageMeta,
+        targetLanguage.isAcceptableOrUnknown(
+          data['target_language']!,
+          _targetLanguageMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_targetLanguageMeta);
+    }
+    if (data.containsKey('result_json')) {
+      context.handle(
+        _resultJsonMeta,
+        resultJson.isAcceptableOrUnknown(data['result_json']!, _resultJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_resultJsonMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PageTranslationTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PageTranslationTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      )!,
+      pagePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}page_path'],
+      )!,
+      engine: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}engine'],
+      )!,
+      sourceLanguage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_language'],
+      )!,
+      targetLanguage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}target_language'],
+      )!,
+      resultJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}result_json'],
+      )!,
+    );
+  }
+
+  @override
+  $PageTranslationTableTable createAlias(String alias) {
+    return $PageTranslationTableTable(attachedDatabase, alias);
+  }
+}
+
+class PageTranslationTableData extends DataClass
+    implements Insertable<PageTranslationTableData> {
+  final int id;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final String uid;
+  final String pagePath;
+  final String engine;
+  final String sourceLanguage;
+  final String targetLanguage;
+  final String resultJson;
+  const PageTranslationTableData({
+    required this.id,
+    required this.createdAt,
+    this.updatedAt,
+    required this.uid,
+    required this.pagePath,
+    required this.engine,
+    required this.sourceLanguage,
+    required this.targetLanguage,
+    required this.resultJson,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['uid'] = Variable<String>(uid);
+    map['page_path'] = Variable<String>(pagePath);
+    map['engine'] = Variable<String>(engine);
+    map['source_language'] = Variable<String>(sourceLanguage);
+    map['target_language'] = Variable<String>(targetLanguage);
+    map['result_json'] = Variable<String>(resultJson);
+    return map;
+  }
+
+  PageTranslationTableCompanion toCompanion(bool nullToAbsent) {
+    return PageTranslationTableCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      uid: Value(uid),
+      pagePath: Value(pagePath),
+      engine: Value(engine),
+      sourceLanguage: Value(sourceLanguage),
+      targetLanguage: Value(targetLanguage),
+      resultJson: Value(resultJson),
+    );
+  }
+
+  factory PageTranslationTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PageTranslationTableData(
+      id: serializer.fromJson<int>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      uid: serializer.fromJson<String>(json['uid']),
+      pagePath: serializer.fromJson<String>(json['pagePath']),
+      engine: serializer.fromJson<String>(json['engine']),
+      sourceLanguage: serializer.fromJson<String>(json['sourceLanguage']),
+      targetLanguage: serializer.fromJson<String>(json['targetLanguage']),
+      resultJson: serializer.fromJson<String>(json['resultJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'uid': serializer.toJson<String>(uid),
+      'pagePath': serializer.toJson<String>(pagePath),
+      'engine': serializer.toJson<String>(engine),
+      'sourceLanguage': serializer.toJson<String>(sourceLanguage),
+      'targetLanguage': serializer.toJson<String>(targetLanguage),
+      'resultJson': serializer.toJson<String>(resultJson),
+    };
+  }
+
+  PageTranslationTableData copyWith({
+    int? id,
+    DateTime? createdAt,
+    Value<DateTime?> updatedAt = const Value.absent(),
+    String? uid,
+    String? pagePath,
+    String? engine,
+    String? sourceLanguage,
+    String? targetLanguage,
+    String? resultJson,
+  }) => PageTranslationTableData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    uid: uid ?? this.uid,
+    pagePath: pagePath ?? this.pagePath,
+    engine: engine ?? this.engine,
+    sourceLanguage: sourceLanguage ?? this.sourceLanguage,
+    targetLanguage: targetLanguage ?? this.targetLanguage,
+    resultJson: resultJson ?? this.resultJson,
+  );
+  PageTranslationTableData copyWithCompanion(
+    PageTranslationTableCompanion data,
+  ) {
+    return PageTranslationTableData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      uid: data.uid.present ? data.uid.value : this.uid,
+      pagePath: data.pagePath.present ? data.pagePath.value : this.pagePath,
+      engine: data.engine.present ? data.engine.value : this.engine,
+      sourceLanguage: data.sourceLanguage.present
+          ? data.sourceLanguage.value
+          : this.sourceLanguage,
+      targetLanguage: data.targetLanguage.present
+          ? data.targetLanguage.value
+          : this.targetLanguage,
+      resultJson: data.resultJson.present
+          ? data.resultJson.value
+          : this.resultJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PageTranslationTableData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('pagePath: $pagePath, ')
+          ..write('engine: $engine, ')
+          ..write('sourceLanguage: $sourceLanguage, ')
+          ..write('targetLanguage: $targetLanguage, ')
+          ..write('resultJson: $resultJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    uid,
+    pagePath,
+    engine,
+    sourceLanguage,
+    targetLanguage,
+    resultJson,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PageTranslationTableData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.uid == this.uid &&
+          other.pagePath == this.pagePath &&
+          other.engine == this.engine &&
+          other.sourceLanguage == this.sourceLanguage &&
+          other.targetLanguage == this.targetLanguage &&
+          other.resultJson == this.resultJson);
+}
+
+class PageTranslationTableCompanion
+    extends UpdateCompanion<PageTranslationTableData> {
+  final Value<int> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<String> uid;
+  final Value<String> pagePath;
+  final Value<String> engine;
+  final Value<String> sourceLanguage;
+  final Value<String> targetLanguage;
+  final Value<String> resultJson;
+  const PageTranslationTableCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.uid = const Value.absent(),
+    this.pagePath = const Value.absent(),
+    this.engine = const Value.absent(),
+    this.sourceLanguage = const Value.absent(),
+    this.targetLanguage = const Value.absent(),
+    this.resultJson = const Value.absent(),
+  });
+  PageTranslationTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    required String uid,
+    required String pagePath,
+    required String engine,
+    required String sourceLanguage,
+    required String targetLanguage,
+    required String resultJson,
+  }) : uid = Value(uid),
+       pagePath = Value(pagePath),
+       engine = Value(engine),
+       sourceLanguage = Value(sourceLanguage),
+       targetLanguage = Value(targetLanguage),
+       resultJson = Value(resultJson);
+  static Insertable<PageTranslationTableData> custom({
+    Expression<int>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? uid,
+    Expression<String>? pagePath,
+    Expression<String>? engine,
+    Expression<String>? sourceLanguage,
+    Expression<String>? targetLanguage,
+    Expression<String>? resultJson,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (uid != null) 'uid': uid,
+      if (pagePath != null) 'page_path': pagePath,
+      if (engine != null) 'engine': engine,
+      if (sourceLanguage != null) 'source_language': sourceLanguage,
+      if (targetLanguage != null) 'target_language': targetLanguage,
+      if (resultJson != null) 'result_json': resultJson,
+    });
+  }
+
+  PageTranslationTableCompanion copyWith({
+    Value<int>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime?>? updatedAt,
+    Value<String>? uid,
+    Value<String>? pagePath,
+    Value<String>? engine,
+    Value<String>? sourceLanguage,
+    Value<String>? targetLanguage,
+    Value<String>? resultJson,
+  }) {
+    return PageTranslationTableCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      uid: uid ?? this.uid,
+      pagePath: pagePath ?? this.pagePath,
+      engine: engine ?? this.engine,
+      sourceLanguage: sourceLanguage ?? this.sourceLanguage,
+      targetLanguage: targetLanguage ?? this.targetLanguage,
+      resultJson: resultJson ?? this.resultJson,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (pagePath.present) {
+      map['page_path'] = Variable<String>(pagePath.value);
+    }
+    if (engine.present) {
+      map['engine'] = Variable<String>(engine.value);
+    }
+    if (sourceLanguage.present) {
+      map['source_language'] = Variable<String>(sourceLanguage.value);
+    }
+    if (targetLanguage.present) {
+      map['target_language'] = Variable<String>(targetLanguage.value);
+    }
+    if (resultJson.present) {
+      map['result_json'] = Variable<String>(resultJson.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PageTranslationTableCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('pagePath: $pagePath, ')
+          ..write('engine: $engine, ')
+          ..write('sourceLanguage: $sourceLanguage, ')
+          ..write('targetLanguage: $targetLanguage, ')
+          ..write('resultJson: $resultJson')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$WakaranaiDatabase extends GeneratedDatabase {
   _$WakaranaiDatabase(QueryExecutor e) : super(e);
   $WakaranaiDatabaseManager get managers => $WakaranaiDatabaseManager(this);
@@ -5779,6 +6343,8 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
   late final $DownloadTableTable downloadTable = $DownloadTableTable(this);
   late final $LibraryUpdateTableTable libraryUpdateTable =
       $LibraryUpdateTableTable(this);
+  late final $PageTranslationTableTable pageTranslationTable =
+      $PageTranslationTableTable(this);
   late final Index concreteDataUid = Index(
     'concrete_data_uid',
     'CREATE UNIQUE INDEX concrete_data_uid ON concrete_data_table (uid)',
@@ -5803,6 +6369,10 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
     'library_update_uid',
     'CREATE UNIQUE INDEX library_update_uid ON library_update_table (uid)',
   );
+  late final Index pageTranslationUid = Index(
+    'page_translation_uid',
+    'CREATE UNIQUE INDEX page_translation_uid ON page_translation_table (uid)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5817,12 +6387,14 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
     libraryEntryTable,
     downloadTable,
     libraryUpdateTable,
+    pageTranslationTable,
     concreteDataUid,
     chapterActivityUid,
     animeEpisodeActivityUid,
     libraryEntryUid,
     downloadUid,
     libraryUpdateUid,
+    pageTranslationUid,
   ];
 }
 
@@ -8715,6 +9287,298 @@ typedef $$LibraryUpdateTableTableProcessedTableManager =
       LibraryUpdateTableData,
       PrefetchHooks Function()
     >;
+typedef $$PageTranslationTableTableCreateCompanionBuilder =
+    PageTranslationTableCompanion Function({
+      Value<int> id,
+      Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      required String uid,
+      required String pagePath,
+      required String engine,
+      required String sourceLanguage,
+      required String targetLanguage,
+      required String resultJson,
+    });
+typedef $$PageTranslationTableTableUpdateCompanionBuilder =
+    PageTranslationTableCompanion Function({
+      Value<int> id,
+      Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<String> uid,
+      Value<String> pagePath,
+      Value<String> engine,
+      Value<String> sourceLanguage,
+      Value<String> targetLanguage,
+      Value<String> resultJson,
+    });
+
+class $$PageTranslationTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $PageTranslationTableTable> {
+  $$PageTranslationTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pagePath => $composableBuilder(
+    column: $table.pagePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get engine => $composableBuilder(
+    column: $table.engine,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceLanguage => $composableBuilder(
+    column: $table.sourceLanguage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get targetLanguage => $composableBuilder(
+    column: $table.targetLanguage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get resultJson => $composableBuilder(
+    column: $table.resultJson,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PageTranslationTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $PageTranslationTableTable> {
+  $$PageTranslationTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pagePath => $composableBuilder(
+    column: $table.pagePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get engine => $composableBuilder(
+    column: $table.engine,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceLanguage => $composableBuilder(
+    column: $table.sourceLanguage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get targetLanguage => $composableBuilder(
+    column: $table.targetLanguage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get resultJson => $composableBuilder(
+    column: $table.resultJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PageTranslationTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $PageTranslationTableTable> {
+  $$PageTranslationTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
+
+  GeneratedColumn<String> get pagePath =>
+      $composableBuilder(column: $table.pagePath, builder: (column) => column);
+
+  GeneratedColumn<String> get engine =>
+      $composableBuilder(column: $table.engine, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceLanguage => $composableBuilder(
+    column: $table.sourceLanguage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get targetLanguage => $composableBuilder(
+    column: $table.targetLanguage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get resultJson => $composableBuilder(
+    column: $table.resultJson,
+    builder: (column) => column,
+  );
+}
+
+class $$PageTranslationTableTableTableManager
+    extends
+        RootTableManager<
+          _$WakaranaiDatabase,
+          $PageTranslationTableTable,
+          PageTranslationTableData,
+          $$PageTranslationTableTableFilterComposer,
+          $$PageTranslationTableTableOrderingComposer,
+          $$PageTranslationTableTableAnnotationComposer,
+          $$PageTranslationTableTableCreateCompanionBuilder,
+          $$PageTranslationTableTableUpdateCompanionBuilder,
+          (
+            PageTranslationTableData,
+            BaseReferences<
+              _$WakaranaiDatabase,
+              $PageTranslationTableTable,
+              PageTranslationTableData
+            >,
+          ),
+          PageTranslationTableData,
+          PrefetchHooks Function()
+        > {
+  $$PageTranslationTableTableTableManager(
+    _$WakaranaiDatabase db,
+    $PageTranslationTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PageTranslationTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PageTranslationTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PageTranslationTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<String> uid = const Value.absent(),
+                Value<String> pagePath = const Value.absent(),
+                Value<String> engine = const Value.absent(),
+                Value<String> sourceLanguage = const Value.absent(),
+                Value<String> targetLanguage = const Value.absent(),
+                Value<String> resultJson = const Value.absent(),
+              }) => PageTranslationTableCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                uid: uid,
+                pagePath: pagePath,
+                engine: engine,
+                sourceLanguage: sourceLanguage,
+                targetLanguage: targetLanguage,
+                resultJson: resultJson,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                required String uid,
+                required String pagePath,
+                required String engine,
+                required String sourceLanguage,
+                required String targetLanguage,
+                required String resultJson,
+              }) => PageTranslationTableCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                uid: uid,
+                pagePath: pagePath,
+                engine: engine,
+                sourceLanguage: sourceLanguage,
+                targetLanguage: targetLanguage,
+                resultJson: resultJson,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PageTranslationTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$WakaranaiDatabase,
+      $PageTranslationTableTable,
+      PageTranslationTableData,
+      $$PageTranslationTableTableFilterComposer,
+      $$PageTranslationTableTableOrderingComposer,
+      $$PageTranslationTableTableAnnotationComposer,
+      $$PageTranslationTableTableCreateCompanionBuilder,
+      $$PageTranslationTableTableUpdateCompanionBuilder,
+      (
+        PageTranslationTableData,
+        BaseReferences<
+          _$WakaranaiDatabase,
+          $PageTranslationTableTable,
+          PageTranslationTableData
+        >,
+      ),
+      PageTranslationTableData,
+      PrefetchHooks Function()
+    >;
 
 class $WakaranaiDatabaseManager {
   final _$WakaranaiDatabase _db;
@@ -8740,4 +9604,6 @@ class $WakaranaiDatabaseManager {
       $$DownloadTableTableTableManager(_db, _db.downloadTable);
   $$LibraryUpdateTableTableTableManager get libraryUpdateTable =>
       $$LibraryUpdateTableTableTableManager(_db, _db.libraryUpdateTable);
+  $$PageTranslationTableTableTableManager get pageTranslationTable =>
+      $$PageTranslationTableTableTableManager(_db, _db.pageTranslationTable);
 }

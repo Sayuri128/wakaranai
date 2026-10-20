@@ -403,5 +403,97 @@
     "placeholders": {
       "hours": {}
     }
+  },
+  "@_PAGE_TRANSLATION": {},
+  "settings_page_translation_title": "Page translation",
+  "settings_page_translation_subtitle": "Experimental · recognize and translate text on pages",
+  "page_translation_settings_title": "Page translation",
+  "page_translation_settings_experimental": "Experimental",
+  "page_translation_settings_enable": "Enable page translation",
+  "page_translation_settings_enable_subtitle": "Adds a translate button to the reader. Text is recognized and translated on your device.",
+  "page_translation_settings_languages_section": "Languages",
+  "page_translation_settings_target": "Translate to",
+  "page_translation_settings_packs_section": "Language packs",
+  "page_translation_settings_pack_downloaded": "Downloaded",
+  "page_translation_settings_pack_missing": "Not downloaded · about 30 MB",
+  "page_translation_settings_download_pack": "Download",
+  "page_translation_settings_delete_pack": "Delete",
+  "page_translation_settings_wifi_only": "Download on Wi-Fi only",
+  "page_translation_settings_ocr_title": "Text recognition",
+  "page_translation_settings_ocr_note": "Japanese, Korean and Chinese recognition is provided by Google Play services and downloads automatically the first time it is used.",
+  "page_translation_settings_storage_section": "Storage",
+  "page_translation_settings_clear_cache": "Clear translated pages",
+  "page_translation_settings_clear_cache_subtitle": "{count} pages saved",
+  "@page_translation_settings_clear_cache_subtitle": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "page_translation_settings_clear_cache_confirm_title": "Clear translated pages?",
+  "page_translation_settings_clear_cache_confirm_message": "Pages will be translated again the next time you open them.",
+  "page_translation_settings_clear_cache_confirm_ok": "Clear",
+  "page_translation_models_title": "Download language packs",
+  "page_translation_models_message": "Translating {source} to {target} needs on-device language packs, about 30 MB each. They are downloaded once, and pages are then translated entirely on your device.",
+  "@page_translation_models_message": {
+    "placeholders": {
+      "source": {},
+      "target": {}
+    }
+  },
+  "page_translation_models_wifi_note": "Downloads wait for Wi-Fi. You can change this in Settings → Page translation.",
+  "page_translation_models_download": "Download",
+  "page_translation_models_cancel": "Not now",
+  "page_translation_models_downloading": "Downloading language packs…",
+  "page_translation_models_failed": "Couldn't download language packs",
+  "page_translation_status_translating": "Translating page…",
+  "page_translation_status_failed": "Translation failed · tap to retry",
+  "page_translation_status_model_pending": "Preparing text recognition…",
+  "page_translation_original_label": "Original",
+  "page_translation_translation_label": "Translation",
+  "page_translation_copy_original": "Copy original",
+  "page_translation_copy_translation": "Copy translation",
+  "page_translation_show_original": "Show original",
+  "page_translation_show_translation": "Show translation",
+  "page_translation_copied": "Copied",
+  "page_translation_settings_target_subtitle": "Default for titles you translate for the first time. Each title remembers its own languages.",
+  "page_translation_languages_title": "Translation languages",
+  "page_translation_languages_subtitle": "Saved for this title only.",
+  "page_translation_languages_from": "Text on pages",
+  "page_translation_languages_to": "Translate to",
+  "page_translation_languages_start": "Translate",
+  "page_translation_languages_save": "Save",
+  "page_translation_models_downloading_progress": "Downloading language packs {current}/{total}…",
+  "@page_translation_models_downloading_progress": {
+    "placeholders": {
+      "current": {},
+      "total": {}
+    }
+  },
+  "language_packs_title": "Language packs",
+  "language_packs_hint": "Each pack is about 30 MB. You only need the languages you translate from and to.",
+  "language_packs_hint_wifi": "Each pack is about 30 MB. You only need the languages you translate from and to. Downloads wait for Wi-Fi.",
+  "language_packs_downloaded_section": "Downloaded",
+  "language_packs_available_section": "Available",
+  "language_packs_queue_progress": "Downloading {current} of {total}",
+  "@language_packs_queue_progress": {
+    "placeholders": {
+      "current": {},
+      "total": {}
+    }
+  },
+  "language_packs_queued": "Queued · #{position}",
+  "@language_packs_queued": {
+    "placeholders": {
+      "position": {}
+    }
+  },
+  "language_packs_failed": "Download failed",
+  "language_packs_retry": "Retry",
+  "language_packs_cancel": "Cancel",
+  "language_packs_downloaded_count": "{count} downloaded",
+  "@language_packs_downloaded_count": {
+    "placeholders": {
+      "count": {}
+    }
   }
 }

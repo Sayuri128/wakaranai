@@ -246,4 +246,32 @@ void main() {
     expect(await _userVersion(replayed), replayed.schemaVersion);
     await replayed.close();
   });
+
+  test('upgrade from v11 creates the page translation cache', () async {
+    final Database raw = sqlite3.openInMemory();
+    addTearDown(raw.dispose);
+
+    final WakaranaiDatabase first = await _open(raw);
+    await first.close();
+
+    raw.execute('DROP TABLE page_translation_table;');
+    raw.execute('PRAGMA user_version = 11;');
+
+    final WakaranaiDatabase second = await _open(raw);
+    expect(await _userVersion(second), second.schemaVersion);
+
+    final List<QueryRow> indexes = await second
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'index' "
+          "AND name = 'page_translation_uid';",
+        )
+        .get();
+    expect(indexes, hasLength(1));
+    await second.close();
+
+    raw.execute('PRAGMA user_version = 11;');
+    final WakaranaiDatabase replayed = await _open(raw);
+    expect(await _userVersion(replayed), replayed.schemaVersion);
+    await replayed.close();
+  });
 }

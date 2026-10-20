@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/services/page_translation/title_languages.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
@@ -11,10 +12,14 @@ class BottomModalSettings extends StatefulWidget {
     super.key,
     required this.chapterViewCubit,
     required this.state,
+    this.translationLanguages,
+    this.onEditTranslationLanguages,
   });
 
   final ChapterViewCubit chapterViewCubit;
   final ChapterViewInitialized state;
+  final TitleLanguages? translationLanguages;
+  final VoidCallback? onEditTranslationLanguages;
 
   @override
   State<BottomModalSettings> createState() => _BottomModalSettingsState();
@@ -82,6 +87,20 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
                 setState(() => _enableTapControlsState = newValue);
               },
             ),
+            if (widget.translationLanguages != null &&
+                widget.onEditTranslationLanguages != null) ...<Widget>[
+              const SizedBox(height: 10),
+              _ValueRow(
+                label: S.current.page_translation_languages_title,
+                value:
+                    '${widget.translationLanguages!.source.name} → '
+                    '${widget.translationLanguages!.target.name}',
+                onTap: () {
+                  Navigator.of(context).pop();
+                  widget.onEditTranslationLanguages!();
+                },
+              ),
+            ],
           ],
         ),
       ),
@@ -127,6 +146,43 @@ class _ModeChip extends StatelessWidget {
                   color: selected ? AppColors.mainBlack : AppColors.mainWhite,
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ValueRow extends StatelessWidget {
+  const _ValueRow({
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
+
+  final String label;
+  final String value;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.overlay(0.04),
+      borderRadius: BorderRadius.circular(14),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Row(
+            children: <Widget>[
+              Icon(Icons.translate_rounded, size: 20, color: AppColors.primary),
+              const SizedBox(width: 12),
+              Expanded(child: Text(label, style: medium(size: 15))),
+              Text(value, style: medium(size: 13, color: AppColors.mainGrey)),
+              const SizedBox(width: 4),
+              Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
             ],
           ),
         ),

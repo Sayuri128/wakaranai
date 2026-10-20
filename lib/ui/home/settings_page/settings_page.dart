@@ -13,6 +13,7 @@ import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/home/settings_page/import_export_progress_overlay.dart';
 import 'package:wakaranai/ui/home/settings_page/import_export_sheet.dart';
+import 'package:wakaranai/ui/home/settings_page/settings_widgets.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
@@ -97,10 +98,10 @@ class SettingsPage extends StatelessWidget {
 
   Widget _buildAppearanceSection(BuildContext context) {
     final AppThemeId current = context.watch<ThemeCubit>().state.id;
-    return _SettingsSection(
+    return SettingsSection(
       title: S.current.settings_appearance_section_title,
       tiles: <Widget>[
-        _SettingsTile(
+        SettingsTile(
           icon: Icons.palette_outlined,
           title: S.current.settings_theme_title,
           trailing: Row(
@@ -121,10 +122,10 @@ class SettingsPage extends StatelessWidget {
   }
 
   Widget _buildContentSection(BuildContext context, SettingsInitialized state) {
-    return _SettingsSection(
+    return SettingsSection(
       title: S.current.settings_content_section_title,
       tiles: <Widget>[
-        _SettingsTile(
+        SettingsTile(
           icon: Icons.explicit_rounded,
           title: S.current.settings_show_nsfw_title,
           subtitle: S.current.settings_show_nsfw_subtitle,
@@ -152,10 +153,10 @@ class SettingsPage extends StatelessWidget {
       await context.read<RemoteConfigsCubit>().refresh();
     }
 
-    return _SettingsSection(
+    return SettingsSection(
       title: S.current.settings_developer_section,
       tiles: <Widget>[
-        _SettingsTile(
+        SettingsTile(
           icon: Icons.developer_mode_rounded,
           title: S.current.settings_local_extension_server_title,
           subtitle: available
@@ -178,11 +179,11 @@ class SettingsPage extends StatelessWidget {
   Widget _buildUpdatesSection(BuildContext context, SettingsInitialized state) {
     final SettingsCubit cubit = context.read<SettingsCubit>();
 
-    return _SettingsSection(
+    return SettingsSection(
       title: S.current.settings_updates_section,
       tiles: <Widget>[
         if (cubit.backgroundUpdatesSupported)
-          _SettingsTile(
+          SettingsTile(
             icon: Icons.autorenew_rounded,
             title: S.current.settings_check_updates,
             subtitle: S.current.settings_check_updates_subtitle,
@@ -195,7 +196,7 @@ class SettingsPage extends StatelessWidget {
             onTap: () => cubit.onChangedCheckUpdates(!state.checkUpdates),
           ),
         if (cubit.backgroundUpdatesSupported && state.checkUpdates)
-          _SettingsTile(
+          SettingsTile(
             icon: Icons.schedule_rounded,
             title: S.current.settings_update_frequency,
             trailing: Row(
@@ -213,7 +214,7 @@ class SettingsPage extends StatelessWidget {
             onTap: () =>
                 _showUpdateFrequencyPicker(context, state.updateFrequencyHours),
           ),
-        _SettingsTile(
+        SettingsTile(
           icon: state.updateNotifications
               ? Icons.notifications_active_rounded
               : Icons.notifications_off_rounded,
@@ -311,10 +312,10 @@ class SettingsPage extends StatelessWidget {
     BuildContext context,
     SettingsInitialized state,
   ) {
-    return _SettingsSection(
+    return SettingsSection(
       title: S.current.settings_statistics_section_title,
       tiles: <Widget>[
-        _SettingsTile(
+        SettingsTile(
           icon: Icons.bar_chart_rounded,
           title: S.current.settings_reading_statistics_title,
           subtitle: S.current.settings_reading_statistics_subtitle,
@@ -325,7 +326,7 @@ class SettingsPage extends StatelessWidget {
           onTap: () =>
               Navigator.of(context).pushNamed(Routes.readingStatistics),
         ),
-        _SettingsTile(
+        SettingsTile(
           icon: Icons.insights_rounded,
           title: S.current.settings_collect_statistics_title,
           subtitle: S.current.settings_collect_statistics_subtitle,
@@ -345,10 +346,10 @@ class SettingsPage extends StatelessWidget {
   }
 
   Widget _buildReaderSection(BuildContext context, SettingsInitialized state) {
-    return _SettingsSection(
+    return SettingsSection(
       title: S.current.settings_reader_section_title,
       tiles: <Widget>[
-        _SettingsTile(
+        SettingsTile(
           icon: Icons.menu_book_rounded,
           title: S.current.settings_default_reader_mode_title,
           trailing: Row(
@@ -364,15 +365,26 @@ class SettingsPage extends StatelessWidget {
           ),
           onTap: () => _showReaderModePicker(context, state.defaultMode),
         ),
+        SettingsTile(
+          icon: Icons.translate_rounded,
+          title: S.current.settings_page_translation_title,
+          subtitle: S.current.settings_page_translation_subtitle,
+          trailing: Icon(
+            Icons.chevron_right_rounded,
+            color: AppColors.mainGrey,
+          ),
+          onTap: () =>
+              Navigator.of(context).pushNamed(Routes.pageTranslationSettings),
+        ),
       ],
     );
   }
 
   Widget _buildStorageSection(BuildContext context) {
-    return _SettingsSection(
+    return SettingsSection(
       title: S.current.settings_storage_section_title,
       tiles: <Widget>[
-        _SettingsTile(
+        SettingsTile(
           icon: Icons.download_rounded,
           title: S.current.settings_downloads_title,
           subtitle: S.current.settings_downloads_subtitle,
@@ -435,26 +447,26 @@ class SettingsPage extends StatelessWidget {
   }
 
   Widget _buildActivitySection(BuildContext context) {
-    return _SettingsSection(
+    return SettingsSection(
       title: S.current.home_navigation_bar_activity_history_title,
       action: _InfoButton(onTap: () => _showImportExportInfo(context)),
       tiles: <Widget>[
-        _SettingsTile(
+        SettingsTile(
           icon: Icons.file_upload_outlined,
           title: S.current.settings_export_data_button,
           onTap: () => _startExport(context),
         ),
-        _SettingsTile(
+        SettingsTile(
           icon: Icons.file_download_outlined,
           title: S.current.settings_import_data_button,
           onTap: () => _startImport(context),
         ),
-        _SettingsTile(
+        SettingsTile(
           icon: Icons.cleaning_services_rounded,
           title: S.current.settings_clear_cookies_cache,
           onTap: () => _confirmClearCookies(context),
         ),
-        _SettingsTile(
+        SettingsTile(
           icon: Icons.delete_outline_rounded,
           title: S.current.settings_clear_activity_history,
           destructive: true,
@@ -465,10 +477,10 @@ class SettingsPage extends StatelessWidget {
   }
 
   Widget _buildAboutSection(BuildContext context) {
-    return _SettingsSection(
+    return SettingsSection(
       title: S.current.settings_about_section_title,
       tiles: <Widget>[
-        _SettingsTile(
+        SettingsTile(
           icon: Icons.bug_report_outlined,
           title: S.current.settings_submit_issue,
           trailing: Icon(Icons.open_in_new_rounded, color: AppColors.mainGrey),
@@ -839,125 +851,6 @@ class _UpdateBanner extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _SettingsSection extends StatelessWidget {
-  const _SettingsSection({
-    required this.title,
-    required this.tiles,
-    this.action,
-  });
-
-  final String title;
-  final List<Widget> tiles;
-  final Widget? action;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 10),
-          child: Row(
-            children: <Widget>[
-              Expanded(child: Text(title, style: semibold(size: 18))),
-              if (action != null) action!,
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Material(
-            color: AppColors.overlay(0.04),
-            borderRadius: BorderRadius.circular(16),
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              children: <Widget>[
-                for (int i = 0; i < tiles.length; i++) ...<Widget>[
-                  if (i > 0)
-                    Divider(
-                      height: 1,
-                      indent: 64,
-                      color: AppColors.overlay(0.06),
-                    ),
-                  tiles[i],
-                ],
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SettingsTile extends StatelessWidget {
-  const _SettingsTile({
-    required this.icon,
-    required this.title,
-    this.subtitle,
-    this.trailing,
-    this.onTap,
-    this.destructive = false,
-  });
-
-  final IconData icon;
-  final String title;
-  final String? subtitle;
-  final Widget? trailing;
-  final VoidCallback? onTap;
-  final bool destructive;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color tint = destructive ? AppColors.red : AppColors.primary;
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        child: Row(
-          children: <Widget>[
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: tint.withValues(alpha: 0.14),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: tint, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    title,
-                    style: medium(
-                      size: 15,
-                      color: destructive ? AppColors.red : AppColors.mainWhite,
-                    ),
-                  ),
-                  if (subtitle != null) ...<Widget>[
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle!,
-                      style: regular(size: 12, color: AppColors.mainGrey),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            if (trailing != null) ...<Widget>[
-              const SizedBox(width: 8),
-              trailing!,
-            ],
-          ],
-        ),
-      ),
     );
   }
 }

@@ -35,6 +35,8 @@ import 'package:wakaranai/ui/splashscreen/splashscreen_view.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
 import '../main.dart';
+import 'home/settings_page/language_packs_page.dart';
+import 'home/settings_page/page_translation_settings_page.dart';
 import 'home/home_view.dart';
 
 class AppView extends StatefulWidget {
@@ -155,6 +157,10 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
               ),
           Routes.downloads: (BuildContext context) => const DownloadsPage(),
           Routes.updates: (BuildContext context) => const UpdatesPage(),
+          Routes.pageTranslationSettings: (BuildContext context) =>
+              const PageTranslationSettingsPage(),
+          Routes.languagePacks: (BuildContext context) =>
+              const LanguagePacksPage(),
           Routes.downloadReader: (BuildContext context) =>
               DownloadReaderLauncher(
                   data: settings.arguments as DownloadReaderData),

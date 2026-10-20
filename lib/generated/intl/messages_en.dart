@@ -41,47 +41,61 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m9(name) =>
       "Error occurred during initializing configs ${name} source";
 
-  static String m10(query) => "Nothing in your library matches “${query}”";
+  static String m10(count) => "${count} downloaded";
 
-  static String m11(count) => "${count} selected";
+  static String m11(current, total) => "Downloading ${current} of ${total}";
 
-  static String m12(query) => "We couldn\'t find anything for “${query}”";
+  static String m12(position) => "Queued · #${position}";
 
-  static String m13(query) => "Results for “${query}”";
+  static String m13(query) => "Nothing in your library matches “${query}”";
 
-  static String m14(version) => "New version ${version} available";
+  static String m14(count) => "${count} selected";
 
-  static String m15(count) => "${count} skipped";
+  static String m15(current, total) =>
+      "Downloading language packs ${current}/${total}…";
 
-  static String m16(imported, total) =>
+  static String m16(source, target) =>
+      "Translating ${source} to ${target} needs on-device language packs, about 30 MB each. They are downloaded once, and pages are then translated entirely on your device.";
+
+  static String m17(count) => "${count} pages saved";
+
+  static String m18(query) => "We couldn\'t find anything for “${query}”";
+
+  static String m19(query) => "Results for “${query}”";
+
+  static String m20(version) => "New version ${version} available";
+
+  static String m21(count) => "${count} skipped";
+
+  static String m22(imported, total) =>
       "Imported ${imported} of ${total} items";
 
-  static String m17(url) => "Load extensions from ${url}";
+  static String m23(url) => "Load extensions from ${url}";
 
-  static String m18(hours) => "Every ${hours} hours";
+  static String m24(hours) => "Every ${hours} hours";
 
-  static String m19(count) => "${count} activities";
+  static String m25(count) => "${count} activities";
 
-  static String m20(current, longest) =>
+  static String m26(current, longest) =>
       "Current ${current} · Longest ${longest}";
 
-  static String m21(count) => "${count} sources could not be checked";
+  static String m27(count) => "${count} sources could not be checked";
 
-  static String m22(count) => "${count} new items found";
+  static String m28(count) => "${count} new items found";
 
-  static String m23(title, count) => "${title} · ${count} new";
+  static String m29(title, count) => "${title} · ${count} new";
 
-  static String m24(count) => "and ${count} more titles";
+  static String m30(count) => "and ${count} more titles";
 
-  static String m25(count) => "Across ${count} titles";
+  static String m31(count) => "Across ${count} titles";
 
-  static String m26(count) => "${count} new items";
+  static String m32(count) => "${count} new items";
 
-  static String m27(count) => "${count}d ago";
+  static String m33(count) => "${count}d ago";
 
-  static String m28(count) => "${count}h ago";
+  static String m34(count) => "${count}h ago";
 
-  static String m29(count) => "${count}m ago";
+  static String m35(count) => "${count}m ago";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -368,6 +382,29 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_remote_configs_page_appbar_title":
         MessageLookupByLibrary.simpleMessage("Extensions"),
     "home_sources_button": MessageLookupByLibrary.simpleMessage("Sources"),
+    "language_packs_available_section": MessageLookupByLibrary.simpleMessage(
+      "Available",
+    ),
+    "language_packs_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
+    "language_packs_downloaded_count": m10,
+    "language_packs_downloaded_section": MessageLookupByLibrary.simpleMessage(
+      "Downloaded",
+    ),
+    "language_packs_failed": MessageLookupByLibrary.simpleMessage(
+      "Download failed",
+    ),
+    "language_packs_hint": MessageLookupByLibrary.simpleMessage(
+      "Each pack is about 30 MB. You only need the languages you translate from and to.",
+    ),
+    "language_packs_hint_wifi": MessageLookupByLibrary.simpleMessage(
+      "Each pack is about 30 MB. You only need the languages you translate from and to. Downloads wait for Wi-Fi.",
+    ),
+    "language_packs_queue_progress": m11,
+    "language_packs_queued": m12,
+    "language_packs_retry": MessageLookupByLibrary.simpleMessage("Retry"),
+    "language_packs_title": MessageLookupByLibrary.simpleMessage(
+      "Language packs",
+    ),
     "library_add_category": MessageLookupByLibrary.simpleMessage(
       "Add category",
     ),
@@ -402,12 +439,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "library_search_hint": MessageLookupByLibrary.simpleMessage(
       "Search library",
     ),
-    "library_search_no_results_message": m10,
+    "library_search_no_results_message": m13,
     "library_search_no_results_title": MessageLookupByLibrary.simpleMessage(
       "No matches",
     ),
     "library_select_all": MessageLookupByLibrary.simpleMessage("Select all"),
-    "library_selected_count": m11,
+    "library_selected_count": m14,
     "library_sort_added_newest": MessageLookupByLibrary.simpleMessage(
       "Recently added",
     ),
@@ -432,6 +469,124 @@ class MessageLookup extends MessageLookupByLibrary {
     "local_extension_server_source_name": MessageLookupByLibrary.simpleMessage(
       "Local server",
     ),
+    "page_translation_copied": MessageLookupByLibrary.simpleMessage("Copied"),
+    "page_translation_copy_original": MessageLookupByLibrary.simpleMessage(
+      "Copy original",
+    ),
+    "page_translation_copy_translation": MessageLookupByLibrary.simpleMessage(
+      "Copy translation",
+    ),
+    "page_translation_languages_from": MessageLookupByLibrary.simpleMessage(
+      "Text on pages",
+    ),
+    "page_translation_languages_save": MessageLookupByLibrary.simpleMessage(
+      "Save",
+    ),
+    "page_translation_languages_start": MessageLookupByLibrary.simpleMessage(
+      "Translate",
+    ),
+    "page_translation_languages_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Saved for this title only.",
+    ),
+    "page_translation_languages_title": MessageLookupByLibrary.simpleMessage(
+      "Translation languages",
+    ),
+    "page_translation_languages_to": MessageLookupByLibrary.simpleMessage(
+      "Translate to",
+    ),
+    "page_translation_models_cancel": MessageLookupByLibrary.simpleMessage(
+      "Not now",
+    ),
+    "page_translation_models_download": MessageLookupByLibrary.simpleMessage(
+      "Download",
+    ),
+    "page_translation_models_downloading": MessageLookupByLibrary.simpleMessage(
+      "Downloading language packs…",
+    ),
+    "page_translation_models_downloading_progress": m15,
+    "page_translation_models_failed": MessageLookupByLibrary.simpleMessage(
+      "Couldn\'t download language packs",
+    ),
+    "page_translation_models_message": m16,
+    "page_translation_models_title": MessageLookupByLibrary.simpleMessage(
+      "Download language packs",
+    ),
+    "page_translation_models_wifi_note": MessageLookupByLibrary.simpleMessage(
+      "Downloads wait for Wi-Fi. You can change this in Settings → Page translation.",
+    ),
+    "page_translation_original_label": MessageLookupByLibrary.simpleMessage(
+      "Original",
+    ),
+    "page_translation_settings_clear_cache":
+        MessageLookupByLibrary.simpleMessage("Clear translated pages"),
+    "page_translation_settings_clear_cache_confirm_message":
+        MessageLookupByLibrary.simpleMessage(
+          "Pages will be translated again the next time you open them.",
+        ),
+    "page_translation_settings_clear_cache_confirm_ok":
+        MessageLookupByLibrary.simpleMessage("Clear"),
+    "page_translation_settings_clear_cache_confirm_title":
+        MessageLookupByLibrary.simpleMessage("Clear translated pages?"),
+    "page_translation_settings_clear_cache_subtitle": m17,
+    "page_translation_settings_delete_pack":
+        MessageLookupByLibrary.simpleMessage("Delete"),
+    "page_translation_settings_download_pack":
+        MessageLookupByLibrary.simpleMessage("Download"),
+    "page_translation_settings_enable": MessageLookupByLibrary.simpleMessage(
+      "Enable page translation",
+    ),
+    "page_translation_settings_enable_subtitle":
+        MessageLookupByLibrary.simpleMessage(
+          "Adds a translate button to the reader. Text is recognized and translated on your device.",
+        ),
+    "page_translation_settings_experimental":
+        MessageLookupByLibrary.simpleMessage("Experimental"),
+    "page_translation_settings_languages_section":
+        MessageLookupByLibrary.simpleMessage("Languages"),
+    "page_translation_settings_ocr_note": MessageLookupByLibrary.simpleMessage(
+      "Japanese, Korean and Chinese recognition is provided by Google Play services and downloads automatically the first time it is used.",
+    ),
+    "page_translation_settings_ocr_title": MessageLookupByLibrary.simpleMessage(
+      "Text recognition",
+    ),
+    "page_translation_settings_pack_downloaded":
+        MessageLookupByLibrary.simpleMessage("Downloaded"),
+    "page_translation_settings_pack_missing":
+        MessageLookupByLibrary.simpleMessage("Not downloaded · about 30 MB"),
+    "page_translation_settings_packs_section":
+        MessageLookupByLibrary.simpleMessage("Language packs"),
+    "page_translation_settings_storage_section":
+        MessageLookupByLibrary.simpleMessage("Storage"),
+    "page_translation_settings_target": MessageLookupByLibrary.simpleMessage(
+      "Translate to",
+    ),
+    "page_translation_settings_target_subtitle":
+        MessageLookupByLibrary.simpleMessage(
+          "Default for titles you translate for the first time. Each title remembers its own languages.",
+        ),
+    "page_translation_settings_title": MessageLookupByLibrary.simpleMessage(
+      "Page translation",
+    ),
+    "page_translation_settings_wifi_only": MessageLookupByLibrary.simpleMessage(
+      "Download on Wi-Fi only",
+    ),
+    "page_translation_show_original": MessageLookupByLibrary.simpleMessage(
+      "Show original",
+    ),
+    "page_translation_show_translation": MessageLookupByLibrary.simpleMessage(
+      "Show translation",
+    ),
+    "page_translation_status_failed": MessageLookupByLibrary.simpleMessage(
+      "Translation failed · tap to retry",
+    ),
+    "page_translation_status_model_pending":
+        MessageLookupByLibrary.simpleMessage("Preparing text recognition…"),
+    "page_translation_status_translating": MessageLookupByLibrary.simpleMessage(
+      "Translating page…",
+    ),
+    "page_translation_translation_label": MessageLookupByLibrary.simpleMessage(
+      "Translation",
+    ),
     "save_image_error": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t save image",
     ),
@@ -449,7 +604,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_error_title": MessageLookupByLibrary.simpleMessage(
       "Something went wrong",
     ),
-    "service_view_no_results_message": m12,
+    "service_view_no_results_message": m18,
     "service_view_no_results_title": MessageLookupByLibrary.simpleMessage(
       "No results",
     ),
@@ -458,7 +613,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_retry_button_title": MessageLookupByLibrary.simpleMessage(
       "Retry",
     ),
-    "service_view_search_results_for": m13,
+    "service_view_search_results_for": m19,
     "service_viewer_search_field_hint_text":
         MessageLookupByLibrary.simpleMessage("Search"),
     "settings_about_section_title": MessageLookupByLibrary.simpleMessage(
@@ -530,7 +685,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_developer_section": MessageLookupByLibrary.simpleMessage(
       "Developer",
     ),
-    "settings_download_latest_release": m14,
+    "settings_download_latest_release": m20,
     "settings_downloads_subtitle": MessageLookupByLibrary.simpleMessage(
       "Manage downloaded chapters",
     ),
@@ -593,15 +748,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_import_sheet_title": MessageLookupByLibrary.simpleMessage(
       "Import data",
     ),
-    "settings_import_skipped": m15,
-    "settings_import_success": m16,
+    "settings_import_skipped": m21,
+    "settings_import_success": m22,
     "settings_local_extension_server_missing":
         MessageLookupByLibrary.simpleMessage(
           "Set LOCAL_REPOSITORY_URL in .env to enable",
         ),
-    "settings_local_extension_server_subtitle": m17,
+    "settings_local_extension_server_subtitle": m23,
     "settings_local_extension_server_title":
         MessageLookupByLibrary.simpleMessage("Local extension server"),
+    "settings_page_translation_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Experimental · recognize and translate text on pages",
+    ),
+    "settings_page_translation_title": MessageLookupByLibrary.simpleMessage(
+      "Page translation",
+    ),
     "settings_progress_preparing": MessageLookupByLibrary.simpleMessage(
       "Preparing…",
     ),
@@ -647,7 +808,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_update_frequency": MessageLookupByLibrary.simpleMessage(
       "Check frequency",
     ),
-    "settings_update_frequency_value": m18,
+    "settings_update_frequency_value": m24,
     "settings_update_notifications": MessageLookupByLibrary.simpleMessage(
       "Update notifications",
     ),
@@ -680,7 +841,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "stats_heatmap_less": MessageLookupByLibrary.simpleMessage("Less"),
     "stats_heatmap_more": MessageLookupByLibrary.simpleMessage("More"),
-    "stats_heatmap_week_count": m19,
+    "stats_heatmap_week_count": m25,
     "stats_kpi_active_days": MessageLookupByLibrary.simpleMessage(
       "Active days",
     ),
@@ -701,10 +862,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "stats_sources_section_title": MessageLookupByLibrary.simpleMessage(
       "Top sources",
     ),
-    "stats_streak_summary": m20,
+    "stats_streak_summary": m26,
     "stats_title": MessageLookupByLibrary.simpleMessage("Statistics"),
-    "updates_check_failed": m21,
-    "updates_check_found": m22,
+    "updates_check_failed": m27,
+    "updates_check_found": m28,
     "updates_check_none": MessageLookupByLibrary.simpleMessage(
       "No new updates found",
     ),
@@ -724,13 +885,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "updates_notification_channel_name": MessageLookupByLibrary.simpleMessage(
       "Library updates",
     ),
-    "updates_notification_line": m23,
-    "updates_notification_more": m24,
-    "updates_notification_summary": m25,
-    "updates_notification_title": m26,
-    "updates_time_days": m27,
-    "updates_time_hours": m28,
-    "updates_time_minutes": m29,
+    "updates_notification_line": m29,
+    "updates_notification_more": m30,
+    "updates_notification_summary": m31,
+    "updates_notification_title": m32,
+    "updates_time_days": m33,
+    "updates_time_hours": m34,
+    "updates_time_minutes": m35,
     "updates_time_now": MessageLookupByLibrary.simpleMessage("Just now"),
     "updates_title": MessageLookupByLibrary.simpleMessage("Updates"),
     "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage("Done"),

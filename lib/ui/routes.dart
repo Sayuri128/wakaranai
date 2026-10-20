@@ -15,4 +15,6 @@ class Routes {
   static const String downloads = '/downloads';
   static const String downloadReader = '/downloadReader';
   static const String updates = '/updates';
+  static const String pageTranslationSettings = '/pageTranslationSettings';
+  static const String languagePacks = '/languagePacks';
 }
