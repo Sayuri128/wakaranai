@@ -10,6 +10,8 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/downloads_page/download_reader_launcher.dart';
+import 'package:wakaranai/ui/home/downloads_page/download_translation.dart';
+import 'package:wakaranai/ui/services/widgets/page_translation/chapter_translation_actions.dart';
 import 'package:wakaranai/ui/home/library_page/library_concrete_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
@@ -29,7 +31,6 @@ class DownloadsPage extends StatelessWidget {
           builder: (BuildContext context, DownloadManagerState state) {
             return Column(
               children: <Widget>[
-                _Header(hasDownloads: state.downloads.isNotEmpty),
                 Expanded(child: _buildBody(context, state)),
               ],
             );
@@ -59,62 +60,15 @@ class DownloadsPage extends StatelessWidget {
     return ListView(
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.only(bottom: 24 + bottomInset),
-      children:
-          grouped.entries.expand((MapEntry<String, List<DownloadDomain>> e) {
-        return <Widget>[
-          _GroupHeader(downloads: e.value),
-          ...e.value.map((DownloadDomain d) => _DownloadTile(download: d)),
-        ];
-      }).toList(),
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header({required this.hasDownloads});
-
-  final bool hasDownloads;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-      child: Row(
-        children: <Widget>[
-          _CircleButton(
-            icon: Icons.arrow_back_rounded,
-            onTap: () => Navigator.of(context).pop(),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(S.current.downloads_title, style: semibold(size: 24)),
-          ),
-          if (hasDownloads)
-            _CircleButton(
-              icon: Icons.delete_sweep_outlined,
-              onTap: () => _confirmDeleteAll(context),
-            ),
-          const SizedBox(width: 8),
+      children: <Widget>[
+        TranslationQueueCard(margin: const EdgeInsets.fromLTRB(16, 8, 16, 0)),
+        for (final List<DownloadDomain> titleDownloads in grouped.values) ...<Widget>[
+          _GroupHeader(downloads: titleDownloads),
+          for (final DownloadDomain download in titleDownloads)
+            _DownloadTile(download: download),
         ],
-      ),
+      ],
     );
-  }
-
-  void _confirmDeleteAll(BuildContext context) {
-    showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialogContext) => ConfirmationDialog(
-        title: S.current.downloads_delete_all_confirmation_title,
-        message: S.current.downloads_delete_all_confirmation_message,
-        yesText: S.current.downloads_confirm_delete,
-        noText: S.current.downloads_confirm_cancel,
-        destructive: true,
-      ),
-    ).then((bool? confirmed) {
-      if (confirmed == true && context.mounted) {
-        context.read<DownloadManagerCubit>().deleteAll();
-      }
-    });
   }
 }
 
@@ -161,6 +115,7 @@ class _GroupHeader extends StatelessWidget {
                   ],
                 ),
               ),
+              TranslateAllButton(downloads: downloads),
               Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
             ],
           ),
@@ -256,6 +211,7 @@ class _DownloadTile extends StatelessWidget {
                       Text(download.title.trim(), style: medium(size: 15)),
                       const SizedBox(height: 6),
                       _buildSubtitle(context),
+                      DownloadTranslationStatus(download: download),
                       if (download.status ==
                           DownloadStatus.downloading) ...<Widget>[
                         const SizedBox(height: 10),
@@ -276,6 +232,7 @@ class _DownloadTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
+                DownloadTranslationButton(download: download),
                 IconButton(
                   icon: Icon(Icons.delete_outline_rounded,
                       color: AppColors.mainGrey),
@@ -342,25 +299,19 @@ class _DownloadTile extends StatelessWidget {
   }
 }
 
-class _CircleButton extends StatelessWidget {
-  const _CircleButton({required this.icon, required this.onTap});
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.overlay(0.06),
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Icon(icon, size: 22, color: AppColors.mainWhite),
-        ),
-      ),
-    );
-  }
+void confirmDeleteAllDownloads(BuildContext context) {
+  showDialog<bool>(
+    context: context,
+    builder: (BuildContext dialogContext) => ConfirmationDialog(
+      title: S.current.downloads_delete_all_confirmation_title,
+      message: S.current.downloads_delete_all_confirmation_message,
+      yesText: S.current.downloads_confirm_delete,
+      noText: S.current.downloads_confirm_cancel,
+      destructive: true,
+    ),
+  ).then((bool? confirmed) {
+    if (confirmed == true && context.mounted) {
+      context.read<DownloadManagerCubit>().deleteAll();
+    }
+  });
 }

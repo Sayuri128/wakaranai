@@ -26,6 +26,7 @@ import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/services/widgets/chapter_download_button.dart';
+import 'package:wakaranai/ui/services/widgets/page_translation/chapter_translation_actions.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/ui/widgets/image_widget.dart';
@@ -371,7 +372,16 @@ class MangaConcreteViewer extends StatelessWidget
       selected: concreteViewInitialized.selection.contains(chapter.uid),
       dim: chapterActivityDomain?.isCompleted == true,
       progress: progress,
-      trailing: _buildDownloadButton(context, chapter, concreteViewInitialized),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ChapterTranslationBadge(
+            chapterUid: chapter.uid,
+            chapterTitle: chapter.title,
+          ),
+          _buildDownloadButton(context, chapter, concreteViewInitialized),
+        ],
+      ),
       subtitle: _buildChapterSubtitle(chapter, chapterActivityDomain),
       onLongPress: () {
         context

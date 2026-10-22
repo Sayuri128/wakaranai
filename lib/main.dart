@@ -7,7 +7,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:wakaranai/blocs/chapter_translation/chapter_translation_cubit.dart';
+import 'package:wakaranai/blocs/chapter_translation/translation_notification_service.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
+import 'package:wakaranai/blocs/gemma_model/gemma_model_cubit.dart';
+import 'package:wakaranai/blocs/language_packs/language_packs_cubit.dart';
+import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
+import 'package:wakaranai/data/domain/database/download_domain.dart';
+import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
@@ -24,13 +31,18 @@ import 'package:wakaranai/ui/app_view.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
+import 'package:wakaranai/repositories/database/page_translation_repository.dart';
+import 'package:wakaranai/services/device/device_capabilities.dart';
+import 'package:wakaranai/services/page_translation/engines/gemma_translator.dart';
+import 'package:wakaranai/services/page_translation/engines/page_translation_engines.dart';
+import 'package:wakaranai/services/page_translation/page_translation_service.dart';
+import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
+import 'package:wakaranai/services/page_translation/title_languages.dart';
+import 'package:wakaranai/services/page_translation/translation_prerequisites.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
 import 'ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'ui/home/settings_page/cubit/settings/settings_cubit.dart';
-import 'blocs/page_translation_settings/page_translation_settings_cubit.dart';
-import 'blocs/language_packs/language_packs_cubit.dart';
-import 'services/page_translation/engines/page_translation_engines.dart';
 
 final Logger logger = Logger(
   filter: ProductionFilter(),
@@ -150,6 +162,16 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
                   context.read<PageTranslationSettingsCubit>().state.wifiOnly,
             ),
           ),
+          BlocProvider<GemmaModelCubit>(
+            create: (BuildContext context) => GemmaModelCubit(
+              store: GemmaModelFiles(),
+              support: DeviceCapabilities.onDeviceAi,
+            )..init(),
+            lazy: false,
+          ),
+          BlocProvider<ChapterTranslationCubit>(
+            create: _createTranslationQueue,
+          ),
           BlocProvider<LatestReleaseCubit>(
             create: (BuildContext context) => LatestReleaseCubit()..init(),
             lazy: true,
@@ -179,5 +201,58 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
         child: const AppView(),
       ),
     );
+  }
+
+  ChapterTranslationCubit _createTranslationQueue(BuildContext context) {
+    late final ChapterTranslationCubit queue;
+    final TranslationNotificationService notifications =
+        TranslationNotificationService(
+      onAction: (String action) {
+        if (action == translationActionToggle) {
+          queue.togglePause();
+        } else if (action == translationActionCancel) {
+          queue.cancelAll();
+        }
+      },
+    );
+
+    PageTranslationSettings currentSettings() {
+      return effectiveTranslationSettings(
+        context.read<PageTranslationSettingsCubit>().state,
+        context.read<GemmaModelCubit>().state,
+      );
+    }
+
+    queue = ChapterTranslationCubit(
+      notifier: notifications,
+      backendFactory: (TitleLanguages languages) => PageTranslationService(
+        repository: context.read<PageTranslationRepository>(),
+        settings: currentSettings(),
+        languages: languages,
+      ),
+      ensureReady: (TitleLanguages languages) => ensureTranslationReady(
+        settings: currentSettings(),
+        packs: context.read<LanguagePacksCubit>(),
+        gemma: context.read<GemmaModelCubit>(),
+        languages: languages,
+      ),
+    );
+    queue.watchDownloads(
+      context.read<DownloadManagerCubit>().stream.map(_downloadSnapshots),
+    );
+    return queue;
+  }
+
+  static List<DownloadSnapshot> _downloadSnapshots(DownloadManagerState state) {
+    return state.downloads
+        .map(
+          (DownloadDomain download) => DownloadSnapshot(
+            key: download.uid,
+            done: download.status == DownloadStatus.done,
+            failed: download.status == DownloadStatus.failed,
+            pages: DownloadManagerCubit.localPagePaths(download),
+          ),
+        )
+        .toList();
   }
 }

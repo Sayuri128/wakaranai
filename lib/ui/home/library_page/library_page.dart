@@ -19,7 +19,9 @@ const int _allCategoryId = -1;
 const int _uncategorizedId = -2;
 
 class LibraryPage extends StatefulWidget {
-  const LibraryPage({super.key});
+  const LibraryPage({super.key, this.embedded = false});
+
+  final bool embedded;
 
   @override
   State<LibraryPage> createState() => _LibraryPageState();
@@ -78,8 +80,8 @@ class _LibraryPageState extends State<LibraryPage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      _buildHeader(context, state),
-                      _buildSearchField(context),
+                      if (!widget.embedded) _buildHeader(context, state),
+                      _buildSearchField(context, state),
                       if (state.categories.isNotEmpty ||
                           _hasUncategorized(state))
                         _buildCategoryChips(context, state),
@@ -242,6 +244,14 @@ class _LibraryPageState extends State<LibraryPage> {
               style: semibold(size: 24),
             ),
           ),
+          ..._buildHeaderActions(context, state),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildHeaderActions(BuildContext context, LibraryState state) {
+    return <Widget>[
           BlocBuilder<LibraryUpdatesCubit, LibraryUpdatesState>(
             builder: (BuildContext context, LibraryUpdatesState updatesState) {
               return _UpdatesButton(
@@ -260,20 +270,31 @@ class _LibraryPageState extends State<LibraryPage> {
             icon: Icons.folder_outlined,
             onTap: () => _showManageCategoriesSheet(context, state),
           ),
-        ],
-      ),
-    );
+    ];
   }
 
-  Widget _buildSearchField(BuildContext context) {
+  Widget _buildSearchField(BuildContext context, LibraryState state) {
+    final Widget field = SearchField(
+      controller: _searchController,
+      hintText: S.current.library_search_hint,
+      onChanged: (String value) =>
+          context.read<LibraryCubit>().setSearchQuery(value),
+      onClear: () => context.read<LibraryCubit>().setSearchQuery(''),
+    );
+    if (!widget.embedded) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        child: field,
+      );
+    }
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      child: SearchField(
-        controller: _searchController,
-        hintText: S.current.library_search_hint,
-        onChanged: (String value) =>
-            context.read<LibraryCubit>().setSearchQuery(value),
-        onClear: () => context.read<LibraryCubit>().setSearchQuery(''),
+      padding: const EdgeInsets.fromLTRB(16, 4, 8, 12),
+      child: Row(
+        children: <Widget>[
+          Expanded(child: field),
+          const SizedBox(width: 8),
+          ..._buildHeaderActions(context, state),
+        ],
       ),
     );
   }

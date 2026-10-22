@@ -7,8 +7,10 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
+import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
+import 'package:wakaranai/ui/services/widgets/page_translation/chapter_translation_actions.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/ui/widgets/selection_action_bar.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -48,9 +50,49 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView<dynamic>,
     getConcreteViewCubit(context).clearSelection();
   }
 
+  Future<void> _translateSelected(
+      BuildContext context, ConcreteViewInitialized<T, C, G> state) async {
+    if (state.configInfo.type != ConfigInfoType.MANGA) {
+      return;
+    }
+    if (state.domain == null || state.apiClient is! MangaApiClient) {
+      return;
+    }
+
+    final List<ElementOfElementsGroupOfConcrete> elements =
+        state.concreteView.groups[state.groupIndex].elements;
+    final List<ChapterToTranslate> chapters = <ChapterToTranslate>[];
+    for (final String uid in state.selection) {
+      for (final ElementOfElementsGroupOfConcrete chapter in elements) {
+        if (chapter.uid == uid) {
+          chapters.add(ChapterToTranslate(
+            uid: uid,
+            title: chapter.title,
+            data: chapter.data,
+          ));
+        }
+      }
+    }
+    final ConcreteViewCubit<T, C, G> cubit = getConcreteViewCubit(context);
+    await translateChapters(
+      context,
+      client: state.apiClient as MangaApiClient,
+      extensionUid: state.configInfo.uid,
+      extensionLanguage: state.configInfo.language,
+      concreteUid: state.concreteView.uid,
+      concreteId: state.domain!.id,
+      concreteTitle: state.concreteView.title,
+      concreteCover: state.concreteView.cover,
+      chapters: chapters,
+    );
+    cubit.clearSelection();
+  }
+
   Widget getSelectionOverlay(
       BuildContext context, ConcreteViewInitialized<T, C, G> state) {
     final ConcreteViewCubit<T, C, G> cubit = getConcreteViewCubit(context);
+    final bool canTranslate = state.configInfo.type == ConfigInfoType.MANGA &&
+        context.read<PageTranslationSettingsCubit>().state.enabled;
     final bool selecting = state.selection.isNotEmpty;
 
     return Stack(
@@ -93,6 +135,13 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView<dynamic>,
                   color: AppColors.primary,
                   onTap: () => _downloadSelected(context, state),
                 ),
+              if (canTranslate)
+                SelectionAction(
+                  icon: Icons.translate_rounded,
+                  label: S.of(context).concrete_selection_translate,
+                  color: AppColors.primary,
+                  onTap: () => _translateSelected(context, state),
+                ),
               SelectionAction(
                 icon: Icons.done_all,
                 label: S.of(context).concrete_selection_mark_read,
@@ -104,6 +153,8 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView<dynamic>,
                 label: S.of(context).concrete_selection_mark_unread,
                 onTap: cubit.markSelectedAsNotCompleted,
               ),
+            ],
+            secondaryActions: <SelectionAction>[
               SelectionAction(
                 icon: Icons.select_all,
                 label: S.of(context).concrete_selection_select_all,

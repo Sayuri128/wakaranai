@@ -256,9 +256,6 @@
   "concrete_selection_clear": "Clear",
   "concrete_selection_download": "Download",
   "concrete_offline_banner": "Offline — showing cached content. Only downloaded chapters can be opened.",
-  "settings_storage_section_title": "Storage",
-  "settings_downloads_title": "Downloads",
-  "settings_downloads_subtitle": "Manage downloaded chapters",
   "downloads_title": "Downloads",
   "downloads_empty_title": "No downloads",
   "downloads_empty_message": "Chapters you download for offline reading will appear here.",
@@ -495,5 +492,112 @@
     "placeholders": {
       "count": {}
     }
-  }
+  },
+  "page_translation_ai_model_downloading": "Downloading AI model {progress}%",
+  "@page_translation_ai_model_downloading": {
+    "placeholders": {
+      "progress": {}
+    }
+  },
+  "page_translation_status_chapter": "Translating chapter {done}/{total}",
+  "@page_translation_status_chapter": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  },
+  "page_translation_translate_chapter": "Translate whole chapter",
+  "page_translation_ai_model_title": "Download the AI model",
+  "page_translation_ai_model_message": "Gemma translation needs a one-time 2.6 GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.",
+  "translation_engine_section": "Translation engine",
+  "translation_engine_mlkit": "ML Kit",
+  "translation_engine_mlkit_subtitle": "Fast and light · works on every phone · literal translations",
+  "translation_engine_gemma": "Gemma 4 · on-device AI",
+  "translation_engine_gemma_subtitle": "Natural translations that fix text-recognition mistakes · 2.6 GB · recent phones",
+  "translation_engine_gemma_unavailable_platform": "Not available on this device",
+  "translation_engine_gemma_unavailable_android": "Needs Android 11 or newer",
+  "translation_engine_gemma_unavailable_64bit": "Needs a 64-bit phone",
+  "translation_engine_gemma_unavailable_ram": "Needs 8 GB of RAM (this phone has {ram} GB)",
+  "@translation_engine_gemma_unavailable_ram": {
+    "placeholders": {
+      "ram": {}
+    }
+  },
+  "translation_ai_model_title": "AI model",
+  "translation_ai_model_installed": "Gemma 4 E2B · 2.6 GB · ready",
+  "translation_ai_model_failed": "Download failed · try again on Wi-Fi",
+  "translation_ai_model_missing": "Not downloaded · 2.6 GB",
+  "translation_ai_model_delete_title": "Delete the AI model?",
+  "translation_ai_model_delete_message": "This frees 2.6 GB. You can download it again at any time.",
+  "translation_engine_info_title": "On-device AI translation",
+  "translation_engine_info_intro": "Gemma 4 E2B is a small language model that runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. Nothing leaves your device.",
+  "translation_engine_info_requirements": "Requirements",
+  "translation_engine_req_android": "Android 11 or newer",
+  "translation_engine_req_64bit": "64-bit (arm64) processor",
+  "translation_engine_req_ram": "8 GB of RAM or more (12 GB recommended)",
+  "translation_engine_req_storage": "About 3 GB of free storage",
+  "translation_engine_info_this_phone": "This phone: {model} · {ram} GB RAM",
+  "@translation_engine_info_this_phone": {
+    "placeholders": {
+      "model": {},
+      "ram": {}
+    }
+  },
+  "translation_engine_info_examples": "Speed by phone (estimated)",
+  "translation_engine_tier_fast": "Fast · about 4–10 s per page",
+  "translation_engine_tier_fast_phones": "Galaxy S24 / S25, Pixel 9 / 10, OnePlus 12 / 13, Xiaomi 14 / 15 and other 2024+ flagships with 12 GB RAM",
+  "translation_engine_tier_ok": "Usable · noticeably slower",
+  "translation_engine_tier_ok_phones": "Galaxy S22 / S23, Pixel 8, Galaxy A55 and other phones with 8 GB RAM",
+  "translation_engine_tier_no": "Not supported",
+  "translation_engine_tier_no_phones": "Phones with less than 8 GB RAM, 32-bit phones and Android 10 or older",
+  "translation_engine_info_footer": "Speeds are estimates; the fast tier was measured on a Galaxy S24 Ultra. Translating ahead while you read, and translating downloaded chapters in advance, hides most of the wait.",
+  "chapter_translation_queued": "{count} chapters queued for translation",
+  "@chapter_translation_queued": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "chapter_translation_cancel": "Stop translating",
+  "chapter_translation_translate": "Translate chapter",
+  "chapter_translation_translate_all": "Translate all downloaded chapters",
+  "chapter_translation_queued_status": "Waiting to translate",
+  "chapter_translation_preparing": "Preparing translation…",
+  "chapter_translation_progress": "Translating {done}/{total}",
+  "@chapter_translation_progress": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  },
+  "chapter_translation_done": "Translated",
+  "chapter_translation_done_partial": "Translated · {failed} pages failed",
+  "@chapter_translation_done_partial": {
+    "placeholders": {
+      "failed": {}
+    }
+  },
+  "chapter_translation_failed": "Translation failed",
+  "chapter_translation_waiting_download": "Downloading, then translating",
+  "concrete_selection_translate": "Translate",
+  "page_translation_translate_chapter_hint": "Translate every page in the background",
+  "chapter_translation_cancel_all": "Cancel all",
+  "chapter_translation_pause": "Pause",
+  "chapter_translation_resume": "Resume",
+  "chapter_translation_notification_paused": "Paused",
+  "chapter_translation_notification_remaining": "{count} chapters left",
+  "@chapter_translation_notification_remaining": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "chapter_translation_notification_channel": "Chapter translation",
+  "chapter_translation_notification_done_title": "Translation finished",
+  "chapter_translation_notification_done_body": "{count} chapters translated",
+  "@chapter_translation_notification_done_body": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "chapter_translation_queue_title": "Translation queue",
+  "library_tab_titles": "Titles"
 }

@@ -8,7 +8,22 @@ Future<bool> showTranslationModelsSheet(
   BuildContext context, {
   required TitleLanguages languages,
   required bool wifiOnly,
+  bool gemma = false,
 }) async {
+  final String title;
+  final String message;
+  if (gemma) {
+    title = S.current.page_translation_ai_model_title;
+    message = S.current.page_translation_ai_model_message;
+  } else {
+    title = S.current.page_translation_models_title;
+    message = S.current.page_translation_models_message(
+      languages.source.name,
+      languages.target.name,
+    );
+  }
+  final bool showWifiNote = wifiOnly && !gemma;
+
   final bool? confirmed = await showModalBottomSheet<bool>(
     context: context,
     backgroundColor: AppColors.backgroundColor,
@@ -34,19 +49,13 @@ Future<bool> showTranslationModelsSheet(
                   ),
                 ),
               ),
-              Text(
-                S.current.page_translation_models_title,
-                style: semibold(size: 18),
-              ),
+              Text(title, style: semibold(size: 18)),
               const SizedBox(height: 10),
               Text(
-                S.current.page_translation_models_message(
-                  languages.source.name,
-                  languages.target.name,
-                ),
+                message,
                 style: regular(size: 14, color: AppColors.mainGrey),
               ),
-              if (wifiOnly) ...<Widget>[
+              if (showWifiNote) ...<Widget>[
                 const SizedBox(height: 8),
                 Text(
                   S.current.page_translation_models_wifi_note,
@@ -57,38 +66,20 @@ Future<bool> showTranslationModelsSheet(
               Row(
                 children: <Widget>[
                   Expanded(
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: AppColors.overlay(0.06),
-                        foregroundColor: AppColors.mainWhite,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                    child: _SheetActionButton(
+                      label: S.current.page_translation_models_cancel,
+                      background: AppColors.overlay(0.06),
+                      foreground: AppColors.mainWhite,
                       onPressed: () => Navigator.of(sheetContext).pop(false),
-                      child: Text(
-                        S.current.page_translation_models_cancel,
-                        style: semibold(size: 15),
-                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.mainBlack,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                    child: _SheetActionButton(
+                      label: S.current.page_translation_models_download,
+                      background: AppColors.primary,
+                      foreground: AppColors.mainBlack,
                       onPressed: () => Navigator.of(sheetContext).pop(true),
-                      child: Text(
-                        S.current.page_translation_models_download,
-                        style: semibold(size: 15, color: AppColors.mainBlack),
-                      ),
                     ),
                   ),
                 ],
@@ -100,4 +91,32 @@ Future<bool> showTranslationModelsSheet(
     },
   );
   return confirmed ?? false;
+}
+
+class _SheetActionButton extends StatelessWidget {
+  const _SheetActionButton({
+    required this.label,
+    required this.background,
+    required this.foreground,
+    required this.onPressed,
+  });
+
+  final String label;
+  final Color background;
+  final Color foreground;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      style: TextButton.styleFrom(
+        backgroundColor: background,
+        foregroundColor: foreground,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      onPressed: onPressed,
+      child: Text(label, style: semibold(size: 15, color: foreground)),
+    );
+  }
 }

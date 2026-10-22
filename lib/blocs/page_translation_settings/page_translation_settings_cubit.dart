@@ -20,11 +20,16 @@ class PageTranslationSettingsCubit extends Cubit<PageTranslationSettings> {
   Future<void> setTarget(PageLanguage language) =>
       _update(state.copyWith(target: language));
 
+  Future<void> setTranslator(String id) =>
+      _update(state.copyWith(translator: id));
+
   Future<void> setWifiOnly(bool value) =>
       _update(state.copyWith(wifiOnly: value));
 
   Future<void> _update(PageTranslationSettings settings) async {
-    if (settings == state) return;
+    if (settings == state) {
+      return;
+    }
     emit(settings);
     await _settingsService.setPageTranslationSettings(settings);
   }

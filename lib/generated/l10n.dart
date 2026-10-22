@@ -2079,36 +2079,6 @@ class S {
     );
   }
 
-  /// `Storage`
-  String get settings_storage_section_title {
-    return Intl.message(
-      'Storage',
-      name: 'settings_storage_section_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Downloads`
-  String get settings_downloads_title {
-    return Intl.message(
-      'Downloads',
-      name: 'settings_downloads_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Manage downloaded chapters`
-  String get settings_downloads_subtitle {
-    return Intl.message(
-      'Manage downloaded chapters',
-      name: 'settings_downloads_subtitle',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Downloads`
   String get downloads_title {
     return Intl.message(
@@ -3404,6 +3374,596 @@ class S {
       name: 'language_packs_downloaded_count',
       desc: '',
       args: [count],
+    );
+  }
+
+  /// `Downloading AI model {progress}%`
+  String page_translation_ai_model_downloading(Object progress) {
+    return Intl.message(
+      'Downloading AI model $progress%',
+      name: 'page_translation_ai_model_downloading',
+      desc: '',
+      args: [progress],
+    );
+  }
+
+  /// `Translating chapter {done}/{total}`
+  String page_translation_status_chapter(Object done, Object total) {
+    return Intl.message(
+      'Translating chapter $done/$total',
+      name: 'page_translation_status_chapter',
+      desc: '',
+      args: [done, total],
+    );
+  }
+
+  /// `Translate whole chapter`
+  String get page_translation_translate_chapter {
+    return Intl.message(
+      'Translate whole chapter',
+      name: 'page_translation_translate_chapter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download the AI model`
+  String get page_translation_ai_model_title {
+    return Intl.message(
+      'Download the AI model',
+      name: 'page_translation_ai_model_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gemma translation needs a one-time 2.6 GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.`
+  String get page_translation_ai_model_message {
+    return Intl.message(
+      'Gemma translation needs a one-time 2.6 GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.',
+      name: 'page_translation_ai_model_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translation engine`
+  String get translation_engine_section {
+    return Intl.message(
+      'Translation engine',
+      name: 'translation_engine_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ML Kit`
+  String get translation_engine_mlkit {
+    return Intl.message(
+      'ML Kit',
+      name: 'translation_engine_mlkit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fast and light · works on every phone · literal translations`
+  String get translation_engine_mlkit_subtitle {
+    return Intl.message(
+      'Fast and light · works on every phone · literal translations',
+      name: 'translation_engine_mlkit_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gemma 4 · on-device AI`
+  String get translation_engine_gemma {
+    return Intl.message(
+      'Gemma 4 · on-device AI',
+      name: 'translation_engine_gemma',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Natural translations that fix text-recognition mistakes · 2.6 GB · recent phones`
+  String get translation_engine_gemma_subtitle {
+    return Intl.message(
+      'Natural translations that fix text-recognition mistakes · 2.6 GB · recent phones',
+      name: 'translation_engine_gemma_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not available on this device`
+  String get translation_engine_gemma_unavailable_platform {
+    return Intl.message(
+      'Not available on this device',
+      name: 'translation_engine_gemma_unavailable_platform',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Needs Android 11 or newer`
+  String get translation_engine_gemma_unavailable_android {
+    return Intl.message(
+      'Needs Android 11 or newer',
+      name: 'translation_engine_gemma_unavailable_android',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Needs a 64-bit phone`
+  String get translation_engine_gemma_unavailable_64bit {
+    return Intl.message(
+      'Needs a 64-bit phone',
+      name: 'translation_engine_gemma_unavailable_64bit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Needs 8 GB of RAM (this phone has {ram} GB)`
+  String translation_engine_gemma_unavailable_ram(Object ram) {
+    return Intl.message(
+      'Needs 8 GB of RAM (this phone has $ram GB)',
+      name: 'translation_engine_gemma_unavailable_ram',
+      desc: '',
+      args: [ram],
+    );
+  }
+
+  /// `AI model`
+  String get translation_ai_model_title {
+    return Intl.message(
+      'AI model',
+      name: 'translation_ai_model_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gemma 4 E2B · 2.6 GB · ready`
+  String get translation_ai_model_installed {
+    return Intl.message(
+      'Gemma 4 E2B · 2.6 GB · ready',
+      name: 'translation_ai_model_installed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download failed · try again on Wi-Fi`
+  String get translation_ai_model_failed {
+    return Intl.message(
+      'Download failed · try again on Wi-Fi',
+      name: 'translation_ai_model_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not downloaded · 2.6 GB`
+  String get translation_ai_model_missing {
+    return Intl.message(
+      'Not downloaded · 2.6 GB',
+      name: 'translation_ai_model_missing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete the AI model?`
+  String get translation_ai_model_delete_title {
+    return Intl.message(
+      'Delete the AI model?',
+      name: 'translation_ai_model_delete_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This frees 2.6 GB. You can download it again at any time.`
+  String get translation_ai_model_delete_message {
+    return Intl.message(
+      'This frees 2.6 GB. You can download it again at any time.',
+      name: 'translation_ai_model_delete_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On-device AI translation`
+  String get translation_engine_info_title {
+    return Intl.message(
+      'On-device AI translation',
+      name: 'translation_engine_info_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gemma 4 E2B is a small language model that runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. Nothing leaves your device.`
+  String get translation_engine_info_intro {
+    return Intl.message(
+      'Gemma 4 E2B is a small language model that runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. Nothing leaves your device.',
+      name: 'translation_engine_info_intro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Requirements`
+  String get translation_engine_info_requirements {
+    return Intl.message(
+      'Requirements',
+      name: 'translation_engine_info_requirements',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Android 11 or newer`
+  String get translation_engine_req_android {
+    return Intl.message(
+      'Android 11 or newer',
+      name: 'translation_engine_req_android',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `64-bit (arm64) processor`
+  String get translation_engine_req_64bit {
+    return Intl.message(
+      '64-bit (arm64) processor',
+      name: 'translation_engine_req_64bit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `8 GB of RAM or more (12 GB recommended)`
+  String get translation_engine_req_ram {
+    return Intl.message(
+      '8 GB of RAM or more (12 GB recommended)',
+      name: 'translation_engine_req_ram',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `About 3 GB of free storage`
+  String get translation_engine_req_storage {
+    return Intl.message(
+      'About 3 GB of free storage',
+      name: 'translation_engine_req_storage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This phone: {model} · {ram} GB RAM`
+  String translation_engine_info_this_phone(Object model, Object ram) {
+    return Intl.message(
+      'This phone: $model · $ram GB RAM',
+      name: 'translation_engine_info_this_phone',
+      desc: '',
+      args: [model, ram],
+    );
+  }
+
+  /// `Speed by phone (estimated)`
+  String get translation_engine_info_examples {
+    return Intl.message(
+      'Speed by phone (estimated)',
+      name: 'translation_engine_info_examples',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fast · about 4–10 s per page`
+  String get translation_engine_tier_fast {
+    return Intl.message(
+      'Fast · about 4–10 s per page',
+      name: 'translation_engine_tier_fast',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Galaxy S24 / S25, Pixel 9 / 10, OnePlus 12 / 13, Xiaomi 14 / 15 and other 2024+ flagships with 12 GB RAM`
+  String get translation_engine_tier_fast_phones {
+    return Intl.message(
+      'Galaxy S24 / S25, Pixel 9 / 10, OnePlus 12 / 13, Xiaomi 14 / 15 and other 2024+ flagships with 12 GB RAM',
+      name: 'translation_engine_tier_fast_phones',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Usable · noticeably slower`
+  String get translation_engine_tier_ok {
+    return Intl.message(
+      'Usable · noticeably slower',
+      name: 'translation_engine_tier_ok',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Galaxy S22 / S23, Pixel 8, Galaxy A55 and other phones with 8 GB RAM`
+  String get translation_engine_tier_ok_phones {
+    return Intl.message(
+      'Galaxy S22 / S23, Pixel 8, Galaxy A55 and other phones with 8 GB RAM',
+      name: 'translation_engine_tier_ok_phones',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not supported`
+  String get translation_engine_tier_no {
+    return Intl.message(
+      'Not supported',
+      name: 'translation_engine_tier_no',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Phones with less than 8 GB RAM, 32-bit phones and Android 10 or older`
+  String get translation_engine_tier_no_phones {
+    return Intl.message(
+      'Phones with less than 8 GB RAM, 32-bit phones and Android 10 or older',
+      name: 'translation_engine_tier_no_phones',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Speeds are estimates; the fast tier was measured on a Galaxy S24 Ultra. Translating ahead while you read, and translating downloaded chapters in advance, hides most of the wait.`
+  String get translation_engine_info_footer {
+    return Intl.message(
+      'Speeds are estimates; the fast tier was measured on a Galaxy S24 Ultra. Translating ahead while you read, and translating downloaded chapters in advance, hides most of the wait.',
+      name: 'translation_engine_info_footer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} chapters queued for translation`
+  String chapter_translation_queued(Object count) {
+    return Intl.message(
+      '$count chapters queued for translation',
+      name: 'chapter_translation_queued',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Stop translating`
+  String get chapter_translation_cancel {
+    return Intl.message(
+      'Stop translating',
+      name: 'chapter_translation_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translate chapter`
+  String get chapter_translation_translate {
+    return Intl.message(
+      'Translate chapter',
+      name: 'chapter_translation_translate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translate all downloaded chapters`
+  String get chapter_translation_translate_all {
+    return Intl.message(
+      'Translate all downloaded chapters',
+      name: 'chapter_translation_translate_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiting to translate`
+  String get chapter_translation_queued_status {
+    return Intl.message(
+      'Waiting to translate',
+      name: 'chapter_translation_queued_status',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Preparing translation…`
+  String get chapter_translation_preparing {
+    return Intl.message(
+      'Preparing translation…',
+      name: 'chapter_translation_preparing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translating {done}/{total}`
+  String chapter_translation_progress(Object done, Object total) {
+    return Intl.message(
+      'Translating $done/$total',
+      name: 'chapter_translation_progress',
+      desc: '',
+      args: [done, total],
+    );
+  }
+
+  /// `Translated`
+  String get chapter_translation_done {
+    return Intl.message(
+      'Translated',
+      name: 'chapter_translation_done',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translated · {failed} pages failed`
+  String chapter_translation_done_partial(Object failed) {
+    return Intl.message(
+      'Translated · $failed pages failed',
+      name: 'chapter_translation_done_partial',
+      desc: '',
+      args: [failed],
+    );
+  }
+
+  /// `Translation failed`
+  String get chapter_translation_failed {
+    return Intl.message(
+      'Translation failed',
+      name: 'chapter_translation_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading, then translating`
+  String get chapter_translation_waiting_download {
+    return Intl.message(
+      'Downloading, then translating',
+      name: 'chapter_translation_waiting_download',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translate`
+  String get concrete_selection_translate {
+    return Intl.message(
+      'Translate',
+      name: 'concrete_selection_translate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translate every page in the background`
+  String get page_translation_translate_chapter_hint {
+    return Intl.message(
+      'Translate every page in the background',
+      name: 'page_translation_translate_chapter_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel all`
+  String get chapter_translation_cancel_all {
+    return Intl.message(
+      'Cancel all',
+      name: 'chapter_translation_cancel_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pause`
+  String get chapter_translation_pause {
+    return Intl.message(
+      'Pause',
+      name: 'chapter_translation_pause',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resume`
+  String get chapter_translation_resume {
+    return Intl.message(
+      'Resume',
+      name: 'chapter_translation_resume',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paused`
+  String get chapter_translation_notification_paused {
+    return Intl.message(
+      'Paused',
+      name: 'chapter_translation_notification_paused',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} chapters left`
+  String chapter_translation_notification_remaining(Object count) {
+    return Intl.message(
+      '$count chapters left',
+      name: 'chapter_translation_notification_remaining',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Chapter translation`
+  String get chapter_translation_notification_channel {
+    return Intl.message(
+      'Chapter translation',
+      name: 'chapter_translation_notification_channel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translation finished`
+  String get chapter_translation_notification_done_title {
+    return Intl.message(
+      'Translation finished',
+      name: 'chapter_translation_notification_done_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} chapters translated`
+  String chapter_translation_notification_done_body(Object count) {
+    return Intl.message(
+      '$count chapters translated',
+      name: 'chapter_translation_notification_done_body',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Translation queue`
+  String get chapter_translation_queue_title {
+    return Intl.message(
+      'Translation queue',
+      name: 'chapter_translation_queue_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Titles`
+  String get library_tab_titles {
+    return Intl.message(
+      'Titles',
+      name: 'library_tab_titles',
+      desc: '',
+      args: [],
     );
   }
 }

@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:wakaranai/services/page_translation/engines/page_ocr_engine.dart';
 import 'package:wakaranai/services/page_translation/page_language.dart';
 import 'package:wakaranai/services/page_translation/page_translation_result.dart';
-import 'package:wakaranai/services/page_translation/page_translation_service.dart';
+import 'package:wakaranai/services/page_translation/page_translation_backend.dart';
 import 'package:wakaranai/services/page_translation/title_languages.dart';
 import 'package:wakaranai/ui/services/cubits/page_translation/page_translation_cubit.dart';
 
@@ -47,7 +47,9 @@ class _FakeBackend implements PageTranslationBackend {
   ) async {
     await gate?.future;
     final Object? error = errors.remove(path);
-    if (error != null) throw error;
+    if (error != null) {
+      throw error;
+    }
     translated.add(path);
     return _empty;
   }
@@ -66,17 +68,21 @@ class _Harness {
     cubit = PageTranslationCubit(
       languages: languages,
       modelRetryDelay: retry,
-      backendFactory: (TitleLanguages l) {
-        final _FakeBackend backend = _FakeBackend(l, ready: ready)..gate = gate;
+      backendFactory: (TitleLanguages requested) {
+        final _FakeBackend backend = _FakeBackend(requested, ready: ready)
+          ..gate = gate;
         backends.add(backend);
         return backend;
       },
-      ensurePacks: (TitleLanguages l) async {
-        ensured.add(l);
-        if (packsOk) ready = true;
+      ensurePacks: (TitleLanguages requested) async {
+        ensured.add(requested);
+        if (packsOk) {
+          ready = true;
+        }
         return packsOk;
       },
-      onLanguagesChanged: (TitleLanguages l) async => saved.add(l),
+      onLanguagesChanged: (TitleLanguages requested) async =>
+          saved.add(requested),
     );
   }
 
@@ -99,161 +105,192 @@ Future<void> _settle([int times = 3]) async {
 
 void main() {
   test('translates the requested pages in priority order', () async {
-    final _Harness h = _Harness();
-    addTearDown(h.cubit.close);
+    final _Harness harness = _Harness();
+    addTearDown(harness.cubit.close);
 
-    await h.cubit.toggle();
-    h.cubit.request(<String>['p1', 'p2', 'p3'], const <String, String>{});
+    await harness.cubit.toggle();
+    harness.cubit.request(<String>['p1', 'p2', 'p3'], const <String, String>{});
     await _settle();
 
-    expect(h.backend.translated, <String>['p1', 'p2', 'p3']);
-    expect(h.cubit.state.entry('p2')?.status, PageTranslationStatus.done);
+    expect(harness.backend.translated, <String>['p1', 'p2', 'p3']);
+    expect(harness.cubit.state.entry('p2')?.status, PageTranslationStatus.done);
   });
 
   test('queued pages that are no longer near the reader are dropped', () async {
-    final _Harness h = _Harness()..gate = Completer<void>();
-    addTearDown(h.cubit.close);
+    final _Harness harness = _Harness()..gate = Completer<void>();
+    addTearDown(harness.cubit.close);
 
-    await h.cubit.toggle();
-    h.cubit.request(<String>['p1', 'p2', 'p3'], const <String, String>{});
-    h.cubit.request(<String>['p9', 'p10'], const <String, String>{});
-    h.gate!.complete();
+    await harness.cubit.toggle();
+    harness.cubit.request(<String>['p1', 'p2', 'p3'], const <String, String>{});
+    harness.cubit.request(<String>['p9', 'p10'], const <String, String>{});
+    harness.gate!.complete();
     await _settle(6);
 
-    expect(h.backend.translated, <String>['p1', 'p9', 'p10']);
-    expect(h.cubit.state.entry('p2'), isNull);
+    expect(harness.backend.translated, <String>['p1', 'p9', 'p10']);
+    expect(harness.cubit.state.entry('p2'), isNull);
   });
 
   test('a title without languages asks for them first', () async {
-    final _Harness h = _Harness(languages: null);
-    addTearDown(h.cubit.close);
+    final _Harness harness = _Harness(languages: null);
+    addTearDown(harness.cubit.close);
 
-    await h.cubit.toggle();
-    expect(h.cubit.state.phase, PageTranslationPhase.choosingLanguages);
+    await harness.cubit.toggle();
+    expect(harness.cubit.state.phase, PageTranslationPhase.choosingLanguages);
 
-    await h.cubit.setLanguages(_enRu);
-    expect(h.cubit.state.phase, PageTranslationPhase.active);
-    expect(h.saved, <TitleLanguages>[_enRu]);
-    expect(h.backend.languages, _enRu);
+    await harness.cubit.setLanguages(_enRu);
+    expect(harness.cubit.state.phase, PageTranslationPhase.active);
+    expect(harness.saved, <TitleLanguages>[_enRu]);
+    expect(harness.backend.languages, _enRu);
   });
 
   test('dismissing the language prompt turns translation off', () async {
-    final _Harness h = _Harness(languages: null);
-    addTearDown(h.cubit.close);
+    final _Harness harness = _Harness(languages: null);
+    addTearDown(harness.cubit.close);
 
-    await h.cubit.toggle();
-    h.cubit.dismissPrompt();
+    await harness.cubit.toggle();
+    harness.cubit.dismissPrompt();
 
-    expect(h.cubit.state.phase, PageTranslationPhase.off);
+    expect(harness.cubit.state.phase, PageTranslationPhase.off);
   });
 
   test('changing languages rebuilds the backend and drops old pages', () async {
-    final _Harness h = _Harness();
-    addTearDown(h.cubit.close);
+    final _Harness harness = _Harness();
+    addTearDown(harness.cubit.close);
 
-    await h.cubit.toggle();
-    h.cubit.request(<String>['p1'], const <String, String>{});
+    await harness.cubit.toggle();
+    harness.cubit.request(<String>['p1'], const <String, String>{});
     await _settle();
-    final _FakeBackend first = h.backend;
+    final _FakeBackend first = harness.backend;
 
-    await h.cubit.setLanguages(_enRu);
+    await harness.cubit.setLanguages(_enRu);
     await _settle();
 
     expect(first.disposed, isTrue);
-    expect(h.backend, isNot(same(first)));
-    expect(h.cubit.state.entry('p1'), isNull);
-    expect(h.cubit.state.phase, PageTranslationPhase.active);
+    expect(harness.backend, isNot(same(first)));
+    expect(harness.cubit.state.entry('p1'), isNull);
+    expect(harness.cubit.state.phase, PageTranslationPhase.active);
   });
 
   test('changing languages while off only saves them', () async {
-    final _Harness h = _Harness();
-    addTearDown(h.cubit.close);
+    final _Harness harness = _Harness();
+    addTearDown(harness.cubit.close);
 
-    await h.cubit.setLanguages(_enRu);
+    await harness.cubit.setLanguages(_enRu);
 
-    expect(h.cubit.state.phase, PageTranslationPhase.off);
-    expect(h.cubit.state.languages, _enRu);
-    expect(h.saved, <TitleLanguages>[_enRu]);
+    expect(harness.cubit.state.phase, PageTranslationPhase.off);
+    expect(harness.cubit.state.languages, _enRu);
+    expect(harness.saved, <TitleLanguages>[_enRu]);
   });
 
   test('saved languages are restored without overriding a choice', () async {
-    final _Harness h = _Harness(languages: null);
-    addTearDown(h.cubit.close);
+    final _Harness harness = _Harness(languages: null);
+    addTearDown(harness.cubit.close);
 
-    h.cubit.restoreLanguages(_enRu);
-    h.cubit.restoreLanguages(_jaEn);
+    harness.cubit.restoreLanguages(_enRu);
+    harness.cubit.restoreLanguages(_jaEn);
 
-    expect(h.cubit.state.languages, _enRu);
-    expect(h.saved, isEmpty);
+    expect(harness.cubit.state.languages, _enRu);
+    expect(harness.saved, isEmpty);
   });
 
   test('missing packs are downloaded through the shared queue', () async {
-    final _Harness h = _Harness(ready: false);
-    addTearDown(h.cubit.close);
+    final _Harness harness = _Harness(ready: false);
+    addTearDown(harness.cubit.close);
 
-    await h.cubit.toggle();
-    expect(h.cubit.state.phase, PageTranslationPhase.needsModels);
+    await harness.cubit.toggle();
+    expect(harness.cubit.state.phase, PageTranslationPhase.needsModels);
 
-    await h.cubit.downloadModels();
-    expect(h.ensured, <TitleLanguages>[_jaEn]);
-    expect(h.cubit.state.phase, PageTranslationPhase.active);
+    await harness.cubit.downloadModels();
+    expect(harness.ensured, <TitleLanguages>[_jaEn]);
+    expect(harness.cubit.state.phase, PageTranslationPhase.active);
   });
 
   test('a failed download turns translation back off', () async {
-    final _Harness h = _Harness(ready: false, packsOk: false);
-    addTearDown(h.cubit.close);
+    final _Harness harness = _Harness(ready: false, packsOk: false);
+    addTearDown(harness.cubit.close);
 
-    await h.cubit.toggle();
-    await h.cubit.downloadModels();
+    await harness.cubit.toggle();
+    await harness.cubit.downloadModels();
 
-    expect(h.cubit.state.phase, PageTranslationPhase.off);
-    expect(h.cubit.state.downloadFailed, isTrue);
+    expect(harness.cubit.state.phase, PageTranslationPhase.off);
+    expect(harness.cubit.state.downloadFailed, isTrue);
   });
 
   test('pages wait and retry while the OCR model is downloading', () async {
-    final _Harness h = _Harness(retry: const Duration(milliseconds: 10));
-    addTearDown(h.cubit.close);
+    final _Harness harness = _Harness(retry: const Duration(milliseconds: 10));
+    addTearDown(harness.cubit.close);
 
-    await h.cubit.toggle();
-    h.backend.errors['p1'] = const OcrModelPendingException();
-    h.cubit.request(<String>['p1'], const <String, String>{});
+    await harness.cubit.toggle();
+    harness.backend.errors['p1'] = const OcrModelPendingException();
+    harness.cubit.request(<String>['p1'], const <String, String>{});
     await _settle();
     expect(
-      h.cubit.state.entry('p1')?.status,
+      harness.cubit.state.entry('p1')?.status,
       PageTranslationStatus.modelPending,
     );
 
-    final PageTranslationState done = await h.cubit.stream
+    final PageTranslationState done = await harness.cubit.stream
         .firstWhere(
-          (PageTranslationState s) =>
-              s.entry('p1')?.status == PageTranslationStatus.done,
+          (PageTranslationState next) =>
+              next.entry('p1')?.status == PageTranslationStatus.done,
         )
         .timeout(const Duration(seconds: 5));
     expect(done.entry('p1')?.status, PageTranslationStatus.done);
   });
 
   test('failed pages can be retried', () async {
-    final _Harness h = _Harness();
-    addTearDown(h.cubit.close);
+    final _Harness harness = _Harness();
+    addTearDown(harness.cubit.close);
 
-    await h.cubit.toggle();
-    h.backend.errors['p1'] = StateError('boom');
-    h.cubit.request(<String>['p1'], const <String, String>{});
+    await harness.cubit.toggle();
+    harness.backend.errors['p1'] = StateError('boom');
+    harness.cubit.request(<String>['p1'], const <String, String>{});
     await _settle();
-    expect(h.cubit.state.entry('p1')?.status, PageTranslationStatus.failed);
+    expect(
+      harness.cubit.state.entry('p1')?.status,
+      PageTranslationStatus.failed,
+    );
 
-    h.cubit.retry('p1');
+    harness.cubit.retry('p1');
     await _settle();
-    expect(h.cubit.state.entry('p1')?.status, PageTranslationStatus.done);
+    expect(harness.cubit.state.entry('p1')?.status, PageTranslationStatus.done);
   });
 
   test('bubbles can be switched back to the original', () async {
-    final _Harness h = _Harness();
-    addTearDown(h.cubit.close);
+    final _Harness harness = _Harness();
+    addTearDown(harness.cubit.close);
 
-    h.cubit.toggleBubble('p1', 2);
-    expect(h.cubit.state.isHidden('p1', 2), isTrue);
-    h.cubit.toggleBubble('p1', 2);
-    expect(h.cubit.state.isHidden('p1', 2), isFalse);
+    harness.cubit.toggleBubble('p1', 2);
+    expect(harness.cubit.state.isHidden('p1', 2), isTrue);
+    harness.cubit.toggleBubble('p1', 2);
+    expect(harness.cubit.state.isHidden('p1', 2), isFalse);
   });
+
+  test(
+    'whole-chapter pages stay queued while the reader moves around',
+    () async {
+      final _Harness harness = _Harness()..gate = Completer<void>();
+      addTearDown(harness.cubit.close);
+
+      await harness.cubit.toggle();
+      harness.cubit.requestAll(<String>[
+        'p1',
+        'p2',
+        'p3',
+        'p4',
+      ], const <String, String>{});
+      harness.cubit.request(<String>['p3'], const <String, String>{});
+      harness.gate!.complete();
+      await _settle(10);
+
+      expect(harness.backend.translated.toSet(), <String>{
+        'p1',
+        'p2',
+        'p3',
+        'p4',
+      });
+      expect(harness.cubit.state.pinnedDone, 4);
+      expect(harness.cubit.state.translatingChapter, isFalse);
+    },
+  );
 }

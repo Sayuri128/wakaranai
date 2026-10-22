@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/services/page_translation/engines/page_ocr_engine.dart';
 import 'package:wakaranai/services/page_translation/page_translation_result.dart';
-import 'package:wakaranai/services/page_translation/page_translation_service.dart';
+import 'package:wakaranai/services/page_translation/page_translation_backend.dart';
 import 'package:wakaranai/services/page_translation/title_languages.dart';
 
 part 'page_translation_state.dart';
@@ -32,15 +32,17 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
 
   PageTranslationBackend? _backend;
   Map<String, String> _headers = const <String, String>{};
-  List<String> _priority = const <String>[];
-  bool _running = false;
+  List<String> _visiblePaths = const <String>[];
+  bool _processing = false;
   Timer? _retryTimer;
 
   PageTranslationBackend get _activeBackend =>
       _backend ??= _backendFactory(state.languages!);
 
   Future<void> toggle() async {
-    if (state.busy) return;
+    if (state.busy) {
+      return;
+    }
     if (state.phase != PageTranslationPhase.off) {
       _emit(state.copyWith(phase: PageTranslationPhase.off));
       return;
@@ -53,7 +55,7 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
   }
 
   Future<void> setLanguages(TitleLanguages languages) async {
-    final bool activate = state.phase != PageTranslationPhase.off;
+    final bool wasOn = state.phase != PageTranslationPhase.off;
     if (languages != state.languages) {
       _retryTimer?.cancel();
       final PageTranslationBackend? previous = _backend;
@@ -64,11 +66,14 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
           languages: languages,
           pages: const <String, PageTranslationEntry>{},
           hidden: const <String>{},
+          pinned: const <String>{},
         ),
       );
       await _onLanguagesChanged?.call(languages);
     }
-    if (activate) await _activate();
+    if (wasOn) {
+      await _activate();
+    }
   }
 
   void restoreLanguages(TitleLanguages languages) {
@@ -91,12 +96,7 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
         downloadFailed: false,
       ),
     );
-    bool ready = false;
-    try {
-      ready = await _activeBackend.isReady();
-    } catch (e) {
-      logger.w('Page translation readiness check failed: $e');
-    }
+    final bool ready = await _checkReady();
     _emit(
       state.copyWith(
         phase: ready
@@ -104,7 +104,16 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
             : PageTranslationPhase.needsModels,
       ),
     );
-    unawaited(_pump());
+    unawaited(_processQueue());
+  }
+
+  Future<bool> _checkReady() async {
+    try {
+      return await _activeBackend.isReady();
+    } catch (e) {
+      logger.w('Page translation readiness check failed: $e');
+      return false;
+    }
   }
 
   Future<void> downloadModels() async {
@@ -114,15 +123,15 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
         downloadFailed: false,
       ),
     );
-    bool ok = false;
+    bool downloaded = false;
     try {
-      ok = await _ensurePacks(state.languages!);
+      downloaded = await _ensurePacks(state.languages!);
     } catch (e) {
       logger.w('Page translation model download failed: $e');
     }
-    if (ok) {
+    if (downloaded) {
       _emit(state.copyWith(phase: PageTranslationPhase.active));
-      unawaited(_pump());
+      unawaited(_processQueue());
     } else {
       _emit(
         state.copyWith(phase: PageTranslationPhase.off, downloadFailed: true),
@@ -132,63 +141,94 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
 
   void request(List<String> paths, Map<String, String> headers) {
     _headers = headers;
-    _priority = List<String>.unmodifiable(paths);
+    _visiblePaths = List<String>.unmodifiable(paths);
+
+    bool isStaleQueued(String path, PageTranslationEntry entry) {
+      return entry.status == PageTranslationStatus.queued &&
+          !paths.contains(path) &&
+          !state.pinned.contains(path);
+    }
+
     final Map<String, PageTranslationEntry> pages =
-        Map<String, PageTranslationEntry>.of(state.pages)..removeWhere(
-          (String path, PageTranslationEntry entry) =>
-              entry.status == PageTranslationStatus.queued &&
-              !paths.contains(path),
-        );
+        Map<String, PageTranslationEntry>.of(state.pages)
+          ..removeWhere(isStaleQueued);
+    _queueMissing(pages, paths);
+    _emit(state.copyWith(pages: pages));
+    unawaited(_processQueue());
+  }
+
+  void requestAll(List<String> paths, Map<String, String> headers) {
+    _headers = headers;
+    final Map<String, PageTranslationEntry> pages =
+        Map<String, PageTranslationEntry>.of(state.pages);
+    _queueMissing(pages, paths);
+    _emit(
+      state.copyWith(pages: pages, pinned: <String>{...state.pinned, ...paths}),
+    );
+    unawaited(_processQueue());
+  }
+
+  void _queueMissing(
+    Map<String, PageTranslationEntry> pages,
+    List<String> paths,
+  ) {
     for (final String path in paths) {
       pages.putIfAbsent(
         path,
         () => const PageTranslationEntry(PageTranslationStatus.queued),
       );
     }
-    _emit(state.copyWith(pages: pages));
-    unawaited(_pump());
   }
 
   void retry(String path) {
-    _setStatus(path, const PageTranslationEntry(PageTranslationStatus.queued));
-    unawaited(_pump());
+    _setEntry(path, const PageTranslationEntry(PageTranslationStatus.queued));
+    unawaited(_processQueue());
   }
 
   void toggleBubble(String path, int index) {
     final String key = '$path#$index';
     final Set<String> hidden = Set<String>.of(state.hidden);
-    if (!hidden.remove(key)) hidden.add(key);
+    if (!hidden.remove(key)) {
+      hidden.add(key);
+    }
     _emit(state.copyWith(hidden: hidden));
   }
 
-  String? _next() {
-    for (final String path in _priority) {
+  String? _nextQueuedPath() {
+    for (final String path in _visiblePaths) {
       if (state.pages[path]?.status == PageTranslationStatus.queued) {
         return path;
       }
     }
     for (final MapEntry<String, PageTranslationEntry> entry
         in state.pages.entries) {
-      if (entry.value.status == PageTranslationStatus.queued) return entry.key;
+      if (entry.value.status == PageTranslationStatus.queued) {
+        return entry.key;
+      }
     }
     return null;
   }
 
-  Future<void> _pump() async {
-    if (_running) return;
-    _running = true;
+  Future<void> _processQueue() async {
+    if (_processing) {
+      return;
+    }
+    _processing = true;
     try {
       while (!isClosed && state.active) {
-        final String? path = _next();
-        if (path == null) break;
-        _setStatus(
+        final String? path = _nextQueuedPath();
+        if (path == null) {
+          break;
+        }
+        _setEntry(
           path,
           const PageTranslationEntry(PageTranslationStatus.running),
         );
-        _setStatus(path, await _translate(path));
+        final PageTranslationEntry result = await _translate(path);
+        _setEntry(path, result);
       }
     } finally {
-      _running = false;
+      _processing = false;
     }
   }
 
@@ -214,25 +254,29 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
   void _scheduleModelRetry(String path) {
     _retryTimer?.cancel();
     _retryTimer = Timer(modelRetryDelay, () {
-      if (isClosed) return;
+      if (isClosed) {
+        return;
+      }
       if (state.pages[path]?.status == PageTranslationStatus.modelPending) {
         retry(path);
       }
     });
   }
 
-  void _setStatus(String path, PageTranslationEntry entry) {
-    if (isClosed) return;
-    _emit(
-      state.copyWith(
-        pages: Map<String, PageTranslationEntry>.of(state.pages)
-          ..[path] = entry,
-      ),
-    );
+  void _setEntry(String path, PageTranslationEntry entry) {
+    if (isClosed) {
+      return;
+    }
+    final Map<String, PageTranslationEntry> pages =
+        Map<String, PageTranslationEntry>.of(state.pages);
+    pages[path] = entry;
+    _emit(state.copyWith(pages: pages));
   }
 
   void _emit(PageTranslationState next) {
-    if (!isClosed) emit(next);
+    if (!isClosed) {
+      emit(next);
+    }
   }
 
   @override

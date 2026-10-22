@@ -5,12 +5,14 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/page_translation_repository.dart';
 import 'package:wakaranai/services/page_translation/bubble_analyzer.dart';
 import 'package:wakaranai/services/page_translation/engines/page_ocr_engine.dart';
 import 'package:wakaranai/services/page_translation/engines/page_translation_engines.dart';
 import 'package:wakaranai/services/page_translation/engines/page_translator.dart';
 import 'package:wakaranai/services/page_translation/ocr_correction.dart';
+import 'package:wakaranai/services/page_translation/page_translation_backend.dart';
 import 'package:wakaranai/services/page_translation/page_translation_result.dart';
 import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
 import 'package:wakaranai/services/page_translation/text_grouping.dart';
@@ -35,17 +37,27 @@ class PageTile {
   String toString() => 'PageTile($top, $height)';
 }
 
-List<PageTile> pageTiles(int width, int height) {
-  final int maxTile = max(1024, width * 2);
-  if (height <= maxTile * 1.25) return <PageTile>[PageTile(0, height)];
+const int _minTileHeight = 1024;
+const double _singleTileAllowance = 1.25;
+const double _tileOverlap = 0.15;
+const double _duplicateOverlapShare = 0.6;
+const int _upscaleBelowWidth = 1600;
 
-  final int overlap = (maxTile * 0.15).round();
+List<PageTile> pageTiles(int width, int height) {
+  final int maxTile = max(_minTileHeight, width * 2);
+  if (height <= maxTile * _singleTileAllowance) {
+    return <PageTile>[PageTile(0, height)];
+  }
+
+  final int overlap = (maxTile * _tileOverlap).round();
   final List<PageTile> tiles = <PageTile>[];
   int top = 0;
   while (true) {
     final int tileHeight = min(maxTile, height - top);
     tiles.add(PageTile(top, tileHeight));
-    if (top + tileHeight >= height) break;
+    if (top + tileHeight >= height) {
+      break;
+    }
     top += maxTile - overlap;
   }
   return tiles;
@@ -54,32 +66,35 @@ List<PageTile> pageTiles(int width, int height) {
 List<BubbleLayout> dropDuplicateBubbles(List<BubbleLayout> layouts) {
   final List<BubbleLayout> kept = <BubbleLayout>[];
   for (final BubbleLayout layout in layouts) {
-    final double area = layout.textBox.width * layout.textBox.height;
-    final bool duplicate = kept.any((BubbleLayout other) {
-      final ui.Rect overlap = other.textBox.intersect(layout.textBox);
-      if (overlap.width <= 0 || overlap.height <= 0) return false;
-      final double otherArea = other.textBox.width * other.textBox.height;
-      return overlap.width * overlap.height > 0.6 * min(area, otherArea);
-    });
-    if (!duplicate) kept.add(layout);
+    final bool duplicate = kept.any(
+      (BubbleLayout other) => _mostlyOverlap(layout.textBox, other.textBox),
+    );
+    if (!duplicate) {
+      kept.add(layout);
+    }
   }
   return kept;
 }
 
-abstract class PageTranslationBackend {
-  Future<bool> isReady();
-
-  Future<PageTranslationResult?> cached(String path);
-
-  Future<PageTranslationResult> translate(
-    String path,
-    Map<String, String> headers,
-  );
-
-  Future<void> dispose();
+bool _mostlyOverlap(ui.Rect a, ui.Rect b) {
+  final ui.Rect overlap = a.intersect(b);
+  if (overlap.width <= 0 || overlap.height <= 0) {
+    return false;
+  }
+  final double smallerArea = min(_area(a), _area(b));
+  return _area(overlap) > _duplicateOverlapShare * smallerArea;
 }
 
-double ocrUpscaleFor(int width) => width < 1600 ? 2 : 1;
+double _area(ui.Rect rect) => rect.width * rect.height;
+
+double ocrUpscaleFor(int width) {
+  if (width < _upscaleBelowWidth) {
+    return 2;
+  }
+  return 1;
+}
+
+typedef _RecognizedBubble = ({BubbleLayout layout, String text});
 
 class PageTranslationService implements PageTranslationBackend {
   PageTranslationService({
@@ -124,35 +139,40 @@ class PageTranslationService implements PageTranslationBackend {
     try {
       final PageBitmap bitmap = await lease.bitmap;
       final ui.Image image = bitmap.image;
-      final List<BubbleLayout> layouts = <BubbleLayout>[];
-      final List<String> texts = <String>[];
+      final Stopwatch watch = Stopwatch()..start();
 
+      final Map<BubbleLayout, String> textByLayout = <BubbleLayout, String>{};
       for (final PageTile tile in pageTiles(image.width, image.height)) {
-        final List<(BubbleLayout, String)> found = await _processTile(
+        final List<_RecognizedBubble> recognized = await _processTile(
           image,
           tile,
         );
-        for (final (BubbleLayout layout, String text) in found) {
-          layouts.add(layout);
-          texts.add(text);
+        for (final _RecognizedBubble bubble in recognized) {
+          textByLayout[bubble.layout] = bubble.text;
         }
       }
 
-      final List<BubbleLayout> unique = dropDuplicateBubbles(layouts);
+      final List<BubbleLayout> unique = dropDuplicateBubbles(
+        textByLayout.keys.toList(),
+      );
       final OcrTextCorrector? corrector = await OcrCorrectors.forLanguage(
         languages.source,
       );
-      final List<String> sources = unique.map((BubbleLayout l) {
-        final String text = texts[layouts.indexOf(l)];
-        return corrector?.correct(text) ?? text;
-      }).toList();
-      final List<String> translations = sources.isEmpty
-          ? const <String>[]
-          : await _translator.translate(
-              sources,
-              from: languages.source,
-              to: languages.target,
-            );
+      final List<String> sources = <String>[];
+      for (final BubbleLayout layout in unique) {
+        final String text = textByLayout[layout]!;
+        sources.add(corrector?.correct(text) ?? text);
+      }
+
+      final int ocrMilliseconds = watch.elapsedMilliseconds;
+      final List<String> translations = await _translate(sources);
+      final int totalMilliseconds = watch.elapsedMilliseconds;
+      logger.i(
+        '[page-translation] engine=${settings.engineKey} '
+        'bubbles=${sources.length} ocr=${ocrMilliseconds}ms '
+        'translate=${totalMilliseconds - ocrMilliseconds}ms '
+        'total=${totalMilliseconds}ms',
+      );
 
       final PageTranslationResult result = PageTranslationResult(
         width: image.width,
@@ -183,12 +203,25 @@ class PageTranslationService implements PageTranslationBackend {
     }
   }
 
-  Future<List<(BubbleLayout, String)>> _processTile(
+  Future<List<String>> _translate(List<String> sources) async {
+    if (sources.isEmpty) {
+      return const <String>[];
+    }
+    return _translator.translate(
+      sources,
+      from: languages.source,
+      to: languages.target,
+    );
+  }
+
+  Future<List<_RecognizedBubble>> _processTile(
     ui.Image image,
     PageTile tile,
   ) async {
-    final bool whole = tile.top == 0 && tile.height == image.height;
-    final ui.Image tileImage = whole ? image : await _render(image, tile, 1);
+    final bool wholePage = tile.top == 0 && tile.height == image.height;
+    final ui.Image tileImage = wholePage
+        ? image
+        : await _render(image, tile, 1);
     final double ocrScale = ocrUpscaleFor(tileImage.width);
     final ui.Image ocrImage = ocrScale == 1
         ? tileImage
@@ -202,12 +235,12 @@ class PageTranslationService implements PageTranslationBackend {
         format: ui.ImageByteFormat.rawRgba,
       );
       if (encoded == null || raw == null) {
-        return const <(BubbleLayout, String)>[];
+        return const <_RecognizedBubble>[];
       }
       await png.writeAsBytes(encoded.buffer.asUint8List(), flush: true);
 
       final Uint8List rgba = raw.buffer.asUint8List();
-      final List<OcrBlock> blocks = (await _ocr.recognize(
+      final List<OcrBlock> recognized = await _ocr.recognize(
         OcrInput(
           pngPath: png.path,
           rgba: rgba,
@@ -215,9 +248,14 @@ class PageTranslationService implements PageTranslationBackend {
           height: tileImage.height,
         ),
         languages.source,
-      )).map((OcrBlock b) => b.scale(1 / ocrScale)).toList();
+      );
+      final List<OcrBlock> blocks = recognized
+          .map((OcrBlock block) => block.scale(1 / ocrScale))
+          .toList();
       final List<TextGroup> groups = groupOcrBlocks(blocks, languages.source);
-      if (groups.isEmpty) return const <(BubbleLayout, String)>[];
+      if (groups.isEmpty) {
+        return const <_RecognizedBubble>[];
+      }
 
       final List<BubbleLayout> layouts = await compute(
         analyzeBubbles,
@@ -225,27 +263,34 @@ class PageTranslationService implements PageTranslationBackend {
           rgba: rgba,
           width: tileImage.width,
           height: tileImage.height,
-          boxes: groups.map((TextGroup g) => g.box).toList(),
+          boxes: groups.map((TextGroup group) => group.box).toList(),
         ),
       );
       final ui.Offset offset = ui.Offset(0, tile.top.toDouble());
-      return <(BubbleLayout, String)>[
+      return <_RecognizedBubble>[
         for (int i = 0; i < groups.length; i++)
-          (
-            BubbleLayout(
-              textBox: layouts[i].textBox.shift(offset),
-              layoutBox: layouts[i].layoutBox.shift(offset),
-              fillColor: layouts[i].fillColor,
-              erase: layouts[i].erase,
-            ),
-            groups[i].text,
-          ),
+          (layout: _shiftLayout(layouts[i], offset), text: groups[i].text),
       ];
     } finally {
-      if (!identical(ocrImage, tileImage)) ocrImage.dispose();
-      if (!whole) tileImage.dispose();
-      if (await png.exists()) await png.delete();
+      if (!identical(ocrImage, tileImage)) {
+        ocrImage.dispose();
+      }
+      if (!wholePage) {
+        tileImage.dispose();
+      }
+      if (await png.exists()) {
+        await png.delete();
+      }
     }
+  }
+
+  BubbleLayout _shiftLayout(BubbleLayout layout, ui.Offset offset) {
+    return BubbleLayout(
+      textBox: layout.textBox.shift(offset),
+      layoutBox: layout.layoutBox.shift(offset),
+      fillColor: layout.fillColor,
+      erase: layout.erase,
+    );
   }
 
   Future<ui.Image> _render(ui.Image image, PageTile tile, double scale) {
@@ -269,13 +314,11 @@ class PageTranslationService implements PageTranslationBackend {
   }
 
   Future<File> _tempPng() async {
-    final Directory dir = Directory(
-      p.join((await getTemporaryDirectory()).path, 'page_ocr'),
-    );
-    await dir.create(recursive: true);
-    return File(
-      p.join(dir.path, 'tile_${DateTime.now().microsecondsSinceEpoch}.png'),
-    );
+    final Directory temporary = await getTemporaryDirectory();
+    final Directory directory = Directory(p.join(temporary.path, 'page_ocr'));
+    await directory.create(recursive: true);
+    final int stamp = DateTime.now().microsecondsSinceEpoch;
+    return File(p.join(directory.path, 'tile_$stamp.png'));
   }
 
   @override

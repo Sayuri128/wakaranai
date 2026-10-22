@@ -58,6 +58,8 @@ dependencies:
   flutter_avif_platform_interface: ^3.1.0
   google_mlkit_text_recognition: ^0.17.1
   google_mlkit_translation: ^0.15.1
+  flutter_edge_ai: ^2.5.2
+  flutter_edge_ai_litertlm: ^1.17.0
 
 dependency_overrides:
   intl: 0.20.2

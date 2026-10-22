@@ -14,12 +14,14 @@ class BottomModalSettings extends StatefulWidget {
     required this.state,
     this.translationLanguages,
     this.onEditTranslationLanguages,
+    this.onTranslateWholeChapter,
   });
 
   final ChapterViewCubit chapterViewCubit;
   final ChapterViewInitialized state;
   final TitleLanguages? translationLanguages;
   final VoidCallback? onEditTranslationLanguages;
+  final VoidCallback? onTranslateWholeChapter;
 
   @override
   State<BottomModalSettings> createState() => _BottomModalSettingsState();
@@ -87,24 +89,43 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
                 setState(() => _enableTapControlsState = newValue);
               },
             ),
-            if (widget.translationLanguages != null &&
-                widget.onEditTranslationLanguages != null) ...<Widget>[
-              const SizedBox(height: 10),
-              _ValueRow(
-                label: S.current.page_translation_languages_title,
-                value:
-                    '${widget.translationLanguages!.source.name} → '
-                    '${widget.translationLanguages!.target.name}',
-                onTap: () {
-                  Navigator.of(context).pop();
-                  widget.onEditTranslationLanguages!();
-                },
-              ),
-            ],
+            ..._buildTranslationRows(context),
           ],
         ),
       ),
     );
+  }
+
+  List<Widget> _buildTranslationRows(BuildContext context) {
+    final TitleLanguages? languages = widget.translationLanguages;
+    final VoidCallback? editLanguages = widget.onEditTranslationLanguages;
+    if (languages == null || editLanguages == null) {
+      return const <Widget>[];
+    }
+
+    void closeThen(VoidCallback action) {
+      Navigator.of(context).pop();
+      action();
+    }
+
+    final VoidCallback? translateWholeChapter = widget.onTranslateWholeChapter;
+    return <Widget>[
+      const SizedBox(height: 10),
+      _ValueRow(
+        label: S.current.page_translation_languages_title,
+        value: '${languages.source.name} → ${languages.target.name}',
+        onTap: () => closeThen(editLanguages),
+      ),
+      if (translateWholeChapter != null) ...<Widget>[
+        const SizedBox(height: 10),
+        _ValueRow(
+          icon: Icons.auto_stories_rounded,
+          label: S.current.page_translation_translate_chapter,
+          value: S.current.page_translation_translate_chapter_hint,
+          onTap: () => closeThen(translateWholeChapter),
+        ),
+      ],
+    ];
   }
 }
 
@@ -156,11 +177,13 @@ class _ModeChip extends StatelessWidget {
 
 class _ValueRow extends StatelessWidget {
   const _ValueRow({
+    this.icon = Icons.translate_rounded,
     required this.label,
     required this.value,
     required this.onTap,
   });
 
+  final IconData icon;
   final String label;
   final String value;
   final VoidCallback onTap;
@@ -177,10 +200,23 @@ class _ValueRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
             children: <Widget>[
-              Icon(Icons.translate_rounded, size: 20, color: AppColors.primary),
+              Icon(icon, size: 20, color: AppColors.primary),
               const SizedBox(width: 12),
-              Expanded(child: Text(label, style: medium(size: 15))),
-              Text(value, style: medium(size: 13, color: AppColors.mainGrey)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(label, style: medium(size: 15)),
+                    if (value.isNotEmpty) ...<Widget>[
+                      const SizedBox(height: 2),
+                      Text(
+                        value,
+                        style: regular(size: 13, color: AppColors.mainGrey),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
               const SizedBox(width: 4),
               Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
             ],

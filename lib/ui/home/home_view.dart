@@ -4,7 +4,7 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/activity_history_page/acitvity_history_page.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_page.dart';
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
-import 'package:wakaranai/ui/home/library_page/library_page.dart';
+import 'package:wakaranai/ui/home/library_page/library_home_page.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_page.dart';
 import 'package:wakaranai/ui/home/widgets/bottom_navigation_bar_container.dart';
 import 'package:wakaranai/ui/home/widgets/bottom_navigation_bar_item_widget.dart';
@@ -96,7 +96,7 @@ class _HomeViewState extends State<HomeView> {
   Widget _buildBody(int page) {
     switch (page) {
       case 0:
-        return LibraryPage(
+        return LibraryHomePage(
           key: const PageStorageKey<String>('library_page'),
         );
       case 1:

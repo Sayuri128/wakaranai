@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:wakaranai/services/page_translation/engines/gemma_translator.dart';
 import 'package:wakaranai/services/page_translation/engines/mlkit_ocr_engine.dart';
 import 'package:wakaranai/services/page_translation/engines/mlkit_translator.dart';
 import 'package:wakaranai/services/page_translation/engines/page_ocr_engine.dart';
@@ -42,15 +43,26 @@ class PageTranslationEngines {
           create: MlKitTranslator.new,
           models: MlKitModelStore.new,
         ),
+        EngineDescriptor<PageTranslator>(
+          id: GemmaTranslator.engineId,
+          name: 'Gemma 4 E2B',
+          isLocal: true,
+          create: GemmaTranslator.new,
+        ),
       ];
 
-  static EngineDescriptor<PageOcrEngine> ocrById(String? id) =>
-      ocr.firstWhereOrNull((EngineDescriptor<PageOcrEngine> e) => e.id == id) ??
-      ocr.first;
+  static EngineDescriptor<PageOcrEngine> ocrById(String? id) {
+    final EngineDescriptor<PageOcrEngine>? match = ocr.firstWhereOrNull(
+      (EngineDescriptor<PageOcrEngine> engine) => engine.id == id,
+    );
+    return match ?? ocr.first;
+  }
 
-  static EngineDescriptor<PageTranslator> translatorById(String? id) =>
-      translators.firstWhereOrNull(
-        (EngineDescriptor<PageTranslator> e) => e.id == id,
-      ) ??
-      translators.first;
+  static EngineDescriptor<PageTranslator> translatorById(String? id) {
+    final EngineDescriptor<PageTranslator>? match = translators
+        .firstWhereOrNull(
+          (EngineDescriptor<PageTranslator> engine) => engine.id == id,
+        );
+    return match ?? translators.first;
+  }
 }

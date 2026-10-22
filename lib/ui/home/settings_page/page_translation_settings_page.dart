@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/gemma_model/gemma_model_cubit.dart';
 import 'package:wakaranai/blocs/language_packs/language_packs_cubit.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/page_translation_repository.dart';
 import 'package:wakaranai/services/page_translation/page_language.dart';
 import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
+import 'package:wakaranai/services/page_translation/translation_prerequisites.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_widgets.dart';
+import 'package:wakaranai/ui/home/settings_page/translation_engine_section.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/translation_languages_sheet.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
@@ -34,7 +37,9 @@ class _PageTranslationSettingsPageState
 
   Future<void> _refreshCacheCount() async {
     final int count = await context.read<PageTranslationRepository>().count();
-    if (mounted) setState(() => _cachedPages = count);
+    if (mounted) {
+      setState(() => _cachedPages = count);
+    }
   }
 
   Future<void> _clearCache() async {
@@ -50,7 +55,9 @@ class _PageTranslationSettingsPageState
         noText: S.current.page_translation_models_cancel,
       ),
     );
-    if (confirmed != true || !mounted) return;
+    if (confirmed != true || !mounted) {
+      return;
+    }
     await context.read<PageTranslationRepository>().clear();
     await _refreshCacheCount();
   }
@@ -69,131 +76,158 @@ class _PageTranslationSettingsPageState
 
   @override
   Widget build(BuildContext context) {
-    final PageTranslationSettingsCubit cubit = context
-        .read<PageTranslationSettingsCubit>();
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       body: SafeArea(
         bottom: false,
-        child:
-            BlocBuilder<PageTranslationSettingsCubit, PageTranslationSettings>(
-              builder:
-                  (BuildContext context, PageTranslationSettings settings) {
-                    return ListView(
-                      physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.only(
-                        bottom: 24 + MediaQuery.of(context).viewPadding.bottom,
-                      ),
-                      children: <Widget>[
-                        _buildHeader(context),
-                        SettingsSection(
-                          title:
-                              S.current.page_translation_settings_experimental,
-                          tiles: <Widget>[
-                            SettingsTile(
-                              icon: Icons.translate_rounded,
-                              title: S.current.page_translation_settings_enable,
-                              subtitle: S
-                                  .current
-                                  .page_translation_settings_enable_subtitle,
-                              trailing: Switch(
-                                value: settings.enabled,
-                                activeThumbColor: AppColors.mainBlack,
-                                activeTrackColor: AppColors.primary,
-                                onChanged: cubit.setEnabled,
-                              ),
-                              onTap: () => cubit.setEnabled(!settings.enabled),
-                            ),
-                          ],
-                        ),
-                        if (settings.enabled) ...<Widget>[
-                          SettingsSection(
-                            title: S
-                                .current
-                                .page_translation_settings_languages_section,
-                            tiles: <Widget>[
-                              SettingsTile(
-                                icon: Icons.g_translate_rounded,
-                                title:
-                                    S.current.page_translation_settings_target,
-                                subtitle: S
-                                    .current
-                                    .page_translation_settings_target_subtitle,
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    Text(
-                                      settings.target.name,
-                                      style: medium(
-                                        size: 13,
-                                        color: AppColors.mainGrey,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Icon(
-                                      Icons.chevron_right_rounded,
-                                      color: AppColors.mainGrey,
-                                    ),
-                                  ],
-                                ),
-                                onTap: () => _pickTarget(settings),
-                              ),
-                            ],
-                          ),
-                          SettingsSection(
-                            title: S
-                                .current
-                                .page_translation_settings_packs_section,
-                            tiles: <Widget>[
-                              _buildPacksTile(context),
-                              SettingsTile(
-                                icon: Icons.wifi_rounded,
-                                title: S
-                                    .current
-                                    .page_translation_settings_wifi_only,
-                                trailing: Switch(
-                                  value: settings.wifiOnly,
-                                  activeThumbColor: AppColors.mainBlack,
-                                  activeTrackColor: AppColors.primary,
-                                  onChanged: cubit.setWifiOnly,
-                                ),
-                                onTap: () =>
-                                    cubit.setWifiOnly(!settings.wifiOnly),
-                              ),
-                              SettingsTile(
-                                icon: Icons.document_scanner_outlined,
-                                title: S
-                                    .current
-                                    .page_translation_settings_ocr_title,
-                                subtitle: S
-                                    .current
-                                    .page_translation_settings_ocr_note,
-                              ),
-                            ],
-                          ),
-                          _buildStorageSection(),
-                        ],
-                      ],
-                    );
-                  },
+        child: Column(
+          children: <Widget>[
+            SettingsPageHeader(
+              title: S.current.page_translation_settings_title,
             ),
+            Expanded(
+              child:
+                  BlocBuilder<
+                    PageTranslationSettingsCubit,
+                    PageTranslationSettings
+                  >(
+                    builder:
+                        (
+                          BuildContext context,
+                          PageTranslationSettings settings,
+                        ) {
+                          return _buildSettingsList(context, settings);
+                        },
+                  ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildSettingsList(
+    BuildContext context,
+    PageTranslationSettings settings,
+  ) {
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.only(
+        bottom: 24 + MediaQuery.of(context).viewPadding.bottom,
+      ),
+      children: <Widget>[
+        _buildEnableSection(settings),
+        if (settings.enabled) ...<Widget>[
+          TranslationEngineSection(settings: settings),
+          _buildLanguagesSection(settings),
+          _buildPacksSection(context, settings),
+          _buildStorageSection(),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildEnableSection(PageTranslationSettings settings) {
+    final PageTranslationSettingsCubit cubit = context
+        .read<PageTranslationSettingsCubit>();
+    return SettingsSection(
+      title: S.current.page_translation_settings_experimental,
+      tiles: <Widget>[
+        _buildSwitchTile(
+          icon: Icons.translate_rounded,
+          title: S.current.page_translation_settings_enable,
+          subtitle: S.current.page_translation_settings_enable_subtitle,
+          value: settings.enabled,
+          onChanged: cubit.setEnabled,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLanguagesSection(PageTranslationSettings settings) {
+    return SettingsSection(
+      title: S.current.page_translation_settings_languages_section,
+      tiles: <Widget>[
+        SettingsTile(
+          icon: Icons.g_translate_rounded,
+          title: S.current.page_translation_settings_target,
+          subtitle: S.current.page_translation_settings_target_subtitle,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                settings.target.name,
+                style: medium(size: 13, color: AppColors.mainGrey),
+              ),
+              const SizedBox(width: 4),
+              Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
+            ],
+          ),
+          onTap: () => _pickTarget(settings),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPacksSection(
+    BuildContext context,
+    PageTranslationSettings settings,
+  ) {
+    final PageTranslationSettingsCubit cubit = context
+        .read<PageTranslationSettingsCubit>();
+    final GemmaModelState gemma = context.watch<GemmaModelCubit>().state;
+    final bool translatesWithGemma = usesGemma(
+      effectiveTranslationSettings(settings, gemma),
+    );
+    return SettingsSection(
+      title: S.current.page_translation_settings_packs_section,
+      tiles: <Widget>[
+        if (!translatesWithGemma) ...<Widget>[
+          _buildPacksTile(context),
+          _buildSwitchTile(
+            icon: Icons.wifi_rounded,
+            title: S.current.page_translation_settings_wifi_only,
+            value: settings.wifiOnly,
+            onChanged: cubit.setWifiOnly,
+          ),
+        ],
+        SettingsTile(
+          icon: Icons.document_scanner_outlined,
+          title: S.current.page_translation_settings_ocr_title,
+          subtitle: S.current.page_translation_settings_ocr_note,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSwitchTile({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return SettingsTile(
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
+      trailing: Switch(
+        value: value,
+        activeThumbColor: AppColors.mainBlack,
+        activeTrackColor: AppColors.primary,
+        onChanged: onChanged,
+      ),
+      onTap: () => onChanged(!value),
     );
   }
 
   Widget _buildPacksTile(BuildContext context) {
     return BlocBuilder<LanguagePacksCubit, LanguagePacksState>(
       builder: (BuildContext context, LanguagePacksState packs) {
-        final String subtitle = packs.batchTotal > 0
-            ? S.current.language_packs_queue_progress(
-                (packs.batchDone + 1).clamp(1, packs.batchTotal),
-                packs.batchTotal,
-              )
-            : S.current.language_packs_downloaded_count(packs.downloadedCount);
         return SettingsTile(
           icon: Icons.download_for_offline_outlined,
           title: S.current.language_packs_title,
-          subtitle: subtitle,
+          subtitle: _packsSubtitle(packs),
           trailing: Icon(
             Icons.chevron_right_rounded,
             color: AppColors.mainGrey,
@@ -204,54 +238,35 @@ class _PageTranslationSettingsPageState
     );
   }
 
+  String _packsSubtitle(LanguagePacksState packs) {
+    if (packs.batchTotal == 0) {
+      return S.current.language_packs_downloaded_count(packs.downloadedCount);
+    }
+    final int currentPack = (packs.batchDone + 1).clamp(1, packs.batchTotal);
+    return S.current.language_packs_queue_progress(
+      currentPack,
+      packs.batchTotal,
+    );
+  }
+
   Widget _buildStorageSection() {
-    final int? count = _cachedPages;
+    final int? cachedPages = _cachedPages;
+    final bool hasCachedPages = cachedPages != null && cachedPages > 0;
     return SettingsSection(
       title: S.current.page_translation_settings_storage_section,
       tiles: <Widget>[
         SettingsTile(
           icon: Icons.delete_sweep_outlined,
           title: S.current.page_translation_settings_clear_cache,
-          subtitle: count == null
+          subtitle: cachedPages == null
               ? null
-              : S.current.page_translation_settings_clear_cache_subtitle(count),
+              : S.current.page_translation_settings_clear_cache_subtitle(
+                  cachedPages,
+                ),
           destructive: true,
-          onTap: count == null || count == 0 ? null : _clearCache,
+          onTap: hasCachedPages ? _clearCache : null,
         ),
       ],
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
-      child: Row(
-        children: <Widget>[
-          Material(
-            color: AppColors.overlay(0.06),
-            shape: const CircleBorder(),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: () => Navigator.of(context).pop(),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Icon(
-                  Icons.arrow_back_rounded,
-                  size: 22,
-                  color: AppColors.mainWhite,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              S.current.page_translation_settings_title,
-              style: semibold(size: 24),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

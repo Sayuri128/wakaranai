@@ -104,9 +104,13 @@ class SettingsService {
           PageLanguage.english,
       wifiOnly: _prefs!.getBool(pageTranslationWifiOnlyPrefsKey) ?? true,
       ocrEngine: _prefs!.getString(pageTranslationOcrEnginePrefsKey),
-      translator: _prefs!.getString(pageTranslationTranslatorPrefsKey),
+      translator: _legacyTranslator(
+          _prefs!.getString(pageTranslationTranslatorPrefsKey)),
     );
   }
+
+  static String? _legacyTranslator(String? id) =>
+      id == 'gemma-vision' ? 'gemma' : id;
 
   Future<void> setPageTranslationSettings(
       PageTranslationSettings settings) async {
