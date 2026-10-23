@@ -79,17 +79,7 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Text(
-            S.current.home_navigation_bar_activity_history_title,
-            style: semibold(size: 24),
-          ),
-          const SizedBox(height: 14),
-          _buildSegmentedTabs(),
-        ],
-      ),
+      child: _buildSegmentedTabs(),
     );
   }
 
