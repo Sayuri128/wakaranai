@@ -23,7 +23,7 @@ class PageTranslationSettings extends Equatable {
   String get translatorId =>
       PageTranslationEngines.translatorById(translator).id;
 
-  static const int pipelineVersion = 7;
+  static const int pipelineVersion = 8;
 
   String get engineKey => '$ocrEngineId+$translatorId@v$pipelineVersion';
 

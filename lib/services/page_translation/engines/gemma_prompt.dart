@@ -39,15 +39,26 @@ String buildGemmaPrompt(
 
 final RegExp _numberedLine = RegExp(r'^\s*(\d+)[.)]\s*(.+)$', multiLine: true);
 
-List<String> parseTranslations(String output, List<String> fallback) {
+List<String?> parseTranslations(String output, int count) {
   final List<String>? items = _parseJsonArray(output);
   if (items == null) {
-    return _parseNumberedLines(output, fallback);
+    return _parseNumberedLines(output, count);
   }
-  if (items.length >= fallback.length) {
-    return items.sublist(0, fallback.length);
-  }
-  return <String>[...items, ...fallback.sublist(items.length)];
+  return <String?>[
+    for (int i = 0; i < count; i++)
+      if (i < items.length && items[i].isNotEmpty) items[i] else null,
+  ];
+}
+
+final RegExp _nonLetters = RegExp(r'[^\p{L}]+', unicode: true);
+
+bool isUntranslatedEcho(String source, String translation) {
+  final String sourceLetters = source.toLowerCase().replaceAll(_nonLetters, '');
+  final String translationLetters = translation.toLowerCase().replaceAll(
+    _nonLetters,
+    '',
+  );
+  return sourceLetters.isNotEmpty && sourceLetters == translationLetters;
 }
 
 List<String>? _parseJsonArray(String output) {
@@ -70,12 +81,10 @@ List<String>? _parseJsonArray(String output) {
   }
 }
 
-List<String> _parseNumberedLines(String output, List<String> fallback) {
+List<String?> _parseNumberedLines(String output, int count) {
   final Map<int, String> numbered = <int, String>{};
   for (final RegExpMatch match in _numberedLine.allMatches(output)) {
     numbered[int.parse(match[1]!)] = match[2]!.trim();
   }
-  return <String>[
-    for (int i = 0; i < fallback.length; i++) numbered[i + 1] ?? fallback[i],
-  ];
+  return <String?>[for (int i = 0; i < count; i++) numbered[i + 1]];
 }

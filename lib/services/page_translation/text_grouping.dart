@@ -16,7 +16,13 @@ final RegExp _whitespace = RegExp(r'\s+');
 
 const double _blockReach = 0.8;
 
-List<TextGroup> groupOcrBlocks(List<OcrBlock> blocks, PageLanguage language) {
+typedef BorderCheck = bool Function(Rect a, Rect b);
+
+List<TextGroup> groupOcrBlocks(
+  List<OcrBlock> blocks,
+  PageLanguage language, {
+  BorderCheck? hasBorderBetween,
+}) {
   final List<OcrBlock> kept = blocks
       .where((OcrBlock block) => _letter.hasMatch(block.text))
       .where((OcrBlock block) => !block.box.isEmpty)
@@ -27,7 +33,11 @@ List<TextGroup> groupOcrBlocks(List<OcrBlock> blocks, PageLanguage language) {
 
   final String joiner = language.usesSpaces ? ' ' : '';
   final List<TextGroup> groups = <TextGroup>[];
-  for (final List<OcrBlock> cluster in _clusterNearbyBlocks(kept)) {
+  final Iterable<List<OcrBlock>> clusters = _clusterNearbyBlocks(
+    kept,
+    hasBorderBetween,
+  );
+  for (final List<OcrBlock> cluster in clusters) {
     _sortInReadingOrder(cluster);
     final Rect box = cluster
         .map((OcrBlock block) => block.box)
@@ -48,7 +58,10 @@ List<TextGroup> groupOcrBlocks(List<OcrBlock> blocks, PageLanguage language) {
   return groups;
 }
 
-Iterable<List<OcrBlock>> _clusterNearbyBlocks(List<OcrBlock> blocks) {
+Iterable<List<OcrBlock>> _clusterNearbyBlocks(
+  List<OcrBlock> blocks,
+  BorderCheck? hasBorderBetween,
+) {
   final _DisjointSets sets = _DisjointSets(blocks.length);
   final List<Rect> reach = blocks
       .map(
@@ -59,7 +72,12 @@ Iterable<List<OcrBlock>> _clusterNearbyBlocks(List<OcrBlock> blocks) {
     for (int j = i + 1; j < blocks.length; j++) {
       final bool sameDirection =
           _isVertical(blocks[i]) == _isVertical(blocks[j]);
-      if (sameDirection && reach[i].overlaps(reach[j])) {
+      if (!sameDirection || !reach[i].overlaps(reach[j])) {
+        continue;
+      }
+      final bool separated =
+          hasBorderBetween?.call(blocks[i].box, blocks[j].box) ?? false;
+      if (!separated) {
         sets.union(i, j);
       }
     }

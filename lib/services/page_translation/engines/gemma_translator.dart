@@ -150,6 +150,48 @@ class GemmaTranslator implements PageTranslator {
       _retained = true;
       GemmaModel.retain();
     }
+    final List<String?> translations = await _ask(texts, from, to);
+
+    final List<int> retry = <int>[
+      for (int i = 0; i < texts.length; i++)
+        if (_needsRetry(texts[i], translations[i], from, to)) i,
+    ];
+    if (retry.isNotEmpty) {
+      final List<String?> retried = await _ask(
+        <String>[for (final int i in retry) texts[i]],
+        from,
+        to,
+      );
+      for (int k = 0; k < retry.length; k++) {
+        final String? answer = retried[k];
+        if (answer != null) {
+          translations[retry[k]] = answer;
+        }
+      }
+    }
+
+    return <String>[
+      for (final String? translation in translations) translation ?? '',
+    ];
+  }
+
+  bool _needsRetry(
+    String source,
+    String? translation,
+    PageLanguage from,
+    PageLanguage to,
+  ) {
+    if (translation == null) {
+      return true;
+    }
+    return from != to && isUntranslatedEcho(source, translation);
+  }
+
+  Future<List<String?>> _ask(
+    List<String> texts,
+    PageLanguage from,
+    PageLanguage to,
+  ) async {
     final String prompt = buildGemmaPrompt(texts, from: from, to: to);
     final Stopwatch watch = Stopwatch()..start();
     final String output = await GemmaModel.generate(prompt);
@@ -157,7 +199,7 @@ class GemmaTranslator implements PageTranslator {
       '[gemma] bubbles=${texts.length} outputChars=${output.length} '
       'time=${watch.elapsedMilliseconds}ms',
     );
-    return parseTranslations(output, texts);
+    return parseTranslations(output, texts.length);
   }
 
   @override

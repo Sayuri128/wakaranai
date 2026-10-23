@@ -43,6 +43,31 @@ void main() {
     ]);
   });
 
+  test('nearby blocks with a border between them stay separate', () {
+    final List<OcrBlock> blocks = <OcrBlock>[
+      const OcrBlock(
+        box: Rect.fromLTWH(10, 10, 200, 20),
+        text: 'first',
+        lines: <Rect>[Rect.fromLTWH(10, 10, 200, 20)],
+      ),
+      const OcrBlock(
+        box: Rect.fromLTWH(10, 36, 200, 20),
+        text: 'second',
+        lines: <Rect>[Rect.fromLTWH(10, 36, 200, 20)],
+      ),
+    ];
+
+    expect(groupOcrBlocks(blocks, PageLanguage.english), hasLength(1));
+    expect(
+      groupOcrBlocks(
+        blocks,
+        PageLanguage.english,
+        hasBorderBetween: (Rect a, Rect b) => true,
+      ),
+      hasLength(2),
+    );
+  });
+
   test('blocks without letters are dropped', () {
     final List<TextGroup> groups = groupOcrBlocks(<OcrBlock>[
       const OcrBlock(

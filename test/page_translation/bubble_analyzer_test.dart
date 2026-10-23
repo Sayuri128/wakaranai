@@ -11,6 +11,8 @@ class _Canvas {
   final int height;
   final Uint8List rgba;
 
+  PagePixels get pixels => PagePixels(rgba: rgba, width: width, height: height);
+
   void set(int x, int y, int value) {
     final int offset = (y * width + x) * 4;
     rgba[offset] = value;
@@ -74,12 +76,7 @@ void main() {
     canvas.glyphs(text);
 
     final List<BubbleLayout> layouts = analyzeBubbles(
-      BubbleAnalysisRequest(
-        rgba: canvas.rgba,
-        width: canvas.width,
-        height: canvas.height,
-        boxes: <Rect>[text],
-      ),
+      BubbleAnalysisRequest(pixels: canvas.pixels, boxes: <Rect>[text]),
     );
 
     final BubbleLayout layout = layouts.single;
@@ -110,12 +107,7 @@ void main() {
     canvas.glyphs(text);
 
     final BubbleLayout layout = analyzeBubbles(
-      BubbleAnalysisRequest(
-        rgba: canvas.rgba,
-        width: canvas.width,
-        height: canvas.height,
-        boxes: <Rect>[text],
-      ),
+      BubbleAnalysisRequest(pixels: canvas.pixels, boxes: <Rect>[text]),
     ).single;
 
     expect(layout.erase, isFalse);
@@ -129,16 +121,24 @@ void main() {
     canvas.glyphs(text);
 
     final BubbleLayout layout = analyzeBubbles(
-      BubbleAnalysisRequest(
-        rgba: canvas.rgba,
-        width: canvas.width,
-        height: canvas.height,
-        boxes: <Rect>[text],
-      ),
+      BubbleAnalysisRequest(pixels: canvas.pixels, boxes: <Rect>[text]),
     ).single;
 
     expect(layout.erase, isTrue);
     expect(layout.layoutBox.width, lessThan(text.width * 2));
     expect(layout.layoutBox.height, lessThan(text.height * 2));
+  });
+
+  test('an outline between two bubbles separates their text', () {
+    final _Canvas canvas = _Canvas(300, 400);
+    canvas.fill((int x, int y) => 255);
+    canvas.ellipse(const Offset(150, 100), 110, 80, 255, 0);
+    canvas.ellipse(const Offset(150, 290), 110, 80, 255, 0);
+    const Rect upper = Rect.fromLTRB(110, 120, 190, 150);
+    const Rect lower = Rect.fromLTRB(110, 235, 190, 265);
+    const Rect sameBubble = Rect.fromLTRB(110, 80, 190, 110);
+
+    expect(hasBorderBetween(canvas.pixels, upper, lower), isTrue);
+    expect(hasBorderBetween(canvas.pixels, sameBubble, upper), isFalse);
   });
 }

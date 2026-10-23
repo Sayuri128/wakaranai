@@ -239,20 +239,29 @@ class PageTranslationService implements PageTranslationBackend {
       }
       await png.writeAsBytes(encoded.buffer.asUint8List(), flush: true);
 
-      final Uint8List rgba = raw.buffer.asUint8List();
+      final PagePixels pixels = PagePixels(
+        rgba: raw.buffer.asUint8List(),
+        width: tileImage.width,
+        height: tileImage.height,
+      );
       final List<OcrBlock> recognized = await _ocr.recognize(
         OcrInput(
           pngPath: png.path,
-          rgba: rgba,
-          width: tileImage.width,
-          height: tileImage.height,
+          rgba: pixels.rgba,
+          width: pixels.width,
+          height: pixels.height,
         ),
         languages.source,
       );
       final List<OcrBlock> blocks = recognized
           .map((OcrBlock block) => block.scale(1 / ocrScale))
           .toList();
-      final List<TextGroup> groups = groupOcrBlocks(blocks, languages.source);
+      final List<TextGroup> groups = groupOcrBlocks(
+        blocks,
+        languages.source,
+        hasBorderBetween: (ui.Rect a, ui.Rect b) =>
+            hasBorderBetween(pixels, a, b),
+      );
       if (groups.isEmpty) {
         return const <_RecognizedBubble>[];
       }
@@ -260,9 +269,7 @@ class PageTranslationService implements PageTranslationBackend {
       final List<BubbleLayout> layouts = await compute(
         analyzeBubbles,
         BubbleAnalysisRequest(
-          rgba: rgba,
-          width: tileImage.width,
-          height: tileImage.height,
+          pixels: pixels,
           boxes: groups.map((TextGroup group) => group.box).toList(),
         ),
       );
