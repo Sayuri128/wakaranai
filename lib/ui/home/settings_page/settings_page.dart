@@ -74,7 +74,7 @@ class SettingsPage extends StatelessWidget {
                       padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
                       child: _SettingsHeader(),
                     ),
-                    const _UpdateBanner(),
+                    _UpdateBanner(),
                     _buildAppearanceSection(context),
                     _buildReaderSection(context, state),
                     _buildContentSection(context, state),
