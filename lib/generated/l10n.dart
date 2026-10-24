@@ -3154,6 +3154,26 @@ class S {
     );
   }
 
+  /// `Edit`
+  String get page_translation_edit {
+    return Intl.message(
+      'Edit',
+      name: 'page_translation_edit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy`
+  String get page_translation_copy {
+    return Intl.message(
+      'Copy',
+      name: 'page_translation_copy',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Couldn't retranslate this bubble`
   String get page_translation_retranslate_failed {
     return Intl.message(

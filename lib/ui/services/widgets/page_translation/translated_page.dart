@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/services/page_translation/page_translation_result.dart';
 import 'package:wakaranai/ui/services/cubits/page_translation/page_translation_cubit.dart';
+import 'package:wakaranai/ui/services/widgets/page_translation/translation_bubble_popup.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/translation_bubble_sheet.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/translation_typesetter.dart';
 
@@ -116,18 +117,38 @@ class _BubbleTapTargets extends StatelessWidget {
   ) {
     final TranslatedBubble bubble = result.bubbles[index];
     final Rect bubbleArea = bubble.layoutBox.expandToInclude(bubble.textBox);
+    void openSheet() {
+      showTranslationBubbleSheet(
+        context,
+        bubble: bubble,
+        hidden: hiddenBubbles.contains(index),
+        onToggle: () => onToggle(index),
+        onRetranslate: (String source) => onRetranslate(index, source),
+      );
+    }
+
     return Positioned.fromRect(
       rect: scaleRect(bubbleArea, scaleX, scaleY),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onLongPress: () => showTranslationBubbleSheet(
-          context,
-          bubble: bubble,
-          hidden: hiddenBubbles.contains(index),
-          onToggle: () => onToggle(index),
-          onRetranslate: (String source) => onRetranslate(index, source),
-        ),
+      child: Builder(
+        builder: (BuildContext targetContext) {
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => showTranslationBubblePopup(
+              context,
+              bubbleArea: _globalRect(targetContext),
+              bubble: bubble,
+              onRetranslate: (String source) => onRetranslate(index, source),
+              onEdit: openSheet,
+            ),
+            onLongPress: openSheet,
+          );
+        },
       ),
     );
+  }
+
+  Rect _globalRect(BuildContext targetContext) {
+    final RenderBox box = targetContext.findRenderObject()! as RenderBox;
+    return box.localToGlobal(Offset.zero) & box.size;
   }
 }

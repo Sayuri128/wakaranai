@@ -552,12 +552,14 @@ class MessageLookup extends MessageLookupByLibrary {
       "Download the AI model",
     ),
     "page_translation_copied": MessageLookupByLibrary.simpleMessage("Copied"),
+    "page_translation_copy": MessageLookupByLibrary.simpleMessage("Copy"),
     "page_translation_copy_original": MessageLookupByLibrary.simpleMessage(
       "Copy original",
     ),
     "page_translation_copy_translation": MessageLookupByLibrary.simpleMessage(
       "Copy translation",
     ),
+    "page_translation_edit": MessageLookupByLibrary.simpleMessage("Edit"),
     "page_translation_languages_from": MessageLookupByLibrary.simpleMessage(
       "Text on pages",
     ),
