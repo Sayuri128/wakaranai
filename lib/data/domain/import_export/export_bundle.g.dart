@@ -44,6 +44,12 @@ ExportBundle _$ExportBundleFromJson(Map json) => ExportBundle(
       : ExportSettings.fromJson(
           Map<String, dynamic>.from(json['settings'] as Map),
         ),
+  pageTranslations: (json['pageTranslations'] as List<dynamic>?)
+      ?.map(
+        (e) =>
+            ExportPageTranslation.fromJson(Map<String, dynamic>.from(e as Map)),
+      )
+      .toList(),
 );
 
 Map<String, dynamic> _$ExportBundleToJson(
@@ -64,6 +70,9 @@ Map<String, dynamic> _$ExportBundleToJson(
       ?.map((e) => e.toJson())
       .toList(),
   'settings': instance.settings?.toJson(),
+  'pageTranslations': instance.pageTranslations
+      ?.map((e) => e.toJson())
+      .toList(),
 };
 
 ExportConcrete _$ExportConcreteFromJson(Map json) => ExportConcrete(
@@ -208,3 +217,26 @@ Map<String, dynamic> _$ExportSettingsToJson(ExportSettings instance) =>
       'showNsfw': instance.showNsfw,
       'collectStatistics': instance.collectStatistics,
     };
+
+ExportPageTranslation _$ExportPageTranslationFromJson(Map json) =>
+    ExportPageTranslation(
+      uid: json['uid'] as String,
+      pagePath: json['pagePath'] as String,
+      engine: json['engine'] as String,
+      sourceLanguage: json['sourceLanguage'] as String,
+      targetLanguage: json['targetLanguage'] as String,
+      resultJson: json['resultJson'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+    );
+
+Map<String, dynamic> _$ExportPageTranslationToJson(
+  ExportPageTranslation instance,
+) => <String, dynamic>{
+  'uid': instance.uid,
+  'pagePath': instance.pagePath,
+  'engine': instance.engine,
+  'sourceLanguage': instance.sourceLanguage,
+  'targetLanguage': instance.targetLanguage,
+  'resultJson': instance.resultJson,
+  'createdAt': instance.createdAt.toIso8601String(),
+};

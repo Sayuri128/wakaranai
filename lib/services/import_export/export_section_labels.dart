@@ -13,6 +13,8 @@ String exportSectionTitle(ExportSection section) {
       return S.current.export_section_sources;
     case ExportSection.settings:
       return S.current.export_section_settings;
+    case ExportSection.translations:
+      return S.current.export_section_translations;
   }
 }
 
@@ -28,5 +30,7 @@ String exportSectionSubtitle(ExportSection section) {
       return S.current.export_section_sources_subtitle;
     case ExportSection.settings:
       return S.current.export_section_settings_subtitle;
+    case ExportSection.translations:
+      return S.current.export_section_translations_subtitle;
   }
 }

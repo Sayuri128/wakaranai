@@ -63,6 +63,7 @@ Future<bool> runImportTask(Map<String, dynamic>? inputData) async {
       categoryRepository: CategoryRepository(database: database),
       libraryEntryRepository: LibraryEntryRepository(database: database),
       extensionSourceRepository: ExtensionSourceRepository(database: database),
+      database: database,
     );
 
     DateTime lastPublish = DateTime.fromMillisecondsSinceEpoch(0);

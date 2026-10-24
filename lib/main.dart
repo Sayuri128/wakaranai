@@ -193,6 +193,7 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
                   categoryRepository: RepositoryProvider.of(context),
                   libraryEntryRepository: RepositoryProvider.of(context),
                   extensionSourceRepository: RepositoryProvider.of(context),
+                  database: context.read<WakaranaiDatabase>(),
                 ),
                 database: context.read<WakaranaiDatabase>())
               ..init(),

@@ -61,6 +61,7 @@ class ImportExportService {
     required this.categoryRepository,
     required this.libraryEntryRepository,
     required this.extensionSourceRepository,
+    required this.database,
     SettingsService? settingsService,
   }) : settingsService = settingsService ?? SettingsService();
 
@@ -72,6 +73,7 @@ class ImportExportService {
   final CategoryRepository categoryRepository;
   final LibraryEntryRepository libraryEntryRepository;
   final ExtensionSourceRepository extensionSourceRepository;
+  final WakaranaiDatabase database;
   final SettingsService settingsService;
 
   Future<ExportBundle> buildExport(
@@ -85,6 +87,7 @@ class ImportExportService {
     List<ExportLibraryEntry>? libraryEntries;
     List<ExportExtensionSource>? extensionSources;
     ExportSettings? settings;
+    List<ExportPageTranslation>? pageTranslations;
 
     final int totalSteps = sections.length;
     int step = 0;
@@ -212,6 +215,12 @@ class ImportExportService {
       step++;
     }
 
+    if (sections.contains(ExportSection.translations)) {
+      report(ExportSection.translations);
+      pageTranslations = await _exportPageTranslations();
+      step++;
+    }
+
     report(null);
 
     return ExportBundle(
@@ -224,6 +233,7 @@ class ImportExportService {
       libraryEntries: libraryEntries,
       extensionSources: extensionSources,
       settings: settings,
+      pageTranslations: pageTranslations,
     );
   }
 
@@ -245,6 +255,9 @@ class ImportExportService {
     }
     if (sections.contains(ExportSection.settings) && bundle.settings != null) {
       count += 1;
+    }
+    if (sections.contains(ExportSection.translations)) {
+      count += bundle.pageTranslations?.length ?? 0;
     }
     return count;
   }
@@ -360,6 +373,18 @@ class ImportExportService {
       await _applySettings(bundle.settings!);
       imported += 1;
       tick(ExportSection.settings);
+    }
+
+    if (sections.contains(ExportSection.translations)) {
+      final List<ExportPageTranslation> translations =
+          bundle.pageTranslations ?? <ExportPageTranslation>[];
+      total += translations.length;
+
+      for (final ExportPageTranslation translation in translations) {
+        await _upsertPageTranslation(translation);
+        imported++;
+        tick(ExportSection.translations);
+      }
     }
 
     return ImportResult(imported: imported, total: total, skipped: skipped);
@@ -552,6 +577,43 @@ class ImportExportService {
         updatedAt: null,
       ),
     );
+  }
+
+  Future<List<ExportPageTranslation>> _exportPageTranslations() async {
+    final List<PageTranslationTableData> rows =
+        await database.pageTranslationTable.select().get();
+    return rows
+        .map((PageTranslationTableData row) => ExportPageTranslation(
+              uid: row.uid,
+              pagePath: row.pagePath,
+              engine: row.engine,
+              sourceLanguage: row.sourceLanguage,
+              targetLanguage: row.targetLanguage,
+              resultJson: row.resultJson,
+              createdAt: row.createdAt,
+            ))
+        .toList();
+  }
+
+  Future<void> _upsertPageTranslation(ExportPageTranslation translation) async {
+    await database.pageTranslationTable.insert().insert(
+          PageTranslationTableCompanion.insert(
+            uid: translation.uid,
+            pagePath: translation.pagePath,
+            engine: translation.engine,
+            sourceLanguage: translation.sourceLanguage,
+            targetLanguage: translation.targetLanguage,
+            resultJson: translation.resultJson,
+            createdAt: Value<DateTime>(translation.createdAt),
+          ),
+          onConflict: DoUpdate(
+            (_) => PageTranslationTableCompanion(
+              resultJson: Value<String>(translation.resultJson),
+              updatedAt: Value<DateTime>(DateTime.now()),
+            ),
+            target: <Column<Object>>[database.pageTranslationTable.uid],
+          ),
+        );
   }
 
   Future<void> _applySettings(ExportSettings settings) async {

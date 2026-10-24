@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,6 +37,7 @@ class _Env {
       categoryRepository: categories,
       libraryEntryRepository: library,
       extensionSourceRepository: sources,
+      database: db,
       settingsService: SettingsService(),
     );
   }
@@ -340,5 +342,53 @@ void main() {
     expect(bundle.availableSections, <ExportSection>{ExportSection.settings});
 
     await env.dispose();
+  });
+
+  test('page translations round-trip and overwrite by uid', () async {
+    final _Env source = _Env();
+    await source.db.pageTranslationTable.insert().insert(
+          PageTranslationTableCompanion.insert(
+            uid: 'mlkit+mlkit@v8|en|uk|/page/1.png',
+            pagePath: '/page/1.png',
+            engine: 'mlkit+mlkit@v8',
+            sourceLanguage: 'en',
+            targetLanguage: 'uk',
+            resultJson: '{"width":1,"height":1,"bubbles":[]}',
+          ),
+        );
+
+    final ExportBundle bundle = await source.service
+        .buildExport(<ExportSection>{ExportSection.translations});
+    expect(bundle.pageTranslations, hasLength(1));
+    expect(bundle.availableSections,
+        <ExportSection>{ExportSection.translations});
+
+    final ExportBundle decoded = ExportBundle.fromJson(
+        jsonDecode(jsonEncode(bundle.toJson())) as Map<String, dynamic>);
+
+    final _Env target = _Env();
+    await target.service
+        .applyImport(decoded, <ExportSection>{ExportSection.translations});
+    await target.service
+        .applyImport(decoded, <ExportSection>{ExportSection.translations});
+
+    final List<PageTranslationTableData> rows =
+        await target.db.pageTranslationTable.select().get();
+    expect(rows, hasLength(1));
+    expect(rows.single.engine, 'mlkit+mlkit@v8');
+    expect(rows.single.resultJson, '{"width":1,"height":1,"bubbles":[]}');
+
+    await source.dispose();
+    await target.dispose();
+  });
+
+  test('backups without page translations still import', () async {
+    final ExportBundle bundle = ExportBundle.fromJson(<String, dynamic>{
+      'version': 2,
+      'exportedAt': DateTime(2026).toIso8601String(),
+    });
+
+    expect(bundle.pageTranslations, isNull);
+    expect(bundle.hasSection(ExportSection.translations), isFalse);
   });
 }

@@ -3,7 +3,14 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'export_bundle.g.dart';
 
-enum ExportSection { history, library, categories, sources, settings }
+enum ExportSection {
+  history,
+  library,
+  categories,
+  sources,
+  settings,
+  translations,
+}
 
 String encodeExportSections(Set<ExportSection> sections) =>
     sections.map((ExportSection s) => s.name).join(',');
@@ -27,6 +34,7 @@ class ExportBundle {
   final List<ExportLibraryEntry>? libraryEntries;
   final List<ExportExtensionSource>? extensionSources;
   final ExportSettings? settings;
+  final List<ExportPageTranslation>? pageTranslations;
 
   const ExportBundle({
     required this.version,
@@ -38,6 +46,7 @@ class ExportBundle {
     this.libraryEntries,
     this.extensionSources,
     this.settings,
+    this.pageTranslations,
   });
 
   factory ExportBundle.fromJson(Map<String, dynamic> json) =>
@@ -58,6 +67,8 @@ class ExportBundle {
         return extensionSources?.isNotEmpty ?? false;
       case ExportSection.settings:
         return settings != null;
+      case ExportSection.translations:
+        return pageTranslations?.isNotEmpty ?? false;
     }
   }
 
@@ -234,4 +245,30 @@ class ExportSettings {
       _$ExportSettingsFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExportSettingsToJson(this);
+}
+
+@JsonSerializable()
+class ExportPageTranslation {
+  final String uid;
+  final String pagePath;
+  final String engine;
+  final String sourceLanguage;
+  final String targetLanguage;
+  final String resultJson;
+  final DateTime createdAt;
+
+  const ExportPageTranslation({
+    required this.uid,
+    required this.pagePath,
+    required this.engine,
+    required this.sourceLanguage,
+    required this.targetLanguage,
+    required this.resultJson,
+    required this.createdAt,
+  });
+
+  factory ExportPageTranslation.fromJson(Map<String, dynamic> json) =>
+      _$ExportPageTranslationFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ExportPageTranslationToJson(this);
 }
