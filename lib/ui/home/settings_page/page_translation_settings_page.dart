@@ -27,6 +27,7 @@ class PageTranslationSettingsPage extends StatefulWidget {
 class _PageTranslationSettingsPageState
     extends State<PageTranslationSettingsPage> {
   int? _cachedPages;
+  int? _outdatedPages;
 
   @override
   void initState() {
@@ -36,10 +37,21 @@ class _PageTranslationSettingsPageState
   }
 
   Future<void> _refreshCacheCount() async {
-    final int count = await context.read<PageTranslationRepository>().count();
+    final PageTranslationRepository repository = context
+        .read<PageTranslationRepository>();
+    final int count = await repository.count();
+    final int outdated = await repository.countOutdated();
     if (mounted) {
-      setState(() => _cachedPages = count);
+      setState(() {
+        _cachedPages = count;
+        _outdatedPages = outdated;
+      });
     }
+  }
+
+  Future<void> _removeOutdated() async {
+    await context.read<PageTranslationRepository>().deleteOutdated();
+    await _refreshCacheCount();
   }
 
   Future<void> _clearCache() async {
@@ -252,9 +264,21 @@ class _PageTranslationSettingsPageState
   Widget _buildStorageSection() {
     final int? cachedPages = _cachedPages;
     final bool hasCachedPages = cachedPages != null && cachedPages > 0;
+    final int? outdatedPages = _outdatedPages;
+    final bool hasOutdatedPages = outdatedPages != null && outdatedPages > 0;
     return SettingsSection(
       title: S.current.page_translation_settings_storage_section,
       tiles: <Widget>[
+        if (hasOutdatedPages)
+          SettingsTile(
+            icon: Icons.history_toggle_off_rounded,
+            title: S.current.page_translation_settings_remove_outdated,
+            subtitle: S.current
+                .page_translation_settings_remove_outdated_subtitle(
+                  outdatedPages,
+                ),
+            onTap: _removeOutdated,
+          ),
         SettingsTile(
           icon: Icons.delete_sweep_outlined,
           title: S.current.page_translation_settings_clear_cache,

@@ -2479,6 +2479,26 @@ class S {
     );
   }
 
+  /// `Page translations`
+  String get export_section_translations {
+    return Intl.message(
+      'Page translations',
+      name: 'export_section_translations',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translated pages, so they don't need to be translated again`
+  String get export_section_translations_subtitle {
+    return Intl.message(
+      'Translated pages, so they don\'t need to be translated again',
+      name: 'export_section_translations_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Downloads`
   String get downloads_notification_channel_name {
     return Intl.message(
@@ -3101,6 +3121,76 @@ class S {
       name: 'page_translation_status_failed',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `Preparing translation…`
+  String get page_translation_status_preparing {
+    return Intl.message(
+      'Preparing translation…',
+      name: 'page_translation_status_preparing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Older translation · tap to update`
+  String get page_translation_status_outdated {
+    return Intl.message(
+      'Older translation · tap to update',
+      name: 'page_translation_status_outdated',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retranslate`
+  String get page_translation_retranslate {
+    return Intl.message(
+      'Retranslate',
+      name: 'page_translation_retranslate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't retranslate this bubble`
+  String get page_translation_retranslate_failed {
+    return Intl.message(
+      'Couldn\'t retranslate this bubble',
+      name: 'page_translation_retranslate_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fix recognition mistakes, then retranslate`
+  String get page_translation_original_edit_hint {
+    return Intl.message(
+      'Fix recognition mistakes, then retranslate',
+      name: 'page_translation_original_edit_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove older translations`
+  String get page_translation_settings_remove_outdated {
+    return Intl.message(
+      'Remove older translations',
+      name: 'page_translation_settings_remove_outdated',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} pages from an older version`
+  String page_translation_settings_remove_outdated_subtitle(int count) {
+    return Intl.message(
+      '$count pages from an older version',
+      name: 'page_translation_settings_remove_outdated_subtitle',
+      desc: '',
+      args: [count],
     );
   }
 

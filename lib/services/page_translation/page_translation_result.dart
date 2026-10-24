@@ -17,6 +17,17 @@ class TranslatedBubble {
   final String source;
   final String translation;
 
+  TranslatedBubble copyWith({String? source, String? translation}) {
+    return TranslatedBubble(
+      textBox: textBox,
+      layoutBox: layoutBox,
+      fillColor: fillColor,
+      erase: erase,
+      source: source ?? this.source,
+      translation: translation ?? this.translation,
+    );
+  }
+
   factory TranslatedBubble.fromJson(Map<String, dynamic> json) {
     return TranslatedBubble(
       textBox: _rectFromJson(json['textBox'] as List<dynamic>),

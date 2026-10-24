@@ -25,7 +25,13 @@ class PageTranslationSettings extends Equatable {
 
   static const int pipelineVersion = 8;
 
-  String get engineKey => '$ocrEngineId+$translatorId@v$pipelineVersion';
+  static const String versionMarker = '@v';
+
+  static String get currentVersionSuffix => '$versionMarker$pipelineVersion';
+
+  String get engineFamily => '$ocrEngineId+$translatorId';
+
+  String get engineKey => '$engineFamily$currentVersionSuffix';
 
   PageTranslationSettings copyWith({
     bool? enabled,

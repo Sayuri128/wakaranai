@@ -68,6 +68,8 @@ class TranslatedPage extends StatelessWidget {
                 result: result,
                 hiddenBubbles: hiddenBubbles,
                 onToggle: (int index) => translation.toggleBubble(path, index),
+                onRetranslate: (int index, String source) =>
+                    translation.retranslateBubble(path, index, source),
               ),
             ),
           ],
@@ -82,11 +84,13 @@ class _BubbleTapTargets extends StatelessWidget {
     required this.result,
     required this.hiddenBubbles,
     required this.onToggle,
+    required this.onRetranslate,
   });
 
   final PageTranslationResult result;
   final Set<int> hiddenBubbles;
   final ValueChanged<int> onToggle;
+  final Future<String?> Function(int index, String source) onRetranslate;
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +125,7 @@ class _BubbleTapTargets extends StatelessWidget {
           bubble: bubble,
           hidden: hiddenBubbles.contains(index),
           onToggle: () => onToggle(index),
+          onRetranslate: (String source) => onRetranslate(index, source),
         ),
       ),
     );

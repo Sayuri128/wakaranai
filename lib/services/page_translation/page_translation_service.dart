@@ -131,6 +131,33 @@ class PageTranslationService implements PageTranslationBackend {
       repository.get(_key(path));
 
   @override
+  Future<PageTranslationResult?> olderVersion(String path) {
+    return repository.findOlderVersion(
+      pagePath: path,
+      engine: settings.engineKey,
+      source: languages.source.code,
+      target: languages.target.code,
+    );
+  }
+
+  @override
+  Future<String> translateText(String text) async {
+    final List<String> translations = await _translate(<String>[text]);
+    return translations.single;
+  }
+
+  @override
+  Future<void> save(String path, PageTranslationResult result) {
+    return repository.put(
+      pagePath: path,
+      engine: settings.engineKey,
+      source: languages.source.code,
+      target: languages.target.code,
+      result: result,
+    );
+  }
+
+  @override
   Future<PageTranslationResult> translate(
     String path,
     Map<String, String> headers,
@@ -190,13 +217,7 @@ class PageTranslationService implements PageTranslationBackend {
         ],
       );
 
-      await repository.put(
-        pagePath: path,
-        engine: settings.engineKey,
-        source: languages.source.code,
-        target: languages.target.code,
-        result: result,
-      );
+      await save(path, result);
       return result;
     } finally {
       lease.release();

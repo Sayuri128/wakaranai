@@ -11,6 +11,7 @@ Future<void> showTranslationBubbleSheet(
   required TranslatedBubble bubble,
   required bool hidden,
   required VoidCallback onToggle,
+  required Future<String?> Function(String source) onRetranslate,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -19,17 +20,84 @@ Future<void> showTranslationBubbleSheet(
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    builder: (BuildContext sheetContext) {
-      void copyAndClose(String text) {
-        Clipboard.setData(ClipboardData(text: text));
-        Navigator.of(sheetContext).pop();
-        SnackBars.showSnackBar(
-          context: context,
-          message: S.current.page_translation_copied,
-        );
-      }
+    builder: (BuildContext sheetContext) => _BubbleSheet(
+      bubble: bubble,
+      hidden: hidden,
+      onToggle: onToggle,
+      onRetranslate: onRetranslate,
+    ),
+  );
+}
 
-      return SafeArea(
+class _BubbleSheet extends StatefulWidget {
+  const _BubbleSheet({
+    required this.bubble,
+    required this.hidden,
+    required this.onToggle,
+    required this.onRetranslate,
+  });
+
+  final TranslatedBubble bubble;
+  final bool hidden;
+  final VoidCallback onToggle;
+  final Future<String?> Function(String source) onRetranslate;
+
+  @override
+  State<_BubbleSheet> createState() => _BubbleSheetState();
+}
+
+class _BubbleSheetState extends State<_BubbleSheet> {
+  late final TextEditingController _source = TextEditingController(
+    text: widget.bubble.source,
+  );
+  late String _translation = widget.bubble.translation;
+  bool _retranslating = false;
+
+  @override
+  void dispose() {
+    _source.dispose();
+    super.dispose();
+  }
+
+  void _copyAndClose(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    Navigator.of(context).pop();
+    SnackBars.showSnackBar(
+      context: context,
+      message: S.current.page_translation_copied,
+    );
+  }
+
+  Future<void> _retranslate() async {
+    final String source = _source.text.trim();
+    if (source.isEmpty || _retranslating) {
+      return;
+    }
+    FocusScope.of(context).unfocus();
+    setState(() => _retranslating = true);
+    final String? translation = await widget.onRetranslate(source);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _retranslating = false;
+      _translation = translation ?? _translation;
+    });
+    if (translation == null) {
+      SnackBars.showSnackBar(
+        context: context,
+        message: S.current.page_translation_retranslate_failed,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
           child: Column(
@@ -49,14 +117,11 @@ Future<void> showTranslationBubbleSheet(
               ),
               _TextBlock(
                 label: S.current.page_translation_translation_label,
-                text: bubble.translation,
+                text: _translation,
                 emphasized: true,
               ),
               const SizedBox(height: 12),
-              _TextBlock(
-                label: S.current.page_translation_original_label,
-                text: bubble.source,
-              ),
+              _buildSourceField(),
               const SizedBox(height: 20),
               Row(
                 children: <Widget>[
@@ -64,7 +129,7 @@ Future<void> showTranslationBubbleSheet(
                     child: _SheetButton(
                       icon: Icons.copy_rounded,
                       label: S.current.page_translation_copy_translation,
-                      onTap: () => copyAndClose(bubble.translation),
+                      onTap: () => _copyAndClose(_translation),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -72,31 +137,78 @@ Future<void> showTranslationBubbleSheet(
                     child: _SheetButton(
                       icon: Icons.copy_all_rounded,
                       label: S.current.page_translation_copy_original,
-                      onTap: () => copyAndClose(bubble.source),
+                      onTap: () => _copyAndClose(_source.text),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              _SheetButton(
-                icon: hidden
-                    ? Icons.translate_rounded
-                    : Icons.visibility_rounded,
-                label: hidden
-                    ? S.current.page_translation_show_translation
-                    : S.current.page_translation_show_original,
-                primary: true,
-                onTap: () {
-                  onToggle();
-                  Navigator.of(sheetContext).pop();
-                },
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: _SheetButton(
+                      icon: widget.hidden
+                          ? Icons.translate_rounded
+                          : Icons.visibility_rounded,
+                      label: widget.hidden
+                          ? S.current.page_translation_show_translation
+                          : S.current.page_translation_show_original,
+                      onTap: () {
+                        widget.onToggle();
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _SheetButton(
+                      icon: Icons.refresh_rounded,
+                      label: S.current.page_translation_retranslate,
+                      primary: true,
+                      loading: _retranslating,
+                      onTap: _retranslate,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
-      );
-    },
-  );
+      ),
+    );
+  }
+
+  Widget _buildSourceField() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
+      decoration: BoxDecoration(
+        color: AppColors.overlay(0.04),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            S.current.page_translation_original_label,
+            style: medium(size: 12, color: AppColors.mainGrey),
+          ),
+          TextField(
+            controller: _source,
+            minLines: 1,
+            maxLines: 5,
+            style: regular(size: 15),
+            cursorColor: AppColors.primary,
+            decoration: InputDecoration(
+              isDense: true,
+              border: InputBorder.none,
+              helperText: S.current.page_translation_original_edit_hint,
+              helperStyle: regular(size: 11, color: AppColors.mainGrey),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _TextBlock extends StatelessWidget {
@@ -139,12 +251,14 @@ class _SheetButton extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.primary = false,
+    this.loading = false,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
   final bool primary;
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +276,17 @@ class _SheetButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Icon(icon, size: 18, color: foreground),
+              if (loading)
+                SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: foreground,
+                  ),
+                )
+              else
+                Icon(icon, size: 18, color: foreground),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(

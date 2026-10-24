@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wakaranai/services/page_translation/engines/page_ocr_engine.dart';
@@ -14,6 +15,21 @@ const PageTranslationResult _empty = PageTranslationResult(
   bubbles: <TranslatedBubble>[],
 );
 
+const PageTranslationResult _oneBubble = PageTranslationResult(
+  width: 10,
+  height: 10,
+  bubbles: <TranslatedBubble>[
+    TranslatedBubble(
+      textBox: Rect.fromLTRB(1, 1, 5, 5),
+      layoutBox: Rect.fromLTRB(0, 0, 6, 6),
+      fillColor: 0xFFFFFFFF,
+      erase: true,
+      source: 'HELO',
+      translation: 'old',
+    ),
+  ],
+);
+
 const TitleLanguages _jaEn = TitleLanguages(
   source: PageLanguage.japanese,
   target: PageLanguage.english,
@@ -25,9 +41,16 @@ const TitleLanguages _enRu = TitleLanguages(
 );
 
 class _FakeBackend implements PageTranslationBackend {
-  _FakeBackend(this.languages, {this.ready = true});
+  _FakeBackend(
+    this.languages, {
+    this.ready = true,
+    this.olderPages = const <String, PageTranslationResult>{},
+  });
 
   final TitleLanguages languages;
+  final Map<String, PageTranslationResult> olderPages;
+  final Map<String, PageTranslationResult> saved =
+      <String, PageTranslationResult>{};
   bool ready;
   bool disposed = false;
   final List<String> translated = <String>[];
@@ -38,7 +61,19 @@ class _FakeBackend implements PageTranslationBackend {
   Future<bool> isReady() async => ready;
 
   @override
-  Future<PageTranslationResult?> cached(String path) async => null;
+  Future<PageTranslationResult?> cached(String path) async => saved[path];
+
+  @override
+  Future<PageTranslationResult?> olderVersion(String path) async =>
+      olderPages[path];
+
+  @override
+  Future<String> translateText(String text) async => 'translated $text';
+
+  @override
+  Future<void> save(String path, PageTranslationResult result) async {
+    saved[path] = result;
+  }
 
   @override
   Future<PageTranslationResult> translate(
@@ -69,8 +104,11 @@ class _Harness {
       languages: languages,
       modelRetryDelay: retry,
       backendFactory: (TitleLanguages requested) {
-        final _FakeBackend backend = _FakeBackend(requested, ready: ready)
-          ..gate = gate;
+        final _FakeBackend backend = _FakeBackend(
+          requested,
+          ready: ready,
+          olderPages: olderPages,
+        )..gate = gate;
         backends.add(backend);
         return backend;
       },
@@ -90,6 +128,8 @@ class _Harness {
   bool ready;
   bool packsOk;
   Completer<void>? gate;
+  final Map<String, PageTranslationResult> olderPages =
+      <String, PageTranslationResult>{};
   final List<_FakeBackend> backends = <_FakeBackend>[];
   final List<TitleLanguages> ensured = <TitleLanguages>[];
   final List<TitleLanguages> saved = <TitleLanguages>[];
@@ -293,4 +333,54 @@ void main() {
       expect(harness.cubit.state.translatingChapter, isFalse);
     },
   );
+
+  test('a page from an older version is shown and can be updated', () async {
+    final _Harness harness = _Harness();
+    addTearDown(harness.cubit.close);
+    harness.olderPages['p1'] = _oneBubble;
+
+    await harness.cubit.toggle();
+    harness.cubit.request(<String>['p1'], const <String, String>{});
+    await _settle();
+
+    expect(harness.backend.translated, isEmpty);
+    expect(harness.cubit.state.entry('p1')?.outdated, isTrue);
+    expect(harness.cubit.state.hasOutdatedPages, isTrue);
+
+    harness.cubit.updateOutdated(<String>['p1'], const <String, String>{});
+    await _settle();
+
+    expect(harness.backend.translated, <String>['p1']);
+    expect(harness.cubit.state.entry('p1')?.outdated, isFalse);
+    expect(harness.cubit.state.hasOutdatedPages, isFalse);
+  });
+
+  test('a single bubble can be retranslated from edited text', () async {
+    final _Harness harness = _Harness();
+    addTearDown(harness.cubit.close);
+    harness.olderPages['p1'] = _oneBubble;
+
+    await harness.cubit.toggle();
+    harness.cubit.request(<String>['p1'], const <String, String>{});
+    await _settle();
+
+    final String? translation = await harness.cubit.retranslateBubble(
+      'p1',
+      0,
+      ' HELLO ',
+    );
+
+    expect(translation, 'translated HELLO');
+    final TranslatedBubble bubble = harness.cubit.state
+        .entry('p1')!
+        .result!
+        .bubbles
+        .single;
+    expect(bubble.source, 'HELLO');
+    expect(bubble.translation, 'translated HELLO');
+    expect(
+      harness.backend.saved['p1']?.bubbles.single.translation,
+      'translated HELLO',
+    );
+  });
 }

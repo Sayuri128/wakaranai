@@ -35,6 +35,7 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
   List<String> _visiblePaths = const <String>[];
   bool _processing = false;
   Timer? _retryTimer;
+  final Set<String> _refreshPaths = <String>{};
 
   PageTranslationBackend get _activeBackend =>
       _backend ??= _backendFactory(state.languages!);
@@ -60,6 +61,7 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
       _retryTimer?.cancel();
       final PageTranslationBackend? previous = _backend;
       _backend = null;
+      _refreshPaths.clear();
       await previous?.dispose();
       _emit(
         state.copyWith(
@@ -168,6 +170,73 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
     unawaited(_processQueue());
   }
 
+  void updateOutdated(List<String> chapterPaths, Map<String, String> headers) {
+    _headers = headers;
+    final Map<String, PageTranslationEntry> pages =
+        Map<String, PageTranslationEntry>.of(state.pages);
+    for (final String path in chapterPaths) {
+      final PageTranslationEntry? entry = pages[path];
+      if (entry == null) {
+        _refreshPaths.add(path);
+        pages[path] = const PageTranslationEntry(PageTranslationStatus.queued);
+      } else if (entry.outdated && !entry.busy) {
+        _refreshPaths.add(path);
+        pages[path] = entry.withStatus(PageTranslationStatus.queued);
+      }
+    }
+    _emit(
+      state.copyWith(
+        pages: pages,
+        pinned: <String>{...state.pinned, ...chapterPaths},
+      ),
+    );
+    unawaited(_processQueue());
+  }
+
+  Future<String?> retranslateBubble(
+    String path,
+    int index,
+    String source,
+  ) async {
+    final PageTranslationEntry? entry = state.pages[path];
+    final PageTranslationResult? result = entry?.result;
+    if (entry == null || result == null || index >= result.bubbles.length) {
+      return null;
+    }
+
+    final String text = source.trim();
+    final String translation;
+    try {
+      translation = await _activeBackend.translateText(text);
+    } catch (e) {
+      logger.w('Bubble retranslation failed: $e');
+      return null;
+    }
+    if (translation.isEmpty) {
+      return null;
+    }
+
+    final PageTranslationResult current = state.pages[path]?.result ?? result;
+    final List<TranslatedBubble> bubbles = List<TranslatedBubble>.of(
+      current.bubbles,
+    );
+    bubbles[index] = bubbles[index].copyWith(
+      source: text,
+      translation: translation,
+    );
+    final PageTranslationResult updated = PageTranslationResult(
+      width: current.width,
+      height: current.height,
+      bubbles: bubbles,
+    );
+    _setEntry(
+      path,
+      PageTranslationEntry(PageTranslationStatus.done, result: updated),
+    );
+    await _activeBackend.save(path, updated);
+    return translation;
+  }
+
   void _queueMissing(
     Map<String, PageTranslationEntry> pages,
     List<String> paths,
@@ -181,7 +250,10 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
   }
 
   void retry(String path) {
-    _setEntry(path, const PageTranslationEntry(PageTranslationStatus.queued));
+    final PageTranslationEntry entry =
+        state.pages[path] ??
+        const PageTranslationEntry(PageTranslationStatus.queued);
+    _setEntry(path, entry.withStatus(PageTranslationStatus.queued));
     unawaited(_processQueue());
   }
 
@@ -222,7 +294,7 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
         }
         _setEntry(
           path,
-          const PageTranslationEntry(PageTranslationStatus.running),
+          state.pages[path]!.withStatus(PageTranslationStatus.running),
         );
         final PageTranslationEntry result = await _translate(path);
         _setEntry(path, result);
@@ -233,22 +305,51 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
   }
 
   Future<PageTranslationEntry> _translate(String path) async {
+    final bool refresh = _refreshPaths.remove(path);
     try {
-      final PageTranslationResult result =
-          await _activeBackend.cached(path) ??
-          await _activeBackend.translate(path, _headers);
+      final PageTranslationResult? cached = await _activeBackend.cached(path);
+      if (cached != null) {
+        return PageTranslationEntry(PageTranslationStatus.done, result: cached);
+      }
+      if (!refresh) {
+        final PageTranslationResult? older = await _activeBackend.olderVersion(
+          path,
+        );
+        if (older != null) {
+          return PageTranslationEntry(
+            PageTranslationStatus.done,
+            result: older,
+            outdated: true,
+          );
+        }
+      }
+      final PageTranslationResult result = await _activeBackend.translate(
+        path,
+        _headers,
+      );
       return PageTranslationEntry(PageTranslationStatus.done, result: result);
     } on OcrModelPendingException {
       _scheduleModelRetry(path);
-      return const PageTranslationEntry(PageTranslationStatus.modelPending);
+      return _keepingResult(path, PageTranslationStatus.modelPending);
     } catch (e, stack) {
       logger.w(
         'Page translation failed for $path',
         error: e,
         stackTrace: stack,
       );
-      return const PageTranslationEntry(PageTranslationStatus.failed);
+      return _keepingResult(path, PageTranslationStatus.failed);
     }
+  }
+
+  PageTranslationEntry _keepingResult(
+    String path,
+    PageTranslationStatus status,
+  ) {
+    final PageTranslationEntry? previous = state.pages[path];
+    if (previous == null) {
+      return PageTranslationEntry(status);
+    }
+    return previous.withStatus(status);
   }
 
   void _scheduleModelRetry(String path) {

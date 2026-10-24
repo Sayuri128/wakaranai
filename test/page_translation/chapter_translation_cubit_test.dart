@@ -34,6 +34,15 @@ class _FakeBackend implements PageTranslationBackend {
       cachedPages.contains(path) ? _empty : null;
 
   @override
+  Future<PageTranslationResult?> olderVersion(String path) async => null;
+
+  @override
+  Future<String> translateText(String text) async => text;
+
+  @override
+  Future<void> save(String path, PageTranslationResult result) async {}
+
+  @override
   Future<PageTranslationResult> translate(
     String path,
     Map<String, String> headers,

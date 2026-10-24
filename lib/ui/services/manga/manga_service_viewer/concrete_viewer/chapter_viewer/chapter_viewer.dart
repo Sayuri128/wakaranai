@@ -388,30 +388,15 @@ class _ChapterViewerState extends State<ChapterViewer>
     return BlocBuilder<PageTranslationCubit, PageTranslationState>(
       bloc: cubit,
       builder: (BuildContext context, PageTranslationState translation) {
-        final PageTranslationStatus? status = translation.entry(path)?.status;
-        final bool downloading =
-            translation.phase == PageTranslationPhase.downloading;
-        final bool pageBusy =
-            translation.active &&
-            status != null &&
-            status != PageTranslationStatus.done;
-        final bool chapterBusy =
-            translation.active && translation.translatingChapter;
-        final bool visible = downloading || pageBusy || chapterBusy;
-
-        final String label;
-        if (downloading) {
-          label = _modelDownloadLabel(context);
-        } else if (chapterBusy && !pageBusy) {
-          label = S.current.page_translation_status_chapter(
-            translation.pinnedDone,
-            translation.pinned.length,
-          );
-        } else {
-          label = _pageStatusLabel(status);
-        }
-        final bool failed =
-            !downloading && status == PageTranslationStatus.failed;
+        final _StatusPillContent? content = _statusPillContent(
+          context,
+          cubit,
+          translation,
+          path,
+          state,
+        );
+        final bool visible = content != null;
+        final VoidCallback? onTap = content?.onTap;
 
         return AnimatedPositioned(
           duration: const Duration(milliseconds: 200),
@@ -423,9 +408,9 @@ class _ChapterViewerState extends State<ChapterViewer>
             duration: const Duration(milliseconds: 200),
             opacity: visible ? 1 : 0,
             child: IgnorePointer(
-              ignoring: !visible || !failed,
+              ignoring: onTap == null,
               child: GestureDetector(
-                onTap: () => cubit.retry(path),
+                onTap: onTap,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -438,24 +423,10 @@ class _ChapterViewerState extends State<ChapterViewer>
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      if (failed)
-                        Icon(
-                          Icons.refresh_rounded,
-                          size: 16,
-                          color: AppColors.onMedia,
-                        )
-                      else
-                        SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.primary,
-                          ),
-                        ),
+                      _buildStatusIcon(content?.icon),
                       const SizedBox(width: 8),
                       Text(
-                        label,
+                        content?.label ?? '',
                         style: medium(size: 12, color: AppColors.onMedia),
                       ),
                     ],
@@ -467,6 +438,79 @@ class _ChapterViewerState extends State<ChapterViewer>
         );
       },
     );
+  }
+
+  Widget _buildStatusIcon(IconData? icon) {
+    if (icon != null) {
+      return Icon(icon, size: 16, color: AppColors.onMedia);
+    }
+    return SizedBox(
+      width: 14,
+      height: 14,
+      child: CircularProgressIndicator(
+        strokeWidth: 2,
+        color: AppColors.primary,
+      ),
+    );
+  }
+
+  _StatusPillContent? _statusPillContent(
+    BuildContext context,
+    PageTranslationCubit cubit,
+    PageTranslationState translation,
+    String path,
+    ChapterViewInitialized state,
+  ) {
+    if (translation.phase == PageTranslationPhase.downloading) {
+      return _StatusPillContent(label: _modelDownloadLabel(context));
+    }
+    if (translation.phase == PageTranslationPhase.preparing) {
+      return _StatusPillContent(
+        label: S.current.page_translation_status_preparing,
+      );
+    }
+    if (!translation.active) {
+      return null;
+    }
+
+    final PageTranslationStatus? status = translation.entry(path)?.status;
+    if (status == PageTranslationStatus.failed) {
+      return _StatusPillContent(
+        label: S.current.page_translation_status_failed,
+        icon: Icons.refresh_rounded,
+        onTap: () => cubit.retry(path),
+      );
+    }
+    if (status == PageTranslationStatus.modelPending) {
+      return _StatusPillContent(
+        label: S.current.page_translation_status_model_pending,
+      );
+    }
+    final bool pageBusy =
+        status == PageTranslationStatus.queued ||
+        status == PageTranslationStatus.running;
+    if (translation.translatingChapter && !pageBusy) {
+      return _StatusPillContent(
+        label: S.current.page_translation_status_chapter(
+          translation.pinnedDone,
+          translation.pinned.length,
+        ),
+      );
+    }
+    if (pageBusy || translation.anyPageBusy) {
+      return _StatusPillContent(
+        label: S.current.page_translation_status_translating,
+      );
+    }
+    if (translation.hasOutdatedPages) {
+      return _StatusPillContent(
+        label: S.current.page_translation_status_outdated,
+        icon: Icons.update_rounded,
+        onTap: () =>
+            cubit.updateOutdated(state.currentPages.value, state.headers),
+      );
+    }
+    return null;
   }
 
   String _modelDownloadLabel(BuildContext context) {
@@ -483,15 +527,6 @@ class _ChapterViewerState extends State<ChapterViewer>
       currentPack,
       packs.batchTotal,
     );
-  }
-
-  String _pageStatusLabel(PageTranslationStatus? status) {
-    return switch (status) {
-      PageTranslationStatus.failed => S.current.page_translation_status_failed,
-      PageTranslationStatus.modelPending =>
-        S.current.page_translation_status_model_pending,
-      _ => S.current.page_translation_status_translating,
-    };
   }
 
   Widget _buildTranslateButton() {
@@ -1402,4 +1437,12 @@ class _ChapterViewerState extends State<ChapterViewer>
           : const SizedBox(),
     );
   }
+}
+
+class _StatusPillContent {
+  const _StatusPillContent({required this.label, this.icon, this.onTap});
+
+  final String label;
+  final IconData? icon;
+  final VoidCallback? onTap;
 }
