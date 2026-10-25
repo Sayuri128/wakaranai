@@ -1,13 +1,18 @@
+import 'dart:math';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
+import 'package:wakaranai/main.dart';
 import 'package:wakaranai/services/page_translation/page_translation_result.dart';
+import 'package:wakaranai/services/page_translation/translation_overlay_style.dart';
 import 'package:wakaranai/ui/services/cubits/page_translation/page_translation_cubit.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/translation_bubble_popup.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/translation_bubble_sheet.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/translation_typesetter.dart';
 
-class TranslatedPage extends StatelessWidget {
+class TranslatedPage extends StatefulWidget {
   const TranslatedPage({
     super.key,
     required this.cubit,
@@ -19,20 +24,104 @@ class TranslatedPage extends StatelessWidget {
   final String path;
   final Widget child;
 
+  @override
+  State<TranslatedPage> createState() => TranslatedPageState();
+}
+
+class TranslatedPageState extends State<TranslatedPage> {
+  bool openBubbleAt(Offset globalPosition, {bool longPress = false}) {
+    final PageTranslationCubit? translation = widget.cubit;
+    final PageTranslationResult? result = _visibleResult();
+    final RenderObject? renderObject = context.findRenderObject();
+    if (translation == null ||
+        result == null ||
+        renderObject is! RenderBox ||
+        !renderObject.attached) {
+      return false;
+    }
+
+    final TranslationOverlayStyle style = context
+        .read<PageTranslationSettingsCubit>()
+        .state
+        .overlay;
+    final List<Rect> areas = bubbleScreenAreas(result, style, renderObject);
+    final int? index = bubbleIndexAt(result, areas, globalPosition);
+    if (kDebugMode) {
+      logger.d(
+        '[bubble-tap] ${widget.path.split('/').last} at '
+        '(${globalPosition.dx.round()}, ${globalPosition.dy.round()}) '
+        'bubble=$index of ${areas.length}',
+      );
+    }
+    if (index == null) {
+      return false;
+    }
+
+    if (longPress) {
+      _openSheet(translation, result, index);
+    } else {
+      _openPopup(translation, result, index, areas[index]);
+    }
+    return true;
+  }
+
+  PageTranslationResult? _visibleResult() {
+    final PageTranslationState? state = widget.cubit?.state;
+    if (state == null || !state.active) {
+      return null;
+    }
+    final PageTranslationResult? result = state.entry(widget.path)?.result;
+    if (result == null || result.bubbles.isEmpty) {
+      return null;
+    }
+    return result;
+  }
+
+  void _openPopup(
+    PageTranslationCubit translation,
+    PageTranslationResult result,
+    int index,
+    Rect screenArea,
+  ) {
+    showTranslationBubblePopup(
+      context,
+      bubbleArea: screenArea,
+      bubble: result.bubbles[index],
+      onRetranslate: (String source) =>
+          translation.retranslateBubble(widget.path, index, source),
+      onEdit: () => _openSheet(translation, result, index),
+    );
+  }
+
+  void _openSheet(
+    PageTranslationCubit translation,
+    PageTranslationResult result,
+    int index,
+  ) {
+    showTranslationBubbleSheet(
+      context,
+      bubble: result.bubbles[index],
+      hidden: translation.state.isHidden(widget.path, index),
+      onToggle: () => translation.toggleBubble(widget.path, index),
+      onRetranslate: (String source) =>
+          translation.retranslateBubble(widget.path, index, source),
+    );
+  }
+
   bool _shouldRebuild(
     PageTranslationState previous,
     PageTranslationState current,
   ) {
     return previous.active != current.active ||
-        previous.entry(path) != current.entry(path) ||
+        previous.entry(widget.path) != current.entry(widget.path) ||
         previous.hidden != current.hidden;
   }
 
   @override
   Widget build(BuildContext context) {
-    final PageTranslationCubit? translation = cubit;
+    final PageTranslationCubit? translation = widget.cubit;
     if (translation == null) {
-      return child;
+      return widget.child;
     }
 
     return BlocBuilder<PageTranslationCubit, PageTranslationState>(
@@ -40,19 +129,22 @@ class TranslatedPage extends StatelessWidget {
       buildWhen: _shouldRebuild,
       builder: (BuildContext context, PageTranslationState state) {
         final PageTranslationResult? result = state.active
-            ? state.entry(path)?.result
+            ? state.entry(widget.path)?.result
             : null;
         if (result == null || result.bubbles.isEmpty) {
-          return Stack(children: <Widget>[child]);
+          return Stack(children: <Widget>[widget.child]);
         }
 
+        final TranslationOverlayStyle style = context.select(
+          (PageTranslationSettingsCubit settings) => settings.state.overlay,
+        );
         final Set<int> hiddenBubbles = <int>{
           for (int i = 0; i < result.bubbles.length; i++)
-            if (state.isHidden(path, i)) i,
+            if (state.isHidden(widget.path, i)) i,
         };
         return Stack(
           children: <Widget>[
-            child,
+            widget.child,
             Positioned.fill(
               child: IgnorePointer(
                 child: RepaintBoundary(
@@ -60,22 +152,10 @@ class TranslatedPage extends StatelessWidget {
                     painter: TranslationOverlayPainter(
                       result: result,
                       hidden: hiddenBubbles,
-                      style: context.select(
-                        (PageTranslationSettingsCubit settings) =>
-                            settings.state.overlay,
-                      ),
+                      style: style,
                     ),
                   ),
                 ),
-              ),
-            ),
-            Positioned.fill(
-              child: _BubbleTapTargets(
-                result: result,
-                hiddenBubbles: hiddenBubbles,
-                onToggle: (int index) => translation.toggleBubble(path, index),
-                onRetranslate: (int index, String source) =>
-                    translation.retranslateBubble(path, index, source),
               ),
             ),
           ],
@@ -85,75 +165,59 @@ class TranslatedPage extends StatelessWidget {
   }
 }
 
-class _BubbleTapTargets extends StatelessWidget {
-  const _BubbleTapTargets({
-    required this.result,
-    required this.hiddenBubbles,
-    required this.onToggle,
-    required this.onRetranslate,
-  });
+const double _touchMargin = 14;
 
-  final PageTranslationResult result;
-  final Set<int> hiddenBubbles;
-  final ValueChanged<int> onToggle;
-  final Future<String?> Function(int index, String source) onRetranslate;
+Rect bubbleTapArea(TranslatedBubble bubble, TranslationOverlayStyle style) {
+  final Rect area = bubble.layoutBox.expandToInclude(bubble.textBox);
+  final double overflow = max(0, style.textSize.scale - 1) / 2;
+  return Rect.fromCenter(
+    center: area.center,
+    width: area.width * (1 + overflow * 2),
+    height: area.height * (1 + overflow * 2),
+  );
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        final double scaleX = constraints.maxWidth / result.width;
-        final double scaleY = constraints.maxHeight / result.height;
-        return Stack(
-          children: <Widget>[
-            for (int i = 0; i < result.bubbles.length; i++)
-              _buildTarget(context, i, scaleX, scaleY),
-          ],
-        );
-      },
-    );
+List<Rect> bubbleScreenAreas(
+  PageTranslationResult result,
+  TranslationOverlayStyle style,
+  RenderBox page,
+) {
+  final double scaleX = page.size.width / result.width;
+  final double scaleY = page.size.height / result.height;
+  return <Rect>[
+    for (final TranslatedBubble bubble in result.bubbles)
+      _toScreen(
+        scaleRect(bubbleTapArea(bubble, style), scaleX, scaleY),
+        page,
+      ).inflate(_touchMargin),
+  ];
+}
+
+Rect _toScreen(Rect local, RenderBox page) {
+  return Rect.fromPoints(
+    page.localToGlobal(local.topLeft),
+    page.localToGlobal(local.bottomRight),
+  );
+}
+
+int? bubbleIndexAt(
+  PageTranslationResult result,
+  List<Rect> areas,
+  Offset position,
+) {
+  double areaOf(int index) {
+    final Rect box = result.bubbles[index].layoutBox;
+    return box.width * box.height;
   }
 
-  Widget _buildTarget(
-    BuildContext context,
-    int index,
-    double scaleX,
-    double scaleY,
-  ) {
-    final TranslatedBubble bubble = result.bubbles[index];
-    final Rect bubbleArea = bubble.layoutBox.expandToInclude(bubble.textBox);
-    void openSheet() {
-      showTranslationBubbleSheet(
-        context,
-        bubble: bubble,
-        hidden: hiddenBubbles.contains(index),
-        onToggle: () => onToggle(index),
-        onRetranslate: (String source) => onRetranslate(index, source),
-      );
+  final List<int> smallestFirst = List<int>.generate(
+    result.bubbles.length,
+    (int index) => index,
+  )..sort((int a, int b) => areaOf(a).compareTo(areaOf(b)));
+  for (final int index in smallestFirst) {
+    if (areas[index].contains(position)) {
+      return index;
     }
-
-    return Positioned.fromRect(
-      rect: scaleRect(bubbleArea, scaleX, scaleY),
-      child: Builder(
-        builder: (BuildContext targetContext) {
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => showTranslationBubblePopup(
-              context,
-              bubbleArea: _globalRect(targetContext),
-              bubble: bubble,
-              onRetranslate: (String source) => onRetranslate(index, source),
-              onEdit: openSheet,
-            ),
-            onLongPress: openSheet,
-          );
-        },
-      ),
-    );
   }
-
-  Rect _globalRect(BuildContext targetContext) {
-    final RenderBox box = targetContext.findRenderObject()! as RenderBox;
-    return box.localToGlobal(Offset.zero) & box.size;
-  }
+  return null;
 }

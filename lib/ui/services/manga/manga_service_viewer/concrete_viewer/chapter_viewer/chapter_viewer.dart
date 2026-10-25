@@ -93,6 +93,27 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   bool get _usesGemma => _gemmaVariant != null;
   bool _pendingWholeChapter = false;
+  final Map<String, GlobalKey<TranslatedPageState>> _translatedPageKeys =
+      <String, GlobalKey<TranslatedPageState>>{};
+
+  GlobalKey<TranslatedPageState> _translatedPageKey(String path) {
+    return _translatedPageKeys.putIfAbsent(
+      path,
+      GlobalKey<TranslatedPageState>.new,
+    );
+  }
+
+  bool _openBubbleAt(Offset globalPosition, {bool longPress = false}) {
+    for (final GlobalKey<TranslatedPageState> key
+        in _translatedPageKeys.values) {
+      final TranslatedPageState? page = key.currentState;
+      if (page != null &&
+          page.openBubbleAt(globalPosition, longPress: longPress)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   late final PageController _pageController;
   late final ItemScrollController _itemScrollController;
@@ -1142,10 +1163,16 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   Widget _buildViewer(BuildContext context, ChapterViewInitialized state) {
     return GestureDetector(
-      onTap: () {
+      onTapUp: (TapUpDetails details) {
+        if (_openBubbleAt(details.globalPosition)) {
+          return;
+        }
         context.read<ChapterViewCubit>().onChangeVisibility();
       },
-      onLongPress: () {
+      onLongPressStart: (LongPressStartDetails details) {
+        if (_openBubbleAt(details.globalPosition, longPress: true)) {
+          return;
+        }
         if (state.currentPages.value.isEmpty) return;
         final int index = (state.currentPage - 1).clamp(
           0,
@@ -1268,6 +1295,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                 filterQuality: FilterQuality.none,
                 childSize: _pageSizes[page],
                 child: TranslatedPage(
+                  key: _translatedPageKey(page),
                   cubit: _translationCubit,
                   path: page,
                   child: PageImage(
@@ -1338,6 +1366,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                     }
                   },
                   child: TranslatedPage(
+                    key: _translatedPageKey(state.currentPages.value[index]),
                     cubit: _translationCubit,
                     path: state.currentPages.value[index],
                     child: PageImage(
