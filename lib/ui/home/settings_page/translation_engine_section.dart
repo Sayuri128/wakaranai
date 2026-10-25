@@ -297,29 +297,132 @@ class _DeepLKeyTileState extends State<_DeepLKeyTile> {
     if (!_loaded) {
       return null;
     }
-    if (_apiKey == null) {
+    final String? apiKey = _apiKey;
+    if (apiKey == null) {
       return S.current.deepl_key_missing;
     }
-    final DeepLUsage? usage = _usage;
-    if (usage == null) {
-      return S.current.deepl_key_saved;
-    }
-    final NumberFormat numbers = NumberFormat.decimalPattern();
-    return S.current.deepl_key_usage(
-      numbers.format(usage.characterCount),
-      numbers.format(usage.characterLimit),
+    return S.current.deepl_key_masked(_maskedEnd(apiKey));
+  }
+
+  static String _maskedEnd(String apiKey) {
+    const int visibleCharacters = 4;
+    final String withoutSuffix = apiKey.replaceAll(':fx', '');
+    final int start = (withoutSuffix.length - visibleCharacters).clamp(
+      0,
+      withoutSuffix.length,
     );
+    return withoutSuffix.substring(start);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SettingsTile(
-      icon: Icons.key_rounded,
-      title: S.current.deepl_key_title,
-      subtitle: _subtitle(),
-      trailing: SettingsPillButton(
-        label: S.current.deepl_key_change,
-        onTap: _changeKey,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        SettingsTile(
+          icon: Icons.key_rounded,
+          title: S.current.deepl_key_title,
+          subtitle: _subtitle(),
+          trailing: SettingsPillButton(
+            label: S.current.deepl_key_change,
+            onTap: _changeKey,
+          ),
+        ),
+        if (_apiKey != null || !_loaded)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(64, 0, 16, 14),
+            child: _DeepLUsageView(loaded: _loaded, usage: _usage),
+          ),
+      ],
+    );
+  }
+}
+
+class _DeepLUsageView extends StatelessWidget {
+  const _DeepLUsageView({required this.loaded, required this.usage});
+
+  final bool loaded;
+  final DeepLUsage? usage;
+
+  static const double _warningShare = 0.9;
+
+  @override
+  Widget build(BuildContext context) {
+    final DeepLUsage? usage = this.usage;
+    if (!loaded) {
+      return _buildBar(null, AppColors.primary);
+    }
+    if (usage == null) {
+      return Text(
+        S.current.deepl_usage_unavailable,
+        style: regular(size: 12, color: AppColors.mainGrey),
+      );
+    }
+
+    final NumberFormat numbers = NumberFormat.decimalPattern();
+    final double share = usage.usedShare.clamp(0, 1).toDouble();
+    final Color tint = share >= _warningShare
+        ? AppColors.red
+        : AppColors.primary;
+    final int remaining = (usage.characterLimit - usage.characterCount).clamp(
+      0,
+      usage.characterLimit,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            Text(_percentLabel(usage), style: semibold(size: 20, color: tint)),
+            const SizedBox(width: 6),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 3),
+              child: Text(
+                S.current.deepl_usage_used,
+                style: regular(size: 12, color: AppColors.mainGrey),
+              ),
+            ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 3),
+              child: Text(
+                S.current.deepl_usage_left(numbers.format(remaining)),
+                style: medium(size: 12),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        _buildBar(share, tint),
+        const SizedBox(height: 6),
+        Text(
+          S.current.deepl_usage_characters(
+            numbers.format(usage.characterCount),
+            numbers.format(usage.characterLimit),
+          ),
+          style: regular(size: 11, color: AppColors.mainGrey),
+        ),
+      ],
+    );
+  }
+
+  String _percentLabel(DeepLUsage usage) {
+    final double percent = usage.usedShare * 100;
+    if (usage.characterCount > 0 && percent < 1) {
+      return '<1%';
+    }
+    return '${percent.round()}%';
+  }
+
+  Widget _buildBar(double? value, Color color) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: LinearProgressIndicator(
+        minHeight: 6,
+        value: value,
+        color: color,
+        backgroundColor: AppColors.overlay(0.08),
       ),
     );
   }

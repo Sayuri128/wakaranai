@@ -4049,6 +4049,56 @@ class S {
     );
   }
 
+  /// `Key ••••{ending}`
+  String deepl_key_masked(String ending) {
+    return Intl.message(
+      'Key ••••$ending',
+      name: 'deepl_key_masked',
+      desc: '',
+      args: [ending],
+    );
+  }
+
+  /// `used this month`
+  String get deepl_usage_used {
+    return Intl.message(
+      'used this month',
+      name: 'deepl_usage_used',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} left`
+  String deepl_usage_left(String count) {
+    return Intl.message(
+      '$count left',
+      name: 'deepl_usage_left',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{used} of {limit} characters`
+  String deepl_usage_characters(String used, String limit) {
+    return Intl.message(
+      '$used of $limit characters',
+      name: 'deepl_usage_characters',
+      desc: '',
+      args: [used, limit],
+    );
+  }
+
+  /// `Usage is unavailable right now`
+  String get deepl_usage_unavailable {
+    return Intl.message(
+      'Usage is unavailable right now',
+      name: 'deepl_usage_unavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{speed} MB/s`
   String download_speed_megabytes(String speed) {
     return Intl.message(
@@ -4109,26 +4159,6 @@ class S {
     );
   }
 
-  /// `{used} of {limit} characters used this month`
-  String deepl_key_usage(String used, String limit) {
-    return Intl.message(
-      '$used of $limit characters used this month',
-      name: 'deepl_key_usage',
-      desc: '',
-      args: [used, limit],
-    );
-  }
-
-  /// `Key saved`
-  String get deepl_key_saved {
-    return Intl.message(
-      'Key saved',
-      name: 'deepl_key_saved',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Change`
   String get deepl_key_change {
     return Intl.message('Change', name: 'deepl_key_change', desc: '', args: []);
@@ -4139,10 +4169,10 @@ class S {
     return Intl.message('Remove', name: 'deepl_key_remove', desc: '', args: []);
   }
 
-  /// `Create a free DeepL API account (500,000 characters a month) and paste its authentication key here. The key is stored only on this phone.`
+  /// `Create a free DeepL API account and paste its authentication key here. The free plan includes a monthly character allowance; you can see it here once the key is saved. The key is stored only on this phone.`
   String get deepl_key_dialog_message {
     return Intl.message(
-      'Create a free DeepL API account (500,000 characters a month) and paste its authentication key here. The key is stored only on this phone.',
+      'Create a free DeepL API account and paste its authentication key here. The free plan includes a monthly character allowance; you can see it here once the key is saved. The key is stored only on this phone.',
       name: 'deepl_key_dialog_message',
       desc: '',
       args: [],

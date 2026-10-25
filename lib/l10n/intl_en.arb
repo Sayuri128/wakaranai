@@ -613,6 +613,35 @@
   },
   "deepl_key_title": "DeepL API key",
   "deepl_key_missing": "Not set",
+  "deepl_key_masked": "Key ••••{ending}",
+  "@deepl_key_masked": {
+    "placeholders": {
+      "ending": {
+        "type": "String"
+      }
+    }
+  },
+  "deepl_usage_used": "used this month",
+  "deepl_usage_left": "{count} left",
+  "@deepl_usage_left": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "deepl_usage_characters": "{used} of {limit} characters",
+  "@deepl_usage_characters": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "deepl_usage_unavailable": "Usage is unavailable right now",
   "download_speed_megabytes": "{speed} MB/s",
   "@download_speed_megabytes": {
     "placeholders": {
@@ -657,21 +686,9 @@
     }
   },
   "deepl_key_needed": "Add a DeepL API key in Page translation settings first",
-  "deepl_key_usage": "{used} of {limit} characters used this month",
-  "@deepl_key_usage": {
-    "placeholders": {
-      "used": {
-        "type": "String"
-      },
-      "limit": {
-        "type": "String"
-      }
-    }
-  },
-  "deepl_key_saved": "Key saved",
   "deepl_key_change": "Change",
   "deepl_key_remove": "Remove",
-  "deepl_key_dialog_message": "Create a free DeepL API account (500,000 characters a month) and paste its authentication key here. The key is stored only on this phone.",
+  "deepl_key_dialog_message": "Create a free DeepL API account and paste its authentication key here. The free plan includes a monthly character allowance; you can see it here once the key is saved. The key is stored only on this phone.",
   "deepl_key_hint": "Paste your API key",
   "deepl_key_get": "Get a free key",
   "deepl_key_save": "Save",
