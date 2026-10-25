@@ -566,8 +566,6 @@
   "engine_tag_offline": "Offline",
   "engine_tag_online": "Online",
   "engine_tag_fast": "Fast",
-  "engine_tag_medium_speed": "A few seconds per page",
-  "engine_tag_slow": "Slower",
   "engine_tag_literal": "Literal",
   "engine_tag_natural": "Natural",
   "engine_tag_best": "Best quality",
@@ -695,13 +693,10 @@
   "deepl_key_cancel": "Cancel",
   "deepl_key_invalid": "DeepL did not accept this key",
   "deepl_key_network": "Could not reach DeepL. Check your connection.",
-  "translation_engine_info_title": "On-device AI translation",
   "translation_engine_info_intro": "Gemma 4 runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. E4B translates noticeably better than E2B but is about twice as slow. Nothing leaves your device.",
   "translation_engine_info_requirements": "Requirements",
   "translation_engine_req_android": "Android 11 or newer",
   "translation_engine_req_64bit": "64-bit (arm64) processor",
-  "translation_engine_req_ram": "8 GB of RAM for E2B, 12 GB for E4B",
-  "translation_engine_req_storage": "About 3 GB (E2B) or 4 GB (E4B) of free storage",
   "translation_engine_info_this_phone": "This phone: {model} · {ram} GB RAM",
   "@translation_engine_info_this_phone": {
     "placeholders": {
@@ -716,6 +711,26 @@
   "translation_engine_tier_ok_phones": "Galaxy S22 / S23, Pixel 8, Galaxy A55 and other phones with 8 GB RAM",
   "translation_engine_tier_no": "Not supported",
   "translation_engine_tier_no_phones": "Phones with less than 8 GB RAM, 32-bit phones and Android 10 or older",
+  "engine_tag_speed_e2b": "≈4–10 s per page",
+  "engine_tag_speed_e4b": "≈20–45 s per page",
+  "translation_engine_req_ram_model": "{ram} GB of RAM or more",
+  "@translation_engine_req_ram_model": {
+    "placeholders": {
+      "ram": {
+        "type": "int"
+      }
+    }
+  },
+  "translation_engine_req_storage_model": "About {size} GB of free storage",
+  "@translation_engine_req_storage_model": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "translation_engine_tier_e4b": "About 20–45 s per page",
+  "translation_engine_tier_e4b_no_phones": "Phones with less than 12 GB RAM",
   "translation_engine_info_footer": "Speeds are estimates; the fast tier was measured on a Galaxy S24 Ultra. Translating ahead while you read, and translating downloaded chapters in advance, hides most of the wait.",
   "chapter_translation_queued": "{count} chapters queued for translation",
   "@chapter_translation_queued": {

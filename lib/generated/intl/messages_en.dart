@@ -133,23 +133,27 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m51(model, ram) => "This phone: ${model} · ${ram} GB RAM";
 
-  static String m52(count) => "${count} sources could not be checked";
+  static String m52(ram) => "${ram} GB of RAM or more";
 
-  static String m53(count) => "${count} new items found";
+  static String m53(size) => "About ${size} GB of free storage";
 
-  static String m54(title, count) => "${title} · ${count} new";
+  static String m54(count) => "${count} sources could not be checked";
 
-  static String m55(count) => "and ${count} more titles";
+  static String m55(count) => "${count} new items found";
 
-  static String m56(count) => "Across ${count} titles";
+  static String m56(title, count) => "${title} · ${count} new";
 
-  static String m57(count) => "${count} new items";
+  static String m57(count) => "and ${count} more titles";
 
-  static String m58(count) => "${count}d ago";
+  static String m58(count) => "Across ${count} titles";
 
-  static String m59(count) => "${count}h ago";
+  static String m59(count) => "${count} new items";
 
-  static String m60(count) => "${count}m ago";
+  static String m60(count) => "${count}d ago";
+
+  static String m61(count) => "${count}h ago";
+
+  static String m62(count) => "${count}m ago";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -402,14 +406,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "engine_tag_best": MessageLookupByLibrary.simpleMessage("Best quality"),
     "engine_tag_fast": MessageLookupByLibrary.simpleMessage("Fast"),
     "engine_tag_literal": MessageLookupByLibrary.simpleMessage("Literal"),
-    "engine_tag_medium_speed": MessageLookupByLibrary.simpleMessage(
-      "A few seconds per page",
-    ),
     "engine_tag_natural": MessageLookupByLibrary.simpleMessage("Natural"),
     "engine_tag_offline": MessageLookupByLibrary.simpleMessage("Offline"),
     "engine_tag_online": MessageLookupByLibrary.simpleMessage("Online"),
     "engine_tag_size": m20,
-    "engine_tag_slow": MessageLookupByLibrary.simpleMessage("Slower"),
+    "engine_tag_speed_e2b": MessageLookupByLibrary.simpleMessage(
+      "≈4–10 s per page",
+    ),
+    "engine_tag_speed_e4b": MessageLookupByLibrary.simpleMessage(
+      "≈20–45 s per page",
+    ),
     "export_section_categories": MessageLookupByLibrary.simpleMessage(
       "Categories",
     ),
@@ -1150,9 +1156,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "translation_engine_info_requirements":
         MessageLookupByLibrary.simpleMessage("Requirements"),
     "translation_engine_info_this_phone": m51,
-    "translation_engine_info_title": MessageLookupByLibrary.simpleMessage(
-      "On-device AI translation",
-    ),
     "translation_engine_mlkit": MessageLookupByLibrary.simpleMessage("ML Kit"),
     "translation_engine_mlkit_subtitle": MessageLookupByLibrary.simpleMessage(
       "Fast and light · works on every phone · literal translations",
@@ -1163,15 +1166,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "translation_engine_req_android": MessageLookupByLibrary.simpleMessage(
       "Android 11 or newer",
     ),
-    "translation_engine_req_ram": MessageLookupByLibrary.simpleMessage(
-      "8 GB of RAM for E2B, 12 GB for E4B",
-    ),
-    "translation_engine_req_storage": MessageLookupByLibrary.simpleMessage(
-      "About 3 GB (E2B) or 4 GB (E4B) of free storage",
-    ),
+    "translation_engine_req_ram_model": m52,
+    "translation_engine_req_storage_model": m53,
     "translation_engine_section": MessageLookupByLibrary.simpleMessage(
       "Translation engine",
     ),
+    "translation_engine_tier_e4b": MessageLookupByLibrary.simpleMessage(
+      "About 20–45 s per page",
+    ),
+    "translation_engine_tier_e4b_no_phones":
+        MessageLookupByLibrary.simpleMessage("Phones with less than 12 GB RAM"),
     "translation_engine_tier_fast": MessageLookupByLibrary.simpleMessage(
       "Fast · about 4–10 s per page",
     ),
@@ -1190,8 +1194,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "translation_engine_tier_ok_phones": MessageLookupByLibrary.simpleMessage(
       "Galaxy S22 / S23, Pixel 8, Galaxy A55 and other phones with 8 GB RAM",
     ),
-    "updates_check_failed": m52,
-    "updates_check_found": m53,
+    "updates_check_failed": m54,
+    "updates_check_found": m55,
     "updates_check_none": MessageLookupByLibrary.simpleMessage(
       "No new updates found",
     ),
@@ -1211,13 +1215,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "updates_notification_channel_name": MessageLookupByLibrary.simpleMessage(
       "Library updates",
     ),
-    "updates_notification_line": m54,
-    "updates_notification_more": m55,
-    "updates_notification_summary": m56,
-    "updates_notification_title": m57,
-    "updates_time_days": m58,
-    "updates_time_hours": m59,
-    "updates_time_minutes": m60,
+    "updates_notification_line": m56,
+    "updates_notification_more": m57,
+    "updates_notification_summary": m58,
+    "updates_notification_title": m59,
+    "updates_time_days": m60,
+    "updates_time_hours": m61,
+    "updates_time_minutes": m62,
     "updates_time_now": MessageLookupByLibrary.simpleMessage("Just now"),
     "updates_title": MessageLookupByLibrary.simpleMessage("Updates"),
     "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage("Done"),

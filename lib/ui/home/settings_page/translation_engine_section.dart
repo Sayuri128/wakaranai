@@ -72,7 +72,8 @@ class TranslationEngineSection extends StatelessWidget {
       selectedId: selectedId,
       unavailableReason: (OnDeviceModel variant) =>
           _gemmaUnavailableReason(variant, gemma),
-      onShowGemmaInfo: () => showOnDeviceAiInfo(context),
+      onShowGemmaInfo: (OnDeviceModel model) =>
+          showOnDeviceAiInfo(context, model),
     );
     if (picked == null || picked == selectedId || !context.mounted) {
       return;
@@ -428,8 +429,13 @@ class _DeepLUsageView extends StatelessWidget {
   }
 }
 
-Future<void> showOnDeviceAiInfo(BuildContext context) async {
-  final OnDeviceAiSupport support = await DeviceCapabilities.onDeviceAi();
+Future<void> showOnDeviceAiInfo(
+  BuildContext context,
+  OnDeviceModel model,
+) async {
+  final OnDeviceAiSupport support = await DeviceCapabilities.onDeviceAi(
+    minRamGb: model.minRamGb,
+  );
   if (!context.mounted) {
     return;
   }
@@ -441,14 +447,15 @@ Future<void> showOnDeviceAiInfo(BuildContext context) async {
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
     builder: (BuildContext sheetContext) {
-      return _OnDeviceAiInfoSheet(device: support.device);
+      return _OnDeviceAiInfoSheet(model: model, device: support.device);
     },
   );
 }
 
 class _OnDeviceAiInfoSheet extends StatelessWidget {
-  const _OnDeviceAiInfoSheet({required this.device});
+  const _OnDeviceAiInfoSheet({required this.model, required this.device});
 
+  final OnDeviceModel model;
   final DeviceInfo? device;
 
   @override
@@ -463,10 +470,7 @@ class _OnDeviceAiInfoSheet extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           children: <Widget>[
             _buildHandle(),
-            Text(
-              S.current.translation_engine_info_title,
-              style: semibold(size: 18),
-            ),
+            Text(model.displayName, style: semibold(size: 18)),
             const SizedBox(height: 8),
             Text(
               S.current.translation_engine_info_intro,
@@ -495,18 +499,7 @@ class _OnDeviceAiInfoSheet extends StatelessWidget {
               style: semibold(size: 15),
             ),
             const SizedBox(height: 8),
-            _ExampleRow(
-              tier: S.current.translation_engine_tier_fast,
-              phones: S.current.translation_engine_tier_fast_phones,
-            ),
-            _ExampleRow(
-              tier: S.current.translation_engine_tier_ok,
-              phones: S.current.translation_engine_tier_ok_phones,
-            ),
-            _ExampleRow(
-              tier: S.current.translation_engine_tier_no,
-              phones: S.current.translation_engine_tier_no_phones,
-            ),
+            ..._buildSpeedTiers(),
             const SizedBox(height: 12),
             Text(
               S.current.translation_engine_info_footer,
@@ -537,7 +530,7 @@ class _OnDeviceAiInfoSheet extends StatelessWidget {
     bool? ramMet;
     if (device != null) {
       androidVersionMet = device.sdkInt >= OnDeviceAiSupport.minSdk;
-      ramMet = device.totalRamGb >= OnDeviceModel.e2b.minRamGb;
+      ramMet = device.totalRamGb >= model.minRamGb;
     }
     return <Widget>[
       _RequirementRow(
@@ -548,12 +541,51 @@ class _OnDeviceAiInfoSheet extends StatelessWidget {
         label: S.current.translation_engine_req_64bit,
         met: device?.abis.contains('arm64-v8a'),
       ),
-      _RequirementRow(label: S.current.translation_engine_req_ram, met: ramMet),
       _RequirementRow(
-        label: S.current.translation_engine_req_storage,
+        label: S.current.translation_engine_req_ram_model(_marketedRam()),
+        met: ramMet,
+      ),
+      _RequirementRow(
+        label: S.current.translation_engine_req_storage_model(model.sizeLabel),
         met: null,
       ),
     ];
+  }
+
+  int _marketedRam() {
+    return switch (model) {
+      OnDeviceModel.e2b => 8,
+      OnDeviceModel.e4b => 12,
+    };
+  }
+
+  List<Widget> _buildSpeedTiers() {
+    return switch (model) {
+      OnDeviceModel.e2b => <Widget>[
+        _ExampleRow(
+          tier: S.current.translation_engine_tier_fast,
+          phones: S.current.translation_engine_tier_fast_phones,
+        ),
+        _ExampleRow(
+          tier: S.current.translation_engine_tier_ok,
+          phones: S.current.translation_engine_tier_ok_phones,
+        ),
+        _ExampleRow(
+          tier: S.current.translation_engine_tier_no,
+          phones: S.current.translation_engine_tier_no_phones,
+        ),
+      ],
+      OnDeviceModel.e4b => <Widget>[
+        _ExampleRow(
+          tier: S.current.translation_engine_tier_e4b,
+          phones: S.current.translation_engine_tier_fast_phones,
+        ),
+        _ExampleRow(
+          tier: S.current.translation_engine_tier_no,
+          phones: S.current.translation_engine_tier_e4b_no_phones,
+        ),
+      ],
+    };
   }
 }
 

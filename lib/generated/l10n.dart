@@ -3854,21 +3854,6 @@ class S {
     return Intl.message('Fast', name: 'engine_tag_fast', desc: '', args: []);
   }
 
-  /// `A few seconds per page`
-  String get engine_tag_medium_speed {
-    return Intl.message(
-      'A few seconds per page',
-      name: 'engine_tag_medium_speed',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Slower`
-  String get engine_tag_slow {
-    return Intl.message('Slower', name: 'engine_tag_slow', desc: '', args: []);
-  }
-
   /// `Literal`
   String get engine_tag_literal {
     return Intl.message(
@@ -4229,16 +4214,6 @@ class S {
     );
   }
 
-  /// `On-device AI translation`
-  String get translation_engine_info_title {
-    return Intl.message(
-      'On-device AI translation',
-      name: 'translation_engine_info_title',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Gemma 4 runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. E4B translates noticeably better than E2B but is about twice as slow. Nothing leaves your device.`
   String get translation_engine_info_intro {
     return Intl.message(
@@ -4274,26 +4249,6 @@ class S {
     return Intl.message(
       '64-bit (arm64) processor',
       name: 'translation_engine_req_64bit',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `8 GB of RAM for E2B, 12 GB for E4B`
-  String get translation_engine_req_ram {
-    return Intl.message(
-      '8 GB of RAM for E2B, 12 GB for E4B',
-      name: 'translation_engine_req_ram',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `About 3 GB (E2B) or 4 GB (E4B) of free storage`
-  String get translation_engine_req_storage {
-    return Intl.message(
-      'About 3 GB (E2B) or 4 GB (E4B) of free storage',
-      name: 'translation_engine_req_storage',
       desc: '',
       args: [],
     );
@@ -4374,6 +4329,66 @@ class S {
     return Intl.message(
       'Phones with less than 8 GB RAM, 32-bit phones and Android 10 or older',
       name: 'translation_engine_tier_no_phones',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `≈4–10 s per page`
+  String get engine_tag_speed_e2b {
+    return Intl.message(
+      '≈4–10 s per page',
+      name: 'engine_tag_speed_e2b',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `≈20–45 s per page`
+  String get engine_tag_speed_e4b {
+    return Intl.message(
+      '≈20–45 s per page',
+      name: 'engine_tag_speed_e4b',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{ram} GB of RAM or more`
+  String translation_engine_req_ram_model(int ram) {
+    return Intl.message(
+      '$ram GB of RAM or more',
+      name: 'translation_engine_req_ram_model',
+      desc: '',
+      args: [ram],
+    );
+  }
+
+  /// `About {size} GB of free storage`
+  String translation_engine_req_storage_model(String size) {
+    return Intl.message(
+      'About $size GB of free storage',
+      name: 'translation_engine_req_storage_model',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `About 20–45 s per page`
+  String get translation_engine_tier_e4b {
+    return Intl.message(
+      'About 20–45 s per page',
+      name: 'translation_engine_tier_e4b',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Phones with less than 12 GB RAM`
+  String get translation_engine_tier_e4b_no_phones {
+    return Intl.message(
+      'Phones with less than 12 GB RAM',
+      name: 'translation_engine_tier_e4b_no_phones',
       desc: '',
       args: [],
     );

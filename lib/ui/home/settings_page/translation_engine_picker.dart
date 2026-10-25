@@ -90,8 +90,8 @@ class TranslationEngineOption {
 
   static String _localModelSpeedTag(OnDeviceModel model) {
     return switch (model) {
-      OnDeviceModel.e2b => S.current.engine_tag_medium_speed,
-      OnDeviceModel.e4b => S.current.engine_tag_slow,
+      OnDeviceModel.e2b => S.current.engine_tag_speed_e2b,
+      OnDeviceModel.e4b => S.current.engine_tag_speed_e4b,
     };
   }
 }
@@ -100,7 +100,7 @@ Future<String?> showTranslationEnginePicker(
   BuildContext context, {
   required String selectedId,
   required String? Function(OnDeviceModel model) unavailableReason,
-  required VoidCallback onShowGemmaInfo,
+  required ValueChanged<OnDeviceModel> onShowGemmaInfo,
 }) {
   return showModalBottomSheet<String>(
     context: context,
@@ -131,7 +131,7 @@ class _EnginePickerSheet extends StatelessWidget {
 
   final String selectedId;
   final String? Function(OnDeviceModel model) unavailableReason;
-  final VoidCallback onShowGemmaInfo;
+  final ValueChanged<OnDeviceModel> onShowGemmaInfo;
 
   @override
   Widget build(BuildContext context) {
@@ -168,12 +168,20 @@ class _EnginePickerSheet extends StatelessWidget {
                 selected: option.id == selectedId,
                 unavailableReason: _reasonFor(option),
                 onTap: () => Navigator.of(context).pop(option.id),
-                onInfo: option.localModel == null ? null : onShowGemmaInfo,
+                onInfo: _infoFor(option),
               ),
           ],
         ),
       ),
     );
+  }
+
+  VoidCallback? _infoFor(TranslationEngineOption option) {
+    final OnDeviceModel? model = option.localModel;
+    if (model == null) {
+      return null;
+    }
+    return () => onShowGemmaInfo(model);
   }
 
   String? _reasonFor(TranslationEngineOption option) {
