@@ -796,7 +796,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Translation failed · tap to retry",
     ),
     "page_translation_status_model_pending":
-        MessageLookupByLibrary.simpleMessage("Preparing text recognition…"),
+        MessageLookupByLibrary.simpleMessage(
+          "Google Play services is downloading text recognition…",
+        ),
     "page_translation_status_outdated": MessageLookupByLibrary.simpleMessage(
       "Older translation · tap to update",
     ),

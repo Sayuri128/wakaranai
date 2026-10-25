@@ -20,6 +20,7 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
     TitleLanguages? languages,
     Future<void> Function(TitleLanguages languages)? onLanguagesChanged,
     this.modelRetryDelay = const Duration(seconds: 10),
+    this.maxModelRetries = 18,
   }) : _backendFactory = backendFactory,
        _ensurePacks = ensurePacks,
        _onLanguagesChanged = onLanguagesChanged,
@@ -29,6 +30,8 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
   final Future<bool> Function(TitleLanguages languages) _ensurePacks;
   final Future<void> Function(TitleLanguages languages)? _onLanguagesChanged;
   final Duration modelRetryDelay;
+  final int maxModelRetries;
+  int _modelRetries = 0;
 
   PageTranslationBackend? _backend;
   Map<String, String> _headers = const <String, String>{};
@@ -352,8 +355,15 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
         path,
         _headers,
       );
+      _modelRetries = 0;
       return PageTranslationEntry(PageTranslationStatus.done, result: result);
     } on OcrModelPendingException {
+      if (_modelRetries >= maxModelRetries) {
+        logger.w('Text recognition model is still not available for $path');
+        _modelRetries = 0;
+        return _keepingResult(path, PageTranslationStatus.failed);
+      }
+      _modelRetries++;
       _scheduleModelRetry(path);
       return _keepingResult(path, PageTranslationStatus.modelPending);
     } catch (e, stack) {

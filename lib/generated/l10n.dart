@@ -3214,10 +3214,10 @@ class S {
     );
   }
 
-  /// `Preparing text recognition…`
+  /// `Google Play services is downloading text recognition…`
   String get page_translation_status_model_pending {
     return Intl.message(
-      'Preparing text recognition…',
+      'Google Play services is downloading text recognition…',
       name: 'page_translation_status_model_pending',
       desc: '',
       args: [],

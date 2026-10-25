@@ -55,6 +55,7 @@ class _FakeBackend implements PageTranslationBackend {
   bool disposed = false;
   final List<String> translated = <String>[];
   final Map<String, Object> errors = <String, Object>{};
+  bool modelNeverArrives = false;
   Completer<void>? gate;
 
   @override
@@ -81,6 +82,9 @@ class _FakeBackend implements PageTranslationBackend {
     Map<String, String> headers,
   ) async {
     await gate?.future;
+    if (modelNeverArrives) {
+      throw const OcrModelPendingException();
+    }
     final Object? error = errors.remove(path);
     if (error != null) {
       throw error;
@@ -99,10 +103,12 @@ class _Harness {
     this.ready = true,
     this.packsOk = true,
     Duration retry = const Duration(seconds: 10),
+    int maxModelRetries = 18,
   }) {
     cubit = PageTranslationCubit(
       languages: languages,
       modelRetryDelay: retry,
+      maxModelRetries: maxModelRetries,
       backendFactory: (TitleLanguages requested) {
         final _FakeBackend backend = _FakeBackend(
           requested,
@@ -399,5 +405,23 @@ void main() {
 
     expect(harness.backend.translated, <String>['p1', 'p1']);
     expect(harness.cubit.state.entry('p1')?.status, PageTranslationStatus.done);
+  });
+
+  test('a text recognition model that never arrives ends as failed', () async {
+    final _Harness harness = _Harness(
+      retry: const Duration(milliseconds: 5),
+      maxModelRetries: 2,
+    );
+    addTearDown(harness.cubit.close);
+
+    await harness.cubit.toggle();
+    harness.backend.modelNeverArrives = true;
+    harness.cubit.request(<String>['p1'], const <String, String>{});
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+
+    expect(
+      harness.cubit.state.entry('p1')?.status,
+      PageTranslationStatus.failed,
+    );
   });
 }
