@@ -738,6 +738,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_preview_label": MessageLookupByLibrary.simpleMessage(
       "Meanwhile, in Tokyo…",
     ),
+    "page_translation_region_empty": MessageLookupByLibrary.simpleMessage(
+      "No text found in the selected area",
+    ),
     "page_translation_retranslate": MessageLookupByLibrary.simpleMessage(
       "Retranslate",
     ),

@@ -76,6 +76,38 @@ class _FakeBackend implements PageTranslationBackend {
     saved[path] = result;
   }
 
+  final List<Rect> regions = <Rect>[];
+  String? regionText;
+
+  @override
+  Future<PageTranslationResult?> translateRegion(
+    String path,
+    Map<String, String> headers,
+    Rect region,
+    PageTranslationResult current,
+  ) async {
+    regions.add(region);
+    final String? text = regionText;
+    if (text == null) {
+      return null;
+    }
+    return PageTranslationResult(
+      width: current.width,
+      height: current.height,
+      bubbles: <TranslatedBubble>[
+        ...current.bubbles,
+        TranslatedBubble(
+          textBox: region,
+          layoutBox: region,
+          fillColor: 0xFFFFFFFF,
+          erase: true,
+          source: text,
+          translation: 'translated $text',
+        ),
+      ],
+    );
+  }
+
   @override
   Future<PageTranslationResult> translate(
     String path,
@@ -423,5 +455,44 @@ void main() {
       harness.cubit.state.entry('p1')?.status,
       PageTranslationStatus.failed,
     );
+  });
+
+  test('a selected area adds its bubble to the page', () async {
+    final _Harness harness = _Harness();
+    addTearDown(harness.cubit.close);
+    harness.olderPages['p1'] = _oneBubble;
+
+    await harness.cubit.toggle();
+    harness.cubit.request(<String>['p1'], const <String, String>{});
+    await _settle();
+
+    harness.backend.regionText = 'MISSED';
+    final bool added = await harness.cubit.translateRegion(
+      'p1',
+      const Rect.fromLTRB(5, 5, 9, 9),
+    );
+
+    expect(added, isTrue);
+    expect(harness.cubit.state.entry('p1')?.result?.bubbles, hasLength(2));
+    expect(harness.cubit.state.entry('p1')?.status, PageTranslationStatus.done);
+  });
+
+  test('a selected area without text leaves the page as it was', () async {
+    final _Harness harness = _Harness();
+    addTearDown(harness.cubit.close);
+    harness.olderPages['p1'] = _oneBubble;
+
+    await harness.cubit.toggle();
+    harness.cubit.request(<String>['p1'], const <String, String>{});
+    await _settle();
+
+    final bool added = await harness.cubit.translateRegion(
+      'p1',
+      const Rect.fromLTRB(5, 5, 9, 9),
+    );
+
+    expect(added, isFalse);
+    expect(harness.cubit.state.entry('p1')?.result?.bubbles, hasLength(1));
+    expect(harness.cubit.state.entry('p1')?.status, PageTranslationStatus.done);
   });
 }

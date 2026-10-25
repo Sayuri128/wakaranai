@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:wakaranai/services/page_translation/page_translation_result.dart';
 
 abstract class PageTranslationBackend {
@@ -8,6 +10,13 @@ abstract class PageTranslationBackend {
   Future<PageTranslationResult?> olderVersion(String path);
 
   Future<String> translateText(String text);
+
+  Future<PageTranslationResult?> translateRegion(
+    String path,
+    Map<String, String> headers,
+    Rect region,
+    PageTranslationResult current,
+  );
 
   Future<void> save(String path, PageTranslationResult result);
 

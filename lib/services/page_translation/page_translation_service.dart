@@ -67,7 +67,7 @@ List<BubbleLayout> dropDuplicateBubbles(List<BubbleLayout> layouts) {
   final List<BubbleLayout> kept = <BubbleLayout>[];
   for (final BubbleLayout layout in layouts) {
     final bool duplicate = kept.any(
-      (BubbleLayout other) => _mostlyOverlap(layout.textBox, other.textBox),
+      (BubbleLayout other) => mostlyOverlap(layout.textBox, other.textBox),
     );
     if (!duplicate) {
       kept.add(layout);
@@ -76,7 +76,7 @@ List<BubbleLayout> dropDuplicateBubbles(List<BubbleLayout> layouts) {
   return kept;
 }
 
-bool _mostlyOverlap(ui.Rect a, ui.Rect b) {
+bool mostlyOverlap(ui.Rect a, ui.Rect b) {
   final ui.Rect overlap = a.intersect(b);
   if (overlap.width <= 0 || overlap.height <= 0) {
     return false;
@@ -95,6 +95,12 @@ double ocrUpscaleFor(int width) {
 }
 
 typedef _RecognizedBubble = ({BubbleLayout layout, String text});
+
+typedef _RecognizedArea = ({PagePixels pixels, List<OcrBlock> blocks});
+
+const double _minRegionSide = 8;
+const double _regionOcrWidth = 900;
+const double _maxRegionUpscale = 3;
 
 class PageTranslationService implements PageTranslationBackend {
   PageTranslationService({
@@ -240,31 +246,178 @@ class PageTranslationService implements PageTranslationBackend {
     ui.Image image,
     PageTile tile,
   ) async {
-    final bool wholePage = tile.top == 0 && tile.height == image.height;
-    final ui.Image tileImage = wholePage
+    final ui.Rect area = ui.Rect.fromLTWH(
+      0,
+      tile.top.toDouble(),
+      image.width.toDouble(),
+      tile.height.toDouble(),
+    );
+    final _RecognizedArea? recognized = await _recognizeArea(
+      image,
+      area,
+      ocrUpscaleFor(image.width),
+    );
+    if (recognized == null) {
+      return const <_RecognizedBubble>[];
+    }
+    final List<TextGroup> groups = groupOcrBlocks(
+      recognized.blocks,
+      languages.source,
+      hasBorderBetween: (ui.Rect a, ui.Rect b) =>
+          hasBorderBetween(recognized.pixels, a, b),
+    );
+    if (groups.isEmpty) {
+      return const <_RecognizedBubble>[];
+    }
+
+    final List<BubbleLayout> layouts = await compute(
+      analyzeBubbles,
+      BubbleAnalysisRequest(
+        pixels: recognized.pixels,
+        boxes: groups.map((TextGroup group) => group.box).toList(),
+      ),
+    );
+    return <_RecognizedBubble>[
+      for (int i = 0; i < groups.length; i++)
+        (layout: _shiftLayout(layouts[i], area.topLeft), text: groups[i].text),
+    ];
+  }
+
+  @override
+  Future<PageTranslationResult?> translateRegion(
+    String path,
+    Map<String, String> headers,
+    ui.Rect region,
+    PageTranslationResult current,
+  ) async {
+    final PageBitmapLease lease = _bitmaps.acquire(path, headers);
+    try {
+      final PageBitmap bitmap = await lease.bitmap;
+      final ui.Image image = bitmap.image;
+      final ui.Rect area = _roundOut(
+        region.intersect(
+          ui.Rect.fromLTWH(
+            0,
+            0,
+            image.width.toDouble(),
+            image.height.toDouble(),
+          ),
+        ),
+      );
+      if (area.width < _minRegionSide || area.height < _minRegionSide) {
+        return null;
+      }
+
+      final _RecognizedArea? recognized = await _recognizeArea(
+        image,
+        area,
+        _regionUpscale(area),
+      );
+      if (recognized == null) {
+        return null;
+      }
+      final List<TextGroup> groups = groupOcrBlocks(
+        recognized.blocks,
+        languages.source,
+      );
+      if (groups.isEmpty) {
+        return null;
+      }
+
+      final ui.Rect textBox = groups
+          .map((TextGroup group) => group.box)
+          .reduce((ui.Rect a, ui.Rect b) => a.expandToInclude(b));
+      final String joiner = languages.source.usesSpaces ? ' ' : '';
+      final String recognizedText = groups
+          .map((TextGroup group) => group.text)
+          .join(joiner);
+      final OcrTextCorrector? corrector = await OcrCorrectors.forLanguage(
+        languages.source,
+      );
+      final String source =
+          corrector?.correct(recognizedText) ?? recognizedText;
+
+      final List<BubbleLayout> layouts = await compute(
+        analyzeBubbles,
+        BubbleAnalysisRequest(
+          pixels: recognized.pixels,
+          boxes: <ui.Rect>[textBox],
+        ),
+      );
+      final BubbleLayout layout = _shiftLayout(layouts.single, area.topLeft);
+      final List<String> translations = await _translate(<String>[source]);
+
+      final TranslatedBubble added = TranslatedBubble(
+        textBox: layout.textBox,
+        layoutBox: layout.layoutBox,
+        fillColor: layout.fillColor,
+        erase: layout.erase,
+        source: source,
+        translation: translations.single,
+      );
+      final PageTranslationResult result = PageTranslationResult(
+        width: current.width,
+        height: current.height,
+        bubbles: <TranslatedBubble>[
+          for (final TranslatedBubble bubble in current.bubbles)
+            if (!mostlyOverlap(bubble.textBox, added.textBox)) bubble,
+          added,
+        ],
+      );
+      await save(path, result);
+      return result;
+    } finally {
+      lease.release();
+    }
+  }
+
+  double _regionUpscale(ui.Rect area) {
+    final double wanted = _regionOcrWidth / area.width;
+    return wanted.clamp(1, _maxRegionUpscale).toDouble();
+  }
+
+  ui.Rect _roundOut(ui.Rect rect) {
+    return ui.Rect.fromLTRB(
+      rect.left.floorToDouble(),
+      rect.top.floorToDouble(),
+      rect.right.ceilToDouble(),
+      rect.bottom.ceilToDouble(),
+    );
+  }
+
+  Future<_RecognizedArea?> _recognizeArea(
+    ui.Image image,
+    ui.Rect area,
+    double ocrScale,
+  ) async {
+    final bool wholeImage =
+        area.left == 0 &&
+        area.top == 0 &&
+        area.width == image.width &&
+        area.height == image.height;
+    final ui.Image areaImage = wholeImage
         ? image
-        : await _render(image, tile, 1);
-    final double ocrScale = ocrUpscaleFor(tileImage.width);
+        : await _render(image, area, 1);
     final ui.Image ocrImage = ocrScale == 1
-        ? tileImage
-        : await _render(image, tile, ocrScale);
+        ? areaImage
+        : await _render(image, area, ocrScale);
     final File png = await _tempPng();
     try {
       final ByteData? encoded = await ocrImage.toByteData(
         format: ui.ImageByteFormat.png,
       );
-      final ByteData? raw = await tileImage.toByteData(
+      final ByteData? raw = await areaImage.toByteData(
         format: ui.ImageByteFormat.rawRgba,
       );
       if (encoded == null || raw == null) {
-        return const <_RecognizedBubble>[];
+        return null;
       }
       await png.writeAsBytes(encoded.buffer.asUint8List(), flush: true);
 
       final PagePixels pixels = PagePixels(
         rgba: raw.buffer.asUint8List(),
-        width: tileImage.width,
-        height: tileImage.height,
+        width: areaImage.width,
+        height: areaImage.height,
       );
       final List<OcrBlock> recognized = await _ocr.recognize(
         OcrInput(
@@ -275,37 +428,18 @@ class PageTranslationService implements PageTranslationBackend {
         ),
         languages.source,
       );
-      final List<OcrBlock> blocks = recognized
-          .map((OcrBlock block) => block.scale(1 / ocrScale))
-          .toList();
-      final List<TextGroup> groups = groupOcrBlocks(
-        blocks,
-        languages.source,
-        hasBorderBetween: (ui.Rect a, ui.Rect b) =>
-            hasBorderBetween(pixels, a, b),
+      return (
+        pixels: pixels,
+        blocks: recognized
+            .map((OcrBlock block) => block.scale(1 / ocrScale))
+            .toList(),
       );
-      if (groups.isEmpty) {
-        return const <_RecognizedBubble>[];
-      }
-
-      final List<BubbleLayout> layouts = await compute(
-        analyzeBubbles,
-        BubbleAnalysisRequest(
-          pixels: pixels,
-          boxes: groups.map((TextGroup group) => group.box).toList(),
-        ),
-      );
-      final ui.Offset offset = ui.Offset(0, tile.top.toDouble());
-      return <_RecognizedBubble>[
-        for (int i = 0; i < groups.length; i++)
-          (layout: _shiftLayout(layouts[i], offset), text: groups[i].text),
-      ];
     } finally {
-      if (!identical(ocrImage, tileImage)) {
+      if (!identical(ocrImage, areaImage)) {
         ocrImage.dispose();
       }
-      if (!wholePage) {
-        tileImage.dispose();
+      if (!wholeImage) {
+        areaImage.dispose();
       }
       if (await png.exists()) {
         await png.delete();
@@ -322,19 +456,14 @@ class PageTranslationService implements PageTranslationBackend {
     );
   }
 
-  Future<ui.Image> _render(ui.Image image, PageTile tile, double scale) {
-    final int width = (image.width * scale).round();
-    final int height = (tile.height * scale).round();
+  Future<ui.Image> _render(ui.Image image, ui.Rect area, double scale) {
+    final int width = (area.width * scale).round();
+    final int height = (area.height * scale).round();
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final ui.Canvas canvas = ui.Canvas(recorder);
     canvas.drawImageRect(
       image,
-      ui.Rect.fromLTWH(
-        0,
-        tile.top.toDouble(),
-        image.width.toDouble(),
-        tile.height.toDouble(),
-      ),
+      area,
       ui.Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
       ui.Paint()..filterQuality = ui.FilterQuality.high,
     );

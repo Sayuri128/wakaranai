@@ -65,6 +65,47 @@ class TranslatedPageState extends State<TranslatedPage> {
     return true;
   }
 
+  bool canSelectRegionAt(Offset globalPosition) {
+    final RenderObject? renderObject = context.findRenderObject();
+    if (_visibleResultOrEmpty() == null ||
+        renderObject is! RenderBox ||
+        !renderObject.attached) {
+      return false;
+    }
+    final Offset local = renderObject.globalToLocal(globalPosition);
+    return (Offset.zero & renderObject.size).contains(local);
+  }
+
+  Future<bool> translateScreenRegion(Rect screenRect) async {
+    final PageTranslationCubit? translation = widget.cubit;
+    final PageTranslationResult? result = _visibleResultOrEmpty();
+    final RenderObject? renderObject = context.findRenderObject();
+    if (translation == null ||
+        result == null ||
+        renderObject is! RenderBox ||
+        !renderObject.attached) {
+      return false;
+    }
+    final Rect local = Rect.fromPoints(
+      renderObject.globalToLocal(screenRect.topLeft),
+      renderObject.globalToLocal(screenRect.bottomRight),
+    );
+    final double scaleX = result.width / renderObject.size.width;
+    final double scaleY = result.height / renderObject.size.height;
+    return translation.translateRegion(
+      widget.path,
+      scaleRect(local, scaleX, scaleY),
+    );
+  }
+
+  PageTranslationResult? _visibleResultOrEmpty() {
+    final PageTranslationState? state = widget.cubit?.state;
+    if (state == null || !state.active) {
+      return null;
+    }
+    return state.entry(widget.path)?.result;
+  }
+
   PageTranslationResult? _visibleResult() {
     final PageTranslationState? state = widget.cubit?.state;
     if (state == null || !state.active) {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -216,6 +217,36 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
       state.copyWith(pages: pages, pinned: <String>{...state.pinned, ...paths}),
     );
     unawaited(_processQueue());
+  }
+
+  Future<bool> translateRegion(String path, Rect region) async {
+    final PageTranslationEntry? entry = state.pages[path];
+    final PageTranslationResult? current = entry?.result;
+    if (entry == null || current == null || entry.busy) {
+      return false;
+    }
+
+    _setEntry(path, entry.withStatus(PageTranslationStatus.running));
+    PageTranslationResult? updated;
+    try {
+      updated = await _activeBackend.translateRegion(
+        path,
+        _headers,
+        region,
+        current,
+      );
+    } catch (e) {
+      logger.w('Translating the selected area failed: $e');
+    }
+    if (updated == null) {
+      _setEntry(path, entry.withStatus(PageTranslationStatus.done));
+      return false;
+    }
+    _setEntry(
+      path,
+      PageTranslationEntry(PageTranslationStatus.done, result: updated),
+    );
+    return true;
   }
 
   Future<String?> retranslateBubble(

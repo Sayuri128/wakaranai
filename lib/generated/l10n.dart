@@ -3184,6 +3184,16 @@ class S {
     );
   }
 
+  /// `No text found in the selected area`
+  String get page_translation_region_empty {
+    return Intl.message(
+      'No text found in the selected area',
+      name: 'page_translation_region_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Fix recognition mistakes, then retranslate`
   String get page_translation_original_edit_hint {
     return Intl.message(

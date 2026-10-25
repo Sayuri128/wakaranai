@@ -452,6 +452,7 @@
   "page_translation_edit": "Edit",
   "page_translation_copy": "Copy",
   "page_translation_retranslate_failed": "Couldn't retranslate this bubble",
+  "page_translation_region_empty": "No text found in the selected area",
   "page_translation_original_edit_hint": "Fix recognition mistakes, then retranslate",
   "page_translation_settings_remove_outdated": "Remove older translations",
   "page_translation_settings_remove_outdated_subtitle": "{count} pages from an older version",

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wakaranai/blocs/chapter_translation/chapter_translation_cubit.dart';
@@ -41,6 +42,14 @@ class _FakeBackend implements PageTranslationBackend {
 
   @override
   Future<void> save(String path, PageTranslationResult result) async {}
+
+  @override
+  Future<PageTranslationResult?> translateRegion(
+    String path,
+    Map<String, String> headers,
+    Rect region,
+    PageTranslationResult current,
+  ) async => null;
 
   @override
   Future<PageTranslationResult> translate(

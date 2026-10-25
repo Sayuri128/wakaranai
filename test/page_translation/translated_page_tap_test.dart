@@ -62,6 +62,19 @@ class _Backend implements PageTranslationBackend {
   @override
   Future<void> save(String path, PageTranslationResult result) async {}
 
+  final List<Rect> regions = <Rect>[];
+
+  @override
+  Future<PageTranslationResult?> translateRegion(
+    String path,
+    Map<String, String> headers,
+    Rect region,
+    PageTranslationResult current,
+  ) async {
+    regions.add(region);
+    return null;
+  }
+
   @override
   Future<void> dispose() async {}
 }
@@ -70,6 +83,7 @@ class _ReaderHarness {
   final GlobalKey<TranslatedPageState> pageKey =
       GlobalKey<TranslatedPageState>();
   late final PageTranslationCubit cubit;
+  final _Backend backend = _Backend();
   int readerTaps = 0;
 
   Future<void> setUp(WidgetTester tester) async {
@@ -78,7 +92,7 @@ class _ReaderHarness {
         source: PageLanguage.english,
         target: PageLanguage('uk', 'Ukrainian'),
       ),
-      backendFactory: (TitleLanguages languages) => _Backend(),
+      backendFactory: (TitleLanguages languages) => backend,
       ensurePacks: (TitleLanguages languages) async => true,
     );
     await cubit.toggle();
@@ -228,5 +242,50 @@ void main() {
 
     expect(harness.readerTaps, 1);
     expect(find.textContaining('translated'), findsNothing);
+  });
+
+  testWidgets('a dragged area on a shrunk page maps back to page pixels', (
+    WidgetTester tester,
+  ) async {
+    final _ReaderHarness harness = _ReaderHarness();
+    await harness.setUp(tester);
+    addTearDown(harness.cubit.close);
+
+    await tester.pumpWidget(
+      harness.reader(
+        PhotoViewGallery.builder(
+          itemCount: 1,
+          builder: (BuildContext context, int index) {
+            return PhotoViewGalleryPageOptions.customChild(
+              initialScale: PhotoViewComputedScale.contained,
+              minScale: PhotoViewComputedScale.contained,
+              filterQuality: FilterQuality.none,
+              childSize: _pageSize,
+              child: harness.translatedPage(),
+            );
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    const Rect missed = Rect.fromLTRB(700, 1300, 1000, 1500);
+    final Rect onScreen = Rect.fromPoints(
+      harness.onScreen(tester, missed.topLeft),
+      harness.onScreen(tester, missed.bottomRight),
+    );
+    expect(
+      harness.pageKey.currentState!.canSelectRegionAt(onScreen.center),
+      isTrue,
+    );
+    await tester.runAsync(
+      () => harness.pageKey.currentState!.translateScreenRegion(onScreen),
+    );
+
+    final Rect sent = harness.backend.regions.single;
+    expect(sent.left, closeTo(missed.left, 1));
+    expect(sent.top, closeTo(missed.top, 1));
+    expect(sent.right, closeTo(missed.right, 1));
+    expect(sent.bottom, closeTo(missed.bottom, 1));
   });
 }
