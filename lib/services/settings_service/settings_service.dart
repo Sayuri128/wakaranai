@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/services/page_translation/page_language.dart';
 import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
+import 'package:wakaranai/services/page_translation/translation_overlay_style.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_palette.dart';
 
@@ -25,6 +26,11 @@ class SettingsService {
       'PAGE_TRANSLATION_OCR_ENGINE';
   static const String pageTranslationTranslatorPrefsKey =
       'PAGE_TRANSLATION_TRANSLATOR';
+  static const String pageTranslationTextSizePrefsKey =
+      'PAGE_TRANSLATION_TEXT_SIZE';
+  static const String pageTranslationFontPrefsKey = 'PAGE_TRANSLATION_FONT';
+  static const String pageTranslationLabelOpacityPrefsKey =
+      'PAGE_TRANSLATION_LABEL_OPACITY';
 
   static const int defaultUpdateFrequencyHours = 12;
 
@@ -106,6 +112,15 @@ class SettingsService {
       ocrEngine: _prefs!.getString(pageTranslationOcrEnginePrefsKey),
       translator: _legacyTranslator(
           _prefs!.getString(pageTranslationTranslatorPrefsKey)),
+      overlay: TranslationOverlayStyle(
+        textSize: TranslationTextSize.byId(
+            _prefs!.getString(pageTranslationTextSizePrefsKey)),
+        font: TranslationFont.byId(
+            _prefs!.getString(pageTranslationFontPrefsKey)),
+        labelOpacity:
+            _prefs!.getDouble(pageTranslationLabelOpacityPrefsKey) ??
+                TranslationOverlayStyle.defaultLabelOpacity,
+      ),
     );
   }
 
@@ -124,6 +139,12 @@ class SettingsService {
         .setString(pageTranslationOcrEnginePrefsKey, settings.ocrEngineId);
     await _prefs!
         .setString(pageTranslationTranslatorPrefsKey, settings.translatorId);
+    await _prefs!.setString(
+        pageTranslationTextSizePrefsKey, settings.overlay.textSize.id);
+    await _prefs!
+        .setString(pageTranslationFontPrefsKey, settings.overlay.font.id);
+    await _prefs!.setDouble(
+        pageTranslationLabelOpacityPrefsKey, settings.overlay.labelOpacity);
   }
 
   Future<bool> getCollectStatistics() async {

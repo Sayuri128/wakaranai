@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/services/page_translation/page_language.dart';
 import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
+import 'package:wakaranai/services/page_translation/translation_overlay_style.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
 
 class PageTranslationSettingsCubit extends Cubit<PageTranslationSettings> {
@@ -25,6 +26,9 @@ class PageTranslationSettingsCubit extends Cubit<PageTranslationSettings> {
 
   Future<void> setWifiOnly(bool value) =>
       _update(state.copyWith(wifiOnly: value));
+
+  Future<void> setOverlay(TranslationOverlayStyle overlay) =>
+      _update(state.copyWith(overlay: overlay));
 
   Future<void> _update(PageTranslationSettings settings) async {
     if (settings == state) {

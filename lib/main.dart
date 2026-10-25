@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart'
+    show LicenseEntry, LicenseEntryWithLineBreaks, LicenseRegistry, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -45,6 +46,11 @@ import 'blocs/auth/authentication_cubit.dart';
 import 'ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'ui/home/settings_page/cubit/settings/settings_cubit.dart';
 
+Stream<LicenseEntry> _bundledFontLicenses() async* {
+  final String pangolin = await rootBundle.loadString('fonts/Pangolin-OFL.txt');
+  yield LicenseEntryWithLineBreaks(<String>['Pangolin font'], pangolin);
+}
+
 final Logger logger = Logger(
   filter: ProductionFilter(),
 );
@@ -58,6 +64,8 @@ void main() async {
 
   await dotenv.load(fileName: '.env');
   Env.validate();
+
+  LicenseRegistry.addLicense(_bundledFontLicenses);
 
   if (!kIsWeb && Platform.isAndroid) {
     try {

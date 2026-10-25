@@ -94,6 +94,7 @@ flutter:
   assets:
     - .env
     - assets/dictionaries/en_words.txt
+    - fonts/Pangolin-OFL.txt
 
   fonts:
     - family: Ubuntu mono
@@ -106,3 +107,6 @@ flutter:
         - asset: fonts/Ubuntu-Th.ttf
         - asset: fonts/UbuntuMono-B.ttf
         - asset: fonts/UbuntuMono-R.ttf
+    - family: Pangolin
+      fonts:
+        - asset: fonts/Pangolin-Regular.ttf

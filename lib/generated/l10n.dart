@@ -3627,6 +3627,126 @@ class S {
     );
   }
 
+  /// `Appearance`
+  String get page_translation_appearance_section {
+    return Intl.message(
+      'Appearance',
+      name: 'page_translation_appearance_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Text size`
+  String get page_translation_text_size {
+    return Intl.message(
+      'Text size',
+      name: 'page_translation_text_size',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Smaller`
+  String get page_translation_text_size_small {
+    return Intl.message(
+      'Smaller',
+      name: 'page_translation_text_size_small',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Default`
+  String get page_translation_text_size_normal {
+    return Intl.message(
+      'Default',
+      name: 'page_translation_text_size_normal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Larger`
+  String get page_translation_text_size_large {
+    return Intl.message(
+      'Larger',
+      name: 'page_translation_text_size_large',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Font`
+  String get page_translation_font {
+    return Intl.message(
+      'Font',
+      name: 'page_translation_font',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `System`
+  String get page_translation_font_system {
+    return Intl.message(
+      'System',
+      name: 'page_translation_font_system',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comic`
+  String get page_translation_font_comic {
+    return Intl.message(
+      'Comic',
+      name: 'page_translation_font_comic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Label background`
+  String get page_translation_label_background {
+    return Intl.message(
+      'Label background',
+      name: 'page_translation_label_background',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `For text outside speech bubbles`
+  String get page_translation_label_background_subtitle {
+    return Intl.message(
+      'For text outside speech bubbles',
+      name: 'page_translation_label_background_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `What are you doing here?!`
+  String get page_translation_preview_bubble {
+    return Intl.message(
+      'What are you doing here?!',
+      name: 'page_translation_preview_bubble',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Meanwhile, in Tokyo…`
+  String get page_translation_preview_label {
+    return Intl.message(
+      'Meanwhile, in Tokyo…',
+      name: 'page_translation_preview_label',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Offline`
   String get engine_tag_offline {
     return Intl.message(

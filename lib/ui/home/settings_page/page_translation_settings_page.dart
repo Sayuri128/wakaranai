@@ -9,6 +9,7 @@ import 'package:wakaranai/services/page_translation/page_language.dart';
 import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
 import 'package:wakaranai/services/page_translation/translation_prerequisites.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_widgets.dart';
+import 'package:wakaranai/ui/home/settings_page/translation_appearance_section.dart';
 import 'package:wakaranai/ui/home/settings_page/translation_engine_section.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/translation_languages_sheet.dart';
@@ -132,6 +133,7 @@ class _PageTranslationSettingsPageState
         if (settings.enabled) ...<Widget>[
           TranslationEngineSection(settings: settings),
           _buildLanguagesSection(settings),
+          TranslationAppearanceSection(style: settings.overlay),
           _buildPacksSection(context, settings),
           _buildStorageSection(),
         ],

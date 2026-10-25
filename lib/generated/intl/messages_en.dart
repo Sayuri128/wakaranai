@@ -617,6 +617,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_ai_model_title": MessageLookupByLibrary.simpleMessage(
       "Download the AI model",
     ),
+    "page_translation_appearance_section": MessageLookupByLibrary.simpleMessage(
+      "Appearance",
+    ),
     "page_translation_copied": MessageLookupByLibrary.simpleMessage("Copied"),
     "page_translation_copy": MessageLookupByLibrary.simpleMessage("Copy"),
     "page_translation_copy_original": MessageLookupByLibrary.simpleMessage(
@@ -626,6 +629,18 @@ class MessageLookup extends MessageLookupByLibrary {
       "Copy translation",
     ),
     "page_translation_edit": MessageLookupByLibrary.simpleMessage("Edit"),
+    "page_translation_font": MessageLookupByLibrary.simpleMessage("Font"),
+    "page_translation_font_comic": MessageLookupByLibrary.simpleMessage(
+      "Comic",
+    ),
+    "page_translation_font_system": MessageLookupByLibrary.simpleMessage(
+      "System",
+    ),
+    "page_translation_label_background": MessageLookupByLibrary.simpleMessage(
+      "Label background",
+    ),
+    "page_translation_label_background_subtitle":
+        MessageLookupByLibrary.simpleMessage("For text outside speech bubbles"),
     "page_translation_languages_from": MessageLookupByLibrary.simpleMessage(
       "Text on pages",
     ),
@@ -669,6 +684,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "page_translation_original_label": MessageLookupByLibrary.simpleMessage(
       "Original",
+    ),
+    "page_translation_preview_bubble": MessageLookupByLibrary.simpleMessage(
+      "What are you doing here?!",
+    ),
+    "page_translation_preview_label": MessageLookupByLibrary.simpleMessage(
+      "Meanwhile, in Tokyo…",
     ),
     "page_translation_retranslate": MessageLookupByLibrary.simpleMessage(
       "Retranslate",
@@ -752,6 +773,18 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "page_translation_status_translating": MessageLookupByLibrary.simpleMessage(
       "Translating page…",
+    ),
+    "page_translation_text_size": MessageLookupByLibrary.simpleMessage(
+      "Text size",
+    ),
+    "page_translation_text_size_large": MessageLookupByLibrary.simpleMessage(
+      "Larger",
+    ),
+    "page_translation_text_size_normal": MessageLookupByLibrary.simpleMessage(
+      "Default",
+    ),
+    "page_translation_text_size_small": MessageLookupByLibrary.simpleMessage(
+      "Smaller",
     ),
     "page_translation_translate_chapter": MessageLookupByLibrary.simpleMessage(
       "Translate whole chapter",

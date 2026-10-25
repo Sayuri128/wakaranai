@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:wakaranai/services/page_translation/engines/page_translation_engines.dart';
 import 'package:wakaranai/services/page_translation/page_language.dart';
+import 'package:wakaranai/services/page_translation/translation_overlay_style.dart';
 
 class PageTranslationSettings extends Equatable {
   const PageTranslationSettings({
@@ -9,6 +10,7 @@ class PageTranslationSettings extends Equatable {
     this.wifiOnly = true,
     String? ocrEngine,
     String? translator,
+    this.overlay = const TranslationOverlayStyle(),
   }) : ocrEngine = ocrEngine ?? '',
        translator = translator ?? '';
 
@@ -17,6 +19,7 @@ class PageTranslationSettings extends Equatable {
   final bool wifiOnly;
   final String ocrEngine;
   final String translator;
+  final TranslationOverlayStyle overlay;
 
   String get ocrEngineId => PageTranslationEngines.ocrById(ocrEngine).id;
 
@@ -39,6 +42,7 @@ class PageTranslationSettings extends Equatable {
     bool? wifiOnly,
     String? ocrEngine,
     String? translator,
+    TranslationOverlayStyle? overlay,
   }) {
     return PageTranslationSettings(
       enabled: enabled ?? this.enabled,
@@ -46,6 +50,7 @@ class PageTranslationSettings extends Equatable {
       wifiOnly: wifiOnly ?? this.wifiOnly,
       ocrEngine: ocrEngine ?? this.ocrEngine,
       translator: translator ?? this.translator,
+      overlay: overlay ?? this.overlay,
     );
   }
 
@@ -56,5 +61,6 @@ class PageTranslationSettings extends Equatable {
     wifiOnly,
     ocrEngine,
     translator,
+    overlay,
   ];
 }

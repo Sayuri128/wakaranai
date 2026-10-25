@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
 import 'package:wakaranai/services/page_translation/page_translation_result.dart';
 import 'package:wakaranai/ui/services/cubits/page_translation/page_translation_cubit.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/translation_bubble_popup.dart';
@@ -59,6 +60,10 @@ class TranslatedPage extends StatelessWidget {
                     painter: TranslationOverlayPainter(
                       result: result,
                       hidden: hiddenBubbles,
+                      style: context.select(
+                        (PageTranslationSettingsCubit settings) =>
+                            settings.state.overlay,
+                      ),
                     ),
                   ),
                 ),

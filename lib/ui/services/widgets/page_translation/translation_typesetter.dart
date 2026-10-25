@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:wakaranai/services/page_translation/page_translation_result.dart';
+import 'package:wakaranai/services/page_translation/translation_overlay_style.dart';
 
 const double _lineHeight = 1.12;
 const double _measureFontSize = 100;
@@ -14,19 +15,22 @@ const double _erasePadding = 2;
 const double _eraseCornerRadius = 4;
 const double _bubbleInset = 0.06;
 const double _labelPadding = 0.3;
-const double _labelOpacity = 0.9;
 
-TextStyle _translationStyle(double fontSize, Color color) {
+TextStyle _translationStyle(
+  double fontSize,
+  Color color,
+  TranslationFont font,
+) {
   return TextStyle(
-    fontFamily: 'Ubuntu',
-    fontWeight: FontWeight.w600,
+    fontFamily: font.family,
+    fontWeight: font.weight,
     fontSize: fontSize,
     height: _lineHeight,
     color: color,
   );
 }
 
-double _widestWordWidth(String text, Color color) {
+double _widestWordWidth(String text, Color color, TranslationFont font) {
   double widest = 0;
   for (final String word in text.split(RegExp(r'\s+'))) {
     if (word.isEmpty) {
@@ -35,7 +39,7 @@ double _widestWordWidth(String text, Color color) {
     final TextPainter painter = TextPainter(
       text: TextSpan(
         text: word,
-        style: _translationStyle(_measureFontSize, color),
+        style: _translationStyle(_measureFontSize, color, font),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -47,13 +51,21 @@ double _widestWordWidth(String text, Color color) {
 
 TextPainter fitTranslation(
   String text,
-  Size box, {
+  Size area, {
   required Color color,
+  TranslationOverlayStyle style = const TranslationOverlayStyle(),
   double minSize = 4,
 }) {
+  final double scale = style.textSize.scale;
+  final TranslationFont font = style.font;
+  final Size box = scale > 1 ? area * scale : area;
+
   TextPainter layoutAt(double fontSize) {
     return TextPainter(
-      text: TextSpan(text: text, style: _translationStyle(fontSize, color)),
+      text: TextSpan(
+        text: text,
+        style: _translationStyle(fontSize, color, font),
+      ),
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
     )..layout(maxWidth: max(1, box.width));
@@ -68,7 +80,7 @@ TextPainter fitTranslation(
     );
   }
 
-  final double widestWord = _widestWordWidth(text, color);
+  final double widestWord = _widestWordWidth(text, color, font);
   final double largestUnbrokenSize = widestWord == 0
       ? double.infinity
       : box.width * _measureFontSize / widestWord;
@@ -96,7 +108,12 @@ TextPainter fitTranslation(
       largest = middle;
     }
   }
-  return best;
+
+  if (scale >= 1) {
+    return best;
+  }
+  best.dispose();
+  return layoutAt(max(minSize, smallest * scale));
 }
 
 Color translationTextColor(Color fill) {
@@ -114,10 +131,15 @@ Rect scaleRect(Rect rect, double scaleX, double scaleY) => Rect.fromLTRB(
 );
 
 class TranslationOverlayPainter extends CustomPainter {
-  TranslationOverlayPainter({required this.result, required this.hidden});
+  TranslationOverlayPainter({
+    required this.result,
+    required this.hidden,
+    this.style = const TranslationOverlayStyle(),
+  });
 
   final PageTranslationResult result;
   final Set<int> hidden;
+  final TranslationOverlayStyle style;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -163,6 +185,7 @@ class TranslationOverlayPainter extends CustomPainter {
       bubble.translation,
       textArea.size,
       color: translationTextColor(fill),
+      style: style,
     );
     painter.paint(canvas, _centered(painter, textArea.center));
     painter.dispose();
@@ -173,6 +196,7 @@ class TranslationOverlayPainter extends CustomPainter {
       bubble.translation,
       layoutRect.size,
       color: _darkText,
+      style: style,
     );
     final double padding = painter.preferredLineHeight * _labelPadding;
     canvas.drawRRect(
@@ -184,7 +208,7 @@ class TranslationOverlayPainter extends CustomPainter {
         ),
         Radius.circular(padding),
       ),
-      Paint()..color = Colors.white.withValues(alpha: _labelOpacity),
+      Paint()..color = Colors.white.withValues(alpha: style.labelOpacity),
     );
     painter.paint(canvas, _centered(painter, layoutRect.center));
     painter.dispose();
@@ -195,7 +219,7 @@ class TranslationOverlayPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(TranslationOverlayPainter oldDelegate) {
-    if (!identical(oldDelegate.result, result)) {
+    if (!identical(oldDelegate.result, result) || oldDelegate.style != style) {
       return true;
     }
     return oldDelegate.hidden.length != hidden.length ||
