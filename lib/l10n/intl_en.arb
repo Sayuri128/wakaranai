@@ -526,34 +526,121 @@
   },
   "page_translation_translate_chapter": "Translate whole chapter",
   "page_translation_ai_model_title": "Download the AI model",
-  "page_translation_ai_model_message": "Gemma translation needs a one-time 2.6 GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.",
+  "page_translation_ai_model_message": "{model} needs a one-time {size} GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.",
   "translation_engine_section": "Translation engine",
   "translation_engine_mlkit": "ML Kit",
   "translation_engine_mlkit_subtitle": "Fast and light · works on every phone · literal translations",
-  "translation_engine_gemma": "Gemma 4 · on-device AI",
-  "translation_engine_gemma_subtitle": "Natural translations that fix text-recognition mistakes · 2.6 GB · recent phones",
+  "translation_engine_gemma": "Gemma 4 E2B · on-device AI",
+  "translation_engine_gemma_subtitle": "Natural translations that fix text-recognition mistakes · 2.6 GB · 8 GB RAM",
+  "translation_engine_gemma_e4b": "Gemma 4 E4B · on-device AI",
+  "translation_engine_gemma_e4b_subtitle": "Better translations, about twice as slow · 3.7 GB · 12 GB RAM",
+  "translation_engine_deepl": "DeepL · online",
+  "translation_engine_deepl_subtitle": "Best quality · sends the recognised text to DeepL · needs a free API key",
   "translation_engine_gemma_unavailable_platform": "Not available on this device",
   "translation_engine_gemma_unavailable_android": "Needs Android 11 or newer",
   "translation_engine_gemma_unavailable_64bit": "Needs a 64-bit phone",
-  "translation_engine_gemma_unavailable_ram": "Needs 8 GB of RAM (this phone has {ram} GB)",
+  "translation_engine_gemma_unavailable_ram": "Needs {need} GB of RAM (this phone has {ram} GB)",
   "@translation_engine_gemma_unavailable_ram": {
     "placeholders": {
-      "ram": {}
+      "need": {
+        "type": "int"
+      },
+      "ram": {
+        "type": "int"
+      }
     }
   },
   "translation_ai_model_title": "AI model",
-  "translation_ai_model_installed": "Gemma 4 E2B · 2.6 GB · ready",
+  "translation_ai_model_installed": "{model} · {size} GB · ready",
   "translation_ai_model_failed": "Download failed · try again on Wi-Fi",
-  "translation_ai_model_missing": "Not downloaded · 2.6 GB",
+  "translation_ai_model_missing": "Not downloaded · {size} GB",
   "translation_ai_model_delete_title": "Delete the AI model?",
-  "translation_ai_model_delete_message": "This frees 2.6 GB. You can download it again at any time.",
+  "translation_ai_model_delete_message": "This frees {size} GB. You can download it again at any time.",
+  "translation_ai_model_other_installed": "{model} is also downloaded · {size} GB",
+  "@translation_ai_model_other_installed": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deepl_key_title": "DeepL API key",
+  "deepl_key_missing": "Not set",
+  "download_speed_megabytes": "{speed} MB/s",
+  "@download_speed_megabytes": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "download_time_left": "{time} left",
+  "@download_time_left": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "duration_hours_minutes": "{hours} h {minutes} min",
+  "@duration_hours_minutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "duration_minutes": "{minutes} min",
+  "@duration_minutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "duration_seconds": "{seconds} s",
+  "@duration_seconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "deepl_key_needed": "Add a DeepL API key in Page translation settings first",
+  "deepl_key_usage": "{used} of {limit} characters used this month",
+  "@deepl_key_usage": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "deepl_key_saved": "Key saved",
+  "deepl_key_change": "Change",
+  "deepl_key_remove": "Remove",
+  "deepl_key_dialog_message": "Create a free DeepL API account (500,000 characters a month) and paste its authentication key here. The key is stored only on this phone.",
+  "deepl_key_hint": "Paste your API key",
+  "deepl_key_get": "Get a free key",
+  "deepl_key_save": "Save",
+  "deepl_key_cancel": "Cancel",
+  "deepl_key_invalid": "DeepL did not accept this key",
+  "deepl_key_network": "Could not reach DeepL. Check your connection.",
   "translation_engine_info_title": "On-device AI translation",
-  "translation_engine_info_intro": "Gemma 4 E2B is a small language model that runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. Nothing leaves your device.",
+  "translation_engine_info_intro": "Gemma 4 runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. E4B translates noticeably better than E2B but is about twice as slow. Nothing leaves your device.",
   "translation_engine_info_requirements": "Requirements",
   "translation_engine_req_android": "Android 11 or newer",
   "translation_engine_req_64bit": "64-bit (arm64) processor",
-  "translation_engine_req_ram": "8 GB of RAM or more (12 GB recommended)",
-  "translation_engine_req_storage": "About 3 GB of free storage",
+  "translation_engine_req_ram": "8 GB of RAM for E2B, 12 GB for E4B",
+  "translation_engine_req_storage": "About 3 GB (E2B) or 4 GB (E4B) of free storage",
   "translation_engine_info_this_phone": "This phone: {model} · {ram} GB RAM",
   "@translation_engine_info_this_phone": {
     "placeholders": {
@@ -617,5 +704,39 @@
     }
   },
   "chapter_translation_queue_title": "Translation queue",
-  "library_tab_titles": "Titles"
+  "library_tab_titles": "Titles",
+  "@page_translation_ai_model_message": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@translation_ai_model_installed": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@translation_ai_model_missing": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@translation_ai_model_delete_message": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  }
 }

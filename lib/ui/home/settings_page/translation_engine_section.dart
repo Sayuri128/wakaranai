@@ -4,10 +4,16 @@ import 'package:wakaranai/blocs/gemma_model/gemma_model_cubit.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/device/device_capabilities.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_prompt.dart';
+import 'package:intl/intl.dart';
+import 'package:wakaranai/main.dart';
+import 'package:wakaranai/services/page_translation/engines/deepl_translator.dart';
+import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
 import 'package:wakaranai/services/page_translation/engines/page_translation_engines.dart';
 import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
+import 'package:wakaranai/services/page_translation/translation_prerequisites.dart';
+import 'package:wakaranai/ui/home/settings_page/deepl_key_dialog.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_widgets.dart';
+import 'package:wakaranai/ui/widgets/download_estimate_text.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -22,9 +28,12 @@ class TranslationEngineSection extends StatelessWidget {
     final GemmaModelState gemma = context.watch<GemmaModelCubit>().state;
     final PageTranslationSettingsCubit cubit = context
         .read<PageTranslationSettingsCubit>();
-    final bool gemmaSelected =
-        settings.translatorId == gemmaEngineId && gemma.supported;
-    final String mlKitId = PageTranslationEngines.translators.first.id;
+    final String selectedId = effectiveTranslationSettings(
+      settings,
+      gemma,
+    ).translatorId;
+    final GemmaVariant? selectedGemma = GemmaVariant.forEngine(selectedId);
+    final bool deepLSelected = selectedId == deepLEngineId;
 
     return SettingsSection(
       title: S.current.translation_engine_section,
@@ -33,38 +42,77 @@ class TranslationEngineSection extends StatelessWidget {
           icon: Icons.bolt_rounded,
           title: S.current.translation_engine_mlkit,
           subtitle: S.current.translation_engine_mlkit_subtitle,
-          selected: !gemmaSelected,
+          selected: selectedGemma == null && !deepLSelected,
           enabled: true,
-          onTap: () => cubit.setTranslator(mlKitId),
+          onTap: () => cubit.setTranslator(_mlKitId),
         ),
-        _EngineTile(
-          icon: Icons.auto_awesome_rounded,
-          title: S.current.translation_engine_gemma,
-          subtitle: _gemmaSubtitle(gemma),
-          selected: gemmaSelected,
-          enabled: gemma.supported,
-          onTap: () => cubit.setTranslator(gemmaEngineId),
-          trailing: IconButton(
-            icon: Icon(Icons.info_outline_rounded, color: AppColors.mainGrey),
-            onPressed: () => showOnDeviceAiInfo(context),
+        for (final GemmaVariant variant in GemmaVariant.values)
+          _EngineTile(
+            icon: Icons.auto_awesome_rounded,
+            title: _gemmaTitle(variant),
+            subtitle: _gemmaSubtitle(variant, gemma),
+            selected: selectedGemma == variant,
+            enabled: gemma.supports(variant),
+            onTap: () => cubit.setTranslator(variant.engineId),
+            trailing: IconButton(
+              icon: Icon(Icons.info_outline_rounded, color: AppColors.mainGrey),
+              onPressed: () => showOnDeviceAiInfo(context),
+            ),
           ),
+        _EngineTile(
+          icon: Icons.cloud_outlined,
+          title: S.current.translation_engine_deepl,
+          subtitle: S.current.translation_engine_deepl_subtitle,
+          selected: deepLSelected,
+          enabled: true,
+          onTap: () => _selectDeepL(context, cubit),
         ),
-        if (gemmaSelected) _GemmaModelTile(state: gemma),
+        if (selectedGemma != null) _GemmaModelTile(state: gemma),
+        for (final GemmaVariant variant in gemma.otherInstalledVariants)
+          _OtherGemmaModelTile(variant: variant),
+        if (deepLSelected) const _DeepLKeyTile(),
       ],
     );
   }
 
-  static String _gemmaSubtitle(GemmaModelState gemma) {
-    final bool supportStillUnknown = gemma.status == GemmaModelStatus.unknown;
-    if (supportStillUnknown || gemma.supported) {
-      return S.current.translation_engine_gemma_subtitle;
+  static String get _mlKitId => PageTranslationEngines.translators.first.id;
+
+  static Future<void> _selectDeepL(
+    BuildContext context,
+    PageTranslationSettingsCubit cubit,
+  ) async {
+    if (await DeepLApiKeyStore.read() == null) {
+      if (!context.mounted) {
+        return;
+      }
+      final bool saved = await showDeepLKeyDialog(context);
+      if (!saved) {
+        return;
+      }
     }
-    return _unsupportedReason(gemma.support);
+    await cubit.setTranslator(deepLEngineId);
   }
 
-  static String _unsupportedReason(OnDeviceAiSupport? support) {
-    final List<OnDeviceAiIssue> issues =
-        support?.issues ?? const <OnDeviceAiIssue>[];
+  static String _gemmaTitle(GemmaVariant variant) {
+    return switch (variant) {
+      GemmaVariant.e2b => S.current.translation_engine_gemma,
+      GemmaVariant.e4b => S.current.translation_engine_gemma_e4b,
+    };
+  }
+
+  static String _gemmaSubtitle(GemmaVariant variant, GemmaModelState gemma) {
+    final OnDeviceAiSupport? support = gemma.supportByVariant[variant];
+    if (support == null || support.supported) {
+      return switch (variant) {
+        GemmaVariant.e2b => S.current.translation_engine_gemma_subtitle,
+        GemmaVariant.e4b => S.current.translation_engine_gemma_e4b_subtitle,
+      };
+    }
+    return _unsupportedReason(support);
+  }
+
+  static String _unsupportedReason(OnDeviceAiSupport support) {
+    final List<OnDeviceAiIssue> issues = support.issues;
     if (issues.contains(OnDeviceAiIssue.notAndroid)) {
       return S.current.translation_engine_gemma_unavailable_platform;
     }
@@ -75,8 +123,16 @@ class TranslationEngineSection extends StatelessWidget {
       return S.current.translation_engine_gemma_unavailable_64bit;
     }
     return S.current.translation_engine_gemma_unavailable_ram(
-      (support?.device?.totalRamGb ?? 0).round(),
+      _marketedRamGb(support.minRamGb),
+      (support.device?.totalRamGb ?? 0).round(),
     );
+  }
+
+  static int _marketedRamGb(double minRamGb) {
+    if (minRamGb <= 8) {
+      return 8;
+    }
+    return 12;
   }
 }
 
@@ -133,17 +189,23 @@ class _GemmaModelTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final GemmaModelCubit cubit = context.read<GemmaModelCubit>();
+    final GemmaVariant variant = state.variant;
     final String subtitle = switch (state.status) {
-      GemmaModelStatus.installed => S.current.translation_ai_model_installed,
-      GemmaModelStatus.downloading =>
+      GemmaModelStatus.installed => S.current.translation_ai_model_installed(
+        variant.displayName,
+        variant.sizeLabel,
+      ),
+      GemmaModelStatus.downloading => withDownloadEstimate(
         S.current.page_translation_ai_model_downloading(state.progress),
+        state.estimate,
+      ),
       GemmaModelStatus.failed => S.current.translation_ai_model_failed,
-      _ => S.current.translation_ai_model_missing,
+      _ => S.current.translation_ai_model_missing(variant.sizeLabel),
     };
     final Widget action = switch (state.status) {
       GemmaModelStatus.installed => SettingsPillButton(
         label: S.current.page_translation_settings_delete_pack,
-        onTap: () => _confirmDelete(context, cubit),
+        onTap: () => _confirmDeleteModel(context, variant),
       ),
       GemmaModelStatus.downloading => SettingsPillButton(
         label: S.current.language_packs_cancel,
@@ -182,25 +244,129 @@ class _GemmaModelTile extends StatelessWidget {
       ],
     );
   }
+}
 
-  Future<void> _confirmDelete(
-    BuildContext context,
-    GemmaModelCubit cubit,
-  ) async {
-    final bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialogContext) => ConfirmationDialog(
-        destructive: true,
-        icon: Icons.delete_outline_rounded,
-        title: S.current.translation_ai_model_delete_title,
-        message: S.current.translation_ai_model_delete_message,
-        yesText: S.current.page_translation_settings_delete_pack,
-        noText: S.current.page_translation_models_cancel,
+class _OtherGemmaModelTile extends StatelessWidget {
+  const _OtherGemmaModelTile({required this.variant});
+
+  final GemmaVariant variant;
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsTile(
+      icon: Icons.sd_storage_outlined,
+      title: S.current.translation_ai_model_other_installed(
+        variant.displayName,
+        variant.sizeLabel,
+      ),
+      trailing: SettingsPillButton(
+        label: S.current.page_translation_settings_delete_pack,
+        onTap: () => _confirmDeleteModel(context, variant),
       ),
     );
-    if (confirmed == true) {
-      await cubit.delete();
+  }
+}
+
+Future<void> _confirmDeleteModel(
+  BuildContext context,
+  GemmaVariant variant,
+) async {
+  final GemmaModelCubit cubit = context.read<GemmaModelCubit>();
+  final bool? confirmed = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext dialogContext) => ConfirmationDialog(
+      destructive: true,
+      icon: Icons.delete_outline_rounded,
+      title: S.current.translation_ai_model_delete_title,
+      message: S.current.translation_ai_model_delete_message(variant.sizeLabel),
+      yesText: S.current.page_translation_settings_delete_pack,
+      noText: S.current.page_translation_models_cancel,
+    ),
+  );
+  if (confirmed == true) {
+    await cubit.delete(variant);
+  }
+}
+
+class _DeepLKeyTile extends StatefulWidget {
+  const _DeepLKeyTile();
+
+  @override
+  State<_DeepLKeyTile> createState() => _DeepLKeyTileState();
+}
+
+class _DeepLKeyTileState extends State<_DeepLKeyTile> {
+  String? _apiKey;
+  DeepLUsage? _usage;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final String? apiKey = await DeepLApiKeyStore.read();
+    DeepLUsage? usage;
+    if (apiKey != null) {
+      try {
+        usage = await DeepLClient(apiKey).usage();
+      } on DeepLException catch (e) {
+        logger.w('DeepL usage unavailable: $e');
+      }
     }
+    if (mounted) {
+      setState(() {
+        _apiKey = apiKey;
+        _usage = usage;
+        _loaded = true;
+      });
+    }
+  }
+
+  Future<void> _changeKey() async {
+    await showDeepLKeyDialog(context);
+    if (!mounted) {
+      return;
+    }
+    if (await DeepLApiKeyStore.read() == null) {
+      final String mlKitId = PageTranslationEngines.translators.first.id;
+      await context.read<PageTranslationSettingsCubit>().setTranslator(mlKitId);
+      return;
+    }
+    await _load();
+  }
+
+  String? _subtitle() {
+    if (!_loaded) {
+      return null;
+    }
+    if (_apiKey == null) {
+      return S.current.deepl_key_missing;
+    }
+    final DeepLUsage? usage = _usage;
+    if (usage == null) {
+      return S.current.deepl_key_saved;
+    }
+    final NumberFormat numbers = NumberFormat.decimalPattern();
+    return S.current.deepl_key_usage(
+      numbers.format(usage.characterCount),
+      numbers.format(usage.characterLimit),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsTile(
+      icon: Icons.key_rounded,
+      title: S.current.deepl_key_title,
+      subtitle: _subtitle(),
+      trailing: SettingsPillButton(
+        label: S.current.deepl_key_change,
+        onTap: _changeKey,
+      ),
+    );
   }
 }
 
@@ -313,7 +479,7 @@ class _OnDeviceAiInfoSheet extends StatelessWidget {
     bool? ramMet;
     if (device != null) {
       androidVersionMet = device.sdkInt >= OnDeviceAiSupport.minSdk;
-      ramMet = device.totalRamGb >= OnDeviceAiSupport.minRamGb;
+      ramMet = device.totalRamGb >= GemmaVariant.e2b.minRamGb;
     }
     return <Widget>[
       _RequirementRow(

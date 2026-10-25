@@ -1,18 +1,16 @@
 import 'dart:async';
 
+import 'package:background_downloader/background_downloader.dart';
 import 'package:flutter_edge_ai/flutter_edge_ai.dart';
 import 'package:flutter_edge_ai_litertlm/flutter_edge_ai_litertlm.dart';
 import 'package:wakaranai/blocs/gemma_model/gemma_model_cubit.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/services/page_translation/engines/gemma_prompt.dart';
+import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
 import 'package:wakaranai/services/page_translation/engines/page_translator.dart';
 import 'package:wakaranai/services/page_translation/page_language.dart';
 
 class GemmaModel {
-  static const String modelId = 'gemma-4-E2B-it.litertlm';
-  static const String modelUrl =
-      'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm';
-  static const int sizeBytes = 2588147712;
   static const int contextTokens = 4096;
 
   static const double _temperature = 0.2;
@@ -21,6 +19,7 @@ class GemmaModel {
 
   static Future<void>? _initialized;
   static Future<InferenceModel>? _model;
+  static GemmaVariant? _loadedVariant;
   static int _users = 0;
   static Future<void> _queue = Future<void>.value();
 
@@ -29,12 +28,13 @@ class GemmaModel {
         inferenceEngines: const <InferenceEngineProvider>[LiteRtLmEngine()],
       );
 
-  static Future<bool> isInstalled() async {
+  static Future<bool> isInstalled(GemmaVariant variant) async {
     await ensureInitialized();
-    return FlutterEdgeAi.isModelInstalled(modelId);
+    return FlutterEdgeAi.isModelInstalled(variant.fileName);
   }
 
-  static Future<void> install({
+  static Future<void> install(
+    GemmaVariant variant, {
     void Function(int percent)? onProgress,
     CancelToken? cancelToken,
   }) async {
@@ -42,17 +42,19 @@ class GemmaModel {
     InferenceInstallationBuilder builder = FlutterEdgeAi.installModel(
       modelType: ModelType.gemma4,
       fileType: ModelFileType.litertlm,
-    ).fromNetwork(modelUrl).withProgress(onProgress ?? (_) {});
+    ).fromNetwork(variant.downloadUrl).withProgress(onProgress ?? (_) {});
     if (cancelToken != null) {
       builder = builder.withCancelToken(cancelToken);
     }
     await builder.install();
   }
 
-  static Future<void> uninstall() async {
+  static Future<void> uninstall(GemmaVariant variant) async {
     await ensureInitialized();
-    await _close();
-    await FlutterEdgeAi.uninstallModel(modelId);
+    if (_loadedVariant == variant) {
+      await _close();
+    }
+    await FlutterEdgeAi.uninstallModel(variant.fileName);
   }
 
   static void retain() => _users++;
@@ -66,19 +68,8 @@ class GemmaModel {
     }
   }
 
-  static Future<T> _exclusive<T>(
-    Future<T> Function(InferenceModel model) task,
-  ) {
-    final Future<T> result = _queue.then((_) async {
-      final InferenceModel model = await _load();
-      return task(model);
-    });
-    _queue = result.then<void>((_) {}, onError: (Object _) {});
-    return result;
-  }
-
-  static Future<String> generate(String prompt) {
-    return _exclusive((InferenceModel model) async {
+  static Future<String> generate(GemmaVariant variant, String prompt) {
+    return _exclusive(variant, (InferenceModel model) async {
       final InferenceModelSession session = await model.createSession(
         temperature: _temperature,
         topK: _topK,
@@ -93,49 +84,78 @@ class GemmaModel {
     });
   }
 
-  static Future<InferenceModel> _load() {
-    return _model ??= _loadModel();
+  static Future<T> _exclusive<T>(
+    GemmaVariant variant,
+    Future<T> Function(InferenceModel model) task,
+  ) {
+    final Future<T> result = _queue.then((_) async {
+      final InferenceModel model = await _load(variant);
+      return task(model);
+    });
+    _queue = result.then<void>((_) {}, onError: (Object _) {});
+    return result;
   }
 
-  static Future<InferenceModel> _loadModel() async {
-    await ensureInitialized();
-    if (!FlutterEdgeAi.hasActiveModel()) {
-      await install();
+  static Future<InferenceModel> _load(GemmaVariant variant) async {
+    if (_loadedVariant != variant) {
+      await _unload();
     }
+    _loadedVariant = variant;
+    return _model ??= _loadModel(variant);
+  }
+
+  static Future<InferenceModel> _loadModel(GemmaVariant variant) async {
+    await ensureInitialized();
+    if (!await isInstalled(variant)) {
+      throw StateError('${variant.displayName} is not downloaded');
+    }
+    await install(variant);
     final Stopwatch watch = Stopwatch()..start();
     final InferenceModel model = await FlutterEdgeAi.getActiveModel(
       maxTokens: contextTokens,
       preferredBackend: PreferredBackend.gpu,
     );
-    logger.i('[gemma] model loaded in ${watch.elapsedMilliseconds}ms');
+    logger.i(
+      '[gemma] ${variant.displayName} loaded in ${watch.elapsedMilliseconds}ms',
+    );
     return model;
   }
 
   static Future<void> _close() async {
+    await _queue;
+    await _unload();
+  }
+
+  static Future<void> _unload() async {
     final Future<InferenceModel>? model = _model;
     _model = null;
+    _loadedVariant = null;
     if (model == null) {
       return;
     }
-    await _queue;
-    await (await model).close();
+    try {
+      await (await model).close();
+    } catch (e) {
+      logger.w('Closing the Gemma model failed: $e');
+    }
   }
 }
 
 class GemmaTranslator implements PageTranslator {
-  static const String engineId = gemmaEngineId;
+  GemmaTranslator(this.variant);
 
+  final GemmaVariant variant;
   bool _retained = false;
 
   @override
-  String get id => engineId;
+  String get id => variant.engineId;
 
   @override
   bool get isLocal => true;
 
   @override
   Future<bool> isReady(PageLanguage from, PageLanguage to) =>
-      GemmaModel.isInstalled();
+      GemmaModel.isInstalled(variant);
 
   @override
   Future<List<String>> translate(
@@ -194,7 +214,7 @@ class GemmaTranslator implements PageTranslator {
   ) async {
     final String prompt = buildGemmaPrompt(texts, from: from, to: to);
     final Stopwatch watch = Stopwatch()..start();
-    final String output = await GemmaModel.generate(prompt);
+    final String output = await GemmaModel.generate(variant, prompt);
     logger.i(
       '[gemma] bubbles=${texts.length} outputChars=${output.length} '
       'time=${watch.elapsedMilliseconds}ms',
@@ -213,17 +233,35 @@ class GemmaTranslator implements PageTranslator {
 }
 
 class GemmaModelFiles implements GemmaModelStore {
+  static const String _downloadGroup = 'smart_downloads';
+
   CancelToken? _cancelToken;
 
   @override
-  Future<bool> isInstalled() => GemmaModel.isInstalled();
+  Future<void> cancelStaleDownloads() async {
+    final int cancelled = await FileDownloader().reset(group: _downloadGroup);
+    if (cancelled > 0) {
+      logger.i('[gemma] cancelled $cancelled stale model downloads');
+    }
+  }
 
   @override
-  Future<void> install({required void Function(int percent) onProgress}) async {
+  Future<bool> isInstalled(GemmaVariant variant) =>
+      GemmaModel.isInstalled(variant);
+
+  @override
+  Future<void> install(
+    GemmaVariant variant, {
+    required void Function(int percent) onProgress,
+  }) async {
     final CancelToken token = CancelToken();
     _cancelToken = token;
     try {
-      await GemmaModel.install(onProgress: onProgress, cancelToken: token);
+      await GemmaModel.install(
+        variant,
+        onProgress: onProgress,
+        cancelToken: token,
+      );
     } finally {
       _cancelToken = null;
     }
@@ -233,5 +271,5 @@ class GemmaModelFiles implements GemmaModelStore {
   void cancel() => _cancelToken?.cancel();
 
   @override
-  Future<void> uninstall() => GemmaModel.uninstall();
+  Future<void> uninstall(GemmaVariant variant) => GemmaModel.uninstall(variant);
 }

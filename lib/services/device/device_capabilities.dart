@@ -22,20 +22,29 @@ class DeviceInfo {
 }
 
 class OnDeviceAiSupport {
-  const OnDeviceAiSupport({required this.issues, this.device});
+  const OnDeviceAiSupport({
+    required this.issues,
+    this.device,
+    this.minRamGb = defaultMinRamGb,
+  });
 
   final List<OnDeviceAiIssue> issues;
   final DeviceInfo? device;
+  final double minRamGb;
 
   bool get supported => issues.isEmpty;
 
   static const int minSdk = 30;
-  static const double minRamGb = 7;
+  static const double defaultMinRamGb = 7;
   static const String requiredAbi = 'arm64-v8a';
 
-  static OnDeviceAiSupport evaluate(DeviceInfo device) {
+  static OnDeviceAiSupport evaluate(
+    DeviceInfo device, {
+    double minRamGb = defaultMinRamGb,
+  }) {
     return OnDeviceAiSupport(
       device: device,
+      minRamGb: minRamGb,
       issues: <OnDeviceAiIssue>[
         if (device.sdkInt < minSdk) OnDeviceAiIssue.androidTooOld,
         if (!device.abis.contains(requiredAbi)) OnDeviceAiIssue.not64Bit,
@@ -48,27 +57,33 @@ class OnDeviceAiSupport {
 class DeviceCapabilities {
   static const MethodChannel _channel = MethodChannel('wakaranai/device');
 
-  static Future<OnDeviceAiSupport>? _support;
+  static Future<DeviceInfo?>? _device;
 
-  static Future<OnDeviceAiSupport> onDeviceAi() => _support ??= _load();
+  static Future<OnDeviceAiSupport> onDeviceAi({
+    double minRamGb = OnDeviceAiSupport.defaultMinRamGb,
+  }) async {
+    final DeviceInfo? device = await (_device ??= _loadDevice());
+    if (device == null) {
+      return _unsupportedPlatform;
+    }
+    return OnDeviceAiSupport.evaluate(device, minRamGb: minRamGb);
+  }
 
   static const OnDeviceAiSupport _unsupportedPlatform = OnDeviceAiSupport(
     issues: <OnDeviceAiIssue>[OnDeviceAiIssue.notAndroid],
   );
 
-  static Future<OnDeviceAiSupport> _load() async {
+  static Future<DeviceInfo?> _loadDevice() async {
     if (!Platform.isAndroid) {
-      return _unsupportedPlatform;
+      return null;
     }
     try {
       final Map<dynamic, dynamic>? info = await _channel
           .invokeMethod<Map<dynamic, dynamic>>('deviceInfo');
-      return OnDeviceAiSupport.evaluate(
-        _parseDeviceInfo(info ?? const <dynamic, dynamic>{}),
-      );
+      return _parseDeviceInfo(info ?? const <dynamic, dynamic>{});
     } catch (e) {
       logger.w('Device info unavailable: $e');
-      return _unsupportedPlatform;
+      return null;
     }
   }
 

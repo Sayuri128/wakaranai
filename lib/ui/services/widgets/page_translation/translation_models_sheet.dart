@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
 import 'package:wakaranai/services/page_translation/title_languages.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -8,13 +9,16 @@ Future<bool> showTranslationModelsSheet(
   BuildContext context, {
   required TitleLanguages languages,
   required bool wifiOnly,
-  bool gemma = false,
+  GemmaVariant? gemma,
 }) async {
   final String title;
   final String message;
-  if (gemma) {
+  if (gemma != null) {
     title = S.current.page_translation_ai_model_title;
-    message = S.current.page_translation_ai_model_message;
+    message = S.current.page_translation_ai_model_message(
+      gemma.displayName,
+      gemma.sizeLabel,
+    );
   } else {
     title = S.current.page_translation_models_title;
     message = S.current.page_translation_models_message(
@@ -22,7 +26,7 @@ Future<bool> showTranslationModelsSheet(
       languages.target.name,
     );
   }
-  final bool showWifiNote = wifiOnly && !gemma;
+  final bool showWifiNote = wifiOnly && gemma == null;
 
   final bool? confirmed = await showModalBottomSheet<bool>(
     context: context,

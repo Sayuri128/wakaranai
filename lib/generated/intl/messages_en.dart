@@ -38,84 +38,110 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m8(names) => "By ${names}";
 
-  static String m9(done, total) => "${done}/${total} chapters downloaded";
+  static String m9(used, limit) =>
+      "${used} of ${limit} characters used this month";
 
-  static String m10(count) => "${count} chapters downloaded";
+  static String m10(speed) => "${speed} MB/s";
 
-  static String m11(done, total) => "${done}/${total} pages";
+  static String m11(time) => "${time} left";
 
-  static String m12(count) => "Apply (${count})";
+  static String m12(done, total) => "${done}/${total} chapters downloaded";
 
-  static String m13(count) => "+${count} more — refine your search";
+  static String m13(count) => "${count} chapters downloaded";
 
-  static String m14(name) =>
+  static String m14(done, total) => "${done}/${total} pages";
+
+  static String m15(hours, minutes) => "${hours} h ${minutes} min";
+
+  static String m16(minutes) => "${minutes} min";
+
+  static String m17(seconds) => "${seconds} s";
+
+  static String m18(count) => "Apply (${count})";
+
+  static String m19(count) => "+${count} more — refine your search";
+
+  static String m20(name) =>
       "Error occurred during initializing configs ${name} source";
 
-  static String m15(count) => "${count} downloaded";
+  static String m21(count) => "${count} downloaded";
 
-  static String m16(current, total) => "Downloading ${current} of ${total}";
+  static String m22(current, total) => "Downloading ${current} of ${total}";
 
-  static String m17(position) => "Queued · #${position}";
+  static String m23(position) => "Queued · #${position}";
 
-  static String m18(query) => "Nothing in your library matches “${query}”";
+  static String m24(query) => "Nothing in your library matches “${query}”";
 
-  static String m19(count) => "${count} selected";
+  static String m25(count) => "${count} selected";
 
-  static String m20(progress) => "Downloading AI model ${progress}%";
+  static String m26(progress) => "Downloading AI model ${progress}%";
 
-  static String m21(current, total) =>
+  static String m27(model, size) =>
+      "${model} needs a one-time ${size} GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.";
+
+  static String m28(current, total) =>
       "Downloading language packs ${current}/${total}…";
 
-  static String m22(source, target) =>
+  static String m29(source, target) =>
       "Translating ${source} to ${target} needs on-device language packs, about 30 MB each. They are downloaded once, and pages are then translated entirely on your device.";
 
-  static String m23(count) => "${count} pages saved";
+  static String m30(count) => "${count} pages saved";
 
-  static String m24(count) => "${count} pages from an older version";
+  static String m31(count) => "${count} pages from an older version";
 
-  static String m25(done, total) => "Translating chapter ${done}/${total}";
+  static String m32(done, total) => "Translating chapter ${done}/${total}";
 
-  static String m26(query) => "We couldn\'t find anything for “${query}”";
+  static String m33(query) => "We couldn\'t find anything for “${query}”";
 
-  static String m27(query) => "Results for “${query}”";
+  static String m34(query) => "Results for “${query}”";
 
-  static String m28(version) => "New version ${version} available";
+  static String m35(version) => "New version ${version} available";
 
-  static String m29(count) => "${count} skipped";
+  static String m36(count) => "${count} skipped";
 
-  static String m30(imported, total) =>
+  static String m37(imported, total) =>
       "Imported ${imported} of ${total} items";
 
-  static String m31(url) => "Load extensions from ${url}";
+  static String m38(url) => "Load extensions from ${url}";
 
-  static String m32(hours) => "Every ${hours} hours";
+  static String m39(hours) => "Every ${hours} hours";
 
-  static String m33(count) => "${count} activities";
+  static String m40(count) => "${count} activities";
 
-  static String m34(current, longest) =>
+  static String m41(current, longest) =>
       "Current ${current} · Longest ${longest}";
 
-  static String m35(ram) => "Needs 8 GB of RAM (this phone has ${ram} GB)";
+  static String m42(size) =>
+      "This frees ${size} GB. You can download it again at any time.";
 
-  static String m36(model, ram) => "This phone: ${model} · ${ram} GB RAM";
+  static String m43(model, size) => "${model} · ${size} GB · ready";
 
-  static String m37(count) => "${count} sources could not be checked";
+  static String m44(size) => "Not downloaded · ${size} GB";
 
-  static String m38(count) => "${count} new items found";
+  static String m45(model, size) => "${model} is also downloaded · ${size} GB";
 
-  static String m39(title, count) => "${title} · ${count} new";
+  static String m46(need, ram) =>
+      "Needs ${need} GB of RAM (this phone has ${ram} GB)";
 
-  static String m40(count) => "and ${count} more titles";
+  static String m47(model, ram) => "This phone: ${model} · ${ram} GB RAM";
 
-  static String m41(count) => "Across ${count} titles";
+  static String m48(count) => "${count} sources could not be checked";
 
-  static String m42(count) => "${count} new items";
+  static String m49(count) => "${count} new items found";
 
-  static String m43(count) => "${count}d ago";
+  static String m50(title, count) => "${title} · ${count} new";
 
-  static String m44(count) => "${count}h ago";
+  static String m51(count) => "and ${count} more titles";
 
-  static String m45(count) => "${count}m ago";
+  static String m52(count) => "Across ${count} titles";
+
+  static String m53(count) => "${count} new items";
+
+  static String m54(count) => "${count}d ago";
+
+  static String m55(count) => "${count}h ago";
+
+  static String m56(count) => "${count}m ago";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -293,7 +319,33 @@ class MessageLookup extends MessageLookupByLibrary {
     "concrete_viewer_retry_button": MessageLookupByLibrary.simpleMessage(
       "Retry",
     ),
-    "downloads_chapters_summary": m9,
+    "deepl_key_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
+    "deepl_key_change": MessageLookupByLibrary.simpleMessage("Change"),
+    "deepl_key_dialog_message": MessageLookupByLibrary.simpleMessage(
+      "Create a free DeepL API account (500,000 characters a month) and paste its authentication key here. The key is stored only on this phone.",
+    ),
+    "deepl_key_get": MessageLookupByLibrary.simpleMessage("Get a free key"),
+    "deepl_key_hint": MessageLookupByLibrary.simpleMessage(
+      "Paste your API key",
+    ),
+    "deepl_key_invalid": MessageLookupByLibrary.simpleMessage(
+      "DeepL did not accept this key",
+    ),
+    "deepl_key_missing": MessageLookupByLibrary.simpleMessage("Not set"),
+    "deepl_key_needed": MessageLookupByLibrary.simpleMessage(
+      "Add a DeepL API key in Page translation settings first",
+    ),
+    "deepl_key_network": MessageLookupByLibrary.simpleMessage(
+      "Could not reach DeepL. Check your connection.",
+    ),
+    "deepl_key_remove": MessageLookupByLibrary.simpleMessage("Remove"),
+    "deepl_key_save": MessageLookupByLibrary.simpleMessage("Save"),
+    "deepl_key_saved": MessageLookupByLibrary.simpleMessage("Key saved"),
+    "deepl_key_title": MessageLookupByLibrary.simpleMessage("DeepL API key"),
+    "deepl_key_usage": m9,
+    "download_speed_megabytes": m10,
+    "download_time_left": m11,
+    "downloads_chapters_summary": m12,
     "downloads_confirm_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
     "downloads_confirm_delete": MessageLookupByLibrary.simpleMessage("Delete"),
     "downloads_delete_all": MessageLookupByLibrary.simpleMessage("Delete all"),
@@ -319,18 +371,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_notification_channel_name": MessageLookupByLibrary.simpleMessage(
       "Downloads",
     ),
-    "downloads_notification_complete_body": m10,
+    "downloads_notification_complete_body": m13,
     "downloads_notification_complete_title":
         MessageLookupByLibrary.simpleMessage("Download complete"),
     "downloads_notification_downloading_title":
         MessageLookupByLibrary.simpleMessage("Downloading"),
-    "downloads_pages_progress": m11,
+    "downloads_pages_progress": m14,
     "downloads_status_downloading": MessageLookupByLibrary.simpleMessage(
       "Downloading",
     ),
     "downloads_status_failed": MessageLookupByLibrary.simpleMessage("Failed"),
     "downloads_status_queued": MessageLookupByLibrary.simpleMessage("Queued"),
     "downloads_title": MessageLookupByLibrary.simpleMessage("Downloads"),
+    "duration_hours_minutes": m15,
+    "duration_minutes": m16,
+    "duration_seconds": m17,
     "export_section_categories": MessageLookupByLibrary.simpleMessage(
       "Categories",
     ),
@@ -400,11 +455,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "gallery_filters_apply_button": MessageLookupByLibrary.simpleMessage(
       "Apply",
     ),
-    "gallery_filters_apply_button_count": m12,
+    "gallery_filters_apply_button_count": m18,
     "gallery_filters_button_label": MessageLookupByLibrary.simpleMessage(
       "Filters",
     ),
-    "gallery_filters_more_options": m13,
+    "gallery_filters_more_options": m19,
     "gallery_filters_multiple_of_any_hint":
         MessageLookupByLibrary.simpleMessage("Type and add"),
     "gallery_filters_no_matches": MessageLookupByLibrary.simpleMessage(
@@ -427,7 +482,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Filters",
     ),
     "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Anime"),
-    "home_configs_source_initializing_error": m14,
+    "home_configs_source_initializing_error": m20,
     "home_extensions_error_title": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t load extensions",
     ),
@@ -460,7 +515,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Available",
     ),
     "language_packs_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
-    "language_packs_downloaded_count": m15,
+    "language_packs_downloaded_count": m21,
     "language_packs_downloaded_section": MessageLookupByLibrary.simpleMessage(
       "Downloaded",
     ),
@@ -473,8 +528,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "language_packs_hint_wifi": MessageLookupByLibrary.simpleMessage(
       "Each pack is about 30 MB. You only need the languages you translate from and to. Downloads wait for Wi-Fi.",
     ),
-    "language_packs_queue_progress": m16,
-    "language_packs_queued": m17,
+    "language_packs_queue_progress": m22,
+    "language_packs_queued": m23,
     "language_packs_retry": MessageLookupByLibrary.simpleMessage("Retry"),
     "language_packs_title": MessageLookupByLibrary.simpleMessage(
       "Language packs",
@@ -513,12 +568,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "library_search_hint": MessageLookupByLibrary.simpleMessage(
       "Search library",
     ),
-    "library_search_no_results_message": m18,
+    "library_search_no_results_message": m24,
     "library_search_no_results_title": MessageLookupByLibrary.simpleMessage(
       "No matches",
     ),
     "library_select_all": MessageLookupByLibrary.simpleMessage("Select all"),
-    "library_selected_count": m19,
+    "library_selected_count": m25,
     "library_sort_added_newest": MessageLookupByLibrary.simpleMessage(
       "Recently added",
     ),
@@ -544,10 +599,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "local_extension_server_source_name": MessageLookupByLibrary.simpleMessage(
       "Local server",
     ),
-    "page_translation_ai_model_downloading": m20,
-    "page_translation_ai_model_message": MessageLookupByLibrary.simpleMessage(
-      "Gemma translation needs a one-time 2.6 GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.",
-    ),
+    "page_translation_ai_model_downloading": m26,
+    "page_translation_ai_model_message": m27,
     "page_translation_ai_model_title": MessageLookupByLibrary.simpleMessage(
       "Download the AI model",
     ),
@@ -587,11 +640,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_models_downloading": MessageLookupByLibrary.simpleMessage(
       "Downloading language packs…",
     ),
-    "page_translation_models_downloading_progress": m21,
+    "page_translation_models_downloading_progress": m28,
     "page_translation_models_failed": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t download language packs",
     ),
-    "page_translation_models_message": m22,
+    "page_translation_models_message": m29,
     "page_translation_models_title": MessageLookupByLibrary.simpleMessage(
       "Download language packs",
     ),
@@ -620,7 +673,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Clear"),
     "page_translation_settings_clear_cache_confirm_title":
         MessageLookupByLibrary.simpleMessage("Clear translated pages?"),
-    "page_translation_settings_clear_cache_subtitle": m23,
+    "page_translation_settings_clear_cache_subtitle": m30,
     "page_translation_settings_delete_pack":
         MessageLookupByLibrary.simpleMessage("Delete"),
     "page_translation_settings_download_pack":
@@ -650,7 +703,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Language packs"),
     "page_translation_settings_remove_outdated":
         MessageLookupByLibrary.simpleMessage("Remove older translations"),
-    "page_translation_settings_remove_outdated_subtitle": m24,
+    "page_translation_settings_remove_outdated_subtitle": m31,
     "page_translation_settings_storage_section":
         MessageLookupByLibrary.simpleMessage("Storage"),
     "page_translation_settings_target": MessageLookupByLibrary.simpleMessage(
@@ -672,7 +725,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_show_translation": MessageLookupByLibrary.simpleMessage(
       "Show translation",
     ),
-    "page_translation_status_chapter": m25,
+    "page_translation_status_chapter": m32,
     "page_translation_status_failed": MessageLookupByLibrary.simpleMessage(
       "Translation failed · tap to retry",
     ),
@@ -714,7 +767,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_error_title": MessageLookupByLibrary.simpleMessage(
       "Something went wrong",
     ),
-    "service_view_no_results_message": m26,
+    "service_view_no_results_message": m33,
     "service_view_no_results_title": MessageLookupByLibrary.simpleMessage(
       "No results",
     ),
@@ -723,7 +776,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_retry_button_title": MessageLookupByLibrary.simpleMessage(
       "Retry",
     ),
-    "service_view_search_results_for": m27,
+    "service_view_search_results_for": m34,
     "service_viewer_search_field_hint_text":
         MessageLookupByLibrary.simpleMessage("Search"),
     "settings_about_section_title": MessageLookupByLibrary.simpleMessage(
@@ -795,7 +848,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_developer_section": MessageLookupByLibrary.simpleMessage(
       "Developer",
     ),
-    "settings_download_latest_release": m28,
+    "settings_download_latest_release": m35,
     "settings_export_data_button": MessageLookupByLibrary.simpleMessage(
       "Export data",
     ),
@@ -852,13 +905,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_import_sheet_title": MessageLookupByLibrary.simpleMessage(
       "Import data",
     ),
-    "settings_import_skipped": m29,
-    "settings_import_success": m30,
+    "settings_import_skipped": m36,
+    "settings_import_success": m37,
     "settings_local_extension_server_missing":
         MessageLookupByLibrary.simpleMessage(
           "Set LOCAL_REPOSITORY_URL in .env to enable",
         ),
-    "settings_local_extension_server_subtitle": m31,
+    "settings_local_extension_server_subtitle": m38,
     "settings_local_extension_server_title":
         MessageLookupByLibrary.simpleMessage("Local extension server"),
     "settings_page_translation_subtitle": MessageLookupByLibrary.simpleMessage(
@@ -909,7 +962,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_update_frequency": MessageLookupByLibrary.simpleMessage(
       "Check frequency",
     ),
-    "settings_update_frequency_value": m32,
+    "settings_update_frequency_value": m39,
     "settings_update_notifications": MessageLookupByLibrary.simpleMessage(
       "Update notifications",
     ),
@@ -942,7 +995,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "stats_heatmap_less": MessageLookupByLibrary.simpleMessage("Less"),
     "stats_heatmap_more": MessageLookupByLibrary.simpleMessage("More"),
-    "stats_heatmap_week_count": m33,
+    "stats_heatmap_week_count": m40,
     "stats_kpi_active_days": MessageLookupByLibrary.simpleMessage(
       "Active days",
     ),
@@ -963,31 +1016,39 @@ class MessageLookup extends MessageLookupByLibrary {
     "stats_sources_section_title": MessageLookupByLibrary.simpleMessage(
       "Top sources",
     ),
-    "stats_streak_summary": m34,
+    "stats_streak_summary": m41,
     "stats_title": MessageLookupByLibrary.simpleMessage("Statistics"),
-    "translation_ai_model_delete_message": MessageLookupByLibrary.simpleMessage(
-      "This frees 2.6 GB. You can download it again at any time.",
-    ),
+    "translation_ai_model_delete_message": m42,
     "translation_ai_model_delete_title": MessageLookupByLibrary.simpleMessage(
       "Delete the AI model?",
     ),
     "translation_ai_model_failed": MessageLookupByLibrary.simpleMessage(
       "Download failed · try again on Wi-Fi",
     ),
-    "translation_ai_model_installed": MessageLookupByLibrary.simpleMessage(
-      "Gemma 4 E2B · 2.6 GB · ready",
-    ),
-    "translation_ai_model_missing": MessageLookupByLibrary.simpleMessage(
-      "Not downloaded · 2.6 GB",
-    ),
+    "translation_ai_model_installed": m43,
+    "translation_ai_model_missing": m44,
+    "translation_ai_model_other_installed": m45,
     "translation_ai_model_title": MessageLookupByLibrary.simpleMessage(
       "AI model",
     ),
-    "translation_engine_gemma": MessageLookupByLibrary.simpleMessage(
-      "Gemma 4 · on-device AI",
+    "translation_engine_deepl": MessageLookupByLibrary.simpleMessage(
+      "DeepL · online",
     ),
+    "translation_engine_deepl_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Best quality · sends the recognised text to DeepL · needs a free API key",
+    ),
+    "translation_engine_gemma": MessageLookupByLibrary.simpleMessage(
+      "Gemma 4 E2B · on-device AI",
+    ),
+    "translation_engine_gemma_e4b": MessageLookupByLibrary.simpleMessage(
+      "Gemma 4 E4B · on-device AI",
+    ),
+    "translation_engine_gemma_e4b_subtitle":
+        MessageLookupByLibrary.simpleMessage(
+          "Better translations, about twice as slow · 3.7 GB · 12 GB RAM",
+        ),
     "translation_engine_gemma_subtitle": MessageLookupByLibrary.simpleMessage(
-      "Natural translations that fix text-recognition mistakes · 2.6 GB · recent phones",
+      "Natural translations that fix text-recognition mistakes · 2.6 GB · 8 GB RAM",
     ),
     "translation_engine_gemma_unavailable_64bit":
         MessageLookupByLibrary.simpleMessage("Needs a 64-bit phone"),
@@ -995,7 +1056,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Needs Android 11 or newer"),
     "translation_engine_gemma_unavailable_platform":
         MessageLookupByLibrary.simpleMessage("Not available on this device"),
-    "translation_engine_gemma_unavailable_ram": m35,
+    "translation_engine_gemma_unavailable_ram": m46,
     "translation_engine_info_examples": MessageLookupByLibrary.simpleMessage(
       "Speed by phone (estimated)",
     ),
@@ -1003,11 +1064,11 @@ class MessageLookup extends MessageLookupByLibrary {
       "Speeds are estimates; the fast tier was measured on a Galaxy S24 Ultra. Translating ahead while you read, and translating downloaded chapters in advance, hides most of the wait.",
     ),
     "translation_engine_info_intro": MessageLookupByLibrary.simpleMessage(
-      "Gemma 4 E2B is a small language model that runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. Nothing leaves your device.",
+      "Gemma 4 runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. E4B translates noticeably better than E2B but is about twice as slow. Nothing leaves your device.",
     ),
     "translation_engine_info_requirements":
         MessageLookupByLibrary.simpleMessage("Requirements"),
-    "translation_engine_info_this_phone": m36,
+    "translation_engine_info_this_phone": m47,
     "translation_engine_info_title": MessageLookupByLibrary.simpleMessage(
       "On-device AI translation",
     ),
@@ -1022,10 +1083,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "Android 11 or newer",
     ),
     "translation_engine_req_ram": MessageLookupByLibrary.simpleMessage(
-      "8 GB of RAM or more (12 GB recommended)",
+      "8 GB of RAM for E2B, 12 GB for E4B",
     ),
     "translation_engine_req_storage": MessageLookupByLibrary.simpleMessage(
-      "About 3 GB of free storage",
+      "About 3 GB (E2B) or 4 GB (E4B) of free storage",
     ),
     "translation_engine_section": MessageLookupByLibrary.simpleMessage(
       "Translation engine",
@@ -1048,8 +1109,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "translation_engine_tier_ok_phones": MessageLookupByLibrary.simpleMessage(
       "Galaxy S22 / S23, Pixel 8, Galaxy A55 and other phones with 8 GB RAM",
     ),
-    "updates_check_failed": m37,
-    "updates_check_found": m38,
+    "updates_check_failed": m48,
+    "updates_check_found": m49,
     "updates_check_none": MessageLookupByLibrary.simpleMessage(
       "No new updates found",
     ),
@@ -1069,13 +1130,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "updates_notification_channel_name": MessageLookupByLibrary.simpleMessage(
       "Library updates",
     ),
-    "updates_notification_line": m39,
-    "updates_notification_more": m40,
-    "updates_notification_summary": m41,
-    "updates_notification_title": m42,
-    "updates_time_days": m43,
-    "updates_time_hours": m44,
-    "updates_time_minutes": m45,
+    "updates_notification_line": m50,
+    "updates_notification_more": m51,
+    "updates_notification_summary": m52,
+    "updates_notification_title": m53,
+    "updates_time_days": m54,
+    "updates_time_hours": m55,
+    "updates_time_minutes": m56,
     "updates_time_now": MessageLookupByLibrary.simpleMessage("Just now"),
     "updates_title": MessageLookupByLibrary.simpleMessage("Updates"),
     "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage("Done"),

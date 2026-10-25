@@ -50,7 +50,7 @@ packages:
     source: hosted
     version: "2.11.0"
   background_downloader:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: background_downloader
       sha256: ae55e127f87397b372578fc9474568b879fa78326103c342e00160558d08e527

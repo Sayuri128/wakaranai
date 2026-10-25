@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
+import 'package:wakaranai/services/page_translation/engines/deepl_translator.dart';
 import 'package:wakaranai/services/page_translation/engines/gemma_translator.dart';
+import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
 import 'package:wakaranai/services/page_translation/engines/mlkit_ocr_engine.dart';
 import 'package:wakaranai/services/page_translation/engines/mlkit_translator.dart';
 import 'package:wakaranai/services/page_translation/engines/page_ocr_engine.dart';
@@ -43,11 +45,19 @@ class PageTranslationEngines {
           create: MlKitTranslator.new,
           models: MlKitModelStore.new,
         ),
+        for (final GemmaVariant variant in GemmaVariant.values)
+          EngineDescriptor<PageTranslator>(
+            id: variant.engineId,
+            name: variant.displayName,
+            isLocal: true,
+            create: () => GemmaTranslator(variant),
+          ),
         EngineDescriptor<PageTranslator>(
-          id: GemmaTranslator.engineId,
-          name: 'Gemma 4 E2B',
-          isLocal: true,
-          create: GemmaTranslator.new,
+          id: DeepLTranslator.engineId,
+          name: 'DeepL',
+          isLocal: false,
+          requiresApiKey: true,
+          create: DeepLTranslator.new,
         ),
       ];
 

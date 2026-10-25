@@ -3527,13 +3527,13 @@ class S {
     );
   }
 
-  /// `Gemma translation needs a one-time 2.6 GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.`
-  String get page_translation_ai_model_message {
+  /// `{model} needs a one-time {size} GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.`
+  String page_translation_ai_model_message(String model, String size) {
     return Intl.message(
-      'Gemma translation needs a one-time 2.6 GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.',
+      '$model needs a one-time $size GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.',
       name: 'page_translation_ai_model_message',
       desc: '',
-      args: [],
+      args: [model, size],
     );
   }
 
@@ -3567,21 +3567,61 @@ class S {
     );
   }
 
-  /// `Gemma 4 · on-device AI`
+  /// `Gemma 4 E2B · on-device AI`
   String get translation_engine_gemma {
     return Intl.message(
-      'Gemma 4 · on-device AI',
+      'Gemma 4 E2B · on-device AI',
       name: 'translation_engine_gemma',
       desc: '',
       args: [],
     );
   }
 
-  /// `Natural translations that fix text-recognition mistakes · 2.6 GB · recent phones`
+  /// `Natural translations that fix text-recognition mistakes · 2.6 GB · 8 GB RAM`
   String get translation_engine_gemma_subtitle {
     return Intl.message(
-      'Natural translations that fix text-recognition mistakes · 2.6 GB · recent phones',
+      'Natural translations that fix text-recognition mistakes · 2.6 GB · 8 GB RAM',
       name: 'translation_engine_gemma_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gemma 4 E4B · on-device AI`
+  String get translation_engine_gemma_e4b {
+    return Intl.message(
+      'Gemma 4 E4B · on-device AI',
+      name: 'translation_engine_gemma_e4b',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Better translations, about twice as slow · 3.7 GB · 12 GB RAM`
+  String get translation_engine_gemma_e4b_subtitle {
+    return Intl.message(
+      'Better translations, about twice as slow · 3.7 GB · 12 GB RAM',
+      name: 'translation_engine_gemma_e4b_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DeepL · online`
+  String get translation_engine_deepl {
+    return Intl.message(
+      'DeepL · online',
+      name: 'translation_engine_deepl',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Best quality · sends the recognised text to DeepL · needs a free API key`
+  String get translation_engine_deepl_subtitle {
+    return Intl.message(
+      'Best quality · sends the recognised text to DeepL · needs a free API key',
+      name: 'translation_engine_deepl_subtitle',
       desc: '',
       args: [],
     );
@@ -3617,13 +3657,13 @@ class S {
     );
   }
 
-  /// `Needs 8 GB of RAM (this phone has {ram} GB)`
-  String translation_engine_gemma_unavailable_ram(Object ram) {
+  /// `Needs {need} GB of RAM (this phone has {ram} GB)`
+  String translation_engine_gemma_unavailable_ram(int need, int ram) {
     return Intl.message(
-      'Needs 8 GB of RAM (this phone has $ram GB)',
+      'Needs $need GB of RAM (this phone has $ram GB)',
       name: 'translation_engine_gemma_unavailable_ram',
       desc: '',
-      args: [ram],
+      args: [need, ram],
     );
   }
 
@@ -3637,13 +3677,13 @@ class S {
     );
   }
 
-  /// `Gemma 4 E2B · 2.6 GB · ready`
-  String get translation_ai_model_installed {
+  /// `{model} · {size} GB · ready`
+  String translation_ai_model_installed(String model, String size) {
     return Intl.message(
-      'Gemma 4 E2B · 2.6 GB · ready',
+      '$model · $size GB · ready',
       name: 'translation_ai_model_installed',
       desc: '',
-      args: [],
+      args: [model, size],
     );
   }
 
@@ -3657,13 +3697,13 @@ class S {
     );
   }
 
-  /// `Not downloaded · 2.6 GB`
-  String get translation_ai_model_missing {
+  /// `Not downloaded · {size} GB`
+  String translation_ai_model_missing(String size) {
     return Intl.message(
-      'Not downloaded · 2.6 GB',
+      'Not downloaded · $size GB',
       name: 'translation_ai_model_missing',
       desc: '',
-      args: [],
+      args: [size],
     );
   }
 
@@ -3677,11 +3717,191 @@ class S {
     );
   }
 
-  /// `This frees 2.6 GB. You can download it again at any time.`
-  String get translation_ai_model_delete_message {
+  /// `This frees {size} GB. You can download it again at any time.`
+  String translation_ai_model_delete_message(String size) {
     return Intl.message(
-      'This frees 2.6 GB. You can download it again at any time.',
+      'This frees $size GB. You can download it again at any time.',
       name: 'translation_ai_model_delete_message',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `{model} is also downloaded · {size} GB`
+  String translation_ai_model_other_installed(String model, String size) {
+    return Intl.message(
+      '$model is also downloaded · $size GB',
+      name: 'translation_ai_model_other_installed',
+      desc: '',
+      args: [model, size],
+    );
+  }
+
+  /// `DeepL API key`
+  String get deepl_key_title {
+    return Intl.message(
+      'DeepL API key',
+      name: 'deepl_key_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not set`
+  String get deepl_key_missing {
+    return Intl.message(
+      'Not set',
+      name: 'deepl_key_missing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{speed} MB/s`
+  String download_speed_megabytes(String speed) {
+    return Intl.message(
+      '$speed MB/s',
+      name: 'download_speed_megabytes',
+      desc: '',
+      args: [speed],
+    );
+  }
+
+  /// `{time} left`
+  String download_time_left(String time) {
+    return Intl.message(
+      '$time left',
+      name: 'download_time_left',
+      desc: '',
+      args: [time],
+    );
+  }
+
+  /// `{hours} h {minutes} min`
+  String duration_hours_minutes(int hours, int minutes) {
+    return Intl.message(
+      '$hours h $minutes min',
+      name: 'duration_hours_minutes',
+      desc: '',
+      args: [hours, minutes],
+    );
+  }
+
+  /// `{minutes} min`
+  String duration_minutes(int minutes) {
+    return Intl.message(
+      '$minutes min',
+      name: 'duration_minutes',
+      desc: '',
+      args: [minutes],
+    );
+  }
+
+  /// `{seconds} s`
+  String duration_seconds(int seconds) {
+    return Intl.message(
+      '$seconds s',
+      name: 'duration_seconds',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `Add a DeepL API key in Page translation settings first`
+  String get deepl_key_needed {
+    return Intl.message(
+      'Add a DeepL API key in Page translation settings first',
+      name: 'deepl_key_needed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{used} of {limit} characters used this month`
+  String deepl_key_usage(String used, String limit) {
+    return Intl.message(
+      '$used of $limit characters used this month',
+      name: 'deepl_key_usage',
+      desc: '',
+      args: [used, limit],
+    );
+  }
+
+  /// `Key saved`
+  String get deepl_key_saved {
+    return Intl.message(
+      'Key saved',
+      name: 'deepl_key_saved',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change`
+  String get deepl_key_change {
+    return Intl.message('Change', name: 'deepl_key_change', desc: '', args: []);
+  }
+
+  /// `Remove`
+  String get deepl_key_remove {
+    return Intl.message('Remove', name: 'deepl_key_remove', desc: '', args: []);
+  }
+
+  /// `Create a free DeepL API account (500,000 characters a month) and paste its authentication key here. The key is stored only on this phone.`
+  String get deepl_key_dialog_message {
+    return Intl.message(
+      'Create a free DeepL API account (500,000 characters a month) and paste its authentication key here. The key is stored only on this phone.',
+      name: 'deepl_key_dialog_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paste your API key`
+  String get deepl_key_hint {
+    return Intl.message(
+      'Paste your API key',
+      name: 'deepl_key_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Get a free key`
+  String get deepl_key_get {
+    return Intl.message(
+      'Get a free key',
+      name: 'deepl_key_get',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save`
+  String get deepl_key_save {
+    return Intl.message('Save', name: 'deepl_key_save', desc: '', args: []);
+  }
+
+  /// `Cancel`
+  String get deepl_key_cancel {
+    return Intl.message('Cancel', name: 'deepl_key_cancel', desc: '', args: []);
+  }
+
+  /// `DeepL did not accept this key`
+  String get deepl_key_invalid {
+    return Intl.message(
+      'DeepL did not accept this key',
+      name: 'deepl_key_invalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not reach DeepL. Check your connection.`
+  String get deepl_key_network {
+    return Intl.message(
+      'Could not reach DeepL. Check your connection.',
+      name: 'deepl_key_network',
       desc: '',
       args: [],
     );
@@ -3697,10 +3917,10 @@ class S {
     );
   }
 
-  /// `Gemma 4 E2B is a small language model that runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. Nothing leaves your device.`
+  /// `Gemma 4 runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. E4B translates noticeably better than E2B but is about twice as slow. Nothing leaves your device.`
   String get translation_engine_info_intro {
     return Intl.message(
-      'Gemma 4 E2B is a small language model that runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. Nothing leaves your device.',
+      'Gemma 4 runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. E4B translates noticeably better than E2B but is about twice as slow. Nothing leaves your device.',
       name: 'translation_engine_info_intro',
       desc: '',
       args: [],
@@ -3737,20 +3957,20 @@ class S {
     );
   }
 
-  /// `8 GB of RAM or more (12 GB recommended)`
+  /// `8 GB of RAM for E2B, 12 GB for E4B`
   String get translation_engine_req_ram {
     return Intl.message(
-      '8 GB of RAM or more (12 GB recommended)',
+      '8 GB of RAM for E2B, 12 GB for E4B',
       name: 'translation_engine_req_ram',
       desc: '',
       args: [],
     );
   }
 
-  /// `About 3 GB of free storage`
+  /// `About 3 GB (E2B) or 4 GB (E4B) of free storage`
   String get translation_engine_req_storage {
     return Intl.message(
-      'About 3 GB of free storage',
+      'About 3 GB (E2B) or 4 GB (E4B) of free storage',
       name: 'translation_engine_req_storage',
       desc: '',
       args: [],

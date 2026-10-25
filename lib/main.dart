@@ -34,6 +34,7 @@ import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
 import 'package:wakaranai/repositories/database/page_translation_repository.dart';
 import 'package:wakaranai/services/device/device_capabilities.dart';
 import 'package:wakaranai/services/page_translation/engines/gemma_translator.dart';
+import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
 import 'package:wakaranai/services/page_translation/engines/page_translation_engines.dart';
 import 'package:wakaranai/services/page_translation/page_translation_service.dart';
 import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
@@ -165,8 +166,19 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
           BlocProvider<GemmaModelCubit>(
             create: (BuildContext context) => GemmaModelCubit(
               store: GemmaModelFiles(),
-              support: DeviceCapabilities.onDeviceAi,
-            )..init(),
+              support: (GemmaVariant variant) =>
+                  DeviceCapabilities.onDeviceAi(minRamGb: variant.minRamGb),
+            )
+              ..init()
+              ..followSelection(
+                context
+                    .read<PageTranslationSettingsCubit>()
+                    .stream
+                    .map(gemmaVariantOf),
+                current: gemmaVariantOf(
+                  context.read<PageTranslationSettingsCubit>().state,
+                ),
+              ),
             lazy: false,
           ),
           BlocProvider<ChapterTranslationCubit>(

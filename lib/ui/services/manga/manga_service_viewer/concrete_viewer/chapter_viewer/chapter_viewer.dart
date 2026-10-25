@@ -21,6 +21,7 @@ import 'package:transparent_pointer/transparent_pointer.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:wakaranai/blocs/gemma_model/gemma_model_cubit.dart';
+import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
 import 'package:wakaranai/blocs/language_packs/language_packs_cubit.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
@@ -46,6 +47,7 @@ import 'package:wakaranai/ui/services/widgets/page_translation/translation_model
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/bottom_modal_settings.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
+import 'package:wakaranai/ui/widgets/download_estimate_text.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -85,7 +87,10 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   late final ChapterViewCubit _chapterViewCubit;
   PageTranslationCubit? _translationCubit;
-  bool _usesGemma = false;
+  GemmaVariant? _gemmaVariant;
+  bool _usesDeepL = false;
+
+  bool get _usesGemma => _gemmaVariant != null;
   bool _pendingWholeChapter = false;
 
   late final PageController _pageController;
@@ -153,7 +158,8 @@ class _ChapterViewerState extends State<ChapterViewer>
       context.read<PageTranslationSettingsCubit>().state,
       gemma.state,
     );
-    _usesGemma = usesGemma(settings);
+    _gemmaVariant = gemmaVariantOf(settings);
+    _usesDeepL = usesDeepL(settings);
     if (!settings.enabled) {
       return;
     }
@@ -301,11 +307,19 @@ class _ChapterViewerState extends State<ChapterViewer>
     PageTranslationCubit cubit,
     TitleLanguages languages,
   ) async {
+    if (_usesDeepL) {
+      SnackBars.showSnackBar(
+        context: context,
+        message: S.current.deepl_key_needed,
+      );
+      cubit.dismissPrompt();
+      return;
+    }
     final bool confirmed = await showTranslationModelsSheet(
       context,
       languages: languages,
       wifiOnly: context.read<PageTranslationSettingsCubit>().state.wifiOnly,
-      gemma: _usesGemma,
+      gemma: _gemmaVariant,
     );
     if (confirmed) {
       await cubit.downloadModels();
@@ -516,7 +530,10 @@ class _ChapterViewerState extends State<ChapterViewer>
   String _modelDownloadLabel(BuildContext context) {
     if (_usesGemma) {
       final GemmaModelState gemma = context.watch<GemmaModelCubit>().state;
-      return S.current.page_translation_ai_model_downloading(gemma.progress);
+      return withDownloadEstimate(
+        S.current.page_translation_ai_model_downloading(gemma.progress),
+        gemma.estimate,
+      );
     }
     final LanguagePacksState packs = context.watch<LanguagePacksCubit>().state;
     if (packs.batchTotal <= 0) {

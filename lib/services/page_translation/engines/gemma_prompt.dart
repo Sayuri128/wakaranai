@@ -2,8 +2,6 @@ import 'dart:convert';
 
 import 'package:wakaranai/services/page_translation/page_language.dart';
 
-const String gemmaEngineId = 'gemma';
-
 String buildGemmaPrompt(
   List<String> texts, {
   required PageLanguage from,
