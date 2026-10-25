@@ -3637,6 +3637,88 @@ class S {
     );
   }
 
+  /// `Names & terms`
+  String get page_translation_glossary_title {
+    return Intl.message(
+      'Names & terms',
+      name: 'page_translation_glossary_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep character names and terms consistent in this title. Used by DeepL and Gemma.`
+  String get page_translation_glossary_subtitle {
+    return Intl.message(
+      'Keep character names and terms consistent in this title. Used by DeepL and Gemma.',
+      name: 'page_translation_glossary_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ML Kit can't use names & terms. Switch to DeepL or Gemma in Page translation settings.`
+  String get page_translation_glossary_unsupported {
+    return Intl.message(
+      'ML Kit can\'t use names & terms. Switch to DeepL or Gemma in Page translation settings.',
+      name: 'page_translation_glossary_unsupported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add name`
+  String get page_translation_glossary_add {
+    return Intl.message(
+      'Add name',
+      name: 'page_translation_glossary_add',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save`
+  String get page_translation_glossary_save {
+    return Intl.message(
+      'Save',
+      name: 'page_translation_glossary_save',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save & retranslate chapter`
+  String get page_translation_glossary_save_retranslate {
+    return Intl.message(
+      'Save & retranslate chapter',
+      name: 'page_translation_glossary_save_retranslate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `None yet`
+  String get page_translation_glossary_empty {
+    return Intl.message(
+      'None yet',
+      name: 'page_translation_glossary_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 name} other{{count} names}}`
+  String page_translation_glossary_count(int count) {
+    return Intl.plural(
+      count,
+      one: '1 name',
+      other: '$count names',
+      name: 'page_translation_glossary_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
   /// `Text size`
   String get page_translation_text_size {
     return Intl.message(

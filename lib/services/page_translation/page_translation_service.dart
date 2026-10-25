@@ -232,6 +232,7 @@ class PageTranslationService implements PageTranslationBackend {
       sources,
       from: languages.source,
       to: languages.target,
+      glossary: languages.glossary,
     );
   }
 

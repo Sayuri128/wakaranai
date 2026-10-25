@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:google_mlkit_translation/google_mlkit_translation.dart';
 import 'package:wakaranai/services/page_translation/engines/page_translator.dart';
+import 'package:wakaranai/services/page_translation/glossary.dart';
 import 'package:wakaranai/services/page_translation/page_language.dart';
 
 class MlKitTranslator implements PageTranslator {
@@ -29,6 +30,7 @@ class MlKitTranslator implements PageTranslator {
     List<String> texts, {
     required PageLanguage from,
     required PageLanguage to,
+    List<GlossaryEntry> glossary = const <GlossaryEntry>[],
   }) async {
     if (from == to) {
       return texts;

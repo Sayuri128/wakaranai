@@ -1,3 +1,4 @@
+import 'package:wakaranai/services/page_translation/glossary.dart';
 import 'package:wakaranai/services/page_translation/page_language.dart';
 
 abstract class PageTranslator {
@@ -11,6 +12,7 @@ abstract class PageTranslator {
     List<String> texts, {
     required PageLanguage from,
     required PageLanguage to,
+    List<GlossaryEntry> glossary,
   });
 
   Future<void> close();

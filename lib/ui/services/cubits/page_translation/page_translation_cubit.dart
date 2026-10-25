@@ -36,6 +36,7 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
   bool _processing = false;
   Timer? _retryTimer;
   final Set<String> _refreshPaths = <String>{};
+  final Set<String> _forcedPaths = <String>{};
 
   PageTranslationBackend get _activeBackend =>
       _backend ??= _backendFactory(state.languages!);
@@ -62,6 +63,7 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
       final PageTranslationBackend? previous = _backend;
       _backend = null;
       _refreshPaths.clear();
+      _forcedPaths.clear();
       await previous?.dispose();
       _emit(
         state.copyWith(
@@ -193,6 +195,26 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
     unawaited(_processQueue());
   }
 
+  void retranslatePages(List<String> paths, Map<String, String> headers) {
+    _headers = headers;
+    final Map<String, PageTranslationEntry> pages =
+        Map<String, PageTranslationEntry>.of(state.pages);
+    for (final String path in paths) {
+      final PageTranslationEntry? entry = pages[path];
+      if (entry != null && entry.busy) {
+        continue;
+      }
+      _forcedPaths.add(path);
+      pages[path] =
+          entry?.withStatus(PageTranslationStatus.queued) ??
+          const PageTranslationEntry(PageTranslationStatus.queued);
+    }
+    _emit(
+      state.copyWith(pages: pages, pinned: <String>{...state.pinned, ...paths}),
+    );
+    unawaited(_processQueue());
+  }
+
   Future<String?> retranslateBubble(
     String path,
     int index,
@@ -305,9 +327,12 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
   }
 
   Future<PageTranslationEntry> _translate(String path) async {
-    final bool refresh = _refreshPaths.remove(path);
+    final bool forced = _forcedPaths.remove(path);
+    final bool refresh = _refreshPaths.remove(path) || forced;
     try {
-      final PageTranslationResult? cached = await _activeBackend.cached(path);
+      final PageTranslationResult? cached = forced
+          ? null
+          : await _activeBackend.cached(path);
       if (cached != null) {
         return PageTranslationEntry(PageTranslationStatus.done, result: cached);
       }

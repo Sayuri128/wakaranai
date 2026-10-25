@@ -383,4 +383,21 @@ void main() {
       'translated HELLO',
     );
   });
+
+  test('retranslating pages skips the saved translations', () async {
+    final _Harness harness = _Harness();
+    addTearDown(harness.cubit.close);
+
+    await harness.cubit.toggle();
+    harness.cubit.request(<String>['p1'], const <String, String>{});
+    await _settle();
+    expect(harness.backend.translated, <String>['p1']);
+
+    harness.backend.saved['p1'] = _oneBubble;
+    harness.cubit.retranslatePages(<String>['p1'], const <String, String>{});
+    await _settle();
+
+    expect(harness.backend.translated, <String>['p1', 'p1']);
+    expect(harness.cubit.state.entry('p1')?.status, PageTranslationStatus.done);
+  });
 }

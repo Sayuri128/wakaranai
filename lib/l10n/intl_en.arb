@@ -537,6 +537,21 @@
   "translation_engine_deepl": "DeepL · online",
   "translation_engine_change": "Change",
   "page_translation_appearance_section": "Appearance",
+  "page_translation_glossary_title": "Names & terms",
+  "page_translation_glossary_subtitle": "Keep character names and terms consistent in this title. Used by DeepL and Gemma.",
+  "page_translation_glossary_unsupported": "ML Kit can't use names & terms. Switch to DeepL or Gemma in Page translation settings.",
+  "page_translation_glossary_add": "Add name",
+  "page_translation_glossary_save": "Save",
+  "page_translation_glossary_save_retranslate": "Save & retranslate chapter",
+  "page_translation_glossary_empty": "None yet",
+  "page_translation_glossary_count": "{count, plural, =1{1 name} other{{count} names}}",
+  "@page_translation_glossary_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "page_translation_text_size": "Text size",
   "page_translation_text_size_small": "Smaller",
   "page_translation_text_size_normal": "Default",

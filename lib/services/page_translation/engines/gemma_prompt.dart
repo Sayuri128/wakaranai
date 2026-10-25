@@ -1,11 +1,13 @@
 import 'dart:convert';
 
+import 'package:wakaranai/services/page_translation/glossary.dart';
 import 'package:wakaranai/services/page_translation/page_language.dart';
 
 String buildGemmaPrompt(
   List<String> texts, {
   required PageLanguage from,
   required PageLanguage to,
+  List<GlossaryEntry> glossary = const <GlossaryEntry>[],
 }) {
   final StringBuffer buffer = StringBuffer()
     ..writeln(
@@ -27,8 +29,15 @@ String buildGemmaPrompt(
       'Answer with ONLY a JSON array of ${texts.length} strings: one '
       'translation per bubble, in the same order.',
     )
-    ..writeln()
-    ..writeln('Bubbles:');
+    ..writeln();
+  if (glossary.isNotEmpty) {
+    buffer.writeln('Always translate these names and terms exactly as given:');
+    for (final GlossaryEntry entry in glossary) {
+      buffer.writeln('- ${entry.source.trim()} → ${entry.target.trim()}');
+    }
+    buffer.writeln();
+  }
+  buffer.writeln('Bubbles:');
   for (int i = 0; i < texts.length; i++) {
     buffer.writeln('${i + 1}. ${texts[i]}');
   }

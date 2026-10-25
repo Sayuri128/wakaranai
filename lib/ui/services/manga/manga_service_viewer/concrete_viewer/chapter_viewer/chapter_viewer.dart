@@ -47,6 +47,7 @@ import 'package:wakaranai/ui/services/widgets/page_translation/translation_model
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/bottom_modal_settings.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
+import 'package:wakaranai/ui/services/widgets/page_translation/translation_glossary_sheet.dart';
 import 'package:wakaranai/ui/widgets/download_estimate_text.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -350,6 +351,32 @@ class _ChapterViewerState extends State<ChapterViewer>
     if (chosen != null) {
       await cubit.setLanguages(chosen);
     }
+  }
+
+  Future<void> _editGlossary() async {
+    final PageTranslationCubit? cubit = _translationCubit;
+    if (cubit == null) {
+      return;
+    }
+    final TitleLanguages languages =
+        cubit.state.languages ?? _defaultTranslationLanguages();
+    final GlossaryEdit? edit = await showTranslationGlossarySheet(
+      context,
+      languages: languages,
+      engineSupportsGlossary: _usesGemma || _usesDeepL,
+    );
+    if (edit == null) {
+      return;
+    }
+    await cubit.setLanguages(languages.copyWith(glossary: edit.glossary));
+    final ChapterViewState state = _chapterViewCubit.state;
+    if (!edit.retranslate || state is! ChapterViewInitialized) {
+      return;
+    }
+    if (!cubit.state.active) {
+      await cubit.toggle();
+    }
+    cubit.retranslatePages(state.currentPages.value, state.headers);
   }
 
   void _translateWholeChapter() {
@@ -1106,6 +1133,7 @@ class _ChapterViewerState extends State<ChapterViewer>
         onTranslateWholeChapter: translation == null
             ? null
             : _translateWholeChapter,
+        onEditGlossary: translation == null ? null : _editGlossary,
       ),
     );
   }

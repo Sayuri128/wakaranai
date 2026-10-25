@@ -8,6 +8,7 @@ import 'package:wakaranai/main.dart';
 import 'package:wakaranai/services/page_translation/engines/gemma_prompt.dart';
 import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
 import 'package:wakaranai/services/page_translation/engines/page_translator.dart';
+import 'package:wakaranai/services/page_translation/glossary.dart';
 import 'package:wakaranai/services/page_translation/page_language.dart';
 
 class GemmaModel {
@@ -162,6 +163,7 @@ class GemmaTranslator implements PageTranslator {
     List<String> texts, {
     required PageLanguage from,
     required PageLanguage to,
+    List<GlossaryEntry> glossary = const <GlossaryEntry>[],
   }) async {
     if (texts.isEmpty) {
       return texts;
@@ -170,7 +172,7 @@ class GemmaTranslator implements PageTranslator {
       _retained = true;
       GemmaModel.retain();
     }
-    final List<String?> translations = await _ask(texts, from, to);
+    final List<String?> translations = await _ask(texts, from, to, glossary);
 
     final List<int> retry = <int>[
       for (int i = 0; i < texts.length; i++)
@@ -181,6 +183,7 @@ class GemmaTranslator implements PageTranslator {
         <String>[for (final int i in retry) texts[i]],
         from,
         to,
+        glossary,
       );
       for (int k = 0; k < retry.length; k++) {
         final String? answer = retried[k];
@@ -211,8 +214,14 @@ class GemmaTranslator implements PageTranslator {
     List<String> texts,
     PageLanguage from,
     PageLanguage to,
+    List<GlossaryEntry> glossary,
   ) async {
-    final String prompt = buildGemmaPrompt(texts, from: from, to: to);
+    final String prompt = buildGemmaPrompt(
+      texts,
+      from: from,
+      to: to,
+      glossary: glossaryUsedIn(glossary, texts),
+    );
     final Stopwatch watch = Stopwatch()..start();
     final String output = await GemmaModel.generate(variant, prompt);
     logger.i(

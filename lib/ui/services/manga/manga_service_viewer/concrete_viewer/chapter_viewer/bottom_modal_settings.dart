@@ -15,6 +15,7 @@ class BottomModalSettings extends StatefulWidget {
     this.translationLanguages,
     this.onEditTranslationLanguages,
     this.onTranslateWholeChapter,
+    this.onEditGlossary,
   });
 
   final ChapterViewCubit chapterViewCubit;
@@ -22,6 +23,7 @@ class BottomModalSettings extends StatefulWidget {
   final TitleLanguages? translationLanguages;
   final VoidCallback? onEditTranslationLanguages;
   final VoidCallback? onTranslateWholeChapter;
+  final VoidCallback? onEditGlossary;
 
   @override
   State<BottomModalSettings> createState() => _BottomModalSettingsState();
@@ -109,6 +111,7 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
     }
 
     final VoidCallback? translateWholeChapter = widget.onTranslateWholeChapter;
+    final VoidCallback? editGlossary = widget.onEditGlossary;
     return <Widget>[
       const SizedBox(height: 10),
       _ValueRow(
@@ -116,6 +119,15 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
         value: '${languages.source.name} → ${languages.target.name}',
         onTap: () => closeThen(editLanguages),
       ),
+      if (editGlossary != null) ...<Widget>[
+        const SizedBox(height: 10),
+        _ValueRow(
+          icon: Icons.badge_outlined,
+          label: S.current.page_translation_glossary_title,
+          value: _glossarySummary(languages),
+          onTap: () => closeThen(editGlossary),
+        ),
+      ],
       if (translateWholeChapter != null) ...<Widget>[
         const SizedBox(height: 10),
         _ValueRow(
@@ -127,6 +139,14 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
       ],
     ];
   }
+}
+
+String _glossarySummary(TitleLanguages languages) {
+  final int count = languages.glossary.length;
+  if (count == 0) {
+    return S.current.page_translation_glossary_empty;
+  }
+  return S.current.page_translation_glossary_count(count);
 }
 
 class _ModeChip extends StatelessWidget {

@@ -131,7 +131,9 @@ class _TranslationLanguagesSheetState
   }
 
   void _confirm() {
-    Navigator.of(context).pop(TitleLanguages(source: _source, target: _target));
+    Navigator.of(
+      context,
+    ).pop(widget.initial.copyWith(source: _source, target: _target));
   }
 
   @override
