@@ -126,34 +126,43 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m48(size) => "Not downloaded · ${size} GB";
 
-  static String m49(model, size) => "${model} is also downloaded · ${size} GB";
-
-  static String m50(need, ram) =>
+  static String m49(need, ram) =>
       "Needs ${need} GB of RAM (this phone has ${ram} GB)";
 
-  static String m51(model, ram) => "This phone: ${model} · ${ram} GB RAM";
+  static String m50(model, ram) => "This phone: ${model} · ${ram} GB RAM";
 
-  static String m52(ram) => "${ram} GB of RAM or more";
+  static String m51(ram) => "${ram} GB of RAM or more";
 
-  static String m53(size) => "About ${size} GB of free storage";
+  static String m52(size) => "About ${size} GB of free storage";
 
-  static String m54(count) => "${count} sources could not be checked";
+  static String m53(size) => "Downloaded · ${size} GB";
 
-  static String m55(count) => "${count} new items found";
+  static String m54(count) =>
+      "${Intl.plural(count, zero: 'No language packs yet', one: '1 language pack downloaded', other: '${count} language packs downloaded')}";
 
-  static String m56(title, count) => "${title} · ${count} new";
+  static String m55(size) =>
+      "Not downloaded · ${size} GB · choose it as the engine to download";
 
-  static String m57(count) => "and ${count} more titles";
+  static String m56(count, size) =>
+      "${Intl.plural(count, zero: 'No AI models downloaded', one: '1 AI model · ${size} GB', other: '${count} AI models · ${size} GB')}";
 
-  static String m58(count) => "Across ${count} titles";
+  static String m57(count) => "${count} sources could not be checked";
 
-  static String m59(count) => "${count} new items";
+  static String m58(count) => "${count} new items found";
 
-  static String m60(count) => "${count}d ago";
+  static String m59(title, count) => "${title} · ${count} new";
 
-  static String m61(count) => "${count}h ago";
+  static String m60(count) => "and ${count} more titles";
 
-  static String m62(count) => "${count}m ago";
+  static String m61(count) => "Across ${count} titles";
+
+  static String m62(count) => "${count} new items";
+
+  static String m63(count) => "${count}d ago";
+
+  static String m64(count) => "${count}h ago";
+
+  static String m65(count) => "${count}m ago";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1113,7 +1122,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "translation_ai_model_installed": m47,
     "translation_ai_model_missing": m48,
-    "translation_ai_model_other_installed": m49,
     "translation_ai_model_title": MessageLookupByLibrary.simpleMessage(
       "AI model",
     ),
@@ -1143,7 +1151,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Needs Android 11 or newer"),
     "translation_engine_gemma_unavailable_platform":
         MessageLookupByLibrary.simpleMessage("Not available on this device"),
-    "translation_engine_gemma_unavailable_ram": m50,
+    "translation_engine_gemma_unavailable_ram": m49,
     "translation_engine_info_examples": MessageLookupByLibrary.simpleMessage(
       "Speed by phone (estimated)",
     ),
@@ -1155,7 +1163,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "translation_engine_info_requirements":
         MessageLookupByLibrary.simpleMessage("Requirements"),
-    "translation_engine_info_this_phone": m51,
+    "translation_engine_info_this_phone": m50,
     "translation_engine_mlkit": MessageLookupByLibrary.simpleMessage("ML Kit"),
     "translation_engine_mlkit_subtitle": MessageLookupByLibrary.simpleMessage(
       "Fast and light · works on every phone · literal translations",
@@ -1166,8 +1174,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "translation_engine_req_android": MessageLookupByLibrary.simpleMessage(
       "Android 11 or newer",
     ),
-    "translation_engine_req_ram_model": m52,
-    "translation_engine_req_storage_model": m53,
+    "translation_engine_req_ram_model": m51,
+    "translation_engine_req_storage_model": m52,
     "translation_engine_section": MessageLookupByLibrary.simpleMessage(
       "Translation engine",
     ),
@@ -1194,8 +1202,24 @@ class MessageLookup extends MessageLookupByLibrary {
     "translation_engine_tier_ok_phones": MessageLookupByLibrary.simpleMessage(
       "Galaxy S22 / S23, Pixel 8, Galaxy A55 and other phones with 8 GB RAM",
     ),
-    "updates_check_failed": m54,
-    "updates_check_found": m55,
+    "translation_models_ai_section": MessageLookupByLibrary.simpleMessage(
+      "On-device AI",
+    ),
+    "translation_models_downloaded": m53,
+    "translation_models_packs_count": m54,
+    "translation_models_packs_section": MessageLookupByLibrary.simpleMessage(
+      "ML Kit",
+    ),
+    "translation_models_pick_first": m55,
+    "translation_models_summary": m56,
+    "translation_models_title": MessageLookupByLibrary.simpleMessage(
+      "Downloaded models",
+    ),
+    "translation_models_unsupported": MessageLookupByLibrary.simpleMessage(
+      "Not supported on this phone",
+    ),
+    "updates_check_failed": m57,
+    "updates_check_found": m58,
     "updates_check_none": MessageLookupByLibrary.simpleMessage(
       "No new updates found",
     ),
@@ -1215,13 +1239,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "updates_notification_channel_name": MessageLookupByLibrary.simpleMessage(
       "Library updates",
     ),
-    "updates_notification_line": m56,
-    "updates_notification_more": m57,
-    "updates_notification_summary": m58,
-    "updates_notification_title": m59,
-    "updates_time_days": m60,
-    "updates_time_hours": m61,
-    "updates_time_minutes": m62,
+    "updates_notification_line": m59,
+    "updates_notification_more": m60,
+    "updates_notification_summary": m61,
+    "updates_notification_title": m62,
+    "updates_time_days": m63,
+    "updates_time_hours": m64,
+    "updates_time_minutes": m65,
     "updates_time_now": MessageLookupByLibrary.simpleMessage("Just now"),
     "updates_title": MessageLookupByLibrary.simpleMessage("Updates"),
     "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage("Done"),

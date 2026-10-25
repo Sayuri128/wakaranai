@@ -16,4 +16,5 @@ class Routes {
   static const String updates = '/updates';
   static const String pageTranslationSettings = '/pageTranslationSettings';
   static const String languagePacks = '/languagePacks';
+  static const String translationModels = '/translationModels';
 }

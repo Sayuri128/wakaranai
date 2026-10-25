@@ -598,12 +598,40 @@
   "translation_ai_model_missing": "Not downloaded · {size} GB",
   "translation_ai_model_delete_title": "Delete the AI model?",
   "translation_ai_model_delete_message": "This frees {size} GB. You can download it again at any time.",
-  "translation_ai_model_other_installed": "{model} is also downloaded · {size} GB",
-  "@translation_ai_model_other_installed": {
+  "translation_models_title": "Downloaded models",
+  "translation_models_summary": "{count, plural, =0{No AI models downloaded} =1{1 AI model · {size} GB} other{{count} AI models · {size} GB}}",
+  "@translation_models_summary": {
     "placeholders": {
-      "model": {
-        "type": "String"
+      "count": {
+        "type": "int"
       },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "translation_models_ai_section": "On-device AI",
+  "translation_models_packs_section": "ML Kit",
+  "translation_models_packs_count": "{count, plural, =0{No language packs yet} =1{1 language pack downloaded} other{{count} language packs downloaded}}",
+  "@translation_models_packs_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "translation_models_downloaded": "Downloaded · {size} GB",
+  "@translation_models_downloaded": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "translation_models_unsupported": "Not supported on this phone",
+  "translation_models_pick_first": "Not downloaded · {size} GB · choose it as the engine to download",
+  "@translation_models_pick_first": {
+    "placeholders": {
       "size": {
         "type": "String"
       }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/services/page_translation/engines/on_device_model.dart';
 import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
 import 'package:wakaranai/blocs/language_packs/language_packs_cubit.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
@@ -263,6 +264,25 @@ class _PageTranslationSettingsPageState
     );
   }
 
+  Widget _buildModelsTile() {
+    final OnDeviceModelState models = context.watch<OnDeviceModelCubit>().state;
+    final int installed = models.installedVariants.length;
+    double gigabytes = 0;
+    for (final OnDeviceModel model in models.installedVariants) {
+      gigabytes += model.sizeBytes / 1e9;
+    }
+    return SettingsTile(
+      icon: Icons.download_done_rounded,
+      title: S.current.translation_models_title,
+      subtitle: S.current.translation_models_summary(
+        installed,
+        gigabytes.toStringAsFixed(1),
+      ),
+      trailing: Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
+      onTap: () => Navigator.of(context).pushNamed(Routes.translationModels),
+    );
+  }
+
   Widget _buildStorageSection() {
     final int? cachedPages = _cachedPages;
     final bool hasCachedPages = cachedPages != null && cachedPages > 0;
@@ -271,6 +291,7 @@ class _PageTranslationSettingsPageState
     return SettingsSection(
       title: S.current.page_translation_settings_storage_section,
       tiles: <Widget>[
+        _buildModelsTile(),
         if (hasOutdatedPages)
           SettingsTile(
             icon: Icons.history_toggle_off_rounded,

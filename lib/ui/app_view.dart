@@ -35,6 +35,7 @@ import 'package:wakaranai/utils/app_colors.dart';
 
 import '../main.dart';
 import 'home/settings_page/language_packs_page.dart';
+import 'home/settings_page/translation_models_page.dart';
 import 'home/settings_page/page_translation_settings_page.dart';
 import 'home/home_view.dart';
 
@@ -159,6 +160,8 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
               const PageTranslationSettingsPage(),
           Routes.languagePacks: (BuildContext context) =>
               const LanguagePacksPage(),
+          Routes.translationModels: (BuildContext context) =>
+              const TranslationModelsPage(),
           Routes.downloadReader: (BuildContext context) =>
               DownloadReaderLauncher(
                   data: settings.arguments as DownloadReaderData),

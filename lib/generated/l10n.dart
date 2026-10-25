@@ -4004,13 +4004,89 @@ class S {
     );
   }
 
-  /// `{model} is also downloaded · {size} GB`
-  String translation_ai_model_other_installed(String model, String size) {
+  /// `Downloaded models`
+  String get translation_models_title {
     return Intl.message(
-      '$model is also downloaded · $size GB',
-      name: 'translation_ai_model_other_installed',
+      'Downloaded models',
+      name: 'translation_models_title',
       desc: '',
-      args: [model, size],
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{No AI models downloaded} =1{1 AI model · {size} GB} other{{count} AI models · {size} GB}}`
+  String translation_models_summary(int count, String size) {
+    return Intl.plural(
+      count,
+      zero: 'No AI models downloaded',
+      one: '1 AI model · $size GB',
+      other: '$count AI models · $size GB',
+      name: 'translation_models_summary',
+      desc: '',
+      args: [count, size],
+    );
+  }
+
+  /// `On-device AI`
+  String get translation_models_ai_section {
+    return Intl.message(
+      'On-device AI',
+      name: 'translation_models_ai_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ML Kit`
+  String get translation_models_packs_section {
+    return Intl.message(
+      'ML Kit',
+      name: 'translation_models_packs_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{No language packs yet} =1{1 language pack downloaded} other{{count} language packs downloaded}}`
+  String translation_models_packs_count(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No language packs yet',
+      one: '1 language pack downloaded',
+      other: '$count language packs downloaded',
+      name: 'translation_models_packs_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Downloaded · {size} GB`
+  String translation_models_downloaded(String size) {
+    return Intl.message(
+      'Downloaded · $size GB',
+      name: 'translation_models_downloaded',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `Not supported on this phone`
+  String get translation_models_unsupported {
+    return Intl.message(
+      'Not supported on this phone',
+      name: 'translation_models_unsupported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not downloaded · {size} GB · choose it as the engine to download`
+  String translation_models_pick_first(String size) {
+    return Intl.message(
+      'Not downloaded · $size GB · choose it as the engine to download',
+      name: 'translation_models_pick_first',
+      desc: '',
+      args: [size],
     );
   }
 

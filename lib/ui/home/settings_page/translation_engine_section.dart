@@ -54,8 +54,6 @@ class TranslationEngineSection extends StatelessWidget {
           onTap: () => _pickEngine(context, cubit, selectedId, gemma),
         ),
         if (selectedGemma != null) _GemmaModelTile(state: gemma),
-        for (final OnDeviceModel variant in gemma.otherInstalledVariants)
-          _OtherGemmaModelTile(variant: variant),
         if (deepLSelected) const _DeepLKeyTile(),
       ],
     );
@@ -161,7 +159,7 @@ class _GemmaModelTile extends StatelessWidget {
     final Widget action = switch (state.status) {
       OnDeviceModelStatus.installed => SettingsPillButton(
         label: S.current.page_translation_settings_delete_pack,
-        onTap: () => _confirmDeleteModel(context, variant),
+        onTap: () => confirmDeleteOnDeviceModel(context, variant),
       ),
       OnDeviceModelStatus.downloading => SettingsPillButton(
         label: S.current.language_packs_cancel,
@@ -202,28 +200,7 @@ class _GemmaModelTile extends StatelessWidget {
   }
 }
 
-class _OtherGemmaModelTile extends StatelessWidget {
-  const _OtherGemmaModelTile({required this.variant});
-
-  final OnDeviceModel variant;
-
-  @override
-  Widget build(BuildContext context) {
-    return SettingsTile(
-      icon: Icons.sd_storage_outlined,
-      title: S.current.translation_ai_model_other_installed(
-        variant.displayName,
-        variant.sizeLabel,
-      ),
-      trailing: SettingsPillButton(
-        label: S.current.page_translation_settings_delete_pack,
-        onTap: () => _confirmDeleteModel(context, variant),
-      ),
-    );
-  }
-}
-
-Future<void> _confirmDeleteModel(
+Future<void> confirmDeleteOnDeviceModel(
   BuildContext context,
   OnDeviceModel variant,
 ) async {
