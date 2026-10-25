@@ -313,6 +313,12 @@ class PageTranslationCubit extends Cubit<PageTranslationState> {
     unawaited(_processQueue());
   }
 
+  void setPeeking(bool peeking) {
+    if (state.peeking != peeking) {
+      _emit(state.copyWith(peeking: peeking));
+    }
+  }
+
   void toggleBubble(String path, int index) {
     final String key = '$path#$index';
     final Set<String> hidden = Set<String>.of(state.hidden);

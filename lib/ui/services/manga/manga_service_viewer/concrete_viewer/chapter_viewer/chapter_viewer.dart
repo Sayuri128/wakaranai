@@ -683,6 +683,41 @@ class _ChapterViewerState extends State<ChapterViewer>
     );
   }
 
+  Widget _buildPeekButton(BuildContext context, ChapterViewInitialized state) {
+    final PageTranslationCubit? cubit = _translationCubit;
+    if (cubit == null) {
+      return const SizedBox.shrink();
+    }
+    return BlocBuilder<PageTranslationCubit, PageTranslationState>(
+      bloc: cubit,
+      buildWhen:
+          (PageTranslationState previous, PageTranslationState current) =>
+              previous.active != current.active ||
+              previous.peeking != current.peeking,
+      builder: (BuildContext context, PageTranslationState translation) {
+        final bool visible = translation.active;
+        return AnimatedPositioned(
+          duration: const Duration(milliseconds: 200),
+          right: 16,
+          bottom:
+              MediaQuery.of(context).padding.bottom +
+              (state.controlsVisible ? 136 : 56),
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 200),
+            opacity: visible ? 1 : 0,
+            child: IgnorePointer(
+              ignoring: !visible,
+              child: _PeekButton(
+                peeking: translation.peeking,
+                onPeekChanged: cubit.setPeeking,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildTranslateButton() {
     return BlocBuilder<PageTranslationCubit, PageTranslationState>(
       bloc: _translationCubit,
@@ -775,6 +810,7 @@ class _ChapterViewerState extends State<ChapterViewer>
               _buildLoaders(context, state),
               _buildPageCounter(context, state),
               _buildTranslationStatus(context, state),
+              _buildPeekButton(context, state),
             ],
           );
         } else if (state is ChapterViewError) {
@@ -1632,4 +1668,49 @@ class _StatusPillContent {
   final String label;
   final IconData? icon;
   final VoidCallback? onTap;
+}
+
+class _PeekButton extends StatelessWidget {
+  const _PeekButton({required this.peeking, required this.onPeekChanged});
+
+  final bool peeking;
+  final ValueChanged<bool> onPeekChanged;
+
+  void _startPeeking() {
+    HapticFeedback.selectionClick();
+    onPeekChanged(true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: S.current.page_translation_peek_hint,
+      child: Listener(
+        onPointerDown: (_) => _startPeeking(),
+        onPointerUp: (_) => onPeekChanged(false),
+        onPointerCancel: (_) => onPeekChanged(false),
+        child: GestureDetector(
+          onTap: () {},
+          onLongPress: () {},
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: peeking
+                  ? AppColors.primary
+                  : Colors.black.withValues(alpha: 0.55),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+            ),
+            child: Icon(
+              peeking ? Icons.visibility_rounded : Icons.visibility_outlined,
+              size: 22,
+              color: peeking ? AppColors.mainBlack : AppColors.onMedia,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

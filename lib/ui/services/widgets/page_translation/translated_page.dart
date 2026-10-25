@@ -108,7 +108,7 @@ class TranslatedPageState extends State<TranslatedPage> {
 
   PageTranslationResult? _visibleResult() {
     final PageTranslationState? state = widget.cubit?.state;
-    if (state == null || !state.active) {
+    if (state == null || !state.active || state.peeking) {
       return null;
     }
     final PageTranslationResult? result = state.entry(widget.path)?.result;
@@ -154,6 +154,7 @@ class TranslatedPageState extends State<TranslatedPage> {
     PageTranslationState current,
   ) {
     return previous.active != current.active ||
+        previous.peeking != current.peeking ||
         previous.entry(widget.path) != current.entry(widget.path) ||
         previous.hidden != current.hidden;
   }
@@ -172,7 +173,7 @@ class TranslatedPageState extends State<TranslatedPage> {
         final PageTranslationResult? result = state.active
             ? state.entry(widget.path)?.result
             : null;
-        if (result == null || result.bubbles.isEmpty) {
+        if (result == null || result.bubbles.isEmpty || state.peeking) {
           return Stack(children: <Widget>[widget.child]);
         }
 

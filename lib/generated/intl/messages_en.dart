@@ -732,6 +732,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_original_label": MessageLookupByLibrary.simpleMessage(
       "Original",
     ),
+    "page_translation_peek_hint": MessageLookupByLibrary.simpleMessage(
+      "Hold to see the original page",
+    ),
     "page_translation_preview_bubble": MessageLookupByLibrary.simpleMessage(
       "What are you doing here?!",
     ),

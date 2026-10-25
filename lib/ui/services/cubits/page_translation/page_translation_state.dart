@@ -38,6 +38,7 @@ class PageTranslationState extends Equatable {
     this.downloadFailed = false,
     this.languages,
     this.pinned = const <String>{},
+    this.peeking = false,
   });
 
   final PageTranslationPhase phase;
@@ -46,6 +47,7 @@ class PageTranslationState extends Equatable {
   final bool downloadFailed;
   final TitleLanguages? languages;
   final Set<String> pinned;
+  final bool peeking;
 
   int get pinnedDone => pinned
       .where((String path) => pages[path]?.status == PageTranslationStatus.done)
@@ -79,6 +81,7 @@ class PageTranslationState extends Equatable {
     bool? downloadFailed,
     TitleLanguages? languages,
     Set<String>? pinned,
+    bool? peeking,
   }) {
     return PageTranslationState(
       phase: phase ?? this.phase,
@@ -87,6 +90,7 @@ class PageTranslationState extends Equatable {
       downloadFailed: downloadFailed ?? this.downloadFailed,
       languages: languages ?? this.languages,
       pinned: pinned ?? this.pinned,
+      peeking: peeking ?? this.peeking,
     );
   }
 
@@ -98,5 +102,6 @@ class PageTranslationState extends Equatable {
     downloadFailed,
     languages,
     pinned,
+    peeking,
   ];
 }

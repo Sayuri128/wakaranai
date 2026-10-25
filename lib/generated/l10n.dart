@@ -3194,6 +3194,16 @@ class S {
     );
   }
 
+  /// `Hold to see the original page`
+  String get page_translation_peek_hint {
+    return Intl.message(
+      'Hold to see the original page',
+      name: 'page_translation_peek_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Fix recognition mistakes, then retranslate`
   String get page_translation_original_edit_hint {
     return Intl.message(

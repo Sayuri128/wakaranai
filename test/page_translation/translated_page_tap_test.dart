@@ -288,4 +288,52 @@ void main() {
     expect(sent.right, closeTo(missed.right, 1));
     expect(sent.bottom, closeTo(missed.bottom, 1));
   });
+
+  testWidgets('while peeking at the original, bubbles are hidden and inert', (
+    WidgetTester tester,
+  ) async {
+    final _ReaderHarness harness = _ReaderHarness();
+    await harness.setUp(tester);
+    addTearDown(harness.cubit.close);
+
+    await tester.pumpWidget(
+      harness.reader(FittedBox(child: harness.translatedPage())),
+    );
+    await tester.pumpAndSettle();
+    final int overlays = find
+        .descendant(
+          of: find.byType(TranslatedPage),
+          matching: find.byType(CustomPaint),
+        )
+        .evaluate()
+        .length;
+
+    harness.cubit.setPeeking(true);
+    await tester.pumpAndSettle();
+
+    expect(
+      find
+          .descendant(
+            of: find.byType(TranslatedPage),
+            matching: find.byType(CustomPaint),
+          )
+          .evaluate()
+          .length,
+      lessThan(overlays),
+    );
+    await _tap(
+      tester,
+      harness.onScreen(tester, _big.topLeft + const Offset(40, 40)),
+    );
+    expect(find.text('BIG'), findsNothing);
+    expect(harness.readerTaps, 1);
+
+    harness.cubit.setPeeking(false);
+    await tester.pumpAndSettle();
+    await _tap(
+      tester,
+      harness.onScreen(tester, _big.topLeft + const Offset(40, 40)),
+    );
+    expect(find.text('BIG'), findsOneWidget);
+  });
 }
