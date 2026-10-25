@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/blocs/gemma_model/gemma_model_cubit.dart';
+import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
 import 'package:wakaranai/blocs/language_packs/language_packs_cubit.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
@@ -189,8 +189,8 @@ class _PageTranslationSettingsPageState
   ) {
     final PageTranslationSettingsCubit cubit = context
         .read<PageTranslationSettingsCubit>();
-    final GemmaModelState gemma = context.watch<GemmaModelCubit>().state;
-    final bool translatesWithGemma = usesGemma(
+    final OnDeviceModelState gemma = context.watch<OnDeviceModelCubit>().state;
+    final bool translatesWithGemma = usesOnDeviceModel(
       effectiveTranslationSettings(settings, gemma),
     );
     return SettingsSection(

@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wakaranai/blocs/gemma_model/gemma_model_cubit.dart';
+import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
 import 'package:wakaranai/services/device/device_capabilities.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
+import 'package:wakaranai/services/page_translation/engines/on_device_model.dart';
 import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
 import 'package:wakaranai/services/page_translation/translation_prerequisites.dart';
 
@@ -21,20 +21,20 @@ const DeviceInfo _midRange = DeviceInfo(
   model: 'Pixel 8',
 );
 
-class _FakeStore implements GemmaModelStore {
-  final Set<GemmaVariant> installed = <GemmaVariant>{};
-  final List<GemmaVariant> installs = <GemmaVariant>[];
+class _FakeStore implements OnDeviceModelStore {
+  final Set<OnDeviceModel> installed = <OnDeviceModel>{};
+  final List<OnDeviceModel> installs = <OnDeviceModel>[];
   bool fail = false;
   Completer<void>? gate;
   void Function(int percent)? progress;
 
   @override
-  Future<bool> isInstalled(GemmaVariant variant) async =>
+  Future<bool> isInstalled(OnDeviceModel variant) async =>
       installed.contains(variant);
 
   @override
   Future<void> install(
-    GemmaVariant variant, {
+    OnDeviceModel variant, {
     required void Function(int percent) onProgress,
   }) async {
     installs.add(variant);
@@ -55,14 +55,14 @@ class _FakeStore implements GemmaModelStore {
   Future<void> cancelStaleDownloads() async => staleCancels++;
 
   @override
-  Future<void> uninstall(GemmaVariant variant) async =>
+  Future<void> uninstall(OnDeviceModel variant) async =>
       installed.remove(variant);
 }
 
-GemmaModelCubit _cubit(_FakeStore store, {DeviceInfo device = _flagship}) =>
-    GemmaModelCubit(
+OnDeviceModelCubit _cubit(_FakeStore store, {DeviceInfo device = _flagship}) =>
+    OnDeviceModelCubit(
       store: store,
-      support: (GemmaVariant variant) async =>
+      support: (OnDeviceModel variant) async =>
           OnDeviceAiSupport.evaluate(device, minRamGb: variant.minRamGb),
     );
 
@@ -88,43 +88,43 @@ void main() {
 
   test('an 8 GB phone can run E2B but not E4B', () async {
     final _FakeStore store = _FakeStore();
-    final GemmaModelCubit cubit = _cubit(store, device: _midRange);
+    final OnDeviceModelCubit cubit = _cubit(store, device: _midRange);
     addTearDown(cubit.close);
 
     await cubit.init();
-    expect(cubit.state.supports(GemmaVariant.e2b), isTrue);
-    expect(cubit.state.supports(GemmaVariant.e4b), isFalse);
+    expect(cubit.state.supports(OnDeviceModel.e2b), isTrue);
+    expect(cubit.state.supports(OnDeviceModel.e4b), isFalse);
 
-    expect(await cubit.ensure(GemmaVariant.e4b), isFalse);
+    expect(await cubit.ensure(OnDeviceModel.e4b), isFalse);
     expect(store.installs, isEmpty);
   });
 
   test('download reports progress and finishes installed', () async {
     final _FakeStore store = _FakeStore()..gate = Completer<void>();
-    final GemmaModelCubit cubit = _cubit(store);
+    final OnDeviceModelCubit cubit = _cubit(store);
     addTearDown(cubit.close);
     await cubit.init();
-    expect(cubit.state.status, GemmaModelStatus.missing);
+    expect(cubit.state.status, OnDeviceModelStatus.missing);
 
     final Future<bool> first = cubit.download();
-    final Future<bool> second = cubit.ensure(GemmaVariant.e2b);
+    final Future<bool> second = cubit.ensure(OnDeviceModel.e2b);
     await Future<void>.delayed(Duration.zero);
     store.progress!(42);
-    expect(cubit.state.status, GemmaModelStatus.downloading);
+    expect(cubit.state.status, OnDeviceModelStatus.downloading);
     expect(cubit.state.progress, 42);
 
     store.gate!.complete();
     expect(await first, isTrue);
     expect(await second, isTrue);
-    expect(store.installs, <GemmaVariant>[GemmaVariant.e2b]);
-    expect(cubit.state.status, GemmaModelStatus.installed);
+    expect(store.installs, <OnDeviceModel>[OnDeviceModel.e2b]);
+    expect(cubit.state.status, OnDeviceModelStatus.installed);
   });
 
   test(
     'leftover downloads are cancelled at start and before a download',
     () async {
       final _FakeStore store = _FakeStore();
-      final GemmaModelCubit cubit = _cubit(store);
+      final OnDeviceModelCubit cubit = _cubit(store);
       addTearDown(cubit.close);
 
       await cubit.init();
@@ -137,7 +137,7 @@ void main() {
 
   test('progress never jumps back while downloading', () async {
     final _FakeStore store = _FakeStore()..gate = Completer<void>();
-    final GemmaModelCubit cubit = _cubit(store);
+    final OnDeviceModelCubit cubit = _cubit(store);
     addTearDown(cubit.close);
     await cubit.init();
 
@@ -154,79 +154,79 @@ void main() {
 
   test('a failed download can be retried', () async {
     final _FakeStore store = _FakeStore()..fail = true;
-    final GemmaModelCubit cubit = _cubit(store);
+    final OnDeviceModelCubit cubit = _cubit(store);
     addTearDown(cubit.close);
     await cubit.init();
 
     expect(await cubit.download(), isFalse);
-    expect(cubit.state.status, GemmaModelStatus.failed);
+    expect(cubit.state.status, OnDeviceModelStatus.failed);
 
     store.fail = false;
     expect(await cubit.download(), isTrue);
-    expect(cubit.state.status, GemmaModelStatus.installed);
+    expect(cubit.state.status, OnDeviceModelStatus.installed);
   });
 
   test(
     'switching models downloads the new one and lists the old one',
     () async {
-      final _FakeStore store = _FakeStore()..installed.add(GemmaVariant.e2b);
-      final GemmaModelCubit cubit = _cubit(store);
+      final _FakeStore store = _FakeStore()..installed.add(OnDeviceModel.e2b);
+      final OnDeviceModelCubit cubit = _cubit(store);
       addTearDown(cubit.close);
       await cubit.init();
-      expect(cubit.state.status, GemmaModelStatus.installed);
+      expect(cubit.state.status, OnDeviceModelStatus.installed);
 
-      expect(await cubit.ensure(GemmaVariant.e4b), isTrue);
+      expect(await cubit.ensure(OnDeviceModel.e4b), isTrue);
 
-      expect(cubit.state.variant, GemmaVariant.e4b);
-      expect(store.installs, <GemmaVariant>[GemmaVariant.e4b]);
-      expect(cubit.state.otherInstalledVariants, <GemmaVariant>[
-        GemmaVariant.e2b,
+      expect(cubit.state.variant, OnDeviceModel.e4b);
+      expect(store.installs, <OnDeviceModel>[OnDeviceModel.e4b]);
+      expect(cubit.state.otherInstalledVariants, <OnDeviceModel>[
+        OnDeviceModel.e2b,
       ]);
 
-      await cubit.delete(GemmaVariant.e2b);
+      await cubit.delete(OnDeviceModel.e2b);
       expect(cubit.state.otherInstalledVariants, isEmpty);
-      expect(cubit.state.status, GemmaModelStatus.installed);
+      expect(cubit.state.status, OnDeviceModelStatus.installed);
     },
   );
 
   test('deleting the selected model marks it missing', () async {
-    final _FakeStore store = _FakeStore()..installed.add(GemmaVariant.e2b);
-    final GemmaModelCubit cubit = _cubit(store);
+    final _FakeStore store = _FakeStore()..installed.add(OnDeviceModel.e2b);
+    final OnDeviceModelCubit cubit = _cubit(store);
     addTearDown(cubit.close);
     await cubit.init();
 
-    await cubit.delete(GemmaVariant.e2b);
-    expect(cubit.state.status, GemmaModelStatus.missing);
+    await cubit.delete(OnDeviceModel.e2b);
+    expect(cubit.state.status, OnDeviceModelStatus.missing);
     expect(store.installed, isEmpty);
   });
 
   test('Gemma falls back to ML Kit on unsupported phones', () {
     final PageTranslationSettings settings = PageTranslationSettings(
-      translator: GemmaVariant.e4b.engineId,
+      translator: OnDeviceModel.e4b.engineId,
     );
-    final GemmaModelState flagship = GemmaModelState(
-      supportByVariant: <GemmaVariant, OnDeviceAiSupport>{
-        GemmaVariant.e4b: OnDeviceAiSupport.evaluate(
+    final OnDeviceModelState flagship = OnDeviceModelState(
+      supportByVariant: <OnDeviceModel, OnDeviceAiSupport>{
+        OnDeviceModel.e4b: OnDeviceAiSupport.evaluate(
           _flagship,
-          minRamGb: GemmaVariant.e4b.minRamGb,
+          minRamGb: OnDeviceModel.e4b.minRamGb,
         ),
       },
     );
-    final GemmaModelState midRange = GemmaModelState(
-      supportByVariant: <GemmaVariant, OnDeviceAiSupport>{
-        GemmaVariant.e4b: OnDeviceAiSupport.evaluate(
+    final OnDeviceModelState midRange = OnDeviceModelState(
+      supportByVariant: <OnDeviceModel, OnDeviceAiSupport>{
+        OnDeviceModel.e4b: OnDeviceAiSupport.evaluate(
           _midRange,
-          minRamGb: GemmaVariant.e4b.minRamGb,
+          minRamGb: OnDeviceModel.e4b.minRamGb,
         ),
       },
     );
 
     expect(
-      gemmaVariantOf(effectiveTranslationSettings(settings, flagship)),
-      GemmaVariant.e4b,
+      onDeviceModelOf(effectiveTranslationSettings(settings, flagship)),
+      OnDeviceModel.e4b,
     );
     expect(
-      usesGemma(effectiveTranslationSettings(settings, midRange)),
+      usesOnDeviceModel(effectiveTranslationSettings(settings, midRange)),
       isFalse,
     );
   });

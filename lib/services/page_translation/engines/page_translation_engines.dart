@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:wakaranai/services/page_translation/engines/deepl_translator.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_translator.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
+import 'package:wakaranai/services/page_translation/engines/on_device_llm_translator.dart';
+import 'package:wakaranai/services/page_translation/engines/on_device_model.dart';
 import 'package:wakaranai/services/page_translation/engines/mlkit_ocr_engine.dart';
 import 'package:wakaranai/services/page_translation/engines/mlkit_translator.dart';
 import 'package:wakaranai/services/page_translation/engines/page_ocr_engine.dart';
@@ -45,12 +45,12 @@ class PageTranslationEngines {
           create: MlKitTranslator.new,
           models: MlKitModelStore.new,
         ),
-        for (final GemmaVariant variant in GemmaVariant.values)
+        for (final OnDeviceModel variant in OnDeviceModel.values)
           EngineDescriptor<PageTranslator>(
             id: variant.engineId,
             name: variant.displayName,
             isLocal: true,
-            create: () => GemmaTranslator(variant),
+            create: () => OnDeviceLlmTranslator(variant),
           ),
         EngineDescriptor<PageTranslator>(
           id: DeepLTranslator.engineId,

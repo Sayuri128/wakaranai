@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/blocs/gemma_model/gemma_model_cubit.dart';
+import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/device/device_capabilities.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/services/page_translation/engines/deepl_translator.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
+import 'package:wakaranai/services/page_translation/engines/on_device_model.dart';
 import 'package:wakaranai/services/page_translation/engines/page_translation_engines.dart';
 import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
 import 'package:wakaranai/services/page_translation/translation_prerequisites.dart';
@@ -26,14 +26,14 @@ class TranslationEngineSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final GemmaModelState gemma = context.watch<GemmaModelCubit>().state;
+    final OnDeviceModelState gemma = context.watch<OnDeviceModelCubit>().state;
     final PageTranslationSettingsCubit cubit = context
         .read<PageTranslationSettingsCubit>();
     final String selectedId = effectiveTranslationSettings(
       settings,
       gemma,
     ).translatorId;
-    final GemmaVariant? selectedGemma = GemmaVariant.forEngine(selectedId);
+    final OnDeviceModel? selectedGemma = OnDeviceModel.forEngine(selectedId);
     final bool deepLSelected = selectedId == deepLEngineId;
 
     final TranslationEngineOption selected = TranslationEngineOption.byId(
@@ -54,7 +54,7 @@ class TranslationEngineSection extends StatelessWidget {
           onTap: () => _pickEngine(context, cubit, selectedId, gemma),
         ),
         if (selectedGemma != null) _GemmaModelTile(state: gemma),
-        for (final GemmaVariant variant in gemma.otherInstalledVariants)
+        for (final OnDeviceModel variant in gemma.otherInstalledVariants)
           _OtherGemmaModelTile(variant: variant),
         if (deepLSelected) const _DeepLKeyTile(),
       ],
@@ -65,12 +65,12 @@ class TranslationEngineSection extends StatelessWidget {
     BuildContext context,
     PageTranslationSettingsCubit cubit,
     String selectedId,
-    GemmaModelState gemma,
+    OnDeviceModelState gemma,
   ) async {
     final String? picked = await showTranslationEnginePicker(
       context,
       selectedId: selectedId,
-      unavailableReason: (GemmaVariant variant) =>
+      unavailableReason: (OnDeviceModel variant) =>
           _gemmaUnavailableReason(variant, gemma),
       onShowGemmaInfo: () => showOnDeviceAiInfo(context),
     );
@@ -101,8 +101,8 @@ class TranslationEngineSection extends StatelessWidget {
   }
 
   static String? _gemmaUnavailableReason(
-    GemmaVariant variant,
-    GemmaModelState gemma,
+    OnDeviceModel variant,
+    OnDeviceModelState gemma,
   ) {
     final OnDeviceAiSupport? support = gemma.supportByVariant[variant];
     if (support == null || support.supported) {
@@ -139,34 +139,34 @@ class TranslationEngineSection extends StatelessWidget {
 class _GemmaModelTile extends StatelessWidget {
   const _GemmaModelTile({required this.state});
 
-  final GemmaModelState state;
+  final OnDeviceModelState state;
 
   @override
   Widget build(BuildContext context) {
-    final GemmaModelCubit cubit = context.read<GemmaModelCubit>();
-    final GemmaVariant variant = state.variant;
+    final OnDeviceModelCubit cubit = context.read<OnDeviceModelCubit>();
+    final OnDeviceModel variant = state.variant;
     final String subtitle = switch (state.status) {
-      GemmaModelStatus.installed => S.current.translation_ai_model_installed(
+      OnDeviceModelStatus.installed => S.current.translation_ai_model_installed(
         variant.displayName,
         variant.sizeLabel,
       ),
-      GemmaModelStatus.downloading => withDownloadEstimate(
+      OnDeviceModelStatus.downloading => withDownloadEstimate(
         S.current.page_translation_ai_model_downloading(state.progress),
         state.estimate,
       ),
-      GemmaModelStatus.failed => S.current.translation_ai_model_failed,
+      OnDeviceModelStatus.failed => S.current.translation_ai_model_failed,
       _ => S.current.translation_ai_model_missing(variant.sizeLabel),
     };
     final Widget action = switch (state.status) {
-      GemmaModelStatus.installed => SettingsPillButton(
+      OnDeviceModelStatus.installed => SettingsPillButton(
         label: S.current.page_translation_settings_delete_pack,
         onTap: () => _confirmDeleteModel(context, variant),
       ),
-      GemmaModelStatus.downloading => SettingsPillButton(
+      OnDeviceModelStatus.downloading => SettingsPillButton(
         label: S.current.language_packs_cancel,
         onTap: cubit.cancel,
       ),
-      GemmaModelStatus.unknown => const SizedBox.shrink(),
+      OnDeviceModelStatus.unknown => const SizedBox.shrink(),
       _ => SettingsPillButton(
         label: S.current.page_translation_settings_download_pack,
         primary: true,
@@ -180,10 +180,10 @@ class _GemmaModelTile extends StatelessWidget {
           icon: Icons.memory_rounded,
           title: S.current.translation_ai_model_title,
           subtitle: subtitle,
-          destructive: state.status == GemmaModelStatus.failed,
+          destructive: state.status == OnDeviceModelStatus.failed,
           trailing: action,
         ),
-        if (state.status == GemmaModelStatus.downloading)
+        if (state.status == OnDeviceModelStatus.downloading)
           Padding(
             padding: const EdgeInsets.fromLTRB(64, 0, 16, 14),
             child: ClipRRect(
@@ -204,7 +204,7 @@ class _GemmaModelTile extends StatelessWidget {
 class _OtherGemmaModelTile extends StatelessWidget {
   const _OtherGemmaModelTile({required this.variant});
 
-  final GemmaVariant variant;
+  final OnDeviceModel variant;
 
   @override
   Widget build(BuildContext context) {
@@ -224,9 +224,9 @@ class _OtherGemmaModelTile extends StatelessWidget {
 
 Future<void> _confirmDeleteModel(
   BuildContext context,
-  GemmaVariant variant,
+  OnDeviceModel variant,
 ) async {
-  final GemmaModelCubit cubit = context.read<GemmaModelCubit>();
+  final OnDeviceModelCubit cubit = context.read<OnDeviceModelCubit>();
   final bool? confirmed = await showDialog<bool>(
     context: context,
     builder: (BuildContext dialogContext) => ConfirmationDialog(
@@ -434,7 +434,7 @@ class _OnDeviceAiInfoSheet extends StatelessWidget {
     bool? ramMet;
     if (device != null) {
       androidVersionMet = device.sdkInt >= OnDeviceAiSupport.minSdk;
-      ramMet = device.totalRamGb >= GemmaVariant.e2b.minRamGb;
+      ramMet = device.totalRamGb >= OnDeviceModel.e2b.minRamGb;
     }
     return <Widget>[
       _RequirementRow(

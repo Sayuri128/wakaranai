@@ -20,8 +20,8 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:transparent_pointer/transparent_pointer.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:wakaranai/blocs/gemma_model/gemma_model_cubit.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
+import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
+import 'package:wakaranai/services/page_translation/engines/on_device_model.dart';
 import 'package:wakaranai/blocs/language_packs/language_packs_cubit.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
@@ -88,7 +88,7 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   late final ChapterViewCubit _chapterViewCubit;
   PageTranslationCubit? _translationCubit;
-  GemmaVariant? _gemmaVariant;
+  OnDeviceModel? _gemmaVariant;
   bool _usesDeepL = false;
 
   bool get _usesGemma => _gemmaVariant != null;
@@ -154,12 +154,12 @@ class _ChapterViewerState extends State<ChapterViewer>
   }
 
   void _setUpTranslation() {
-    final GemmaModelCubit gemma = context.read<GemmaModelCubit>();
+    final OnDeviceModelCubit gemma = context.read<OnDeviceModelCubit>();
     final PageTranslationSettings settings = effectiveTranslationSettings(
       context.read<PageTranslationSettingsCubit>().state,
       gemma.state,
     );
-    _gemmaVariant = gemmaVariantOf(settings);
+    _gemmaVariant = onDeviceModelOf(settings);
     _usesDeepL = usesDeepL(settings);
     if (!settings.enabled) {
       return;
@@ -556,7 +556,9 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   String _modelDownloadLabel(BuildContext context) {
     if (_usesGemma) {
-      final GemmaModelState gemma = context.watch<GemmaModelCubit>().state;
+      final OnDeviceModelState gemma = context
+          .watch<OnDeviceModelCubit>()
+          .state;
       return withDownloadEstimate(
         S.current.page_translation_ai_model_downloading(gemma.progress),
         gemma.estimate,

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:wakaranai/services/page_translation/glossary.dart';
 import 'package:wakaranai/services/page_translation/page_language.dart';
 
-String buildGemmaPrompt(
+String buildTranslationPrompt(
   List<String> texts, {
   required PageLanguage from,
   required PageLanguage to,

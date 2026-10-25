@@ -11,7 +11,7 @@ import 'package:workmanager/workmanager.dart';
 import 'package:wakaranai/blocs/chapter_translation/chapter_translation_cubit.dart';
 import 'package:wakaranai/blocs/chapter_translation/translation_notification_service.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
-import 'package:wakaranai/blocs/gemma_model/gemma_model_cubit.dart';
+import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
 import 'package:wakaranai/blocs/language_packs/language_packs_cubit.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
@@ -34,8 +34,8 @@ import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_his
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
 import 'package:wakaranai/repositories/database/page_translation_repository.dart';
 import 'package:wakaranai/services/device/device_capabilities.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_translator.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
+import 'package:wakaranai/services/page_translation/engines/on_device_llm_translator.dart';
+import 'package:wakaranai/services/page_translation/engines/on_device_model.dart';
 import 'package:wakaranai/services/page_translation/engines/page_translation_engines.dart';
 import 'package:wakaranai/services/page_translation/page_translation_service.dart';
 import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
@@ -171,10 +171,10 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
                   context.read<PageTranslationSettingsCubit>().state.wifiOnly,
             ),
           ),
-          BlocProvider<GemmaModelCubit>(
-            create: (BuildContext context) => GemmaModelCubit(
-              store: GemmaModelFiles(),
-              support: (GemmaVariant variant) =>
+          BlocProvider<OnDeviceModelCubit>(
+            create: (BuildContext context) => OnDeviceModelCubit(
+              store: OnDeviceModelFiles(),
+              support: (OnDeviceModel variant) =>
                   DeviceCapabilities.onDeviceAi(minRamGb: variant.minRamGb),
             )
               ..init()
@@ -182,8 +182,8 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
                 context
                     .read<PageTranslationSettingsCubit>()
                     .stream
-                    .map(gemmaVariantOf),
-                current: gemmaVariantOf(
+                    .map(onDeviceModelOf),
+                current: onDeviceModelOf(
                   context.read<PageTranslationSettingsCubit>().state,
                 ),
               ),
@@ -240,7 +240,7 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
     PageTranslationSettings currentSettings() {
       return effectiveTranslationSettings(
         context.read<PageTranslationSettingsCubit>().state,
-        context.read<GemmaModelCubit>().state,
+        context.read<OnDeviceModelCubit>().state,
       );
     }
 
@@ -254,7 +254,7 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
       ensureReady: (TitleLanguages languages) => ensureTranslationReady(
         settings: currentSettings(),
         packs: context.read<LanguagePacksCubit>(),
-        gemma: context.read<GemmaModelCubit>(),
+        gemma: context.read<OnDeviceModelCubit>(),
         languages: languages,
       ),
     );

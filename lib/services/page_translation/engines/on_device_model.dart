@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 
-enum GemmaVariant {
+enum OnDeviceModel {
   e2b(
     engineId: 'gemma',
     displayName: 'Gemma 4 E2B',
@@ -18,7 +18,7 @@ enum GemmaVariant {
     minRamGb: 10,
   );
 
-  const GemmaVariant({
+  const OnDeviceModel({
     required this.engineId,
     required this.displayName,
     required this.fileName,
@@ -39,9 +39,9 @@ enum GemmaVariant {
 
   String get sizeLabel => (sizeBytes / 1e9).toStringAsFixed(1);
 
-  static GemmaVariant? forEngine(String? engineId) {
+  static OnDeviceModel? forEngine(String? engineId) {
     return values.firstWhereOrNull(
-      (GemmaVariant variant) => variant.engineId == engineId,
+      (OnDeviceModel model) => model.engineId == engineId,
     );
   }
 }

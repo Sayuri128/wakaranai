@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_prompt.dart';
+import 'package:wakaranai/services/page_translation/engines/llm_prompt.dart';
 
 void main() {
   test('a clean JSON array is used as is', () {

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wakaranai/services/page_translation/engines/deepl_translator.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_prompt.dart';
+import 'package:wakaranai/services/page_translation/engines/llm_prompt.dart';
 import 'package:wakaranai/services/page_translation/glossary.dart';
 import 'package:wakaranai/services/page_translation/page_language.dart';
 import 'package:wakaranai/services/page_translation/title_languages.dart';
@@ -44,7 +44,7 @@ void main() {
   });
 
   test('the Gemma prompt lists the names to keep', () {
-    final String prompt = buildGemmaPrompt(
+    final String prompt = buildTranslationPrompt(
       <String>['Kenji, wait!'],
       from: PageLanguage.english,
       to: _ukrainian,

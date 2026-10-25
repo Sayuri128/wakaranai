@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
+import 'package:wakaranai/services/page_translation/engines/on_device_model.dart';
 import 'package:wakaranai/services/page_translation/title_languages.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -9,7 +9,7 @@ Future<bool> showTranslationModelsSheet(
   BuildContext context, {
   required TitleLanguages languages,
   required bool wifiOnly,
-  GemmaVariant? gemma,
+  OnDeviceModel? gemma,
 }) async {
   final String title;
   final String message;

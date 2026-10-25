@@ -4,10 +4,10 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/services/device/device_capabilities.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
+import 'package:wakaranai/services/page_translation/engines/on_device_model.dart';
 import 'package:wakaranai/utils/download_rate.dart';
 
-enum GemmaModelStatus {
+enum OnDeviceModelStatus {
   unknown,
   unsupported,
   missing,
@@ -16,44 +16,45 @@ enum GemmaModelStatus {
   failed,
 }
 
-class GemmaModelState extends Equatable {
-  const GemmaModelState({
-    this.variant = GemmaVariant.e2b,
-    this.status = GemmaModelStatus.unknown,
+class OnDeviceModelState extends Equatable {
+  const OnDeviceModelState({
+    this.variant = OnDeviceModel.e2b,
+    this.status = OnDeviceModelStatus.unknown,
     this.progress = 0,
     this.estimate,
-    this.supportByVariant = const <GemmaVariant, OnDeviceAiSupport>{},
-    this.installedVariants = const <GemmaVariant>{},
+    this.supportByVariant = const <OnDeviceModel, OnDeviceAiSupport>{},
+    this.installedVariants = const <OnDeviceModel>{},
   });
 
-  final GemmaVariant variant;
-  final GemmaModelStatus status;
+  final OnDeviceModel variant;
+  final OnDeviceModelStatus status;
   final int progress;
   final DownloadEstimate? estimate;
-  final Map<GemmaVariant, OnDeviceAiSupport> supportByVariant;
-  final Set<GemmaVariant> installedVariants;
+  final Map<OnDeviceModel, OnDeviceAiSupport> supportByVariant;
+  final Set<OnDeviceModel> installedVariants;
 
   OnDeviceAiSupport? get support => supportByVariant[variant];
 
   bool get supported => supports(variant);
 
-  bool supports(GemmaVariant variant) {
+  bool supports(OnDeviceModel variant) {
     return supportByVariant[variant]?.supported ?? false;
   }
 
-  Iterable<GemmaVariant> get otherInstalledVariants =>
-      installedVariants.where((GemmaVariant installed) => installed != variant);
+  Iterable<OnDeviceModel> get otherInstalledVariants => installedVariants.where(
+    (OnDeviceModel installed) => installed != variant,
+  );
 
-  GemmaModelState copyWith({
-    GemmaVariant? variant,
-    GemmaModelStatus? status,
+  OnDeviceModelState copyWith({
+    OnDeviceModel? variant,
+    OnDeviceModelStatus? status,
     int? progress,
     DownloadEstimate? estimate,
     bool clearEstimate = false,
-    Map<GemmaVariant, OnDeviceAiSupport>? supportByVariant,
-    Set<GemmaVariant>? installedVariants,
+    Map<OnDeviceModel, OnDeviceAiSupport>? supportByVariant,
+    Set<OnDeviceModel>? installedVariants,
   }) {
-    return GemmaModelState(
+    return OnDeviceModelState(
       variant: variant ?? this.variant,
       status: status ?? this.status,
       progress: progress ?? this.progress,
@@ -78,11 +79,11 @@ class GemmaModelState extends Equatable {
   ];
 }
 
-abstract class GemmaModelStore {
-  Future<bool> isInstalled(GemmaVariant variant);
+abstract class OnDeviceModelStore {
+  Future<bool> isInstalled(OnDeviceModel variant);
 
   Future<void> install(
-    GemmaVariant variant, {
+    OnDeviceModel variant, {
     required void Function(int percent) onProgress,
   });
 
@@ -90,36 +91,36 @@ abstract class GemmaModelStore {
 
   Future<void> cancelStaleDownloads();
 
-  Future<void> uninstall(GemmaVariant variant);
+  Future<void> uninstall(OnDeviceModel variant);
 }
 
-class GemmaModelCubit extends Cubit<GemmaModelState> {
-  GemmaModelCubit({
-    required GemmaModelStore store,
-    required Future<OnDeviceAiSupport> Function(GemmaVariant variant) support,
+class OnDeviceModelCubit extends Cubit<OnDeviceModelState> {
+  OnDeviceModelCubit({
+    required OnDeviceModelStore store,
+    required Future<OnDeviceAiSupport> Function(OnDeviceModel variant) support,
     DateTime Function()? clock,
   }) : _store = store,
        _support = support,
        _clock = clock ?? DateTime.now,
-       super(const GemmaModelState());
+       super(const OnDeviceModelState());
 
-  final GemmaModelStore _store;
-  final Future<OnDeviceAiSupport> Function(GemmaVariant variant) _support;
+  final OnDeviceModelStore _store;
+  final Future<OnDeviceAiSupport> Function(OnDeviceModel variant) _support;
   final DateTime Function() _clock;
   Completer<bool>? _activeDownload;
   DownloadRate? _downloadRate;
   Future<void>? _initialized;
-  StreamSubscription<GemmaVariant?>? _selectionSubscription;
+  StreamSubscription<OnDeviceModel?>? _selectionSubscription;
 
   void followSelection(
-    Stream<GemmaVariant?> selections, {
-    GemmaVariant? current,
+    Stream<OnDeviceModel?> selections, {
+    OnDeviceModel? current,
   }) {
     if (current != null) {
       unawaited(select(current));
     }
     unawaited(_selectionSubscription?.cancel());
-    _selectionSubscription = selections.listen((GemmaVariant? variant) {
+    _selectionSubscription = selections.listen((OnDeviceModel? variant) {
       if (variant != null) {
         unawaited(select(variant));
       }
@@ -130,25 +131,25 @@ class GemmaModelCubit extends Cubit<GemmaModelState> {
 
   Future<void> _loadSupport() async {
     await _cancelStaleDownloads();
-    final Map<GemmaVariant, OnDeviceAiSupport> supportByVariant =
-        <GemmaVariant, OnDeviceAiSupport>{
-          for (final GemmaVariant variant in GemmaVariant.values)
+    final Map<OnDeviceModel, OnDeviceAiSupport> supportByVariant =
+        <OnDeviceModel, OnDeviceAiSupport>{
+          for (final OnDeviceModel variant in OnDeviceModel.values)
             variant: await _support(variant),
         };
     _emit(state.copyWith(supportByVariant: supportByVariant));
     await refresh();
   }
 
-  Future<void> select(GemmaVariant variant) async {
+  Future<void> select(OnDeviceModel variant) async {
     await init();
     if (variant == state.variant ||
-        state.status == GemmaModelStatus.downloading) {
+        state.status == OnDeviceModelStatus.downloading) {
       return;
     }
     _emit(
       state.copyWith(
         variant: variant,
-        status: GemmaModelStatus.unknown,
+        status: OnDeviceModelStatus.unknown,
         progress: 0,
       ),
     );
@@ -156,11 +157,11 @@ class GemmaModelCubit extends Cubit<GemmaModelState> {
   }
 
   Future<void> refresh() async {
-    if (state.status == GemmaModelStatus.downloading) {
+    if (state.status == OnDeviceModelStatus.downloading) {
       return;
     }
-    final Set<GemmaVariant> installed = <GemmaVariant>{
-      for (final GemmaVariant variant in GemmaVariant.values)
+    final Set<OnDeviceModel> installed = <OnDeviceModel>{
+      for (final OnDeviceModel variant in OnDeviceModel.values)
         if (await _checkInstalled(variant)) variant,
     };
     _emit(
@@ -171,20 +172,20 @@ class GemmaModelCubit extends Cubit<GemmaModelState> {
     );
   }
 
-  GemmaModelStatus _statusFor(
-    GemmaVariant variant,
-    Set<GemmaVariant> installed,
+  OnDeviceModelStatus _statusFor(
+    OnDeviceModel variant,
+    Set<OnDeviceModel> installed,
   ) {
     if (!state.supports(variant)) {
-      return GemmaModelStatus.unsupported;
+      return OnDeviceModelStatus.unsupported;
     }
     if (installed.contains(variant)) {
-      return GemmaModelStatus.installed;
+      return OnDeviceModelStatus.installed;
     }
-    return GemmaModelStatus.missing;
+    return OnDeviceModelStatus.missing;
   }
 
-  Future<bool> _checkInstalled(GemmaVariant variant) async {
+  Future<bool> _checkInstalled(OnDeviceModel variant) async {
     try {
       return await _store.isInstalled(variant);
     } catch (e) {
@@ -201,7 +202,7 @@ class GemmaModelCubit extends Cubit<GemmaModelState> {
     if (!state.supported) {
       return Future<bool>.value(false);
     }
-    if (state.status == GemmaModelStatus.installed) {
+    if (state.status == OnDeviceModelStatus.installed) {
       return Future<bool>.value(true);
     }
 
@@ -213,7 +214,7 @@ class GemmaModelCubit extends Cubit<GemmaModelState> {
     );
     _emit(
       state.copyWith(
-        status: GemmaModelStatus.downloading,
+        status: OnDeviceModelStatus.downloading,
         progress: 0,
         clearEstimate: true,
       ),
@@ -222,7 +223,7 @@ class GemmaModelCubit extends Cubit<GemmaModelState> {
     return download.future;
   }
 
-  Future<void> _install(GemmaVariant variant, Completer<bool> download) async {
+  Future<void> _install(OnDeviceModel variant, Completer<bool> download) async {
     bool installed = false;
     await _cancelStaleDownloads();
     try {
@@ -236,16 +237,16 @@ class GemmaModelCubit extends Cubit<GemmaModelState> {
     if (installed) {
       _emit(
         state.copyWith(
-          status: GemmaModelStatus.installed,
+          status: OnDeviceModelStatus.installed,
           progress: 100,
-          installedVariants: <GemmaVariant>{
+          installedVariants: <OnDeviceModel>{
             ...state.installedVariants,
             variant,
           },
         ),
       );
     } else {
-      _emit(state.copyWith(status: GemmaModelStatus.failed));
+      _emit(state.copyWith(status: OnDeviceModelStatus.failed));
     }
     download.complete(installed);
   }
@@ -267,12 +268,12 @@ class GemmaModelCubit extends Cubit<GemmaModelState> {
     _emit(state.copyWith(progress: percent, estimate: rate?.estimate));
   }
 
-  Future<bool> ensure(GemmaVariant variant) async {
+  Future<bool> ensure(OnDeviceModel variant) async {
     await select(variant);
     if (state.variant != variant) {
       return false;
     }
-    if (state.status == GemmaModelStatus.installed) {
+    if (state.status == OnDeviceModelStatus.installed) {
       return true;
     }
     return download();
@@ -284,19 +285,19 @@ class GemmaModelCubit extends Cubit<GemmaModelState> {
     }
   }
 
-  Future<void> delete(GemmaVariant variant) async {
+  Future<void> delete(OnDeviceModel variant) async {
     try {
       await _store.uninstall(variant);
     } catch (e) {
       logger.w('Gemma model delete failed: $e');
     }
-    final Set<GemmaVariant> installed = Set<GemmaVariant>.of(
+    final Set<OnDeviceModel> installed = Set<OnDeviceModel>.of(
       state.installedVariants,
     )..remove(variant);
     if (variant == state.variant) {
       _emit(
         state.copyWith(
-          status: GemmaModelStatus.missing,
+          status: OnDeviceModelStatus.missing,
           progress: 0,
           installedVariants: installed,
         ),
@@ -306,7 +307,7 @@ class GemmaModelCubit extends Cubit<GemmaModelState> {
     }
   }
 
-  void _emit(GemmaModelState next) {
+  void _emit(OnDeviceModelState next) {
     if (!isClosed) {
       emit(next);
     }

@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:background_downloader/background_downloader.dart';
 import 'package:flutter_edge_ai/flutter_edge_ai.dart';
 import 'package:flutter_edge_ai_litertlm/flutter_edge_ai_litertlm.dart';
-import 'package:wakaranai/blocs/gemma_model/gemma_model_cubit.dart';
+import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
 import 'package:wakaranai/main.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_prompt.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
+import 'package:wakaranai/services/page_translation/engines/llm_prompt.dart';
+import 'package:wakaranai/services/page_translation/engines/on_device_model.dart';
 import 'package:wakaranai/services/page_translation/engines/page_translator.dart';
 import 'package:wakaranai/services/page_translation/glossary.dart';
 import 'package:wakaranai/services/page_translation/page_language.dart';
 
-class GemmaModel {
+class OnDeviceLlm {
   static const int contextTokens = 4096;
 
   static const double _temperature = 0.2;
@@ -20,7 +20,7 @@ class GemmaModel {
 
   static Future<void>? _initialized;
   static Future<InferenceModel>? _model;
-  static GemmaVariant? _loadedVariant;
+  static OnDeviceModel? _loadedVariant;
   static int _users = 0;
   static Future<void> _queue = Future<void>.value();
 
@@ -29,13 +29,13 @@ class GemmaModel {
         inferenceEngines: const <InferenceEngineProvider>[LiteRtLmEngine()],
       );
 
-  static Future<bool> isInstalled(GemmaVariant variant) async {
+  static Future<bool> isInstalled(OnDeviceModel variant) async {
     await ensureInitialized();
     return FlutterEdgeAi.isModelInstalled(variant.fileName);
   }
 
   static Future<void> install(
-    GemmaVariant variant, {
+    OnDeviceModel variant, {
     void Function(int percent)? onProgress,
     CancelToken? cancelToken,
   }) async {
@@ -50,7 +50,7 @@ class GemmaModel {
     await builder.install();
   }
 
-  static Future<void> uninstall(GemmaVariant variant) async {
+  static Future<void> uninstall(OnDeviceModel variant) async {
     await ensureInitialized();
     if (_loadedVariant == variant) {
       await _close();
@@ -69,7 +69,7 @@ class GemmaModel {
     }
   }
 
-  static Future<String> generate(GemmaVariant variant, String prompt) {
+  static Future<String> generate(OnDeviceModel variant, String prompt) {
     return _exclusive(variant, (InferenceModel model) async {
       final InferenceModelSession session = await model.createSession(
         temperature: _temperature,
@@ -86,7 +86,7 @@ class GemmaModel {
   }
 
   static Future<T> _exclusive<T>(
-    GemmaVariant variant,
+    OnDeviceModel variant,
     Future<T> Function(InferenceModel model) task,
   ) {
     final Future<T> result = _queue.then((_) async {
@@ -97,7 +97,7 @@ class GemmaModel {
     return result;
   }
 
-  static Future<InferenceModel> _load(GemmaVariant variant) async {
+  static Future<InferenceModel> _load(OnDeviceModel variant) async {
     if (_loadedVariant != variant) {
       await _unload();
     }
@@ -105,7 +105,7 @@ class GemmaModel {
     return _model ??= _loadModel(variant);
   }
 
-  static Future<InferenceModel> _loadModel(GemmaVariant variant) async {
+  static Future<InferenceModel> _loadModel(OnDeviceModel variant) async {
     await ensureInitialized();
     if (!await isInstalled(variant)) {
       throw StateError('${variant.displayName} is not downloaded');
@@ -142,10 +142,10 @@ class GemmaModel {
   }
 }
 
-class GemmaTranslator implements PageTranslator {
-  GemmaTranslator(this.variant);
+class OnDeviceLlmTranslator implements PageTranslator {
+  OnDeviceLlmTranslator(this.variant);
 
-  final GemmaVariant variant;
+  final OnDeviceModel variant;
   bool _retained = false;
 
   @override
@@ -156,7 +156,7 @@ class GemmaTranslator implements PageTranslator {
 
   @override
   Future<bool> isReady(PageLanguage from, PageLanguage to) =>
-      GemmaModel.isInstalled(variant);
+      OnDeviceLlm.isInstalled(variant);
 
   @override
   Future<List<String>> translate(
@@ -170,7 +170,7 @@ class GemmaTranslator implements PageTranslator {
     }
     if (!_retained) {
       _retained = true;
-      GemmaModel.retain();
+      OnDeviceLlm.retain();
     }
     final List<String?> translations = await _ask(texts, from, to, glossary);
 
@@ -216,14 +216,14 @@ class GemmaTranslator implements PageTranslator {
     PageLanguage to,
     List<GlossaryEntry> glossary,
   ) async {
-    final String prompt = buildGemmaPrompt(
+    final String prompt = buildTranslationPrompt(
       texts,
       from: from,
       to: to,
       glossary: glossaryUsedIn(glossary, texts),
     );
     final Stopwatch watch = Stopwatch()..start();
-    final String output = await GemmaModel.generate(variant, prompt);
+    final String output = await OnDeviceLlm.generate(variant, prompt);
     logger.i(
       '[gemma] bubbles=${texts.length} outputChars=${output.length} '
       'time=${watch.elapsedMilliseconds}ms',
@@ -237,11 +237,11 @@ class GemmaTranslator implements PageTranslator {
       return;
     }
     _retained = false;
-    await GemmaModel.releaseUser();
+    await OnDeviceLlm.releaseUser();
   }
 }
 
-class GemmaModelFiles implements GemmaModelStore {
+class OnDeviceModelFiles implements OnDeviceModelStore {
   static const String _downloadGroup = 'smart_downloads';
 
   CancelToken? _cancelToken;
@@ -255,18 +255,18 @@ class GemmaModelFiles implements GemmaModelStore {
   }
 
   @override
-  Future<bool> isInstalled(GemmaVariant variant) =>
-      GemmaModel.isInstalled(variant);
+  Future<bool> isInstalled(OnDeviceModel variant) =>
+      OnDeviceLlm.isInstalled(variant);
 
   @override
   Future<void> install(
-    GemmaVariant variant, {
+    OnDeviceModel variant, {
     required void Function(int percent) onProgress,
   }) async {
     final CancelToken token = CancelToken();
     _cancelToken = token;
     try {
-      await GemmaModel.install(
+      await OnDeviceLlm.install(
         variant,
         onProgress: onProgress,
         cancelToken: token,
@@ -280,5 +280,6 @@ class GemmaModelFiles implements GemmaModelStore {
   void cancel() => _cancelToken?.cancel();
 
   @override
-  Future<void> uninstall(GemmaVariant variant) => GemmaModel.uninstall(variant);
+  Future<void> uninstall(OnDeviceModel variant) =>
+      OnDeviceLlm.uninstall(variant);
 }

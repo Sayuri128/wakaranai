@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/blocs/gemma_model/gemma_model_cubit.dart';
+import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/page_translation/engines/deepl_translator.dart';
-import 'package:wakaranai/services/page_translation/engines/gemma_variant.dart';
+import 'package:wakaranai/services/page_translation/engines/on_device_model.dart';
 import 'package:wakaranai/services/page_translation/engines/page_translation_engines.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -15,7 +15,7 @@ class TranslationEngineOption {
     required this.title,
     required this.description,
     required this.tags,
-    this.gemma,
+    this.localModel,
   });
 
   final String id;
@@ -23,7 +23,7 @@ class TranslationEngineOption {
   final String title;
   final String description;
   final List<String> tags;
-  final GemmaVariant? gemma;
+  final OnDeviceModel? localModel;
 
   static List<TranslationEngineOption> all() {
     return <TranslationEngineOption>[
@@ -38,18 +38,18 @@ class TranslationEngineOption {
           S.current.engine_tag_literal,
         ],
       ),
-      for (final GemmaVariant variant in GemmaVariant.values)
+      for (final OnDeviceModel model in OnDeviceModel.values)
         TranslationEngineOption(
-          id: variant.engineId,
+          id: model.engineId,
           icon: Icons.auto_awesome_rounded,
-          title: _gemmaTitle(variant),
-          description: _gemmaDescription(variant),
-          gemma: variant,
+          title: _localModelTitle(model),
+          description: _localModelDescription(model),
+          localModel: model,
           tags: <String>[
             S.current.engine_tag_offline,
-            _gemmaSpeedTag(variant),
+            _localModelSpeedTag(model),
             S.current.engine_tag_natural,
-            S.current.engine_tag_size(variant.sizeLabel),
+            S.current.engine_tag_size(model.sizeLabel),
           ],
         ),
       TranslationEngineOption(
@@ -74,24 +74,24 @@ class TranslationEngineOption {
     );
   }
 
-  static String _gemmaTitle(GemmaVariant variant) {
-    return switch (variant) {
-      GemmaVariant.e2b => S.current.translation_engine_gemma,
-      GemmaVariant.e4b => S.current.translation_engine_gemma_e4b,
+  static String _localModelTitle(OnDeviceModel model) {
+    return switch (model) {
+      OnDeviceModel.e2b => S.current.translation_engine_gemma,
+      OnDeviceModel.e4b => S.current.translation_engine_gemma_e4b,
     };
   }
 
-  static String _gemmaDescription(GemmaVariant variant) {
-    return switch (variant) {
-      GemmaVariant.e2b => S.current.translation_engine_gemma_subtitle,
-      GemmaVariant.e4b => S.current.translation_engine_gemma_e4b_subtitle,
+  static String _localModelDescription(OnDeviceModel model) {
+    return switch (model) {
+      OnDeviceModel.e2b => S.current.translation_engine_gemma_subtitle,
+      OnDeviceModel.e4b => S.current.translation_engine_gemma_e4b_subtitle,
     };
   }
 
-  static String _gemmaSpeedTag(GemmaVariant variant) {
-    return switch (variant) {
-      GemmaVariant.e2b => S.current.engine_tag_medium_speed,
-      GemmaVariant.e4b => S.current.engine_tag_slow,
+  static String _localModelSpeedTag(OnDeviceModel model) {
+    return switch (model) {
+      OnDeviceModel.e2b => S.current.engine_tag_medium_speed,
+      OnDeviceModel.e4b => S.current.engine_tag_slow,
     };
   }
 }
@@ -99,7 +99,7 @@ class TranslationEngineOption {
 Future<String?> showTranslationEnginePicker(
   BuildContext context, {
   required String selectedId,
-  required String? Function(GemmaVariant variant) unavailableReason,
+  required String? Function(OnDeviceModel model) unavailableReason,
   required VoidCallback onShowGemmaInfo,
 }) {
   return showModalBottomSheet<String>(
@@ -110,8 +110,8 @@ Future<String?> showTranslationEnginePicker(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
     builder: (BuildContext sheetContext) {
-      return BlocProvider<GemmaModelCubit>.value(
-        value: context.read<GemmaModelCubit>(),
+      return BlocProvider<OnDeviceModelCubit>.value(
+        value: context.read<OnDeviceModelCubit>(),
         child: _EnginePickerSheet(
           selectedId: selectedId,
           unavailableReason: unavailableReason,
@@ -130,7 +130,7 @@ class _EnginePickerSheet extends StatelessWidget {
   });
 
   final String selectedId;
-  final String? Function(GemmaVariant variant) unavailableReason;
+  final String? Function(OnDeviceModel model) unavailableReason;
   final VoidCallback onShowGemmaInfo;
 
   @override
@@ -168,7 +168,7 @@ class _EnginePickerSheet extends StatelessWidget {
                 selected: option.id == selectedId,
                 unavailableReason: _reasonFor(option),
                 onTap: () => Navigator.of(context).pop(option.id),
-                onInfo: option.gemma == null ? null : onShowGemmaInfo,
+                onInfo: option.localModel == null ? null : onShowGemmaInfo,
               ),
           ],
         ),
@@ -177,7 +177,7 @@ class _EnginePickerSheet extends StatelessWidget {
   }
 
   String? _reasonFor(TranslationEngineOption option) {
-    final GemmaVariant? variant = option.gemma;
+    final OnDeviceModel? variant = option.localModel;
     if (variant == null) {
       return null;
     }
