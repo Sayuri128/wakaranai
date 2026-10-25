@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wakaranai/services/page_translation/translation_overlay_style.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/translation_typesetter.dart';
 
 void main() {
@@ -53,25 +52,21 @@ void main() {
     expect(word.width, lessThanOrEqualTo(box.width + 0.5));
   });
 
-  test('the text size setting scales the fitted font', () {
-    const Size box = Size(120, 80);
-    double fittedSize(TranslationTextSize size) {
+  test('the text size limit caps the fitted font', () {
+    const Size box = Size(240, 160);
+    double fittedSize({double maxFontSize = double.infinity}) {
       final TextPainter painter = fitTranslation(
-        'What are you doing here?',
+        'Hey!',
         box,
         color: Colors.black,
-        style: TranslationOverlayStyle(textSize: size),
+        maxFontSize: maxFontSize,
       );
       final double fontSize = painter.text!.style!.fontSize!;
       painter.dispose();
       return fontSize;
     }
 
-    final double small = fittedSize(TranslationTextSize.small);
-    final double normal = fittedSize(TranslationTextSize.normal);
-    final double large = fittedSize(TranslationTextSize.large);
-
-    expect(small, lessThan(normal));
-    expect(large, greaterThan(normal));
+    expect(fittedSize(), greaterThan(20));
+    expect(fittedSize(maxFontSize: 14), lessThanOrEqualTo(14));
   });
 }

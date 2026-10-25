@@ -26,8 +26,8 @@ class SettingsService {
       'PAGE_TRANSLATION_OCR_ENGINE';
   static const String pageTranslationTranslatorPrefsKey =
       'PAGE_TRANSLATION_TRANSLATOR';
-  static const String pageTranslationTextSizePrefsKey =
-      'PAGE_TRANSLATION_TEXT_SIZE';
+  static const String pageTranslationMaxTextPixelsPrefsKey =
+      'PAGE_TRANSLATION_MAX_TEXT_PIXELS';
   static const String pageTranslationFontPrefsKey = 'PAGE_TRANSLATION_FONT';
   static const String pageTranslationLabelOpacityPrefsKey =
       'PAGE_TRANSLATION_LABEL_OPACITY';
@@ -113,8 +113,8 @@ class SettingsService {
       translator: _legacyTranslator(
           _prefs!.getString(pageTranslationTranslatorPrefsKey)),
       overlay: TranslationOverlayStyle(
-        textSize: TranslationTextSize.byId(
-            _prefs!.getString(pageTranslationTextSizePrefsKey)),
+        maxTextPixels:
+            _prefs!.getDouble(pageTranslationMaxTextPixelsPrefsKey),
         font: TranslationFont.byId(
             _prefs!.getString(pageTranslationFontPrefsKey)),
         labelOpacity:
@@ -139,8 +139,13 @@ class SettingsService {
         .setString(pageTranslationOcrEnginePrefsKey, settings.ocrEngineId);
     await _prefs!
         .setString(pageTranslationTranslatorPrefsKey, settings.translatorId);
-    await _prefs!.setString(
-        pageTranslationTextSizePrefsKey, settings.overlay.textSize.id);
+    final double? maxTextPixels = settings.overlay.maxTextPixels;
+    if (maxTextPixels == null) {
+      await _prefs!.remove(pageTranslationMaxTextPixelsPrefsKey);
+    } else {
+      await _prefs!
+          .setDouble(pageTranslationMaxTextPixelsPrefsKey, maxTextPixels);
+    }
     await _prefs!
         .setString(pageTranslationFontPrefsKey, settings.overlay.font.id);
     await _prefs!.setDouble(

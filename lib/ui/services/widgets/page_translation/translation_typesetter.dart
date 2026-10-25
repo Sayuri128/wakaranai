@@ -54,11 +54,11 @@ TextPainter fitTranslation(
   Size area, {
   required Color color,
   TranslationOverlayStyle style = const TranslationOverlayStyle(),
+  double maxFontSize = double.infinity,
   double minSize = 4,
 }) {
-  final double scale = style.textSize.scale;
   final TranslationFont font = style.font;
-  final Size box = scale > 1 ? area * scale : area;
+  final Size box = area;
 
   TextPainter layoutAt(double fontSize) {
     return TextPainter(
@@ -90,7 +90,10 @@ TextPainter fitTranslation(
     box.width * _maxFontToWidthRatio,
   );
   double smallest = minSize;
-  double largest = max(minSize, min(sizeCap, largestUnbrokenSize));
+  double largest = max(
+    minSize,
+    min(maxFontSize, min(sizeCap, largestUnbrokenSize)),
+  );
 
   TextPainter best = layoutAt(smallest);
   if (!fitsInBox(best) || smallest > largestUnbrokenSize) {
@@ -108,12 +111,7 @@ TextPainter fitTranslation(
       largest = middle;
     }
   }
-
-  if (scale >= 1) {
-    return best;
-  }
-  best.dispose();
-  return layoutAt(max(minSize, smallest * scale));
+  return best;
 }
 
 Color translationTextColor(Color fill) {
@@ -135,11 +133,21 @@ class TranslationOverlayPainter extends CustomPainter {
     required this.result,
     required this.hidden,
     this.style = const TranslationOverlayStyle(),
+    this.screenScale = 1,
   });
 
   final PageTranslationResult result;
   final Set<int> hidden;
   final TranslationOverlayStyle style;
+  final double screenScale;
+
+  double get _maxFontSize {
+    final double? pixels = style.maxTextPixels;
+    if (pixels == null || screenScale <= 0) {
+      return double.infinity;
+    }
+    return pixels / screenScale;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -186,6 +194,7 @@ class TranslationOverlayPainter extends CustomPainter {
       textArea.size,
       color: translationTextColor(fill),
       style: style,
+      maxFontSize: _maxFontSize,
     );
     painter.paint(canvas, _centered(painter, textArea.center));
     painter.dispose();
@@ -197,6 +206,7 @@ class TranslationOverlayPainter extends CustomPainter {
       layoutRect.size,
       color: _darkText,
       style: style,
+      maxFontSize: _maxFontSize,
     );
     final double padding = painter.preferredLineHeight * _labelPadding;
     canvas.drawRRect(
@@ -219,7 +229,9 @@ class TranslationOverlayPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(TranslationOverlayPainter oldDelegate) {
-    if (!identical(oldDelegate.result, result) || oldDelegate.style != style) {
+    if (!identical(oldDelegate.result, result) ||
+        oldDelegate.style != style ||
+        oldDelegate.screenScale != screenScale) {
       return true;
     }
     return oldDelegate.hidden.length != hidden.length ||

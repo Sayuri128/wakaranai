@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,6 +27,30 @@ class TranslatedPage extends StatefulWidget {
 }
 
 class TranslatedPageState extends State<TranslatedPage> {
+  static const double _scaleProbe = 100;
+  static const double _scaleTolerance = 0.01;
+
+  double _screenScale = 1;
+
+  void _measureScreenScale() {
+    final RenderObject? renderObject = mounted
+        ? context.findRenderObject()
+        : null;
+    if (renderObject is! RenderBox ||
+        !renderObject.attached ||
+        !renderObject.hasSize) {
+      return;
+    }
+    final Offset origin = renderObject.localToGlobal(Offset.zero);
+    final Offset probe = renderObject.localToGlobal(
+      const Offset(_scaleProbe, 0),
+    );
+    final double scale = (probe - origin).distance / _scaleProbe;
+    if (scale > 0 && (scale - _screenScale).abs() > _scaleTolerance) {
+      setState(() => _screenScale = scale);
+    }
+  }
+
   bool openBubbleAt(Offset globalPosition, {bool longPress = false}) {
     final PageTranslationCubit? translation = widget.cubit;
     final PageTranslationResult? result = _visibleResult();
@@ -180,6 +202,11 @@ class TranslatedPageState extends State<TranslatedPage> {
         final TranslationOverlayStyle style = context.select(
           (PageTranslationSettingsCubit settings) => settings.state.overlay,
         );
+        if (style.maxTextPixels != null) {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (Duration _) => _measureScreenScale(),
+          );
+        }
         final Set<int> hiddenBubbles = <int>{
           for (int i = 0; i < result.bubbles.length; i++)
             if (state.isHidden(widget.path, i)) i,
@@ -195,6 +222,7 @@ class TranslatedPageState extends State<TranslatedPage> {
                       result: result,
                       hidden: hiddenBubbles,
                       style: style,
+                      screenScale: _screenScale,
                     ),
                   ),
                 ),
@@ -209,14 +237,8 @@ class TranslatedPageState extends State<TranslatedPage> {
 
 const double _touchMargin = 14;
 
-Rect bubbleTapArea(TranslatedBubble bubble, TranslationOverlayStyle style) {
-  final Rect area = bubble.layoutBox.expandToInclude(bubble.textBox);
-  final double overflow = max(0, style.textSize.scale - 1) / 2;
-  return Rect.fromCenter(
-    center: area.center,
-    width: area.width * (1 + overflow * 2),
-    height: area.height * (1 + overflow * 2),
-  );
+Rect bubbleTapArea(TranslatedBubble bubble) {
+  return bubble.layoutBox.expandToInclude(bubble.textBox);
 }
 
 List<Rect> bubbleScreenAreas(
@@ -229,7 +251,7 @@ List<Rect> bubbleScreenAreas(
   return <Rect>[
     for (final TranslatedBubble bubble in result.bubbles)
       _toScreen(
-        scaleRect(bubbleTapArea(bubble, style), scaleX, scaleY),
+        scaleRect(bubbleTapArea(bubble), scaleX, scaleY),
         page,
       ).inflate(_touchMargin),
   ];

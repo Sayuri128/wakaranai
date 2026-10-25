@@ -99,70 +99,72 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m36(done, total) => "Translating chapter ${done}/${total}";
 
-  static String m37(query) => "We couldn\'t find anything for “${query}”";
+  static String m37(size) => "Up to ${size} px";
 
-  static String m38(query) => "Results for “${query}”";
+  static String m38(query) => "We couldn\'t find anything for “${query}”";
 
-  static String m39(version) => "New version ${version} available";
+  static String m39(query) => "Results for “${query}”";
 
-  static String m40(count) => "${count} skipped";
+  static String m40(version) => "New version ${version} available";
 
-  static String m41(imported, total) =>
+  static String m41(count) => "${count} skipped";
+
+  static String m42(imported, total) =>
       "Imported ${imported} of ${total} items";
 
-  static String m42(url) => "Load extensions from ${url}";
+  static String m43(url) => "Load extensions from ${url}";
 
-  static String m43(hours) => "Every ${hours} hours";
+  static String m44(hours) => "Every ${hours} hours";
 
-  static String m44(count) => "${count} activities";
+  static String m45(count) => "${count} activities";
 
-  static String m45(current, longest) =>
+  static String m46(current, longest) =>
       "Current ${current} · Longest ${longest}";
 
-  static String m46(size) =>
+  static String m47(size) =>
       "This frees ${size} GB. You can download it again at any time.";
 
-  static String m47(model, size) => "${model} · ${size} GB · ready";
+  static String m48(model, size) => "${model} · ${size} GB · ready";
 
-  static String m48(size) => "Not downloaded · ${size} GB";
+  static String m49(size) => "Not downloaded · ${size} GB";
 
-  static String m49(need, ram) =>
+  static String m50(need, ram) =>
       "Needs ${need} GB of RAM (this phone has ${ram} GB)";
 
-  static String m50(model, ram) => "This phone: ${model} · ${ram} GB RAM";
+  static String m51(model, ram) => "This phone: ${model} · ${ram} GB RAM";
 
-  static String m51(ram) => "${ram} GB of RAM or more";
+  static String m52(ram) => "${ram} GB of RAM or more";
 
-  static String m52(size) => "About ${size} GB of free storage";
+  static String m53(size) => "About ${size} GB of free storage";
 
-  static String m53(size) => "Downloaded · ${size} GB";
+  static String m54(size) => "Downloaded · ${size} GB";
 
-  static String m54(count) =>
+  static String m55(count) =>
       "${Intl.plural(count, zero: 'No language packs yet', one: '1 language pack downloaded', other: '${count} language packs downloaded')}";
 
-  static String m55(size) =>
+  static String m56(size) =>
       "Not downloaded · ${size} GB · choose it as the engine to download";
 
-  static String m56(count, size) =>
+  static String m57(count, size) =>
       "${Intl.plural(count, zero: 'No AI models downloaded', one: '1 AI model · ${size} GB', other: '${count} AI models · ${size} GB')}";
 
-  static String m57(count) => "${count} sources could not be checked";
+  static String m58(count) => "${count} sources could not be checked";
 
-  static String m58(count) => "${count} new items found";
+  static String m59(count) => "${count} new items found";
 
-  static String m59(title, count) => "${title} · ${count} new";
+  static String m60(title, count) => "${title} · ${count} new";
 
-  static String m60(count) => "and ${count} more titles";
+  static String m61(count) => "and ${count} more titles";
 
-  static String m61(count) => "Across ${count} titles";
+  static String m62(count) => "Across ${count} titles";
 
-  static String m62(count) => "${count} new items";
+  static String m63(count) => "${count} new items";
 
-  static String m63(count) => "${count}d ago";
+  static String m64(count) => "${count}d ago";
 
-  static String m64(count) => "${count}h ago";
+  static String m65(count) => "${count}h ago";
 
-  static String m65(count) => "${count}m ago";
+  static String m66(count) => "${count}m ago";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -832,14 +834,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_text_size": MessageLookupByLibrary.simpleMessage(
       "Text size",
     ),
-    "page_translation_text_size_large": MessageLookupByLibrary.simpleMessage(
-      "Larger",
+    "page_translation_text_size_auto": MessageLookupByLibrary.simpleMessage(
+      "Auto",
     ),
-    "page_translation_text_size_normal": MessageLookupByLibrary.simpleMessage(
-      "Default",
-    ),
-    "page_translation_text_size_small": MessageLookupByLibrary.simpleMessage(
-      "Smaller",
+    "page_translation_text_size_pixels": m37,
+    "page_translation_text_size_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Largest size translated text may use on screen",
     ),
     "page_translation_translate_chapter": MessageLookupByLibrary.simpleMessage(
       "Translate whole chapter",
@@ -868,7 +868,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_error_title": MessageLookupByLibrary.simpleMessage(
       "Something went wrong",
     ),
-    "service_view_no_results_message": m37,
+    "service_view_no_results_message": m38,
     "service_view_no_results_title": MessageLookupByLibrary.simpleMessage(
       "No results",
     ),
@@ -877,7 +877,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_retry_button_title": MessageLookupByLibrary.simpleMessage(
       "Retry",
     ),
-    "service_view_search_results_for": m38,
+    "service_view_search_results_for": m39,
     "service_viewer_search_field_hint_text":
         MessageLookupByLibrary.simpleMessage("Search"),
     "settings_about_section_title": MessageLookupByLibrary.simpleMessage(
@@ -949,7 +949,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_developer_section": MessageLookupByLibrary.simpleMessage(
       "Developer",
     ),
-    "settings_download_latest_release": m39,
+    "settings_download_latest_release": m40,
     "settings_export_data_button": MessageLookupByLibrary.simpleMessage(
       "Export data",
     ),
@@ -1006,13 +1006,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_import_sheet_title": MessageLookupByLibrary.simpleMessage(
       "Import data",
     ),
-    "settings_import_skipped": m40,
-    "settings_import_success": m41,
+    "settings_import_skipped": m41,
+    "settings_import_success": m42,
     "settings_local_extension_server_missing":
         MessageLookupByLibrary.simpleMessage(
           "Set LOCAL_REPOSITORY_URL in .env to enable",
         ),
-    "settings_local_extension_server_subtitle": m42,
+    "settings_local_extension_server_subtitle": m43,
     "settings_local_extension_server_title":
         MessageLookupByLibrary.simpleMessage("Local extension server"),
     "settings_page_translation_subtitle": MessageLookupByLibrary.simpleMessage(
@@ -1063,7 +1063,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_update_frequency": MessageLookupByLibrary.simpleMessage(
       "Check frequency",
     ),
-    "settings_update_frequency_value": m43,
+    "settings_update_frequency_value": m44,
     "settings_update_notifications": MessageLookupByLibrary.simpleMessage(
       "Update notifications",
     ),
@@ -1096,7 +1096,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "stats_heatmap_less": MessageLookupByLibrary.simpleMessage("Less"),
     "stats_heatmap_more": MessageLookupByLibrary.simpleMessage("More"),
-    "stats_heatmap_week_count": m44,
+    "stats_heatmap_week_count": m45,
     "stats_kpi_active_days": MessageLookupByLibrary.simpleMessage(
       "Active days",
     ),
@@ -1117,17 +1117,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "stats_sources_section_title": MessageLookupByLibrary.simpleMessage(
       "Top sources",
     ),
-    "stats_streak_summary": m45,
+    "stats_streak_summary": m46,
     "stats_title": MessageLookupByLibrary.simpleMessage("Statistics"),
-    "translation_ai_model_delete_message": m46,
+    "translation_ai_model_delete_message": m47,
     "translation_ai_model_delete_title": MessageLookupByLibrary.simpleMessage(
       "Delete the AI model?",
     ),
     "translation_ai_model_failed": MessageLookupByLibrary.simpleMessage(
       "Download failed · try again on Wi-Fi",
     ),
-    "translation_ai_model_installed": m47,
-    "translation_ai_model_missing": m48,
+    "translation_ai_model_installed": m48,
+    "translation_ai_model_missing": m49,
     "translation_ai_model_title": MessageLookupByLibrary.simpleMessage(
       "AI model",
     ),
@@ -1157,7 +1157,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Needs Android 11 or newer"),
     "translation_engine_gemma_unavailable_platform":
         MessageLookupByLibrary.simpleMessage("Not available on this device"),
-    "translation_engine_gemma_unavailable_ram": m49,
+    "translation_engine_gemma_unavailable_ram": m50,
     "translation_engine_info_examples": MessageLookupByLibrary.simpleMessage(
       "Speed by phone (estimated)",
     ),
@@ -1169,7 +1169,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "translation_engine_info_requirements":
         MessageLookupByLibrary.simpleMessage("Requirements"),
-    "translation_engine_info_this_phone": m50,
+    "translation_engine_info_this_phone": m51,
     "translation_engine_mlkit": MessageLookupByLibrary.simpleMessage("ML Kit"),
     "translation_engine_mlkit_subtitle": MessageLookupByLibrary.simpleMessage(
       "Fast and light · works on every phone · literal translations",
@@ -1180,8 +1180,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "translation_engine_req_android": MessageLookupByLibrary.simpleMessage(
       "Android 11 or newer",
     ),
-    "translation_engine_req_ram_model": m51,
-    "translation_engine_req_storage_model": m52,
+    "translation_engine_req_ram_model": m52,
+    "translation_engine_req_storage_model": m53,
     "translation_engine_section": MessageLookupByLibrary.simpleMessage(
       "Translation engine",
     ),
@@ -1211,21 +1211,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "translation_models_ai_section": MessageLookupByLibrary.simpleMessage(
       "On-device AI",
     ),
-    "translation_models_downloaded": m53,
-    "translation_models_packs_count": m54,
+    "translation_models_downloaded": m54,
+    "translation_models_packs_count": m55,
     "translation_models_packs_section": MessageLookupByLibrary.simpleMessage(
       "ML Kit",
     ),
-    "translation_models_pick_first": m55,
-    "translation_models_summary": m56,
+    "translation_models_pick_first": m56,
+    "translation_models_summary": m57,
     "translation_models_title": MessageLookupByLibrary.simpleMessage(
       "Downloaded models",
     ),
     "translation_models_unsupported": MessageLookupByLibrary.simpleMessage(
       "Not supported on this phone",
     ),
-    "updates_check_failed": m57,
-    "updates_check_found": m58,
+    "updates_check_failed": m58,
+    "updates_check_found": m59,
     "updates_check_none": MessageLookupByLibrary.simpleMessage(
       "No new updates found",
     ),
@@ -1245,13 +1245,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "updates_notification_channel_name": MessageLookupByLibrary.simpleMessage(
       "Library updates",
     ),
-    "updates_notification_line": m59,
-    "updates_notification_more": m60,
-    "updates_notification_summary": m61,
-    "updates_notification_title": m62,
-    "updates_time_days": m63,
-    "updates_time_hours": m64,
-    "updates_time_minutes": m65,
+    "updates_notification_line": m60,
+    "updates_notification_more": m61,
+    "updates_notification_summary": m62,
+    "updates_notification_title": m63,
+    "updates_time_days": m64,
+    "updates_time_hours": m65,
+    "updates_time_minutes": m66,
     "updates_time_now": MessageLookupByLibrary.simpleMessage("Just now"),
     "updates_title": MessageLookupByLibrary.simpleMessage("Updates"),
     "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage("Done"),

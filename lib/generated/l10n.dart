@@ -3749,33 +3749,33 @@ class S {
     );
   }
 
-  /// `Smaller`
-  String get page_translation_text_size_small {
+  /// `Largest size translated text may use on screen`
+  String get page_translation_text_size_subtitle {
     return Intl.message(
-      'Smaller',
-      name: 'page_translation_text_size_small',
+      'Largest size translated text may use on screen',
+      name: 'page_translation_text_size_subtitle',
       desc: '',
       args: [],
     );
   }
 
-  /// `Default`
-  String get page_translation_text_size_normal {
+  /// `Auto`
+  String get page_translation_text_size_auto {
     return Intl.message(
-      'Default',
-      name: 'page_translation_text_size_normal',
+      'Auto',
+      name: 'page_translation_text_size_auto',
       desc: '',
       args: [],
     );
   }
 
-  /// `Larger`
-  String get page_translation_text_size_large {
+  /// `Up to {size} px`
+  String page_translation_text_size_pixels(int size) {
     return Intl.message(
-      'Larger',
-      name: 'page_translation_text_size_large',
+      'Up to $size px',
+      name: 'page_translation_text_size_pixels',
       desc: '',
-      args: [],
+      args: [size],
     );
   }
 

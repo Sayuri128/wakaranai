@@ -30,13 +30,10 @@ class TranslationAppearanceSection extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
           child: _AppearancePreview(style: style),
         ),
-        _ChoiceRow<TranslationTextSize>(
-          label: S.current.page_translation_text_size,
-          options: TranslationTextSize.values,
-          selected: style.textSize,
-          labelOf: _textSizeLabel,
-          onSelected: (TranslationTextSize size) =>
-              cubit.setOverlay(style.copyWith(textSize: size)),
+        _TextSizeRow(
+          maxTextPixels: style.maxTextPixels,
+          onChanged: (double? pixels) =>
+              cubit.setOverlay(style.withMaxTextPixels(pixels)),
         ),
         _ChoiceRow<TranslationFont>(
           label: S.current.page_translation_font,
@@ -53,14 +50,6 @@ class TranslationAppearanceSection extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  static String _textSizeLabel(TranslationTextSize size) {
-    return switch (size) {
-      TranslationTextSize.small => S.current.page_translation_text_size_small,
-      TranslationTextSize.normal => S.current.page_translation_text_size_normal,
-      TranslationTextSize.large => S.current.page_translation_text_size_large,
-    };
   }
 
   static String _fontLabel(TranslationFont font) {
@@ -255,6 +244,68 @@ class _LabelOpacityRow extends StatelessWidget {
             activeColor: AppColors.primary,
             inactiveColor: AppColors.overlay(0.12),
             onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TextSizeRow extends StatelessWidget {
+  const _TextSizeRow({required this.maxTextPixels, required this.onChanged});
+
+  final double? maxTextPixels;
+  final ValueChanged<double?> onChanged;
+
+  static const double _autoPosition =
+      TranslationOverlayStyle.maxTextPixelsLimit + 1;
+
+  @override
+  Widget build(BuildContext context) {
+    final double? pixels = maxTextPixels;
+    final String valueLabel = pixels == null
+        ? S.current.page_translation_text_size_auto
+        : S.current.page_translation_text_size_pixels(pixels.round());
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 12, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  S.current.page_translation_text_size,
+                  style: medium(size: 14),
+                ),
+              ),
+              Text(
+                valueLabel,
+                style: medium(size: 13, color: AppColors.mainGrey),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            S.current.page_translation_text_size_subtitle,
+            style: regular(size: 12, color: AppColors.mainGrey),
+          ),
+          Slider(
+            value: pixels ?? _autoPosition,
+            min: TranslationOverlayStyle.minTextPixelsLimit,
+            max: _autoPosition,
+            divisions:
+                (_autoPosition - TranslationOverlayStyle.minTextPixelsLimit)
+                    .round(),
+            activeColor: AppColors.primary,
+            inactiveColor: AppColors.overlay(0.12),
+            onChanged: (double value) {
+              if (value >= _autoPosition) {
+                onChanged(null);
+              } else {
+                onChanged(value.roundToDouble());
+              }
+            },
           ),
         ],
       ),

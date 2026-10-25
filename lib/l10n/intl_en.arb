@@ -555,9 +555,16 @@
     }
   },
   "page_translation_text_size": "Text size",
-  "page_translation_text_size_small": "Smaller",
-  "page_translation_text_size_normal": "Default",
-  "page_translation_text_size_large": "Larger",
+  "page_translation_text_size_subtitle": "Largest size translated text may use on screen",
+  "page_translation_text_size_auto": "Auto",
+  "page_translation_text_size_pixels": "Up to {size} px",
+  "@page_translation_text_size_pixels": {
+    "placeholders": {
+      "size": {
+        "type": "int"
+      }
+    }
+  },
   "page_translation_font": "Font",
   "page_translation_font_system": "System",
   "page_translation_font_comic": "Comic",
