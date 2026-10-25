@@ -3617,6 +3617,96 @@ class S {
     );
   }
 
+  /// `Change`
+  String get translation_engine_change {
+    return Intl.message(
+      'Change',
+      name: 'translation_engine_change',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Offline`
+  String get engine_tag_offline {
+    return Intl.message(
+      'Offline',
+      name: 'engine_tag_offline',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Online`
+  String get engine_tag_online {
+    return Intl.message(
+      'Online',
+      name: 'engine_tag_online',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fast`
+  String get engine_tag_fast {
+    return Intl.message('Fast', name: 'engine_tag_fast', desc: '', args: []);
+  }
+
+  /// `A few seconds per page`
+  String get engine_tag_medium_speed {
+    return Intl.message(
+      'A few seconds per page',
+      name: 'engine_tag_medium_speed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Slower`
+  String get engine_tag_slow {
+    return Intl.message('Slower', name: 'engine_tag_slow', desc: '', args: []);
+  }
+
+  /// `Literal`
+  String get engine_tag_literal {
+    return Intl.message(
+      'Literal',
+      name: 'engine_tag_literal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Natural`
+  String get engine_tag_natural {
+    return Intl.message(
+      'Natural',
+      name: 'engine_tag_natural',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Best quality`
+  String get engine_tag_best {
+    return Intl.message(
+      'Best quality',
+      name: 'engine_tag_best',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{size} GB`
+  String engine_tag_size(String size) {
+    return Intl.message(
+      '$size GB',
+      name: 'engine_tag_size',
+      desc: '',
+      args: [size],
+    );
+  }
+
   /// `Best quality · sends the recognised text to DeepL · needs a free API key`
   String get translation_engine_deepl_subtitle {
     return Intl.message(

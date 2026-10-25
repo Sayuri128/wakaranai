@@ -535,6 +535,23 @@
   "translation_engine_gemma_e4b": "Gemma 4 E4B · on-device AI",
   "translation_engine_gemma_e4b_subtitle": "Better translations, about twice as slow · 3.7 GB · 12 GB RAM",
   "translation_engine_deepl": "DeepL · online",
+  "translation_engine_change": "Change",
+  "engine_tag_offline": "Offline",
+  "engine_tag_online": "Online",
+  "engine_tag_fast": "Fast",
+  "engine_tag_medium_speed": "A few seconds per page",
+  "engine_tag_slow": "Slower",
+  "engine_tag_literal": "Literal",
+  "engine_tag_natural": "Natural",
+  "engine_tag_best": "Best quality",
+  "engine_tag_size": "{size} GB",
+  "@engine_tag_size": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "translation_engine_deepl_subtitle": "Best quality · sends the recognised text to DeepL · needs a free API key",
   "translation_engine_gemma_unavailable_platform": "Not available on this device",
   "translation_engine_gemma_unavailable_android": "Needs Android 11 or newer",

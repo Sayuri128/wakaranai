@@ -13,6 +13,7 @@ import 'package:wakaranai/services/page_translation/page_translation_settings.da
 import 'package:wakaranai/services/page_translation/translation_prerequisites.dart';
 import 'package:wakaranai/ui/home/settings_page/deepl_key_dialog.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_widgets.dart';
+import 'package:wakaranai/ui/home/settings_page/translation_engine_picker.dart';
 import 'package:wakaranai/ui/widgets/download_estimate_text.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -35,37 +36,22 @@ class TranslationEngineSection extends StatelessWidget {
     final GemmaVariant? selectedGemma = GemmaVariant.forEngine(selectedId);
     final bool deepLSelected = selectedId == deepLEngineId;
 
+    final TranslationEngineOption selected = TranslationEngineOption.byId(
+      selectedId,
+    );
+
     return SettingsSection(
       title: S.current.translation_engine_section,
       tiles: <Widget>[
-        _EngineTile(
-          icon: Icons.bolt_rounded,
-          title: S.current.translation_engine_mlkit,
-          subtitle: S.current.translation_engine_mlkit_subtitle,
-          selected: selectedGemma == null && !deepLSelected,
-          enabled: true,
-          onTap: () => cubit.setTranslator(_mlKitId),
-        ),
-        for (final GemmaVariant variant in GemmaVariant.values)
-          _EngineTile(
-            icon: Icons.auto_awesome_rounded,
-            title: _gemmaTitle(variant),
-            subtitle: _gemmaSubtitle(variant, gemma),
-            selected: selectedGemma == variant,
-            enabled: gemma.supports(variant),
-            onTap: () => cubit.setTranslator(variant.engineId),
-            trailing: IconButton(
-              icon: Icon(Icons.info_outline_rounded, color: AppColors.mainGrey),
-              onPressed: () => showOnDeviceAiInfo(context),
-            ),
+        SettingsTile(
+          icon: selected.icon,
+          title: selected.title,
+          subtitle: selected.description,
+          trailing: SettingsPillButton(
+            label: S.current.translation_engine_change,
+            onTap: () => _pickEngine(context, cubit, selectedId, gemma),
           ),
-        _EngineTile(
-          icon: Icons.cloud_outlined,
-          title: S.current.translation_engine_deepl,
-          subtitle: S.current.translation_engine_deepl_subtitle,
-          selected: deepLSelected,
-          enabled: true,
-          onTap: () => _selectDeepL(context, cubit),
+          onTap: () => _pickEngine(context, cubit, selectedId, gemma),
         ),
         if (selectedGemma != null) _GemmaModelTile(state: gemma),
         for (final GemmaVariant variant in gemma.otherInstalledVariants)
@@ -75,7 +61,28 @@ class TranslationEngineSection extends StatelessWidget {
     );
   }
 
-  static String get _mlKitId => PageTranslationEngines.translators.first.id;
+  static Future<void> _pickEngine(
+    BuildContext context,
+    PageTranslationSettingsCubit cubit,
+    String selectedId,
+    GemmaModelState gemma,
+  ) async {
+    final String? picked = await showTranslationEnginePicker(
+      context,
+      selectedId: selectedId,
+      unavailableReason: (GemmaVariant variant) =>
+          _gemmaUnavailableReason(variant, gemma),
+      onShowGemmaInfo: () => showOnDeviceAiInfo(context),
+    );
+    if (picked == null || picked == selectedId || !context.mounted) {
+      return;
+    }
+    if (picked == deepLEngineId) {
+      await _selectDeepL(context, cubit);
+      return;
+    }
+    await cubit.setTranslator(picked);
+  }
 
   static Future<void> _selectDeepL(
     BuildContext context,
@@ -93,20 +100,13 @@ class TranslationEngineSection extends StatelessWidget {
     await cubit.setTranslator(deepLEngineId);
   }
 
-  static String _gemmaTitle(GemmaVariant variant) {
-    return switch (variant) {
-      GemmaVariant.e2b => S.current.translation_engine_gemma,
-      GemmaVariant.e4b => S.current.translation_engine_gemma_e4b,
-    };
-  }
-
-  static String _gemmaSubtitle(GemmaVariant variant, GemmaModelState gemma) {
+  static String? _gemmaUnavailableReason(
+    GemmaVariant variant,
+    GemmaModelState gemma,
+  ) {
     final OnDeviceAiSupport? support = gemma.supportByVariant[variant];
     if (support == null || support.supported) {
-      return switch (variant) {
-        GemmaVariant.e2b => S.current.translation_engine_gemma_subtitle,
-        GemmaVariant.e4b => S.current.translation_engine_gemma_e4b_subtitle,
-      };
+      return null;
     }
     return _unsupportedReason(support);
   }
@@ -133,51 +133,6 @@ class TranslationEngineSection extends StatelessWidget {
       return 8;
     }
     return 12;
-  }
-}
-
-class _EngineTile extends StatelessWidget {
-  const _EngineTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.selected,
-    required this.enabled,
-    required this.onTap,
-    this.trailing,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final bool selected;
-  final bool enabled;
-  final VoidCallback onTap;
-  final Widget? trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    return Opacity(
-      opacity: enabled ? 1 : 0.45,
-      child: SettingsTile(
-        icon: icon,
-        title: title,
-        subtitle: subtitle,
-        onTap: enabled ? onTap : null,
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            if (trailing != null) trailing!,
-            Icon(
-              selected
-                  ? Icons.radio_button_checked_rounded
-                  : Icons.radio_button_off_rounded,
-              color: selected ? AppColors.primary : AppColors.mainGrey,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
