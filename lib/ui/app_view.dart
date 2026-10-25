@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/auto_backup/auto_backup_cubit.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wakaranai/blocs/auth/authentication_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
@@ -53,6 +54,9 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback(
+      (Duration _) => context.read<AutoBackupCubit>().backUpIfDue(),
+    );
   }
 
   @override
@@ -74,6 +78,7 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
     context.read<DownloadManagerCubit>().init();
     context.read<MangaActivityHistoryCubit>().init(silent: true);
     context.read<AnimeActivityHistoryCubit>().init(silent: true);
+    context.read<AutoBackupCubit>().backUpIfDue();
   }
 
   @override

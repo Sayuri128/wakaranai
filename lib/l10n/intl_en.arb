@@ -851,5 +851,19 @@
         "type": "String"
       }
     }
-  }
+  },
+  "settings_auto_backup_title": "Automatic backups",
+  "settings_auto_backup_off": "Off · use Export to save a backup yourself",
+  "settings_auto_backup_never": "Daily to Download/Wakaranai · no backup yet",
+  "settings_auto_backup_last": "Daily to Download/Wakaranai · last {time}",
+  "@settings_auto_backup_last": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_auto_backup_failed": "The last backup failed · tap Back up now to retry",
+  "settings_auto_backup_now": "Back up now",
+  "settings_auto_backup_saved": "Backup saved to Download/Wakaranai"
 }

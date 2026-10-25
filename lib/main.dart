@@ -8,7 +8,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:wakaranai/blocs/auto_backup/auto_backup_cubit.dart';
+import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/blocs/chapter_translation/chapter_translation_cubit.dart';
+import 'package:wakaranai/services/import_export/backup_files.dart';
 import 'package:wakaranai/blocs/chapter_translation/translation_notification_service.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
@@ -189,6 +192,10 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
               ),
             lazy: false,
           ),
+          BlocProvider<AutoBackupCubit>(
+            create: _createAutoBackup,
+            lazy: false,
+          ),
           BlocProvider<ChapterTranslationCubit>(
             create: _createTranslationQueue,
           ),
@@ -222,6 +229,23 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
         child: const AppView(),
       ),
     );
+  }
+
+  AutoBackupCubit _createAutoBackup(BuildContext context) {
+    final ImportExportService exporter = ImportExportService(
+      concreteDataRepository: RepositoryProvider.of(context),
+      chapterActivityRepository: RepositoryProvider.of(context),
+      animeEpisodeActivityRepository: RepositoryProvider.of(context),
+      categoryRepository: RepositoryProvider.of(context),
+      libraryEntryRepository: RepositoryProvider.of(context),
+      extensionSourceRepository: RepositoryProvider.of(context),
+      database: context.read<WakaranaiDatabase>(),
+    );
+    return AutoBackupCubit(
+      buildExport: (Set<ExportSection> sections) =>
+          exporter.buildExport(sections),
+      files: DownloadsBackupFiles(),
+    )..init();
   }
 
   ChapterTranslationCubit _createTranslationQueue(BuildContext context) {

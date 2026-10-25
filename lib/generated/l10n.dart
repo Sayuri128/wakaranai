@@ -4729,6 +4729,76 @@ class S {
       args: [],
     );
   }
+
+  /// `Automatic backups`
+  String get settings_auto_backup_title {
+    return Intl.message(
+      'Automatic backups',
+      name: 'settings_auto_backup_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Off · use Export to save a backup yourself`
+  String get settings_auto_backup_off {
+    return Intl.message(
+      'Off · use Export to save a backup yourself',
+      name: 'settings_auto_backup_off',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Daily to Download/Wakaranai · no backup yet`
+  String get settings_auto_backup_never {
+    return Intl.message(
+      'Daily to Download/Wakaranai · no backup yet',
+      name: 'settings_auto_backup_never',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Daily to Download/Wakaranai · last {time}`
+  String settings_auto_backup_last(String time) {
+    return Intl.message(
+      'Daily to Download/Wakaranai · last $time',
+      name: 'settings_auto_backup_last',
+      desc: '',
+      args: [time],
+    );
+  }
+
+  /// `The last backup failed · tap Back up now to retry`
+  String get settings_auto_backup_failed {
+    return Intl.message(
+      'The last backup failed · tap Back up now to retry',
+      name: 'settings_auto_backup_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back up now`
+  String get settings_auto_backup_now {
+    return Intl.message(
+      'Back up now',
+      name: 'settings_auto_backup_now',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Backup saved to Download/Wakaranai`
+  String get settings_auto_backup_saved {
+    return Intl.message(
+      'Backup saved to Download/Wakaranai',
+      name: 'settings_auto_backup_saved',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
