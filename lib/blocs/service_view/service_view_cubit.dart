@@ -208,6 +208,7 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
     for (final GalleryView galleryView in (galleryViews)) {
       imagesHeaders[galleryView.uid] = await state.client
           .getImageHeaders(uid: galleryView.uid, data: galleryView.data);
+      await Future<void>.delayed(Duration.zero);
     }
     return imagesHeaders;
   }
