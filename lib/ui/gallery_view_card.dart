@@ -13,6 +13,7 @@ class GalleryViewCard extends StatelessWidget {
     required this.headers,
     required this.cover,
     required this.title,
+    this.inLibrary = false,
   });
 
   final VoidCallback? onTap;
@@ -22,6 +23,7 @@ class GalleryViewCard extends StatelessWidget {
   final String uid;
   final String cover;
   final String title;
+  final bool inLibrary;
 
   static double aspectRatio(double width) => width <= 200 ? 9 / 16 : 6 / 9;
 
@@ -48,7 +50,30 @@ class GalleryViewCard extends StatelessWidget {
                 builder: (BuildContext context, BoxConstraints constraints) =>
                     _buildCover(context, constraints),
               ),
+              Positioned(top: 6, right: 6, child: _buildLibraryBadge()),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLibraryBadge() {
+    return IgnorePointer(
+      child: AnimatedScale(
+        scale: inLibrary ? 1 : 0,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutBack,
+        child: Container(
+          padding: const EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.6),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.favorite_rounded,
+            size: 14,
+            color: AppColors.primary,
           ),
         ),
       ),

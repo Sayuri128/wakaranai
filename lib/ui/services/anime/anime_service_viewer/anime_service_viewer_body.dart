@@ -10,7 +10,10 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_grid_skeleton.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_loader.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
+import 'package:wakaranai/blocs/library/library_cubit.dart';
+import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
+import 'package:wakaranai/ui/services/widgets/gallery_title_actions_sheet.dart';
 import 'package:wakaranai/ui/home/service_viewer_header.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/routes.dart';
@@ -134,15 +137,30 @@ class AnimeServiceViewerBody extends StatelessWidget {
       itemBuilder: (BuildContext context, int index) {
         final AnimeGalleryView galleryView =
             stateInitialized.galleryViews[index];
-        return GalleryViewCard(
-          cover: galleryView.cover,
-          uid: galleryView.uid,
-          title: galleryView.title,
-          headers:
-              stateInitialized.galleryViewImagesHeaders[galleryView.uid] ??
-                  <String, String>{},
-          onLongPress: () {},
-          onTap: () => _onGalleryViewClick(context, galleryView),
+        return BlocSelector<LibraryCubit, LibraryState, bool>(
+          selector: (LibraryState library) => library.entries.any(
+            (LibraryEntryDomain entry) => entry.uid == galleryView.uid,
+          ),
+          builder: (BuildContext context, bool inLibrary) => GalleryViewCard(
+            cover: galleryView.cover,
+            uid: galleryView.uid,
+            title: galleryView.title,
+            inLibrary: inLibrary,
+            headers:
+                stateInitialized.galleryViewImagesHeaders[galleryView.uid] ??
+                    <String, String>{},
+            onLongPress: () => showGalleryTitleActions(
+              context,
+              title: GalleryTitle(
+                uid: galleryView.uid,
+                extensionUid: configInfo.uid,
+                title: galleryView.title,
+                cover: galleryView.cover,
+                data: galleryView.data,
+              ),
+            ),
+            onTap: () => _onGalleryViewClick(context, galleryView),
+          ),
         );
       },
     );

@@ -394,6 +394,36 @@ class S {
     );
   }
 
+  /// `Add to library`
+  String get library_add {
+    return Intl.message(
+      'Add to library',
+      name: 'library_add',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Added to library`
+  String get library_added_message {
+    return Intl.message(
+      'Added to library',
+      name: 'library_added_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Removed from library`
+  String get library_removed_message {
+    return Intl.message(
+      'Removed from library',
+      name: 'library_removed_message',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `No category`
   String get library_no_category {
     return Intl.message(

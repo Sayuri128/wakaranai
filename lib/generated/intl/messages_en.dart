@@ -577,8 +577,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "language_packs_title": MessageLookupByLibrary.simpleMessage(
       "Language packs",
     ),
+    "library_add": MessageLookupByLibrary.simpleMessage("Add to library"),
     "library_add_category": MessageLookupByLibrary.simpleMessage(
       "Add category",
+    ),
+    "library_added_message": MessageLookupByLibrary.simpleMessage(
+      "Added to library",
     ),
     "library_category_all": MessageLookupByLibrary.simpleMessage("All"),
     "library_category_name_hint": MessageLookupByLibrary.simpleMessage(
@@ -606,6 +610,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "library_no_category": MessageLookupByLibrary.simpleMessage("No category"),
     "library_remove": MessageLookupByLibrary.simpleMessage(
       "Remove from library",
+    ),
+    "library_removed_message": MessageLookupByLibrary.simpleMessage(
+      "Removed from library",
     ),
     "library_rename_category": MessageLookupByLibrary.simpleMessage("Rename"),
     "library_search_hint": MessageLookupByLibrary.simpleMessage(
