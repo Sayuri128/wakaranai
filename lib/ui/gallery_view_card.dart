@@ -5,14 +5,15 @@ import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class GalleryViewCard extends StatelessWidget {
-  const GalleryViewCard(
-      {super.key,
-      this.onTap,
-      this.onLongPress,
-      required this.uid,
-      required this.headers,
-      required this.cover,
-      required this.title});
+  const GalleryViewCard({
+    super.key,
+    this.onTap,
+    this.onLongPress,
+    required this.uid,
+    required this.headers,
+    required this.cover,
+    required this.title,
+  });
 
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
@@ -43,57 +44,71 @@ class GalleryViewCard extends StatelessWidget {
                   size: 32,
                 ),
               ),
-              Ink.image(
-                fit: BoxFit.cover,
-                image: getImageProvider(cover, headers: headers),
-                child: InkWell(
-                  splashColor: AppColors.mediumLight.withValues(alpha: 0.3),
-                  onTap: onTap,
-                  onLongPress: onLongPress,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: FractionallySizedBox(
-                          heightFactor: 0.55,
-                          widthFactor: 1,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: <Color>[
-                                  Colors.black.withValues(alpha: 0.0),
-                                  Colors.black.withValues(alpha: 0.85),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            title,
-                            maxLines: 3,
-                            style: medium(color: AppColors.onMedia).copyWith(
-                              shadows: const <Shadow>[
-                                Shadow(color: Colors.black, blurRadius: 4),
-                              ],
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) =>
+                    _buildCover(context, constraints),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCover(BuildContext context, BoxConstraints constraints) {
+    final int? decodeWidth = constraints.hasBoundedWidth
+        ? decodeWidthFor(context, constraints.maxWidth)
+        : null;
+    return Ink.image(
+      fit: BoxFit.cover,
+      image: getImageProvider(
+        cover,
+        headers: headers,
+        decodeWidth: decodeWidth,
+      ),
+      child: InkWell(
+        splashColor: AppColors.mediumLight.withValues(alpha: 0.3),
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: Stack(
+          fit: StackFit.expand,
+          children: <Widget>[
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: FractionallySizedBox(
+                heightFactor: 0.55,
+                widthFactor: 1,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: <Color>[
+                        Colors.black.withValues(alpha: 0.0),
+                        Colors.black.withValues(alpha: 0.85),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  title,
+                  maxLines: 3,
+                  style: medium(color: AppColors.onMedia).copyWith(
+                    shadows: const <Shadow>[
+                      Shadow(color: Colors.black, blurRadius: 4),
+                    ],
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

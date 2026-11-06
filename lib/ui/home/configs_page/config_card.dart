@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class ConfigCard extends StatelessWidget {
@@ -32,7 +33,7 @@ class ConfigCard extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Row(
               children: <Widget>[
-                _buildLogo(),
+                _buildLogo(context),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
@@ -72,7 +73,7 @@ class ConfigCard extends StatelessWidget {
     );
   }
 
-  Widget _buildLogo() {
+  Widget _buildLogo(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: SizedBox(
@@ -88,6 +89,7 @@ class ConfigCard extends StatelessWidget {
               )
             : CachedNetworkImage(
                 imageUrl: configInfo.logoUrl,
+                memCacheWidth: decodeWidthFor(context, 56),
                 fit: BoxFit.cover,
                 placeholder: (BuildContext context, String url) =>
                     _buildLogoPlaceholder(),

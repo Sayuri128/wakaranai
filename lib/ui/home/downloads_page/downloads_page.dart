@@ -16,6 +16,7 @@ import 'package:wakaranai/ui/home/library_page/library_concrete_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class DownloadsPage extends StatelessWidget {
@@ -163,6 +164,7 @@ class _Cover extends StatelessWidget {
             ? _placeholder()
             : CachedNetworkImage(
                 imageUrl: url!,
+                memCacheWidth: decodeWidthFor(context, 48),
                 fit: BoxFit.cover,
                 placeholder: (BuildContext context, String _) => _placeholder(),
                 errorWidget: (BuildContext context, String _, Object __) =>

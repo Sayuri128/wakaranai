@@ -12,6 +12,7 @@ import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/library_page/library_concrete_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class UpdatesPage extends StatelessWidget {
@@ -218,6 +219,7 @@ class _Cover extends StatelessWidget {
             ? _placeholder()
             : CachedNetworkImage(
                 imageUrl: url!,
+                memCacheWidth: decodeWidthFor(context, 48),
                 fit: BoxFit.cover,
                 placeholder: (BuildContext context, String _) => _placeholder(),
                 errorWidget: (BuildContext context, String _, Object __) =>

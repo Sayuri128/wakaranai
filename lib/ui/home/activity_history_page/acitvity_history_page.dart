@@ -12,6 +12,7 @@ import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_his
 import 'package:wakaranai/ui/home/activity_history_page/widgets/activity_history_long_tap_dialog.dart';
 import 'package:wakaranai/ui/widgets/shimmer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class ActivityHistoryPage extends StatefulWidget {
@@ -435,6 +436,7 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
             ? _buildCoverPlaceholder()
             : CachedNetworkImage(
                 imageUrl: cover,
+                memCacheWidth: decodeWidthFor(context, 52),
                 fit: BoxFit.cover,
                 placeholder: (BuildContext context, String url) =>
                     _buildCoverPlaceholder(),
