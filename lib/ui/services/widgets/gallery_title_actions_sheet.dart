@@ -1,13 +1,14 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
+import 'package:wakaranai/data/domain/database/category_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
-import 'package:wakaranai/utils/app_colors.dart';
-import 'package:wakaranai/utils/text_styles.dart';
 
 class GalleryTitle {
   const GalleryTitle({
@@ -24,7 +25,7 @@ class GalleryTitle {
   final String cover;
   final Map<String, dynamic> data;
 
-  LibraryEntryDomain toLibraryEntry() {
+  LibraryEntryDomain toLibraryEntry({int? categoryId}) {
     return LibraryEntryDomain(
       id: 0,
       uid: uid,
@@ -32,6 +33,7 @@ class GalleryTitle {
       title: title,
       cover: cover,
       data: jsonEncode(data),
+      categoryId: categoryId,
       createdAt: DateTime.now(),
     );
   }
@@ -42,111 +44,126 @@ Future<void> showGalleryTitleActions(
   required GalleryTitle title,
 }) {
   final LibraryCubit library = context.read<LibraryCubit>();
-  return showModalBottomSheet<void>(
-    context: context,
-    backgroundColor: AppColors.backgroundColor,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (BuildContext sheetContext) => _GalleryTitleActionsSheet(
-      title: title,
-      inLibrary: library.isFavorite(title.uid),
-      onToggleLibrary: () => _toggleLibrary(context, library, title),
+  final LibraryEntryDomain? saved = _savedEntry(library.state, title.uid);
+  final List<CategoryDomain> categories = library.state.categories;
+
+  return showActionSheet(
+    context,
+    title: title.title.trim(),
+    child: Builder(
+      builder: (BuildContext sheetContext) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          if (saved == null)
+            ActionSheetRow(
+              icon: Icons.favorite_border_rounded,
+              label: S.current.library_add,
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _addToLibrary(context, library, title, null);
+              },
+            ),
+          if (categories.isNotEmpty)
+            ActionSheetRow(
+              icon: Icons.drive_file_move_outline,
+              label: saved == null
+                  ? S.current.library_add_to_category
+                  : S.current.library_move_to_category,
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _showCategoryPicker(context, library, title, saved);
+              },
+            ),
+          if (saved != null)
+            ActionSheetRow(
+              icon: Icons.delete_outline_rounded,
+              label: S.current.library_remove,
+              destructive: true,
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _removeFromLibrary(context, library, title);
+              },
+            ),
+        ],
+      ),
     ),
   );
 }
 
-Future<void> _toggleLibrary(
+LibraryEntryDomain? _savedEntry(LibraryState state, String uid) {
+  return state.entries.firstWhereOrNull(
+    (LibraryEntryDomain entry) => entry.uid == uid,
+  );
+}
+
+void _showCategoryPicker(
+  BuildContext context,
+  LibraryCubit library,
+  GalleryTitle title,
+  LibraryEntryDomain? saved,
+) {
+  void choose(BuildContext sheetContext, int? categoryId) {
+    Navigator.of(sheetContext).pop();
+    if (saved == null) {
+      _addToLibrary(context, library, title, categoryId);
+    } else {
+      library.moveToCategory(saved, categoryId);
+    }
+  }
+
+  showActionSheet(
+    context,
+    title: saved == null
+        ? S.current.library_add_to_category
+        : S.current.library_move_to_category,
+    child: Builder(
+      builder: (BuildContext sheetContext) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          ActionSheetRow(
+            label: S.current.library_no_category,
+            selected: saved != null && saved.categoryId == null,
+            onTap: () => choose(sheetContext, null),
+          ),
+          for (final CategoryDomain category in library.state.categories)
+            ActionSheetRow(
+              label: category.name,
+              selected: saved?.categoryId == category.id,
+              onTap: () => choose(sheetContext, category.id),
+            ),
+        ],
+      ),
+    ),
+  );
+}
+
+Future<void> _addToLibrary(
+  BuildContext context,
+  LibraryCubit library,
+  GalleryTitle title,
+  int? categoryId,
+) async {
+  await library.addToLibrary(title.toLibraryEntry(categoryId: categoryId));
+  if (context.mounted) {
+    SnackBars.showSnackBar(
+      context: context,
+      message: S.current.library_added_message,
+    );
+  }
+}
+
+Future<void> _removeFromLibrary(
   BuildContext context,
   LibraryCubit library,
   GalleryTitle title,
 ) async {
-  final bool wasInLibrary = library.isFavorite(title.uid);
-  await library.toggleFavorite(title.toLibraryEntry());
-  if (!context.mounted) {
-    return;
-  }
-  SnackBars.showSnackBar(
-    context: context,
-    message: wasInLibrary
-        ? S.current.library_removed_message
-        : S.current.library_added_message,
-  );
-}
-
-class _GalleryTitleActionsSheet extends StatelessWidget {
-  const _GalleryTitleActionsSheet({
-    required this.title,
-    required this.inLibrary,
-    required this.onToggleLibrary,
-  });
-
-  final GalleryTitle title;
-  final bool inLibrary;
-  final VoidCallback onToggleLibrary;
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(top: 12, bottom: 12),
-              decoration: BoxDecoration(
-                color: AppColors.overlay(0.18),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-            child: Text(
-              title.title.trim(),
-              style: semibold(size: 16),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(height: 8),
-          _buildLibraryRow(context),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLibraryRow(BuildContext context) {
-    final Color color = inLibrary ? AppColors.red : AppColors.primary;
-    return InkWell(
-      onTap: () {
-        Navigator.of(context).pop();
-        onToggleLibrary();
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Row(
-          children: <Widget>[
-            Icon(
-              inLibrary
-                  ? Icons.heart_broken_rounded
-                  : Icons.favorite_border_rounded,
-              color: color,
-              size: 22,
-            ),
-            const SizedBox(width: 14),
-            Text(
-              inLibrary ? S.current.library_remove : S.current.library_add,
-              style: medium(size: 15, color: color),
-            ),
-          ],
-        ),
-      ),
+  await library.removeFromLibrary(title.uid);
+  if (context.mounted) {
+    SnackBars.showSnackBar(
+      context: context,
+      message: S.current.library_removed_message,
     );
   }
 }

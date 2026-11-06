@@ -404,6 +404,16 @@ class S {
     );
   }
 
+  /// `Add to category`
+  String get library_add_to_category {
+    return Intl.message(
+      'Add to category',
+      name: 'library_add_to_category',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Added to library`
   String get library_added_message {
     return Intl.message(

@@ -581,6 +581,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "library_add_category": MessageLookupByLibrary.simpleMessage(
       "Add category",
     ),
+    "library_add_to_category": MessageLookupByLibrary.simpleMessage(
+      "Add to category",
+    ),
     "library_added_message": MessageLookupByLibrary.simpleMessage(
       "Added to library",
     ),

@@ -122,6 +122,15 @@ class LibraryCubit extends Cubit<LibraryState> {
     }
   }
 
+  Future<void> addToLibrary(LibraryEntryDomain entry) async {
+    final LibraryEntryDomain? existing =
+        await libraryEntryRepository.getByUid(entry.uid);
+    if (existing != null) {
+      return;
+    }
+    await libraryEntryRepository.create(entry);
+  }
+
   Future<void> removeFromLibrary(String uid) async {
     await libraryEntryRepository.deleteByUid(uid);
     await libraryUpdateRepository.deleteByEntryUid(uid);
