@@ -18,7 +18,6 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:transparent_pointer/transparent_pointer.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
 import 'package:wakaranai/services/page_translation/engines/on_device_model.dart';
@@ -204,6 +203,8 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   late final PageController _pageController;
   late final ItemScrollController _itemScrollController;
+  final ItemPositionsListener _itemPositionsListener =
+      ItemPositionsListener.create();
 
   final bool _showGestureOverlay = false;
 
@@ -225,6 +226,9 @@ class _ChapterViewerState extends State<ChapterViewer>
     super.initState();
     _pageController = PageController();
     _itemScrollController = ItemScrollController();
+    _itemPositionsListener.itemPositions.addListener(
+      _onWebtoonPositionsChanged,
+    );
     _sliderController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
@@ -316,6 +320,9 @@ class _ChapterViewerState extends State<ChapterViewer>
   @override
   void dispose() {
     unawaited(WakelockPlus.disable());
+    _itemPositionsListener.itemPositions.removeListener(
+      _onWebtoonPositionsChanged,
+    );
     _chapterViewCubit.close();
     _translationCubit?.close();
     _sliderController.dispose();
@@ -1339,6 +1346,9 @@ class _ChapterViewerState extends State<ChapterViewer>
   static const double _minSelectionSide = 24;
   static const int _translateAhead = 2;
   static const double _autoAdvanceOverscroll = 96;
+  static const double _chapterEdgeDistance = 500;
+  static const double _readingLine = 0.5;
+  static const double _edgeTolerance = 0.01;
 
   bool _maybeAutoAdvance(
     ScrollUpdateNotification notification,
@@ -1364,6 +1374,63 @@ class _ChapterViewerState extends State<ChapterViewer>
       _autoAdvancing = false;
     });
     return false;
+  }
+
+  void _updateChapterEdgeButtons(ScrollMetrics metrics) {
+    final bool nearEnd =
+        metrics.pixels >= metrics.maxScrollExtent - _chapterEdgeDistance;
+    final bool nearStart =
+        metrics.pixels <= metrics.minScrollExtent + _chapterEdgeDistance;
+    if (nearEnd == _canLoadNext && nearStart == _canLoadPrevious) {
+      return;
+    }
+    setState(() {
+      _canLoadNext = nearEnd;
+      _canLoadPrevious = nearStart;
+    });
+  }
+
+  void _onWebtoonPositionsChanged() {
+    final ChapterViewState state = _chapterViewCubit.state;
+    if (state is! ChapterViewInitialized ||
+        state.mode != ChapterViewMode.webtoon) {
+      return;
+    }
+    final int? index = _webtoonPageIndex(
+      _itemPositionsListener.itemPositions.value,
+      state.currentPages.value.length,
+    );
+    if (index == null || index + 1 == state.currentPage) {
+      return;
+    }
+    _prefetchAround(state, index);
+    _chapterViewCubit.onPageChanged(index + 1, state.currentPages);
+  }
+
+  int? _webtoonPageIndex(Iterable<ItemPosition> positions, int itemCount) {
+    int? firstVisible;
+    int? atReadingLine;
+    for (final ItemPosition position in positions) {
+      if (position.index >= itemCount ||
+          position.itemTrailingEdge <= 0 ||
+          position.itemLeadingEdge >= 1) {
+        continue;
+      }
+      final bool lastPageFullyScrolled =
+          position.index == itemCount - 1 &&
+          position.itemTrailingEdge <= 1 + _edgeTolerance;
+      if (lastPageFullyScrolled) {
+        return position.index;
+      }
+      if (position.itemLeadingEdge <= _readingLine &&
+          position.itemTrailingEdge > _readingLine) {
+        atReadingLine = position.index;
+      }
+      if (firstVisible == null || position.index < firstVisible) {
+        firstVisible = position.index;
+      }
+    }
+    return atReadingLine ?? firstVisible;
   }
 
   double _webtoonCacheExtent(BuildContext context) =>
@@ -1471,28 +1538,12 @@ class _ChapterViewerState extends State<ChapterViewer>
         return NotificationListener<ScrollUpdateNotification>(
           onNotification: (ScrollUpdateNotification notification) {
             _maybeAutoAdvance(notification, state);
-            if (notification.metrics.pixels >=
-                notification.metrics.maxScrollExtent - 500) {
-              _canLoadNext = true;
-              setState(() {});
-            } else if (_canLoadNext) {
-              _canLoadNext = false;
-              setState(() {});
-            }
-
-            if ((notification.metrics.pixels <=
-                notification.metrics.minScrollExtent + 500)) {
-              _canLoadPrevious = true;
-              setState(() {});
-            } else if (_canLoadPrevious) {
-              _canLoadPrevious = false;
-              setState(() {});
-            }
-
+            _updateChapterEdgeButtons(notification.metrics);
             return false;
           },
           child: ScrollablePositionedList.builder(
             itemScrollController: _itemScrollController,
+            itemPositionsListener: _itemPositionsListener,
             initialScrollIndex: max(0, state.currentPage - 1),
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
@@ -1500,44 +1551,27 @@ class _ChapterViewerState extends State<ChapterViewer>
             itemCount: state.currentPages.value.length,
             minCacheExtent: _webtoonCacheExtent(context),
             padding: EdgeInsets.zero,
-            itemBuilder: (BuildContext context, int index) =>
-                VisibilityDetector(
-                  key: ValueKey(state.currentPages.value[index]),
-                  onVisibilityChanged: (VisibilityInfo info) {
-                    if (info.visibleFraction > 0) {
-                      _prefetchAround(state, index);
-                      context.read<ChapterViewCubit>().onPageChanged(
-                        index + 1,
-                        state.currentPages,
-                      );
-                    }
-                  },
-                  child: TranslatedPage(
-                    key: _translatedPageKey(state.currentPages.value[index]),
-                    cubit: _translationCubit,
-                    path: state.currentPages.value[index],
-                    child: PageImage(
-                      path: state.currentPages.value[index],
-                      headers: state.headers,
-                      errorBuilder:
-                          (BuildContext context, VoidCallback retry) =>
-                              SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.5,
-                                child: _buildPageError(retry),
-                              ),
-                      loadingBuilder: (BuildContext context) => SizedBox(
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
+            itemBuilder: (BuildContext context, int index) => TranslatedPage(
+              key: _translatedPageKey(state.currentPages.value[index]),
+              cubit: _translationCubit,
+              path: state.currentPages.value[index],
+              child: PageImage(
+                path: state.currentPages.value[index],
+                headers: state.headers,
+                errorBuilder: (BuildContext context, VoidCallback retry) =>
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      child: _buildPageError(retry),
                     ),
+                loadingBuilder: (BuildContext context) => SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
                   ),
                 ),
+              ),
+            ),
           ),
         );
     }

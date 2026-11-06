@@ -40,7 +40,6 @@ dependencies:
   flutter_launcher_icons: ^0.14.2
   another_xlider: ^3.0.2
   transparent_pointer: ^1.0.1
-  visibility_detector: ^0.4.0+2
   scrollable_positioned_list: ^0.3.8
   shared_preferences: ^2.2.3
   flutter_inappwebview: ^6.1.5

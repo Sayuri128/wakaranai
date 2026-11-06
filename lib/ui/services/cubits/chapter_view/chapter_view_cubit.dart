@@ -289,6 +289,10 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
 
     onDone?.call(stateInitialized.currentPages);
 
+    if (stateInitialized.currentPage == index) {
+      return;
+    }
+
     final concreteData = stateInitialized.concreteData;
     if (concreteData != null && stateInitialized.currentPage < index) {
       final chapter = stateInitialized.group.elements.firstWhere(
