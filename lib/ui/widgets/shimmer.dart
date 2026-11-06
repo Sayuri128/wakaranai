@@ -28,28 +28,30 @@ class _ShimmerState extends State<Shimmer>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      child: widget.child,
-      builder: (BuildContext context, Widget? child) {
-        return ShaderMask(
-          blendMode: BlendMode.srcATop,
-          shaderCallback: (Rect bounds) {
-            return LinearGradient(
-              colors: <Color>[
-                AppColors.shimmerBase,
-                AppColors.shimmerHighlight,
-                AppColors.shimmerBase,
-              ],
-              stops: const <double>[0.1, 0.5, 0.9],
-              begin: const Alignment(-1.0, -0.3),
-              end: const Alignment(1.0, 0.3),
-              transform: _SlidingGradientTransform(_controller.value),
-            ).createShader(bounds);
-          },
-          child: child,
-        );
-      },
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _controller,
+        child: RepaintBoundary(child: widget.child),
+        builder: (BuildContext context, Widget? child) {
+          return ShaderMask(
+            blendMode: BlendMode.srcATop,
+            shaderCallback: (Rect bounds) {
+              return LinearGradient(
+                colors: <Color>[
+                  AppColors.shimmerBase,
+                  AppColors.shimmerHighlight,
+                  AppColors.shimmerBase,
+                ],
+                stops: const <double>[0.1, 0.5, 0.9],
+                begin: const Alignment(-1.0, -0.3),
+                end: const Alignment(1.0, 0.3),
+                transform: _SlidingGradientTransform(_controller.value),
+              ).createShader(bounds);
+            },
+            child: child,
+          );
+        },
+      ),
     );
   }
 }

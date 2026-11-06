@@ -18,18 +18,22 @@ class Heroes {
     final Widget fromChild = (fromHeroContext.widget as Hero).child;
     final Widget toChild = (toHeroContext.widget as Hero).child;
 
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (BuildContext context, Widget? child) {
-        final double t = Curves.easeInOut.transform(animation.value);
-        return Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
-            Opacity(opacity: (1.0 - t).clamp(0.0, 1.0), child: fromChild),
-            Opacity(opacity: t.clamp(0.0, 1.0), child: toChild),
-          ],
-        );
-      },
+    final Animation<double> fadeIn = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeInOut,
+    );
+    return Stack(
+      fit: StackFit.expand,
+      children: <Widget>[
+        FadeTransition(
+          opacity: ReverseAnimation(fadeIn),
+          child: RepaintBoundary(child: fromChild),
+        ),
+        FadeTransition(
+          opacity: fadeIn,
+          child: RepaintBoundary(child: toChild),
+        ),
+      ],
     );
   }
 }
