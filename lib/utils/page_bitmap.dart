@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -44,14 +46,37 @@ bool isAvif(Uint8List bytes) {
   return bytes[8] == 0x61 && bytes[9] == 0x76 && bytes[10] == 0x69;
 }
 
-Future<avif_models.Frame> decodeAvifFrame(Uint8List bytes) {
-  return avif_platform.FlutterAvifPlatform.api
-      .decodeSingleFrameImage(avifBytes: bytes);
+const String _androidAvifLibrary = 'libflutter_avif.so';
+
+class AvifPixels {
+  const AvifPixels(this.pixels, this.width, this.height);
+
+  final Uint8List pixels;
+  final int width;
+  final int height;
 }
 
-Uint8List framePixels(avif_models.Frame frame) {
+Future<AvifPixels> decodeAvifPixels(Uint8List bytes) {
+  if (Platform.isAndroid) {
+    return Isolate.run(() => _decodeAvifInBackground(bytes));
+  }
+  return _decodeAvifWith(avif_platform.FlutterAvifPlatform.api, bytes);
+}
+
+Future<AvifPixels> _decodeAvifInBackground(Uint8List bytes) {
+  final avif_platform.FlutterAvif api = avif_platform.FlutterAvifImpl(
+    DynamicLibrary.open(_androidAvifLibrary),
+  );
+  return _decodeAvifWith(api, bytes);
+}
+
+Future<AvifPixels> _decodeAvifWith(
+    avif_platform.FlutterAvif api, Uint8List bytes) async {
+  final avif_models.Frame frame =
+      await api.decodeSingleFrameImage(avifBytes: bytes);
   final List<int> data = frame.data;
-  return data is Uint8List ? data : Uint8List.fromList(data);
+  final Uint8List pixels = data is Uint8List ? data : Uint8List.fromList(data);
+  return AvifPixels(pixels, frame.width, frame.height);
 }
 
 /// A decoded page. [image] is whatever the engine produced — Impeller clamps
@@ -75,10 +100,10 @@ Future<PageBitmap> loadPageBitmap(
     String path, Map<String, String> headers) async {
   final Uint8List bytes = await loadPageBytes(path, headers);
   if (isAvif(bytes)) {
-    final avif_models.Frame frame = await decodeAvifFrame(bytes);
+    final AvifPixels decoded = await decodeAvifPixels(bytes);
     final ui.Image image =
-        await rawImage(framePixels(frame), frame.width, frame.height);
-    return PageBitmap(image, frame.width, frame.height);
+        await rawImage(decoded.pixels, decoded.width, decoded.height);
+    return PageBitmap(image, decoded.width, decoded.height);
   }
 
   final ui.ImmutableBuffer buffer =
