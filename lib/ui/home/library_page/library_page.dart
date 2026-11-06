@@ -12,6 +12,7 @@ import 'package:wakaranai/ui/home/library_page/library_concrete_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/widgets/search_field.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
+import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -456,7 +457,7 @@ class _LibraryPageState extends State<LibraryPage> {
       LibrarySort.title: S.current.library_sort_alphabetical,
       LibrarySort.lastRead: S.current.library_sort_last_read,
     };
-    _showSheet(
+    showActionSheet(
       context,
       title: S.current.library_sort_title,
       child: Column(
@@ -464,7 +465,7 @@ class _LibraryPageState extends State<LibraryPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           for (final MapEntry<LibrarySort, String> e in labels.entries)
-            _SheetRow(
+            ActionSheetRow(
               label: e.value,
               selected: state.sort == e.key,
               onTap: () {
@@ -479,14 +480,14 @@ class _LibraryPageState extends State<LibraryPage> {
 
   void _showEntryActions(
       BuildContext context, LibraryState state, LibraryEntryDomain entry) {
-    _showSheet(
+    showActionSheet(
       context,
       title: entry.title,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          _SheetRow(
+          ActionSheetRow(
             icon: Icons.drive_file_move_outline,
             label: S.current.library_move_to_category,
             onTap: () {
@@ -494,7 +495,7 @@ class _LibraryPageState extends State<LibraryPage> {
               _showMoveToCategorySheet(context, state, entry);
             },
           ),
-          _SheetRow(
+          ActionSheetRow(
             icon: Icons.autorenew_rounded,
             label: S.current.library_track_updates,
             selected: entry.trackUpdates,
@@ -505,7 +506,7 @@ class _LibraryPageState extends State<LibraryPage> {
               Navigator.of(context).pop();
             },
           ),
-          _SheetRow(
+          ActionSheetRow(
             icon: entry.notifyUpdates
                 ? Icons.notifications_off_outlined
                 : Icons.notifications_active_outlined,
@@ -519,7 +520,7 @@ class _LibraryPageState extends State<LibraryPage> {
               Navigator.of(context).pop();
             },
           ),
-          _SheetRow(
+          ActionSheetRow(
             icon: Icons.delete_outline_rounded,
             label: S.current.library_remove,
             destructive: true,
@@ -535,14 +536,14 @@ class _LibraryPageState extends State<LibraryPage> {
 
   void _showMoveToCategorySheet(
       BuildContext context, LibraryState state, LibraryEntryDomain entry) {
-    _showSheet(
+    showActionSheet(
       context,
       title: S.current.library_move_to_category,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          _SheetRow(
+          ActionSheetRow(
             label: S.current.library_no_category,
             selected: entry.categoryId == null,
             onTap: () {
@@ -551,7 +552,7 @@ class _LibraryPageState extends State<LibraryPage> {
             },
           ),
           for (final CategoryDomain c in state.categories)
-            _SheetRow(
+            ActionSheetRow(
               label: c.name,
               selected: entry.categoryId == c.id,
               onTap: () {
@@ -568,14 +569,14 @@ class _LibraryPageState extends State<LibraryPage> {
     final List<LibraryEntryDomain> selectedEntries = state.entries
         .where((LibraryEntryDomain e) => _selected.contains(e.uid))
         .toList();
-    _showSheet(
+    showActionSheet(
       context,
       title: S.current.library_move_to_category,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          _SheetRow(
+          ActionSheetRow(
             label: S.current.library_no_category,
             onTap: () {
               context
@@ -586,7 +587,7 @@ class _LibraryPageState extends State<LibraryPage> {
             },
           ),
           for (final CategoryDomain c in state.categories)
-            _SheetRow(
+            ActionSheetRow(
               label: c.name,
               onTap: () {
                 context
@@ -602,7 +603,7 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   void _showManageCategoriesSheet(BuildContext context, LibraryState state) {
-    _showSheet(
+    showActionSheet(
       context,
       title: S.current.library_manage_categories,
       child: Column(
@@ -729,48 +730,6 @@ class _LibraryPageState extends State<LibraryPage> {
                 ),
               ],
             ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showSheet(BuildContext context,
-      {required String title, required Widget child}) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.backgroundColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext sheetContext) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(top: 12, bottom: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.overlay(0.18),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-                child: Text(title,
-                    style: semibold(size: 18),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
-              ),
-              Flexible(child: SingleChildScrollView(child: child)),
-              const SizedBox(height: 8),
-            ],
           ),
         );
       },
@@ -1018,46 +977,6 @@ class _CircleIconButton extends StatelessWidget {
             size: small ? 18 : 22,
             color: destructive ? AppColors.red : AppColors.mainWhite,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SheetRow extends StatelessWidget {
-  const _SheetRow({
-    required this.label,
-    this.icon,
-    this.selected = false,
-    this.destructive = false,
-    required this.onTap,
-  });
-
-  final String label;
-  final IconData? icon;
-  final bool selected;
-  final bool destructive;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color color = destructive
-        ? AppColors.red
-        : (selected ? AppColors.primary : AppColors.mainWhite);
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        child: Row(
-          children: <Widget>[
-            if (icon != null) ...<Widget>[
-              Icon(icon, size: 20, color: color),
-              const SizedBox(width: 14),
-            ],
-            Expanded(child: Text(label, style: medium(size: 15, color: color))),
-            if (selected)
-              Icon(Icons.check_rounded, color: AppColors.primary, size: 20),
-          ],
         ),
       ),
     );
