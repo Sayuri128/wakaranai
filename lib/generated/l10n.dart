@@ -414,6 +414,108 @@ class S {
     );
   }
 
+  /// `Download`
+  String get gallery_download {
+    return Intl.message(
+      'Download',
+      name: 'gallery_download',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download chapters`
+  String get gallery_download_title {
+    return Intl.message(
+      'Download chapters',
+      name: 'gallery_download_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next chapter`
+  String get gallery_download_next {
+    return Intl.message(
+      'Next chapter',
+      name: 'gallery_download_next',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next {count} chapters`
+  String gallery_download_next_count(int count) {
+    return Intl.message(
+      'Next $count chapters',
+      name: 'gallery_download_next_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Unread chapters`
+  String get gallery_download_unread {
+    return Intl.message(
+      'Unread chapters',
+      name: 'gallery_download_unread',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All chapters`
+  String get gallery_download_all {
+    return Intl.message(
+      'All chapters',
+      name: 'gallery_download_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Looking up chapters…`
+  String get gallery_download_loading {
+    return Intl.message(
+      'Looking up chapters…',
+      name: 'gallery_download_loading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 chapter queued} other{{count} chapters queued}}`
+  String gallery_download_queued(int count) {
+    return Intl.plural(
+      count,
+      one: '1 chapter queued',
+      other: '$count chapters queued',
+      name: 'gallery_download_queued',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `No new chapters to download`
+  String get gallery_download_nothing {
+    return Intl.message(
+      'No new chapters to download',
+      name: 'gallery_download_nothing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load the chapter list`
+  String get gallery_download_failed {
+    return Intl.message(
+      'Couldn\'t load the chapter list',
+      name: 'gallery_download_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Added to library`
   String get library_added_message {
     return Intl.message(

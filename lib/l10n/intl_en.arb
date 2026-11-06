@@ -41,6 +41,30 @@
   "library_remove": "Remove from library",
   "library_add": "Add to library",
   "library_add_to_category": "Add to category",
+  "gallery_download": "Download",
+  "gallery_download_title": "Download chapters",
+  "gallery_download_next": "Next chapter",
+  "gallery_download_next_count": "Next {count} chapters",
+  "@gallery_download_next_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gallery_download_unread": "Unread chapters",
+  "gallery_download_all": "All chapters",
+  "gallery_download_loading": "Looking up chapters…",
+  "gallery_download_queued": "{count, plural, =1{1 chapter queued} other{{count} chapters queued}}",
+  "@gallery_download_queued": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gallery_download_nothing": "No new chapters to download",
+  "gallery_download_failed": "Couldn't load the chapter list",
   "library_added_message": "Added to library",
   "library_removed_message": "Removed from library",
   "library_no_category": "No category",
