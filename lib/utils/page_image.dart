@@ -221,13 +221,14 @@ class PageImageProvider extends ImageProvider<PageImageProvider> {
   static Future<ui.Codec> _decodeAvif(Uint8List bytes) async {
     final AvifPixels decoded = await decodeAvifPixels(bytes);
     final ui.ImmutableBuffer buffer =
-        await ui.ImmutableBuffer.fromUint8List(decoded.pixels);
+        await uploadPixelsBetweenFrames(decoded.pixels);
     final ui.ImageDescriptor descriptor = ui.ImageDescriptor.raw(
       buffer,
       width: decoded.width,
       height: decoded.height,
       pixelFormat: ui.PixelFormat.rgba8888,
     );
+    buffer.dispose();
     final ui.TargetImageSize target =
         _fitTargetSize(decoded.width, decoded.height);
     return descriptor.instantiateCodec(

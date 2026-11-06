@@ -14,7 +14,7 @@ class _PageCacheEntry {
   PageBitmap? bitmap;
   int refs = 0;
 
-  int get bytes => bitmap == null ? 0 : bitmap!.width * bitmap!.height * 4;
+  int get bytes => bitmap == null ? 0 : bitmap!.residentBytes;
 
   void disposeBitmap() {
     bitmap?.dispose();
@@ -58,7 +58,7 @@ class PageBitmapCache {
 
   static final PageBitmapCache instance = PageBitmapCache();
 
-  static const int defaultMaxBytes = 100 << 20;
+  static const int defaultMaxBytes = 256 << 20;
 
   final PageBitmapLoader _loader;
   final int maxBytes;

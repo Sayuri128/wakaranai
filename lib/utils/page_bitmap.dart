@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
@@ -5,6 +7,7 @@ import 'dart:isolate';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_avif_platform_interface/flutter_avif_platform_interface.dart'
     as avif_platform;
 import 'package:flutter_avif_platform_interface/models/frame.pb.dart'
@@ -56,11 +59,50 @@ class AvifPixels {
   final int height;
 }
 
-Future<AvifPixels> decodeAvifPixels(Uint8List bytes) {
-  if (Platform.isAndroid) {
-    return Isolate.run(() => _decodeAvifInBackground(bytes));
+final TaskGate _avifDecodes = TaskGate(2);
+final TaskGate _pixelUploads = TaskGate(1);
+
+class TaskGate {
+  TaskGate(this.capacity);
+
+  final int capacity;
+  final Queue<Completer<void>> _waiting = Queue<Completer<void>>();
+  int _running = 0;
+
+  Future<T> run<T>(Future<T> Function() task) async {
+    if (_running >= capacity) {
+      final Completer<void> turn = Completer<void>();
+      _waiting.add(turn);
+      await turn.future;
+    } else {
+      _running++;
+    }
+    try {
+      return await task();
+    } finally {
+      if (_waiting.isEmpty) {
+        _running--;
+      } else {
+        _waiting.removeFirst().complete();
+      }
+    }
   }
-  return _decodeAvifWith(avif_platform.FlutterAvifPlatform.api, bytes);
+}
+
+Future<AvifPixels> decodeAvifPixels(Uint8List bytes) {
+  return _avifDecodes.run(() {
+    if (Platform.isAndroid) {
+      return Isolate.run(() => _decodeAvifInBackground(bytes));
+    }
+    return _decodeAvifWith(avif_platform.FlutterAvifPlatform.api, bytes);
+  });
+}
+
+Future<ui.ImmutableBuffer> uploadPixelsBetweenFrames(Uint8List pixels) {
+  return _pixelUploads.run(() async {
+    await SchedulerBinding.instance.endOfFrame;
+    return ui.ImmutableBuffer.fromUint8List(pixels);
+  });
 }
 
 Future<AvifPixels> _decodeAvifInBackground(Uint8List bytes) {
@@ -91,6 +133,7 @@ class PageBitmap {
   final int height;
 
   ui.Size get size => ui.Size(width.toDouble(), height.toDouble());
+  int get residentBytes => image.width * image.height * 4;
   double get aspectRatio => width / height;
 
   void dispose() => image.dispose();
@@ -101,8 +144,10 @@ Future<PageBitmap> loadPageBitmap(
   final Uint8List bytes = await loadPageBytes(path, headers);
   if (isAvif(bytes)) {
     final AvifPixels decoded = await decodeAvifPixels(bytes);
+    final ui.ImmutableBuffer buffer =
+        await uploadPixelsBetweenFrames(decoded.pixels);
     final ui.Image image =
-        await rawImage(decoded.pixels, decoded.width, decoded.height);
+        await _rawImageFromBuffer(buffer, decoded.width, decoded.height);
     return PageBitmap(image, decoded.width, decoded.height);
   }
 
@@ -110,6 +155,7 @@ Future<PageBitmap> loadPageBitmap(
       await ui.ImmutableBuffer.fromUint8List(bytes);
   final ui.ImageDescriptor descriptor =
       await ui.ImageDescriptor.encoded(buffer);
+  buffer.dispose();
   final int width = descriptor.width;
   final int height = descriptor.height;
   final ui.Codec codec = await descriptor.instantiateCodec();
@@ -122,12 +168,18 @@ Future<PageBitmap> loadPageBitmap(
 Future<ui.Image> rawImage(Uint8List pixels, int width, int height) async {
   final ui.ImmutableBuffer buffer =
       await ui.ImmutableBuffer.fromUint8List(pixels);
+  return _rawImageFromBuffer(buffer, width, height);
+}
+
+Future<ui.Image> _rawImageFromBuffer(
+    ui.ImmutableBuffer buffer, int width, int height) async {
   final ui.ImageDescriptor descriptor = ui.ImageDescriptor.raw(
     buffer,
     width: width,
     height: height,
     pixelFormat: ui.PixelFormat.rgba8888,
   );
+  buffer.dispose();
   final ui.Codec codec = await descriptor.instantiateCodec();
   final ui.FrameInfo frame = await codec.getNextFrame();
   descriptor.dispose();
