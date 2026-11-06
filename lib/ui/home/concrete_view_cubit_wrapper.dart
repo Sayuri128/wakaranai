@@ -27,6 +27,7 @@ class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
 
   @override
   Widget build(BuildContext context) {
+    final Animation<double>? routeAnimation = ModalRoute.of(context)?.animation;
     return BlocProvider<ConcreteViewCubit<T, C, G>>(
       create: (BuildContext context) {
         final ConcreteViewCubit<T, C, G> cubit = ConcreteViewCubit<T, C, G>(
@@ -39,8 +40,13 @@ class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
           animeEpisodeActivityRepository: context.read<AnimeEpisodeActivityRepository>(),
         );
 
-        if (init != null) {
-          init!(cubit);
+        final void Function(ConcreteViewCubit<T, C, G>)? start = init;
+        if (start != null) {
+          _afterTransition(routeAnimation, () {
+            if (!cubit.isClosed) {
+              start(cubit);
+            }
+          });
         }
 
         return cubit;
@@ -52,4 +58,21 @@ class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
       ),
     );
   }
+}
+
+void _afterTransition(Animation<double>? animation, VoidCallback action) {
+  if (animation == null || animation.isCompleted) {
+    action();
+    return;
+  }
+  late final AnimationStatusListener listener;
+  listener = (AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      animation.removeStatusListener(listener);
+      action();
+    } else if (status == AnimationStatus.dismissed) {
+      animation.removeStatusListener(listener);
+    }
+  };
+  animation.addStatusListener(listener);
 }
