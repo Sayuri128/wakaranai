@@ -47,15 +47,10 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       final ConcreteView<dynamic> concreteView =
           await _getConcrete(uid, galleryData);
 
-      final domain = await concreteDataRepository
-          .createUpdateBy<$ConcreteDataTableTable, String>(
-        concreteView.toConcreteDataDomain(
-          data: galleryData,
-          extensionUid: state.configInfo.uid,
-          concreteJson: jsonEncode((concreteView as dynamic).toJson()),
-        ),
-        by: (tbl) => tbl.uid,
-        where: (tbl) => tbl.uid,
+      final domain = await concreteDataRepository.saveConcrete(
+        concreteView,
+        galleryData: galleryData,
+        extensionUid: state.configInfo.uid,
       );
       final Map<String, String> imageHeaders =
           await state.apiClient.getImageHeaders(uid: uid, data: galleryData);
