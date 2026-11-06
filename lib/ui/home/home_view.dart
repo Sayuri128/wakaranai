@@ -8,6 +8,7 @@ import 'package:wakaranai/ui/home/library_page/library_home_page.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_page.dart';
 import 'package:wakaranai/ui/home/widgets/bottom_navigation_bar_container.dart';
 import 'package:wakaranai/ui/home/widgets/bottom_navigation_bar_item_widget.dart';
+import 'package:wakaranai/ui/widgets/keep_alive_page.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -42,6 +43,21 @@ class _HomeViewState extends State<HomeView> {
     ),
   ];
 
+  void _showTab(int index) {
+    final double? current = _pageController.hasClients
+        ? _pageController.page
+        : null;
+    if (current == null || (current - index).abs() > 1) {
+      _pageController.jumpToPage(index);
+      return;
+    }
+    _pageController.animateToPage(
+      index,
+      curve: Curves.easeInOut,
+      duration: const Duration(milliseconds: 200),
+    );
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -54,11 +70,7 @@ class _HomeViewState extends State<HomeView> {
       bucket: bucket,
       child: BlocConsumer<HomePageCubit, HomePageState>(
         listener: (BuildContext context, HomePageState state) {
-          _pageController.animateToPage(
-            state.currentPage,
-            curve: Curves.easeInOut,
-            duration: const Duration(milliseconds: 200),
-          );
+          _showTab(state.currentPage);
         },
         builder: (BuildContext context, HomePageState state) {
           return Scaffold(
@@ -72,9 +84,7 @@ class _HomeViewState extends State<HomeView> {
                     controller: _pageController,
                     physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
-                      return _buildBody(
-                        index,
-                      );
+                      return KeepAlivePage(child: _buildBody(index));
                     },
                   ),
                 ),

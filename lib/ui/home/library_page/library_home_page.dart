@@ -5,6 +5,7 @@ import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/downloads_page/downloads_page.dart';
 import 'package:wakaranai/ui/home/library_page/library_page.dart';
+import 'package:wakaranai/ui/widgets/keep_alive_page.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -51,8 +52,8 @@ class _LibraryHomePageState extends State<LibraryHomePage> {
                 onPageChanged: (int index) =>
                     setState(() => _currentPage = index),
                 children: <Widget>[
-                  _KeepAlive(child: LibraryPage(embedded: true)),
-                  _KeepAlive(child: DownloadsPage()),
+                  KeepAlivePage(child: LibraryPage(embedded: true)),
+                  KeepAlivePage(child: DownloadsPage()),
                 ],
               ),
             ),
@@ -230,26 +231,5 @@ class _CircleButton extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _KeepAlive extends StatefulWidget {
-  const _KeepAlive({required this.child});
-
-  final Widget child;
-
-  @override
-  State<_KeepAlive> createState() => _KeepAliveState();
-}
-
-class _KeepAliveState extends State<_KeepAlive>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return widget.child;
   }
 }
