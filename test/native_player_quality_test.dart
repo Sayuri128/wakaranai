@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_quality.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_pickers.dart';
 
@@ -173,6 +174,84 @@ void main() {
       expect(isAutoQualityLabel('auto'), isTrue);
       expect(isAutoQualityLabel('Auto'), isTrue);
       expect(isAutoQualityLabel('720p'), isFalse);
+    });
+
+    test('picks the remembered rendition inside the remembered stream', () {
+      expect(
+        preferredRendition(
+          renditions: _moonanimeLadder,
+          preference: const QualityPreference(
+            streamLabel: 'Auto (H.264)',
+            renditionLabel: '720p',
+          ),
+          currentStreamLabel: 'Auto (H.264)',
+        )?.id,
+        '0_1',
+      );
+    });
+
+    test('stays adaptive for Auto, no label or a single rendition', () {
+      expect(
+        preferredRendition(
+          renditions: _moonanimeLadder,
+          preference: const QualityPreference(renditionLabel: 'auto'),
+          currentStreamLabel: null,
+        ),
+        isNull,
+      );
+      expect(
+        preferredRendition(
+          renditions: _moonanimeLadder,
+          preference: const QualityPreference(streamLabel: 'Main'),
+          currentStreamLabel: 'Main',
+        ),
+        isNull,
+      );
+      expect(
+        preferredRendition(
+          renditions: _moonanimeLadder.take(1).toList(),
+          preference: const QualityPreference(renditionLabel: '1080p'),
+          currentStreamLabel: null,
+        ),
+        isNull,
+      );
+    });
+
+    test('a legacy label naming the stream keeps it adaptive', () {
+      expect(
+        preferredRendition(
+          renditions: _moonanimeLadder,
+          preference: const QualityPreference.legacy('1080p'),
+          currentStreamLabel: '1080p',
+        ),
+        isNull,
+      );
+    });
+
+    test('a legacy label naming a rendition still picks it', () {
+      expect(
+        preferredRendition(
+          renditions: _moonanimeLadder,
+          preference: const QualityPreference.legacy('720p'),
+          currentStreamLabel: null,
+        )?.id,
+        '0_1',
+      );
+    });
+
+    test('a new rendition label matching the stream label is still applied',
+        () {
+      expect(
+        preferredRendition(
+          renditions: _moonanimeLadder,
+          preference: const QualityPreference(
+            streamLabel: '1080p',
+            renditionLabel: '1080p',
+          ),
+          currentStreamLabel: '1080p',
+        )?.id,
+        '0_0',
+      );
     });
   });
 

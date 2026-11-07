@@ -94,7 +94,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
   bool _autoPlayNext = kDefaultAutoPlayNext;
   bool _completionHandled = false;
   SubtitlePreference? _subtitlePreference;
-  String? _preferredQuality;
+  QualityPreference _qualityPreference = const QualityPreference();
   Future<void> _pendingSave = Future<void>.value();
 
   PlayableVideo get video => _video;
@@ -206,8 +206,9 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     if (currentEngine == null || state.status != NativePlayerStatus.ready) {
       return;
     }
-    _rememberQualityLabel(
-      rendition?.preferenceLabel ?? _autoRenditionPreferenceLabel(),
+    _rememberQuality(
+      streamIndex: state.streamIndex,
+      renditionLabel: rendition?.preferenceLabel ?? kAutoQualityLabel,
     );
     if (rendition?.id == state.selectedRenditionId) {
       return;
@@ -219,7 +220,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     if (index < 0 || index >= _video.streams.length) {
       return;
     }
-    _rememberQualityLabel(_video.streams[index].quality);
+    _rememberQuality(streamIndex: index, renditionLabel: kAutoQualityLabel);
     if (index == state.streamIndex && state.status == NativePlayerStatus.ready) {
       return;
     }
@@ -486,8 +487,10 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     if (_isStaleEpisode(generation)) {
       return;
     }
-    _initialStreamIndex =
-        preferredStreamIndex(_video.streams, _preferredQuality);
+    _initialStreamIndex = preferredStreamIndex(
+      _video.streams,
+      _qualityPreference.streamLabel,
+    );
     await _openStream(
       _initialStreamIndex,
       savedProgress: _savedProgress,
@@ -510,7 +513,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       final PlayerFitMode fitMode = await _preferences.getFitMode();
       final int skipOpeningSeconds =
           await _preferences.getSkipOpeningSeconds();
-      _preferredQuality = await _preferences.getQuality();
+      _qualityPreference = await _preferences.getQualityPreference();
       _autoPlayNext = await _preferences.getAutoPlayNext();
       _subtitlePreference = await _preferences.getSubtitle();
       if (isClosed) {
@@ -537,24 +540,32 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     }
   }
 
-  void _rememberQualityLabel(String? label) {
-    final String? quality = label?.trim();
-    if (quality == null || quality.isEmpty) {
-      return;
-    }
-    _preferredQuality = quality;
-    unawaited(_persistPreference(() => _preferences.setQuality(quality)));
+  void _rememberQuality({
+    required int streamIndex,
+    required String renditionLabel,
+  }) {
+    final QualityPreference preference = QualityPreference(
+      streamLabel: _streamLabelToRemember(streamIndex),
+      renditionLabel: renditionLabel,
+    );
+    _qualityPreference = preference;
+    unawaited(
+      _persistPreference(() => _preferences.setQualityPreference(preference)),
+    );
   }
 
-  String _autoRenditionPreferenceLabel() {
-    if (_video.streams.length > 1) {
-      final String? streamLabel =
-          _video.streams[state.streamIndex].quality?.trim();
-      if (streamLabel != null && streamLabel.isNotEmpty) {
-        return streamLabel;
-      }
+  String? _streamLabelToRemember(int streamIndex) {
+    final String? previousLabel = _qualityPreference.fromLegacyLabel
+        ? null
+        : _qualityPreference.streamLabel;
+    if (_video.streams.length < 2) {
+      return previousLabel;
     }
-    return kAutoQualityLabel;
+    final String? streamLabel = _video.streams[streamIndex].quality?.trim();
+    if (streamLabel == null || streamLabel.isEmpty) {
+      return previousLabel;
+    }
+    return streamLabel;
   }
 
   Future<void> _loadRenditions(
@@ -570,7 +581,11 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       renditions: renditions,
       selectedRenditionId: () => null,
     ));
-    final PlayerRendition? preferred = _preferredRendition();
+    final PlayerRendition? preferred = preferredRendition(
+      renditions: renditions,
+      preference: _qualityPreference,
+      currentStreamLabel: _video.streams[state.streamIndex].quality,
+    );
     if (preferred == null) {
       return;
     }
@@ -590,23 +605,6 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       logger.w(stackTrace);
       return const <PlayerRendition>[];
     }
-  }
-
-  PlayerRendition? _preferredRendition() {
-    final String? wanted = _preferredQuality;
-    if (wanted == null || state.renditions.length < 2) {
-      return null;
-    }
-    if (isAutoQualityLabel(wanted) || _isCurrentStreamLabel(wanted)) {
-      return null;
-    }
-    return matchRendition(state.renditions, wanted);
-  }
-
-  bool _isCurrentStreamLabel(String label) {
-    final String? streamLabel =
-        _video.streams[state.streamIndex].quality?.trim().toLowerCase();
-    return streamLabel != null && streamLabel == label.trim().toLowerCase();
   }
 
   Future<void> _selectRenditionOn(

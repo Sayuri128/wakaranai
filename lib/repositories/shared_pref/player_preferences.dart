@@ -104,11 +104,48 @@ class SubtitlePreference {
   int get hashCode => Object.hash(kind, value);
 }
 
+class QualityPreference {
+  const QualityPreference({this.streamLabel, this.renditionLabel})
+      : fromLegacyLabel = false;
+
+  const QualityPreference.legacy(String label)
+      : streamLabel = label,
+        renditionLabel = label,
+        fromLegacyLabel = true;
+
+  final String? streamLabel;
+  final String? renditionLabel;
+  final bool fromLegacyLabel;
+
+  bool get isEmpty => streamLabel == null && renditionLabel == null;
+
+  @override
+  bool operator ==(Object other) {
+    return other is QualityPreference &&
+        other.streamLabel == streamLabel &&
+        other.renditionLabel == renditionLabel &&
+        other.fromLegacyLabel == fromLegacyLabel;
+  }
+
+  @override
+  int get hashCode => Object.hash(streamLabel, renditionLabel, fromLegacyLabel);
+}
+
+String? _trimmedOrNull(String? value) {
+  final String? trimmed = value?.trim();
+  if (trimmed == null || trimmed.isEmpty) {
+    return null;
+  }
+  return trimmed;
+}
+
 class PlayerPreferences {
   static const String playbackSpeedKey = 'PLAYER_PLAYBACK_SPEED';
   static const String holdSpeedKey = 'PLAYER_HOLD_SPEED';
   static const String subtitleKey = 'PLAYER_SUBTITLE';
-  static const String qualityKey = 'PLAYER_QUALITY';
+  static const String legacyQualityKey = 'PLAYER_QUALITY';
+  static const String qualityStreamKey = 'PLAYER_QUALITY_STREAM';
+  static const String qualityRenditionKey = 'PLAYER_QUALITY_RENDITION';
   static const String skipOpeningSecondsKey = 'PLAYER_SKIP_OPENING_SECONDS';
   static const String autoPlayNextKey = 'PLAYER_AUTO_PLAY_NEXT';
   static const String fitModeKey = 'PLAYER_FIT_MODE';
@@ -160,18 +197,51 @@ class PlayerPreferences {
     await preferences.setString(subtitleKey, preference.encode());
   }
 
-  Future<String?> getQuality() async {
+  Future<QualityPreference> getQualityPreference() async {
     final SharedPreferences preferences = await _load();
-    final String? stored = preferences.getString(qualityKey)?.trim();
-    if (stored == null || stored.isEmpty) {
-      return null;
+    final String? streamLabel =
+        _trimmedOrNull(preferences.getString(qualityStreamKey));
+    final String? renditionLabel =
+        _trimmedOrNull(preferences.getString(qualityRenditionKey));
+    if (streamLabel != null || renditionLabel != null) {
+      return QualityPreference(
+        streamLabel: streamLabel,
+        renditionLabel: renditionLabel,
+      );
     }
-    return stored;
+    final String? legacyLabel =
+        _trimmedOrNull(preferences.getString(legacyQualityKey));
+    if (legacyLabel == null) {
+      return const QualityPreference();
+    }
+    return QualityPreference.legacy(legacyLabel);
   }
 
-  Future<void> setQuality(String quality) async {
+  Future<void> setQualityPreference(QualityPreference preference) async {
     final SharedPreferences preferences = await _load();
-    await preferences.setString(qualityKey, quality.trim());
+    await _writeOptionalString(
+      preferences,
+      qualityStreamKey,
+      _trimmedOrNull(preference.streamLabel),
+    );
+    await _writeOptionalString(
+      preferences,
+      qualityRenditionKey,
+      _trimmedOrNull(preference.renditionLabel),
+    );
+    await preferences.remove(legacyQualityKey);
+  }
+
+  Future<void> _writeOptionalString(
+    SharedPreferences preferences,
+    String key,
+    String? value,
+  ) async {
+    if (value == null) {
+      await preferences.remove(key);
+      return;
+    }
+    await preferences.setString(key, value);
   }
 
   Future<int> getSkipOpeningSeconds() async {

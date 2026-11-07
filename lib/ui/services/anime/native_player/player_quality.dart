@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:video_player/video_player.dart';
+import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 
 const String kAutoQualityLabel = 'Auto';
 
@@ -125,6 +126,31 @@ PlayerRendition? matchRendition(
     return null;
   }
   return _closestLowerRendition(renditions, wantedHeight);
+}
+
+PlayerRendition? preferredRendition({
+  required List<PlayerRendition> renditions,
+  required QualityPreference preference,
+  required String? currentStreamLabel,
+}) {
+  final String? wanted = preference.renditionLabel;
+  if (wanted == null || renditions.length < 2 || isAutoQualityLabel(wanted)) {
+    return null;
+  }
+  final bool legacyStreamPick = preference.fromLegacyLabel &&
+      _sameQualityLabel(wanted, currentStreamLabel);
+  if (legacyStreamPick) {
+    return null;
+  }
+  return matchRendition(renditions, wanted);
+}
+
+bool _sameQualityLabel(String first, String? second) {
+  final String? normalizedSecond = second?.trim().toLowerCase();
+  if (normalizedSecond == null || normalizedSecond.isEmpty) {
+    return false;
+  }
+  return first.trim().toLowerCase() == normalizedSecond;
 }
 
 PlayerRendition? _closestLowerRendition(

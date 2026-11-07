@@ -234,6 +234,21 @@ PlayableVideo _singleHlsVideo(String uid) {
   );
 }
 
+PlayableVideo _codecStreamsVideo(String uid) {
+  return PlayableVideo(
+    streams: <PlayableStream>[
+      PlayableStream(
+        url: 'https://cdn.test/$uid/h265.m3u8',
+        quality: 'Auto (H.265)',
+      ),
+      PlayableStream(
+        url: 'https://cdn.test/$uid/h264.m3u8',
+        quality: 'Auto (H.264)',
+      ),
+    ],
+  );
+}
+
 class _Harness {
   _Harness({
     EpisodeProgress? initialProgress,
@@ -1135,7 +1150,10 @@ void main() {
       expect(engine.value.position, const Duration(minutes: 3));
       expect(engine.value.isPlaying, isTrue);
       expect(cubit.state.selectedRenditionId, '0_1');
-      expect(await PlayerPreferences().getQuality(), '720p');
+      expect(
+        await PlayerPreferences().getQualityPreference(),
+        const QualityPreference(renditionLabel: '720p'),
+      );
       await cubit.close();
     });
 
@@ -1154,13 +1172,144 @@ void main() {
 
       expect(harness.engines.single.trackSelections.last, isNull);
       expect(cubit.state.selectedRenditionId, isNull);
-      expect(await PlayerPreferences().getQuality(), kAutoQualityLabel);
+      expect(
+        await PlayerPreferences().getQualityPreference(),
+        const QualityPreference(renditionLabel: kAutoQualityLabel),
+      );
+      await cubit.close();
+    });
+
+    test('remembers the stream together with the rendition picked inside it',
+        () async {
+      final _Harness harness = _Harness(
+        hasNextEpisode: true,
+        videoFor: _codecStreamsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      await cubit.selectQuality(1);
+      await cubit.selectRendition(cubit.state.renditions[1]);
+
+      expect(
+        await PlayerPreferences().getQualityPreference(),
+        const QualityPreference(
+          streamLabel: 'Auto (H.264)',
+          renditionLabel: '720p',
+        ),
+      );
+
+      await cubit.playNext();
+
+      final _FakeEngine engine = harness.engines.last;
+      expect(engine.stream.url, 'https://cdn.test/a2/h264.m3u8');
+      expect(cubit.state.streamIndex, 1);
+      expect(engine.trackSelections.single?.id, '0_1');
+      expect(cubit.state.selectedRenditionId, '0_1');
+      await cubit.close();
+    });
+
+    test('a new player opens the remembered stream and rendition', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        PlayerPreferences.qualityStreamKey: 'Auto (H.264)',
+        PlayerPreferences.qualityRenditionKey: '900p',
+        PlayerPreferences.legacyQualityKey: '1080p',
+      });
+      final _Harness harness = _Harness(
+        videoFor: _codecStreamsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      expect(cubit.state.streamIndex, 1);
+      expect(cubit.state.selectedRenditionId, '0_1');
+      await cubit.close();
+    });
+
+    test('a remembered Auto rendition keeps the remembered stream adaptive',
+        () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        PlayerPreferences.qualityStreamKey: 'Auto (H.264)',
+        PlayerPreferences.qualityRenditionKey: kAutoQualityLabel,
+      });
+      final _Harness harness = _Harness(
+        videoFor: _codecStreamsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      expect(cubit.state.streamIndex, 1);
+      expect(harness.engines.single.trackSelections, isEmpty);
+      expect(cubit.state.selectedRenditionId, isNull);
+      await cubit.close();
+    });
+
+    test('picking a stream resets the remembered rendition to Auto', () async {
+      final _Harness harness = _Harness(
+        videoFor: _codecStreamsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      await cubit.selectRendition(cubit.state.renditions.last);
+
+      await cubit.selectQuality(1);
+
+      expect(
+        await PlayerPreferences().getQualityPreference(),
+        const QualityPreference(
+          streamLabel: 'Auto (H.264)',
+          renditionLabel: kAutoQualityLabel,
+        ),
+      );
+      await cubit.close();
+    });
+
+    test('a legacy stream label opens that stream adaptively', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        PlayerPreferences.legacyQualityKey: 'Auto (H.264)',
+      });
+      final _Harness harness = _Harness(
+        videoFor: _codecStreamsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      expect(cubit.state.streamIndex, 1);
+      expect(harness.engines.single.trackSelections, isEmpty);
+      await cubit.close();
+    });
+
+    test('a single-stream source keeps the remembered stream label', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        PlayerPreferences.qualityStreamKey: 'Auto (H.264)',
+        PlayerPreferences.qualityRenditionKey: kAutoQualityLabel,
+      });
+      final _Harness harness = _Harness(
+        videoFor: _singleHlsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      await cubit.selectRendition(cubit.state.renditions.last);
+
+      expect(
+        await PlayerPreferences().getQualityPreference(),
+        const QualityPreference(
+          streamLabel: 'Auto (H.264)',
+          renditionLabel: '480p',
+        ),
+      );
       await cubit.close();
     });
 
     test('opens the remembered rendition', () async {
       SharedPreferences.setMockInitialValues(<String, Object>{
-        PlayerPreferences.qualityKey: '720p',
+        PlayerPreferences.legacyQualityKey: '720p',
       });
       final _Harness harness = _Harness(
         videoFor: _singleHlsVideo,
@@ -1176,7 +1325,7 @@ void main() {
 
     test('falls back to the closest lower rendition', () async {
       SharedPreferences.setMockInitialValues(<String, Object>{
-        PlayerPreferences.qualityKey: '900p',
+        PlayerPreferences.legacyQualityKey: '900p',
       });
       final _Harness harness = _Harness(
         videoFor: _singleHlsVideo,
@@ -1191,7 +1340,7 @@ void main() {
 
     test('a remembered Auto stays adaptive', () async {
       SharedPreferences.setMockInitialValues(<String, Object>{
-        PlayerPreferences.qualityKey: 'Auto',
+        PlayerPreferences.legacyQualityKey: 'Auto',
       });
       final _Harness harness = _Harness(
         videoFor: _singleHlsVideo,
@@ -1207,7 +1356,7 @@ void main() {
 
     test('a remembered stream label keeps that stream adaptive', () async {
       SharedPreferences.setMockInitialValues(<String, Object>{
-        PlayerPreferences.qualityKey: '1080p',
+        PlayerPreferences.legacyQualityKey: '1080p',
       });
       final _Harness harness = _Harness(tracksFor: _ladder);
       final NativePlayerCubit cubit = harness.build();
@@ -1275,7 +1424,7 @@ void main() {
 
     test('without track support nothing is read or selected', () async {
       SharedPreferences.setMockInitialValues(<String, Object>{
-        PlayerPreferences.qualityKey: '720p',
+        PlayerPreferences.legacyQualityKey: '720p',
       });
       final _Harness harness = _Harness(
         videoFor: _singleHlsVideo,

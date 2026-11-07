@@ -16,7 +16,10 @@ void main() {
       expect(await preferences.getPlaybackSpeed(), 1.0);
       expect(await preferences.getHoldSpeed(), 2.0);
       expect(await preferences.getSubtitle(), isNull);
-      expect(await preferences.getQuality(), isNull);
+      expect(
+        await preferences.getQualityPreference(),
+        const QualityPreference(),
+      );
       expect(await preferences.getSkipOpeningSeconds(), 85);
       expect(await preferences.getAutoPlayNext(), isTrue);
       expect(await preferences.getFitMode(), PlayerFitMode.fit);
@@ -27,7 +30,12 @@ void main() {
       await writer.setPlaybackSpeed(2.5);
       await writer.setHoldSpeed(3.0);
       await writer.setSubtitle(const SubtitlePreference.language('en'));
-      await writer.setQuality(' 720p ');
+      await writer.setQualityPreference(
+        const QualityPreference(
+          streamLabel: ' Auto (H.264) ',
+          renditionLabel: ' 720p ',
+        ),
+      );
       await writer.setSkipOpeningSeconds(90);
       await writer.setAutoPlayNext(false);
       await writer.setFitMode(PlayerFitMode.stretch);
@@ -39,7 +47,13 @@ void main() {
         await reader.getSubtitle(),
         const SubtitlePreference.language('en'),
       );
-      expect(await reader.getQuality(), '720p');
+      expect(
+        await reader.getQualityPreference(),
+        const QualityPreference(
+          streamLabel: 'Auto (H.264)',
+          renditionLabel: '720p',
+        ),
+      );
       expect(await reader.getSkipOpeningSeconds(), 90);
       expect(await reader.getAutoPlayNext(), isFalse);
       expect(await reader.getFitMode(), PlayerFitMode.stretch);
@@ -57,6 +71,49 @@ void main() {
         isTrue,
       );
       expect(raw.getString(PlayerPreferences.subtitleKey), 'off');
+    });
+
+    test('reads the legacy single quality key when nothing newer exists',
+        () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        PlayerPreferences.legacyQualityKey: ' 720p ',
+      });
+
+      expect(
+        await PlayerPreferences().getQualityPreference(),
+        const QualityPreference.legacy('720p'),
+      );
+    });
+
+    test('prefers the stream and rendition keys over the legacy key',
+        () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        PlayerPreferences.legacyQualityKey: '1080p',
+        PlayerPreferences.qualityRenditionKey: '480p',
+      });
+
+      expect(
+        await PlayerPreferences().getQualityPreference(),
+        const QualityPreference(renditionLabel: '480p'),
+      );
+    });
+
+    test('saving a quality drops the legacy key and clears empty labels',
+        () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        PlayerPreferences.legacyQualityKey: '1080p',
+        PlayerPreferences.qualityStreamKey: 'Auto (H.265)',
+      });
+      final PlayerPreferences preferences = PlayerPreferences();
+
+      await preferences.setQualityPreference(
+        const QualityPreference(renditionLabel: 'Auto'),
+      );
+
+      final SharedPreferences raw = await SharedPreferences.getInstance();
+      expect(raw.containsKey(PlayerPreferences.legacyQualityKey), isFalse);
+      expect(raw.containsKey(PlayerPreferences.qualityStreamKey), isFalse);
+      expect(raw.getString(PlayerPreferences.qualityRenditionKey), 'Auto');
     });
 
     test('clamps a stored out-of-range speed', () async {
