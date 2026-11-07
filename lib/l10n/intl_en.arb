@@ -189,7 +189,6 @@
   "gallery_layout_list": "List",
   "gallery_layout_button_tooltip": "Layout: {layout}",
   "gallery_last_opened": "Last opened: {title}",
-  "gallery_in_library": "In library",
   "title_status_released": "Completed",
   "title_status_ongoing": "Ongoing",
   "title_status_paused": "Paused",

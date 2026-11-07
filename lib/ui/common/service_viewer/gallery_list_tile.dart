@@ -85,48 +85,65 @@ class _GalleryListTileState extends State<GalleryListTile> {
   }
 
   Widget _buildDetails() {
+    final GalleryItem item = widget.item;
+    final String? subtitle = item.subtitle;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          widget.item.title,
-          maxLines: 2,
+          item.title,
+          maxLines: subtitle == null ? 2 : 1,
           overflow: TextOverflow.ellipsis,
           style: semibold(size: 15),
         ),
+        if (subtitle != null) _buildSecondaryText(subtitle),
+        if (item.tags.isNotEmpty) ...<Widget>[
+          const SizedBox(height: 4),
+          _buildSecondaryText(
+            item.tags.take(_visibleTags).join(' · '),
+            color: AppColors.mainWhite.withValues(alpha: 0.7),
+          ),
+        ],
         const Spacer(),
         if (_lastActivity != null) ...<Widget>[
-          Text(
-            S.current.gallery_last_opened(_lastActivity!),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: regular(size: 12, color: AppColors.mainGrey),
-          ),
-          const SizedBox(height: 6),
+          _buildSecondaryText(S.current.gallery_last_opened(_lastActivity!)),
+          const SizedBox(height: 4),
         ],
-        if (widget.inLibrary) _buildLibraryChip(),
+        _buildFooter(item),
       ],
     );
   }
 
-  Widget _buildLibraryChip() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Icon(Icons.favorite_rounded, size: 12, color: AppColors.primary),
-          const SizedBox(width: 4),
+  static const int _visibleTags = 3;
+
+  Widget _buildSecondaryText(String text, {Color? color}) {
+    return Text(
+      text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: regular(size: 12, color: color ?? AppColors.mainGrey),
+    );
+  }
+
+  Widget _buildFooter(GalleryItem item) {
+    final String? meta = galleryItemMetaLine(item);
+    return Row(
+      children: <Widget>[
+        if (item.rating != null) ...<Widget>[
+          Icon(Icons.star_rounded, size: 14, color: AppColors.primary),
+          const SizedBox(width: 2),
           Text(
-            S.current.gallery_in_library,
+            formatGalleryRating(item.rating!),
             style: medium(size: 12, color: AppColors.primary),
           ),
+          if (meta != null) const SizedBox(width: 8),
         ],
-      ),
+        Expanded(
+          child: meta == null ? const SizedBox() : _buildSecondaryText(meta),
+        ),
+        if (widget.inLibrary)
+          Icon(Icons.favorite_rounded, size: 16, color: AppColors.primary),
+      ],
     );
   }
 }

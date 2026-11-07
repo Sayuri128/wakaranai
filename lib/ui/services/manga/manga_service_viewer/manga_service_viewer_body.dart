@@ -170,6 +170,12 @@ class MangaServiceViewBody extends StatelessWidget {
         downloadClient: apiClient,
       ),
       onTap: () => _onGalleryViewClick(context, galleryView),
+      subtitle: galleryView.subtitle,
+      status: galleryView.status?.name,
+      tags: galleryView.tags,
+      year: galleryView.year,
+      rating: galleryView.rating,
+      latestChapter: galleryView.latestChapter,
     );
   }
 

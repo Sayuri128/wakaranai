@@ -5,6 +5,7 @@ import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_layout.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_list_tile.dart';
+import 'package:wakaranai/ui/common/title_status.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
 
 class GalleryItem {
@@ -15,6 +16,12 @@ class GalleryItem {
     required this.headers,
     required this.onTap,
     this.onLongPress,
+    this.subtitle,
+    this.status,
+    this.tags = const <String>[],
+    this.year,
+    this.rating,
+    this.latestChapter,
   });
 
   final String uid;
@@ -23,6 +30,32 @@ class GalleryItem {
   final Map<String, String> headers;
   final Future<void> Function() onTap;
   final VoidCallback? onLongPress;
+  final String? subtitle;
+  final String? status;
+  final List<String> tags;
+  final int? year;
+  final num? rating;
+  final String? latestChapter;
+}
+
+String? galleryItemMetaLine(GalleryItem item) {
+  final String? status = titleStatusLabel(item.status);
+  final List<String> parts = <String>[
+    if (item.year != null) item.year.toString(),
+    if (status != null) status,
+    if (item.latestChapter != null) item.latestChapter!,
+  ];
+  if (parts.isEmpty) {
+    return null;
+  }
+  return parts.join(' · ');
+}
+
+String formatGalleryRating(num rating) {
+  if (rating == rating.roundToDouble()) {
+    return rating.toInt().toString();
+  }
+  return rating.toStringAsFixed(1);
 }
 
 typedef GalleryActivityLoader = Future<String?> Function(String uid);

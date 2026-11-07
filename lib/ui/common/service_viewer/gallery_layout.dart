@@ -23,7 +23,7 @@ const SliverGridDelegateWithMaxCrossAxisExtent kCompactGalleryGridDelegate =
       mainAxisSpacing: 6,
     );
 
-const double kGalleryListRowHeight = 112;
+const double kGalleryListRowHeight = 120;
 const double kGalleryListRowSpacing = 8;
 
 SliverGridDelegate galleryGridDelegateFor(GalleryLayout layout) {

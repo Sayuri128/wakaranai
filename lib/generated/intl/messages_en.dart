@@ -552,7 +552,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "gallery_filters_sheet_title": MessageLookupByLibrary.simpleMessage(
       "Filters",
     ),
-    "gallery_in_library": MessageLookupByLibrary.simpleMessage("In library"),
     "gallery_last_opened": m23,
     "gallery_layout_button_tooltip": m24,
     "gallery_layout_comfortable": MessageLookupByLibrary.simpleMessage(

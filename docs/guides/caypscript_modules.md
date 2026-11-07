@@ -299,6 +299,19 @@ Parameters:
 * `data` is the data of the manga. This is a JSON string that contains all the data of the manga.
   This is used only within the scope of the extension, and is not used by the app itself, so can put any metadata you want in it.
 
+Optional details, shown in the gallery's list layout (older app builds ignore them, so they are safe
+to pass; leave out anything the listing page doesn't already give you rather than making extra
+requests per title):
+
+* `status` — one of the status builders listed under `buildConcrete` (manga only; anime
+  `buildGallery` already takes a required `status`).
+* `subtitle` — an alternative or original title, shown under the title.
+* `tags` — genres or tags; the first three are shown.
+* `year` — release year, a number or a numeric string.
+* `rating` — 0–10, a number or a numeric string (`"8,7"` works); values outside are clamped.
+* `latestChapter` — the newest chapter or episode, shown verbatim, so include the prefix
+  (`"Ch. 120"`, `"Ep. 12"`).
+
 ---
 
 ### `buildConcrete`
@@ -458,6 +471,10 @@ Parameters:
 * `cover` is the cover of the anime (image URL).
 * `data` is the data of the anime. This is a JSON string that contains all the data of the anime.
   This is used only within the scope of the extension, and is not used by the app itself, so can put any metadata you want in it.
+* `status` is the status of the anime, built with the anime status builders.
+
+The optional `subtitle`, `tags`, `year`, `rating` and `latestChapter` described under the manga
+`buildGallery` work here too.
 
 ---
 

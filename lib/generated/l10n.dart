@@ -1302,16 +1302,6 @@ class S {
     );
   }
 
-  /// `In library`
-  String get gallery_in_library {
-    return Intl.message(
-      'In library',
-      name: 'gallery_in_library',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Completed`
   String get title_status_released {
     return Intl.message(
