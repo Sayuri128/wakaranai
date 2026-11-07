@@ -1049,6 +1049,7 @@
   "native_player_open_web_player": "Open in web player",
   "native_player_lock": "Lock controls",
   "native_player_unlock": "Unlock controls",
+  "native_player_more": "More options",
   "native_player_error_title": "Couldn't play this video",
   "native_player_retry": "Retry",
   "native_player_seek_backward": "−{seconds}s",

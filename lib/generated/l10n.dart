@@ -5738,6 +5738,16 @@ class S {
     );
   }
 
+  /// `More options`
+  String get native_player_more {
+    return Intl.message(
+      'More options',
+      name: 'native_player_more',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Couldn't play this video`
   String get native_player_error_title {
     return Intl.message(

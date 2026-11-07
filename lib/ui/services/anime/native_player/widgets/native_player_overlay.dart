@@ -11,10 +11,13 @@ import 'package:wakaranai/ui/services/anime/episode_playback/playlist_sheets.dar
 import 'package:wakaranai/ui/services/anime/native_player/cubit/native_player_cubit.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_device_controls.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_auto_next_card.dart';
-import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_bottom_bar.dart';
+import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_bottom_controls.dart';
+import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_fit_mode.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_gesture_layer.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_pickers.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_seek_bar.dart';
+import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_size_reporter.dart';
+import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_top_bar.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -24,6 +27,10 @@ const Duration _seekIndicatorDuration = Duration(milliseconds: 700);
 const Duration _fadeDuration = Duration(milliseconds: 200);
 const Duration _flashMessageDuration = Duration(milliseconds: 1200);
 const double _skipOpeningVisibleFraction = 0.3;
+const double _initialBottomPanelHeight = 120;
+const double _bottomPanelClearance = 8;
+const double _hiddenCaptionInset = 32;
+const double _hiddenAutoNextInset = 16;
 
 enum _SeekSide { backward, forward }
 
@@ -62,6 +69,7 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
   String? _flashMessage;
   _SeekSide? _seekSide;
   int _seekSeconds = 0;
+  double _bottomPanelHeight = _initialBottomPanelHeight;
 
   NativePlayerCubit get _cubit => context.read<NativePlayerCubit>();
 
@@ -266,6 +274,28 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
     _scheduleAutoHide();
   }
 
+  Future<void> _openMoreSheet() async {
+    _hideTimer?.cancel();
+    await showPlayerMoreSheet(
+      context,
+      fitMode: widget.state.fitMode,
+      onFitModeSelected: _applyFitMode,
+      onOpenWebPlayer: widget.onOpenWebPlayer,
+    );
+    if (mounted) {
+      _scheduleAutoHide();
+    }
+  }
+
+  void _updateBottomPanelHeight(Size size) {
+    if (!mounted || size.height == _bottomPanelHeight) {
+      return;
+    }
+    setState(() {
+      _bottomPanelHeight = size.height;
+    });
+  }
+
   Future<void> _openEpisodesSheet() async {
     _hideTimer?.cancel();
     final NativePlayerCubit cubit = _cubit;
@@ -366,10 +396,13 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
     final int? secondsLeft = widget.state.autoNextSecondsLeft;
     final NativePlayerCubit cubit = _cubit;
     final bool controlsShown = _controlsVisible && !_locked;
+    final double safeBottom = MediaQuery.paddingOf(context).bottom;
+    final double shownInset =
+        _bottomPanelHeight - safeBottom + _bottomPanelClearance;
     return AnimatedPositioned(
       duration: _fadeDuration,
       right: 16,
-      bottom: controlsShown ? 132 : 16,
+      bottom: controlsShown ? shownInset : _hiddenAutoNextInset,
       child: SafeArea(
         child: AnimatedSwitcher(
           duration: _fadeDuration,
@@ -443,7 +476,9 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
   }
 
   Widget _buildCaption() {
-    final double bottomInset = _controlsVisible && !_locked ? 168 : 32;
+    final double bottomInset = _controlsVisible && !_locked
+        ? _bottomPanelHeight + _bottomPanelClearance
+        : _hiddenCaptionInset;
     return AnimatedPositioned(
       duration: _fadeDuration,
       left: 48,
@@ -492,7 +527,10 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
           children: <Widget>[
             _buildTopBar(),
             const Spacer(),
-            _buildBottomPanel(),
+            NativePlayerSizeReporter(
+              onSizeChanged: _updateBottomPanelHeight,
+              child: _buildBottomPanel(),
+            ),
           ],
         ),
       ),
@@ -500,55 +538,28 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
   }
 
   Widget _buildTopBar() {
-    return IgnorePointer(
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: <Color>[
-              Colors.black.withValues(alpha: 0.6),
-              Colors.transparent,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
-            child: _buildTitles(),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTitles() {
-    final String? subtitle = widget.subtitle;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Text(
-          widget.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: semibold(size: 16, color: AppColors.onMedia),
-        ),
-        if (subtitle != null && subtitle.isNotEmpty) ...<Widget>[
-          const SizedBox(height: 2),
-          Text(
-            subtitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: regular(
-              size: 13,
-              color: AppColors.onMedia.withValues(alpha: 0.75),
-            ),
-          ),
-        ],
-      ],
+    final NativePlayerCubit cubit = _cubit;
+    final bool playlistEnabled = cubit.canSwitchEpisodes;
+    final bool hasSeveralGroups = widget.state.playlist.hasSeveralGroups;
+    final bool hasSubtitles = cubit.video.subtitles.isNotEmpty;
+    final bool hasQualities = cubit.video.streams.length > 1;
+    return NativePlayerTopBar(
+      title: widget.title,
+      subtitle: widget.subtitle,
+      onBack: widget.onBack,
+      onEpisodes: playlistEnabled ? () => unawaited(_openEpisodesSheet()) : null,
+      onGroups: playlistEnabled && hasSeveralGroups
+          ? () => unawaited(_openGroupsSheet())
+          : null,
+      onSubtitles: hasSubtitles ? () => unawaited(_openSubtitlePicker()) : null,
+      subtitlesActive: widget.state.subtitleIndex != null,
+      onQuality: hasQualities ? () => unawaited(_openQualityPicker()) : null,
+      qualityLabel: hasQualities
+          ? streamQualityLabel(cubit.video.streams, widget.state.streamIndex)
+          : null,
+      playbackSpeed: widget.state.playbackSpeed,
+      onSpeed: () => unawaited(_openSpeedPicker()),
+      onMore: () => unawaited(_openMoreSheet()),
     );
   }
 
@@ -568,7 +579,7 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 28, 16, 8),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -581,7 +592,7 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
                   _scheduleAutoHide();
                 },
               ),
-              _buildBottomBar(),
+              _buildBottomControls(),
             ],
           ),
         ),
@@ -646,36 +657,22 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
     );
   }
 
-  Widget _buildBottomBar() {
+  Widget _buildBottomControls() {
     final NativePlayerCubit cubit = _cubit;
-    final bool hasSubtitles = cubit.video.subtitles.isNotEmpty;
-    final bool hasQualities = cubit.video.streams.length > 1;
-    final bool playlistEnabled = cubit.canSwitchEpisodes;
-    final bool hasSeveralGroups = widget.state.playlist.hasSeveralGroups;
-    return NativePlayerBottomBar(
+    return NativePlayerBottomControls(
       isPlaying: widget.state.isPlaying,
-      subtitlesActive: widget.state.subtitleIndex != null,
-      onBack: widget.onBack,
       onTogglePlay: () {
         unawaited(cubit.togglePlayPause());
         _registerInteraction();
       },
-      showEpisodeNavigation: playlistEnabled,
+      showEpisodeNavigation: cubit.canSwitchEpisodes,
       onPreviousEpisode: cubit.hasPreviousEpisode
           ? () => unawaited(cubit.playPrevious())
           : null,
       onNextEpisode:
           cubit.hasNextEpisode ? () => unawaited(cubit.playNext()) : null,
-      onEpisodes: playlistEnabled ? () => unawaited(_openEpisodesSheet()) : null,
-      onGroups: playlistEnabled && hasSeveralGroups
-          ? () => unawaited(_openGroupsSheet())
-          : null,
-      onSubtitles: hasSubtitles ? () => unawaited(_openSubtitlePicker()) : null,
-      onSpeed: () => unawaited(_openSpeedPicker()),
-      onQuality: hasQualities ? () => unawaited(_openQualityPicker()) : null,
       fitMode: widget.state.fitMode,
       onFitMode: _cycleFitMode,
-      onOpenWebPlayer: widget.onOpenWebPlayer,
       onLock: _lock,
     );
   }

@@ -816,6 +816,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Stretch",
     ),
     "native_player_lock": MessageLookupByLibrary.simpleMessage("Lock controls"),
+    "native_player_more": MessageLookupByLibrary.simpleMessage("More options"),
     "native_player_next_episode": MessageLookupByLibrary.simpleMessage(
       "Next episode",
     ),
