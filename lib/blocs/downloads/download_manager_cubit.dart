@@ -36,6 +36,7 @@ import 'package:wakaranai/repositories/database/download_repository.dart';
 part 'download_manager_state.dart';
 
 typedef QualityPreferenceReader = Future<QualityPreference> Function();
+typedef DownloadWait = Future<void> Function(Duration duration);
 
 sealed class _DownloadJob {
   final String extensionUid;
@@ -173,8 +174,12 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     QualityPreferenceReader? readQualityPreference,
     DownloadRuntime? downloadRuntime,
     DownloadNetworkPolicy? networkPolicy,
+    DownloadThrottle? throttle,
+    DownloadWait? wait,
   })  : notificationService =
             notificationService ?? DownloadNotificationService(),
+        _throttle = throttle ?? DownloadThrottle(),
+        _delay = wait ?? Future<void>.delayed,
         _injectedSourceResolver = episodeSourceResolver,
         _injectedEpisodeDownloader = episodeDownloader,
         _readQualityPreference = readQualityPreference ??
@@ -206,7 +211,8 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   static const Duration _jobUnwindTimeout = Duration(seconds: 10);
 
   final Dio _dio = createDio();
-  final DownloadThrottle _throttle = DownloadThrottle();
+  final DownloadThrottle _throttle;
+  final DownloadWait _delay;
   final PreparedClientPool _libraryClients = PreparedClientPool();
   late final EpisodeSourceResolver _episodeSources = _injectedSourceResolver ??
       PooledClientEpisodeSourceResolver(loadClient: _animeClientForUid);
@@ -217,6 +223,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   final Set<String> _cancelled = <String>{};
   _DownloadJob? _activeJob;
   _DownloadJob? _pausedJob;
+  _DownloadJob? _previousJobInBatch;
   bool _processing = false;
   bool _runtimeWanted = false;
   bool _runtimeRunning = false;
@@ -517,6 +524,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     _libraryClientsIdle?.cancel();
     _completedInBatch = 0;
     _batchIndex = 0;
+    _previousJobInBatch = null;
     try {
       await _ensurePermission();
       await _networkPolicy.start();
@@ -704,12 +712,24 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     _batchIndex++;
     await _applyConfiguredPacing(job.extensionUid);
     if (_batchIndex > 1) {
-      await _wait(_throttle.chapterDelay(job.extensionUid));
+      await _wait(_pauseBefore(job));
     }
+    _previousJobInBatch = job;
     final bool completed = await _runJob(job);
     if (completed) {
       _completedInBatch++;
     }
+  }
+
+  Duration _pauseBefore(_DownloadJob job) {
+    final _DownloadJob? previous = _previousJobInBatch;
+    final bool followsEpisodeOfSameExtension = job is _EpisodeJob &&
+        previous is _EpisodeJob &&
+        previous.extensionUid == job.extensionUid;
+    if (followsEpisodeOfSameExtension) {
+      return _throttle.episodeDelay(job.extensionUid);
+    }
+    return _throttle.chapterDelay(job.extensionUid);
   }
 
   Future<void> _applyConfiguredPacing(String extensionUid) async {
@@ -724,6 +744,8 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         extensionUid,
         pageDelay: Duration(milliseconds: pacing?.pageDelayMs ?? 0),
         chapterDelay: Duration(milliseconds: pacing?.chapterDelayMs ?? 0),
+        episodeDelay: Duration(milliseconds: pacing?.episodeDelayMs ?? 0),
+        segmentConcurrency: pacing?.segmentConcurrency,
       );
     } catch (e) {
       logger.w('Could not read download pacing for $extensionUid: $e');
@@ -995,7 +1017,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
 
   Future<void> _wait(Duration duration) async {
     if (duration > Duration.zero) {
-      await Future<void>.delayed(duration);
+      await _delay(duration);
     }
   }
 

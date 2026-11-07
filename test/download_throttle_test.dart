@@ -88,4 +88,33 @@ void main() {
       const Duration(seconds: 4),
     );
   });
+
+  test('episodes wait the longer of the episode and chapter delays', () {
+    final DownloadThrottle throttle = DownloadThrottle()
+      ..configure(
+        'anime',
+        chapterDelay: const Duration(milliseconds: 300),
+        episodeDelay: const Duration(seconds: 2),
+      );
+
+    expect(throttle.episodeDelay('anime'), const Duration(seconds: 2));
+    expect(throttle.episodeDelay('other'), Duration.zero);
+
+    throttle.configure('anime', chapterDelay: const Duration(seconds: 5));
+    expect(throttle.episodeDelay('anime'), const Duration(seconds: 5));
+  });
+
+  test('segment concurrency falls back to the default and is clamped', () {
+    final DownloadThrottle throttle = DownloadThrottle()
+      ..configure('anime', segmentConcurrency: 5);
+
+    expect(throttle.segmentConcurrency('anime'), 5);
+    expect(throttle.segmentConcurrency('other'), isNull);
+    expect(resolveSegmentConcurrency(null), kDefaultSegmentConcurrency);
+    expect(resolveSegmentConcurrency(null, fallback: 2), 2);
+    expect(resolveSegmentConcurrency(0), kMinSegmentConcurrency);
+    expect(resolveSegmentConcurrency(-3), kMinSegmentConcurrency);
+    expect(resolveSegmentConcurrency(64), kMaxSegmentConcurrency);
+    expect(resolveSegmentConcurrency(4), 4);
+  });
 }

@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video_source.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_view_type.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/download_config/download_config.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,11 +13,14 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/downloads/download_notification_service.dart';
+import 'package:wakaranai/blocs/downloads/download_throttle.dart';
+import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
+import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/services/downloads/episode/episode_download_manifest.dart';
 import 'package:wakaranai/services/downloads/episode/episode_downloader.dart';
@@ -210,6 +215,33 @@ class _ScriptedDownloader extends EpisodeDownloader {
   }
 }
 
+class _PacedExtensions extends ExtensionRepository {
+  _PacedExtensions({required super.database, required this.pacing});
+
+  final DownloadConfig pacing;
+
+  @override
+  Future<ExtensionDomain?> getByUid(String uid) async {
+    return ExtensionDomain(
+      id: 1,
+      config: ConfigInfo(
+        uid: uid,
+        name: 'Anime source',
+        logoUrl: '',
+        nsfw: false,
+        language: 'English',
+        version: 1,
+        filters: const [],
+        type: ConfigInfoType.ANIME,
+        searchAvailable: true,
+        downloadConfig: pacing,
+      ),
+      sourceCode: 'script',
+      createdAt: DateTime(2026),
+    );
+  }
+}
+
 class _FakeVideoSourceProvider implements VideoSourceProvider {
   _FakeVideoSourceProvider({
     this.supported = true,
@@ -246,15 +278,21 @@ void main() {
   DownloadManagerCubit buildCubit({
     Object? resolverFailure,
     required List<_DownloadBehavior> behaviors,
+    ExtensionRepository? extensions,
+    DownloadThrottle? throttle,
+    DownloadWait? wait,
   }) {
     resolver = _FakeSourceResolver(failure: resolverFailure);
     downloader = _ScriptedDownloader(behaviors);
     return DownloadManagerCubit(
       downloadRepository: repository,
+      extensionRepository: extensions,
       notificationService: notifications,
       episodeSourceResolver: resolver,
       episodeDownloader: downloader,
       readQualityPreference: () async => _preferredQuality,
+      throttle: throttle,
+      wait: wait,
     );
   }
 
@@ -311,6 +349,64 @@ void main() {
     expect(downloader.calls.single.throttleKey, 'anime-ext');
     expect(EpisodeDownloadManifest.decode(done!.playback)!.file, 'index.m3u8');
     expect(notifications.completed, 1);
+  });
+
+  group('extension download pacing', () {
+    Future<List<Duration>> runTwoEpisodes(
+      DownloadConfig pacing,
+      DownloadThrottle throttle,
+    ) async {
+      final List<Duration> waits = <Duration>[];
+      await cubit.close();
+      cubit = buildCubit(
+        behaviors: <_DownloadBehavior>[_succeeds],
+        extensions: _PacedExtensions(database: db, pacing: pacing),
+        throttle: throttle,
+        wait: (Duration duration) async => waits.add(duration),
+      );
+      await enqueue('e1', autoStart: false);
+      await enqueue('e2', autoStart: false);
+      cubit.startQueue();
+      await _awaitStatus(repository, 'e2', DownloadStatus.done);
+      return waits;
+    }
+
+    test('pauses for the episode delay between episodes of one extension',
+        () async {
+      final DownloadThrottle throttle = DownloadThrottle();
+
+      final List<Duration> waits = await runTwoEpisodes(
+        const DownloadConfig(
+          chapterDelayMs: 200,
+          episodeDelayMs: 1500,
+          segmentConcurrency: 6,
+        ),
+        throttle,
+      );
+
+      expect(waits, <Duration>[const Duration(milliseconds: 1500)]);
+      expect(throttle.segmentConcurrency('anime-ext'), 6);
+      expect(
+        EpisodeDownloader(throttle: throttle).segmentConcurrencyFor('anime-ext'),
+        6,
+      );
+    });
+
+    test('extensions without the new fields keep the old pacing', () async {
+      final DownloadThrottle throttle = DownloadThrottle();
+
+      final List<Duration> waits = await runTwoEpisodes(
+        const DownloadConfig(chapterDelayMs: 200),
+        throttle,
+      );
+
+      expect(waits, <Duration>[const Duration(milliseconds: 200)]);
+      expect(throttle.segmentConcurrency('anime-ext'), isNull);
+      expect(
+        EpisodeDownloader(throttle: throttle).segmentConcurrencyFor('anime-ext'),
+        kDefaultSegmentConcurrency,
+      );
+    });
   });
 
   test('a finished episode is reported as downloaded by its uid', () async {

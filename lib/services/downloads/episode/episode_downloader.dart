@@ -36,7 +36,7 @@ class EpisodeDownloader {
   EpisodeDownloader({
     EpisodeHttp? http,
     DownloadThrottle? throttle,
-    int concurrency = 3,
+    int concurrency = kDefaultSegmentConcurrency,
     Duration failureBackoff = const Duration(milliseconds: 500),
   }) : _http = http ?? DioEpisodeHttp(),
        _throttle = throttle ?? DownloadThrottle(),
@@ -69,9 +69,16 @@ class EpisodeDownloader {
       quality: quality,
       dir: dir,
       fetcher: fetcher,
-      concurrency: _concurrency,
+      concurrency: segmentConcurrencyFor(throttleKey),
       onProgress: onProgress,
     ).run();
+  }
+
+  int segmentConcurrencyFor(String throttleKey) {
+    return resolveSegmentConcurrency(
+      _throttle.segmentConcurrency(throttleKey),
+      fallback: _concurrency,
+    );
   }
 }
 

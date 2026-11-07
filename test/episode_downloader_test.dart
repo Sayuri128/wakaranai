@@ -124,6 +124,47 @@ FakeReply rangeAware(FakeRequest request, List<int> bytes) {
   );
 }
 
+class ConcurrencyProbeHttp extends FakeEpisodeHttp {
+  int inFlight = 0;
+  int peak = 0;
+
+  @override
+  Future<EpisodeHttpResponse> get(
+    String url, {
+    required Map<String, String> headers,
+    required CancelToken cancelToken,
+  }) async {
+    inFlight++;
+    if (inFlight > peak) {
+      peak = inFlight;
+    }
+    try {
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+      return await super.get(url, headers: headers, cancelToken: cancelToken);
+    } finally {
+      inFlight--;
+    }
+  }
+}
+
+const String plainMediaUrl = 'https://cdn.example/v720/plain.m3u8';
+
+ConcurrencyProbeHttp manySegmentSite(int segments) {
+  final ConcurrencyProbeHttp http = ConcurrencyProbeHttp();
+  final StringBuffer playlist = StringBuffer()
+    ..writeln('#EXTM3U')
+    ..writeln('#EXT-X-TARGETDURATION:2');
+  for (int index = 0; index < segments; index++) {
+    playlist
+      ..writeln('#EXTINF:2.0,')
+      ..writeln('part$index.ts');
+    http.serveBytes('$cdn/part$index.ts', bytesOf('part$index', 20));
+  }
+  playlist.writeln('#EXT-X-ENDLIST');
+  http.serveText(plainMediaUrl, playlist.toString());
+  return http;
+}
+
 class InstantThrottle extends DownloadThrottle {
   final List<String?> retryAfterHeaders = <String?>[];
   int rateLimitedCount = 0;
@@ -978,6 +1019,37 @@ main.mp4
     expect(caught, isA<DioException>());
     expect(CancelToken.isCancel(caught! as DioException), isTrue);
     expect(fileIn('index.m3u8').existsSync(), isFalse);
+  });
+
+  group('extension segment concurrency', () {
+    Future<int> peakFor(int? configured) async {
+      throttle.configure('ext', segmentConcurrency: configured);
+      final ConcurrencyProbeHttp http = manySegmentSite(16);
+      await run(
+        http,
+        video: const PlayableVideo(
+          streams: <PlayableStream>[
+            PlayableStream(
+              url: plainMediaUrl,
+              format: PlayableStreamFormat.hls,
+            ),
+          ],
+        ),
+      );
+      return http.peak;
+    }
+
+    test('downloads three segments at a time by default', () async {
+      expect(await peakFor(null), kDefaultSegmentConcurrency);
+    });
+
+    test('follows the extension setting', () async {
+      expect(await peakFor(5), 5);
+    });
+
+    test('caps an excessive setting', () async {
+      expect(await peakFor(40), kMaxSegmentConcurrency);
+    });
   });
 
   group('download source preference', () {
