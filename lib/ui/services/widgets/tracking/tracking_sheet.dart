@@ -103,6 +103,9 @@ Future<void> showTrackingSheet(
   BuildContext context,
   TrackerLinkRequest request,
 ) {
+  unawaited(
+    context.read<TrackerSyncService>().refreshLinks(request.concreteUid),
+  );
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,

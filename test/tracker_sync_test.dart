@@ -228,6 +228,17 @@ void main() {
       expect(stored.status, TrackerStatus.completed);
     });
 
+    test('never lowers progress the tracker already has', () async {
+      await linkTitle();
+      anilist.entries[10] =
+          const TrackerEntry(status: TrackerStatus.completed, progress: 5);
+      await sync.recordProgress('title', 3);
+      expect(anilist.pushed, <int>[2]);
+      final TrackerLink stored = (await sync.links.linksFor('title')).single;
+      expect(stored.progress, 5);
+      expect(stored.status, TrackerStatus.completed);
+    });
+
     test('incognito mode never pushes', () async {
       await linkTitle();
       IncognitoMode.active = true;

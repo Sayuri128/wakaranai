@@ -234,7 +234,7 @@ class MalTracker extends TrackerService {
   }) {
     return TrackerEntry(
       status: _status(status['status'] as String?),
-      progress: status[_progressField(type)] as int? ?? 0,
+      progress: status[_listProgressField(type)] as int? ?? 0,
       totalCount: _positiveOrNull(total),
     );
   }
@@ -269,6 +269,13 @@ class MalTracker extends TrackerService {
       return 'num_chapters_read';
     }
     return 'num_watched_episodes';
+  }
+
+  String _listProgressField(TrackerMediaType type) {
+    if (type == TrackerMediaType.manga) {
+      return 'num_chapters_read';
+    }
+    return 'num_episodes_watched';
   }
 
   String _rewatchField(TrackerMediaType type) {

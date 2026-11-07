@@ -181,6 +181,31 @@ class TrackerSyncService {
     return linked;
   }
 
+  Future<void> refreshLinks(String concreteUid) async {
+    for (final TrackerLink link in await links.linksFor(concreteUid)) {
+      final TrackerService? service = services[link.trackerId];
+      final TrackerAccount? current = await account(link.trackerId);
+      if (service == null || current == null) {
+        continue;
+      }
+      try {
+        final TrackerEntry? remote =
+            await service.entry(current, link.remoteId, link.mediaType);
+        if (remote == null) {
+          continue;
+        }
+        await links.save(link.copyWith(
+          status: remote.status,
+          progress: remote.progress,
+          totalCount: remote.totalCount,
+          syncedAt: _clock(),
+        ));
+      } catch (error) {
+        logger.w('Could not refresh ${link.trackerId.name}: $error');
+      }
+    }
+  }
+
   Future<void> unlink(String concreteUid, TrackerId trackerId) {
     return links.remove(concreteUid, trackerId);
   }
@@ -209,15 +234,7 @@ class TrackerSyncService {
       if (progress <= link.progress) {
         continue;
       }
-      await _push(
-        link,
-        progress: progress,
-        status: statusAfterProgress(
-          current: link.status,
-          progress: progress,
-          totalCount: link.totalCount,
-        ),
-      );
+      await _pushForward(link, progress);
     }
   }
 
@@ -229,20 +246,54 @@ class TrackerSyncService {
         await links.save(link.copyWith(pendingProgress: () => null));
         continue;
       }
-      final TrackerLink updated = await _push(
-        link,
-        progress: pending,
-        status: statusAfterProgress(
-          current: link.status,
-          progress: pending,
-          totalCount: link.totalCount,
-        ),
-      );
+      final TrackerLink updated = await _pushForward(link, pending);
       if (updated.pendingProgress == null) {
         pushed++;
       }
     }
     return pushed;
+  }
+
+  Future<TrackerLink> _pushForward(TrackerLink link, int progress) async {
+    final TrackerService? service = services[link.trackerId];
+    final TrackerAccount? current = await account(link.trackerId);
+    if (service != null && current != null) {
+      try {
+        final TrackerEntry? remote =
+            await service.entry(current, link.remoteId, link.mediaType);
+        if (remote != null && remote.progress >= progress) {
+          final TrackerLink synced = link.copyWith(
+            status: remote.status,
+            progress: remote.progress,
+            totalCount: remote.totalCount,
+            pendingProgress: () => null,
+            syncedAt: _clock(),
+          );
+          await links.save(synced);
+          return synced;
+        }
+        return _push(
+          link,
+          progress: progress,
+          status: statusAfterProgress(
+            current: remote?.status ?? link.status,
+            progress: progress,
+            totalCount: remote?.totalCount ?? link.totalCount,
+          ),
+        );
+      } catch (error) {
+        logger.w('Could not read ${link.trackerId.name} before updating: $error');
+      }
+    }
+    return _push(
+      link,
+      progress: progress,
+      status: statusAfterProgress(
+        current: link.status,
+        progress: progress,
+        totalCount: link.totalCount,
+      ),
+    );
   }
 
   Future<TrackerLink> _push(
