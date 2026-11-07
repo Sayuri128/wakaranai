@@ -408,11 +408,20 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
   @override
   Future<dynamic> executeJsScript(String code) async {
     await Future<void>.delayed(_jsSettleDelay);
-    await DocumentReadiness.waitFor(_requireController());
+    final InAppWebViewController? readyController = _availableController();
+    if (readyController == null) {
+      logger.w('executeJsScript skipped: browser interceptor is unavailable');
+      return null;
+    }
+    await DocumentReadiness.waitFor(readyController);
 
     Object? lastError;
     for (int attempt = 1; attempt <= _maxJsAttempts; attempt++) {
-      final InAppWebViewController controller = _requireController();
+      final InAppWebViewController? controller = _availableController();
+      if (controller == null) {
+        logger.w('executeJsScript stopped: browser interceptor closed');
+        return null;
+      }
       try {
         final CallAsyncJavaScriptResult? result = await controller
             .callAsyncJavaScript(functionBody: code);
@@ -427,24 +436,22 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
     }
 
     if (lastError != null) {
-      throw BrowserInterceptorException(
+      logger.w(
         'executeJsScript failed after $_maxJsAttempts attempts: $lastError',
       );
+    } else {
+      logger.w(
+        'executeJsScript returned no value after $_maxJsAttempts attempts',
+      );
     }
-    logger.w(
-      'executeJsScript returned no value after $_maxJsAttempts attempts',
-    );
     return null;
   }
 
-  InAppWebViewController _requireController() {
-    final InAppWebViewController? controller = _inAppWebViewController;
-    if (isClosed || controller == null) {
-      throw const BrowserInterceptorException(
-        'Browser interceptor webview is not available',
-      );
+  InAppWebViewController? _availableController() {
+    if (isClosed) {
+      return null;
     }
-    return controller;
+    return _inAppWebViewController;
   }
 
   Duration _jsRetryDelay(int attempt) {
