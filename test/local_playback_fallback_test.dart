@@ -69,7 +69,43 @@ AnimeVideo _directEpisode() {
   );
 }
 
+AnimeVideo _iframeEpisode() {
+  return AnimeVideo(
+    type: AnimeVideoType.IFRAME,
+    uid: 'e1',
+    src: 'https://player.test/e1',
+    title: 'Episode 1',
+    timestamp: null,
+    data: const <String, dynamic>{},
+  );
+}
+
 void main() {
+  group('LocalPlaybackFailures', () {
+    test('a failure mark expires after its lifetime', () {
+      DateTime now = DateTime(2026, 1, 1, 12);
+      final LocalPlaybackFailures failures = LocalPlaybackFailures(
+        lifetime: const Duration(minutes: 10),
+        clock: () => now,
+      )..markFailed('e1');
+
+      now = now.add(const Duration(minutes: 9));
+      expect(failures.hasFailed('e1'), isTrue);
+
+      now = now.add(const Duration(minutes: 1));
+      expect(failures.hasFailed('e1'), isFalse);
+    });
+
+    test('consuming a failure clears it', () {
+      final LocalPlaybackFailures failures = LocalPlaybackFailures()
+        ..markFailed('e1');
+
+      expect(failures.consumeFailure('e1'), isTrue);
+      expect(failures.consumeFailure('e1'), isFalse);
+      expect(failures.hasFailed('e1'), isFalse);
+    });
+  });
+
   group('localPlaybackErrorAction', () {
     test('streams instead the first time a local file fails', () {
       expect(
@@ -171,6 +207,56 @@ void main() {
       final PlayableVideo video = (plan as NativePlaybackPlan).video;
       expect(video.streams.single.url, 'https://cdn.test/e1.mp4');
       expect(lookup.lookedUp, isEmpty);
+    });
+
+    test('the fallback is used once and the next open tries the download',
+        () async {
+      final _LocalLookup lookup = _LocalLookup();
+      final LocalPlaybackFailures failures = LocalPlaybackFailures()
+        ..markFailed('e1');
+
+      final EpisodePlaybackPlan fallback = await resolveEpisodePlayback(
+        episode: _directEpisode(),
+        provider: null,
+        preference: VideoPlayerPreference.auto,
+        downloadedEpisodes: lookup,
+        localPlaybackFailures: failures,
+      );
+      final EpisodePlaybackPlan reopened = await resolveEpisodePlayback(
+        episode: _directEpisode(),
+        provider: null,
+        preference: VideoPlayerPreference.auto,
+        downloadedEpisodes: lookup,
+        localPlaybackFailures: failures,
+      );
+
+      expect(
+        (fallback as NativePlaybackPlan).video.streams.single.url,
+        'https://cdn.test/e1.mp4',
+      );
+      expect((reopened as NativePlaybackPlan).video, same(_localVideo));
+      expect(failures.hasFailed('e1'), isFalse);
+    });
+
+    test('without a way to stream the download is still played', () async {
+      final _LocalLookup lookup = _LocalLookup();
+      final LocalPlaybackFailures failures = LocalPlaybackFailures()
+        ..markFailed('e1');
+
+      final EpisodePlaybackPlan plan = await resolveEpisodePlayback(
+        episode: _iframeEpisode(),
+        provider: null,
+        preference: VideoPlayerPreference.auto,
+        downloadedEpisodes: lookup,
+        localPlaybackFailures: failures,
+      );
+
+      expect((plan as NativePlaybackPlan).video, same(_localVideo));
+      expect(
+        failures.hasFailed('e1'),
+        isTrue,
+        reason: 'a second local failure must show the error, not loop',
+      );
     });
 
     test('still prefers the download for other episodes', () async {

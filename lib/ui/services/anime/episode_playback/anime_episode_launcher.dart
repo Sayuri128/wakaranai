@@ -161,6 +161,7 @@ class AnimeEpisodeLauncher {
         playlist: position,
         resolveEpisode: resolveInPlayer,
         watchedEpisodeUids: Set<String>.unmodifiable(_watchedEpisodeUids),
+        canStream: client != null,
       ),
     );
   }

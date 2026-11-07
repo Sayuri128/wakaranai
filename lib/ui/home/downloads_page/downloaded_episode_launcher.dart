@@ -21,6 +21,7 @@ import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/services/downloads/episode/downloaded_episode_lookup.dart';
 import 'package:wakaranai/services/downloads/episode/episode_download_manifest.dart';
+import 'package:wakaranai/services/downloads/storage/local_playback_fallback.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/anime_episode_launcher.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 
@@ -51,6 +52,7 @@ Future<void> playDownloadedEpisode(
   final LibraryUpdatesCubit libraryUpdatesCubit =
       context.read<LibraryUpdatesCubit>();
 
+  LocalPlaybackFailures.shared.forget(download.uid);
   final PlayableVideo? local = await lookup.playableFor(download.uid);
   if (!context.mounted) {
     return;

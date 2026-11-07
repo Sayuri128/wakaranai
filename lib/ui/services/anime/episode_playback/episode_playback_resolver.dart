@@ -67,10 +67,12 @@ Future<EpisodePlaybackPlan> resolveEpisodePlayback({
   Duration timeout = kVideoSourcesTimeout,
   void Function()? onFetchingSources,
 }) async {
-  final bool downloadFailedToPlay =
-      (localPlaybackFailures ?? LocalPlaybackFailures.shared)
-          .hasFailed(episode.uid);
-  final PlayableVideo? downloaded = downloadFailedToPlay
+  final bool streamInsteadOfDownload = _takeStreamingFallback(
+    localPlaybackFailures ?? LocalPlaybackFailures.shared,
+    episode: episode,
+    provider: provider,
+  );
+  final PlayableVideo? downloaded = streamInsteadOfDownload
       ? null
       : await _downloadedPlayable(downloadedEpisodes, episode);
   if (downloaded != null) {
@@ -105,6 +107,18 @@ Future<EpisodePlaybackPlan> resolveEpisodePlayback({
     logger.e(stackTrace);
     return _directOrWeb(episode, WebPlaybackReason.failed);
   }
+}
+
+bool _takeStreamingFallback(
+  LocalPlaybackFailures failures, {
+  required AnimeVideo episode,
+  required VideoSourceProvider? provider,
+}) {
+  final bool canStream = provider != null || isDirectEpisode(episode);
+  if (!canStream) {
+    return false;
+  }
+  return failures.consumeFailure(episode.uid);
 }
 
 bool isDirectEpisode(AnimeVideo episode) {

@@ -5,19 +5,44 @@ import 'package:wakaranai/ui/services/anime/native_player/local_media.dart';
 
 enum LocalPlaybackErrorAction { streamInstead, showError }
 
+const Duration kLocalPlaybackFailureLifetime = Duration(minutes: 10);
+
 class LocalPlaybackFailures {
+  LocalPlaybackFailures({
+    this.lifetime = kLocalPlaybackFailureLifetime,
+    DateTime Function()? clock,
+  }) : _clock = clock ?? DateTime.now;
+
   static final LocalPlaybackFailures shared = LocalPlaybackFailures();
 
-  final Set<String> _failedEpisodeUids = <String>{};
+  final Duration lifetime;
+  final DateTime Function() _clock;
+  final Map<String, DateTime> _failedAt = <String, DateTime>{};
 
-  bool hasFailed(String episodeUid) => _failedEpisodeUids.contains(episodeUid);
+  bool hasFailed(String episodeUid) {
+    final DateTime? failedAt = _failedAt[episodeUid];
+    if (failedAt == null) {
+      return false;
+    }
+    if (_clock().difference(failedAt) >= lifetime) {
+      _failedAt.remove(episodeUid);
+      return false;
+    }
+    return true;
+  }
 
   void markFailed(String episodeUid) {
-    _failedEpisodeUids.add(episodeUid);
+    _failedAt[episodeUid] = _clock();
   }
 
   void forget(String episodeUid) {
-    _failedEpisodeUids.remove(episodeUid);
+    _failedAt.remove(episodeUid);
+  }
+
+  bool consumeFailure(String episodeUid) {
+    final bool failed = hasFailed(episodeUid);
+    _failedAt.remove(episodeUid);
+    return failed;
   }
 }
 

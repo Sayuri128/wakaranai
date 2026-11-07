@@ -5,14 +5,23 @@ import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_view_type.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video_group/anime_video_group.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
+import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
+import 'package:wakaranai/database/wakaranai_database.dart';
+import 'package:wakaranai/repositories/database/download_repository.dart';
+import 'package:wakaranai/services/downloads/runtime/download_network_policy.dart';
+import 'package:wakaranai/services/downloads/runtime/download_runtime.dart';
+import 'package:wakaranai/services/downloads/runtime/network_monitor.dart';
+import 'package:wakaranai/services/downloads/storage/local_playback_fallback.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playback_resolver.dart';
@@ -35,16 +44,20 @@ const String _wakelockChannel =
 
 class _FakeEngine extends ValueNotifier<VideoPlayerValue>
     implements NativePlayerEngine {
-  _FakeEngine({this.initializeGate})
+  _FakeEngine({this.initializeGate, this.failInitialize = false})
       : super(const VideoPlayerValue.uninitialized());
 
   final Completer<void>? initializeGate;
+  final bool failInitialize;
 
   @override
   Future<void> initialize() async {
     final Completer<void>? gate = initializeGate;
     if (gate != null) {
       await gate.future;
+    }
+    if (failInitialize) {
+      throw StateError('local file could not be decoded');
     }
     value = value.copyWith(
       isInitialized: true,
@@ -222,11 +235,12 @@ const AnimeConcreteView _anime = AnimeConcreteView(
 PlayableVideo _videoFor(
   String uid, {
   List<PlayableSkipMarker> skipMarkers = const <PlayableSkipMarker>[],
+  bool local = false,
 }) {
   return PlayableVideo(
     streams: <PlayableStream>[
       PlayableStream(
-        url: 'https://cdn.test/$uid.mp4',
+        url: local ? 'file:///downloads/$uid.mp4' : 'https://cdn.test/$uid.mp4',
         quality: '1080p',
         skipMarkers: skipMarkers,
       ),
@@ -239,9 +253,11 @@ class _Harness {
     this.holdInitialize = false,
     this.webOnlyUids = const <String>{},
     this.skipMarkers = const <PlayableSkipMarker>[],
+    this.brokenLocalFile = false,
   });
 
   final bool holdInitialize;
+  final bool brokenLocalFile;
   final Set<String> webOnlyUids;
   final List<PlayableSkipMarker> skipMarkers;
   final List<_FakeEngine> engines = <_FakeEngine>[];
@@ -257,7 +273,11 @@ class _Harness {
 
   NativePlayerCubit build(BuildContext context) {
     final NativePlayerCubit created = NativePlayerCubit(
-      video: _videoFor('e1', skipMarkers: skipMarkers),
+      video: _videoFor(
+        'e1',
+        skipMarkers: skipMarkers,
+        local: brokenLocalFile,
+      ),
       playlist: playlist,
       engineFactory: _createEngine,
       progressStoreFor: (AnimeVideo episode) => _FakeProgressStore(),
@@ -283,6 +303,7 @@ class _Harness {
     final bool hold = holdInitialize && engines.isEmpty;
     final _FakeEngine engine = _FakeEngine(
       initializeGate: hold ? initializeGate : null,
+      failInitialize: brokenLocalFile,
     );
     engines.add(engine);
     return engine;
@@ -354,33 +375,67 @@ class _PlayerRouteOutcome {
   Object? result;
 }
 
+class _DownloadScope {
+  _DownloadScope() {
+    repository = DownloadRepository(database: database);
+    manager = DownloadManagerCubit(
+      downloadRepository: repository,
+      downloadRuntime: NoopDownloadRuntime(),
+      networkPolicy: DownloadNetworkPolicy(
+        monitor: UnrestrictedNetworkMonitor(),
+        readWifiOnly: () async => false,
+      ),
+    );
+  }
+
+  final WakaranaiDatabase database =
+      WakaranaiDatabase.forTesting(NativeDatabase.memory());
+  late final DownloadRepository repository;
+  late final DownloadManagerCubit manager;
+
+  Widget wrap(Widget app) {
+    return RepositoryProvider<DownloadRepository>.value(
+      value: repository,
+      child: BlocProvider<DownloadManagerCubit>.value(
+        value: manager,
+        child: app,
+      ),
+    );
+  }
+}
+
 Future<_PlayerRouteOutcome> _pumpPlayerRoute(
   WidgetTester tester, {
   required _Harness harness,
   required _FakePictureInPicture pictureInPicture,
+  _DownloadScope? downloads,
 }) async {
   tester.view.physicalSize = const Size(1600, 800);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
   final _PlayerRouteOutcome outcome = _PlayerRouteOutcome();
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  await tester.pumpWidget(
-    MaterialApp(
-      navigatorKey: navigatorKey,
-      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
-        S.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      supportedLocales: S.delegate.supportedLocales,
-      home: const SizedBox.shrink(),
-    ),
+  final Widget app = MaterialApp(
+    navigatorKey: navigatorKey,
+    localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+    ],
+    supportedLocales: S.delegate.supportedLocales,
+    home: const Scaffold(body: SizedBox.shrink()),
   );
+  final _DownloadScope? downloadScope = downloads;
+  if (downloadScope == null) {
+    await tester.pumpWidget(app);
+  } else {
+    await tester.pumpWidget(downloadScope.wrap(app));
+  }
   final Future<Object?> pushed = navigatorKey.currentState!.push<Object?>(
     MaterialPageRoute<Object?>(
       builder: (BuildContext context) => NativePlayer(
         data: NativePlayerData(
-          video: _videoFor('e1'),
+          video: _videoFor('e1', local: harness.brokenLocalFile),
           anime: _anime,
           playlist: harness.playlist,
           resolveEpisode: harness._resolve,
@@ -753,6 +808,35 @@ void main() {
       expect((result! as OpenInWebPlayer).position.current.uid, 'e2');
       expect(find.byType(NativePlayer), findsNothing);
       expect(pictureInPicture.disableCalls, 1);
+
+      await _unmount(tester);
+    });
+
+    testWidgets('a broken download in picture-in-picture streams once it ends',
+        (WidgetTester tester) async {
+      _recordSystemUi();
+      addTearDown(() => LocalPlaybackFailures.shared.forget('e1'));
+      final _Harness harness = _Harness(brokenLocalFile: true);
+      final _FakePictureInPicture pictureInPicture = _FakePictureInPicture();
+      pictureInPicture.mode.value = true;
+      final _DownloadScope downloads = _DownloadScope();
+      final _PlayerRouteOutcome outcome = await _pumpPlayerRoute(
+        tester,
+        harness: harness,
+        pictureInPicture: pictureInPicture,
+        downloads: downloads,
+      );
+
+      expect(harness.cubit!.state.status, NativePlayerStatus.error);
+      expect(outcome.finished, isFalse);
+      expect(LocalPlaybackFailures.shared.hasFailed('e1'), isFalse);
+
+      pictureInPicture.mode.value = false;
+      await tester.pumpAndSettle();
+
+      expect(outcome.finished, isTrue);
+      expect(outcome.result, isA<PlayEpisodeRequested>());
+      expect(LocalPlaybackFailures.shared.hasFailed('e1'), isTrue);
 
       await _unmount(tester);
     });

@@ -15,6 +15,7 @@ import 'package:wakaranai/services/downloads/storage/watched_episode_cleanup.dar
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/downloads_page/episode_streaming_fallback.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/episode_playback_resolver.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
 import 'package:wakaranai/ui/services/anime/native_player/cubit/native_player_cubit.dart';
@@ -37,6 +38,7 @@ class NativePlayerData {
     required this.playlist,
     this.resolveEpisode,
     this.watchedEpisodeUids = const <String>{},
+    this.canStream = true,
   });
 
   final PlayableVideo video;
@@ -44,6 +46,7 @@ class NativePlayerData {
   final EpisodePlaylist playlist;
   final EpisodeResolver? resolveEpisode;
   final Set<String> watchedEpisodeUids;
+  final bool canStream;
 
   AnimeVideo get episode => playlist.current;
 }
@@ -93,6 +96,7 @@ class _NativePlayerState extends State<NativePlayer> {
   WatchedEpisodeCleanup? _watchedEpisodeCleanup;
   bool _pictureInPictureSupported = false;
   bool _leaving = false;
+  bool _fallbackPendingAfterPictureInPicture = false;
 
   @override
   void initState() {
@@ -142,7 +146,15 @@ class _NativePlayerState extends State<NativePlayer> {
 
   void _onPictureInPictureExited() {
     _applyPlayerSystemUi();
-    _leaveWith(_cubit?.state.webPlayerRequest);
+    final NativePlayerState? state = _cubit?.state;
+    final bool fallbackPending = _takePendingFallback();
+    if (fallbackPending &&
+        state != null &&
+        state.status == NativePlayerStatus.error) {
+      _streamFailedDownload(state);
+      return;
+    }
+    _leaveWith(state?.webPlayerRequest);
   }
 
   void _enterPictureInPicture() {
@@ -311,16 +323,36 @@ class _NativePlayerState extends State<NativePlayer> {
 
   void _onPlaybackFailed(BuildContext context, NativePlayerState state) {
     if (_inPictureInPicture) {
+      _fallbackPendingAfterPictureInPicture = true;
+      return;
+    }
+    _streamFailedDownload(state);
+  }
+
+  void _streamFailedDownload(NativePlayerState state) {
+    final NativePlayerCubit? cubit = _cubit;
+    if (cubit == null || !mounted) {
+      return;
+    }
+    final bool canStream =
+        widget.data.canStream || isDirectEpisode(state.playlist.current);
+    if (!canStream) {
       return;
     }
     final bool streaming = streamInsteadOfFailedDownload(
       context,
-      video: context.read<NativePlayerCubit>().video,
+      video: cubit.video,
       episodeUid: state.playlist.current.uid,
     );
     if (streaming) {
       _leaveWith(PlayEpisodeRequested(state.playlist));
     }
+  }
+
+  bool _takePendingFallback() {
+    final bool pending = _fallbackPendingAfterPictureInPicture;
+    _fallbackPendingAfterPictureInPicture = false;
+    return pending;
   }
 
   void _close() {
