@@ -6,7 +6,6 @@ import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/m
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
@@ -15,6 +14,7 @@ import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer_body.dart';
+import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
 
 class MangaServiceViewData {
   final BaseExtension? remoteConfig;
@@ -64,15 +64,19 @@ class _MangaServiceViewState extends State<MangaServiceView> {
         apiClient: apiClient,
         builder:
             (BuildContext context, Completer<bool> interceptorInitCompleter) {
-          return ServiceViewCubitWrapper<MangaApiClient, MangaGalleryView>(
-            client: apiClient,
-            builder: (BuildContext context,
-                    ServiceViewState<MangaApiClient, MangaGalleryView>
-                        state) =>
-                _wrapBrowserInterceptor(
-              child: BlocListener<
-                  ServiceViewCubit<MangaApiClient, MangaGalleryView>,
-                  ServiceViewState<MangaApiClient, MangaGalleryView>>(
+          return BrowserInterceptorScope(
+            configInfo: configInfo,
+            apiClient: apiClient,
+            initCompleter: interceptorInitCompleter,
+            onRecovered: () => _reloadGallery(configInfo),
+            child: ServiceViewCubitWrapper<MangaApiClient, MangaGalleryView>(
+              client: apiClient,
+              builder: (BuildContext context,
+                      ServiceViewState<MangaApiClient, MangaGalleryView>
+                          state) =>
+                  BlocListener<
+                      ServiceViewCubit<MangaApiClient, MangaGalleryView>,
+                      ServiceViewState<MangaApiClient, MangaGalleryView>>(
                 listener: (BuildContext context,
                     ServiceViewState<MangaApiClient, MangaGalleryView>
                         state) {
@@ -90,9 +94,6 @@ class _MangaServiceViewState extends State<MangaServiceView> {
                   searchController: _searchController,
                 ),
               ),
-              apiClient: apiClient,
-              interceptorInitCompleter: interceptorInitCompleter,
-              configInfo: configInfo,
             ),
           );
         },
@@ -120,29 +121,18 @@ class _MangaServiceViewState extends State<MangaServiceView> {
         configInfo: configInfo);
   }
 
-  Widget _wrapBrowserInterceptor(
-      {required Widget child,
-      required MangaApiClient apiClient,
-      required ConfigInfo configInfo,
-      required Completer<bool> interceptorInitCompleter}) {
-    if (configInfo.protectorConfig?.inAppBrowserInterceptor ?? false) {
-      return BlocProvider<BrowserInterceptorCubit>(
-        lazy: false,
-        create: (BuildContext context) {
-          final BrowserInterceptorCubit cubit = BrowserInterceptorCubit();
-          cubit
-              .init(
-                  url: configInfo.protectorConfig!.pingUrl,
-                  initCompleter: interceptorInitCompleter)
-              .then((value) {
-            apiClient.passWebBrowserInterceptorController(controller: cubit);
-          });
-          return cubit;
-        },
-        child: child,
-      );
-    } else {
-      return child;
+  void _reloadGallery(ConfigInfo configInfo) {
+    final ServiceViewCubit<MangaApiClient, MangaGalleryView>? cubit =
+        _scaffold.currentContext
+            ?.read<ServiceViewCubit<MangaApiClient, MangaGalleryView>>();
+    if (cubit == null) {
+      return;
     }
+    if (cubit.state
+        is ServiceViewInitialized<MangaApiClient, MangaGalleryView>) {
+      unawaited(cubit.refresh());
+      return;
+    }
+    cubit.init(configInfo);
   }
 }

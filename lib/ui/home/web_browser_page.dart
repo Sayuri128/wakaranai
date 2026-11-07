@@ -20,6 +20,7 @@ import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/browser.dart';
+import 'package:wakaranai/utils/browser_challenge_detector.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class WebBrowserData {
@@ -46,13 +47,8 @@ class WebBrowserPage extends StatefulWidget {
 
 class _WebBrowserPageState extends State<WebBrowserPage> {
   static const String _clearanceCookieName = 'cf_clearance';
-  static const List<String> _challengeTitleMarkers = <String>[
-    'just a moment',
-    'attention required',
-    'please wait',
-    'checking your browser',
-    'ddos-guard',
-  ];
+  static const String _documentHtmlScript =
+      'return document.documentElement.innerHTML';
 
   final GlobalKey _webViewKey = GlobalKey();
   InAppWebViewController? _controller;
@@ -70,6 +66,7 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
   String? _baselineClearance;
   String? _mainFrameError;
   WebUri? _failedUrl;
+  int _challengeCheckGeneration = 0;
 
   @override
   void initState() {
@@ -130,16 +127,32 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
     });
   }
 
-  bool _isChallengeTitle(String title) {
-    final String normalized = title.trim().toLowerCase();
-    return _challengeTitleMarkers.any(normalized.contains);
+  Future<String?> _readDocumentHtml(InAppWebViewController controller) async {
+    try {
+      final CallAsyncJavaScriptResult? result = await controller
+          .callAsyncJavaScript(functionBody: _documentHtmlScript);
+      final dynamic value = result?.value;
+      if (result?.error != null || value is! String) {
+        return null;
+      }
+      return value;
+    } catch (e) {
+      logger.w('Failed to read the page for a challenge check: $e');
+      return null;
+    }
   }
 
-  void _handleTitleChanged(InAppWebViewController controller, String? title) {
-    if (title == null || title.trim().isEmpty) {
+  Future<void> _evaluateChallenge(InAppWebViewController controller) async {
+    final int generation = ++_challengeCheckGeneration;
+    final String? html = await _readDocumentHtml(controller);
+    if (html == null || generation != _challengeCheckGeneration) {
       return;
     }
-    if (_isChallengeTitle(title)) {
+    _applyChallengeKind(BrowserChallengeDetector.detect(html));
+  }
+
+  void _applyChallengeKind(BrowserChallengeKind kind) {
+    if (kind != BrowserChallengeKind.none) {
       _update(() {
         _challengeSeen = true;
         _challengePassed = false;
@@ -151,6 +164,13 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
         _challengePassed = true;
       });
     }
+  }
+
+  void _handleTitleChanged(InAppWebViewController controller, String? title) {
+    if (title == null || title.trim().isEmpty) {
+      return;
+    }
+    unawaited(_evaluateChallenge(controller));
   }
 
   Future<void> _refreshHistoryState() async {
@@ -184,6 +204,7 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
       _currentUrl = url ?? _currentUrl;
     });
     unawaited(_refreshHistoryState());
+    unawaited(_evaluateChallenge(controller));
     unawaited(_checkClearanceAppeared(url));
   }
 
@@ -327,6 +348,7 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
       }
     }
     _baselineClearance = null;
+    _challengeCheckGeneration++;
     _update(() {
       _challengeSeen = false;
       _challengePassed = false;
@@ -566,10 +588,12 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
   }
 }
 
-Future<void> openWebView(
+Future<bool> openWebView(
     BuildContext context, ApiClient apiClient, ConfigInfo config) async {
   final ProtectorConfig? protectorConfig = config.protectorConfig;
-  if (protectorConfig == null) return;
+  if (protectorConfig == null) {
+    return false;
+  }
 
   final String uid = ProtectorStorageService.sessionKey(config);
   final Object? result = await Navigator.of(context).pushNamed(
@@ -583,7 +607,7 @@ Future<void> openWebView(
         body: result.body, headers: result.headers, cookies: result.cookies);
     await ProtectorStorageService()
         .saveItem(item: ProtectorStorageItem(uid: uid, data: result));
-  } else {
-    return;
+    return true;
   }
+  return false;
 }

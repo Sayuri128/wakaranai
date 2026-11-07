@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
-import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
@@ -28,6 +27,7 @@ import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.d
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/services/widgets/chapter_download_button.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/chapter_translation_actions.dart';
+import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/ui/widgets/image_widget.dart';
@@ -100,8 +100,13 @@ class MangaConcreteViewer extends StatelessWidget
               .getConcrete(data.uid, data.galleryData);
         },
         builder: (BuildContext context, Completer<bool> completer) =>
-            _wrapWithBrowserInterceptorCubit(
-                child: _buildConcreteBody(false), completer: completer),
+            BrowserInterceptorScope(
+          configInfo: data.configInfo,
+          apiClient: data.client,
+          initCompleter: completer,
+          onRecovered: _reloadConcrete,
+          child: _buildConcreteBody(false),
+        ),
       );
     }
     return _buildConcreteBody(true);
@@ -151,24 +156,10 @@ class MangaConcreteViewer extends StatelessWidget
     );
   }
 
-  Widget _wrapWithBrowserInterceptorCubit(
-      {required Widget child, required Completer<bool> completer}) {
-    if (data.configInfo.protectorConfig?.inAppBrowserInterceptor ?? false) {
-      return BlocProvider<BrowserInterceptorCubit>(
-        lazy: false,
-        create: (BuildContext context) {
-          final BrowserInterceptorCubit cubit = BrowserInterceptorCubit()
-            ..init(
-                url: data.configInfo.protectorConfig!.pingUrl,
-                initCompleter: completer);
-          data.client.passWebBrowserInterceptorController(controller: cubit);
-          return cubit;
-        },
-        child: child,
-      );
-    } else {
-      return child;
-    }
+  void _reloadConcrete() {
+    _scaffoldKey.currentContext
+        ?.read<ConcreteViewCubit<MangaApiClient, MangaConcreteView, MangaGalleryView>>()
+        .getConcrete(data.uid, data.galleryData, forceRemote: true);
   }
 
   Scaffold _buildBody() {
@@ -339,11 +330,15 @@ class MangaConcreteViewer extends StatelessWidget
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14)),
             ),
-            onPressed: () => context
-                .read<
-                    ConcreteViewCubit<MangaApiClient, MangaConcreteView,
-                        MangaGalleryView>>()
-                .getConcrete(data.uid, data.galleryData, forceRemote: true),
+            onPressed: () {
+              final ConcreteViewCubit<MangaApiClient, MangaConcreteView, MangaGalleryView> cubit =
+                  context.read<ConcreteViewCubit<MangaApiClient, MangaConcreteView, MangaGalleryView>>();
+              unawaited(BrowserInterceptorScope.retry(
+                context,
+                () => cubit.getConcrete(data.uid, data.galleryData,
+                    forceRemote: true),
+              ));
+            },
             icon: const Icon(Icons.refresh_rounded),
             label: Text(S.current.concrete_viewer_retry_button),
           ),

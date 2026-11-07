@@ -268,6 +268,19 @@ class MessageLookup extends MessageLookupByLibrary {
       "Couldn\'t load this extension",
     ),
     "app_name": MessageLookupByLibrary.simpleMessage("Wakaranai"),
+    "browser_check_dismiss": MessageLookupByLibrary.simpleMessage("Dismiss"),
+    "browser_check_open_button": MessageLookupByLibrary.simpleMessage(
+      "Open browser",
+    ),
+    "browser_check_reconnecting": MessageLookupByLibrary.simpleMessage(
+      "Reconnecting to the source…",
+    ),
+    "browser_check_required_message": MessageLookupByLibrary.simpleMessage(
+      "Its protection page didn\'t clear on its own. Finish the check in the browser, then tap Done to continue.",
+    ),
+    "browser_check_required_title": MessageLookupByLibrary.simpleMessage(
+      "This source needs a quick check in the browser",
+    ),
     "chapter_divider_back": MessageLookupByLibrary.simpleMessage(
       "Back to title",
     ),

@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
-import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
@@ -24,6 +23,7 @@ import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/anime_iframe_player/anime_iframe_player.dart';
 import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
+import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
 import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
 import 'package:wakaranai/ui/widgets/selection_action_bar.dart';
@@ -88,8 +88,13 @@ class AnimeConcreteViewer extends StatelessWidget
               .getConcrete(data.uid, data.galleryData);
         },
         builder: (BuildContext context, Completer<bool> completer) =>
-            _wrapWithBrowserInterceptorCubit(
-                child: _buildConcreteBody(init: false), completer: completer),
+            BrowserInterceptorScope(
+          configInfo: data.configInfo,
+          apiClient: data.client,
+          initCompleter: completer,
+          onRecovered: _reloadConcrete,
+          child: _buildConcreteBody(init: false),
+        ),
       );
     } else {
       return _buildConcreteBody(init: true);
@@ -140,24 +145,10 @@ class AnimeConcreteViewer extends StatelessWidget
     );
   }
 
-  Widget _wrapWithBrowserInterceptorCubit(
-      {required Widget child, required Completer<bool> completer}) {
-    if (data.configInfo.protectorConfig?.inAppBrowserInterceptor ?? false) {
-      return BlocProvider<BrowserInterceptorCubit>(
-        lazy: false,
-        create: (BuildContext context) {
-          final BrowserInterceptorCubit cubit = BrowserInterceptorCubit()
-            ..init(
-                url: data.configInfo.protectorConfig!.pingUrl,
-                initCompleter: completer);
-          data.client.passWebBrowserInterceptorController(controller: cubit);
-          return cubit;
-        },
-        child: child,
-      );
-    } else {
-      return child;
-    }
+  void _reloadConcrete() {
+    _scaffoldKey.currentContext
+        ?.read<ConcreteViewCubit<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>>()
+        .getConcrete(data.uid, data.galleryData, forceRemote: true);
   }
 
   Scaffold _buildBody() {
@@ -321,11 +312,15 @@ class AnimeConcreteViewer extends StatelessWidget
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14)),
             ),
-            onPressed: () => context
-                .read<
-                    ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
-                        AnimeGalleryView>>()
-                .getConcrete(data.uid, data.galleryData, forceRemote: true),
+            onPressed: () {
+              final ConcreteViewCubit<AnimeApiClient, AnimeConcreteView, AnimeGalleryView> cubit =
+                  context.read<ConcreteViewCubit<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>>();
+              unawaited(BrowserInterceptorScope.retry(
+                context,
+                () => cubit.getConcrete(data.uid, data.galleryData,
+                    forceRemote: true),
+              ));
+            },
             icon: const Icon(Icons.refresh_rounded),
             label: Text(S.current.concrete_viewer_retry_button),
           ),

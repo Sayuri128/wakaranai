@@ -15,6 +15,7 @@ import 'package:wakaranai/ui/common/service_viewer/gallery_layout.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_layout_transition.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_loader.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
+import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
 import 'package:wakaranai/ui/services/widgets/gallery_title_actions_sheet.dart';
 import 'package:wakaranai/ui/home/service_viewer_header.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
@@ -252,7 +253,9 @@ class MangaServiceViewBody extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
             ),
           ),
-          onPressed: stateError.retry,
+          onPressed: () => unawaited(
+            BrowserInterceptorScope.retry(context, stateError.retry),
+          ),
           icon: const Icon(Icons.refresh_rounded),
           label: Text(S.of(context).service_view_retry_button_title),
         ),

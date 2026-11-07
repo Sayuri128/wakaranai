@@ -6,7 +6,6 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
@@ -15,6 +14,7 @@ import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/anime_concrete_viewer/anime_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/anime/anime_service_viewer/anime_service_viewer_body.dart';
+import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
 
 class AnimeServiceViewerData {
   final BaseExtension? remoteConfig;
@@ -62,35 +62,37 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
     return WebBrowserWrapper<AnimeApiClient>(
         builder:
             (BuildContext context, Completer<bool> interceptorInitCompleter) {
-          return ServiceViewCubitWrapper<AnimeApiClient, AnimeGalleryView>(
-            client: apiClient,
-            builder: (BuildContext context,
+          return BrowserInterceptorScope(
+            configInfo: configInfo,
+            apiClient: apiClient,
+            initCompleter: interceptorInitCompleter,
+            onRecovered: () => _reloadGallery(configInfo),
+            child: ServiceViewCubitWrapper<AnimeApiClient, AnimeGalleryView>(
+              client: apiClient,
+              builder: (BuildContext context,
+                      ServiceViewState<AnimeApiClient, AnimeGalleryView>
+                          state) =>
+                  BlocListener<
+                      ServiceViewCubit<AnimeApiClient, AnimeGalleryView>,
+                      ServiceViewState<AnimeApiClient, AnimeGalleryView>>(
+                listener: (BuildContext context,
                     ServiceViewState<AnimeApiClient, AnimeGalleryView>
-                        state) =>
-                _wrapBrowserInterceptor(
-                    child: BlocListener<
-                        ServiceViewCubit<AnimeApiClient, AnimeGalleryView>,
-                        ServiceViewState<AnimeApiClient, AnimeGalleryView>>(
-                      listener: (BuildContext context,
-                          ServiceViewState<AnimeApiClient, AnimeGalleryView>
-                              state) {
-                        if (state is ServiceViewInitialized<AnimeApiClient,
-                            AnimeGalleryView>) {
-                          _refreshController.loadComplete();
-                        }
-                      },
-                      child: AnimeServiceViewerBody(
-                        configInfo: configInfo,
-                        apiClient: apiClient,
-                        scaffold: _scaffold,
-                        refreshController: _refreshController,
-                        searchController: _searchController,
-                        state: state,
-                      ),
-                    ),
-                    apiClient: apiClient,
-                    interceptorInitCompleter: interceptorInitCompleter,
-                    configInfo: configInfo),
+                        state) {
+                  if (state is ServiceViewInitialized<AnimeApiClient,
+                      AnimeGalleryView>) {
+                    _refreshController.loadComplete();
+                  }
+                },
+                child: AnimeServiceViewerBody(
+                  configInfo: configInfo,
+                  apiClient: apiClient,
+                  scaffold: _scaffold,
+                  refreshController: _refreshController,
+                  searchController: _searchController,
+                  state: state,
+                ),
+              ),
+            ),
           );
         },
         onInterceptorInitialized: () {
@@ -118,29 +120,18 @@ class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
         apiClient: apiClient);
   }
 
-  Widget _wrapBrowserInterceptor(
-      {required Widget child,
-      required AnimeApiClient apiClient,
-      required ConfigInfo configInfo,
-      required Completer<bool> interceptorInitCompleter}) {
-    if (configInfo.protectorConfig?.inAppBrowserInterceptor ?? false) {
-      return BlocProvider<BrowserInterceptorCubit>(
-        lazy: false,
-        create: (BuildContext context) {
-          final BrowserInterceptorCubit cubit = BrowserInterceptorCubit();
-          cubit
-              .init(
-                  url: configInfo.protectorConfig!.pingUrl,
-                  initCompleter: interceptorInitCompleter)
-              .then((value) {
-            apiClient.passWebBrowserInterceptorController(controller: cubit);
-          });
-          return cubit;
-        },
-        child: child,
-      );
-    } else {
-      return child;
+  void _reloadGallery(ConfigInfo configInfo) {
+    final ServiceViewCubit<AnimeApiClient, AnimeGalleryView>? cubit =
+        _scaffold.currentContext
+            ?.read<ServiceViewCubit<AnimeApiClient, AnimeGalleryView>>();
+    if (cubit == null) {
+      return;
     }
+    if (cubit.state
+        is ServiceViewInitialized<AnimeApiClient, AnimeGalleryView>) {
+      unawaited(cubit.refresh());
+      return;
+    }
+    cubit.init(configInfo);
   }
 }

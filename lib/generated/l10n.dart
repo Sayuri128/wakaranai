@@ -5412,6 +5412,56 @@ class S {
       args: [],
     );
   }
+
+  /// `This source needs a quick check in the browser`
+  String get browser_check_required_title {
+    return Intl.message(
+      'This source needs a quick check in the browser',
+      name: 'browser_check_required_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Its protection page didn't clear on its own. Finish the check in the browser, then tap Done to continue.`
+  String get browser_check_required_message {
+    return Intl.message(
+      'Its protection page didn\'t clear on its own. Finish the check in the browser, then tap Done to continue.',
+      name: 'browser_check_required_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open browser`
+  String get browser_check_open_button {
+    return Intl.message(
+      'Open browser',
+      name: 'browser_check_open_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reconnecting to the source…`
+  String get browser_check_reconnecting {
+    return Intl.message(
+      'Reconnecting to the source…',
+      name: 'browser_check_reconnecting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dismiss`
+  String get browser_check_dismiss {
+    return Intl.message(
+      'Dismiss',
+      name: 'browser_check_dismiss',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
