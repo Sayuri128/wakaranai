@@ -70,4 +70,63 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+  group('GalleryFeedSegments', () {
+    BoxDecoration segmentDecoration(WidgetTester tester, String title) {
+      final AnimatedContainer container = tester.widget<AnimatedContainer>(
+        find
+            .ancestor(
+              of: find.text(title),
+              matching: find.byType(AnimatedContainer),
+            )
+            .first,
+      );
+      return container.decoration! as BoxDecoration;
+    }
+
+    testWidgets('splits the width between feeds and highlights the selected one',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(_host(GalleryFeedSegments(
+        feeds: _feeds.take(2).toList(),
+        selectedFeedId: 'popular',
+        onSelected: (_) {},
+      )));
+
+      expect(find.byType(Expanded), findsNWidgets(2));
+      expect(segmentDecoration(tester, 'Popular').color, AppColors.primary);
+      expect(segmentDecoration(tester, 'Latest').color, Colors.transparent);
+    });
+
+    testWidgets('reports the tapped feed id', (WidgetTester tester) async {
+      final List<String> selected = <String>[];
+      await tester.pumpWidget(_host(GalleryFeedSegments(
+        feeds: _feeds.take(2).toList(),
+        selectedFeedId: 'popular',
+        onSelected: selected.add,
+      )));
+
+      await tester.tap(find.text('Latest'));
+      await tester.pump();
+
+      expect(selected, <String>['latest']);
+    });
+
+    testWidgets('fits three feeds on a narrow screen',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(_host(Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: GalleryFeedSegments(
+          feeds: _feeds,
+          selectedFeedId: 'top',
+          onSelected: (_) {},
+        ),
+      )));
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Top rated'), findsOneWidget);
+    });
+  });
 }

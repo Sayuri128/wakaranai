@@ -66,6 +66,7 @@ class ServiceViewerBody<T extends ApiClient, G extends GalleryView>
       body: Column(
         children: <Widget>[
           _buildHeader(context),
+          _buildFeeds(context),
           if (initialized && stateInitialized.searchQuery.isNotEmpty)
             _buildSearchChip(context),
           Expanded(
@@ -109,7 +110,6 @@ class ServiceViewerBody<T extends ApiClient, G extends GalleryView>
               ),
             ),
           ),
-          _buildFeeds(context),
         ],
       ),
     );
@@ -131,19 +131,34 @@ class ServiceViewerBody<T extends ApiClient, G extends GalleryView>
       curve: Curves.easeOut,
       alignment: Alignment.topCenter,
       child: _showsFeeds
-          ? SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8, bottom: 8),
-                child: GalleryFeedPills(
-                  feeds: configInfo.feeds,
-                  selectedFeedId: _cubit(context).selectedFeed,
-                  onSelected: (String feedId) =>
-                      unawaited(_cubit(context).selectFeed(feedId)),
-                ),
-              ),
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: _buildFeedSwitcher(context),
             )
           : const SizedBox(width: double.infinity),
+    );
+  }
+
+  Widget _buildFeedSwitcher(BuildContext context) {
+    final String? selectedFeedId = _cubit(context).selectedFeed;
+    void onSelected(String feedId) {
+      unawaited(_cubit(context).selectFeed(feedId));
+    }
+
+    if (configInfo.feeds.length > GalleryFeedSegments.maxSegments) {
+      return GalleryFeedPills(
+        feeds: configInfo.feeds,
+        selectedFeedId: selectedFeedId,
+        onSelected: onSelected,
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: GalleryFeedSegments(
+        feeds: configInfo.feeds,
+        selectedFeedId: selectedFeedId,
+        onSelected: onSelected,
+      ),
     );
   }
 

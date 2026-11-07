@@ -89,3 +89,96 @@ class GalleryFeedPill extends StatelessWidget {
     );
   }
 }
+
+class GalleryFeedSegments extends StatelessWidget {
+  const GalleryFeedSegments({
+    super.key,
+    required this.feeds,
+    required this.selectedFeedId,
+    required this.onSelected,
+  });
+
+  final List<GalleryFeed> feeds;
+  final String? selectedFeedId;
+  final ValueChanged<String> onSelected;
+
+  static const int maxSegments = 3;
+  static const double height = 40;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      container: true,
+      label: S.current.feeds_row_label,
+      child: Container(
+        height: height,
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(
+          color: AppColors.overlay(0.06),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: <Widget>[
+            for (final GalleryFeed feed in feeds)
+              Expanded(
+                child: GalleryFeedSegment(
+                  title: feed.title,
+                  selected: feed.id == selectedFeedId,
+                  onTap: () => onSelected(feed.id),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class GalleryFeedSegment extends StatelessWidget {
+  const GalleryFeedSegment({
+    super.key,
+    required this.title,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String title;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final BorderRadius radius = BorderRadius.circular(9);
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          color: selected ? AppColors.primary : Colors.transparent,
+          borderRadius: radius,
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            borderRadius: radius,
+            splashColor: AppColors.mediumLight.withValues(alpha: 0.2),
+            onTap: onTap,
+            child: Center(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: medium(
+                  size: 14,
+                  color: selected ? AppColors.mainBlack : AppColors.mainWhite,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
