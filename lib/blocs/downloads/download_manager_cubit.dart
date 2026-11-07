@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/download_config/download_config.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:wakaranai/utils/http_client.dart';
@@ -15,6 +16,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:wakaranai/blocs/downloads/download_notification_service.dart';
 import 'package:wakaranai/blocs/downloads/download_throttle.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
+import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/services/configs_service/prepared_client_pool.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
@@ -51,12 +53,14 @@ class _DownloadJob {
 class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   DownloadManagerCubit({
     required this.downloadRepository,
+    this.extensionRepository,
     DownloadNotificationService? notificationService,
   })  : notificationService =
             notificationService ?? DownloadNotificationService(),
         super(const DownloadManagerState());
 
   final DownloadRepository downloadRepository;
+  final ExtensionRepository? extensionRepository;
   final DownloadNotificationService notificationService;
 
   static const Duration _progressPersistInterval = Duration(milliseconds: 700);
@@ -226,6 +230,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
           continue;
         }
         _batchIndex++;
+        await _applyConfiguredPacing(job.extensionUid);
         if (_batchIndex > 1) {
           await _wait(_throttle.chapterDelay(job.extensionUid));
         }
@@ -243,6 +248,24 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
   }
 
+
+  Future<void> _applyConfiguredPacing(String extensionUid) async {
+    final ExtensionRepository? extensions = extensionRepository;
+    if (extensions == null) {
+      return;
+    }
+    try {
+      final ExtensionDomain? extension = await extensions.getByUid(extensionUid);
+      final DownloadConfig? pacing = extension?.config.downloadConfig;
+      _throttle.configure(
+        extensionUid,
+        pageDelay: Duration(milliseconds: pacing?.pageDelayMs ?? 0),
+        chapterDelay: Duration(milliseconds: pacing?.chapterDelayMs ?? 0),
+      );
+    } catch (e) {
+      logger.w('Could not read download pacing for $extensionUid: $e');
+    }
+  }
 
   Future<bool> _runJob(_DownloadJob job) async {
     DownloadDomain? row = await downloadRepository.getByUid(job.chapterUid);

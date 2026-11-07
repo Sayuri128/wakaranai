@@ -29,6 +29,14 @@ First of all you need to create a new json file called `config.json` with the fo
     * `inAppBrowserInterceptor`: Indicates whether to use in-app browser interceptor (true or
       false).
 * `searchAvailable`: Indicates whether search functionality is available (true or false).
+* `downloadConfig` (optional): Pacing for chapter downloads, for sources that rate limit (HTTP 429).
+  Leave it out to download at full speed.
+    * `pageDelayMs`: Pause between page images of a chapter, in milliseconds. Defaults to `0`.
+    * `chapterDelayMs`: Pause before each next chapter in the queue, in milliseconds. Defaults to
+      `0`.
+
+  The app also slows a source down on its own after a 429 and honours `Retry-After`; these values
+  are the floor it starts from.
 
 see [template](./extension_templates/manga/config.json)
 

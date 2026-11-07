@@ -130,6 +130,7 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
             lazy: false,
             create: (BuildContext context) => DownloadManagerCubit(
               downloadRepository: RepositoryProvider.of(context),
+              extensionRepository: RepositoryProvider.of(context),
             )..init(),
           ),
           BlocProvider<HomePageCubit>(
