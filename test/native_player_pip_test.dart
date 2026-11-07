@@ -673,6 +673,29 @@ void main() {
       await _unmount(tester);
     });
 
+    testWidgets('keeps the fixed skip button when only an outro is marked',
+        (WidgetTester tester) async {
+      _recordSystemUi();
+      final _Harness harness = _Harness(
+        skipMarkers: const <PlayableSkipMarker>[
+          PlayableSkipMarker(
+            type: PlayableSkipType.outro,
+            start: Duration(minutes: 22),
+            end: Duration(minutes: 24),
+          ),
+        ],
+      );
+      await _pumpPlayer(
+        tester,
+        harness: harness,
+        pictureInPicture: _FakePictureInPicture(),
+      );
+
+      expect(find.text(strings.native_player_skip_opening(85)), findsOneWidget);
+
+      await _unmount(tester);
+    });
+
     testWidgets('loading in picture-in-picture shows only a black view',
         (WidgetTester tester) async {
       _recordSystemUi();

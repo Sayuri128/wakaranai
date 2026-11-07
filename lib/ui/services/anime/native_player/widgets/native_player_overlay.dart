@@ -700,7 +700,10 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
   }
 
   bool _skipOpeningAvailable(VideoPlayerValue value) {
-    if (_cubit.skipMarkers.isNotEmpty) {
+    final bool hasIntroMarker = _cubit.skipMarkers.any(
+      (PlayableSkipMarker marker) => marker.type == PlayableSkipType.intro,
+    );
+    if (hasIntroMarker) {
       return false;
     }
     final int totalMilliseconds = value.duration.inMilliseconds;
