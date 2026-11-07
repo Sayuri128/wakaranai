@@ -15,6 +15,7 @@ import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.da
 import 'package:wakaranai/ui/services/anime/native_player/cubit/native_player_cubit.dart';
 import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store.dart';
 import 'package:wakaranai/ui/services/anime/native_player/native_player_engine.dart';
+import 'package:wakaranai/ui/services/anime/native_player/player_quality.dart';
 import 'package:wakaranai/ui/services/anime/native_player/subtitle_loader.dart';
 
 const Duration _episodeLength = Duration(minutes: 24);
@@ -25,11 +26,16 @@ class _FakeEngine extends ValueNotifier<VideoPlayerValue>
     this.stream, {
     this.failOnInitialize = false,
     this.maxSupportedSpeed = 8.0,
+    this.tracks = const <VideoTrack>[],
+    this.supportsVideoTracks = true,
   }) : super(const VideoPlayerValue.uninitialized());
 
   final PlayableStream stream;
   final bool failOnInitialize;
   final double maxSupportedSpeed;
+  final List<VideoTrack> tracks;
+  final List<VideoTrack?> trackSelections = <VideoTrack?>[];
+  int trackReads = 0;
   final List<Duration> seeks = <Duration>[];
   final List<double> speeds = <double>[];
   ClosedCaptionFile? captionFile;
@@ -74,6 +80,20 @@ class _FakeEngine extends ValueNotifier<VideoPlayerValue>
   @override
   Future<void> setClosedCaptionFile(ClosedCaptionFile? file) async {
     captionFile = file;
+  }
+
+  @override
+  final bool supportsVideoTracks;
+
+  @override
+  Future<List<VideoTrack>> getVideoTracks() async {
+    trackReads++;
+    return tracks;
+  }
+
+  @override
+  Future<void> selectVideoTrack(VideoTrack? track) async {
+    trackSelections.add(track);
   }
 
   @override
@@ -185,6 +205,35 @@ PlayableVideo _videoFor(String uid) {
   );
 }
 
+VideoTrack _track(String id, int height, int bitrate) {
+  return VideoTrack(
+    id: id,
+    isSelected: false,
+    height: height,
+    width: height * 16 ~/ 9,
+    bitrate: bitrate,
+  );
+}
+
+List<VideoTrack> _ladder(PlayableStream stream) {
+  if (!stream.url.endsWith('.m3u8')) {
+    return const <VideoTrack>[];
+  }
+  return <VideoTrack>[
+    _track('0_0', 1080, 5000000),
+    _track('0_1', 720, 2800000),
+    _track('0_2', 480, 1200000),
+  ];
+}
+
+PlayableVideo _singleHlsVideo(String uid) {
+  return PlayableVideo(
+    streams: <PlayableStream>[
+      PlayableStream(url: 'https://cdn.test/$uid/master.m3u8'),
+    ],
+  );
+}
+
 class _Harness {
   _Harness({
     EpisodeProgress? initialProgress,
@@ -193,6 +242,9 @@ class _Harness {
     this.maxSupportedSpeed = 8.0,
     this.startUid = 'a1',
     this.webOnlyUids = const <String>{},
+    this.tracksFor,
+    this.videoFor,
+    this.supportsVideoTracks = true,
     bool subtitleFails = false,
   })  : _initialProgress = initialProgress,
         subtitleLoader = _FakeSubtitleLoader(fail: subtitleFails);
@@ -206,6 +258,9 @@ class _Harness {
   final double maxSupportedSpeed;
   final String startUid;
   final Set<String> webOnlyUids;
+  final List<VideoTrack> Function(PlayableStream stream)? tracksFor;
+  final PlayableVideo Function(String uid)? videoFor;
+  final bool supportsVideoTracks;
   int failingInitializations;
 
   _FakeProgressStore get store => stores[startUid]!;
@@ -215,8 +270,9 @@ class _Harness {
     final AnimeVideo start = _groups[groupIndex]
         .elements
         .firstWhere((AnimeVideo video) => video.uid == startUid);
+    final PlayableVideo Function(String uid)? customVideo = videoFor;
     return NativePlayerCubit(
-      video: _firstVideo,
+      video: customVideo == null ? _firstVideo : customVideo(startUid),
       playlist: EpisodePlaylist(
         groups: _groups,
         groupIndex: groupIndex,
@@ -247,7 +303,10 @@ class _Harness {
     if (webOnlyUids.contains(uid)) {
       return const WebPlaybackPlan(WebPlaybackReason.failed);
     }
-    return NativePlaybackPlan(_videoFor(uid));
+    final PlayableVideo Function(String uid)? customVideo = videoFor;
+    return NativePlaybackPlan(
+      customVideo == null ? _videoFor(uid) : customVideo(uid),
+    );
   }
 
   NativePlayerEngine _createEngine(PlayableStream stream) {
@@ -259,6 +318,8 @@ class _Harness {
       stream,
       failOnInitialize: fail,
       maxSupportedSpeed: maxSupportedSpeed,
+      tracks: tracksFor?.call(stream) ?? const <VideoTrack>[],
+      supportsVideoTracks: supportsVideoTracks,
     );
     engines.add(engine);
     return engine;
@@ -983,6 +1044,199 @@ void main() {
       const Duration(seconds: 120),
     );
     await cubit.close();
+  });
+
+  group('video renditions', () {
+    test('lists the renditions of the current stream after opening', () async {
+      final _Harness harness = _Harness(
+        videoFor: _singleHlsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      expect(
+        cubit.state.renditions.map((PlayerRendition rendition) => rendition.height),
+        <int>[1080, 720, 480],
+      );
+      expect(cubit.state.selectedRenditionId, isNull);
+      expect(harness.engines.single.trackSelections, isEmpty);
+      await cubit.close();
+    });
+
+    test('selecting a rendition switches in place and keeps playback',
+        () async {
+      final _Harness harness = _Harness(
+        videoFor: _singleHlsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      await cubit.seekTo(const Duration(minutes: 3));
+
+      await cubit.selectRendition(cubit.state.renditions[1]);
+
+      final _FakeEngine engine = harness.engines.single;
+      expect(engine.trackSelections.single?.id, '0_1');
+      expect(engine.value.position, const Duration(minutes: 3));
+      expect(engine.value.isPlaying, isTrue);
+      expect(cubit.state.selectedRenditionId, '0_1');
+      expect(await PlayerPreferences().getQuality(), '720p');
+      await cubit.close();
+    });
+
+    test('auto clears the manual rendition', () async {
+      final _Harness harness = _Harness(
+        videoFor: _singleHlsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      await cubit.selectRendition(cubit.state.renditions.first);
+
+      await cubit.selectQualityOption(
+        const QualityOption.auto(streamIndex: 0, label: 'Auto'),
+      );
+
+      expect(harness.engines.single.trackSelections.last, isNull);
+      expect(cubit.state.selectedRenditionId, isNull);
+      expect(await PlayerPreferences().getQuality(), kAutoQualityLabel);
+      await cubit.close();
+    });
+
+    test('opens the remembered rendition', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        PlayerPreferences.qualityKey: '720p',
+      });
+      final _Harness harness = _Harness(
+        videoFor: _singleHlsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      expect(harness.engines.single.trackSelections.single?.id, '0_1');
+      expect(cubit.state.selectedRenditionId, '0_1');
+      await cubit.close();
+    });
+
+    test('falls back to the closest lower rendition', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        PlayerPreferences.qualityKey: '900p',
+      });
+      final _Harness harness = _Harness(
+        videoFor: _singleHlsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      expect(cubit.state.selectedRenditionId, '0_1');
+      await cubit.close();
+    });
+
+    test('a remembered Auto stays adaptive', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        PlayerPreferences.qualityKey: 'Auto',
+      });
+      final _Harness harness = _Harness(
+        videoFor: _singleHlsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      expect(harness.engines.single.trackSelections, isEmpty);
+      expect(cubit.state.selectedRenditionId, isNull);
+      await cubit.close();
+    });
+
+    test('a remembered stream label keeps that stream adaptive', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        PlayerPreferences.qualityKey: '1080p',
+      });
+      final _Harness harness = _Harness(tracksFor: _ladder);
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      expect(cubit.state.streamIndex, 0);
+      expect(cubit.state.renditions, hasLength(3));
+      expect(harness.engines.single.trackSelections, isEmpty);
+      await cubit.close();
+    });
+
+    test('switching stream re-reads the tracks of the new stream', () async {
+      final _Harness harness = _Harness(tracksFor: _ladder);
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      expect(cubit.state.renditions, hasLength(3));
+
+      await cubit.selectQualityOption(
+        const QualityOption.stream(streamIndex: 1, label: '720p'),
+      );
+
+      expect(harness.engines, hasLength(2));
+      expect(harness.engines.last.trackReads, 1);
+      expect(cubit.state.streamIndex, 1);
+      expect(cubit.state.renditions, isEmpty);
+      await cubit.close();
+    });
+
+    test('re-applies the rendition after an in-place episode switch',
+        () async {
+      final _Harness harness = _Harness(
+        hasNextEpisode: true,
+        videoFor: _singleHlsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      await cubit.selectRendition(cubit.state.renditions.last);
+
+      await cubit.playNext();
+
+      final _FakeEngine engine = harness.engines.last;
+      expect(engine.stream.url, 'https://cdn.test/a2/master.m3u8');
+      expect(engine.trackSelections.single?.id, '0_2');
+      expect(cubit.state.selectedRenditionId, '0_2');
+      await cubit.close();
+    });
+
+    test('re-applies the rendition after a retry', () async {
+      final _Harness harness = _Harness(
+        videoFor: _singleHlsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      await cubit.selectRendition(cubit.state.renditions.first);
+
+      await cubit.retry();
+
+      expect(harness.engines, hasLength(2));
+      expect(harness.engines.last.trackSelections.single?.id, '0_0');
+      expect(cubit.state.selectedRenditionId, '0_0');
+      await cubit.close();
+    });
+
+    test('without track support nothing is read or selected', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        PlayerPreferences.qualityKey: '720p',
+      });
+      final _Harness harness = _Harness(
+        videoFor: _singleHlsVideo,
+        tracksFor: _ladder,
+        supportsVideoTracks: false,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      expect(cubit.state.status, NativePlayerStatus.ready);
+      expect(cubit.state.renditions, isEmpty);
+      expect(harness.engines.single.trackReads, 0);
+      expect(harness.engines.single.trackSelections, isEmpty);
+      await cubit.close();
+    });
   });
 
   test('fit mode cycles and is remembered', () async {

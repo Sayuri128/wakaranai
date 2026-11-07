@@ -11,6 +11,8 @@ class NativePlayerState extends Equatable {
     this.engine,
     this.engineGeneration = 0,
     this.streamIndex = 0,
+    this.renditions = const <PlayerRendition>[],
+    this.selectedRenditionId,
     this.subtitleIndex,
     this.subtitleLoading = false,
     this.subtitleFailed = false,
@@ -32,6 +34,8 @@ class NativePlayerState extends Equatable {
   final NativePlayerEngine? engine;
   final int engineGeneration;
   final int streamIndex;
+  final List<PlayerRendition> renditions;
+  final String? selectedRenditionId;
   final int? subtitleIndex;
   final bool subtitleLoading;
   final bool subtitleFailed;
@@ -55,6 +59,8 @@ class NativePlayerState extends Equatable {
     ValueGetter<NativePlayerEngine?>? engine,
     int? engineGeneration,
     int? streamIndex,
+    List<PlayerRendition>? renditions,
+    ValueGetter<String?>? selectedRenditionId,
     ValueGetter<int?>? subtitleIndex,
     bool? subtitleLoading,
     bool? subtitleFailed,
@@ -77,6 +83,10 @@ class NativePlayerState extends Equatable {
       engine: engine != null ? engine() : this.engine,
       engineGeneration: engineGeneration ?? this.engineGeneration,
       streamIndex: streamIndex ?? this.streamIndex,
+      renditions: renditions ?? this.renditions,
+      selectedRenditionId: selectedRenditionId != null
+          ? selectedRenditionId()
+          : this.selectedRenditionId,
       subtitleIndex: subtitleIndex != null ? subtitleIndex() : this.subtitleIndex,
       subtitleLoading: subtitleLoading ?? this.subtitleLoading,
       subtitleFailed: subtitleFailed ?? this.subtitleFailed,
@@ -103,6 +113,8 @@ class NativePlayerState extends Equatable {
         engine,
         engineGeneration,
         streamIndex,
+        renditions,
+        selectedRenditionId,
         subtitleIndex,
         subtitleLoading,
         subtitleFailed,

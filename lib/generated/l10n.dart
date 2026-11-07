@@ -5648,6 +5648,16 @@ class S {
     );
   }
 
+  /// `Auto`
+  String get native_player_quality_auto {
+    return Intl.message(
+      'Auto',
+      name: 'native_player_quality_auto',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Playback speed`
   String get native_player_speed {
     return Intl.message(

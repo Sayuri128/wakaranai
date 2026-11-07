@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
+import 'package:wakaranai/ui/services/anime/native_player/player_quality.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_fit_mode.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_speed_sheet.dart';
 import 'package:wakaranai/ui/widgets/action_sheet.dart';
@@ -50,24 +51,48 @@ String playbackSpeedLabel(double speed) {
 
 Future<void> showQualityPicker(
   BuildContext context, {
-  required List<PlayableStream> streams,
-  required int selectedIndex,
-  required ValueChanged<int> onSelected,
+  required List<QualityGroup> groups,
+  required int currentStreamIndex,
+  required String? selectedRenditionId,
+  required ValueChanged<QualityOption> onSelected,
 }) {
+  Widget buildOption(QualityOption option, {double indent = 0}) {
+    return Padding(
+      padding: EdgeInsets.only(left: indent),
+      child: _buildRow(
+        context,
+        label: option.label,
+        selected: option.isSelected(
+          currentStreamIndex: currentStreamIndex,
+          selectedRenditionId: selectedRenditionId,
+        ),
+        onTap: () => onSelected(option),
+      ),
+    );
+  }
+
+  final List<Widget> rows = <Widget>[];
+  if (groups.length == 1) {
+    rows.addAll(groups.single.selectableOptions.map(buildOption));
+  } else {
+    for (final QualityGroup group in groups) {
+      if (group.options.isEmpty) {
+        rows.addAll(group.selectableOptions.map(buildOption));
+        continue;
+      }
+      rows.add(_buildSectionHeader(group.label));
+      rows.addAll(group.options.map(
+        (QualityOption option) => buildOption(option, indent: 12),
+      ));
+    }
+  }
   return showActionSheet(
     context,
     title: S.of(context).native_player_quality,
     child: Column(
       mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        for (int index = 0; index < streams.length; index++)
-          _buildRow(
-            context,
-            label: streamQualityLabel(streams, index),
-            selected: index == selectedIndex,
-            onTap: () => onSelected(index),
-          ),
-      ],
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: rows,
     ),
   );
 }

@@ -826,6 +826,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "native_player_pause": MessageLookupByLibrary.simpleMessage("Pause"),
     "native_player_play": MessageLookupByLibrary.simpleMessage("Play"),
     "native_player_quality": MessageLookupByLibrary.simpleMessage("Quality"),
+    "native_player_quality_auto": MessageLookupByLibrary.simpleMessage("Auto"),
     "native_player_quality_fallback": m37,
     "native_player_retry": MessageLookupByLibrary.simpleMessage("Retry"),
     "native_player_seek_backward": m38,

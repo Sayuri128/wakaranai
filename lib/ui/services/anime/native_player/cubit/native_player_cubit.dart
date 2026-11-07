@@ -13,6 +13,7 @@ import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_resu
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
 import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store.dart';
 import 'package:wakaranai/ui/services/anime/native_player/native_player_engine.dart';
+import 'package:wakaranai/ui/services/anime/native_player/player_quality.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_track_selection.dart';
 import 'package:wakaranai/ui/services/anime/native_player/subtitle_loader.dart';
 
@@ -189,11 +190,36 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     );
   }
 
+  Future<void> selectQualityOption(QualityOption option) async {
+    switch (option.kind) {
+      case QualityOptionKind.stream:
+        await selectQuality(option.streamIndex);
+      case QualityOptionKind.auto:
+        await selectRendition(null);
+      case QualityOptionKind.rendition:
+        await selectRendition(option.rendition);
+    }
+  }
+
+  Future<void> selectRendition(PlayerRendition? rendition) async {
+    final NativePlayerEngine? currentEngine = _engine;
+    if (currentEngine == null || state.status != NativePlayerStatus.ready) {
+      return;
+    }
+    _rememberQualityLabel(
+      rendition?.preferenceLabel ?? _autoRenditionPreferenceLabel(),
+    );
+    if (rendition?.id == state.selectedRenditionId) {
+      return;
+    }
+    await _selectRenditionOn(currentEngine, rendition, _openGeneration);
+  }
+
   Future<void> selectQuality(int index) async {
     if (index < 0 || index >= _video.streams.length) {
       return;
     }
-    _rememberQuality(_video.streams[index]);
+    _rememberQualityLabel(_video.streams[index].quality);
     if (index == state.streamIndex && state.status == NativePlayerStatus.ready) {
       return;
     }
@@ -381,6 +407,8 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       isPlaying: false,
       holdActive: false,
       streamIndex: 0,
+      renditions: const <PlayerRendition>[],
+      selectedRenditionId: () => null,
       subtitleIndex: () => null,
       subtitleLoading: false,
       subtitleFailed: false,
@@ -482,13 +510,94 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     }
   }
 
-  void _rememberQuality(PlayableStream stream) {
-    final String? quality = stream.quality?.trim();
+  void _rememberQualityLabel(String? label) {
+    final String? quality = label?.trim();
     if (quality == null || quality.isEmpty) {
       return;
     }
     _preferredQuality = quality;
     unawaited(_persistPreference(() => _preferences.setQuality(quality)));
+  }
+
+  String _autoRenditionPreferenceLabel() {
+    if (_video.streams.length > 1) {
+      final String? streamLabel =
+          _video.streams[state.streamIndex].quality?.trim();
+      if (streamLabel != null && streamLabel.isNotEmpty) {
+        return streamLabel;
+      }
+    }
+    return kAutoQualityLabel;
+  }
+
+  Future<void> _loadRenditions(
+    NativePlayerEngine openedEngine,
+    int generation,
+  ) async {
+    final List<PlayerRendition> renditions =
+        await _readRenditions(openedEngine);
+    if (generation != _openGeneration || isClosed) {
+      return;
+    }
+    emit(state.copyWith(
+      renditions: renditions,
+      selectedRenditionId: () => null,
+    ));
+    final PlayerRendition? preferred = _preferredRendition();
+    if (preferred == null) {
+      return;
+    }
+    await _selectRenditionOn(openedEngine, preferred, generation);
+  }
+
+  Future<List<PlayerRendition>> _readRenditions(
+    NativePlayerEngine openedEngine,
+  ) async {
+    if (!openedEngine.supportsVideoTracks) {
+      return const <PlayerRendition>[];
+    }
+    try {
+      return distinctRenditions(await openedEngine.getVideoTracks());
+    } catch (error, stackTrace) {
+      logger.w('Failed to read video tracks: $error');
+      logger.w(stackTrace);
+      return const <PlayerRendition>[];
+    }
+  }
+
+  PlayerRendition? _preferredRendition() {
+    final String? wanted = _preferredQuality;
+    if (wanted == null || state.renditions.length < 2) {
+      return null;
+    }
+    if (isAutoQualityLabel(wanted) || _isCurrentStreamLabel(wanted)) {
+      return null;
+    }
+    return matchRendition(state.renditions, wanted);
+  }
+
+  bool _isCurrentStreamLabel(String label) {
+    final String? streamLabel =
+        _video.streams[state.streamIndex].quality?.trim().toLowerCase();
+    return streamLabel != null && streamLabel == label.trim().toLowerCase();
+  }
+
+  Future<void> _selectRenditionOn(
+    NativePlayerEngine targetEngine,
+    PlayerRendition? rendition,
+    int generation,
+  ) async {
+    try {
+      await targetEngine.selectVideoTrack(rendition?.track);
+    } catch (error, stackTrace) {
+      logger.w('Failed to select video track ${rendition?.id}: $error');
+      logger.w(stackTrace);
+      return;
+    }
+    if (generation != _openGeneration || isClosed) {
+      return;
+    }
+    emit(state.copyWith(selectedRenditionId: () => rendition?.id));
   }
 
   Future<void> _restorePreferredSubtitle() async {
@@ -559,6 +668,8 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       status: NativePlayerStatus.loading,
       engine: () => null,
       streamIndex: index,
+      renditions: const <PlayerRendition>[],
+      selectedRenditionId: () => null,
       isPlaying: false,
       errorMessage: () => null,
     ));
@@ -567,6 +678,10 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       generation,
     );
     if (openedEngine == null) {
+      return;
+    }
+    await _loadRenditions(openedEngine, generation);
+    if (generation != _openGeneration || isClosed) {
       return;
     }
     await _prepareEngine(

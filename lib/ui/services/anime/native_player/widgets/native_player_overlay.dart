@@ -5,11 +5,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_player/video_player.dart';
+import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/playlist_sheets.dart';
 import 'package:wakaranai/ui/services/anime/native_player/cubit/native_player_cubit.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_device_controls.dart';
+import 'package:wakaranai/ui/services/anime/native_player/player_quality.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_auto_next_card.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_bottom_controls.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_fit_mode.dart';
@@ -242,15 +244,33 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
     });
   }
 
-  Future<void> _openQualityPicker() async {
+  Future<void> _openQualityPicker(List<QualityGroup> groups) async {
     _hideTimer?.cancel();
+    final NativePlayerCubit cubit = _cubit;
     await showQualityPicker(
       context,
-      streams: _cubit.video.streams,
-      selectedIndex: widget.state.streamIndex,
-      onSelected: (int index) => unawaited(_cubit.selectQuality(index)),
+      groups: groups,
+      currentStreamIndex: widget.state.streamIndex,
+      selectedRenditionId: widget.state.selectedRenditionId,
+      onSelected: (QualityOption option) =>
+          unawaited(cubit.selectQualityOption(option)),
     );
-    _scheduleAutoHide();
+    if (mounted) {
+      _scheduleAutoHide();
+    }
+  }
+
+  List<QualityGroup> _qualityGroups() {
+    final List<PlayableStream> streams = _cubit.video.streams;
+    return buildQualityGroups(
+      streamLabels: <String>[
+        for (int index = 0; index < streams.length; index++)
+          streamQualityLabel(streams, index),
+      ],
+      currentStreamIndex: widget.state.streamIndex,
+      renditions: widget.state.renditions,
+      autoLabel: S.of(context).native_player_quality_auto,
+    );
   }
 
   Future<void> _openSpeedPicker() async {
@@ -542,7 +562,8 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
     final bool playlistEnabled = cubit.canSwitchEpisodes;
     final bool hasSeveralGroups = widget.state.playlist.hasSeveralGroups;
     final bool hasSubtitles = cubit.video.subtitles.isNotEmpty;
-    final bool hasQualities = cubit.video.streams.length > 1;
+    final List<QualityGroup> qualityGroups = _qualityGroups();
+    final bool hasQualities = selectableQualityCount(qualityGroups) >= 2;
     return NativePlayerTopBar(
       title: widget.title,
       subtitle: widget.subtitle,
@@ -553,9 +574,15 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
           : null,
       onSubtitles: hasSubtitles ? () => unawaited(_openSubtitlePicker()) : null,
       subtitlesActive: widget.state.subtitleIndex != null,
-      onQuality: hasQualities ? () => unawaited(_openQualityPicker()) : null,
+      onQuality: hasQualities
+          ? () => unawaited(_openQualityPicker(qualityGroups))
+          : null,
       qualityLabel: hasQualities
-          ? streamQualityLabel(cubit.video.streams, widget.state.streamIndex)
+          ? currentQualityLabel(
+              qualityGroups,
+              currentStreamIndex: widget.state.streamIndex,
+              selectedRenditionId: widget.state.selectedRenditionId,
+            )
           : null,
       playbackSpeed: widget.state.playbackSpeed,
       onSpeed: () => unawaited(_openSpeedPicker()),

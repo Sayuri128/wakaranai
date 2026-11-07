@@ -1040,6 +1040,7 @@
   "native_player_next_episode": "Next episode",
   "native_player_quality": "Quality",
   "native_player_quality_fallback": "Source {index}",
+  "native_player_quality_auto": "Auto",
   "native_player_speed": "Playback speed",
   "native_player_speed_normal": "Normal",
   "native_player_subtitles": "Subtitles",

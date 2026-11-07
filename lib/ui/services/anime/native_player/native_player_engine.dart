@@ -20,6 +20,12 @@ abstract class NativePlayerEngine implements ValueListenable<VideoPlayerValue> {
 
   Future<void> setClosedCaptionFile(ClosedCaptionFile? captionFile);
 
+  bool get supportsVideoTracks;
+
+  Future<List<VideoTrack>> getVideoTracks();
+
+  Future<void> selectVideoTrack(VideoTrack? track);
+
   Future<void> dispose();
 
   Widget buildView();
@@ -94,6 +100,25 @@ class VideoPlayerEngine implements NativePlayerEngine {
     return _controller.setClosedCaptionFile(
       Future<ClosedCaptionFile>.value(captionFile),
     );
+  }
+
+  @override
+  bool get supportsVideoTracks {
+    try {
+      return _controller.isVideoTrackSupportAvailable();
+    } catch (error) {
+      return false;
+    }
+  }
+
+  @override
+  Future<List<VideoTrack>> getVideoTracks() {
+    return _controller.getVideoTracks();
+  }
+
+  @override
+  Future<void> selectVideoTrack(VideoTrack? track) {
+    return _controller.selectVideoTrack(track);
   }
 
   @override
