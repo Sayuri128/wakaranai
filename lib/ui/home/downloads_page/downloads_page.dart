@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
@@ -9,15 +8,19 @@ import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/shared_pref/downloads_order_preferences.dart';
+import 'package:wakaranai/services/downloads/storage/download_sizes.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
+import 'package:wakaranai/ui/home/downloads_page/cubit/download_sizes_cubit.dart';
+import 'package:wakaranai/ui/home/downloads_page/download_cover.dart';
+import 'package:wakaranai/ui/home/downloads_page/download_storage_actions.dart';
 import 'package:wakaranai/ui/home/downloads_page/download_tile.dart';
+import 'package:wakaranai/ui/home/downloads_page/free_up_space_sheet.dart';
 import 'package:wakaranai/ui/home/downloads_page/download_translation.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/chapter_translation_actions.dart';
 import 'package:wakaranai/ui/home/library_page/library_concrete_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/utils/app_colors.dart';
-import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class DownloadsPage extends StatefulWidget {
@@ -52,24 +55,60 @@ class _DownloadsPageState extends State<DownloadsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      body: SafeArea(
-        bottom: false,
-        child: BlocBuilder<DownloadManagerCubit, DownloadManagerState>(
-          builder: (BuildContext context, DownloadManagerState state) {
-            return Column(
-              children: <Widget>[
-                Expanded(child: _buildBody(context, state)),
-              ],
-            );
-          },
+    return BlocProvider<DownloadSizesCubit>(
+      create: _createSizesCubit,
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        body: SafeArea(
+          bottom: false,
+          child: BlocBuilder<DownloadManagerCubit, DownloadManagerState>(
+            builder: (BuildContext context, DownloadManagerState state) {
+              return Column(
+                children: <Widget>[
+                  Expanded(child: _buildSizedBody(state)),
+                  if (state.downloads.isNotEmpty) _StorageBar(),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, DownloadManagerState state) {
+  DownloadSizesCubit _createSizesCubit(BuildContext context) {
+    final DownloadManagerCubit manager = context.read<DownloadManagerCubit>();
+    return DownloadSizesCubit(
+      downloads: manager.stream
+          .map((DownloadManagerState state) => state.downloads),
+      initial: manager.state.downloads,
+    );
+  }
+
+  Widget _buildSizedBody(DownloadManagerState state) {
+    return BlocBuilder<DownloadSizesCubit, DownloadSizesState>(
+      builder: (BuildContext context, DownloadSizesState sizes) {
+        return _buildBody(context, state, sizes.usage);
+      },
+    );
+  }
+
+  void _showTitleActions(
+    List<DownloadDomain> titleDownloads,
+    Map<String, int> itemBytes,
+  ) {
+    showDownloadTitleActions(
+      context,
+      titleDownloads: titleDownloads,
+      itemBytes: itemBytes,
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    DownloadManagerState state,
+    DownloadStorageUsage usage,
+  ) {
     if (state.downloads.isEmpty) {
       return ServiceViewerMessage(
         icon: Icons.download_done_rounded,
@@ -86,20 +125,99 @@ class _DownloadsPageState extends State<DownloadsPage> {
       grouped.putIfAbsent(d.concreteUid, () => <DownloadDomain>[]).add(d);
     }
 
-    final double bottomInset = MediaQuery.of(context).viewPadding.bottom;
-
     return ListView(
       physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.only(bottom: 24 + bottomInset),
+      padding: const EdgeInsets.only(bottom: 16),
       children: <Widget>[
         _OrderToggle(newestFirst: _newestFirst, onTap: _toggleOrder),
         TranslationQueueCard(margin: const EdgeInsets.fromLTRB(16, 8, 16, 0)),
         for (final List<DownloadDomain> titleDownloads in grouped.values) ...<Widget>[
-          _GroupHeader(downloads: titleDownloads),
+          _GroupHeader(
+            downloads: titleDownloads,
+            sizeBytes: usage.bytesOfTitle(titleDownloads.first.concreteUid),
+            onMore: () => _showTitleActions(titleDownloads, usage.itemBytes),
+          ),
           for (final DownloadDomain download in titleDownloads)
-            DownloadTile(download: download),
+            DownloadTile(
+              download: download,
+              sizeBytes: usage.bytesOfItem(download.uid),
+            ),
         ],
       ],
+    );
+  }
+}
+
+class _StorageBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DownloadSizesCubit, DownloadSizesState>(
+      builder: (BuildContext context, DownloadSizesState sizes) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: AppColors.overlay(0.06))),
+          ),
+          child: Row(
+            children: <Widget>[
+              Expanded(child: _buildUsage(sizes)),
+              const SizedBox(width: 12),
+              _buildFreeUpButton(context),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildUsage(DownloadSizesState sizes) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Text(
+          S.current.downloads_storage_used,
+          style: regular(size: 12, color: AppColors.mainGrey),
+        ),
+        const SizedBox(height: 2),
+        Text(_usageLabel(sizes), style: semibold(size: 16)),
+      ],
+    );
+  }
+
+  String _usageLabel(DownloadSizesState sizes) {
+    if (!sizes.measured) {
+      return S.current.downloads_storage_calculating;
+    }
+    return formatDownloadSize(sizes.usage.totalBytes);
+  }
+
+  Widget _buildFreeUpButton(BuildContext context) {
+    return Material(
+      color: AppColors.primary,
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => unawaited(showFreeUpSpaceSheet(context)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(
+                Icons.cleaning_services_rounded,
+                size: 18,
+                color: AppColors.mainBlack,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                S.current.downloads_storage_free_up,
+                style: semibold(size: 14, color: AppColors.mainBlack),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -155,9 +273,15 @@ class _OrderToggle extends StatelessWidget {
 }
 
 class _GroupHeader extends StatelessWidget {
-  const _GroupHeader({required this.downloads});
+  const _GroupHeader({
+    required this.downloads,
+    required this.sizeBytes,
+    required this.onMore,
+  });
 
   final List<DownloadDomain> downloads;
+  final int sizeBytes;
+  final VoidCallback onMore;
 
   @override
   Widget build(BuildContext context) {
@@ -176,7 +300,10 @@ class _GroupHeader extends StatelessWidget {
           onTap: () => _openConcrete(context, sample),
           child: Row(
             children: <Widget>[
-              _Cover(url: sample.concreteCover, isEpisode: sample.isEpisode),
+              DownloadCover(
+                url: sample.concreteCover,
+                isEpisode: sample.isEpisode,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -197,7 +324,11 @@ class _GroupHeader extends StatelessWidget {
                 ),
               ),
               if (!sample.isEpisode) TranslateAllButton(downloads: downloads),
-              Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
+              IconButton(
+                tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
+                icon: Icon(Icons.more_horiz_rounded, color: AppColors.mainGrey),
+                onPressed: onMore,
+              ),
             ],
           ),
         ),
@@ -206,6 +337,17 @@ class _GroupHeader extends StatelessWidget {
   }
 
   String _summary(DownloadDomain sample, int doneCount) {
+    final String counts = _countSummary(sample, doneCount);
+    if (sizeBytes <= 0) {
+      return counts;
+    }
+    return S.current.downloads_storage_summary_with_size(
+      counts,
+      formatDownloadSize(sizeBytes),
+    );
+  }
+
+  String _countSummary(DownloadDomain sample, int doneCount) {
     if (sample.isEpisode) {
       return S.current.downloads_episode_summary(doneCount, downloads.length);
     }
@@ -232,47 +374,6 @@ class _GroupHeader extends StatelessWidget {
       Routes.libraryConcreteViewer,
       arguments: LibraryConcreteViewerData(entry: entry),
     ));
-  }
-}
-
-class _Cover extends StatelessWidget {
-  const _Cover({required this.url, required this.isEpisode});
-
-  final String? url;
-  final bool isEpisode;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: SizedBox(
-        width: 48,
-        height: 64,
-        child: url == null
-            ? _placeholder()
-            : CachedNetworkImage(
-                imageUrl: url!,
-                memCacheWidth: decodeWidthFor(context, 48),
-                fit: BoxFit.cover,
-                placeholder: (BuildContext context, String _) => _placeholder(),
-                errorWidget: (BuildContext context, String _, Object __) =>
-                    _placeholder(),
-              ),
-      ),
-    );
-  }
-
-  Widget _placeholder() {
-    return ColoredBox(
-      color: AppColors.overlay(0.08),
-      child: Center(
-        child: Icon(
-          isEpisode ? Icons.movie_rounded : Icons.menu_book_rounded,
-          color: AppColors.mainGrey,
-          size: 22,
-        ),
-      ),
-    );
   }
 }
 

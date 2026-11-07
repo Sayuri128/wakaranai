@@ -146,6 +146,37 @@ void main() {
         'Failed',
       );
     });
+
+    test('appends the measured size on disk when it is known', () {
+      expect(
+        downloadStatusLabel(
+          _download(kind: DownloadKind.chapter, totalPages: 12),
+          sizeBytes: 3 * _megabyte,
+        ),
+        '12/12 pages · 3.0 MB',
+      );
+      expect(
+        downloadStatusLabel(
+          _download(totalBytes: 1536 * _megabyte),
+          sizeBytes: 700 * _megabyte,
+        ),
+        'Ready to watch offline · 700.0 MB',
+      );
+      expect(
+        downloadStatusLabel(
+          _download(status: DownloadStatus.failed),
+          sizeBytes: _megabyte,
+        ),
+        'Failed · 1.0 MB',
+      );
+      expect(
+        downloadStatusLabel(
+          _download(status: DownloadStatus.queued),
+          sizeBytes: _megabyte,
+        ),
+        'Queued',
+      );
+    });
   });
 
   group('tap actions', () {

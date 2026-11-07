@@ -48,14 +48,17 @@ String formatDownloadSize(int bytes) {
   return S.current.downloads_episode_size_mb(megabytes.toStringAsFixed(1));
 }
 
-String downloadStatusLabel(DownloadDomain download) {
+String downloadStatusLabel(DownloadDomain download, {int? sizeBytes}) {
   switch (download.status) {
     case DownloadStatus.done:
       if (download.isEpisode) {
-        return _episodeDoneLabel(download);
+        return _episodeDoneLabel(download, sizeBytes);
       }
-      return S.current
-          .downloads_pages_progress(download.totalPages, download.totalPages);
+      return _withSize(
+        S.current
+            .downloads_pages_progress(download.totalPages, download.totalPages),
+        sizeBytes,
+      );
     case DownloadStatus.downloading:
       if (download.isEpisode) {
         return _episodeProgressLabel(download);
@@ -65,18 +68,33 @@ String downloadStatusLabel(DownloadDomain download) {
     case DownloadStatus.queued:
       return S.current.downloads_status_queued;
     case DownloadStatus.failed:
-      return S.current.downloads_status_failed;
+      return _withSize(S.current.downloads_status_failed, sizeBytes);
   }
 }
 
-String _episodeDoneLabel(DownloadDomain download) {
-  final int size = download.totalBytes > 0
-      ? download.totalBytes
-      : download.downloadedBytes;
+String _withSize(String label, int? sizeBytes) {
+  if (sizeBytes == null || sizeBytes <= 0) {
+    return label;
+  }
+  return S.current.downloads_storage_summary_with_size(
+    label,
+    formatDownloadSize(sizeBytes),
+  );
+}
+
+String _episodeDoneLabel(DownloadDomain download, int? sizeBytes) {
+  final int size = sizeBytes ?? _reportedEpisodeSize(download);
   if (size <= 0) {
     return S.current.downloads_episode_done;
   }
   return S.current.downloads_episode_done_size(formatDownloadSize(size));
+}
+
+int _reportedEpisodeSize(DownloadDomain download) {
+  if (download.totalBytes > 0) {
+    return download.totalBytes;
+  }
+  return download.downloadedBytes;
 }
 
 String _episodeProgressLabel(DownloadDomain download) {
@@ -113,11 +131,13 @@ class DownloadTile extends StatelessWidget {
   const DownloadTile({
     super.key,
     required this.download,
+    this.sizeBytes,
     this.readChapter = openDownloadedChapter,
     this.playEpisode = playDownloadedEpisode,
   });
 
   final DownloadDomain download;
+  final int? sizeBytes;
   final DownloadOpener readChapter;
   final DownloadOpener playEpisode;
 
@@ -216,7 +236,7 @@ class DownloadTile extends StatelessWidget {
 
   Widget _buildSubtitle() {
     return Text(
-      downloadStatusLabel(download),
+      downloadStatusLabel(download, sizeBytes: sizeBytes),
       style: regular(size: 12, color: _statusColor()),
     );
   }
