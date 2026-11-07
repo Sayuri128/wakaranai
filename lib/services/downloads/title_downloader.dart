@@ -1,5 +1,6 @@
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
+import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/manga_concrete_view.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
@@ -11,8 +12,50 @@ import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/services/downloads/chapter_download_selection.dart';
 
-class GalleryTitleDownloader {
-  GalleryTitleDownloader({
+class DownloadableTitle {
+  const DownloadableTitle({
+    required this.client,
+    required this.extensionUid,
+    required this.concrete,
+    required this.concreteId,
+    required this.readUids,
+    required this.downloadedUids,
+  });
+
+  final MangaApiClient client;
+  final String extensionUid;
+  final MangaConcreteView concrete;
+  final int concreteId;
+  final Set<String> readUids;
+  final Set<String> downloadedUids;
+
+  List<ChaptersGroup> get groups => concrete.groups;
+
+  List<Chapter> select(Set<int> groupIndexes, ChapterDownloadAmount amount) {
+    final List<Chapter> selected = <Chapter>[];
+    final Set<String> seen = <String>{};
+    for (int index = 0; index < groups.length; index++) {
+      if (!groupIndexes.contains(index)) {
+        continue;
+      }
+      final List<Chapter> picked = chaptersToDownload<Chapter>(
+        groups[index].elements,
+        readUids: readUids,
+        downloadedUids: downloadedUids,
+        amount: amount,
+      );
+      for (final Chapter chapter in picked) {
+        if (seen.add(chapter.uid)) {
+          selected.add(chapter);
+        }
+      }
+    }
+    return selected;
+  }
+}
+
+class TitleDownloader {
+  TitleDownloader({
     required this.downloadManager,
     required this.concreteDataRepository,
     required this.chapterActivityRepository,
@@ -30,12 +73,11 @@ class GalleryTitleDownloader {
     DownloadStatus.done,
   };
 
-  Future<int> download({
+  Future<DownloadableTitle> load({
     required MangaApiClient client,
     required String extensionUid,
     required String uid,
     required Map<String, dynamic> galleryData,
-    required ChapterDownloadAmount amount,
   }) async {
     final MangaConcreteView concrete = await client.getConcrete(
       uid: uid,
@@ -46,26 +88,33 @@ class GalleryTitleDownloader {
       galleryData: galleryData,
       extensionUid: extensionUid,
     );
-    if (saved == null || concrete.groups.isEmpty) {
-      return 0;
+    if (saved == null) {
+      throw StateError('Could not save details for $uid');
     }
-
-    final List<Chapter> chapters = concrete.groups.first.elements;
-    final List<Chapter> selected = chaptersToDownload<Chapter>(
-      chapters,
+    return DownloadableTitle(
+      client: client,
+      extensionUid: extensionUid,
+      concrete: concrete,
+      concreteId: saved.id,
       readUids: await _readChapterUids(concrete.uid),
       downloadedUids: await _keptDownloadUids(concrete.uid),
-      amount: amount,
     );
+  }
 
+  Future<int> queue(
+    DownloadableTitle title, {
+    required Set<int> groupIndexes,
+    required ChapterDownloadAmount amount,
+  }) async {
+    final List<Chapter> selected = title.select(groupIndexes, amount);
     for (final Chapter chapter in selected) {
       await downloadManager.enqueueChapter(
-        client: client,
-        extensionUid: extensionUid,
-        concreteUid: concrete.uid,
-        concreteId: saved.id,
-        concreteTitle: concrete.title,
-        concreteCover: concrete.cover,
+        client: title.client,
+        extensionUid: title.extensionUid,
+        concreteUid: title.concrete.uid,
+        concreteId: title.concreteId,
+        concreteTitle: title.concrete.title,
+        concreteCover: title.concrete.cover,
         chapterUid: chapter.uid,
         title: chapter.title,
         data: chapter.data,
