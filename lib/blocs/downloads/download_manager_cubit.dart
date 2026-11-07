@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
@@ -32,7 +31,6 @@ import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/services/downloads/download_client_pool.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
-import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
 
@@ -163,13 +161,6 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         d.uid == chapterUid && d.status == DownloadStatus.done);
   }
 
-  static bool _isPendingOrDone(DownloadDomain? existing) {
-    if (existing == null) {
-      return false;
-    }
-    return existing.status == DownloadStatus.done || existing.isPending;
-  }
-
   Future<void> enqueueChapter({
     required ApiClient client,
     required String extensionUid,
@@ -182,50 +173,18 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     required Map<String, dynamic>? data,
     bool autoStart = true,
   }) async {
-    final DownloadDomain? existing =
-        await downloadRepository.getByUid(chapterUid);
-    if (_isPendingOrDone(existing)) {
-      return;
-    }
-
-    final Directory dir =
-        await DownloadFiles.chapterDir(extensionUid, concreteUid, chapterUid);
-
-    _queue.deletedUids.remove(chapterUid);
-
-    await downloadRepository.createUpdateBy<$DownloadTableTable, String>(
-      DownloadDomain(
-        id: 0,
-        uid: chapterUid,
-        extensionUid: extensionUid,
-        concreteUid: concreteUid,
-        concreteId: concreteId,
-        concreteTitle: concreteTitle,
-        concreteCover: concreteCover,
-        title: title,
-        status: DownloadStatus.queued,
-        downloadedPages: 0,
-        totalPages: 0,
-        dirPath: dir.path,
-        data: data != null ? jsonEncode(data) : null,
-        kind: chapterDownloadKindFor(client),
-        createdAt: DateTime.now(),
-      ),
-      by: (DownloadDomain d) => d.uid,
-      where: (tbl) => tbl.uid,
-    );
-    await downloadRepository.moveToQueueEnd(chapterUid);
-
-    _queue.replace(chapterDownloadJobFor(
+    final bool added = await _control.addChapter(
       client: client,
       extensionUid: extensionUid,
+      concreteUid: concreteUid,
+      concreteId: concreteId,
       concreteTitle: concreteTitle,
+      concreteCover: concreteCover,
       chapterUid: chapterUid,
       title: title,
       data: data,
-    ));
-
-    if (autoStart) {
+    );
+    if (added && autoStart) {
       startQueue();
     }
   }
@@ -239,66 +198,17 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     required AnimeVideo episode,
     bool autoStart = true,
   }) async {
-    final DownloadDomain? existing =
-        await downloadRepository.getByUid(episode.uid);
-    if (_isPendingOrDone(existing)) {
-      return;
-    }
-
-    final String dirPath =
-        await _episodeDirPath(existing, extensionUid, concreteUid, episode);
-
-    _queue.deletedUids.remove(episode.uid);
-
-    await downloadRepository.createUpdateBy<$DownloadTableTable, String>(
-      DownloadDomain(
-        id: 0,
-        uid: episode.uid,
-        extensionUid: extensionUid,
-        concreteUid: concreteUid,
-        concreteId: concreteId,
-        concreteTitle: concreteTitle,
-        concreteCover: concreteCover,
-        title: episode.title,
-        status: DownloadStatus.queued,
-        downloadedPages: existing?.downloadedPages ?? 0,
-        totalPages: existing?.totalPages ?? 0,
-        downloadedBytes: existing?.downloadedBytes ?? 0,
-        totalBytes: existing?.totalBytes ?? 0,
-        dirPath: dirPath,
-        data: encodeDownloadedEpisode(episode),
-        kind: DownloadKind.episode,
-        createdAt: DateTime.now(),
-      ),
-      by: (DownloadDomain d) => d.uid,
-      where: (tbl) => tbl.uid,
-    );
-    await downloadRepository.moveToQueueEnd(episode.uid);
-
-    _queue.replace(EpisodeDownloadJob(
+    final bool added = await _control.addEpisode(
       extensionUid: extensionUid,
+      concreteUid: concreteUid,
+      concreteId: concreteId,
       concreteTitle: concreteTitle,
+      concreteCover: concreteCover,
       episode: episode,
-    ));
-
-    if (autoStart) {
+    );
+    if (added && autoStart) {
       startQueue();
     }
-  }
-
-  Future<String> _episodeDirPath(
-    DownloadDomain? existing,
-    String extensionUid,
-    String concreteUid,
-    AnimeVideo episode,
-  ) async {
-    final String? previousDir = existing?.dirPath;
-    if (previousDir != null && previousDir.isNotEmpty) {
-      return previousDir;
-    }
-    final Directory dir =
-        await DownloadFiles.chapterDir(extensionUid, concreteUid, episode.uid);
-    return dir.path;
   }
 
   Future<void> retryDownload(DownloadDomain download) async {
