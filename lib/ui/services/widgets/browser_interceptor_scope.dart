@@ -96,7 +96,8 @@ class _BrowserInterceptorScopeState extends State<BrowserInterceptorScope> {
   }
 
   BrowserInterceptorCubit _attachNewInterceptor() {
-    final BrowserInterceptorCubit interceptor = BrowserInterceptorCubit();
+    final BrowserInterceptorCubit interceptor =
+        BrowserInterceptorCubit.forProtector(widget.configInfo.protectorConfig);
     _interceptor = interceptor;
     _subscription = interceptor.stream.listen(_onInterceptorState);
     return interceptor;

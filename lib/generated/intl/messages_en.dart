@@ -519,6 +519,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "concrete_offline_banner": MessageLookupByLibrary.simpleMessage(
       "Offline — showing cached content. Only downloaded chapters can be opened.",
     ),
+    "concrete_related_title": MessageLookupByLibrary.simpleMessage("Related"),
     "concrete_selection_clear": MessageLookupByLibrary.simpleMessage("Clear"),
     "concrete_selection_count": m9,
     "concrete_selection_download": MessageLookupByLibrary.simpleMessage(

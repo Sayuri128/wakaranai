@@ -29,6 +29,8 @@ import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dar
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/anime_iframe_player/anime_iframe_player.dart';
+import 'package:wakaranai/ui/common/service_viewer/service_gallery_kind.dart';
+import 'package:wakaranai/ui/services/anime/anime_service_viewer/anime_service_viewer.dart';
 import 'package:wakaranai/ui/services/concrete_viewer_page.dart';
 import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
 import 'package:wakaranai/ui/services/continue_reading/continue_target.dart';
@@ -104,6 +106,10 @@ class AnimeConcreteViewer extends ConcreteViewerPage<AnimeApiClient,
 
   @override
   bool get showsAlternativeTitles => false;
+
+  @override
+  ServiceGalleryKind<AnimeApiClient, AnimeGalleryView> get galleryKind =>
+      const AnimeGalleryKind();
 
   @override
   AutoContinueRequest? get autoContinue => data.autoContinue;

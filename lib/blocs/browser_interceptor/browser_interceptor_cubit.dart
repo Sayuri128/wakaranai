@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:capyscript/modules/http/http_interceptor_controller.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/protector_config/protector_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -24,14 +25,25 @@ class BrowserInterceptorException implements Exception {
 
 class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
     implements HttpInterceptorController {
-  BrowserInterceptorCubit() : super(BrowserInterceptorInitial());
+  BrowserInterceptorCubit({Duration? pageLoadTimeout})
+      : pageLoadTimeout = pageLoadTimeout ?? defaultPageLoadTimeout,
+        super(BrowserInterceptorInitial());
+
+  factory BrowserInterceptorCubit.forProtector(ProtectorConfig? protector) {
+    final int? seconds = protector?.pageLoadTimeoutSeconds;
+    return BrowserInterceptorCubit(
+      pageLoadTimeout: seconds == null ? null : Duration(seconds: seconds),
+    );
+  }
 
   static const int okStatusCode = 200;
   static const int challengeStatusCode = 403;
   static const int timeoutStatusCode = 408;
   static const int unavailableStatusCode = 0;
 
-  static const Duration pageLoadTimeout = Duration(seconds: 28);
+  static const Duration defaultPageLoadTimeout = Duration(seconds: 28);
+
+  final Duration pageLoadTimeout;
   static const Duration challengeWaitPerAttempt = Duration(seconds: 10);
   static const int maxChallengeReloads = 1;
 

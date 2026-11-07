@@ -87,7 +87,8 @@ class PreparedClientPool {
   ) async {
     final String uid = config.uid;
     final Completer<bool> ready = Completer<bool>();
-    final BrowserInterceptorCubit interceptor = BrowserInterceptorCubit();
+    final BrowserInterceptorCubit interceptor =
+        BrowserInterceptorCubit.forProtector(protector);
     final int challengesBefore = challengeCount(uid);
 
     await _closeInterceptor(uid);

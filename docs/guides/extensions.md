@@ -28,6 +28,10 @@ First of all you need to create a new json file called `config.json` with the fo
     * `needToLogin`: Indicates whether login is required (true or false).
     * `inAppBrowserInterceptor`: Indicates whether to use in-app browser interceptor (true or
       false).
+    * `sessionGroup` (optional): Extensions with the same group share one stored login.
+    * `pageLoadTimeoutSeconds` (optional): How long a `throughWeb` page may take to load before it
+      reports status `408`, between `5` and `120`. Defaults to `28`. Values outside the range are
+      ignored.
 * `searchAvailable`: Indicates whether search functionality is available (true or false).
 * `downloadConfig` (optional): Pacing for downloads, for sources that rate limit (HTTP 429).
   Leave it out to download at full speed.
@@ -54,6 +58,11 @@ First of all you need to create a new json file called `config.json` with the fo
   See [Feeds](#feeds).
 * `pagination` (api 2, optional): The gallery page sizes the user can pick from. See
   [Page size](#page-size).
+* `contentKinds` (optional): What the source carries, used by the Configs tab to filter sources.
+  A list of lowercase strings; the app has labels for `anime`, `movie`, `series`, `cartoon`,
+  `dorama`, `documentary`, `manga`, `manhwa`, `manhua`, `comic` and `novel`, and shows any other
+  value as written. For example a Ukrainian site with films and series uses
+  `["movie", "series", "cartoon", "anime"]`. Older app releases ignore the field.
 
 see [template](./extension_templates/manga/config.json)
 
@@ -138,9 +147,31 @@ function passProtector(body, headers, cookies) {
 }
 ```
 
-* `passWebBrowserInterceptorController` - It gets called after the app creates a
-  new `WebBrowserInterceptorController` and gets the controller.
-  currently, it's just a placeholder for future functionality.
+* `passWebBrowserInterceptorController` - Called once the app has started the in-app browser for
+  an extension with `inAppBrowserInterceptor: true`. Hand the controller to the http module so
+  requests made with `throughWeb: true` load in that browser:
+
+```capyscript
+function passWebBrowserInterceptorController(controller) {
+    registerInterceptorController(controller);
+}
+```
+
+**OPTIONAL, for any extension**
+
+* `getRelated` - Returns titles related to the one being viewed, built with `buildGallery`, the
+  same shape as `getGallery` items. The app shows them as a
+  "Related" row on the title page, and leaves the row out when the function is missing, throws or
+  returns an empty list. The title itself is filtered out.
+
+```capyscript
+function getRelated(uid, data) {
+    return [];
+}
+```
+
+`uid` and `data` are the ones `getConcrete` receives. Older app releases never call it, so it
+needs no `apiVersion` bump.
 
 ## Creating anime extension
 

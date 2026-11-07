@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/common/service_viewer/service_gallery_kind.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
@@ -18,6 +19,7 @@ import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
+import 'package:wakaranai/ui/services/widgets/concrete_related_rail.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
 import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
 import 'package:wakaranai/ui/widgets/selection_action_bar.dart';
@@ -51,6 +53,8 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
   bool get showsAlternativeTitles;
 
   String get elementsSectionTitle;
+
+  ServiceGalleryKind<T, G> get galleryKind;
 
   Widget buildCoverImage(BuildContext context, String cover);
 
@@ -254,6 +258,16 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
         const SizedBox(height: 20),
         _buildDescription(concreteView),
       ],
+      if (!state.offline)
+        ConcreteRelatedRail<T, G>(
+          key: ValueKey<String>('related:$concreteUid'),
+          client: client,
+          configInfo: configInfo,
+          kind: galleryKind,
+          concreteUid: concreteUid,
+          galleryData: galleryData,
+          coverHeaders: coverHeaders,
+        ),
       if (concreteView.groups.length > 1) ...<Widget>[
         const SizedBox(height: 20),
         ConcreteGroupSelector(

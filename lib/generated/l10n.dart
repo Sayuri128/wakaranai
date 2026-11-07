@@ -6466,6 +6466,16 @@ class S {
     );
   }
 
+  /// `Related`
+  String get concrete_related_title {
+    return Intl.message(
+      'Related',
+      name: 'concrete_related_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Page fit`
   String get reader_page_fit_title {
     return Intl.message(

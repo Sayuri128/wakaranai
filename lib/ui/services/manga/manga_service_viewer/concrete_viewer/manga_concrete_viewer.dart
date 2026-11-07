@@ -15,7 +15,9 @@ import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/common/service_viewer/service_gallery_kind.dart';
 import 'package:wakaranai/ui/services/concrete_viewer_page.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
 import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
 import 'package:wakaranai/ui/services/continue_reading/continue_target.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
@@ -102,6 +104,10 @@ class MangaConcreteViewer extends ConcreteViewerPage<MangaApiClient,
   @override
   String get elementsSectionTitle =>
       S.current.concrete_viewer_chapters_section_title;
+
+  @override
+  ServiceGalleryKind<MangaApiClient, MangaGalleryView> get galleryKind =>
+      const MangaGalleryKind();
 
   @override
   AutoContinueRequest? get autoContinue => data.autoContinue;
