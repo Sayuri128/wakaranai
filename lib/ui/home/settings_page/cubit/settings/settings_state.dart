@@ -30,6 +30,8 @@ class SettingsInitialized extends SettingsState {
 
   final bool playerAutoPlayNext;
 
+  final bool downloadWifiOnly;
+
   final bool loading;
 
   final ImportExportProgress? progress;
@@ -48,6 +50,7 @@ class SettingsInitialized extends SettingsState {
     this.playerHoldSpeed = kDefaultHoldSpeed,
     this.playerSkipOpeningSeconds = kDefaultSkipOpeningSeconds,
     this.playerAutoPlayNext = kDefaultAutoPlayNext,
+    this.downloadWifiOnly = false,
     this.loading = false,
     this.progress,
     this.outcome,
@@ -65,6 +68,7 @@ class SettingsInitialized extends SettingsState {
     double? playerHoldSpeed,
     int? playerSkipOpeningSeconds,
     bool? playerAutoPlayNext,
+    bool? downloadWifiOnly,
     bool? loading,
     ImportExportProgress? progress,
     bool clearProgress = false,
@@ -86,6 +90,7 @@ class SettingsInitialized extends SettingsState {
       playerSkipOpeningSeconds:
           playerSkipOpeningSeconds ?? this.playerSkipOpeningSeconds,
       playerAutoPlayNext: playerAutoPlayNext ?? this.playerAutoPlayNext,
+      downloadWifiOnly: downloadWifiOnly ?? this.downloadWifiOnly,
       loading: loading ?? this.loading,
       progress: clearProgress ? null : (progress ?? this.progress),
       outcome: clearOutcome ? null : (outcome ?? this.outcome),

@@ -538,6 +538,12 @@
       "count": {}
     }
   },
+  "downloads_runtime_settings_section_title": "Downloads",
+  "downloads_runtime_wifi_only_title": "Download over Wi-Fi only",
+  "downloads_runtime_wifi_only_subtitle": "Queued downloads wait until you are on Wi-Fi or ethernet",
+  "downloads_runtime_waiting_for_wifi": "Waiting for Wi-Fi",
+  "downloads_runtime_waiting_for_wifi_message": "Downloads resume automatically once you are back on Wi-Fi",
+  "downloads_runtime_app_must_stay_open": "Android stopped background downloading. Keep the app open until downloads finish.",
   "updates_notification_channel_name": "Library updates",
   "updates_notification_title": "{count} new items",
   "@updates_notification_title": {

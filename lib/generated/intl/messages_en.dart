@@ -595,6 +595,25 @@ class MessageLookup extends MessageLookupByLibrary {
       "Oldest first",
     ),
     "downloads_pages_progress": m26,
+    "downloads_runtime_app_must_stay_open": MessageLookupByLibrary.simpleMessage(
+      "Android stopped background downloading. Keep the app open until downloads finish.",
+    ),
+    "downloads_runtime_settings_section_title":
+        MessageLookupByLibrary.simpleMessage("Downloads"),
+    "downloads_runtime_waiting_for_wifi": MessageLookupByLibrary.simpleMessage(
+      "Waiting for Wi-Fi",
+    ),
+    "downloads_runtime_waiting_for_wifi_message":
+        MessageLookupByLibrary.simpleMessage(
+          "Downloads resume automatically once you are back on Wi-Fi",
+        ),
+    "downloads_runtime_wifi_only_subtitle":
+        MessageLookupByLibrary.simpleMessage(
+          "Queued downloads wait until you are on Wi-Fi or ethernet",
+        ),
+    "downloads_runtime_wifi_only_title": MessageLookupByLibrary.simpleMessage(
+      "Download over Wi-Fi only",
+    ),
     "downloads_status_downloading": MessageLookupByLibrary.simpleMessage(
       "Downloading",
     ),

@@ -16,6 +16,7 @@ class ExportedPreferences {
     SettingsService.checkUpdatesPrefsKey,
     SettingsService.updateNotificationsPrefsKey,
     SettingsService.updateFrequencyPrefsKey,
+    SettingsService.downloadWifiOnlyPrefsKey,
     GalleryLayoutPreferences.galleryKey,
     GalleryLayoutPreferences.libraryKey,
     DownloadsOrderPreferences.newestFirstKey,

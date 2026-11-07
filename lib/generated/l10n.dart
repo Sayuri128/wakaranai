@@ -3391,6 +3391,66 @@ class S {
     );
   }
 
+  /// `Downloads`
+  String get downloads_runtime_settings_section_title {
+    return Intl.message(
+      'Downloads',
+      name: 'downloads_runtime_settings_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download over Wi-Fi only`
+  String get downloads_runtime_wifi_only_title {
+    return Intl.message(
+      'Download over Wi-Fi only',
+      name: 'downloads_runtime_wifi_only_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Queued downloads wait until you are on Wi-Fi or ethernet`
+  String get downloads_runtime_wifi_only_subtitle {
+    return Intl.message(
+      'Queued downloads wait until you are on Wi-Fi or ethernet',
+      name: 'downloads_runtime_wifi_only_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiting for Wi-Fi`
+  String get downloads_runtime_waiting_for_wifi {
+    return Intl.message(
+      'Waiting for Wi-Fi',
+      name: 'downloads_runtime_waiting_for_wifi',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloads resume automatically once you are back on Wi-Fi`
+  String get downloads_runtime_waiting_for_wifi_message {
+    return Intl.message(
+      'Downloads resume automatically once you are back on Wi-Fi',
+      name: 'downloads_runtime_waiting_for_wifi_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Android stopped background downloading. Keep the app open until downloads finish.`
+  String get downloads_runtime_app_must_stay_open {
+    return Intl.message(
+      'Android stopped background downloading. Keep the app open until downloads finish.',
+      name: 'downloads_runtime_app_must_stay_open',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Library updates`
   String get updates_notification_channel_name {
     return Intl.message(

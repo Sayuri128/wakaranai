@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
+import 'package:wakaranai/ui/home/settings_page/download_runtime_settings_section.dart';
 import 'package:wakaranai/ui/home/settings_page/import_export_progress_overlay.dart';
 import 'package:wakaranai/ui/home/settings_page/sections/about_settings_section.dart';
 import 'package:wakaranai/ui/home/settings_page/sections/activity_settings_section.dart';
@@ -77,6 +78,7 @@ class SettingsPage extends StatelessWidget {
                     ),
                     ReaderSettingsSection(state: state),
                     PlayerSettingsSection(state: state),
+                    DownloadRuntimeSettingsSection(),
                     ContentSettingsSection(state: state),
                     if (kDebugMode) DeveloperSettingsSection(state: state),
                     UpdatesSettingsSection(state: state),
