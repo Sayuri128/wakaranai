@@ -1251,6 +1251,20 @@
   "settings_video_player_external": "External player",
   "external_player_action": "External player",
   "external_player_unavailable": "No external video player is installed. Playing in the built-in player instead.",
+  "extension_uninstall": "Uninstall",
+  "extension_uninstall_title": "Uninstall {name}?",
+  "@extension_uninstall_title": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "extension_uninstall_message": "Removes the downloaded script, its settings, stored data and sign-in. Library titles and downloads stay; opening one of them installs the extension again.",
+  "extension_uninstall_done": "{name} was uninstalled",
+  "@extension_uninstall_done": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "page_translation_translate_chapter_hint": "Translate every page in the background",
   "chapter_translation_cancel_all": "Cancel all",
   "chapter_translation_pause": "Pause",

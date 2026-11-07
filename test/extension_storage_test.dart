@@ -4,7 +4,9 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqlite3/sqlite3.dart';
+import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
+import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_storage_repository.dart';
 import 'package:wakaranai/services/configs_service/api_client_factory.dart';
 import 'package:wakaranai/services/extension_preferences/extension_host_services.dart';
@@ -161,5 +163,30 @@ void main() {
     expect(await repository.read('ext-a', 'token'), isNull);
     expect(await preferences.readAll('ext-a'), isEmpty);
     expect(await preferences.readAll('ext-b'), <String, Object>{'lang': 'en'});
+  });
+
+  test('uninstalling an extension removes its cached script and data', () async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    final ExtensionPreferencesStore preferences = ExtensionPreferencesStore();
+    final ExtensionRepository extensions =
+        ExtensionRepository(database: database);
+    await extensions.createUpdateByUid(ExtensionDomain(
+      id: 0,
+      config: _config('ext-a'),
+      sourceCode: 'script',
+      revision: 'r1',
+      createdAt: DateTime.now(),
+    ));
+    await preferences.write('ext-a', 'lang', 'ja');
+    await repository.write('ext-a', 'token', 'a');
+
+    await ExtensionDataCleaner(
+      storageRepository: repository,
+      preferenceStore: preferences,
+    ).uninstall('ext-a', extensionRepository: extensions);
+
+    expect(await extensions.getByUid('ext-a'), isNull);
+    expect(await repository.read('ext-a', 'token'), isNull);
+    expect(await preferences.readAll('ext-a'), isEmpty);
   });
 }

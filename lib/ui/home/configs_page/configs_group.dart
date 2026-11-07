@@ -8,6 +8,7 @@ import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_storage_repository.dart';
 import 'package:wakaranai/services/configs_service/extension_listing_status.dart';
 import 'package:wakaranai/services/extension_preferences/extension_host_services.dart';
@@ -15,6 +16,7 @@ import 'package:wakaranai/services/extension_preferences/extension_preference_va
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_settings/extension_settings_sheet.dart';
 import 'package:wakaranai/ui/widgets/action_sheet.dart';
+import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
@@ -271,10 +273,11 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
     final bool showSettings = allowSettings && hasExtensionSettings(config);
     final bool showSession = config.protectorConfig != null;
     final bool showClearData = await _hasStoredData(context, config);
+    final bool installed = await _isInstalled(context, config);
     if (!context.mounted) {
       return;
     }
-    if (!showSettings && !showSession && !showClearData) {
+    if (!showSettings && !showSession && !showClearData && !installed) {
       return;
     }
     await showActionSheet(
@@ -304,6 +307,16 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
                 onTap: () {
                   Navigator.of(sheetContext).pop();
                   unawaited(_clearStoredData(context, config));
+                },
+              ),
+            if (installed)
+              ActionSheetRow(
+                label: S.current.extension_uninstall,
+                icon: Icons.delete_forever_rounded,
+                destructive: true,
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  unawaited(_confirmUninstall(context, config));
                 },
               ),
           ],
@@ -339,6 +352,48 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
     } catch (e) {
       return false;
     }
+  }
+
+  Future<bool> _isInstalled(BuildContext context, ConfigInfo config) async {
+    try {
+      return await context.read<ExtensionRepository>().getByUid(config.uid) !=
+          null;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> _confirmUninstall(
+    BuildContext context,
+    ConfigInfo config,
+  ) async {
+    final String name = config.name.trim();
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) => ConfirmationDialog(
+        title: S.current.extension_uninstall_title(name),
+        message: S.current.extension_uninstall_message,
+        yesText: S.current.extension_uninstall,
+        noText: S.current.downloads_confirm_cancel,
+        destructive: true,
+      ),
+    );
+    if (confirmed != true || !context.mounted) {
+      return;
+    }
+    await ExtensionDataCleaner(storageRepository: _storageRepository(context))
+        .uninstall(
+      config.uid,
+      extensionRepository: context.read<ExtensionRepository>(),
+    );
+    await ProtectorStorageService().clearForConfig(config);
+    if (!context.mounted) {
+      return;
+    }
+    SnackBars.showSnackBar(
+      context: context,
+      message: S.current.extension_uninstall_done(name),
+    );
   }
 
   Future<void> _clearStoredData(BuildContext context, ConfigInfo config) async {

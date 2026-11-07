@@ -6666,6 +6666,46 @@ class S {
     );
   }
 
+  /// `Uninstall`
+  String get extension_uninstall {
+    return Intl.message(
+      'Uninstall',
+      name: 'extension_uninstall',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Uninstall {name}?`
+  String extension_uninstall_title(Object name) {
+    return Intl.message(
+      'Uninstall $name?',
+      name: 'extension_uninstall_title',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Removes the downloaded script, its settings, stored data and sign-in. Library titles and downloads stay; opening one of them installs the extension again.`
+  String get extension_uninstall_message {
+    return Intl.message(
+      'Removes the downloaded script, its settings, stored data and sign-in. Library titles and downloads stay; opening one of them installs the extension again.',
+      name: 'extension_uninstall_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{name} was uninstalled`
+  String extension_uninstall_done(Object name) {
+    return Intl.message(
+      '$name was uninstalled',
+      name: 'extension_uninstall_done',
+      desc: '',
+      args: [name],
+    );
+  }
+
   /// `Translate every page in the background`
   String get page_translation_translate_chapter_hint {
     return Intl.message(

@@ -2,6 +2,7 @@ import 'package:capyscript/api_clients/host/extension_host.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/preferences/extension_preference.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
+import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_storage_repository.dart';
 import 'package:wakaranai/services/configs_service/api_client_factory.dart';
 import 'package:wakaranai/services/extension_preferences/extension_preference_values.dart';
@@ -92,6 +93,17 @@ class ExtensionDataCleaner {
   Future<void> forgetExtension(String extensionUid) async {
     await storageRepository.clearExtension(extensionUid);
     await preferenceStore.clearExtension(extensionUid);
+  }
+
+  Future<void> uninstall(
+    String extensionUid, {
+    required ExtensionRepository extensionRepository,
+  }) async {
+    await extensionRepository.deleteBy<$ExtensionTableTable>(
+      extensionUid,
+      where: (tbl) => tbl.uid,
+    );
+    await forgetExtension(extensionUid);
   }
 }
 
