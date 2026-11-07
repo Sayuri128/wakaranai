@@ -83,11 +83,33 @@ class _RecordingNotifications extends DownloadNotificationService {
   Future<void> cancelProgress() async {}
 }
 
+class _GatedDownloadRepository extends DownloadRepository {
+  _GatedDownloadRepository({required super.database});
+
+  Completer<void>? lookupGate;
+  Completer<void>? lookupReached;
+
+  @override
+  Future<DownloadDomain?> getByUid(String uid) async {
+    final DownloadDomain? row = await super.getByUid(uid);
+    final Completer<void>? gate = lookupGate;
+    if (gate == null) {
+      return row;
+    }
+    lookupGate = null;
+    lookupReached?.complete();
+    await gate.future;
+    return row;
+  }
+}
+
 class _FakeSourceResolver implements EpisodeSourceResolver {
   _FakeSourceResolver({this.failure});
 
   final Object? failure;
   int calls = 0;
+  Completer<void>? gate;
+  final Completer<void> reached = Completer<void>();
 
   @override
   Future<PlayableVideo> resolve({
@@ -95,6 +117,13 @@ class _FakeSourceResolver implements EpisodeSourceResolver {
     required AnimeVideo episode,
   }) async {
     calls++;
+    if (!reached.isCompleted) {
+      reached.complete();
+    }
+    final Completer<void>? pending = gate;
+    if (pending != null) {
+      await pending.future;
+    }
     final Object? error = failure;
     if (error != null) {
       throw error;
@@ -208,7 +237,7 @@ void main() {
 
   late Directory tempDir;
   late WakaranaiDatabase db;
-  late DownloadRepository repository;
+  late _GatedDownloadRepository repository;
   late _RecordingNotifications notifications;
   late _FakeSourceResolver resolver;
   late _ScriptedDownloader downloader;
@@ -245,7 +274,7 @@ void main() {
     tempDir = Directory.systemTemp.createTempSync('wakaranai_episodes');
     PathProviderPlatform.instance = _FakePathProvider(tempDir.path);
     db = WakaranaiDatabase.forTesting(NativeDatabase.memory());
-    repository = DownloadRepository(database: db);
+    repository = _GatedDownloadRepository(database: db);
     notifications = _RecordingNotifications();
     cubit = buildCubit(behaviors: <_DownloadBehavior>[_succeeds]);
   });
@@ -504,6 +533,106 @@ void main() {
     expect(await repository.getByUid('e1'), isNull);
     expect(Directory(row.dirPath).existsSync(), isFalse);
     expect(notifications.completed, -1);
+  });
+
+  test('deleting while the job looks up its row downloads nothing', () async {
+    await cubit.close();
+    cubit = buildCubit(behaviors: <_DownloadBehavior>[
+      (_DownloadCall call) async {
+        await call.writePartial('seg0.ts');
+        return _hlsManifest;
+      },
+    ]);
+    await enqueue('e1', autoStart: false);
+    final DownloadDomain row = (await repository.getByUid('e1'))!;
+    final Completer<void> lookupGate = Completer<void>();
+    final Completer<void> lookupReached = Completer<void>();
+    repository.lookupGate = lookupGate;
+    repository.lookupReached = lookupReached;
+
+    cubit.startQueue();
+    await lookupReached.future.timeout(const Duration(seconds: 5));
+    final Future<void> deleting = cubit.deleteDownload(row);
+    lookupGate.complete();
+    await deleting;
+
+    expect(resolver.calls, 0);
+    expect(downloader.calls, isEmpty);
+    expect(await repository.getByUid('e1'), isNull);
+    expect(Directory(row.dirPath).existsSync(), isFalse);
+  });
+
+  test('deleting during source resolution downloads nothing', () async {
+    final Completer<void> resolveGate = Completer<void>();
+    resolver.gate = resolveGate;
+    await enqueue('e1');
+    await resolver.reached.future.timeout(const Duration(seconds: 5));
+    final DownloadDomain row = (await repository.getByUid('e1'))!;
+
+    final Future<void> deleting = cubit.deleteDownload(row);
+    resolveGate.complete();
+    await deleting;
+
+    expect(downloader.calls, isEmpty);
+    expect(await repository.getByUid('e1'), isNull);
+    expect(Directory(row.dirPath).existsSync(), isFalse);
+  });
+
+  test('deleting waits for the cancelled download to stop writing', () async {
+    final Completer<void> started = Completer<void>();
+    final Completer<void> finished = Completer<void>();
+    await cubit.close();
+    cubit = buildCubit(behaviors: <_DownloadBehavior>[
+      (_DownloadCall call) async {
+        try {
+          await call.writePartial('seg0.ts');
+          started.complete();
+          final DioException cancelled = await call.cancelToken.whenCancel;
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+          await call.writePartial('seg1.ts');
+          throw cancelled;
+        } finally {
+          finished.complete();
+        }
+      },
+    ]);
+
+    await enqueue('e1');
+    await started.future.timeout(const Duration(seconds: 5));
+    final DownloadDomain row = (await repository.getByUid('e1'))!;
+
+    await cubit.deleteDownload(row);
+    await finished.future.timeout(const Duration(seconds: 5));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+
+    expect(Directory(row.dirPath).existsSync(), isFalse);
+    expect(await repository.getByUid('e1'), isNull);
+    expect(notifications.completed, -1);
+  });
+
+  test('an episode deleted mid-download can be downloaded again', () async {
+    final Completer<void> started = Completer<void>();
+    await cubit.close();
+    cubit = buildCubit(behaviors: <_DownloadBehavior>[
+      (_DownloadCall call) async {
+        started.complete();
+        throw await call.cancelToken.whenCancel;
+      },
+      _succeeds,
+    ]);
+
+    await enqueue('e1');
+    await started.future.timeout(const Duration(seconds: 5));
+    await cubit.deleteDownload((await repository.getByUid('e1'))!);
+
+    await enqueue('e1');
+    final DownloadDomain? done =
+        await _awaitStatus(repository, 'e1', DownloadStatus.done);
+
+    expect(done!.status, DownloadStatus.done);
+    expect(downloader.calls, hasLength(2));
+    expect(downloader.calls.first.cancelToken.isCancelled, isTrue);
+    expect(downloader.calls.last.cancelToken.isCancelled, isFalse);
   });
 
   test('retrying an episode without its payload leaves it failed', () async {

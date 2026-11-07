@@ -38,8 +38,9 @@ typedef QualityPreferenceReader = Future<QualityPreference> Function();
 sealed class _DownloadJob {
   final String extensionUid;
   final String concreteTitle;
+  final Completer<void> _unwound = Completer<void>();
 
-  const _DownloadJob({
+  _DownloadJob({
     required this.extensionUid,
     required this.concreteTitle,
   });
@@ -47,6 +48,16 @@ sealed class _DownloadJob {
   String get uid;
 
   String get title;
+
+  Future<void> get unwound => _unwound.future;
+
+  void markUnwound() {
+    if (!_unwound.isCompleted) {
+      _unwound.complete();
+    }
+  }
+
+  void cancel() {}
 }
 
 class _ChapterJob extends _DownloadJob {
@@ -55,7 +66,7 @@ class _ChapterJob extends _DownloadJob {
   final String chapterTitle;
   final Map<String, dynamic>? data;
 
-  const _ChapterJob({
+  _ChapterJob({
     required this.client,
     required super.extensionUid,
     required super.concreteTitle,
@@ -73,8 +84,9 @@ class _ChapterJob extends _DownloadJob {
 
 class _EpisodeJob extends _DownloadJob {
   final AnimeVideo episode;
+  final CancelToken cancelToken = CancelToken();
 
-  const _EpisodeJob({
+  _EpisodeJob({
     required super.extensionUid,
     required super.concreteTitle,
     required this.episode,
@@ -85,6 +97,15 @@ class _EpisodeJob extends _DownloadJob {
 
   @override
   String get title => episode.title;
+
+  bool get isCancelled => cancelToken.isCancelled;
+
+  @override
+  void cancel() {
+    if (!cancelToken.isCancelled) {
+      cancelToken.cancel('deleted');
+    }
+  }
 }
 
 class _EpisodeProgressRecorder {
@@ -152,6 +173,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   static const int _rateLimitAttempts = 6;
   static const int _episodeSourceRefreshes = 2;
   static const Duration _libraryClientsIdleTimeout = Duration(minutes: 2);
+  static const Duration _jobUnwindTimeout = Duration(seconds: 10);
 
   final Dio _dio = createDio();
   final DownloadThrottle _throttle = DownloadThrottle();
@@ -164,6 +186,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   final Queue<_DownloadJob> _jobs = Queue<_DownloadJob>();
   final Set<String> _cancelled = <String>{};
   final Map<String, CancelToken> _inFlight = <String, CancelToken>{};
+  _DownloadJob? _activeJob;
   bool _processing = false;
   int _completedInBatch = 0;
   int _batchIndex = 0;
@@ -464,13 +487,13 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
           _cancelled.remove(job.uid);
           continue;
         }
-        _batchIndex++;
-        await _applyConfiguredPacing(job.extensionUid);
-        if (_batchIndex > 1) {
-          await _wait(_throttle.chapterDelay(job.extensionUid));
+        _activeJob = job;
+        try {
+          await _runActiveJob(job);
+        } finally {
+          _activeJob = null;
+          job.markUnwound();
         }
-        final bool completed = await _runJob(job);
-        if (completed) _completedInBatch++;
       }
     } finally {
       _processing = false;
@@ -483,6 +506,18 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
   }
 
+
+  Future<void> _runActiveJob(_DownloadJob job) async {
+    _batchIndex++;
+    await _applyConfiguredPacing(job.extensionUid);
+    if (_batchIndex > 1) {
+      await _wait(_throttle.chapterDelay(job.extensionUid));
+    }
+    final bool completed = await _runJob(job);
+    if (completed) {
+      _completedInBatch++;
+    }
+  }
 
   Future<void> _applyConfiguredPacing(String extensionUid) async {
     final ExtensionRepository? extensions = extensionRepository;
@@ -620,11 +655,15 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   }
 
   Future<bool> _runEpisodeJob(_EpisodeJob job) async {
+    if (job.isCancelled) {
+      return false;
+    }
     final DownloadDomain? row = await downloadRepository.getByUid(job.uid);
-    if (row == null) return false;
+    if (row == null || job.isCancelled) {
+      return false;
+    }
 
-    final CancelToken cancelToken = CancelToken();
-    _inFlight[job.uid] = cancelToken;
+    final CancelToken cancelToken = job.cancelToken;
     final _EpisodeProgressRecorder recorder = _EpisodeProgressRecorder(
       interval: _progressPersistInterval,
       publish: (EpisodeDownloadProgress progress) =>
@@ -654,8 +693,6 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       logger.e(s);
       await _markFailed(job.uid);
       return false;
-    } finally {
-      _inFlight.remove(job.uid);
     }
   }
 
@@ -703,8 +740,11 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     _EpisodeJob job,
     EpisodeDownloadManifest manifest,
   ) async {
+    if (job.isCancelled) {
+      return false;
+    }
     final DownloadDomain? current = await downloadRepository.getByUid(job.uid);
-    if (current == null) {
+    if (current == null || job.isCancelled) {
       return false;
     }
     await downloadRepository.update(current.copyWith(
@@ -855,11 +895,31 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   }
 
   Future<void> deleteDownload(DownloadDomain download) async {
-    _cancelled.add(download.uid);
-    _jobs.removeWhere((_DownloadJob j) => j.uid == download.uid);
-    _inFlight.remove(download.uid)?.cancel('deleted');
-    await downloadRepository.deleteByUid(download.uid);
+    final String uid = download.uid;
+    _cancelled.add(uid);
+    _jobs.removeWhere((_DownloadJob j) => j.uid == uid);
+    _inFlight.remove(uid)?.cancel('deleted');
+    final _DownloadJob? activeJob = _activeJob?.uid == uid ? _activeJob : null;
+    activeJob?.cancel();
+    await downloadRepository.deleteByUid(uid);
+    final bool unwound = await _waitForUnwind(activeJob);
     await _deleteDir(download.dirPath);
+    if (unwound) {
+      _cancelled.remove(uid);
+    }
+  }
+
+  Future<bool> _waitForUnwind(_DownloadJob? job) async {
+    if (job == null) {
+      return true;
+    }
+    try {
+      await job.unwound.timeout(_jobUnwindTimeout);
+      return true;
+    } on TimeoutException {
+      logger.w('Download ${job.uid} did not stop before its files were deleted');
+      return false;
+    }
   }
 
   Future<void> deleteForConcrete(String concreteUid) async {
