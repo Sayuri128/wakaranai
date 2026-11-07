@@ -3,6 +3,8 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/services/configs_service/extension_listing_status.dart';
+import 'package:wakaranai/ui/home/configs_page/extension_compatibility_texts.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -13,11 +15,15 @@ class ConfigCard extends StatelessWidget {
     this.onTap,
     this.onLongPress,
     required this.configInfo,
+    this.listingStatus = ExtensionListingStatus.available,
   });
 
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final ConfigInfo configInfo;
+  final ExtensionListingStatus listingStatus;
+
+  static const double _disabledOpacity = 0.5;
 
   static const Map<String, String> _logoHeaders = <String, String>{
     "user-agent":
@@ -40,18 +46,24 @@ class ConfigCard extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Row(
               children: <Widget>[
-                _buildLogo(context),
+                Opacity(
+                  opacity: _contentOpacity,
+                  child: _buildLogo(context),
+                ),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        configInfo.name.trim(),
-                        style: semibold(size: 16),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Opacity(
+                        opacity: _contentOpacity,
+                        child: Text(
+                          configInfo.name.trim(),
+                          style: semibold(size: 16),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       const SizedBox(height: 6),
                       Wrap(
@@ -66,18 +78,51 @@ class ConfigCard extends StatelessWidget {
                                 color: AppColors.red),
                         ],
                       ),
+                      ..._buildStatusMessage(),
                     ],
                   ),
                 ),
                 const SizedBox(width: 8),
-                Icon(Icons.chevron_right_rounded,
-                    color: AppColors.mainGrey),
+                _buildTrailingIcon(),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  double get _contentOpacity {
+    if (listingStatus.isDisabled) {
+      return _disabledOpacity;
+    }
+    return 1;
+  }
+
+  List<Widget> _buildStatusMessage() {
+    final String? message = extensionListingStatusMessage(listingStatus);
+    if (message == null) {
+      return const <Widget>[];
+    }
+    final Color color = listingStatus.isDisabled
+        ? AppColors.mainGrey
+        : AppColors.primary;
+    return <Widget>[
+      const SizedBox(height: 6),
+      Text(
+        message,
+        style: regular(size: 12, color: color),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+    ];
+  }
+
+  Widget _buildTrailingIcon() {
+    if (listingStatus.isDisabled) {
+      return Icon(Icons.system_update_rounded, color: AppColors.mainGrey);
+    }
+    return Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey);
   }
 
   Widget _buildLogo(BuildContext context) {

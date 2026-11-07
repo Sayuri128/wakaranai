@@ -3686,26 +3686,6 @@ class S {
     );
   }
 
-  /// `Needs app update`
-  String get compat_chip_requires_newer_app {
-    return Intl.message(
-      'Needs app update',
-      name: 'compat_chip_requires_newer_app',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Update needs newer app`
-  String get compat_chip_update_needs_newer_app {
-    return Intl.message(
-      'Update needs newer app',
-      name: 'compat_chip_update_needs_newer_app',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `This source needs extension API {required}, this app supports up to {supported}.`
   String compat_reason_api_version(Object required, Object supported) {
     return Intl.message(

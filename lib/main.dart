@@ -169,6 +169,7 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
             create: (BuildContext context) => RemoteConfigsCubit(
               extensionSourceRepository:
                   context.read<ExtensionSourceRepository>(),
+              extensionRepository: context.read<ExtensionRepository>(),
             )..init(),
           ),
           BlocProvider(

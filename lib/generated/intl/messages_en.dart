@@ -445,12 +445,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "common_go_back": MessageLookupByLibrary.simpleMessage("Go back"),
     "common_ok_button": MessageLookupByLibrary.simpleMessage("OK"),
     "common_save": MessageLookupByLibrary.simpleMessage("Save"),
-    "compat_chip_requires_newer_app": MessageLookupByLibrary.simpleMessage(
-      "Needs app update",
-    ),
-    "compat_chip_update_needs_newer_app": MessageLookupByLibrary.simpleMessage(
-      "Update needs newer app",
-    ),
     "compat_download_latest_app": MessageLookupByLibrary.simpleMessage(
       "Download the latest app version",
     ),

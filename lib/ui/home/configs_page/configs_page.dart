@@ -162,12 +162,14 @@ class ConfigPage extends StatelessWidget {
           key: const ValueKey<String>('manga'),
           title: S.current.home_manga_group_title,
           remoteConfigs: mangaConfigs,
+          listingStatusOf: state.listingStatusOf,
         ),
       if (animeConfigs.isNotEmpty)
         ConfigsGroup(
           key: const ValueKey<String>('anime'),
           title: S.current.home_anime_group_title,
           remoteConfigs: animeConfigs,
+          listingStatusOf: state.listingStatusOf,
         ),
       const SliverToBoxAdapter(child: SizedBox(height: 24)),
     ];
