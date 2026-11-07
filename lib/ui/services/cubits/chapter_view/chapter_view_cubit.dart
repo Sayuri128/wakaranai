@@ -208,7 +208,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     } catch (e, s) {
       logger.e(e);
       logger.e(s);
-      emit(ChapterViewError(message: e.toString()));
+      emit(ChapterViewError(message: e.toString(), error: e));
     }
   }
 

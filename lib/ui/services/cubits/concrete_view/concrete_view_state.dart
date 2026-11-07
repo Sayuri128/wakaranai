@@ -72,10 +72,14 @@ class ConcreteViewInitialized<
 class ConcreteViewError<T extends ApiClient, C extends ConcreteView,
     G extends GalleryView> extends ConcreteViewState<T, C, G> {
   final String message;
+  final Object? error;
+  final bool hasOfflineData;
 
   const ConcreteViewError({
     required this.message,
     required super.apiClient,
     required super.configInfo,
+    this.error,
+    this.hasOfflineData = false,
   });
 }

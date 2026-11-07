@@ -101,6 +101,7 @@ class ChapterViewInitialized extends ChapterViewState {
 
 class ChapterViewError extends ChapterViewState {
   final String message;
+  final Object? error;
 
-  const ChapterViewError({required this.message});
+  const ChapterViewError({required this.message, this.error});
 }

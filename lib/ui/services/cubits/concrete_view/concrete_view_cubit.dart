@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/api_clients/source_error.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
@@ -20,6 +21,7 @@ import 'package:wakaranai/repositories/database/anime_episode_activity_repositor
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/utils/serial_call_queue.dart';
+import 'package:wakaranai/utils/source_error_description.dart';
 
 part 'concrete_view_state.dart';
 
@@ -96,17 +98,51 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView,
       logger.e(e);
       logger.e(s);
 
+      if (findSourceError(e)?.kind == SourceErrorKind.notFound) {
+        await _emitRemovedFromSource(uid, e);
+        return;
+      }
+
       final bool loadedOffline = await _tryLoadOffline(uid, galleryData);
       if (loadedOffline) return;
 
       emit(
         ConcreteViewError<T, C, G>(
           message: e.toString(),
+          error: e,
           apiClient: state.apiClient,
           configInfo: state.configInfo,
         ),
       );
     }
+  }
+
+  Future<void> _emitRemovedFromSource(String uid, Object error) async {
+    final bool hasOfflineData = await _hasOfflineData(uid);
+    emit(
+      ConcreteViewError<T, C, G>(
+        message: error.toString(),
+        error: error,
+        hasOfflineData: hasOfflineData,
+        apiClient: state.apiClient,
+        configInfo: state.configInfo,
+      ),
+    );
+  }
+
+  Future<bool> _hasOfflineData(String uid) async {
+    try {
+      final ConcreteDataDomain? cached =
+          await concreteDataRepository.getByUid(uid);
+      return cached?.concreteJson != null;
+    } catch (e) {
+      logger.w('Failed to look up saved details for $uid: $e');
+      return false;
+    }
+  }
+
+  Future<bool> openOffline(String uid, Map<String, dynamic> galleryData) {
+    return _tryLoadOffline(uid, galleryData);
   }
 
   Future<bool> _tryLoadOffline(

@@ -20,8 +20,10 @@ import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
 import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
 import 'package:wakaranai/ui/widgets/selection_action_bar.dart';
+import 'package:wakaranai/ui/widgets/source_error_view.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/heroes.dart';
+import 'package:wakaranai/utils/source_error_description.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
@@ -253,8 +255,68 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
     );
   }
 
+  void _retryConcrete(BuildContext context) {
+    final ConcreteViewCubit<T, C, G> cubit = getConcreteViewCubit(context);
+    unawaited(BrowserInterceptorScope.retry(
+      context,
+      () => cubit.getConcrete(concreteUid, galleryData, forceRemote: true),
+    ));
+  }
+
+  Widget _buildSourceErrorMessage(
+    BuildContext context,
+    ConcreteViewError<T, C, G> state,
+    SourceErrorDescription description,
+  ) {
+    final ConcreteViewCubit<T, C, G> cubit = getConcreteViewCubit(context);
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.6,
+      child: BlocBuilder<LibraryCubit, LibraryState>(
+        builder: (BuildContext context, LibraryState libraryState) {
+          final bool inLibrary = libraryState.entries
+              .any((LibraryEntryDomain entry) => entry.uid == concreteUid);
+          return SourceErrorView(
+            description: description,
+            onRetry: () => _retryConcrete(context),
+            onSignIn: () => unawaited(
+              signInToSource(
+                context,
+                apiClient: client,
+                configInfo: configInfo,
+                onSignedIn: () => cubit.getConcrete(concreteUid, galleryData,
+                    forceRemote: true),
+              ),
+            ),
+            extraActions: <SourceErrorExtraAction>[
+              if (description.isNotFound && state.hasOfflineData)
+                SourceErrorExtraAction(
+                  icon: Icons.inventory_2_outlined,
+                  label: S.current.source_error_open_saved_button,
+                  onPressed: () =>
+                      unawaited(cubit.openOffline(concreteUid, galleryData)),
+                ),
+              if (description.isNotFound && inLibrary)
+                SourceErrorExtraAction(
+                  icon: Icons.heart_broken_outlined,
+                  label: S.current.source_error_remove_from_library_button,
+                  onPressed: () => unawaited(context
+                      .read<LibraryCubit>()
+                      .removeFromLibrary(concreteUid)),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildErrorMessage(
       BuildContext context, ConcreteViewError<T, C, G> state) {
+    final SourceErrorDescription? description =
+        describeSourceErrorFor(state.error, configInfo);
+    if (description != null) {
+      return _buildSourceErrorMessage(context, state, description);
+    }
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.6,
       child: ServiceViewerMessage(
@@ -271,15 +333,7 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14)),
             ),
-            onPressed: () {
-              final ConcreteViewCubit<T, C, G> cubit =
-                  getConcreteViewCubit(context);
-              unawaited(BrowserInterceptorScope.retry(
-                context,
-                () => cubit.getConcrete(concreteUid, galleryData,
-                    forceRemote: true),
-              ));
-            },
+            onPressed: () => _retryConcrete(context),
             icon: const Icon(Icons.refresh_rounded),
             label: Text(S.current.concrete_viewer_retry_button),
           ),

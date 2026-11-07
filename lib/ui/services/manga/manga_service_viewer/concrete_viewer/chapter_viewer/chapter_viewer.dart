@@ -49,7 +49,9 @@ import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer
 import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/translation_glossary_sheet.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
+import 'package:wakaranai/ui/widgets/source_error_view.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/source_error_description.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/reader_controls.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/reader_horizontal_gestures.dart';
@@ -143,18 +145,23 @@ class _ChapterViewerState extends State<ChapterViewer>
           chapterActivityRepository: context.read<ChapterActivityRepository>(),
           concreteDataRepository: context.read<ConcreteDataRepository>(),
           downloadRepository: context.read<DownloadRepository>(),
-        )..init(
-          widget.data,
-          pagesLoaded: (int current, int total) {
-            final ChapterViewState state = _chapterViewCubit.state;
-            if (state is ChapterViewInitialized) {
-              _prefetchAround(state, current - 1);
-            }
-            if (mounted) {
-              setState(() {});
-            }
-          },
         );
+    _openChapter();
+  }
+
+  void _openChapter() {
+    unawaited(_chapterViewCubit.init(
+      widget.data,
+      pagesLoaded: (int current, int total) {
+        final ChapterViewState state = _chapterViewCubit.state;
+        if (state is ChapterViewInitialized) {
+          _prefetchAround(state, current - 1);
+        }
+        if (mounted) {
+          setState(() {});
+        }
+      },
+    ));
   }
 
   @override
@@ -281,11 +288,7 @@ class _ChapterViewerState extends State<ChapterViewer>
         } else if (state is ChapterViewError) {
           return Stack(
             children: <Widget>[
-              ServiceViewerMessage(
-                icon: Icons.error_outline_rounded,
-                title: S.current.concrete_viewer_error_title,
-                message: state.message,
-              ),
+              _buildErrorMessage(context, state),
               Positioned(
                 top: 0,
                 left: 0,
@@ -307,6 +310,32 @@ class _ChapterViewerState extends State<ChapterViewer>
           );
         }
       },
+    );
+  }
+
+  Widget _buildErrorMessage(BuildContext context, ChapterViewError state) {
+    final SourceErrorDescription? description = describeSourceErrorFor(
+      state.error,
+      widget.data.configInfo,
+    );
+    if (description == null) {
+      return ServiceViewerMessage(
+        icon: Icons.error_outline_rounded,
+        title: S.current.concrete_viewer_error_title,
+        message: state.message,
+      );
+    }
+    return SourceErrorView(
+      description: description,
+      onRetry: _openChapter,
+      onSignIn: () => unawaited(
+        signInToSource(
+          context,
+          apiClient: widget.data.apiClient,
+          configInfo: widget.data.configInfo,
+          onSignedIn: _openChapter,
+        ),
+      ),
     );
   }
 
