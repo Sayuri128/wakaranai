@@ -123,7 +123,15 @@ class _NativePlayerState extends State<NativePlayer> {
         ],
         child: BlocBuilder<NativePlayerCubit, NativePlayerState>(
           builder: (BuildContext context, NativePlayerState state) {
-            return _buildForState(context, state);
+            return PopScope(
+              canPop: !state.switchingEpisode,
+              onPopInvokedWithResult: (bool didPop, Object? result) {
+                if (!didPop) {
+                  _cancelSwitch(context);
+                }
+              },
+              child: _buildForState(context, state),
+            );
           },
         ),
       ),
@@ -179,6 +187,10 @@ class _NativePlayerState extends State<NativePlayer> {
     Navigator.of(context).maybePop();
   }
 
+  void _cancelSwitch(BuildContext context) {
+    unawaited(context.read<NativePlayerCubit>().cancelSwitch());
+  }
+
   void _openInWebPlayer(EpisodePlaylist position) {
     _leaveWith(OpenInWebPlayer(position));
   }
@@ -194,20 +206,20 @@ class _NativePlayerState extends State<NativePlayer> {
   Widget _buildForState(BuildContext context, NativePlayerState state) {
     switch (state.status) {
       case NativePlayerStatus.loading:
-        return _buildLoading(state.playlist.current.title);
+        return _buildLoading(context, state);
       case NativePlayerStatus.error:
         return _buildError(context, state);
       case NativePlayerStatus.ready:
-        return _buildPlayer(state);
+        return _buildPlayer(context, state);
     }
   }
 
-  Widget _buildLoading(String episodeTitle) {
+  Widget _buildLoading(BuildContext context, NativePlayerState state) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
         children: <Widget>[
-          Center(child: _buildLoadingContent(episodeTitle)),
+          Center(child: _buildLoadingContent(state.playlist.current.title)),
           Positioned(
             left: 16,
             bottom: 16,
@@ -220,8 +232,32 @@ class _NativePlayerState extends State<NativePlayer> {
               ),
             ),
           ),
+          if (state.switchingEpisode)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 16,
+              child: SafeArea(
+                child: Center(child: _buildCancelSwitchButton(context)),
+              ),
+            ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCancelSwitchButton(BuildContext context) {
+    return TextButton.icon(
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.onMedia,
+        backgroundColor: AppColors.onMedia.withValues(alpha: 0.12),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: medium(size: 14),
+      ),
+      onPressed: () => _cancelSwitch(context),
+      icon: const Icon(Icons.close_rounded, size: 20),
+      label: Text(S.of(context).native_player_cancel_switch),
     );
   }
 
@@ -308,10 +344,10 @@ class _NativePlayerState extends State<NativePlayer> {
     ];
   }
 
-  Widget _buildPlayer(NativePlayerState state) {
+  Widget _buildPlayer(BuildContext context, NativePlayerState state) {
     final NativePlayerEngine? engine = state.engine;
     if (engine == null) {
-      return _buildLoading(state.playlist.current.title);
+      return _buildLoading(context, state);
     }
     return Scaffold(
       backgroundColor: Colors.black,

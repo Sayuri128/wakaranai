@@ -25,6 +25,7 @@ class NativePlayerState extends Equatable {
     this.skipOpeningSeconds = kDefaultSkipOpeningSeconds,
     this.autoNextSecondsLeft,
     this.isPlaying = false,
+    this.switchingEpisode = false,
     this.errorMessage,
   });
 
@@ -49,6 +50,7 @@ class NativePlayerState extends Equatable {
   final int skipOpeningSeconds;
   final int? autoNextSecondsLeft;
   final bool isPlaying;
+  final bool switchingEpisode;
   final String? errorMessage;
 
   double get effectiveSpeed {
@@ -82,6 +84,7 @@ class NativePlayerState extends Equatable {
     int? skipOpeningSeconds,
     ValueGetter<int?>? autoNextSecondsLeft,
     bool? isPlaying,
+    bool? switchingEpisode,
     ValueGetter<String?>? errorMessage,
   }) {
     return NativePlayerState(
@@ -112,6 +115,7 @@ class NativePlayerState extends Equatable {
           ? autoNextSecondsLeft()
           : this.autoNextSecondsLeft,
       isPlaying: isPlaying ?? this.isPlaying,
+      switchingEpisode: switchingEpisode ?? this.switchingEpisode,
       errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
     );
   }
@@ -139,6 +143,7 @@ class NativePlayerState extends Equatable {
         skipOpeningSeconds,
         autoNextSecondsLeft,
         isPlaying,
+        switchingEpisode,
         errorMessage,
       ];
 }

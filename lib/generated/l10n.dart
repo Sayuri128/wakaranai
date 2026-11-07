@@ -5998,6 +5998,16 @@ class S {
     );
   }
 
+  /// `Cancel`
+  String get native_player_cancel_switch {
+    return Intl.message(
+      'Cancel',
+      name: 'native_player_cancel_switch',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Previous episode`
   String get player_previous_episode {
     return Intl.message(

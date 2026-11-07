@@ -793,6 +793,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "native_player_auto_next_play_now": MessageLookupByLibrary.simpleMessage(
       "Play now",
     ),
+    "native_player_cancel_switch": MessageLookupByLibrary.simpleMessage(
+      "Cancel",
+    ),
     "native_player_debug_action": MessageLookupByLibrary.simpleMessage(
       "Play URL in native player",
     ),

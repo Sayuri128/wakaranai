@@ -11,6 +11,7 @@ import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playback_resolver.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
+import 'package:wakaranai/ui/services/anime/native_player/cubit/parked_episode.dart';
 import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store.dart';
 import 'package:wakaranai/ui/services/anime/native_player/native_player_engine.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_quality.dart';
@@ -81,6 +82,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
   PlayableVideo _video;
   EpisodeProgressStore _progressStore;
   NativePlayerEngine? _engine;
+  ParkedEpisode? _parkedEpisode;
   ClosedCaptionFile? _captionFile;
   Timer? _progressTimer;
   Timer? _autoNextTimer;
@@ -165,7 +167,9 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     }
     switch (plan) {
       case WebPlaybackPlan():
+        _finishSwitch();
         emit(state.copyWith(
+          switchingEpisode: false,
           webPlayerRequest: () => OpenInWebPlayer(
             target,
             showFallbackNotice: plan.shouldNotifyUser,
@@ -174,6 +178,29 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       case NativePlaybackPlan():
         await _startEpisode(target, plan.video, generation);
     }
+  }
+
+  Future<bool> cancelSwitch() async {
+    final ParkedEpisode? parked = _parkedEpisode;
+    if (parked == null || isClosed) {
+      return false;
+    }
+    _parkedEpisode = null;
+    _episodeGeneration++;
+    _openGeneration++;
+    _subtitleGeneration++;
+    _resetCompletion();
+    final NativePlayerEngine? abandonedEngine = _detachEngine();
+    _restoreParkedFields(parked);
+    final NativePlayerEngine? parkedEngine = parked.engine;
+    if (parkedEngine == null) {
+      await _reopenParkedEpisode(parked, abandonedEngine);
+      return true;
+    }
+    _resumeParkedEngine(parked, parkedEngine);
+    await _disposeEngine(abandonedEngine);
+    await _restoreParkedPlayback(parked, parkedEngine);
+    return true;
   }
 
   Future<void> retry() async {
@@ -413,6 +440,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     _subtitleGeneration++;
     _episodeGeneration++;
     await saveProgress();
+    _finishSwitch();
     await _releaseEngine();
     return super.close();
   }
@@ -422,11 +450,18 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     _openGeneration++;
     _subtitleGeneration++;
     _resetCompletion();
-    await saveProgress();
-    await _releaseEngine();
-    if (_isStaleEpisode(generation)) {
-      return generation;
+    final ParkedEpisode? newlyParked =
+        _parkedEpisode == null ? _parkCurrentEpisode() : null;
+    final NativePlayerEngine? abandonedEngine = _detachEngine();
+    _emitSwitchingTo(target);
+    if (newlyParked != null) {
+      await _settleParkedEpisode(newlyParked);
     }
+    await _disposeEngine(abandonedEngine);
+    return generation;
+  }
+
+  void _emitSwitchingTo(EpisodePlaylist target) {
     emit(state.copyWith(
       playlist: target,
       status: NativePlayerStatus.loading,
@@ -441,8 +476,163 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       subtitleLoading: false,
       subtitleFailed: false,
       errorMessage: () => null,
+      switchingEpisode: true,
     ));
-    return generation;
+  }
+
+  ParkedEpisode _parkCurrentEpisode() {
+    final NativePlayerEngine? currentEngine = _engine;
+    final bool parkable =
+        currentEngine != null && state.status == NativePlayerStatus.ready;
+    final NativePlayerEngine? parkedEngine = parkable ? currentEngine : null;
+    final ParkedEpisode parked = ParkedEpisode(
+      playlist: state.playlist,
+      watchedEpisodeUids: state.watchedEpisodeUids,
+      video: _video,
+      progressStore: _progressStore,
+      engine: parkedEngine,
+      wasPlaying: parkedEngine?.value.isPlaying ?? false,
+      position: _currentPosition(),
+      progress: _progressOf(currentEngine),
+      streamIndex: state.streamIndex,
+      renditions: state.renditions,
+      selectedRenditionId: state.selectedRenditionId,
+      subtitleIndex: state.subtitleIndex,
+      captionFile: _captionFile,
+      savedProgress: _savedProgress,
+      lastPersistedProgress: _lastPersistedProgress,
+    );
+    if (parkedEngine != null) {
+      _detachEngine();
+    }
+    _parkedEpisode = parked;
+    return parked;
+  }
+
+  Future<void> _settleParkedEpisode(ParkedEpisode parked) async {
+    final NativePlayerEngine? parkedEngine = parked.engine;
+    if (parkedEngine != null) {
+      await _pauseQuietly(parkedEngine);
+    }
+    _pendingSave = _pendingSave.then((_) => _persistParkedProgress(parked));
+    await _pendingSave;
+  }
+
+  Future<void> _pauseQuietly(NativePlayerEngine parkedEngine) async {
+    try {
+      await parkedEngine.pause();
+    } catch (error) {
+      logger.w('Failed to pause the previous episode: $error');
+    }
+  }
+
+  Future<void> _persistParkedProgress(ParkedEpisode parked) async {
+    final EpisodeProgress? progress = parked.progress;
+    if (progress == null || progress == parked.lastPersistedProgress) {
+      return;
+    }
+    try {
+      await parked.progressStore.save(progress);
+      parked.lastPersistedProgress = progress;
+    } catch (error, stackTrace) {
+      logger.e('Failed to save episode progress: $error');
+      logger.e(stackTrace);
+    }
+  }
+
+  void _finishSwitch() {
+    final ParkedEpisode? parked = _parkedEpisode;
+    if (parked == null) {
+      return;
+    }
+    _parkedEpisode = null;
+    unawaited(_disposeEngine(parked.engine));
+  }
+
+  NativePlayerEngine? _detachEngine() {
+    final NativePlayerEngine? detachedEngine = _engine;
+    _engine = null;
+    detachedEngine?.removeListener(_onEngineValueChanged);
+    return detachedEngine;
+  }
+
+  void _restoreParkedFields(ParkedEpisode parked) {
+    _video = parked.video;
+    _progressStore = parked.progressStore;
+    _savedProgress = parked.savedProgress;
+    _lastPersistedProgress = parked.lastPersistedProgress;
+    _lastKnownPosition = parked.position;
+    _captionFile = parked.captionFile;
+  }
+
+  void _resumeParkedEngine(
+    ParkedEpisode parked,
+    NativePlayerEngine parkedEngine,
+  ) {
+    _engine = parkedEngine;
+    parkedEngine.addListener(_onEngineValueChanged);
+    _completionHandled = parkedEngine.value.isCompleted;
+    emit(state.copyWith(
+      playlist: parked.playlist,
+      watchedEpisodeUids: parked.watchedEpisodeUids,
+      status: NativePlayerStatus.ready,
+      engine: () => parkedEngine,
+      engineGeneration: state.engineGeneration + 1,
+      streamIndex: parked.streamIndex,
+      renditions: parked.renditions,
+      selectedRenditionId: () => parked.selectedRenditionId,
+      subtitleIndex: () => parked.subtitleIndex,
+      subtitleLoading: false,
+      subtitleFailed: false,
+      isPlaying: parkedEngine.value.isPlaying,
+      errorMessage: () => null,
+      switchingEpisode: false,
+    ));
+  }
+
+  Future<void> _restoreParkedPlayback(
+    ParkedEpisode parked,
+    NativePlayerEngine parkedEngine,
+  ) async {
+    if (parkedEngine.value.playbackSpeed != state.playbackSpeed) {
+      await _trySetSpeed(parkedEngine, state.playbackSpeed);
+    }
+    if (_engine != parkedEngine) {
+      return;
+    }
+    if (parked.wasPlaying && !parkedEngine.value.isCompleted) {
+      await parkedEngine.play();
+    }
+    final int? subtitleIndex = parked.subtitleIndex;
+    if (subtitleIndex != null && parked.captionFile == null) {
+      await _applySubtitle(subtitleIndex);
+    }
+  }
+
+  Future<void> _reopenParkedEpisode(
+    ParkedEpisode parked,
+    NativePlayerEngine? abandonedEngine,
+  ) async {
+    emit(state.copyWith(
+      playlist: parked.playlist,
+      watchedEpisodeUids: parked.watchedEpisodeUids,
+      switchingEpisode: false,
+    ));
+    await _disposeEngine(abandonedEngine);
+    final int generation = _episodeGeneration;
+    await _openStream(
+      parked.streamIndex,
+      startPosition: parked.position > Duration.zero ? parked.position : null,
+      savedProgress: parked.savedProgress,
+      autoPlay: true,
+    );
+    if (_isStaleEpisode(generation)) {
+      return;
+    }
+    final int? subtitleIndex = parked.subtitleIndex;
+    if (subtitleIndex != null && state.status == NativePlayerStatus.ready) {
+      await _applySubtitle(subtitleIndex);
+    }
   }
 
   Future<EpisodePlaybackPlan> _resolveSafely(
@@ -718,11 +908,13 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     if (generation != _openGeneration || isClosed) {
       return;
     }
+    _finishSwitch();
     emit(state.copyWith(
       status: NativePlayerStatus.ready,
       engine: () => openedEngine,
       engineGeneration: state.engineGeneration + 1,
       isPlaying: openedEngine.value.isPlaying,
+      switchingEpisode: false,
     ));
   }
 
@@ -859,7 +1051,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
   }
 
   Future<void> _persistProgress() async {
-    final EpisodeProgress? progress = _currentProgress();
+    final EpisodeProgress? progress = _progressOf(_engine);
     if (progress == null || progress == _lastPersistedProgress) {
       return;
     }
@@ -872,12 +1064,11 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     }
   }
 
-  EpisodeProgress? _currentProgress() {
-    final NativePlayerEngine? currentEngine = _engine;
-    if (currentEngine == null) {
+  EpisodeProgress? _progressOf(NativePlayerEngine? playbackEngine) {
+    if (playbackEngine == null) {
       return null;
     }
-    final VideoPlayerValue value = currentEngine.value;
+    final VideoPlayerValue value = playbackEngine.value;
     if (!value.isInitialized || value.duration <= Duration.zero) {
       return null;
     }
@@ -954,15 +1145,16 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     await _engine?.setClosedCaptionFile(null);
   }
 
-  Future<void> _releaseEngine() async {
-    final NativePlayerEngine? releasedEngine = _engine;
-    if (releasedEngine == null) {
+  Future<void> _releaseEngine() {
+    return _disposeEngine(_detachEngine());
+  }
+
+  Future<void> _disposeEngine(NativePlayerEngine? disposedEngine) async {
+    if (disposedEngine == null) {
       return;
     }
-    _engine = null;
-    releasedEngine.removeListener(_onEngineValueChanged);
     try {
-      await releasedEngine.dispose();
+      await disposedEngine.dispose();
     } catch (error) {
       logger.w('Failed to dispose native player engine: $error');
     }
@@ -972,11 +1164,13 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     if (isClosed) {
       return;
     }
+    _finishSwitch();
     emit(state.copyWith(
       status: NativePlayerStatus.error,
       engine: () => null,
       isPlaying: false,
       errorMessage: () => message,
+      switchingEpisode: false,
     ));
   }
 }

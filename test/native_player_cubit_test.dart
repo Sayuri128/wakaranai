@@ -28,10 +28,12 @@ class _FakeEngine extends ValueNotifier<VideoPlayerValue>
     this.maxSupportedSpeed = 8.0,
     this.tracks = const <VideoTrack>[],
     this.supportsVideoTracks = true,
+    this.initializeGate,
   }) : super(const VideoPlayerValue.uninitialized());
 
   final PlayableStream stream;
   final bool failOnInitialize;
+  final Completer<void>? initializeGate;
   final double maxSupportedSpeed;
   final List<VideoTrack> tracks;
   final List<VideoTrack?> trackSelections = <VideoTrack?>[];
@@ -43,6 +45,10 @@ class _FakeEngine extends ValueNotifier<VideoPlayerValue>
 
   @override
   Future<void> initialize() async {
+    final Completer<void>? gate = initializeGate;
+    if (gate != null) {
+      await gate.future;
+    }
     if (failOnInitialize) {
       throw Exception('source unavailable');
     }
@@ -269,6 +275,10 @@ class _Harness {
   final List<_FakeEngine> engines = <_FakeEngine>[];
   final Map<String, _FakeProgressStore> stores = <String, _FakeProgressStore>{};
   final List<String> resolvedUids = <String>[];
+  final Map<String, Completer<void>> resolveGates =
+      <String, Completer<void>>{};
+  final Map<String, Completer<void>> initializeGates =
+      <String, Completer<void>>{};
   final bool hasNextEpisode;
   final double maxSupportedSpeed;
   final String startUid;
@@ -315,6 +325,10 @@ class _Harness {
   Future<EpisodePlaybackPlan> _resolve(EpisodePlaylist target) async {
     final String uid = target.current.uid;
     resolvedUids.add(uid);
+    final Completer<void>? gate = resolveGates[uid];
+    if (gate != null) {
+      await gate.future;
+    }
     if (webOnlyUids.contains(uid)) {
       return const WebPlaybackPlan(WebPlaybackReason.failed);
     }
@@ -335,6 +349,7 @@ class _Harness {
       maxSupportedSpeed: maxSupportedSpeed,
       tracks: tracksFor?.call(stream) ?? const <VideoTrack>[],
       supportsVideoTracks: supportsVideoTracks,
+      initializeGate: initializeGates[stream.url],
     );
     engines.add(engine);
     return engine;
@@ -1093,6 +1108,201 @@ void main() {
 
       expect(cubit.state.playlist.current.uid, 'a1');
       expect(harness.engines, hasLength(1));
+      await cubit.close();
+    });
+  });
+
+  group('cancelling an episode switch', () {
+    test('back while the next episode resolves resumes the previous one',
+        () async {
+      final _Harness harness = _Harness(hasNextEpisode: true);
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      final _FakeEngine firstEngine = harness.engines.single;
+      await cubit.seekTo(const Duration(minutes: 7));
+      final Completer<void> resolving = Completer<void>();
+      harness.resolveGates['a2'] = resolving;
+
+      final Future<void> switching = cubit.playNext();
+      await pumpEventQueue();
+
+      expect(cubit.state.switchingEpisode, isTrue);
+      expect(cubit.state.status, NativePlayerStatus.loading);
+      expect(cubit.state.playlist.current.uid, 'a2');
+      expect(firstEngine.value.isPlaying, isFalse);
+      expect(firstEngine.disposed, isFalse);
+
+      expect(await cubit.cancelSwitch(), isTrue);
+
+      expect(cubit.state.switchingEpisode, isFalse);
+      expect(cubit.state.status, NativePlayerStatus.ready);
+      expect(cubit.state.playlist.current.uid, 'a1');
+      expect(cubit.state.engine, same(firstEngine));
+      expect(firstEngine.value.position, const Duration(minutes: 7));
+      expect(firstEngine.value.isPlaying, isTrue);
+      expect(cubit.state.isPlaying, isTrue);
+      expect(cubit.state.watchedEpisodeUids, isNot(contains('a2')));
+
+      resolving.complete();
+      await switching;
+      await pumpEventQueue();
+
+      expect(cubit.state.playlist.current.uid, 'a1');
+      expect(cubit.state.engine, same(firstEngine));
+      expect(harness.engines, hasLength(1));
+      expect(harness.stores['a2'], isNull);
+      expect(firstEngine.disposed, isFalse);
+
+      await cubit.seekTo(const Duration(minutes: 9));
+      await cubit.close();
+      expect(
+        harness.stores['a1']!.saved.last,
+        const EpisodeProgress(watchedSeconds: 540, totalSeconds: 1440),
+      );
+      expect(firstEngine.disposed, isTrue);
+    });
+
+    test('the previous episode keeps its stream, rendition, speed and subtitle',
+        () async {
+      final _Harness harness = _Harness(
+        hasNextEpisode: true,
+        videoFor: _codecStreamsVideo,
+        tracksFor: _ladder,
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      await cubit.setPlaybackSpeed(1.5);
+      await cubit.selectQuality(1);
+      await cubit.selectRendition(cubit.state.renditions[1]);
+      final _FakeEngine previousEngine = harness.engines.last;
+      final Completer<void> resolving = Completer<void>();
+      harness.resolveGates['a2'] = resolving;
+
+      final Future<void> switching = cubit.playNext();
+      await pumpEventQueue();
+      await cubit.cancelSwitch();
+      resolving.complete();
+      await switching;
+
+      expect(cubit.state.engine, same(previousEngine));
+      expect(cubit.state.streamIndex, 1);
+      expect(cubit.state.renditions, hasLength(3));
+      expect(cubit.state.selectedRenditionId, '0_1');
+      expect(cubit.state.playbackSpeed, 1.5);
+      expect(previousEngine.value.playbackSpeed, 1.5);
+      expect(cubit.video.streams.first.url, 'https://cdn.test/a1/h265.m3u8');
+      await cubit.close();
+    });
+
+    test('the previous episode keeps its subtitle', () async {
+      final _Harness harness = _Harness(hasNextEpisode: true);
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      await cubit.selectSubtitle(0);
+      final Completer<void> resolving = Completer<void>();
+      harness.resolveGates['a2'] = resolving;
+
+      final Future<void> switching = cubit.playNext();
+      await pumpEventQueue();
+      await cubit.cancelSwitch();
+      resolving.complete();
+      await switching;
+
+      expect(cubit.state.subtitleIndex, 0);
+      expect(harness.engines.single.captionFile, isNotNull);
+      await cubit.close();
+    });
+
+    test('cancelling while the new engine opens disposes it', () async {
+      final _Harness harness = _Harness(hasNextEpisode: true);
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      final _FakeEngine firstEngine = harness.engines.single;
+      final Completer<void> opening = Completer<void>();
+      harness.initializeGates['https://cdn.test/a2/1080.m3u8'] = opening;
+
+      final Future<void> switching = cubit.playNext();
+      await pumpEventQueue();
+      expect(harness.engines, hasLength(2));
+      final _FakeEngine abandonedEngine = harness.engines.last;
+
+      await cubit.cancelSwitch();
+      opening.complete();
+      await switching;
+      await pumpEventQueue();
+
+      expect(abandonedEngine.disposed, isTrue);
+      expect(firstEngine.disposed, isFalse);
+      expect(cubit.state.engine, same(firstEngine));
+      expect(cubit.state.playlist.current.uid, 'a1');
+      expect(cubit.state.status, NativePlayerStatus.ready);
+      await cubit.close();
+    });
+
+    test('the auto-next countdown switch can be cancelled', () async {
+      final _Harness harness = _Harness(hasNextEpisode: true);
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      final _FakeEngine firstEngine = harness.engines.single;
+      final Completer<void> resolving = Completer<void>();
+      harness.resolveGates['a2'] = resolving;
+      firstEngine.complete();
+
+      final Future<void> switching = cubit.playNextNow();
+      await pumpEventQueue();
+      expect(cubit.state.switchingEpisode, isTrue);
+
+      await cubit.cancelSwitch();
+      resolving.complete();
+      await switching;
+
+      expect(cubit.state.playlist.current.uid, 'a1');
+      expect(cubit.state.engine, same(firstEngine));
+      expect(cubit.state.autoNextSecondsLeft, isNull);
+      await cubit.tickAutoNext();
+      expect(cubit.state.playlist.current.uid, 'a1');
+      expect(harness.resolvedUids, <String>['a2']);
+      await cubit.close();
+    });
+
+    test('back is not intercepted when no switch is running', () async {
+      final _Harness harness = _Harness(hasNextEpisode: true);
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      expect(await cubit.cancelSwitch(), isFalse);
+      expect(cubit.state.switchingEpisode, isFalse);
+
+      await cubit.playNext();
+
+      expect(cubit.state.switchingEpisode, isFalse);
+      expect(await cubit.cancelSwitch(), isFalse);
+      expect(cubit.state.playlist.current.uid, 'a2');
+      await cubit.close();
+    });
+
+    test('a switch from a failed episode reopens it from its position',
+        () async {
+      final _Harness harness = _Harness(hasNextEpisode: true);
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      await cubit.seekTo(const Duration(minutes: 4));
+      harness.engines.single.failPlayback('decoder crashed');
+      expect(cubit.state.status, NativePlayerStatus.error);
+      final Completer<void> resolving = Completer<void>();
+      harness.resolveGates['a2'] = resolving;
+
+      final Future<void> switching = cubit.playNext();
+      await pumpEventQueue();
+      await cubit.cancelSwitch();
+      resolving.complete();
+      await switching;
+
+      expect(cubit.state.playlist.current.uid, 'a1');
+      expect(cubit.state.status, NativePlayerStatus.ready);
+      expect(harness.engines, hasLength(2));
+      expect(harness.engines.last.stream.url, 'https://cdn.test/1080.m3u8');
+      expect(harness.engines.last.value.position, const Duration(minutes: 4));
       await cubit.close();
     });
   });
