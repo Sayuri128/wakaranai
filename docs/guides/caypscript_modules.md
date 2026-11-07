@@ -244,6 +244,24 @@ useHeaders({"headers": {
     "User-Agent": "Capyscript"
   }});
 ```
+
+* `currentMirror` (api 2) - returns the mirror base URL the next request will try first (the one
+  the user picked, else the last one that answered, else the first declared), or `null` when the
+  extension declares no `requestPolicy.mirrors`. Useful for building absolute URLs the app loads
+  itself, such as image links:
+
+```capyscript
+apiBase = currentMirror();
+if (apiBase == null) {
+    apiBase = "https://api.cdnlibs.org";
+}
+```
+
+Every `httpGet` and `httpPost` goes through the extension's
+[request policy](extensions.md#request-policy): its rate limit, its default headers (overridden by
+`useHeaders`, which are overridden by the call's own `headers`) and its mirror rewriting and
+failover.
+
 ---
 
 ## JSON
@@ -261,6 +279,117 @@ function main() {
 }
 
 ```
+
+---
+
+## Preferences
+
+**(api 2)** Reads the extension's [preferences](extensions.md#preferences) declared in
+`config.json`.
+
+```capyscript
+import "preferences";
+
+function chapterLanguages() {
+    languages = getPreference("chapterLanguages");
+    if (languages == null) {
+        return ["en"];
+    }
+    return languages;
+}
+```
+
+`getPreference(key)` returns the value the user set, else the declared `default`, else the type's
+fallback (`false`, the first option, `[]`, `""` or `0`). It returns `null` for a key the config
+doesn't declare, and for every key when the script runs outside the app (for example in tests that
+build the client without an extension host), so keep a fallback in the script as above. Values
+are a bool for `toggle`, a string for `select` and `text`, a number for `number`, and a list of
+strings for `multiselect`.
+
+---
+
+## Storage
+
+**(api 2)** A small key-value store private to the extension.
+
+```capyscript
+import "storage";
+
+function apiToken() {
+    token = storageGet("token");
+    if (token != null) {
+        return token;
+    }
+    token = fetchToken();
+    storageSet("token", token, 3600);
+    return token;
+}
+```
+
+* `storageGet(key)` returns the stored value, or `null` when the key is missing or expired.
+* `storageSet(key, value, ttlSeconds)` stores `value`. It must be JSON: `null`, a bool, a
+  number, a string, or lists and maps (with string keys) of those; anything else is a script error.
+  `ttlSeconds` is optional: a positive number lets the value expire after that many seconds, `null`
+  keeps it until it is removed. Zero or negative values are a script error.
+* `storageRemove(key)` deletes the value.
+
+Values survive app restarts. Each extension sees only its own keys, nothing is included in the
+app's export, and everything is deleted when the extension is removed. Don't use it for large
+data such as whole chapter lists; it is meant for tokens, ids and small caches.
+
+---
+
+## Errors
+
+**(api 2)** Fails with a typed error the app can act on; see
+[Errors the app understands](extensions.md#errors-the-app-understands) for what the app does with
+each kind.
+
+```capyscript
+import "errors";
+
+function decodeApiResponse(apiResponse, requestLabel) {
+    apiStatusCode = apiResponse["statusCode"];
+    if (apiStatusCode >= 200 && apiStatusCode < 300) {
+        return jsonDecode(apiResponse["body"]);
+    }
+    if (apiStatusCode == 404) {
+        throwSourceError("notFound", "MangaDex has no such entry (" + requestLabel + ")");
+    }
+    if (apiStatusCode == 429) {
+        throwSourceError("rateLimited", "MangaDex is rate limiting requests (" + requestLabel + ")");
+    }
+    if (apiStatusCode >= 500) {
+        throwSourceError("sourceDown", "MangaDex answered HTTP " + parseString(apiStatusCode));
+    }
+    throw "HTTP " + parseString(apiStatusCode) + " (" + requestLabel + ")";
+}
+```
+
+`throwSourceError(kind, message)` takes one of `"loginRequired"`, `"rateLimited"`, `"notFound"`,
+`"regionBlocked"`, `"sourceDown"` or `"unsupported"`; any other kind is an ordinary script error.
+`message` is optional; keep it short and specific, since the app may show it next to its own
+explanation.
+
+The error travels through every script function up to the app. A script `try`/`catch` catches it
+like any other error, but the catch variable only receives the message (or the kind name if the
+message is empty), and the kind is dropped unless the `catch` block calls `throwSourceError`
+again:
+
+```capyscript
+try {
+    rating = getRating(uid);
+} catch (e) {
+    rating = null;
+}
+```
+
+swallows a `rateLimited` from `getRating`, which is fine for optional data but not for the main
+request.
+
+Don't write `try { … } finally { … }` without a `catch`: the interpreter swallows the error in that
+form. Use `try { … } catch (e) { …; throw e; } finally { … }`, or rethrow with `throwSourceError`
+to keep the kind.
 
 ## Waka Models
 
@@ -632,6 +761,30 @@ Parameters:
   every segment and every key. Put `Referer`, `Origin`, `User-Agent` or CDN specific headers
   here. - optional
 * `subtitles` is a list of `buildAnimeVideoSubtitle` results. - optional
+* `skip` is a list of `{"type", "start", "end"}` maps marking parts the player offers to skip. -
+  optional. `type` is `"intro"`, `"outro"` or `"recap"`; `start` and `end` are seconds from the
+  start of the video (numbers or numeric strings). Entries with another type, missing times or
+  `end` not after `start` are dropped.
+* `audioLabel` is the dub or voice-over of this source, e.g. `"FanVoxUA"`; the player shows it in
+  the source picker. - optional
+* `preferForDownload` is `true` for a source the downloader should pick over the others, for
+  example an H.264 or single-file variant of the same episode. - optional, defaults to `false`
+
+Older app builds ignore `skip`, `audioLabel` and `preferForDownload`.
+
+What Anitube.in.ua returns for the first Black Clover episode on FenixPlay, whose playback API
+reports `"intro_start": null, "ending_start": 1340, "ending_end": 1416`:
+
+```capyscript
+buildAnimeVideoSource({
+    "url": "https://media.fenixplay.xyz/anime/chorna-konyushyna/ep001/…/master.m3u8?token=…",
+    "quality": "Auto",
+    "format": "hls",
+    "headers": {"Referer": "https://fenixplay.xyz/"},
+    "skip": [{"type": "outro", "start": 1340, "end": 1416}],
+    "audioLabel": "FanVoxUA"
+});
+```
 
 A plain map with the same keys is accepted instead of `buildAnimeVideoSource`.
 

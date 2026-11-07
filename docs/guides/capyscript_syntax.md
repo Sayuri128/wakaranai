@@ -140,6 +140,10 @@ try {
 
 `throw` accepts any value; `catch (e)` receives the thrown value or the error message.
 
+Always give a `try` a `catch`: `try { … } finally { … }` on its own swallows the error and the
+function carries on. To report an error the app can act on, see the
+[`errors` module](caypscript_modules.md#errors).
+
 **(0.4+)** Parse errors report `at line L:C`, and runtime errors carry the call stack, e.g.
 `Variable x not found. [at parseChapter ← getConcrete]`.
 

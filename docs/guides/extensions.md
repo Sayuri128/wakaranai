@@ -29,14 +29,29 @@ First of all you need to create a new json file called `config.json` with the fo
     * `inAppBrowserInterceptor`: Indicates whether to use in-app browser interceptor (true or
       false).
 * `searchAvailable`: Indicates whether search functionality is available (true or false).
-* `downloadConfig` (optional): Pacing for chapter downloads, for sources that rate limit (HTTP 429).
+* `downloadConfig` (optional): Pacing for downloads, for sources that rate limit (HTTP 429).
   Leave it out to download at full speed.
     * `pageDelayMs`: Pause between page images of a chapter, in milliseconds. Defaults to `0`.
     * `chapterDelayMs`: Pause before each next chapter in the queue, in milliseconds. Defaults to
       `0`.
+    * `segmentConcurrency` (api 2): How many HLS segments of one episode are downloaded at the same
+      time. Leave it out for the app default of `3`; use `1` for CDNs that throttle parallel
+      requests.
+    * `episodeDelayMs` (api 2): Pause before each next episode in the queue, in milliseconds.
+      Defaults to `0`.
 
   The app also slows a source down on its own after a 429 and honours `Retry-After`; these values
   are the floor it starts from.
+* `apiVersion` (optional): The extension API the script needs, `1` when left out. Set `2` as soon
+  as you use anything marked *api 2* in these guides. See [API versions](#api-versions).
+* `minAppVersion` (optional): The oldest app release the extension works with, as `"x.y.z"`. See
+  [API versions](#api-versions).
+* `preferences` (api 2, optional): Settings the user can change for this extension. See
+  [Preferences](#preferences).
+* `requestPolicy` (api 2, optional): Rate limit, default headers and mirrors for every request
+  the script makes. See [Request policy](#request-policy).
+* `feeds` (api 2, optional): Alternative listings for the gallery, such as "Popular" or "Latest".
+  See [Feeds](#feeds).
 
 see [template](./extension_templates/manga/config.json)
 
@@ -52,15 +67,19 @@ each extension should have the following functions:
 
 ```capyscript
 
-function getGallery(page, query, filters) {
+function getGallery(page, query, filters, feed) {
 
 }
 
 ```
 
-where `page` is the page number, `query` is the search query, `filters` is the list of filters the
-user selected. `query` is an optional parameter — if it's not provided, then the extension should
-return the home page. See [Filters](#filters) for the shape of `filters`.
+where `page` is the page number (the first page is `1`), `query` is the search query, `filters` is
+the list of filters the user selected and `feed` is the id of the selected [feed](#feeds). `query`
+is `""` when the user is not searching — then the extension should return the home page. See
+[Filters](#filters) for the shape of `filters`.
+
+Arguments are bound by name and extra ones are ignored, so an extension without feeds can keep the
+three-argument `getGallery(page, query, filters)`.
 
 * `getConcrete` - returns a concrete model created with `buildConcrete` function
 
@@ -170,6 +189,27 @@ How the app uses it:
   DRM-protected streams cannot be downloaded.
 * Calls into one extension never run at the same time, so a slow `getVideoSources` delays the
   next call. Make only the requests you need.
+* Each source can carry `skip` markers (intro, outro, recap), an `audioLabel` naming the dub or
+  voice-over, and `preferForDownload`. Older app builds ignore them, so they need no `apiVersion`
+  bump. Only return markers the player or its API actually exposes; never guess them from the
+  episode length. See
+  [`buildAnimeVideoSource`](caypscript_modules.md#to-describe-a-playable-stream-use-the-buildanimevideosource-function).
+
+Anitube.in.ua, for example, reads FenixPlay's `intro_start`/`ending_end` fields and MoonAnime's
+`window.__skipSegments`, and labels every source with the dub the episode group belongs to (kept
+in the episode's `data` by `getConcrete`):
+
+```capyscript
+fenixSources.push({
+    "url": masterUrl,
+    "quality": "Auto",
+    "format": "hls",
+    "headers": fenixStreamHeaders,
+    "subtitles": episodeSubtitles,
+    "skip": [{"type": "outro", "start": 1340, "end": 1416}],
+    "audioLabel": data["dub"]
+});
+```
 
 Sources behind a Cloudflare-style challenge can use the headless browser through
 `protectorConfig` with `inAppBrowserInterceptor: true`, the same way gallery and concrete
@@ -244,6 +284,225 @@ for (i = 0; i < filters.length; i = i + 1) {
     }
 }
 ```
+
+## API versions
+
+`apiVersion` tells the app which extension API the script was written for. Version `1` is
+everything that existed before the fields and modules marked *api 2* in these guides; leave the
+field out (or set `1`) if you use none of them. Set `"apiVersion": 2` when the config declares
+`preferences`, `requestPolicy`, `feeds`, `downloadConfig.segmentConcurrency` or
+`downloadConfig.episodeDelayMs`, or the script imports `preferences`, `storage` or `errors`, or
+calls `currentMirror()`. The repository validator reports any api 2 feature used without it.
+
+`minAppVersion` is for everything else that only works from a given release on, such as a new
+model field your extension depends on. It is compared with the running app's version.
+
+`tool/build_index.dart` copies both fields into each `index.json` entry, so the app can check an
+extension before downloading its script. When an extension needs a newer app (a higher
+`apiVersion` than the app supports, or a `minAppVersion` above its version):
+
+* the listing marks it as needing a newer app, and it cannot be installed;
+* an installed copy is never updated to that revision: the app keeps running the revision it
+  already has, and marks the update as waiting for a newer app.
+
+App releases from before api 2 do not read either field. They download any revision, and an api 2
+script fails on them as soon as it touches something they lack (an unknown module import fails
+the whole script). Keep api 2 changes on a staging branch until the users of those releases have
+updated.
+
+## Feeds
+
+Feeds are alternative listings shown as tabs above the gallery, declared in `config.json`:
+
+```json
+"feeds": [
+  {"id": "popular", "title": "Popular"},
+  {"id": "latest", "title": "Latest updates"}
+]
+```
+
+The selected feed's `id` arrives as the `feed` argument of `getGallery`; it is `""` when the user
+is on the default listing. A search overrides feeds, so treat a non-empty `query` as a search
+whatever `feed` holds. MangaDex keeps its old listing for `""`:
+
+```capyscript
+function getGallery(page, query, filters, feed) {
+    if (query == "" && feed == "latest") {
+        return getLatestGallery(page, filters);
+    }
+    params = {"limit": 20, "offset": 20 * page, "includes": ["cover_art"]};
+    if (query != "") {
+        params["title"] = query;
+    } else if (feed == "popular") {
+        params["offset"] = 20 * (page - 1);
+        params["order"] = {"followedCount": "desc"};
+    }
+    ...
+}
+```
+
+Filters apply to every feed; it is up to the script which of them a feed can honour.
+
+## Preferences
+
+Preferences are per-extension settings the app renders on the extension's page and the script
+reads with [`getPreference`](caypscript_modules.md#preferences). Each entry has:
+
+* `key` — the name the script reads. Must be unique within the extension. Don't start it with
+  `__`; the app uses that prefix for its own keys such as `__mirror`.
+* `type` — `toggle`, `select`, `multiselect`, `text` or `number`. Entries with any other type are
+  ignored, so a newer type never breaks an older app.
+* `title` — the label in the settings list.
+* `summary` (optional) — a line of help under the title.
+* `default` (optional) — the value used until the user changes it.
+* `options` — `[{"value": "…", "label": "…"}]` for `select` and `multiselect`.
+
+| `type`        | `getPreference` returns | Default when `default` is missing |
+|---------------|-------------------------|-----------------------------------|
+| `toggle`      | `true` / `false`        | `false`                           |
+| `select`      | the chosen `value`      | the first option's `value`        |
+| `multiselect` | a list of `value`s      | `[]`                              |
+| `text`        | a string                | `""`                              |
+| `number`      | a number                | `0`                               |
+
+Anitube.in.ua lets the user reorder its episode groups:
+
+```json
+"preferences": [
+  {
+    "key": "preferredPlayer",
+    "type": "select",
+    "title": "Preferred player",
+    "summary": "Episode lists from this player come first within each dub",
+    "default": "auto",
+    "options": [
+      {"value": "auto", "label": "Site order"},
+      {"value": "fenixplay", "label": "FenixPlay"},
+      {"value": "ashdi", "label": "Ashdi"}
+    ]
+  },
+  {
+    "key": "preferredDubs",
+    "type": "text",
+    "title": "Preferred dubs",
+    "summary": "Dub studio names to list first, comma-separated in order of preference",
+    "default": ""
+  },
+  {
+    "key": "hideUnsupportedPlayers",
+    "type": "toggle",
+    "title": "Hide unsupported players",
+    "default": false
+  }
+]
+```
+
+and MangaDex uses a `multiselect` of language codes (`"default": ["en"]`) for its chapter feed.
+Preferences are read when a function runs, so a change applies to the next gallery page or title
+the user opens. Pick defaults that reproduce the extension's old behaviour, so updating it changes
+nothing until the user opts in.
+
+When the extension declares `requestPolicy.mirrors`, the app adds a mirror picker of its own,
+stored under the built-in key `__mirror`. Don't declare that key yourself; read the active mirror
+with [`currentMirror()`](caypscript_modules.md#http) if the script needs it.
+
+## Request policy
+
+`requestPolicy` applies to every `httpGet` and `httpPost` the script makes:
+
+```json
+"requestPolicy": {
+  "rateLimit": {"requests": 3, "perSeconds": 2},
+  "defaultHeaders": {"Accept-Language": "uk-UA,uk;q=0.9"},
+  "userAgent": "Mozilla/5.0 …",
+  "mirrors": ["https://api.cdnlibs.org", "https://api.lib.social", "https://api2.mangalib.me"]
+}
+```
+
+All four fields are optional.
+
+**`rateLimit`** allows at most `requests` request starts in any window of `perSeconds` seconds
+(fractions such as `0.5` work). Requests over the limit wait their turn, in order. The limit is
+extension-wide: gallery, details and video-source calls, and requests that go through the
+webview, all share one budget for as long as the app runs (background tasks such as library
+update checks run in a separate isolate and keep their own budget). Size it for the strictest
+host the script talks to without starving the others. Anitube.in.ua uses 3 requests per 2 seconds:
+opening a FenixPlay episode takes two requests and never waits, a season download is held to
+about 1.5 requests a second, and gallery paging is unaffected. `downloadConfig` still paces the
+downloads themselves (pages and segments are fetched by the app, not the script).
+
+**Headers** are combined in this order, each step overriding the one before it, with header names
+compared case-insensitively:
+
+1. `defaultHeaders`
+2. `userAgent` (sent as `User-Agent`)
+3. headers set with `useHeaders`, usually from `passProtector`
+4. the `headers` argument of the call itself
+
+**`mirrors`** lists base URLs that serve the same site or API. A request whose URL starts with one
+of them (followed by `/`, `?`, `#` or nothing; the longest match wins) is sent to the mirrors in
+this order instead:
+
+1. the mirror the user picked in the extension settings (`__mirror`);
+2. the last mirror that answered, for this extension, since the app started;
+3. the remaining mirrors, in the declared order.
+
+With no choice made yet, the first declared mirror is used, so list the host your script's URLs
+already use first. A mirror that fails with a connection error (DNS, TLS, refused, timeout) or
+answers 5xx is skipped for the next one; the last candidate's answer or error is what the script
+gets. Any other status, including 403, 404 and 429, is returned as is without trying the next
+mirror. Keep writing your URLs against one host; the policy does the rewriting.
+
+Requests with `throughWeb: true` get the rate limit, the combined headers and the rewrite to the
+first mirror candidate, but no failover: the webview reports what it loaded.
+
+Only list hosts that really serve the same content: MangaLib and HentaiLib list
+`api.lib.social` and `api2.mangalib.me` next to `api.cdnlibs.org` because all three answer the same
+API with the same data.
+
+## Errors the app understands
+
+By default a failed function shows its error message to the user. With the
+[`errors`](caypscript_modules.md#errors) module (api 2) the script can tell the app *why* it
+failed:
+
+| Kind            | Use it when                                         | The app                                       |
+|-----------------|-----------------------------------------------------|-----------------------------------------------|
+| `loginRequired` | the source wants a (new) sign-in                    | offers to sign in through the protector page  |
+| `rateLimited`   | the source answered 429 or asks you to slow down    | suggests trying again later                   |
+| `notFound`      | the title or chapter is gone from the source        | marks it as removed from the source           |
+| `regionBlocked` | the source refuses the user's country               | explains that it is blocked in the region     |
+| `sourceDown`    | 5xx, maintenance pages, unreachable hosts           | reports the source as unavailable for now     |
+| `unsupported`   | the extension cannot handle this title or request  | says the extension does not support it        |
+
+Only throw a kind when the source clearly signals it; a guessed `notFound` tells the user a title
+was deleted when it was not. MangaDex maps its status codes directly, but the lib.social API also
+answers 404 for chapters it hides from signed-out users, so its decoder asks `/api/auth/me` first:
+
+```capyscript
+if(apiStatusCode == 404) {
+    sessionCheck = httpGet({"url": "https://api.cdnlibs.org/api/auth/me", "headers": {"Accept": "application/json"}});
+    if(sessionCheck["statusCode"] == 401) {
+        throwSourceError("loginRequired", "sign in again (" + requestLabel + ")");
+    }
+    throwSourceError("notFound", "not found on the source (" + requestLabel + ")");
+}
+```
+
+A typed error passes through any number of script functions to the app. A `try`/`catch` in the
+script catches it like any other error, but `e` only holds the message (or the kind's name when the
+message is empty) and the kind is lost; call `throwSourceError` again inside the `catch` to pass it
+on. `getVideoSources` errors never reach the user, they only make the app fall back to the embed.
+
+Avoid `try { … } finally { … }` without a `catch`: the interpreter swallows the error in that
+form, so the function carries on as if nothing failed. Add a `catch` that rethrows.
+
+## Storing data between calls
+
+The [`storage`](caypscript_modules.md#storage) module (api 2) keeps small JSON values for the
+extension between calls and app restarts, optionally with an expiry: tokens, a resolved API host,
+a cached genre list. It is private to the extension, is not part of the app's export, and is
+deleted when the extension is removed.
 
 ## Splitting an extension across files
 
