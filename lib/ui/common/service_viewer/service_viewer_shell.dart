@@ -14,6 +14,8 @@ import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
 import 'package:wakaranai/ui/home/service_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
+import 'package:wakaranai/ui/widgets/source_error_view.dart';
+import 'package:wakaranai/utils/source_error_description.dart';
 
 typedef NextViewerArguments<T extends ApiClient> = Object Function(
     T client, ConfigInfo configInfo);
@@ -76,6 +78,7 @@ class _ServiceViewerShellState<T extends ApiClient, G extends GalleryView>
                 listener: (BuildContext context, ServiceViewState<T, G> state) {
                   if (state is ServiceViewInitialized<T, G>) {
                     _refreshController.loadComplete();
+                    _showFailure(state.failure, apiClient, configInfo);
                   }
                 },
                 child: ServiceViewerBody<T, G>(
@@ -115,6 +118,36 @@ class _ServiceViewerShellState<T extends ApiClient, G extends GalleryView>
           ?.read<ServiceViewCubit<T, G>>()
           .init(configInfo);
     }
+  }
+
+  void _showFailure(
+    ServiceViewFailure? failure,
+    T apiClient,
+    ConfigInfo configInfo,
+  ) {
+    if (failure == null || !mounted) {
+      return;
+    }
+    final SourceErrorDescription? description = describeSourceErrorFor(
+      failure.error,
+      configInfo,
+    );
+    if (description == null) {
+      return;
+    }
+    showSourceErrorSnackBar(
+      context,
+      description: description,
+      onRetry: failure.retry,
+      onSignIn: () => unawaited(
+        signInToSource(
+          context,
+          apiClient: apiClient,
+          configInfo: configInfo,
+          onSignedIn: failure.retry,
+        ),
+      ),
+    );
   }
 
   void _reloadGallery(ConfigInfo configInfo) {

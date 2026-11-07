@@ -26,10 +26,21 @@ class ServiceViewLoading<T extends ApiClient, G extends GalleryView>
 class ServiceViewError<T extends ApiClient, G extends GalleryView>
     extends ServiceViewState<T, G> {
   final String message;
+  final Object? error;
   final void Function() retry;
 
   const ServiceViewError(
-      {required this.message, required super.client, required this.retry});
+      {required this.message,
+      required super.client,
+      required this.retry,
+      this.error});
+}
+
+class ServiceViewFailure {
+  final Object error;
+  final void Function() retry;
+
+  const ServiceViewFailure({required this.error, required this.retry});
 }
 
 class ServiceViewInitialized<T extends ApiClient, G extends GalleryView>
@@ -40,6 +51,8 @@ class ServiceViewInitialized<T extends ApiClient, G extends GalleryView>
   final Map<String, Map<String, String>> galleryViewImagesHeaders;
   final int currentPage;
   final bool loading;
+  final String? selectedFeed;
+  final ServiceViewFailure? failure;
 
   final Map<String, FilterData> selectedFilters;
 
@@ -51,7 +64,9 @@ class ServiceViewInitialized<T extends ApiClient, G extends GalleryView>
       required this.galleryViewImagesHeaders,
       required this.currentPage,
       required this.selectedFilters,
-      required this.loading});
+      required this.loading,
+      this.selectedFeed,
+      this.failure});
 
   ServiceViewInitialized<T, G> copyWith(
       {String? searchQuery,
@@ -61,7 +76,9 @@ class ServiceViewInitialized<T extends ApiClient, G extends GalleryView>
       Map<String, Map<String, String>>? galleryViewImagesHeaders,
       int? currentPage,
       Map<String, FilterData>? selectedFilters,
-      bool? loading}) {
+      bool? loading,
+      String? selectedFeed,
+      ServiceViewFailure? failure}) {
     return ServiceViewInitialized(
         searchQuery: searchQuery ?? this.searchQuery,
         client: client ?? this.client,
@@ -71,6 +88,8 @@ class ServiceViewInitialized<T extends ApiClient, G extends GalleryView>
             galleryViewImagesHeaders ?? this.galleryViewImagesHeaders,
         currentPage: currentPage ?? this.currentPage,
         selectedFilters: selectedFilters ?? this.selectedFilters,
-        loading: loading ?? this.loading);
+        loading: loading ?? this.loading,
+        selectedFeed: selectedFeed ?? this.selectedFeed,
+        failure: failure);
   }
 }

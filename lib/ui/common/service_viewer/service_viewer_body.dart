@@ -9,6 +9,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/gallery_layout/gallery_layout_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/common/service_viewer/gallery_feed_pills.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_grid_skeleton.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_items_view.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_layout.dart';
@@ -21,7 +22,9 @@ import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
 import 'package:wakaranai/ui/services/widgets/gallery_title_actions_sheet.dart';
 import 'package:wakaranai/ui/widgets/scroll_to_top_area.dart';
+import 'package:wakaranai/ui/widgets/source_error_view.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/source_error_description.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class ServiceViewerBody<T extends ApiClient, G extends GalleryView>
@@ -106,8 +109,41 @@ class ServiceViewerBody<T extends ApiClient, G extends GalleryView>
               ),
             ),
           ),
+          _buildFeeds(context),
         ],
       ),
+    );
+  }
+
+  bool get _showsFeeds {
+    if (configInfo.feeds.isEmpty) {
+      return false;
+    }
+    if (state is ServiceViewInitialized<T, G>) {
+      return stateInitialized.searchQuery.isEmpty;
+    }
+    return true;
+  }
+
+  Widget _buildFeeds(BuildContext context) {
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      alignment: Alignment.topCenter,
+      child: _showsFeeds
+          ? SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8, bottom: 8),
+                child: GalleryFeedPills(
+                  feeds: configInfo.feeds,
+                  selectedFeedId: _cubit(context).selectedFeed,
+                  onSelected: (String feedId) =>
+                      unawaited(_cubit(context).selectFeed(feedId)),
+                ),
+              ),
+            )
+          : const SizedBox(width: double.infinity),
     );
   }
 
@@ -233,6 +269,13 @@ class ServiceViewerBody<T extends ApiClient, G extends GalleryView>
   }
 
   Widget _buildError(BuildContext context) {
+    final SourceErrorDescription? description = describeSourceErrorFor(
+      stateError.error,
+      configInfo,
+    );
+    if (description != null) {
+      return _buildSourceError(context, description);
+    }
     return ServiceViewerMessage(
       icon: Icons.error_outline_rounded,
       title: S.of(context).service_view_error_title,
@@ -267,6 +310,25 @@ class ServiceViewerBody<T extends ApiClient, G extends GalleryView>
             label: Text(S.of(context).service_view_open_web_view_button_title),
           ),
       ],
+    );
+  }
+
+  Widget _buildSourceError(
+    BuildContext context,
+    SourceErrorDescription description,
+  ) {
+    final void Function() retry = stateError.retry;
+    return SourceErrorView(
+      description: description,
+      onRetry: () => unawaited(BrowserInterceptorScope.retry(context, retry)),
+      onSignIn: () => unawaited(
+        signInToSource(
+          context,
+          apiClient: apiClient,
+          configInfo: configInfo,
+          onSignedIn: retry,
+        ),
+      ),
     );
   }
 
