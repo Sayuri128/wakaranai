@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store.dart';
+import 'package:wakaranai/ui/services/anime/native_player/local_media.dart';
 import 'package:wakaranai/ui/services/anime/native_player/native_player_engine.dart';
 import 'package:wakaranai/ui/services/anime/native_player/subtitle_loader.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_seek_bar.dart';
@@ -82,6 +83,49 @@ void main() {
       expect(
         videoFormatHintFor(const PlayableStream(url: 'https://cdn.test/a')),
         isNull,
+      );
+    });
+  });
+
+  group('local media', () {
+    test('recognises file urls', () {
+      expect(isLocalFileUrl('file:///data/episode/index.m3u8'), isTrue);
+      expect(isLocalFileUrl(' file:///data/episode/video.mp4 '), isTrue);
+      expect(isLocalFileUrl('https://cdn.test/index.m3u8'), isFalse);
+      expect(isLocalFileUrl('/data/episode/video.mp4'), isFalse);
+    });
+
+    test('drops request headers for a local stream', () {
+      const Map<String, String> headers = <String, String>{
+        'Referer': 'https://site.test/',
+      };
+
+      expect(
+        playbackHeadersFor(
+          const PlayableStream(
+            url: 'file:///data/episode/index.m3u8',
+            headers: headers,
+          ),
+        ),
+        isEmpty,
+      );
+      expect(
+        playbackHeadersFor(
+          const PlayableStream(url: 'https://cdn.test/a.m3u8', headers: headers),
+        ),
+        headers,
+      );
+    });
+
+    test('keeps the hls hint for a local playlist', () {
+      expect(
+        videoFormatHintFor(
+          const PlayableStream(
+            url: 'file:///data/episode/index.m3u8',
+            format: PlayableStreamFormat.hls,
+          ),
+        ),
+        VideoFormat.hls,
       );
     });
   });

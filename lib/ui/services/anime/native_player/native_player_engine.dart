@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
+import 'package:wakaranai/ui/services/anime/native_player/local_media.dart';
 
 typedef NativePlayerEngineFactory = NativePlayerEngine Function(
   PlayableStream stream,
@@ -48,7 +49,7 @@ class VideoPlayerEngine implements NativePlayerEngine {
   VideoPlayerEngine(PlayableStream stream)
       : _controller = VideoPlayerController.networkUrl(
           Uri.parse(stream.url.trim()),
-          httpHeaders: stream.headers,
+          httpHeaders: playbackHeadersFor(stream),
           formatHint: videoFormatHintFor(stream),
         );
 
