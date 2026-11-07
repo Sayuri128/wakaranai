@@ -123,6 +123,24 @@ class SettingsTile extends StatelessWidget {
   }
 }
 
+class SettingsValueTrailing extends StatelessWidget {
+  const SettingsValueTrailing({super.key, required this.value});
+
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Text(value, style: medium(size: 13, color: AppColors.mainGrey)),
+        const SizedBox(width: 4),
+        Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
+      ],
+    );
+  }
+}
+
 class SettingsPageHeader extends StatelessWidget {
   const SettingsPageHeader({super.key, required this.title});
 
