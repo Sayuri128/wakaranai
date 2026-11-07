@@ -607,6 +607,256 @@ class S {
     );
   }
 
+  /// `Download episodes`
+  String get title_download_episode_title {
+    return Intl.message(
+      'Download episodes',
+      name: 'title_download_episode_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next episode`
+  String get title_download_episode_next {
+    return Intl.message(
+      'Next episode',
+      name: 'title_download_episode_next',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next {count} episodes`
+  String title_download_episode_next_count(int count) {
+    return Intl.message(
+      'Next $count episodes',
+      name: 'title_download_episode_next_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Unwatched episodes`
+  String get title_download_episode_unwatched {
+    return Intl.message(
+      'Unwatched episodes',
+      name: 'title_download_episode_unwatched',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All episodes`
+  String get title_download_episode_all {
+    return Intl.message(
+      'All episodes',
+      name: 'title_download_episode_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Looking up episodes…`
+  String get title_download_episode_loading {
+    return Intl.message(
+      'Looking up episodes…',
+      name: 'title_download_episode_loading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 episode queued} other{{count} episodes queued}}`
+  String title_download_episode_queued(int count) {
+    return Intl.plural(
+      count,
+      one: '1 episode queued',
+      other: '$count episodes queued',
+      name: 'title_download_episode_queued',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `No new episodes to download`
+  String get title_download_episode_nothing {
+    return Intl.message(
+      'No new episodes to download',
+      name: 'title_download_episode_nothing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Episode groups`
+  String get title_download_episode_groups {
+    return Intl.message(
+      'Episode groups',
+      name: 'title_download_episode_groups',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Episodes to download`
+  String get title_download_episode_how_many {
+    return Intl.message(
+      'Episodes to download',
+      name: 'title_download_episode_how_many',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 episode} other{{count} episodes}}`
+  String title_download_episode_count(int count) {
+    return Intl.plural(
+      count,
+      one: '1 episode',
+      other: '$count episodes',
+      name: 'title_download_episode_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `This title has no episodes yet`
+  String get title_download_episode_none {
+    return Intl.message(
+      'This title has no episodes yet',
+      name: 'title_download_episode_none',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load the episode list`
+  String get title_download_episode_failed {
+    return Intl.message(
+      'Couldn\'t load the episode list',
+      name: 'title_download_episode_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Each title downloads from its first episode group`
+  String get title_download_episode_first_group_hint {
+    return Intl.message(
+      'Each title downloads from its first episode group',
+      name: 'title_download_episode_first_group_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{Looking up episodes for 1 title…} other{Looking up episodes for {count} titles…}}`
+  String title_download_episode_many_loading(int count) {
+    return Intl.plural(
+      count,
+      one: 'Looking up episodes for 1 title…',
+      other: 'Looking up episodes for $count titles…',
+      name: 'title_download_episode_many_loading',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Download chapters and episodes`
+  String get title_download_episode_mixed_title {
+    return Intl.message(
+      'Download chapters and episodes',
+      name: 'title_download_episode_mixed_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next chapter or episode`
+  String get title_download_episode_mixed_next {
+    return Intl.message(
+      'Next chapter or episode',
+      name: 'title_download_episode_mixed_next',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next {count} chapters or episodes`
+  String title_download_episode_mixed_next_count(int count) {
+    return Intl.message(
+      'Next $count chapters or episodes',
+      name: 'title_download_episode_mixed_next_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Unread chapters and unwatched episodes`
+  String get title_download_episode_mixed_unread {
+    return Intl.message(
+      'Unread chapters and unwatched episodes',
+      name: 'title_download_episode_mixed_unread',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All chapters and episodes`
+  String get title_download_episode_mixed_all {
+    return Intl.message(
+      'All chapters and episodes',
+      name: 'title_download_episode_mixed_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Each title downloads from its first group`
+  String get title_download_episode_mixed_hint {
+    return Intl.message(
+      'Each title downloads from its first group',
+      name: 'title_download_episode_mixed_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{Looking up 1 title…} other{Looking up {count} titles…}}`
+  String title_download_episode_mixed_loading(int count) {
+    return Intl.plural(
+      count,
+      one: 'Looking up 1 title…',
+      other: 'Looking up $count titles…',
+      name: 'title_download_episode_mixed_loading',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count, plural, =1{1 download queued} other{{count} downloads queued}}`
+  String title_download_episode_mixed_queued(int count) {
+    return Intl.plural(
+      count,
+      one: '1 download queued',
+      other: '$count downloads queued',
+      name: 'title_download_episode_mixed_queued',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Nothing new to download`
+  String get title_download_episode_mixed_nothing {
+    return Intl.message(
+      'Nothing new to download',
+      name: 'title_download_episode_mixed_nothing',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Added to library`
   String get library_added_message {
     return Intl.message(
@@ -2714,6 +2964,120 @@ class S {
       name: 'downloads_chapters_summary',
       desc: '',
       args: [done, total],
+    );
+  }
+
+  /// `Segment {done}/{total}`
+  String downloads_episode_segments_progress(Object done, Object total) {
+    return Intl.message(
+      'Segment $done/$total',
+      name: 'downloads_episode_segments_progress',
+      desc: '',
+      args: [done, total],
+    );
+  }
+
+  /// `{percent}% · {downloaded} of {total}`
+  String downloads_episode_bytes_progress(
+    Object percent,
+    Object downloaded,
+    Object total,
+  ) {
+    return Intl.message(
+      '$percent% · $downloaded of $total',
+      name: 'downloads_episode_bytes_progress',
+      desc: '',
+      args: [percent, downloaded, total],
+    );
+  }
+
+  /// `{downloaded} downloaded`
+  String downloads_episode_bytes_downloaded(Object downloaded) {
+    return Intl.message(
+      '$downloaded downloaded',
+      name: 'downloads_episode_bytes_downloaded',
+      desc: '',
+      args: [downloaded],
+    );
+  }
+
+  /// `Preparing video…`
+  String get downloads_episode_preparing {
+    return Intl.message(
+      'Preparing video…',
+      name: 'downloads_episode_preparing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ready to watch offline`
+  String get downloads_episode_done {
+    return Intl.message(
+      'Ready to watch offline',
+      name: 'downloads_episode_done',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ready to watch offline · {size}`
+  String downloads_episode_done_size(Object size) {
+    return Intl.message(
+      'Ready to watch offline · $size',
+      name: 'downloads_episode_done_size',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `{size} MB`
+  String downloads_episode_size_mb(Object size) {
+    return Intl.message(
+      '$size MB',
+      name: 'downloads_episode_size_mb',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `{size} GB`
+  String downloads_episode_size_gb(Object size) {
+    return Intl.message(
+      '$size GB',
+      name: 'downloads_episode_size_gb',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `{done}/{total} episodes downloaded`
+  String downloads_episode_summary(Object done, Object total) {
+    return Intl.message(
+      '$done/$total episodes downloaded',
+      name: 'downloads_episode_summary',
+      desc: '',
+      args: [done, total],
+    );
+  }
+
+  /// `This episode will be removed from this device.`
+  String get downloads_episode_delete_confirmation_message {
+    return Intl.message(
+      'This episode will be removed from this device.',
+      name: 'downloads_episode_delete_confirmation_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry download`
+  String get downloads_episode_retry {
+    return Intl.message(
+      'Retry download',
+      name: 'downloads_episode_retry',
+      desc: '',
+      args: [],
     );
   }
 

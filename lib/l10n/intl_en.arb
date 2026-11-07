@@ -102,6 +102,79 @@
   },
   "title_download_no_chapters": "This title has no chapters yet",
   "title_download_failed": "Couldn't load the chapter list",
+  "title_download_episode_title": "Download episodes",
+  "title_download_episode_next": "Next episode",
+  "title_download_episode_next_count": "Next {count} episodes",
+  "@title_download_episode_next_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_episode_unwatched": "Unwatched episodes",
+  "title_download_episode_all": "All episodes",
+  "title_download_episode_loading": "Looking up episodes…",
+  "title_download_episode_queued": "{count, plural, =1{1 episode queued} other{{count} episodes queued}}",
+  "@title_download_episode_queued": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_episode_nothing": "No new episodes to download",
+  "title_download_episode_groups": "Episode groups",
+  "title_download_episode_how_many": "Episodes to download",
+  "title_download_episode_count": "{count, plural, =1{1 episode} other{{count} episodes}}",
+  "@title_download_episode_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_episode_none": "This title has no episodes yet",
+  "title_download_episode_failed": "Couldn't load the episode list",
+  "title_download_episode_first_group_hint": "Each title downloads from its first episode group",
+  "title_download_episode_many_loading": "{count, plural, =1{Looking up episodes for 1 title…} other{Looking up episodes for {count} titles…}}",
+  "@title_download_episode_many_loading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_episode_mixed_title": "Download chapters and episodes",
+  "title_download_episode_mixed_next": "Next chapter or episode",
+  "title_download_episode_mixed_next_count": "Next {count} chapters or episodes",
+  "@title_download_episode_mixed_next_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_episode_mixed_unread": "Unread chapters and unwatched episodes",
+  "title_download_episode_mixed_all": "All chapters and episodes",
+  "title_download_episode_mixed_hint": "Each title downloads from its first group",
+  "title_download_episode_mixed_loading": "{count, plural, =1{Looking up 1 title…} other{Looking up {count} titles…}}",
+  "@title_download_episode_mixed_loading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_episode_mixed_queued": "{count, plural, =1{1 download queued} other{{count} downloads queued}}",
+  "@title_download_episode_mixed_queued": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_episode_mixed_nothing": "Nothing new to download",
   "library_added_message": "Added to library",
   "library_removed_message": "Removed from library",
   "library_no_category": "No category",
@@ -374,6 +447,56 @@
       "total": {}
     }
   },
+  "downloads_episode_segments_progress": "Segment {done}/{total}",
+  "@downloads_episode_segments_progress": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  },
+  "downloads_episode_bytes_progress": "{percent}% · {downloaded} of {total}",
+  "@downloads_episode_bytes_progress": {
+    "placeholders": {
+      "percent": {},
+      "downloaded": {},
+      "total": {}
+    }
+  },
+  "downloads_episode_bytes_downloaded": "{downloaded} downloaded",
+  "@downloads_episode_bytes_downloaded": {
+    "placeholders": {
+      "downloaded": {}
+    }
+  },
+  "downloads_episode_preparing": "Preparing video…",
+  "downloads_episode_done": "Ready to watch offline",
+  "downloads_episode_done_size": "Ready to watch offline · {size}",
+  "@downloads_episode_done_size": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "downloads_episode_size_mb": "{size} MB",
+  "@downloads_episode_size_mb": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "downloads_episode_size_gb": "{size} GB",
+  "@downloads_episode_size_gb": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "downloads_episode_summary": "{done}/{total} episodes downloaded",
+  "@downloads_episode_summary": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  },
+  "downloads_episode_delete_confirmation_message": "This episode will be removed from this device.",
+  "downloads_episode_retry": "Retry download",
   "settings_export_data_button": "Export data",
   "settings_import_data_button": "Import data",
   "settings_export_sheet_title": "Export data",

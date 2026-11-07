@@ -1,7 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
+import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+
+String downloadDeleteConfirmationMessage(DownloadDomain download) {
+  if (download.isEpisode) {
+    return S.current.downloads_episode_delete_confirmation_message;
+  }
+  return S.current.downloads_delete_confirmation_message;
+}
+
+Future<bool> confirmDownloadDeletion(
+  BuildContext context,
+  DownloadDomain download,
+) async {
+  final bool? confirmed = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext dialogContext) => ConfirmationDialog(
+      title: S.current.downloads_delete_confirmation_title,
+      message: downloadDeleteConfirmationMessage(download),
+      yesText: S.current.downloads_confirm_delete,
+      noText: S.current.downloads_confirm_cancel,
+      destructive: true,
+    ),
+  );
+  return confirmed == true;
+}
+
+void deleteDownloadWithConfirmation(BuildContext context, DownloadDomain download) {
+  final DownloadManagerCubit cubit = context.read<DownloadManagerCubit>();
+
+  if (download.status != DownloadStatus.done) {
+    cubit.deleteDownload(download);
+    return;
+  }
+
+  confirmDownloadDeletion(context, download).then((bool confirmed) {
+    if (confirmed) {
+      cubit.deleteDownload(download);
+    }
+  });
+}
 
 class ChapterDownloadButton extends StatelessWidget {
   const ChapterDownloadButton({

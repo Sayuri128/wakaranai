@@ -14,9 +14,7 @@ import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
-import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
-import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
@@ -29,7 +27,6 @@ import 'package:wakaranai/ui/services/widgets/chapter_download_button.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/chapter_translation_actions.dart';
 import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
-import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/ui/widgets/image_widget.dart';
 import 'package:wakaranai/ui/widgets/selection_action_bar.dart';
 import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
@@ -436,36 +433,12 @@ class MangaConcreteViewer extends StatelessWidget
           onRetry: () => _enqueueChapter(context, chapter, state),
           onDelete: () {
             if (download != null) {
-              _onDeleteDownload(context, download);
+              deleteDownloadWithConfirmation(context, download);
             }
           },
         );
       },
     );
-  }
-
-  void _onDeleteDownload(BuildContext context, DownloadDomain download) {
-    final DownloadManagerCubit cubit = context.read<DownloadManagerCubit>();
-
-    if (download.status != DownloadStatus.done) {
-      cubit.deleteDownload(download);
-      return;
-    }
-
-    showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialogContext) => ConfirmationDialog(
-        title: S.current.downloads_delete_confirmation_title,
-        message: S.current.downloads_delete_confirmation_message,
-        yesText: S.current.downloads_confirm_delete,
-        noText: S.current.downloads_confirm_cancel,
-        destructive: true,
-      ),
-    ).then((bool? confirmed) {
-      if (confirmed == true) {
-        cubit.deleteDownload(download);
-      }
-    });
   }
 
   void _enqueueChapter(

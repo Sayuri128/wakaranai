@@ -1,5 +1,7 @@
+import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
@@ -8,7 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
+import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/services/downloads/episode_title_downloader.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/chapter_translation_actions.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
@@ -23,6 +27,10 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView<dynamic>,
 
   Future<void> _downloadSelected(
       BuildContext context, ConcreteViewInitialized<T, C, G> state) async {
+    if (state.configInfo.type == ConfigInfoType.ANIME) {
+      await _downloadSelectedEpisodes(context, state);
+      return;
+    }
     if (state.configInfo.type != ConfigInfoType.MANGA) return;
     if (state.domain == null || state.apiClient is! MangaApiClient) return;
 
@@ -48,6 +56,38 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView<dynamic>,
 
     manager.startQueue();
     getConcreteViewCubit(context).clearSelection();
+  }
+
+  Future<void> _downloadSelectedEpisodes(
+      BuildContext context, ConcreteViewInitialized<T, C, G> state) async {
+    final ConcreteDataDomain? domain = state.domain;
+    if (domain == null || state.apiClient is! AnimeApiClient) {
+      return;
+    }
+
+    final DownloadManagerCubit manager = context.read<DownloadManagerCubit>();
+    final ConcreteViewCubit<T, C, G> cubit = getConcreteViewCubit(context);
+    final List<AnimeVideo> groupEpisodes = state
+        .concreteView.groups[state.groupIndex].elements
+        .whereType<AnimeVideo>()
+        .toList();
+    final List<AnimeVideo> episodes =
+        selectedEpisodesInWatchOrder(groupEpisodes, state.selection);
+
+    for (final AnimeVideo episode in episodes) {
+      await manager.enqueueEpisode(
+        extensionUid: state.configInfo.uid,
+        concreteUid: state.concreteView.uid,
+        concreteId: domain.id,
+        concreteTitle: state.concreteView.title,
+        concreteCover: state.concreteView.cover,
+        episode: episode,
+        autoStart: false,
+      );
+    }
+
+    manager.startQueue();
+    cubit.clearSelection();
   }
 
   Future<void> _translateSelected(
@@ -135,13 +175,12 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView<dynamic>,
                   state.selection.length,
                 ),
             actions: <SelectionAction>[
-              if (state.configInfo.type == ConfigInfoType.MANGA)
-                SelectionAction(
-                  icon: Icons.download_outlined,
-                  label: S.of(context).concrete_selection_download,
-                  color: AppColors.primary,
-                  onTap: () => _downloadSelected(context, state),
-                ),
+              SelectionAction(
+                icon: Icons.download_outlined,
+                label: S.of(context).concrete_selection_download,
+                color: AppColors.primary,
+                onTap: () => _downloadSelected(context, state),
+              ),
               if (canTranslate)
                 SelectionAction(
                   icon: Icons.translate_rounded,

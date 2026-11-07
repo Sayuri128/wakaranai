@@ -1,19 +1,28 @@
+import 'package:capyscript/api_clients/anime_api_client.dart';
+import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
-import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
+import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
+import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
+import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/services/downloads/chapter_download_selection.dart';
+import 'package:wakaranai/services/downloads/episode_title_downloader.dart';
 import 'package:wakaranai/services/downloads/title_downloader.dart';
+import 'package:wakaranai/ui/services/widgets/title_download_labels.dart';
 import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
+
+export 'package:wakaranai/ui/services/widgets/title_download_labels.dart';
 
 class TitleDownloadRequest {
   const TitleDownloadRequest({
@@ -21,88 +30,170 @@ class TitleDownloadRequest {
     required this.extensionUid,
     required this.galleryData,
     required this.loadClient,
+    this.type = ConfigInfoType.MANGA,
+    this.releaseClient,
   });
 
   final String uid;
   final String extensionUid;
   final Map<String, dynamic> galleryData;
-  final Future<MangaApiClient> Function() loadClient;
+  final Future<ApiClient> Function() loadClient;
+  final ConfigInfoType type;
+  final Future<void> Function()? releaseClient;
+
+  Future<T> loadWithClient<T>(Future<T> Function(ApiClient client) load) async {
+    try {
+      return await load(await loadClient());
+    } finally {
+      await releaseClient?.call();
+    }
+  }
 }
 
-typedef _QueueChoice =
-    void Function(
-      DownloadableTitle title,
-      Set<int> groups,
-      ChapterDownloadAmount amount,
-    );
+T expectClient<T extends ApiClient>(ApiClient client) {
+  if (client is T) {
+    return client;
+  }
+  throw StateError('Expected a $T but got ${client.runtimeType}');
+}
+
+typedef _QueueChoice<T> =
+    void Function(T title, Set<int> groups, ChapterDownloadAmount amount);
 
 Future<void> showTitleDownloadSheet(
   BuildContext context, {
   required TitleDownloadRequest request,
 }) {
+  final TitleDownloadLabels labels = TitleDownloadLabels.forType(request.type);
+  return showActionSheet(
+    context,
+    title: labels.sheetTitle,
+    child: _buildPanel(context, request, labels),
+  );
+}
+
+Widget _buildPanel(
+  BuildContext context,
+  TitleDownloadRequest request,
+  TitleDownloadLabels labels,
+) {
+  switch (request.type) {
+    case ConfigInfoType.MANGA:
+      return _buildChapterPanel(context, request, labels);
+    case ConfigInfoType.ANIME:
+      return _buildEpisodePanel(context, request, labels);
+  }
+}
+
+Widget _buildChapterPanel(
+  BuildContext context,
+  TitleDownloadRequest request,
+  TitleDownloadLabels labels,
+) {
   final TitleDownloader downloader = TitleDownloader(
     downloadManager: context.read<DownloadManagerCubit>(),
     concreteDataRepository: context.read<ConcreteDataRepository>(),
     chapterActivityRepository: context.read<ChapterActivityRepository>(),
     downloadRepository: context.read<DownloadRepository>(),
   );
-  return showActionSheet(
-    context,
-    title: S.current.title_download_title,
-    child: _TitleDownloadPanel(
-      request: request,
-      downloader: downloader,
-      onQueue:
-          (
-            DownloadableTitle title,
-            Set<int> groups,
-            ChapterDownloadAmount amount,
-          ) => _queue(context, downloader, title, groups, amount),
+  return _TitleDownloadPanel<DownloadableTitle>(
+    uid: request.uid,
+    labels: labels,
+    load: () => request.loadWithClient(
+      (ApiClient client) => downloader.load(
+        client: expectClient<MangaApiClient>(client),
+        extensionUid: request.extensionUid,
+        uid: request.uid,
+        galleryData: request.galleryData,
+      ),
     ),
+    onQueue:
+        (
+          DownloadableTitle title,
+          Set<int> groups,
+          ChapterDownloadAmount amount,
+        ) => _queue(
+          context,
+          labels,
+          downloader.queue(title, groupIndexes: groups, amount: amount),
+        ),
+  );
+}
+
+Widget _buildEpisodePanel(
+  BuildContext context,
+  TitleDownloadRequest request,
+  TitleDownloadLabels labels,
+) {
+  final EpisodeTitleDownloader downloader = EpisodeTitleDownloader(
+    downloadManager: context.read<DownloadManagerCubit>(),
+    concreteDataRepository: context.read<ConcreteDataRepository>(),
+    episodeActivityRepository: context.read<AnimeEpisodeActivityRepository>(),
+    downloadRepository: context.read<DownloadRepository>(),
+  );
+  return _TitleDownloadPanel<DownloadableAnimeTitle>(
+    uid: request.uid,
+    labels: labels,
+    load: () => request.loadWithClient(
+      (ApiClient client) => downloader.load(
+        client: expectClient<AnimeApiClient>(client),
+        extensionUid: request.extensionUid,
+        uid: request.uid,
+        galleryData: request.galleryData,
+      ),
+    ),
+    onQueue:
+        (
+          DownloadableAnimeTitle title,
+          Set<int> groups,
+          ChapterDownloadAmount amount,
+        ) => _queue(
+          context,
+          labels,
+          downloader.queue(title, groupIndexes: groups, amount: amount),
+        ),
   );
 }
 
 Future<void> _queue(
   BuildContext context,
-  TitleDownloader downloader,
-  DownloadableTitle title,
-  Set<int> groups,
-  ChapterDownloadAmount amount,
+  TitleDownloadLabels labels,
+  Future<int> queueing,
 ) async {
-  final int queued = await downloader.queue(
-    title,
-    groupIndexes: groups,
-    amount: amount,
-  );
+  final int queued = await queueing;
   if (!context.mounted) {
     return;
   }
   SnackBars.showSnackBar(
     context: context,
-    message: queued == 0
-        ? S.current.title_download_nothing
-        : S.current.title_download_queued(queued),
+    message: queued == 0 ? labels.nothing : labels.queued(queued),
   );
 }
 
-class _TitleDownloadPanel extends StatefulWidget {
+class _TitleDownloadPanel<T extends TitleDownloadContent>
+    extends StatefulWidget {
   const _TitleDownloadPanel({
-    required this.request,
-    required this.downloader,
+    required this.uid,
+    required this.labels,
+    required this.load,
     required this.onQueue,
   });
 
-  final TitleDownloadRequest request;
-  final TitleDownloader downloader;
-  final _QueueChoice onQueue;
+  final String uid;
+  final TitleDownloadLabels labels;
+  final Future<T> Function() load;
+  final _QueueChoice<T> onQueue;
 
   @override
-  State<_TitleDownloadPanel> createState() => _TitleDownloadPanelState();
+  State<_TitleDownloadPanel<T>> createState() => _TitleDownloadPanelState<T>();
 }
 
-class _TitleDownloadPanelState extends State<_TitleDownloadPanel> {
-  late Future<DownloadableTitle> _title;
+class _TitleDownloadPanelState<T extends TitleDownloadContent>
+    extends State<_TitleDownloadPanel<T>> {
+  late Future<T> _title;
   final Set<int> _selectedGroups = <int>{0};
+
+  TitleDownloadLabels get _labels => widget.labels;
 
   @override
   void initState() {
@@ -110,16 +201,11 @@ class _TitleDownloadPanelState extends State<_TitleDownloadPanel> {
     _title = _load();
   }
 
-  Future<DownloadableTitle> _load() async {
+  Future<T> _load() async {
     try {
-      return await widget.downloader.load(
-        client: await widget.request.loadClient(),
-        extensionUid: widget.request.extensionUid,
-        uid: widget.request.uid,
-        galleryData: widget.request.galleryData,
-      );
+      return await widget.load();
     } catch (error, stack) {
-      logger.w('Loading chapters for ${widget.request.uid} failed: $error');
+      logger.w('Loading downloadable content for ${widget.uid} failed: $error');
       logger.w(stack);
       rethrow;
     }
@@ -140,65 +226,67 @@ class _TitleDownloadPanelState extends State<_TitleDownloadPanel> {
     });
   }
 
-  void _choose(DownloadableTitle title, ChapterDownloadAmount amount) {
+  void _choose(T title, ChapterDownloadAmount amount) {
     Navigator.of(context).pop();
     widget.onQueue(title, Set<int>.of(_selectedGroups), amount);
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<DownloadableTitle>(
+    return FutureBuilder<T>(
       future: _title,
-      builder: (BuildContext context, AsyncSnapshot<DownloadableTitle> snap) {
+      builder: (BuildContext context, AsyncSnapshot<T> snap) {
         if (snap.hasError) {
           return _buildError();
         }
-        final DownloadableTitle? title = snap.data;
+        final T? title = snap.data;
         if (title == null) {
           return _buildLoading();
         }
         if (title.groups.every(
-          (ChaptersGroup group) => group.elements.isEmpty,
+          (ElementsGroupOfConcrete<ElementOfElementsGroupOfConcrete> group) =>
+              group.elements.isEmpty,
         )) {
-          return _buildMessage(S.current.title_download_no_chapters);
+          return _buildMessage(_labels.empty);
         }
         return _buildOptions(title);
       },
     );
   }
 
-  Widget _buildOptions(DownloadableTitle title) {
+  Widget _buildOptions(T title) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         if (title.groups.length > 1) ...<Widget>[
-          _buildSectionLabel(S.current.title_download_groups),
+          _buildSectionLabel(_labels.groups),
           for (int index = 0; index < title.groups.length; index++)
             ActionSheetRow(
               label: _groupLabel(title.groups[index], index),
               selected: _selectedGroups.contains(index),
               onTap: () => _toggleGroup(index),
             ),
-          _buildSectionLabel(S.current.title_download_how_many),
+          _buildSectionLabel(_labels.howMany),
         ],
         for (final ChapterDownloadAmount amount in ChapterDownloadAmount.values)
           ActionSheetRow(
             icon: Icons.download_rounded,
-            label: chapterDownloadAmountLabel(amount),
+            label: _labels.amount(amount),
             onTap: () => _choose(title, amount),
           ),
       ],
     );
   }
 
-  String _groupLabel(ChaptersGroup group, int index) {
+  String _groupLabel(
+    ElementsGroupOfConcrete<ElementOfElementsGroupOfConcrete> group,
+    int index,
+  ) {
     final String name = group.title.trim().isEmpty
         ? S.current.title_download_untitled_group(index + 1)
         : group.title.trim();
-    final String count = S.current.title_download_chapter_count(
-      group.elements.length,
-    );
+    final String count = _labels.elementCount(group.elements.length);
     return '$name · $count';
   }
 
@@ -224,7 +312,7 @@ class _TitleDownloadPanelState extends State<_TitleDownloadPanel> {
           ),
           const SizedBox(width: 14),
           Text(
-            S.current.title_download_loading,
+            _labels.loading,
             style: regular(size: 14, color: AppColors.mainGrey),
           ),
         ],
@@ -248,7 +336,7 @@ class _TitleDownloadPanelState extends State<_TitleDownloadPanel> {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              S.current.title_download_failed,
+              _labels.failed,
               style: regular(size: 14, color: AppColors.mainWhite),
             ),
           ),
@@ -262,20 +350,5 @@ class _TitleDownloadPanelState extends State<_TitleDownloadPanel> {
         ],
       ),
     );
-  }
-}
-
-String chapterDownloadAmountLabel(ChapterDownloadAmount amount) {
-  switch (amount) {
-    case ChapterDownloadAmount.next:
-      return S.current.title_download_next;
-    case ChapterDownloadAmount.nextFive:
-      return S.current.title_download_next_count(5);
-    case ChapterDownloadAmount.nextTen:
-      return S.current.title_download_next_count(10);
-    case ChapterDownloadAmount.unread:
-      return S.current.title_download_unread;
-    case ChapterDownloadAmount.all:
-      return S.current.title_download_all;
   }
 }

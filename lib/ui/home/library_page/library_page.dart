@@ -648,22 +648,22 @@ class _LibraryPageState extends State<LibraryPage> {
     );
   }
 
-  Future<Set<String>> _mangaExtensionUids(
+  Future<Map<String, ConfigInfoType>> _extensionTypes(
     BuildContext context,
     List<LibraryEntryDomain> entries,
   ) async {
     final ExtensionRepository extensions = context.read<ExtensionRepository>();
-    final Set<String> manga = <String>{};
+    final Map<String, ConfigInfoType> types = <String, ConfigInfoType>{};
     final Set<String> extensionUids = entries
         .map((LibraryEntryDomain e) => e.extensionUid)
         .toSet();
     for (final String uid in extensionUids) {
       final ExtensionDomain? extension = await extensions.getByUid(uid);
-      if (extension?.config.type == ConfigInfoType.MANGA) {
-        manga.add(uid);
+      if (extension != null) {
+        types[uid] = extension.config.type;
       }
     }
-    return manga;
+    return types;
   }
 
   Future<void> _showActions(
@@ -675,7 +675,7 @@ class _LibraryPageState extends State<LibraryPage> {
     if (entries.isEmpty) {
       return;
     }
-    final Set<String> mangaExtensions = await _mangaExtensionUids(
+    final Map<String, ConfigInfoType> extensionTypes = await _extensionTypes(
       context,
       entries,
     );
@@ -684,7 +684,7 @@ class _LibraryPageState extends State<LibraryPage> {
     }
     final List<LibraryEntryDomain> downloadable = entries
         .where(
-          (LibraryEntryDomain e) => mangaExtensions.contains(e.extensionUid),
+          (LibraryEntryDomain e) => extensionTypes.containsKey(e.extensionUid),
         )
         .toList();
     final bool allTracked = entries.every(
@@ -734,6 +734,7 @@ class _LibraryPageState extends State<LibraryPage> {
                   _download(
                     context,
                     downloadable,
+                    extensionTypes,
                     fromSelection: fromSelection,
                   );
                 },
@@ -778,11 +779,17 @@ class _LibraryPageState extends State<LibraryPage> {
 
   void _download(
     BuildContext context,
-    List<LibraryEntryDomain> entries, {
+    List<LibraryEntryDomain> entries,
+    Map<String, ConfigInfoType> extensionTypes, {
     required bool fromSelection,
   }) {
     if (entries.length == 1) {
-      showLibraryDownloadSheet(context, entries.single);
+      final LibraryEntryDomain entry = entries.single;
+      showLibraryDownloadSheet(
+        context,
+        entry,
+        type: extensionTypes[entry.extensionUid] ?? ConfigInfoType.MANGA,
+      );
       if (fromSelection) {
         _clearSelection();
       }
@@ -791,6 +798,7 @@ class _LibraryPageState extends State<LibraryPage> {
     showLibraryBulkDownloadSheet(
       context,
       entries,
+      extensionTypes: extensionTypes,
       onStarted: fromSelection ? _clearSelection : null,
     );
   }

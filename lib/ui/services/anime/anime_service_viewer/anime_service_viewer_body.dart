@@ -185,6 +185,7 @@ class AnimeServiceViewerBody extends StatelessWidget {
           cover: galleryView.cover,
           data: galleryView.data,
         ),
+        downloadClient: apiClient,
       ),
       onTap: () => _onGalleryViewClick(context, galleryView),
       subtitle: galleryView.subtitle,

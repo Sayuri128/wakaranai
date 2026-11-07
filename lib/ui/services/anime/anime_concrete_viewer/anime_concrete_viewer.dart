@@ -13,6 +13,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
+import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
+import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/services/downloads/episode/downloaded_episode_lookup.dart';
@@ -34,6 +37,7 @@ import 'package:wakaranai/ui/services/anime/anime_iframe_player/anime_iframe_pla
 import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
+import 'package:wakaranai/ui/services/widgets/chapter_download_button.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
 import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
 import 'package:wakaranai/ui/widgets/selection_action_bar.dart';
@@ -355,6 +359,7 @@ class AnimeConcreteViewer extends StatelessWidget
       isNew: isNew,
       selected: state.selection.contains(animeVideo.uid),
       dim: activity != null,
+      trailing: _buildDownloadButton(context, animeVideo, state),
       subtitle: _buildEpisodeSubtitle(animeVideo, activity),
       onLongPress: () {
         getConcreteViewCubit(context).changeSelection(animeVideo.uid);
@@ -368,6 +373,56 @@ class AnimeConcreteViewer extends StatelessWidget
       },
     ),
     );
+  }
+
+  Widget? _buildDownloadButton(
+    BuildContext context,
+    AnimeVideo episode,
+    ConcreteViewInitialized<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
+        state,
+  ) {
+    final ConcreteDataDomain? domain = state.domain;
+    if (domain == null) {
+      return null;
+    }
+    return BlocBuilder<DownloadManagerCubit, DownloadManagerState>(
+      builder: (BuildContext context, DownloadManagerState downloads) {
+        final DownloadDomain? download = downloads.forChapter(episode.uid);
+        return ChapterDownloadButton(
+          download: download,
+          onDownload: () => _enqueueEpisode(context, episode, state, domain),
+          onRetry: () {
+            if (download != null) {
+              unawaited(
+                context.read<DownloadManagerCubit>().retryDownload(download),
+              );
+            }
+          },
+          onDelete: () {
+            if (download != null) {
+              deleteDownloadWithConfirmation(context, download);
+            }
+          },
+        );
+      },
+    );
+  }
+
+  void _enqueueEpisode(
+    BuildContext context,
+    AnimeVideo episode,
+    ConcreteViewInitialized<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
+        state,
+    ConcreteDataDomain domain,
+  ) {
+    unawaited(context.read<DownloadManagerCubit>().enqueueEpisode(
+          extensionUid: data.configInfo.uid,
+          concreteUid: state.concreteView.uid,
+          concreteId: domain.id,
+          concreteTitle: state.concreteView.title,
+          concreteCover: state.concreteView.cover,
+          episode: episode,
+        ));
   }
 
   Future<void> _playEpisode(

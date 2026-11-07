@@ -1,4 +1,6 @@
 import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
+import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/manga_concrete_view.dart';
@@ -12,7 +14,29 @@ import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/services/downloads/chapter_download_selection.dart';
 
-class DownloadableTitle {
+abstract class TitleDownloadContent {
+  List<ElementsGroupOfConcrete<ElementOfElementsGroupOfConcrete>> get groups;
+}
+
+const Set<DownloadStatus> _keptDownloadStatuses = <DownloadStatus>{
+  DownloadStatus.queued,
+  DownloadStatus.downloading,
+  DownloadStatus.done,
+};
+
+Future<Set<String>> keptDownloadUidsOf(
+  DownloadRepository downloadRepository,
+  String concreteUid,
+) async {
+  final List<DownloadDomain> downloads = await downloadRepository
+      .getByConcreteUid(concreteUid);
+  return <String>{
+    for (final DownloadDomain download in downloads)
+      if (_keptDownloadStatuses.contains(download.status)) download.uid,
+  };
+}
+
+class DownloadableTitle implements TitleDownloadContent {
   const DownloadableTitle({
     required this.client,
     required this.extensionUid,
@@ -29,6 +53,7 @@ class DownloadableTitle {
   final Set<String> readUids;
   final Set<String> downloadedUids;
 
+  @override
   List<ChaptersGroup> get groups => concrete.groups;
 
   List<Chapter> select(Set<int> groupIndexes, ChapterDownloadAmount amount) {
@@ -67,12 +92,6 @@ class TitleDownloader {
   final ChapterActivityRepository chapterActivityRepository;
   final DownloadRepository downloadRepository;
 
-  static const Set<DownloadStatus> _keptStatuses = <DownloadStatus>{
-    DownloadStatus.queued,
-    DownloadStatus.downloading,
-    DownloadStatus.done,
-  };
-
   Future<DownloadableTitle> load({
     required MangaApiClient client,
     required String extensionUid,
@@ -97,7 +116,10 @@ class TitleDownloader {
       concrete: concrete,
       concreteId: saved.id,
       readUids: await _readChapterUids(concrete.uid),
-      downloadedUids: await _keptDownloadUids(concrete.uid),
+      downloadedUids: await keptDownloadUidsOf(
+        downloadRepository,
+        concrete.uid,
+      ),
     );
   }
 
@@ -136,15 +158,6 @@ class TitleDownloader {
     return <String>{
       for (final ChapterActivityDomain activity in activities)
         if (activity.isCompleted) activity.uid,
-    };
-  }
-
-  Future<Set<String>> _keptDownloadUids(String concreteUid) async {
-    final List<DownloadDomain> downloads = await downloadRepository
-        .getByConcreteUid(concreteUid);
-    return <String>{
-      for (final DownloadDomain download in downloads)
-        if (_keptStatuses.contains(download.status)) download.uid,
     };
   }
 }

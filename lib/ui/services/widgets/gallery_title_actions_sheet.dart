@@ -1,6 +1,8 @@
 import 'dart:convert';
 
-import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/api_clients/anime_api_client.dart';
+import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -44,7 +46,7 @@ class GalleryTitle {
 Future<void> showGalleryTitleActions(
   BuildContext context, {
   required GalleryTitle title,
-  MangaApiClient? downloadClient,
+  ApiClient? downloadClient,
 }) {
   final LibraryCubit library = context.read<LibraryCubit>();
   final LibraryEntryDomain? saved = _savedEntry(library.state, title.uid);
@@ -91,6 +93,9 @@ Future<void> showGalleryTitleActions(
                     extensionUid: title.extensionUid,
                     galleryData: title.data,
                     loadClient: () async => downloadClient,
+                    type: downloadClient is AnimeApiClient
+                        ? ConfigInfoType.ANIME
+                        : ConfigInfoType.MANGA,
                   ),
                 );
               },
