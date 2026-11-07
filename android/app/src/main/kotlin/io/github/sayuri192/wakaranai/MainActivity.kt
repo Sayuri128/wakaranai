@@ -18,6 +18,8 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterActivity() {
     private val pictureInPicture = PictureInPictureChannel(this)
+    private val downloadRuntime by lazy { DownloadRuntimeChannel(applicationContext) }
+    private val networkState by lazy { NetworkStateChannel(applicationContext) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +47,8 @@ class MainActivity: FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         pictureInPicture.attach(flutterEngine.dartExecutor.binaryMessenger)
+        downloadRuntime.attach(flutterEngine.dartExecutor.binaryMessenger)
+        networkState.attach(flutterEngine.dartExecutor.binaryMessenger)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "wakaranai/device")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -82,6 +86,12 @@ class MainActivity: FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        downloadRuntime.detach()
+        networkState.detach()
+        super.cleanUpFlutterEngine(flutterEngine)
     }
 
     private fun runInBackground(result: MethodChannel.Result, task: () -> Any) {
