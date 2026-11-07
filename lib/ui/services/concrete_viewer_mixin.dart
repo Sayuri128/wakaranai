@@ -19,7 +19,7 @@ import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/ui/widgets/selection_action_bar.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
-mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView<dynamic>,
+mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView,
     G extends GalleryView> {
   ConcreteViewCubit<T, C, G> getConcreteViewCubit(BuildContext context) {
     return context.read<ConcreteViewCubit<T, C, G>>();

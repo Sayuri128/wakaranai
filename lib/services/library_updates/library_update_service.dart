@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
+import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
+import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:wakaranai/services/configs_service/prepared_client_pool.dart';
 import 'package:wakaranai/services/configs_service/session_failure_classifier.dart';
@@ -50,7 +52,7 @@ class LibraryUpdateCheckResult {
   });
 }
 
-typedef ConcreteViewFetcher = Future<ConcreteView<dynamic>> Function(
+typedef ConcreteViewFetcher = Future<ConcreteView> Function(
   ExtensionDomain extension,
   LibraryEntryDomain entry,
 );
@@ -184,7 +186,7 @@ class LibraryUpdateService {
 
     final ConfigInfo config = extension.config;
 
-    final ConcreteView<dynamic> concreteView =
+    final ConcreteView concreteView =
         await _fetchClassified(extension, entry);
 
     final ConcreteDataDomain? cached =
@@ -211,9 +213,9 @@ class LibraryUpdateService {
 
     final List<LibraryUpdateDomain> found = <LibraryUpdateDomain>[];
 
-    for (final dynamic group in concreteView.groups) {
-      for (final dynamic element in group.elements as List<dynamic>) {
-        final String uid = element.uid as String;
+    for (final ElementsGroupOfConcrete group in concreteView.groups) {
+      for (final ElementOfElementsGroupOfConcrete element in group.elements) {
+        final String uid = element.uid;
         if (knownUids.contains(uid) || recordedUids.contains(uid)) continue;
 
         final LibraryUpdateDomain update = LibraryUpdateDomain(
@@ -221,7 +223,7 @@ class LibraryUpdateService {
           uid: uid,
           libraryEntryUid: entry.uid,
           extensionUid: entry.extensionUid,
-          title: element.title as String,
+          title: element.title,
           concreteTitle: entry.title,
           concreteCover: entry.cover,
           mediaType: mediaType,
@@ -245,21 +247,21 @@ class LibraryUpdateService {
 
   Future<void> _saveSnapshot(
     LibraryEntryDomain entry,
-    ConcreteView<dynamic> concreteView,
+    ConcreteView concreteView,
     ConfigInfo config,
   ) async {
     await concreteDataRepository.createUpdateBy<$ConcreteDataTableTable, String>(
       concreteView.toConcreteDataDomain(
         data: entry.dataJson,
         extensionUid: config.uid,
-        concreteJson: jsonEncode((concreteView as dynamic).toJson()),
+        concreteJson: jsonEncode(concreteView.toJson()),
       ),
       by: (ConcreteDataDomain domain) => domain.uid,
       where: ($ConcreteDataTableTable tbl) => tbl.uid,
     );
   }
 
-  Future<ConcreteView<dynamic>> _fetchClassified(
+  Future<ConcreteView> _fetchClassified(
     ExtensionDomain extension,
     LibraryEntryDomain entry,
   ) async {
@@ -281,7 +283,7 @@ class LibraryUpdateService {
     }
   }
 
-  Future<ConcreteView<dynamic>> _fetch(
+  Future<ConcreteView> _fetch(
     ExtensionDomain extension,
     LibraryEntryDomain entry,
   ) {
@@ -292,13 +294,13 @@ class LibraryUpdateService {
     return _fetchViaClient(extension, entry);
   }
 
-  Future<ConcreteView<dynamic>> _fetchViaClient(
+  Future<ConcreteView> _fetchViaClient(
     ExtensionDomain extension,
     LibraryEntryDomain entry,
   ) async {
     final ApiClient client = await _clientFor(extension);
 
-    return await (client as dynamic).getConcrete(
+    return await client.getConcrete(
       uid: entry.uid,
       data: entry.dataJson,
     );

@@ -12,7 +12,9 @@ part 'service_view_state.dart';
 
 class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
     extends Cubit<ServiceViewState<T, G>> {
-  ServiceViewCubit(super.initialState);
+  ServiceViewCubit(super.initialState, {this.feed});
+
+  final String? feed;
 
   void init(ConfigInfo configInfo) async {
     emit(ServiceViewLoading<T, G>(client: state.client));
@@ -53,16 +55,14 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
       required void Function() retry}) async {
     List<G>? galleryViews;
 
-    final client = state.client;
+    final T client = state.client;
 
     try {
-      // TODO: avoid dynamic.
-      // Will it be enough to add the getGallery method to the ApiClient interface??
-      // What about the services that will be added over time? Will they all support gallery view?
-      galleryViews = await runSerializedOn<dynamic>(
+      final List<GalleryView> fetched = await runSerializedOn<List<GalleryView>>(
           client,
-          () => (client as dynamic)
-              .getGallery(page: page, query: query, filters: filters));
+          () => client.getGallery(
+              page: page, query: query, filters: filters, feed: feed));
+      galleryViews = fetched as List<G>;
     } catch (exception, stacktrace) {
       logger.e(exception);
       logger.e(stacktrace);
@@ -203,8 +203,7 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
   }
 
   Future<Map<String, Map<String, String>>> _getImageHeaders(
-      List<dynamic> galleryViews,
-      ServiceViewInitialized<dynamic, dynamic> state) async {
+      List<G> galleryViews, ServiceViewInitialized<T, G> state) async {
     final Map<String, Map<String, String>> imagesHeaders =
         <String, Map<String, String>>{};
     for (final GalleryView galleryView in (galleryViews)) {

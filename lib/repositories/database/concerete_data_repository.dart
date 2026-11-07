@@ -15,7 +15,7 @@ class ConcreteDataRepository extends BaseRepository<ConcreteDataDomain,
   }
 
   Future<ConcreteDataDomain?> saveConcrete(
-    ConcreteView<dynamic> concreteView, {
+    ConcreteView concreteView, {
     required Map<String, dynamic> galleryData,
     required String extensionUid,
   }) {
@@ -23,7 +23,7 @@ class ConcreteDataRepository extends BaseRepository<ConcreteDataDomain,
       concreteView.toConcreteDataDomain(
         data: galleryData,
         extensionUid: extensionUid,
-        concreteJson: jsonEncode((concreteView as dynamic).toJson()),
+        concreteJson: jsonEncode(concreteView.toJson()),
       ),
       by: (tbl) => tbl.uid,
       where: (tbl) => tbl.uid,

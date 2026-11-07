@@ -138,7 +138,7 @@ class _Harness {
   }
 }
 
-ConcreteViewFetcher _returns(ConcreteView<dynamic> view) {
+ConcreteViewFetcher _returns(ConcreteView view) {
   return (ExtensionDomain _, LibraryEntryDomain __) async => view;
 }
 

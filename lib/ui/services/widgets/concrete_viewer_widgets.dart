@@ -498,9 +498,9 @@ class ConcreteContentSkeleton extends StatelessWidget {
 class ConcreteMetadataRow extends StatelessWidget {
   const ConcreteMetadataRow({super.key, required this.view});
 
-  final ConcreteView<dynamic> view;
+  final ConcreteView view;
 
-  static bool hasContent(ConcreteView<dynamic> view) =>
+  static bool hasContent(ConcreteView view) =>
       view.authors.isNotEmpty ||
       view.artists.isNotEmpty ||
       view.year != null ||

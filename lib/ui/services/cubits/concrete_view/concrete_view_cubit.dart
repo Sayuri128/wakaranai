@@ -6,6 +6,7 @@ import 'package:capyscript/modules/waka_models/models/common/element_of_elements
 import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_concrete_view.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/manga_concrete_view.dart';
@@ -24,7 +25,7 @@ part 'concrete_view_state.dart';
 
 enum ConcreteViewOrder { def, defReverse }
 
-class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
+class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView,
     G extends GalleryView> extends Cubit<ConcreteViewState<T, C, G>> {
   ConcreteViewCubit(
     super.state, {
@@ -38,18 +39,18 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
   final AnimeEpisodeActivityRepository animeEpisodeActivityRepository;
 
   Future<C> _getConcrete(String uid, Map<String, dynamic> data) async {
-    final dynamic client = state.apiClient; // TODO: avoid dynamic
-    return await runSerializedOn<dynamic>(
-      state.apiClient,
+    final T client = state.apiClient;
+    final ConcreteView concreteView = await runSerializedOn<ConcreteView>(
+      client,
       () => client.getConcrete(uid: uid, data: data),
     );
+    return concreteView as C;
   }
 
   Future<void> getConcrete(String uid, Map<String, dynamic> galleryData,
       {bool forceRemote = false}) async {
     try {
-      final ConcreteView<dynamic> concreteView =
-          await _getConcrete(uid, galleryData);
+      final C concreteView = await _getConcrete(uid, galleryData);
 
       final domain = await concreteDataRepository.saveConcrete(
         concreteView,
@@ -79,7 +80,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       final groupIndex = concreteView.groups.isNotEmpty ? 0 : -1;
       emit(
         ConcreteViewInitialized<T, C, G>(
-          concreteView: concreteView as dynamic,
+          concreteView: concreteView,
           apiClient: state.apiClient,
           configInfo: state.configInfo,
           domain: domain,
@@ -118,7 +119,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       final Map<String, dynamic> json =
           jsonDecode(cached!.concreteJson!) as Map<String, dynamic>;
 
-      final ConcreteView<dynamic> concreteView =
+      final ConcreteView concreteView =
           state.configInfo.type == ConfigInfoType.ANIME
               ? AnimeConcreteView.fromJson(json)
               : MangaConcreteView.fromJson(json);
@@ -136,7 +137,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
 
       emit(
         ConcreteViewInitialized<T, C, G>(
-          concreteView: concreteView as dynamic,
+          concreteView: concreteView as C,
           apiClient: state.apiClient,
           configInfo: state.configInfo,
           domain: cached,
@@ -158,7 +159,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
   }
 
   Future<Map<String, AnimeEpisodeActivityDomain>> _fetchAnimeEpisodeActivities(
-      ConcreteView<dynamic> concreteView) async {
+      ConcreteView concreteView) async {
     final Map<String, AnimeEpisodeActivityDomain> animeEpisodeActivities = {};
 
     if (state.configInfo.type == ConfigInfoType.ANIME) {
@@ -174,7 +175,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
   }
 
   Future<Map<String, ChapterActivityDomain>> _fetchMangaChapterActivities(
-      ConcreteView<dynamic> concreteView) async {
+      ConcreteView concreteView) async {
     final Map<String, ChapterActivityDomain> chapterActivities = {};
 
     if (state.configInfo.type == ConfigInfoType.MANGA) {
@@ -336,14 +337,16 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
 
           await chapterActivityRepository.markCompleted(activity);
         } else if (state.configInfo.type == ConfigInfoType.ANIME) {
+          final AnimeVideo episode = groupItem as AnimeVideo;
+
           final AnimeEpisodeActivityDomain activity =
               AnimeEpisodeActivityDomain(
             id: 0,
             uid: uid,
             concreteId: state.domain!.id,
-            timestamp: groupItem.timestamp,
-            title: groupItem.title,
-            data: jsonEncode(groupItem.data),
+            timestamp: episode.timestamp,
+            title: episode.title,
+            data: jsonEncode(episode.data),
             createdAt: DateTime.now(),
           );
 

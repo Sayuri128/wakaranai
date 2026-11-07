@@ -1,6 +1,6 @@
 part of 'concrete_view_cubit.dart';
 
-class ConcreteViewState<T extends ApiClient, C extends ConcreteView<dynamic>,
+class ConcreteViewState<T extends ApiClient, C extends ConcreteView,
     G extends GalleryView> {
   final T apiClient;
   final ConfigInfo configInfo;
@@ -13,7 +13,7 @@ class ConcreteViewState<T extends ApiClient, C extends ConcreteView<dynamic>,
 
 class ConcreteViewInitialized<
     T extends ApiClient,
-    C extends ConcreteView<dynamic>,
+    C extends ConcreteView,
     G extends GalleryView> extends ConcreteViewState<T, C, G> {
   final C concreteView;
   final ConcreteDataDomain? domain;
@@ -69,7 +69,7 @@ class ConcreteViewInitialized<
   }
 }
 
-class ConcreteViewError<T extends ApiClient, C extends ConcreteView<dynamic>,
+class ConcreteViewError<T extends ApiClient, C extends ConcreteView,
     G extends GalleryView> extends ConcreteViewState<T, C, G> {
   final String message;
 
