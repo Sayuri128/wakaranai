@@ -2,8 +2,6 @@ part of 'download_manager_cubit.dart';
 
 enum DownloadQueueHold { none, waitingForWifi }
 
-enum DownloadRuntimeStatus { inactive, active, startNotAllowed, timedOut }
-
 class DownloadManagerState {
   final List<DownloadDomain> downloads;
   final DownloadQueueHold hold;

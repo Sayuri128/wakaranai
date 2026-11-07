@@ -18,6 +18,7 @@ import 'package:wakaranai/services/downloads/episode/episode_source_resolver.dar
 import 'package:wakaranai/services/downloads/queue/download_job.dart';
 import 'package:wakaranai/services/downloads/runtime/download_network_policy.dart';
 import 'package:wakaranai/services/downloads/runtime/download_runtime.dart';
+import 'package:wakaranai/services/downloads/runtime/download_runtime_coordinator.dart';
 import 'package:wakaranai/services/downloads/storage/download_files.dart';
 import 'package:wakaranai/utils/http_client.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,6 +34,9 @@ import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/utils/serial_call_queue.dart';
+
+export 'package:wakaranai/services/downloads/runtime/download_runtime_coordinator.dart'
+    show DownloadRuntimeStatus;
 
 part 'download_manager_state.dart';
 
@@ -96,12 +100,16 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         _injectedEpisodeDownloader = episodeDownloader,
         _readQualityPreference = readQualityPreference ??
             PlayerPreferences().getQualityPreference,
-        _runtime = downloadRuntime ?? createDownloadRuntime(),
         _networkPolicy = networkPolicy ?? DownloadNetworkPolicy.platform(),
         _clients =
             DownloadClientPool(extensionRepository: extensionRepository),
         super(const DownloadManagerState()) {
-    _runtimeEvents = _runtime.events.listen(_onRuntimeEvent);
+    _runtime = DownloadRuntimeCoordinator(
+      runtime: downloadRuntime ?? createDownloadRuntime(),
+      isOwnerClosed: () => isClosed,
+      readStatus: () => state.runtimeStatus,
+      publishStatus: _setRuntimeStatus,
+    );
     _networkPolicyChanges =
         _networkPolicy.changes.listen(_onNetworkPolicyChanged);
   }
@@ -112,10 +120,9 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   final EpisodeSourceResolver? _injectedSourceResolver;
   final EpisodeDownloader? _injectedEpisodeDownloader;
   final QualityPreferenceReader _readQualityPreference;
-  final DownloadRuntime _runtime;
+  late final DownloadRuntimeCoordinator _runtime;
   final DownloadNetworkPolicy _networkPolicy;
   final DownloadClientPool _clients;
-  late final StreamSubscription<DownloadRuntimeEvent> _runtimeEvents;
   late final StreamSubscription<bool> _networkPolicyChanges;
 
   static const Duration _progressPersistInterval = Duration(milliseconds: 700);
@@ -142,9 +149,6 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   DownloadJob? _pausedJob;
   DownloadJob? _previousJobInBatch;
   bool _processing = false;
-  bool _runtimeWanted = false;
-  bool _runtimeRunning = false;
-  Future<void> _runtimeSync = Future<void>.value();
   int _completedInBatch = 0;
   int _batchIndex = 0;
   bool _permissionRequested = false;
@@ -500,7 +504,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
           _cancelled.remove(job.uid);
           continue;
         }
-        unawaited(_setRuntimeWanted(true));
+        unawaited(_runtime.setWanted(true));
         _activeJob = job;
         try {
           await _runActiveJob(job);
@@ -532,7 +536,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     if (completed > 0) {
       await notificationService.showComplete(completed);
     }
-    await _setRuntimeWanted(true);
+    await _runtime.setWanted(true);
     if (_processing || !_isHeldWithQueuedJobs) {
       return;
     }
@@ -669,77 +673,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     if (_processing) {
       return;
     }
-    await _setRuntimeWanted(false);
-  }
-
-  Future<void> _setRuntimeWanted(bool wanted) {
-    _runtimeWanted = wanted;
-    return _runtimeSync = _runtimeSync.then((_) => _syncRuntime());
-  }
-
-  Future<void> _syncRuntime() async {
-    try {
-      final bool wanted = _runtimeWanted && !isClosed;
-      if (!wanted) {
-        await _stopRuntime();
-        return;
-      }
-      if (_runtimeRunning) {
-        return;
-      }
-      _onRuntimeStart(await _runtime.start());
-    } catch (e, s) {
-      logger.w('Could not update the download service: $e');
-      logger.w(s);
-    }
-  }
-
-  Future<void> _stopRuntime() async {
-    if (_runtimeRunning) {
-      _runtimeRunning = false;
-      await _runtime.stop();
-    }
-    _setRuntimeStatus(DownloadRuntimeStatus.inactive);
-  }
-
-  void _onRuntimeStart(DownloadRuntimeStart outcome) {
-    switch (outcome) {
-      case DownloadRuntimeStart.started:
-      case DownloadRuntimeStart.alreadyRunning:
-        _runtimeRunning = true;
-        _setRuntimeStatus(DownloadRuntimeStatus.active);
-        break;
-      case DownloadRuntimeStart.notAllowed:
-        logger.w('Downloads could not enter the foreground; they continue '
-            'only while the app stays open');
-        _markRuntimeRestricted(DownloadRuntimeStatus.startNotAllowed);
-        break;
-      case DownloadRuntimeStart.unsupported:
-        break;
-    }
-  }
-
-  void _onRuntimeEvent(DownloadRuntimeEvent event) {
-    switch (event) {
-      case DownloadRuntimeEvent.startNotAllowed:
-        logger.w('The download service was refused the foreground; '
-            'downloads continue only while the app stays open');
-        _markRuntimeRestricted(DownloadRuntimeStatus.startNotAllowed);
-        break;
-      case DownloadRuntimeEvent.timedOut:
-        logger.w('The download service reached its Android time limit; '
-            'downloads continue only while the app stays open');
-        _markRuntimeRestricted(DownloadRuntimeStatus.timedOut);
-        break;
-    }
-  }
-
-  void _markRuntimeRestricted(DownloadRuntimeStatus status) {
-    _runtimeRunning = false;
-    if (state.runtimeStatus == DownloadRuntimeStatus.timedOut) {
-      return;
-    }
-    _setRuntimeStatus(status);
+    await _runtime.setWanted(false);
   }
 
   void _setRuntimeStatus(DownloadRuntimeStatus status) {
@@ -1481,8 +1415,8 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   Future<void> close() async {
     await _sub?.cancel();
     await _networkPolicyChanges.cancel();
-    await _runtimeEvents.cancel();
-    await _setRuntimeWanted(false);
+    await _runtime.stopListening();
+    await _runtime.setWanted(false);
     await _networkPolicy.dispose();
     await _runtime.dispose();
     await _clients.dispose();
