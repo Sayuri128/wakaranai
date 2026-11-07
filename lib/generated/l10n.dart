@@ -7191,6 +7191,46 @@ class S {
     );
   }
 
+  /// `Page size`
+  String get ext_prefs_page_size_title {
+    return Intl.message(
+      'Page size',
+      name: 'ext_prefs_page_size_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `How many titles each gallery page loads.`
+  String get ext_prefs_page_size_summary {
+    return Intl.message(
+      'How many titles each gallery page loads.',
+      name: 'ext_prefs_page_size_summary',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} per page`
+  String ext_prefs_page_size_option(Object count) {
+    return Intl.message(
+      '$count per page',
+      name: 'ext_prefs_page_size_option',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count} per page (default)`
+  String ext_prefs_page_size_default_option(Object count) {
+    return Intl.message(
+      '$count per page (default)',
+      name: 'ext_prefs_page_size_default_option',
+      desc: '',
+      args: [count],
+    );
+  }
+
   /// `Enter a number`
   String get ext_prefs_number_invalid {
     return Intl.message(

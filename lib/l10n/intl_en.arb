@@ -1346,6 +1346,20 @@
   "ext_prefs_mirror_title": "Mirror",
   "ext_prefs_mirror_summary": "Which site address requests go to. Automatic tries each mirror until one responds.",
   "ext_prefs_mirror_automatic": "Automatic",
+  "ext_prefs_page_size_title": "Page size",
+  "ext_prefs_page_size_summary": "How many titles each gallery page loads.",
+  "ext_prefs_page_size_option": "{count} per page",
+  "@ext_prefs_page_size_option": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "ext_prefs_page_size_default_option": "{count} per page (default)",
+  "@ext_prefs_page_size_default_option": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "ext_prefs_number_invalid": "Enter a number",
   "ext_prefs_default_hint": "Default: {value}",
   "@ext_prefs_default_hint": {

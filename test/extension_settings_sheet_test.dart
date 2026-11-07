@@ -63,11 +63,28 @@ ConfigInfo _config() => ConfigInfo.fromJson(<String, dynamic>{
       },
     });
 
+ConfigInfo _paginatedConfig() => ConfigInfo.fromJson(<String, dynamic>{
+      'name': 'Paged Source',
+      'uid': _uid,
+      'logoUrl': '',
+      'type': 0,
+      'nsfw': false,
+      'language': 'en',
+      'version': 1,
+      'filters': <dynamic>[],
+      'searchAvailable': true,
+      'pagination': <String, dynamic>{
+        'pageSizes': <int>[20, 50, 100],
+        'defaultPageSize': 20,
+      },
+    });
+
 Future<void> _pumpHost(
   WidgetTester tester,
   ExtensionPreferencesStore store,
-  void Function(bool changed) onClosed,
-) async {
+  void Function(bool changed) onClosed, {
+  ConfigInfo? config,
+}) async {
   tester.view.physicalSize = const Size(1080, 4000);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
@@ -87,7 +104,7 @@ Future<void> _pumpHost(
               onPressed: () async {
                 onClosed(await showExtensionSettingsSheet(
                   context,
-                  config: _config(),
+                  config: config ?? _config(),
                   store: store,
                 ));
               },
@@ -130,6 +147,65 @@ void main() {
     expect(find.widgetWithText(TextFormField, '20'), findsOneWidget);
     expect(find.text('Reset to defaults'), findsOneWidget);
     expect(find.byIcon(Icons.check_rounded), findsNWidgets(2));
+    expect(find.textContaining('per page'), findsNothing);
+  });
+
+  testWidgets('declared pagination adds a page size row with the default',
+      (WidgetTester tester) async {
+    await _pumpHost(tester, store, (bool changed) {},
+        config: _paginatedConfig());
+
+    expect(find.text('Page size'), findsOneWidget);
+    expect(find.text('20 per page (default)'), findsOneWidget);
+    expect(find.text('50 per page'), findsOneWidget);
+    expect(find.text('100 per page'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.ancestor(
+          of: find.text('20 per page (default)'),
+          matching: find.byType(Row),
+        ),
+        matching: find.byIcon(Icons.check_rounded),
+      ),
+      findsOneWidget,
+    );
+    expect(find.byTooltip('Reset to default'), findsNothing);
+  });
+
+  testWidgets('choosing a page size stores it and the default clears it',
+      (WidgetTester tester) async {
+    bool? closedWithChanges;
+    await _pumpHost(tester, store, (bool changed) {
+      closedWithChanges = changed;
+    }, config: _paginatedConfig());
+
+    await tester.tap(find.text('50 per page'));
+    await tester.pumpAndSettle();
+
+    expect(await store.read(_uid, ExtensionPreference.pageSizeKey), 50);
+    expect(find.byTooltip('Reset to default'), findsOneWidget);
+
+    await tester.tap(find.text('20 per page (default)'));
+    await tester.pumpAndSettle();
+
+    expect(await store.readAll(_uid), isEmpty);
+    expect(find.byTooltip('Reset to default'), findsNothing);
+
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+    expect(closedWithChanges, isTrue);
+  });
+
+  testWidgets('a stored page size can be reset to the default',
+      (WidgetTester tester) async {
+    await store.write(_uid, ExtensionPreference.pageSizeKey, 100);
+    await _pumpHost(tester, store, (bool changed) {},
+        config: _paginatedConfig());
+
+    await tester.tap(find.byTooltip('Reset to default'));
+    await tester.pumpAndSettle();
+
+    expect(await store.read(_uid, ExtensionPreference.pageSizeKey), isNull);
   });
 
   testWidgets('edits are stored per type and reported as changes',

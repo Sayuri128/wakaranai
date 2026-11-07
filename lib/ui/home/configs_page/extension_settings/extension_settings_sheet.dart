@@ -1,4 +1,5 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/gallery_pagination/gallery_pagination.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/preferences/extension_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
@@ -62,6 +63,8 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
 
   List<String> get _mirrors => extensionMirrors(widget.config);
 
+  GalleryPagination? get _pagination => widget.config.pagination;
+
   @override
   void initState() {
     super.initState();
@@ -117,6 +120,13 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
     return ExtensionPreferenceValues.sanitizeMirror(
       _mirrors,
       _stored[ExtensionPreference.mirrorKey],
+    );
+  }
+
+  int? get _storedPageSize {
+    return ExtensionPreferenceValues.sanitizePageSize(
+      _pagination,
+      _stored[ExtensionPreference.pageSizeKey],
     );
   }
 
@@ -232,8 +242,10 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
     if (!_loaded) {
       return const SizedBox(height: 120);
     }
+    final GalleryPagination? pagination = _pagination;
     final List<Widget> sections = <Widget>[
       if (_mirrors.isNotEmpty) _buildMirrorSection(),
+      if (pagination != null) _buildPageSizeSection(pagination),
       for (final ExtensionPreference definition in _preferences)
         _buildPreference(definition),
     ];
@@ -287,6 +299,39 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
           ),
       ],
     );
+  }
+
+  Widget _buildPageSizeSection(GalleryPagination pagination) {
+    final int selected = _storedPageSize ?? pagination.defaultPageSize;
+    return _PreferenceCard(
+      children: <Widget>[
+        _PreferenceHeader(
+          title: S.current.ext_prefs_page_size_title,
+          summary: S.current.ext_prefs_page_size_summary,
+          trailing: _buildResetButtonForKey(ExtensionPreference.pageSizeKey),
+        ),
+        for (final int pageSize in pagination.pageSizes)
+          _OptionRow(
+            label: _pageSizeLabel(pagination, pageSize),
+            selected: selected == pageSize,
+            onTap: () => _selectPageSize(pagination, pageSize),
+          ),
+      ],
+    );
+  }
+
+  String _pageSizeLabel(GalleryPagination pagination, int pageSize) {
+    if (pageSize == pagination.defaultPageSize) {
+      return S.current.ext_prefs_page_size_default_option(pageSize);
+    }
+    return S.current.ext_prefs_page_size_option(pageSize);
+  }
+
+  Future<void> _selectPageSize(GalleryPagination pagination, int pageSize) {
+    if (pageSize == pagination.defaultPageSize) {
+      return _remove(ExtensionPreference.pageSizeKey);
+    }
+    return _write(ExtensionPreference.pageSizeKey, pageSize);
   }
 
   String _mirrorLabel(String mirror) {
@@ -361,7 +406,11 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
   }
 
   Widget? _buildResetButton(ExtensionPreference definition) {
-    if (!_stored.containsKey(definition.key)) {
+    return _buildResetButtonForKey(definition.key);
+  }
+
+  Widget? _buildResetButtonForKey(String key) {
+    if (!_stored.containsKey(key)) {
       return null;
     }
     return IconButton(
@@ -372,7 +421,7 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
         size: 20,
         color: AppColors.mainGrey,
       ),
-      onPressed: () => _remove(definition.key),
+      onPressed: () => _remove(key),
     );
   }
 
