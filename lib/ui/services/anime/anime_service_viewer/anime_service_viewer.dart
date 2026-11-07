@@ -1,20 +1,15 @@
-import 'dart:async';
-
 import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_gallery_view/anime_gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
+import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
-import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
-import 'package:wakaranai/ui/home/service_view_cubit_wrapper.dart';
-import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
+import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
+import 'package:wakaranai/ui/common/service_viewer/service_gallery_kind.dart';
+import 'package:wakaranai/ui/common/service_viewer/service_viewer_shell.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/anime_concrete_viewer/anime_concrete_viewer.dart';
-import 'package:wakaranai/ui/services/anime/anime_service_viewer/anime_service_viewer_body.dart';
-import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
 
 class AnimeServiceViewerData {
   final BaseExtension? remoteConfig;
@@ -28,110 +23,64 @@ class AnimeServiceViewerData {
   }
 }
 
-class AnimeServiceViewer extends StatefulWidget {
+class AnimeServiceViewer extends StatelessWidget {
   const AnimeServiceViewer({super.key, required this.data});
 
   final AnimeServiceViewerData data;
 
   @override
-  State<AnimeServiceViewer> createState() => _AnimeServiceViewerState();
-}
-
-class _AnimeServiceViewerState extends State<AnimeServiceViewer> {
-  final GlobalKey _scaffold = GlobalKey();
-  final RefreshController _refreshController =
-      RefreshController(initialRefresh: false);
-  final TextEditingController _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _refreshController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return ApiControllerWrapper<AnimeApiClient>(
-      remoteConfig: widget.data.remoteConfig,
-      builder: _buildWidget,
+    final AnimeConcreteViewerData? nextViewerData = data.nextViewerData;
+    return ServiceViewerShell<AnimeApiClient, AnimeGalleryView>(
+      remoteConfig: data.remoteConfig,
+      kind: const AnimeGalleryKind(),
+      nextViewerArguments: nextViewerData == null
+          ? null
+          : (AnimeApiClient client, ConfigInfo configInfo) =>
+              nextViewerData.copyWith(client: client, configInfo: configInfo),
     );
   }
+}
 
-  Widget _buildWidget(AnimeApiClient apiClient, ConfigInfo configInfo) {
-    return WebBrowserWrapper<AnimeApiClient>(
-        builder:
-            (BuildContext context, Completer<bool> interceptorInitCompleter) {
-          return BrowserInterceptorScope(
-            configInfo: configInfo,
-            apiClient: apiClient,
-            initCompleter: interceptorInitCompleter,
-            onRecovered: () => _reloadGallery(configInfo),
-            child: ServiceViewCubitWrapper<AnimeApiClient, AnimeGalleryView>(
-              client: apiClient,
-              builder: (BuildContext context,
-                      ServiceViewState<AnimeApiClient, AnimeGalleryView>
-                          state) =>
-                  BlocListener<
-                      ServiceViewCubit<AnimeApiClient, AnimeGalleryView>,
-                      ServiceViewState<AnimeApiClient, AnimeGalleryView>>(
-                listener: (BuildContext context,
-                    ServiceViewState<AnimeApiClient, AnimeGalleryView>
-                        state) {
-                  if (state is ServiceViewInitialized<AnimeApiClient,
-                      AnimeGalleryView>) {
-                    _refreshController.loadComplete();
-                  }
-                },
-                child: AnimeServiceViewerBody(
-                  configInfo: configInfo,
-                  apiClient: apiClient,
-                  scaffold: _scaffold,
-                  refreshController: _refreshController,
-                  searchController: _searchController,
-                  state: state,
-                ),
-              ),
-            ),
-          );
-        },
-        onInterceptorInitialized: () {
-          final AnimeConcreteViewerData? nextViewerData =
-              widget.data.nextViewerData;
-          if (nextViewerData != null) {
-            Navigator.of(context)
-                .pushNamed(
-              Routes.animeConcreteViewer,
-              arguments: nextViewerData.copyWith(
-                  client: apiClient, configInfo: configInfo),
-            )
-                .then((_) {
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop();
-              }
-            });
-          } else {
-            _scaffold.currentContext
-                ?.read<ServiceViewCubit<AnimeApiClient, AnimeGalleryView>>()
-                .init(configInfo);
-          }
-        },
-        configInfo: configInfo,
-        apiClient: apiClient);
+class AnimeGalleryKind
+    extends ServiceGalleryKind<AnimeApiClient, AnimeGalleryView> {
+  const AnimeGalleryKind();
+
+  @override
+  String get concreteRoute => Routes.animeConcreteViewer;
+
+  @override
+  String titleOf(AnimeGalleryView galleryView) => galleryView.title;
+
+  @override
+  String coverOf(AnimeGalleryView galleryView) => galleryView.cover;
+
+  @override
+  String? statusOf(AnimeGalleryView galleryView) => galleryView.status.name;
+
+  @override
+  Future<List<BaseActivityDomain>?> loadActivities(
+    BuildContext context,
+    String concreteUid,
+  ) {
+    return context
+        .read<AnimeEpisodeActivityRepository>()
+        .getAllActivitiesByConcreteId(concreteUid);
   }
 
-  void _reloadGallery(ConfigInfo configInfo) {
-    final ServiceViewCubit<AnimeApiClient, AnimeGalleryView>? cubit =
-        _scaffold.currentContext
-            ?.read<ServiceViewCubit<AnimeApiClient, AnimeGalleryView>>();
-    if (cubit == null) {
-      return;
-    }
-    if (cubit.state
-        is ServiceViewInitialized<AnimeApiClient, AnimeGalleryView>) {
-      unawaited(cubit.refresh());
-      return;
-    }
-    cubit.init(configInfo);
+  @override
+  Object concreteArguments({
+    required AnimeApiClient client,
+    required ConfigInfo configInfo,
+    required AnimeGalleryView galleryView,
+    required Map<String, String> coverHeaders,
+  }) {
+    return AnimeConcreteViewerData(
+      client: client,
+      uid: galleryView.uid,
+      galleryData: galleryView.data,
+      galleryCover: galleryView.cover,
+      configInfo: configInfo,
+    );
   }
 }

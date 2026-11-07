@@ -1,33 +1,34 @@
-import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'dart:async';
+
+import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
-import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/manga_gallery_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:wakaranai/blocs/gallery_layout/gallery_layout_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/blocs/gallery_layout/gallery_layout_cubit.dart';
-import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_grid_skeleton.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_items_view.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_layout.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_layout_transition.dart';
+import 'package:wakaranai/ui/common/service_viewer/service_gallery_kind.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_loader.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
-import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
-import 'package:wakaranai/ui/services/widgets/gallery_title_actions_sheet.dart';
 import 'package:wakaranai/ui/home/service_viewer_header.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
-import 'package:wakaranai/ui/routes.dart';
-import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
+import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
+import 'package:wakaranai/ui/services/widgets/gallery_title_actions_sheet.dart';
 import 'package:wakaranai/ui/widgets/scroll_to_top_area.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
-class MangaServiceViewBody extends StatelessWidget {
-  const MangaServiceViewBody({
+class ServiceViewerBody<T extends ApiClient, G extends GalleryView>
+    extends StatelessWidget {
+  const ServiceViewerBody({
     super.key,
+    required this.kind,
     required this.scaffold,
     required this.state,
     required this.apiClient,
@@ -36,33 +37,29 @@ class MangaServiceViewBody extends StatelessWidget {
     required this.searchController,
   });
 
-  final ServiceViewState<MangaApiClient, MangaGalleryView> state;
+  final ServiceGalleryKind<T, G> kind;
+  final ServiceViewState<T, G> state;
   final GlobalKey scaffold;
-  final MangaApiClient apiClient;
+  final T apiClient;
   final ConfigInfo configInfo;
 
   final RefreshController refreshController;
   final TextEditingController searchController;
 
-  ServiceViewInitialized<MangaApiClient, MangaGalleryView>
-  get stateInitialized =>
-      state as ServiceViewInitialized<MangaApiClient, MangaGalleryView>;
+  ServiceViewInitialized<T, G> get stateInitialized =>
+      state as ServiceViewInitialized<T, G>;
 
-  ServiceViewError<MangaApiClient, MangaGalleryView> get stateError =>
-      state as ServiceViewError<MangaApiClient, MangaGalleryView>;
+  ServiceViewError<T, G> get stateError => state as ServiceViewError<T, G>;
 
-  ServiceViewCubit<MangaApiClient, MangaGalleryView> _cubit(
-    BuildContext context,
-  ) => context.read<ServiceViewCubit<MangaApiClient, MangaGalleryView>>();
+  ServiceViewCubit<T, G> _cubit(BuildContext context) =>
+      context.read<ServiceViewCubit<T, G>>();
 
   @override
   Widget build(BuildContext context) {
-    final bool initialized =
-        state is ServiceViewInitialized<MangaApiClient, MangaGalleryView>;
+    final bool initialized = state is ServiceViewInitialized<T, G>;
     return Scaffold(
       key: scaffold,
       backgroundColor: AppColors.backgroundColor,
-      extendBody: true,
       body: Column(
         children: <Widget>[
           _buildHeader(context),
@@ -83,35 +80,7 @@ class MangaServiceViewBody extends StatelessWidget {
                           BuildContext context,
                           GalleryLayout layout,
                           GalleryMorph? morph,
-                        ) => SmartRefresher(
-                          enablePullUp: true,
-                          enablePullDown: true,
-                          onRefresh: () async {
-                            await _cubit(context).refresh();
-                            refreshController.refreshCompleted();
-                          },
-                          footer: CustomFooter(
-                            builder: (BuildContext context, LoadStatus? mode) {
-                              return ServiceViewerLoader(
-                                cubit: _cubit(context),
-                              );
-                            },
-                          ),
-                          controller: refreshController,
-                          onLoading: () async {
-                            if (state
-                                is ServiceViewLoading<
-                                  MangaApiClient,
-                                  MangaGalleryView
-                                >) {
-                              return;
-                            }
-                            if (initialized && !stateInitialized.loading) {
-                              unawaited(_cubit(context).getGallery());
-                            }
-                          },
-                          child: _buildGrid(context, layout, morph),
-                        ),
+                        ) => _buildRefresher(context, layout, morph),
                   ),
                   if (initialized && stateInitialized.loading)
                     Positioned(
@@ -124,17 +93,11 @@ class MangaServiceViewBody extends StatelessWidget {
                         backgroundColor: Colors.transparent,
                       ),
                     ),
-                  if (!initialized &&
-                      state
-                          is! ServiceViewError<
-                            MangaApiClient,
-                            MangaGalleryView
-                          >)
+                  if (!initialized && state is! ServiceViewError<T, G>)
                     GalleryGridSkeleton(
                       layout: context.watch<GalleryLayoutCubit>().state,
                     )
-                  else if (state
-                      is ServiceViewError<MangaApiClient, MangaGalleryView>)
+                  else if (state is ServiceViewError<T, G>)
                     _buildError(context)
                   else if (stateInitialized.galleryViews.isEmpty &&
                       !stateInitialized.loading)
@@ -148,12 +111,43 @@ class MangaServiceViewBody extends StatelessWidget {
     );
   }
 
+  Widget _buildRefresher(
+    BuildContext context,
+    GalleryLayout layout,
+    GalleryMorph? morph,
+  ) {
+    final bool initialized = state is ServiceViewInitialized<T, G>;
+    return SmartRefresher(
+      enablePullUp: true,
+      enablePullDown: true,
+      onRefresh: () async {
+        await _cubit(context).refresh();
+        refreshController.refreshCompleted();
+      },
+      footer: CustomFooter(
+        builder: (BuildContext context, LoadStatus? mode) {
+          return ServiceViewerLoader(cubit: _cubit(context));
+        },
+      ),
+      controller: refreshController,
+      onLoading: () async {
+        if (state is ServiceViewLoading<T, G>) {
+          return;
+        }
+        if (initialized && !stateInitialized.loading) {
+          unawaited(_cubit(context).getGallery());
+        }
+      },
+      child: _buildGrid(context, layout, morph),
+    );
+  }
+
   Widget _buildGrid(
     BuildContext context,
     GalleryLayout layout,
     GalleryMorph? morph,
   ) {
-    if (state is! ServiceViewInitialized<MangaApiClient, MangaGalleryView>) {
+    if (state is! ServiceViewInitialized<T, G>) {
       return const SizedBox();
     }
     return GalleryItemsView(
@@ -162,19 +156,18 @@ class MangaServiceViewBody extends StatelessWidget {
       itemCount: stateInitialized.galleryViews.length,
       itemAt: (int index) =>
           _galleryItem(context, stateInitialized.galleryViews[index]),
-      activityLoader: (String uid) async => latestActivityTitle(
-        await context
-            .read<ChapterActivityRepository>()
-            .getAllActivitiesByConcreteId(uid),
-      ),
+      activityLoader: (String uid) async =>
+          latestActivityTitle(await kind.loadActivities(context, uid)),
     ).build(context);
   }
 
-  GalleryItem _galleryItem(BuildContext context, MangaGalleryView galleryView) {
+  GalleryItem _galleryItem(BuildContext context, G galleryView) {
+    final String title = kind.titleOf(galleryView);
+    final String cover = kind.coverOf(galleryView);
     return GalleryItem(
       uid: galleryView.uid,
-      title: galleryView.title,
-      cover: galleryView.cover,
+      title: title,
+      cover: cover,
       headers:
           stateInitialized.galleryViewImagesHeaders[galleryView.uid] ??
           <String, String>{},
@@ -183,15 +176,15 @@ class MangaServiceViewBody extends StatelessWidget {
         title: GalleryTitle(
           uid: galleryView.uid,
           extensionUid: configInfo.uid,
-          title: galleryView.title,
-          cover: galleryView.cover,
+          title: title,
+          cover: cover,
           data: galleryView.data,
         ),
         downloadClient: apiClient,
       ),
       onTap: () => _onGalleryViewClick(context, galleryView),
       subtitle: galleryView.subtitle,
-      status: galleryView.status?.name,
+      status: kind.statusOf(galleryView),
       tags: galleryView.tags,
       year: galleryView.year,
       rating: galleryView.rating,
@@ -284,21 +277,16 @@ class MangaServiceViewBody extends StatelessWidget {
     cubit: _cubit(context),
   );
 
-  Future<void> _onGalleryViewClick(
-    BuildContext context,
-    MangaGalleryView e,
-  ) async {
+  Future<void> _onGalleryViewClick(BuildContext context, G galleryView) async {
     await Navigator.of(context).pushNamed(
-      Routes.mangaConcreteViewer,
-      arguments: MangaConcreteViewerData(
+      kind.concreteRoute,
+      arguments: kind.concreteArguments(
         client: apiClient,
-        uid: e.uid,
-        coverHeaders:
-            stateInitialized.galleryViewImagesHeaders[e.uid] ??
-            <String, String>{},
-        galleryData: e.data,
-        galleryCover: e.cover,
         configInfo: configInfo,
+        galleryView: galleryView,
+        coverHeaders:
+            stateInitialized.galleryViewImagesHeaders[galleryView.uid] ??
+            <String, String>{},
       ),
     );
   }
