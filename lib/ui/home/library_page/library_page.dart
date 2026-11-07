@@ -6,7 +6,6 @@ import 'package:wakaranai/ui/home/library_page/library_download_actions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/gallery_layout/gallery_layout_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
-import 'package:wakaranai/data/domain/database/library_update_domain.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
@@ -473,15 +472,20 @@ class _LibraryPageState extends State<LibraryPage> {
           itemCount: entries.length,
           itemBuilder: (BuildContext context, int index) {
             final LibraryEntryDomain entry = entries[index];
-            return _LibraryCard(
-              entry: entry,
-              compact: compact,
-              headers: state.coverHeaders[entry.extensionUid],
-              selected: _selected.contains(entry.uid),
-              selectionMode: _selectionMode,
-              onTap: () => _onEntryTap(context, entry),
-              onLongPress: () => _toggleSelect(entry.uid),
-              onMenu: () => _showEntryActions(context, state, entry),
+            return BlocSelector<LibraryUpdatesCubit, LibraryUpdatesState, int>(
+              selector: (LibraryUpdatesState updates) =>
+                  updates.unseenForEntry(entry.uid),
+              builder: (BuildContext context, int unseenCount) => _LibraryCard(
+                entry: entry,
+                compact: compact,
+                unseenCount: unseenCount,
+                headers: state.coverHeaders[entry.extensionUid],
+                selected: _selected.contains(entry.uid),
+                selectionMode: _selectionMode,
+                onTap: () => _onEntryTap(context, entry),
+                onLongPress: () => _toggleSelect(entry.uid),
+                onMenu: () => _showEntryActions(context, state, entry),
+              ),
             );
           },
         );
@@ -505,7 +509,7 @@ class _LibraryPageState extends State<LibraryPage> {
         return BlocSelector<LibraryUpdatesCubit, LibraryUpdatesState, int>(
           key: ValueKey<String>(entry.uid),
           selector: (LibraryUpdatesState updates) =>
-              _unseenCount(updates, entry.uid),
+              updates.unseenForEntry(entry.uid),
           builder: (BuildContext context, int unseenCount) => LibraryListTile(
             entry: entry,
             headers: state.coverHeaders[entry.extensionUid],
@@ -520,16 +524,6 @@ class _LibraryPageState extends State<LibraryPage> {
         );
       },
     );
-  }
-
-  int _unseenCount(LibraryUpdatesState updates, String entryUid) {
-    int count = 0;
-    for (final LibraryUpdateDomain update in updates.updates) {
-      if (!update.seen && update.libraryEntryUid == entryUid) {
-        count++;
-      }
-    }
-    return count;
   }
 
   void _onEntryTap(BuildContext context, LibraryEntryDomain entry) {
@@ -988,10 +982,12 @@ class _LibraryCard extends StatelessWidget {
     required this.onLongPress,
     required this.onMenu,
     this.compact = false,
+    this.unseenCount = 0,
   });
 
   final LibraryEntryDomain entry;
   final bool compact;
+  final int unseenCount;
   final Map<String, String>? headers;
   final bool selected;
   final bool selectionMode;
@@ -1044,7 +1040,9 @@ class _LibraryCard extends StatelessWidget {
               ),
             ),
           )
-        else
+        else ...<Widget>[
+          if (unseenCount > 0)
+            Positioned(top: 6, left: 6, child: _buildUnseenBadge()),
           Positioned(
             top: 2,
             right: 2,
@@ -1062,7 +1060,24 @@ class _LibraryCard extends StatelessWidget {
               ),
             ),
           ),
+        ],
       ],
+    );
+  }
+
+  Widget _buildUnseenBadge() {
+    return IgnorePointer(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          '$unseenCount',
+          style: semibold(size: compact ? 11 : 12, color: AppColors.mainBlack),
+        ),
+      ),
     );
   }
 }

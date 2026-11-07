@@ -357,6 +357,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "common_go_back": MessageLookupByLibrary.simpleMessage("Go back"),
     "common_ok_button": MessageLookupByLibrary.simpleMessage("OK"),
     "common_save": MessageLookupByLibrary.simpleMessage("Save"),
+    "concrete_new_badge": MessageLookupByLibrary.simpleMessage("NEW"),
     "concrete_offline_banner": MessageLookupByLibrary.simpleMessage(
       "Offline — showing cached content. Only downloaded chapters can be opened.",
     ),

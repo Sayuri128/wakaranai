@@ -10,6 +10,7 @@ import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/m
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
@@ -367,8 +368,11 @@ class MangaConcreteViewer extends StatelessWidget
             .clamp(0.0, 1.0)
         : null;
 
-    return ConcreteListTile(
+    return BlocSelector<LibraryUpdatesCubit, LibraryUpdatesState, bool>(
+      selector: (LibraryUpdatesState updates) => updates.isUnseen(chapter.uid),
+      builder: (BuildContext tileContext, bool isNew) => ConcreteListTile(
       title: chapter.title,
+      isNew: isNew,
       selected: concreteViewInitialized.selection.contains(chapter.uid),
       dim: chapterActivityDomain?.isCompleted == true,
       progress: progress,
@@ -418,6 +422,7 @@ class MangaConcreteViewer extends StatelessWidget
               .changeSelection(chapter.uid);
         }
       },
+    ),
     );
   }
 

@@ -19,6 +19,7 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:transparent_pointer/transparent_pointer.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
 import 'package:wakaranai/services/page_translation/engines/on_device_model.dart';
 import 'package:wakaranai/blocs/language_packs/language_packs_cubit.dart';
@@ -819,6 +820,13 @@ class _ChapterViewerState extends State<ChapterViewer>
             _animateSliderTo(state, animate: _seekOverride == null);
           }
 
+          if (state.currentPages.chapterUid != _lastChapterUid) {
+            unawaited(
+              context.read<LibraryUpdatesCubit>().markSeenIfNew(
+                state.currentPages.chapterUid,
+              ),
+            );
+          }
           _lastMode = state.mode;
           _lastPage = state.currentPage;
           _lastChapterUid = state.currentPages.chapterUid;

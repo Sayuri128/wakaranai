@@ -203,6 +203,7 @@
   "chapter_viewer_right_to_left_read_mode": "Right to left",
   "chapter_viewer_left_to_right_read_mode": "Left to right",
   "chapter_viewer_webtoon": "Webtoon",
+  "concrete_new_badge": "NEW",
   "chapter_divider_finished": "Finished",
   "chapter_divider_next": "Next",
   "chapter_divider_pages": "{count} pages",

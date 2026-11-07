@@ -1432,6 +1432,11 @@ class S {
     );
   }
 
+  /// `NEW`
+  String get concrete_new_badge {
+    return Intl.message('NEW', name: 'concrete_new_badge', desc: '', args: []);
+  }
+
   /// `Finished`
   String get chapter_divider_finished {
     return Intl.message(

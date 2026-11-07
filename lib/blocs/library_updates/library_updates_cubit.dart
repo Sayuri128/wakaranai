@@ -72,6 +72,12 @@ class LibraryUpdatesCubit extends Cubit<LibraryUpdatesState> {
     await libraryUpdateRepository.markSeen(uid);
   }
 
+  Future<void> markSeenIfNew(String uid) async {
+    if (state.isUnseen(uid)) {
+      await markSeen(uid);
+    }
+  }
+
   Future<void> markAllSeen() async {
     await libraryUpdateRepository.markAllSeen();
   }

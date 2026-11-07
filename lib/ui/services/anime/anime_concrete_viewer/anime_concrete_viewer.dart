@@ -11,6 +11,7 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/blocs/browser_interceptor/browser_interceptor_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
@@ -342,8 +343,11 @@ class AnimeConcreteViewer extends StatelessWidget
             AnimeGalleryView>
         state,
   }) {
-    return ConcreteListTile(
+    return BlocSelector<LibraryUpdatesCubit, LibraryUpdatesState, bool>(
+      selector: (LibraryUpdatesState updates) => updates.isUnseen(animeVideo.uid),
+      builder: (BuildContext tileContext, bool isNew) => ConcreteListTile(
       title: animeVideo.title,
+      isNew: isNew,
       selected: state.selection.contains(animeVideo.uid),
       dim: activity != null,
       subtitle: _buildEpisodeSubtitle(animeVideo, activity),
@@ -352,6 +356,9 @@ class AnimeConcreteViewer extends StatelessWidget
       },
       onTap: () {
         if (state.selection.isEmpty) {
+          unawaited(
+            context.read<LibraryUpdatesCubit>().markSeenIfNew(animeVideo.uid),
+          );
           Navigator.of(context)
               .pushNamed(
             Routes.iframeAnimePlayer,
@@ -371,6 +378,7 @@ class AnimeConcreteViewer extends StatelessWidget
           getConcreteViewCubit(context).changeSelection(animeVideo.uid);
         }
       },
+    ),
     );
   }
 

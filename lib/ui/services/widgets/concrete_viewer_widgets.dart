@@ -312,10 +312,12 @@ class ConcreteListTile extends StatelessWidget {
     this.progress,
     this.selected = false,
     this.dim = false,
+    this.isNew = false,
     this.trailing,
   });
 
   final String title;
+  final bool isNew;
   final Widget? subtitle;
   final double? progress;
   final bool selected;
@@ -352,7 +354,7 @@ class ConcreteListTile extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(title.trim(), style: medium(size: 15)),
+                        _buildTitle(),
                         if (subtitle != null) ...<Widget>[
                           const SizedBox(height: 6),
                           subtitle!,
@@ -396,6 +398,30 @@ class ConcreteListTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTitle() {
+    final Widget text = Text(title.trim(), style: medium(size: 15));
+    if (!isNew) {
+      return text;
+    }
+    return Row(
+      children: <Widget>[
+        Flexible(child: text),
+        const SizedBox(width: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            S.current.concrete_new_badge,
+            style: semibold(size: 10, color: AppColors.mainBlack),
+          ),
+        ),
+      ],
     );
   }
 }
