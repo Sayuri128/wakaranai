@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Heroes {
+  static const double galleryCardRadius = 10.0;
+
   static String galleryViewToConcreteView(String uid) =>
       "galleryViewToConcreteView_$uid";
 
@@ -17,23 +19,37 @@ class Heroes {
   ) {
     final Widget fromChild = (fromHeroContext.widget as Hero).child;
     final Widget toChild = (toHeroContext.widget as Hero).child;
+    final bool isPush = flightDirection == HeroFlightDirection.push;
+    final Widget lowerRouteChild = isPush ? fromChild : toChild;
+    final Widget upperRouteChild = isPush ? toChild : fromChild;
 
-    final Animation<double> fadeIn = CurvedAnimation(
+    final Animation<double> upperRouteVisibility = CurvedAnimation(
       parent: animation,
       curve: Curves.easeInOut,
     );
-    return Stack(
-      fit: StackFit.expand,
-      children: <Widget>[
-        FadeTransition(
-          opacity: ReverseAnimation(fadeIn),
-          child: RepaintBoundary(child: fromChild),
-        ),
-        FadeTransition(
-          opacity: fadeIn,
-          child: RepaintBoundary(child: toChild),
-        ),
-      ],
+    return AnimatedBuilder(
+      animation: upperRouteVisibility,
+      builder: (BuildContext context, Widget? child) {
+        final double radius =
+            galleryCardRadius * (1 - upperRouteVisibility.value);
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: child,
+        );
+      },
+      child: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          FadeTransition(
+            opacity: ReverseAnimation(upperRouteVisibility),
+            child: RepaintBoundary(child: lowerRouteChild),
+          ),
+          FadeTransition(
+            opacity: upperRouteVisibility,
+            child: RepaintBoundary(child: upperRouteChild),
+          ),
+        ],
+      ),
     );
   }
 }

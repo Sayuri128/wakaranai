@@ -33,7 +33,7 @@ class GalleryViewCard extends StatelessWidget {
       tag: Heroes.galleryViewToConcreteView(uid),
       flightShuttleBuilder: Heroes.crossfadeFlightShuttle,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(10.0),
+        borderRadius: BorderRadius.circular(Heroes.galleryCardRadius),
         child: Material(
           color: AppColors.shimmerBase,
           child: Stack(
