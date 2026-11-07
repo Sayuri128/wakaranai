@@ -81,6 +81,30 @@ class DownloadNotificationService {
     }
   }
 
+  Future<void> showWaitingForWifi() async {
+    try {
+      await _ensureInitialized();
+      final AndroidNotificationDetails android = AndroidNotificationDetails(
+        _channelId,
+        S.current.downloads_notification_channel_name,
+        importance: Importance.low,
+        priority: Priority.low,
+        onlyAlertOnce: true,
+        autoCancel: false,
+        showProgress: false,
+      );
+      await _plugin.show(
+        _progressId,
+        S.current.downloads_runtime_waiting_for_wifi,
+        S.current.downloads_runtime_waiting_for_wifi_message,
+        NotificationDetails(android: android),
+      );
+    } catch (e, s) {
+      logger.w('Failed to show the waiting for Wi-Fi notification: $e');
+      logger.w(s);
+    }
+  }
+
   Future<void> showComplete(int count) async {
     try {
       await _ensureInitialized();

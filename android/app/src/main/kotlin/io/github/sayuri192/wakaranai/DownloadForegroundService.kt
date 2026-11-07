@@ -51,7 +51,7 @@ class DownloadForegroundService : Service() {
             ServiceCompat.startForeground(
                 this,
                 NOTIFICATION_ID,
-                buildNotification(title),
+                postedNotification() ?: buildNotification(title),
                 foregroundServiceType(),
             )
             inForeground = true
@@ -82,6 +82,20 @@ class DownloadForegroundService : Service() {
             return ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
         }
         return 0
+    }
+
+    private fun postedNotification(): Notification? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return null
+        }
+        val manager = getSystemService(NotificationManager::class.java) ?: return null
+        return try {
+            manager.activeNotifications
+                .firstOrNull { it.id == NOTIFICATION_ID }
+                ?.notification
+        } catch (e: RuntimeException) {
+            null
+        }
     }
 
     private fun buildNotification(title: String): Notification {

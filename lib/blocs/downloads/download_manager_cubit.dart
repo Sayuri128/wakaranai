@@ -256,15 +256,97 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
 
   Future<void> _recoverInterrupted() async {
     final List<DownloadDomain> rows = await downloadRepository.getAll();
+    rows.sort((DownloadDomain a, DownloadDomain b) => a.id.compareTo(b.id));
 
+    bool resumedAny = false;
     for (final DownloadDomain row in rows) {
-      if (row.status != DownloadStatus.queued &&
-          row.status != DownloadStatus.downloading) {
+      if (row.status == DownloadStatus.downloading) {
+        await downloadRepository
+            .update(row.copyWith(status: DownloadStatus.failed));
         continue;
       }
-      await downloadRepository
-          .update(row.copyWith(status: DownloadStatus.failed));
+      if (row.status != DownloadStatus.queued) {
+        continue;
+      }
+      if (await _resumeQueuedRow(row)) {
+        resumedAny = true;
+      }
     }
+    if (resumedAny) {
+      startQueue();
+    }
+  }
+
+  Future<bool> _resumeQueuedRow(DownloadDomain row) async {
+    if (_hasJobInMemory(row.uid)) {
+      return false;
+    }
+    final _DownloadJob? job = await _rebuildJob(row);
+    final DownloadDomain? current = await downloadRepository.getByUid(row.uid);
+    if (current == null ||
+        current.status != DownloadStatus.queued ||
+        _cancelled.contains(row.uid) ||
+        _hasJobInMemory(row.uid)) {
+      return false;
+    }
+    if (job == null) {
+      logger.w('Cannot resume ${row.uid} after a restart, marking it failed');
+      await downloadRepository
+          .update(current.copyWith(status: DownloadStatus.failed));
+      return false;
+    }
+    _jobs.add(job);
+    return true;
+  }
+
+  bool _hasJobInMemory(String uid) {
+    return _activeJob?.uid == uid ||
+        _jobs.any((_DownloadJob job) => job.uid == uid);
+  }
+
+  Future<_DownloadJob?> _rebuildJob(DownloadDomain row) async {
+    if (row.isEpisode) {
+      final AnimeVideo? episode = downloadedEpisodeOf(row);
+      if (episode == null) {
+        return null;
+      }
+      return _EpisodeJob(
+        extensionUid: row.extensionUid,
+        concreteTitle: row.concreteTitle,
+        episode: episode,
+      );
+    }
+    return _rebuildChapterJob(row);
+  }
+
+  Future<_ChapterJob?> _rebuildChapterJob(DownloadDomain row) async {
+    try {
+      final ExtensionDomain? extension =
+          await _installedExtension(row.extensionUid);
+      if (extension == null) {
+        return null;
+      }
+      final MangaApiClient client = await clientForExtension(extension);
+      final String? rawData = row.data;
+      return _ChapterJob(
+        client: client,
+        extensionUid: row.extensionUid,
+        concreteTitle: row.concreteTitle,
+        chapterUid: row.uid,
+        chapterTitle: row.title,
+        data: rawData == null
+            ? null
+            : jsonDecode(rawData) as Map<String, dynamic>?,
+      );
+    } catch (e) {
+      logger.w('Cannot rebuild the download of ${row.uid}: $e');
+      return null;
+    }
+  }
+
+  void _addJob(_DownloadJob job) {
+    _jobs.removeWhere((_DownloadJob queued) => queued.uid == job.uid);
+    _jobs.add(job);
   }
 
   Future<MangaApiClient> clientForExtension(ExtensionDomain extension) async {
@@ -363,7 +445,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       where: (tbl) => tbl.uid,
     );
 
-    _jobs.add(_ChapterJob(
+    _addJob(_ChapterJob(
       client: client,
       extensionUid: extensionUid,
       concreteTitle: concreteTitle,
@@ -421,7 +503,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       where: (tbl) => tbl.uid,
     );
 
-    _jobs.add(_EpisodeJob(
+    _addJob(_EpisodeJob(
       extensionUid: extensionUid,
       concreteTitle: concreteTitle,
       episode: episode,
@@ -552,14 +634,56 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     } finally {
       _processing = false;
       _batchIndex = 0;
-      if (_completedInBatch > 0) {
-        await notificationService.showComplete(_completedInBatch);
-      }
+      final int completed = _completedInBatch;
       _completedInBatch = 0;
-      _releaseHoldIfIdle();
-      await _stopRuntimeIfIdle();
+      if (_isHeldWithQueuedJobs) {
+        await _holdQueueForWifi(completed);
+      } else {
+        await _finishBatch(completed);
+      }
       _scheduleLibraryClientsRelease();
     }
+  }
+
+  bool get _isHeldWithQueuedJobs =>
+      _jobs.isNotEmpty && !_networkPolicy.allowsDownloads;
+
+  Future<void> _holdQueueForWifi(int completed) async {
+    _setHold(DownloadQueueHold.waitingForWifi);
+    if (completed > 0) {
+      await notificationService.showComplete(completed);
+    }
+    await _setRuntimeWanted(true);
+    if (_processing || !_isHeldWithQueuedJobs) {
+      return;
+    }
+    await notificationService.showWaitingForWifi();
+  }
+
+  Future<void> _finishBatch(int completed) async {
+    if (completed > 0) {
+      await notificationService.showComplete(completed);
+    } else {
+      await notificationService.cancelProgress();
+    }
+    _releaseHoldIfIdle();
+    await _stopRuntimeIfIdle();
+  }
+
+  Future<void> _settleEmptiedQueue() async {
+    if (_processing || _jobs.isNotEmpty || _activeJob != null) {
+      return;
+    }
+    final bool wasHeld = state.waitingForWifi;
+    _releaseHoldIfIdle();
+    if (!wasHeld) {
+      return;
+    }
+    await _stopRuntimeIfIdle();
+    if (_processing) {
+      return;
+    }
+    await notificationService.cancelProgress();
   }
 
   void _onNetworkPolicyChanged(bool allowsDownloads) {
@@ -706,7 +830,6 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
     emit(state.copyWith(runtimeStatus: status));
   }
-
 
   Future<void> _runActiveJob(_DownloadJob job) async {
     _batchIndex++;
@@ -1121,9 +1244,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     _jobs.removeWhere((_DownloadJob j) => j.uid == uid);
     final _DownloadJob? activeJob = _activeJob?.uid == uid ? _activeJob : null;
     activeJob?.cancel();
-    if (!_processing) {
-      _releaseHoldIfIdle();
-    }
+    await _settleEmptiedQueue();
     await downloadRepository.deleteByUid(uid);
     final bool unwound = await _waitForUnwind(activeJob);
     await _deleteDir(download.dirPath);

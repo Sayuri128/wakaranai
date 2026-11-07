@@ -39,6 +39,8 @@ class _FakePathProvider extends PathProviderPlatform {
 
 class _SilentNotifications extends DownloadNotificationService {
   int completed = -1;
+  int waitingShown = 0;
+  int progressCancelled = 0;
 
   @override
   Future<void> requestPermission() async {}
@@ -59,7 +61,14 @@ class _SilentNotifications extends DownloadNotificationService {
   }
 
   @override
-  Future<void> cancelProgress() async {}
+  Future<void> showWaitingForWifi() async {
+    waitingShown++;
+  }
+
+  @override
+  Future<void> cancelProgress() async {
+    progressCancelled++;
+  }
 }
 
 class _FakeRuntime implements DownloadRuntime {
@@ -404,16 +413,20 @@ void main() {
       await enqueue('e1');
       await _until(() => cubit.state.waitingForWifi);
 
+      await _until(() => notifications.waitingShown > 0);
+
       expect(cubit.state.waitingForWifi, isTrue);
       expect(downloader.calls, isEmpty);
-      expect(runtime.calls, isEmpty);
+      expect(runtime.running, isTrue);
       expect((await repository.getByUid('e1'))!.status, DownloadStatus.queued);
 
       monitor.change(NetworkConnection.wifi);
       await _awaitStatus(repository, 'e1', DownloadStatus.done);
+      await _until(() => !runtime.running);
 
       expect(cubit.state.waitingForWifi, isFalse);
       expect(downloader.calls, hasLength(1));
+      expect(runtime.calls, <String>['start', 'stop']);
     });
 
     test('losing Wi-Fi pauses the active job and regaining it resumes',
@@ -428,11 +441,14 @@ void main() {
       final _Call first = downloader.calls.single;
 
       monitor.change(NetworkConnection.cellular);
-      await _until(() => !runtime.running && runtime.calls.isNotEmpty);
       await _awaitStatus(repository, 'e1', DownloadStatus.queued);
+      await _until(() => notifications.waitingShown > 0);
 
       expect(first.cancelToken.isCancelled, isTrue);
       expect(cubit.state.waitingForWifi, isTrue);
+      expect(runtime.running, isTrue,
+          reason: 'a held queue keeps the service so it can resume in the '
+              'background');
       expect(downloader.calls, hasLength(1));
       expect((await repository.getByUid('e2'))!.status, DownloadStatus.queued);
 
@@ -449,7 +465,7 @@ void main() {
       await _awaitStatus(repository, 'e2', DownloadStatus.done);
       await _until(() => !runtime.running);
 
-      expect(runtime.calls, <String>['start', 'stop', 'start', 'stop']);
+      expect(runtime.calls, <String>['start', 'stop']);
     });
 
     test('turning Wi-Fi only on and off on cellular pauses and resumes',
@@ -492,6 +508,84 @@ void main() {
       monitor.change(NetworkConnection.wifi);
       await Future<void>.delayed(const Duration(milliseconds: 20));
       expect(downloader.calls, isEmpty);
+    });
+
+    test('deleting the last held job stops the service and its notification',
+        () async {
+      await cubit.close();
+      cubit = buildCubit(
+        wifiOnly: true,
+        connection: NetworkConnection.cellular,
+      );
+
+      await enqueue('e1');
+      await _until(() => notifications.waitingShown > 0);
+      expect(runtime.running, isTrue);
+      final int cancelledBefore = notifications.progressCancelled;
+
+      await cubit.deleteDownload((await repository.getByUid('e1'))!);
+
+      expect(runtime.running, isFalse);
+      expect(notifications.progressCancelled, greaterThan(cancelledBefore));
+      expect(cubit.state.runtimeStatus, DownloadRuntimeStatus.inactive);
+    });
+
+    test('a failed batch that the service could not run clears the progress',
+        () async {
+      runtime.startOutcome = DownloadRuntimeStart.notAllowed;
+      await enqueue('missing');
+      await repository.deleteByUid('missing');
+      await _until(() => notifications.progressCancelled > 0);
+
+      expect(notifications.completed, -1);
+      expect(notifications.progressCancelled, greaterThan(0));
+    });
+
+    test('queued rows resume after a restart and downloading rows fail',
+        () async {
+      await enqueue('queued');
+      await enqueue('active');
+      await _awaitStatus(repository, 'active', DownloadStatus.done);
+      final DownloadDomain queuedRow = (await repository.getByUid('queued'))!;
+      final DownloadDomain activeRow = (await repository.getByUid('active'))!;
+      await repository
+          .update(queuedRow.copyWith(status: DownloadStatus.queued));
+      await repository
+          .update(activeRow.copyWith(status: DownloadStatus.downloading));
+      await cubit.close();
+      downloader.calls.clear();
+
+      cubit = buildCubit()..init();
+
+      await _awaitStatus(repository, 'queued', DownloadStatus.done);
+      final DownloadDomain? interrupted =
+          await _awaitStatus(repository, 'active', DownloadStatus.failed);
+
+      expect(interrupted!.status, DownloadStatus.failed);
+      expect(downloader.calls.map((_Call call) => call.uid), <String>['queued']);
+    });
+
+    test('queued rows recovered while off Wi-Fi stay queued and wait',
+        () async {
+      await enqueue('e1');
+      await _awaitStatus(repository, 'e1', DownloadStatus.done);
+      final DownloadDomain row = (await repository.getByUid('e1'))!;
+      await repository.update(row.copyWith(status: DownloadStatus.queued));
+      await cubit.close();
+      downloader.calls.clear();
+
+      cubit = buildCubit(
+        wifiOnly: true,
+        connection: NetworkConnection.cellular,
+      )..init();
+      await _until(() => cubit.state.waitingForWifi);
+
+      expect((await repository.getByUid('e1'))!.status, DownloadStatus.queued);
+      expect(downloader.calls, isEmpty);
+
+      monitor.change(NetworkConnection.wifi);
+      await _awaitStatus(repository, 'e1', DownloadStatus.done);
+      expect(downloader.calls, hasLength(1));
     });
 
     test('deleting a job paused for Wi-Fi does not requeue it', () async {
