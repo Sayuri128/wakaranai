@@ -406,6 +406,8 @@ function main() {
         "title": "",
         "timestamp": parseDate("2019-01-01 00:00:00"),
         "data": {},
+        "number": 12.5,
+        "volume": 2,
     });
 }
 
@@ -418,6 +420,12 @@ Parameters:
 * `title` is the title of the chapter.
 * `timestamp` is the timestamp of the chapter. - nullable
 * `data` is a map of metadata for the chapter.
+* `number` is the chapter number. - optional. An int, a decimal (`12.5`) or a numeric string
+  (`"12,5"` works). Negative or unparsable values become `null`.
+* `volume` is the volume number. - optional. A whole number or a numeric string; anything else
+  becomes `null`.
+
+Older app versions ignore `number` and `volume`, so passing them is always safe.
 
 ---
 
@@ -555,6 +563,8 @@ function main() {
         "type": typeIframe(),
         "src": "",
         "data": {},
+        "number": 3,
+        "season": 1,
     });
 }
 
@@ -562,13 +572,82 @@ function main() {
 
 Parameters:
 
-* `uid` is the unique id of the video. This will be used to identify the specific anime
-  in the app.
+* `uid` is the unique id of the video. This will be used to identify the specific episode
+  in the app. Watch history, resume progress, library update checks and downloads are all keyed by
+  it, so it must stay the same between runs (the embed URL is a good choice; a signed or
+  per-session URL is not).
 * `title` is the title of the video.
 * `timestamp` is the timestamp of the video. - nullable
 * `type` is the type of the video. It can be one of the following:
-    * `typeIframe` - Iframe // Will be rendered in a webview
-* `src` is the source of the video. This is the URL of the video.
-* `data` is a map of metadata for the video.
+    * `typeIframe()` - an embed page. Rendered in a webview unless the extension resolves it to
+      a playable stream with [`getVideoSources`](extensions.md#getvideosources).
+    * `typeDirect()` - `src` is itself a playable stream (HLS, MP4...). The native player plays it
+      directly when the extension has no `getVideoSources` or that function returns nothing.
+* `src` is the source of the video: the embed page URL for `typeIframe()`, the stream URL for
+  `typeDirect()`. It is passed to `getVideoSources` as `src`.
+* `data` is a map of metadata for the video. It is passed to `getVideoSources` as `data`.
+* `number` is the episode number. - optional. An int, a decimal (`12.5`) or a numeric string.
+  The player uses it (with `season`) to find the previous/next episode and to keep the same
+  episode when switching dubs/players. Without it the app tries to read a number from the title.
+* `season` is the season number. - optional. A whole number or a numeric string.
+
+Older app versions ignore `number` and `season`.
+
+---
+
+### To describe a playable stream, use the `buildAnimeVideoSource` function.
+
+Used only as the return value of `getVideoSources`.
+
+```capyscript
+import "anime_models";
+
+function main() {
+    source = buildAnimeVideoSource({
+        "url": "https://cdn.example.com/ep3/master.m3u8",
+        "quality": "1080p",
+        "format": "hls",
+        "headers": {"Referer": "https://player.example.com/"},
+        "subtitles": [
+            buildAnimeVideoSubtitle({
+                "url": "https://cdn.example.com/ep3/en.vtt",
+                "label": "English",
+                "language": "en",
+                "format": "vtt",
+            }),
+        ],
+    });
+}
+```
+
+Parameters:
+
+* `url` is the stream URL. - required
+* `quality` is a label shown in the quality picker, e.g. `"1080p"`, `"720p"`, `"Auto"`. - optional.
+  Labels with a height (`"720p"`) let the app pick the closest quality to the one the user chose
+  last time.
+* `format` is `"hls"`, `"mp4"` or `"dash"`. - optional. `null` lets the app guess from the URL
+  (and, for downloads, from the response).
+* `headers` is a map of HTTP headers sent with every request for this stream: the playlist,
+  every segment and every key. Put `Referer`, `Origin`, `User-Agent` or CDN specific headers
+  here. - optional
+* `subtitles` is a list of `buildAnimeVideoSubtitle` results. - optional
+
+A plain map with the same keys is accepted instead of `buildAnimeVideoSource`.
+
+---
+
+### To describe a subtitle track, use the `buildAnimeVideoSubtitle` function.
+
+Parameters:
+
+* `url` is the subtitle file URL. - required
+* `label` is the name shown in the subtitle picker. - optional
+* `language` is a language code like `"en"` or `"uk"`; the app uses it to remember the user's
+  choice across episodes. - optional
+* `format` is `"vtt"` or `"srt"`. - optional; `null` detects it from the URL or the file content.
+* `headers` is a map of HTTP headers for the subtitle request. - optional
+
+A plain map with the same keys is accepted too.
 
 ---

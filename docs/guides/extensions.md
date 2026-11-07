@@ -120,6 +120,61 @@ function passProtector(body, headers, cookies) {
   new `WebBrowserInterceptorController` and gets the controller.
   currently, it's just a placeholder for future functionality.
 
+## Creating anime extension
+
+An anime extension uses the same `config.json` with `"type": 1` and the same `getGallery`,
+`getConcrete` and optional `passProtector` functions, but builds its models with the
+[`anime_models`](caypscript_modules.md#anime-models) module (`buildAnimeVideoGroup`,
+`buildAnimeVideo`). It has no `getPages` or `getImageHeaders`.
+
+Each episode is a `buildAnimeVideo` with a stable `uid`. Groups usually stand for one dub or one
+player (for example one group per dub and player), and the app keeps the same episode `number`
+when the user switches between them.
+
+### getVideoSources
+
+Optional. Lets the app play an episode in its native player, and download it for offline
+viewing, instead of the webview embed.
+
+```capyscript
+function getVideoSources(uid, src, data) {
+    return [
+        {
+            "url": "https://cdn.example.com/ep3/master.m3u8",
+            "quality": "Auto",
+            "format": "hls",
+            "headers": {"Referer": "https://player.example.com/"},
+            "subtitles": [],
+        },
+    ];
+}
+```
+
+where `uid`, `src` and `data` are the fields of the `buildAnimeVideo` that was tapped. Return a
+list of sources built with `buildAnimeVideoSource` (or plain maps with the same keys); see
+[`buildAnimeVideoSource`](caypscript_modules.md#to-describe-a-playable-stream-use-the-buildanimevideosource-function).
+
+How the app uses it:
+
+* If the function exists, it is called every time an episode is played, and again whenever a
+  download starts or resumes, so short-lived signed URLs are fine. Don't store them in `data`.
+* Several sources can be returned (for example one per quality); the user can switch between
+  them. HLS sources with several renditions also get a rendition picker.
+* An empty list or an error falls back to playing `src` directly for `typeDirect()` episodes, and
+  to the webview player otherwise. The app also falls back when the call takes longer than about
+  20 seconds.
+* `headers` are sent with every request the player or the downloader makes for that source,
+  including HLS segments and AES-128 keys. Some CDNs reject segment requests without the right
+  `Referer`, `Origin`, `Accept` or `Accept-Language`.
+* Downloads support HLS (including AES-128 encryption and byte ranges) and MP4. DASH and
+  DRM-protected streams cannot be downloaded.
+* Calls into one extension never run at the same time, so a slow `getVideoSources` delays the
+  next call. Make only the requests you need.
+
+Sources behind a Cloudflare-style challenge can use the headless browser through
+`protectorConfig` with `inAppBrowserInterceptor: true`, the same way gallery and concrete
+requests do.
+
 ## Filters
 
 Filters are declared in `config.json`, not in the script. The app builds the filter sheet from that
