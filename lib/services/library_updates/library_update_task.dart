@@ -100,6 +100,7 @@ Future<bool> runLibraryUpdateTask(Map<String, dynamic>? inputData) async {
       'Library update check: ${result.updates.length} new, '
       '${result.checked} checked, ${result.failed} failed, '
       '${result.skipped} skipped, '
+      '${result.removedFromSource.length} removed from their source, '
       '${result.needsAttention.length} sources need attention',
     );
 

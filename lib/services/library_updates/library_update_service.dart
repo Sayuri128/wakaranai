@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/api_clients/source_error.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
@@ -38,6 +39,7 @@ class LibraryUpdateCheckResult {
   final List<LibraryUpdateDomain> updates;
   final List<LibraryUpdateDomain> notifiable;
   final List<SourceNeedsAttention> needsAttention;
+  final List<LibraryEntryDomain> removedFromSource;
   final int checked;
   final int failed;
   final int skipped;
@@ -46,10 +48,36 @@ class LibraryUpdateCheckResult {
     this.updates = const <LibraryUpdateDomain>[],
     this.notifiable = const <LibraryUpdateDomain>[],
     this.needsAttention = const <SourceNeedsAttention>[],
+    this.removedFromSource = const <LibraryEntryDomain>[],
     this.checked = 0,
     this.failed = 0,
     this.skipped = 0,
   });
+}
+
+enum UpdateFailureKind { transient, removedFromSource, unavailable, failed }
+
+class UpdateFailureClassifier {
+  const UpdateFailureClassifier._();
+
+  static UpdateFailureKind classify(Object error) {
+    final SourceError? sourceError =
+        SessionFailureClassifier.sourceErrorIn(error);
+    if (sourceError == null) {
+      return UpdateFailureKind.failed;
+    }
+    switch (sourceError.kind) {
+      case SourceErrorKind.sourceDown:
+      case SourceErrorKind.rateLimited:
+        return UpdateFailureKind.transient;
+      case SourceErrorKind.notFound:
+        return UpdateFailureKind.removedFromSource;
+      case SourceErrorKind.loginRequired:
+      case SourceErrorKind.regionBlocked:
+      case SourceErrorKind.unsupported:
+        return UpdateFailureKind.unavailable;
+    }
+  }
 }
 
 typedef ConcreteViewFetcher = Future<ConcreteView> Function(
@@ -89,6 +117,7 @@ class LibraryUpdateService {
     final List<LibraryUpdateDomain> notifiable = <LibraryUpdateDomain>[];
     final Map<String, SourceNeedsAttention> attentionBySession =
         <String, SourceNeedsAttention>{};
+    final List<LibraryEntryDomain> removedFromSource = <LibraryEntryDomain>[];
     int checked = 0;
     int failed = 0;
     int skipped = 0;
@@ -106,7 +135,7 @@ class LibraryUpdateService {
 
     void reportProgress(LibraryEntryDomain entry) {
       onProgress?.call(LibraryUpdateProgress(
-        processed: checked + failed + skipped,
+        processed: checked + failed + skipped + removedFromSource.length,
         total: entries.length,
         title: entry.title,
       ));
@@ -116,9 +145,15 @@ class LibraryUpdateService {
       final ExtensionDomain? extension =
           await extensionRepository.getByUid(group.first.extensionUid);
       final String? sessionKey = _sessionKeyOf(extension);
+      bool sourceUnreachable = false;
 
       for (final LibraryEntryDomain entry in group) {
         if (sessionKey != null && attentionBySession.containsKey(sessionKey)) {
+          skipped++;
+          reportProgress(entry);
+          continue;
+        }
+        if (sourceUnreachable) {
           skipped++;
           reportProgress(entry);
           continue;
@@ -138,8 +173,22 @@ class LibraryUpdateService {
           logger.w('Update check needs the user for ${entry.title}: '
               '$attention');
         } catch (e) {
-          failed++;
-          logger.w('Update check failed for ${entry.title}: $e');
+          switch (UpdateFailureClassifier.classify(e)) {
+            case UpdateFailureKind.transient:
+              failed++;
+              sourceUnreachable = true;
+              logger.w('Update check for ${entry.extensionUid} paused this '
+                  'run, the source is temporarily unavailable: $e');
+            case UpdateFailureKind.removedFromSource:
+              removedFromSource.add(entry);
+              logger.w('${entry.title} was removed from its source: $e');
+            case UpdateFailureKind.unavailable:
+              skipped++;
+              logger.i('Skipped the update check for ${entry.title}: $e');
+            case UpdateFailureKind.failed:
+              failed++;
+              logger.w('Update check failed for ${entry.title}: $e');
+          }
         }
 
         reportProgress(entry);
@@ -163,6 +212,7 @@ class LibraryUpdateService {
       updates: updates,
       notifiable: notifiable,
       needsAttention: attentionBySession.values.toList(),
+      removedFromSource: removedFromSource,
       checked: checked,
       failed: failed,
       skipped: skipped,

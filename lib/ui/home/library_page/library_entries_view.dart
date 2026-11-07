@@ -195,6 +195,13 @@ Future<void> checkLibraryUpdatesNow(BuildContext context) async {
       context: context,
       message: S.current.updates_check_found(result.updates.length),
     );
+  } else if (result.removedFromSource.isNotEmpty) {
+    SnackBars.showErrorSnackBar(
+      context: context,
+      error: S.current.source_error_removed_titles_found(
+        result.removedFromSource.length,
+      ),
+    );
   } else if (result.failed > 0) {
     SnackBars.showErrorSnackBar(
       context: context,
