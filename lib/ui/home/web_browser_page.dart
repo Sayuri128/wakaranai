@@ -566,28 +566,6 @@ class _WebBrowserPageState extends State<WebBrowserPage> {
   }
 }
 
-Future<void> getHeaders(
-    {required Function(Map<String, String> headers, Map<String, String> cookies)
-        done,
-    required String pingUrl,
-    required InAppWebViewController controller}) async {
-  final Map<String, String> cookies =
-      Map.fromEntries((await CookieManager.instance().getCookies(
-    url: WebUri(pingUrl),
-  ))
-          .map((Cookie e) => MapEntry(e.name, e.value.toString())));
-  done(
-      Map.from(<String, String>{
-        'user-agent': ((await controller.callAsyncJavaScript(
-                functionBody: 'return navigator.userAgent;'))
-            ?.value as String),
-        'cookie': cookies.entries
-            .map((MapEntry<String, String> e) => '${e.key}=${e.value}')
-            .join('; ')
-      }),
-      cookies);
-}
-
 Future<void> openWebView(
     BuildContext context, ApiClient apiClient, ConfigInfo config) async {
   final ProtectorConfig? protectorConfig = config.protectorConfig;

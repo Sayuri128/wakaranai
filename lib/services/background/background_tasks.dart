@@ -1,11 +1,14 @@
 import 'package:wakaranai/services/import_export/import_export_task.dart';
+import 'package:wakaranai/main.dart';
 import 'package:wakaranai/services/library_updates/library_update_task.dart';
+import 'package:wakaranai/utils/webview_user_agent.dart';
 import 'package:workmanager/workmanager.dart';
 
 @pragma('vm:entry-point')
 void backgroundCallbackDispatcher() {
   Workmanager().executeTask(
     (String taskName, Map<String, dynamic>? inputData) async {
+      await _resolveWebViewUserAgent();
       switch (taskName) {
         case importTaskName:
           return runImportTask(inputData);
@@ -16,4 +19,12 @@ void backgroundCallbackDispatcher() {
       }
     },
   );
+}
+
+Future<void> _resolveWebViewUserAgent() async {
+  try {
+    await WebViewUserAgent.resolve();
+  } catch (e) {
+    logger.w('Failed to resolve the webview user agent: $e');
+  }
 }

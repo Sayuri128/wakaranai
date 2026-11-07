@@ -45,6 +45,7 @@ import 'package:wakaranai/services/page_translation/page_translation_service.dar
 import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
 import 'package:wakaranai/services/page_translation/title_languages.dart';
 import 'package:wakaranai/services/page_translation/translation_prerequisites.dart';
+import 'package:wakaranai/utils/webview_user_agent.dart';
 
 import 'blocs/auth/authentication_cubit.dart';
 import 'ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
@@ -61,6 +62,7 @@ final Logger logger = Logger(
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final Future<void> userAgentResolution = _resolveWebViewUserAgent();
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent, // transparent status bar
@@ -79,7 +81,20 @@ void main() async {
     }
   }
 
+  await userAgentResolution;
+
   runApp(const WakaranaiApp());
+}
+
+Future<void> _resolveWebViewUserAgent() async {
+  if (kIsWeb || !Platform.isAndroid) {
+    return;
+  }
+  try {
+    await WebViewUserAgent.resolve();
+  } catch (e) {
+    logger.w('Failed to resolve the webview user agent: $e');
+  }
 }
 
 class WakaranaiApp extends StatefulWidget {
