@@ -308,4 +308,40 @@ void main() {
     expect(await _userVersion(replayed), replayed.schemaVersion);
     await replayed.close();
   });
+
+  test('upgrade from v13 creates the extension storage table', () async {
+    final Database raw = sqlite3.openInMemory();
+    addTearDown(raw.dispose);
+
+    final WakaranaiDatabase first = await _open(raw);
+    await first.close();
+
+    raw.execute('DROP TABLE extension_storage_table;');
+    raw.execute('PRAGMA user_version = 13;');
+
+    final WakaranaiDatabase second = await _open(raw);
+    expect(await _userVersion(second), second.schemaVersion);
+
+    final List<QueryRow> tables = await second
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table' "
+          "AND name = 'extension_storage_table';",
+        )
+        .get();
+    expect(tables, hasLength(1));
+
+    final List<QueryRow> indexes = await second
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'index' "
+          "AND name = 'extension_storage_expires_at';",
+        )
+        .get();
+    expect(indexes, hasLength(1));
+    await second.close();
+
+    raw.execute('PRAGMA user_version = 13;');
+    final WakaranaiDatabase replayed = await _open(raw);
+    expect(await _userVersion(replayed), replayed.schemaVersion);
+    await replayed.close();
+  });
 }

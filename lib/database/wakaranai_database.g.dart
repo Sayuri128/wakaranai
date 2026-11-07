@@ -6525,6 +6525,385 @@ class PageTranslationTableCompanion
   }
 }
 
+class $ExtensionStorageTableTable extends ExtensionStorageTable
+    with TableInfo<$ExtensionStorageTableTable, ExtensionStorageTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExtensionStorageTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _extensionUidMeta = const VerificationMeta(
+    'extensionUid',
+  );
+  @override
+  late final GeneratedColumn<String> extensionUid = GeneratedColumn<String>(
+    'extension_uid',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entryKeyMeta = const VerificationMeta(
+    'entryKey',
+  );
+  @override
+  late final GeneratedColumn<String> entryKey = GeneratedColumn<String>(
+    'entry_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+    'value',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _expiresAtMeta = const VerificationMeta(
+    'expiresAt',
+  );
+  @override
+  late final GeneratedColumn<int> expiresAt = GeneratedColumn<int>(
+    'expires_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    extensionUid,
+    entryKey,
+    value,
+    expiresAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'extension_storage_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ExtensionStorageTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('extension_uid')) {
+      context.handle(
+        _extensionUidMeta,
+        extensionUid.isAcceptableOrUnknown(
+          data['extension_uid']!,
+          _extensionUidMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_extensionUidMeta);
+    }
+    if (data.containsKey('entry_key')) {
+      context.handle(
+        _entryKeyMeta,
+        entryKey.isAcceptableOrUnknown(data['entry_key']!, _entryKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entryKeyMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    if (data.containsKey('expires_at')) {
+      context.handle(
+        _expiresAtMeta,
+        expiresAt.isAcceptableOrUnknown(data['expires_at']!, _expiresAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {extensionUid, entryKey};
+  @override
+  ExtensionStorageTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExtensionStorageTableData(
+      extensionUid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}extension_uid'],
+      )!,
+      entryKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entry_key'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value'],
+      )!,
+      expiresAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}expires_at'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ExtensionStorageTableTable createAlias(String alias) {
+    return $ExtensionStorageTableTable(attachedDatabase, alias);
+  }
+}
+
+class ExtensionStorageTableData extends DataClass
+    implements Insertable<ExtensionStorageTableData> {
+  final String extensionUid;
+  final String entryKey;
+  final String value;
+  final int? expiresAt;
+  final int updatedAt;
+  const ExtensionStorageTableData({
+    required this.extensionUid,
+    required this.entryKey,
+    required this.value,
+    this.expiresAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['extension_uid'] = Variable<String>(extensionUid);
+    map['entry_key'] = Variable<String>(entryKey);
+    map['value'] = Variable<String>(value);
+    if (!nullToAbsent || expiresAt != null) {
+      map['expires_at'] = Variable<int>(expiresAt);
+    }
+    map['updated_at'] = Variable<int>(updatedAt);
+    return map;
+  }
+
+  ExtensionStorageTableCompanion toCompanion(bool nullToAbsent) {
+    return ExtensionStorageTableCompanion(
+      extensionUid: Value(extensionUid),
+      entryKey: Value(entryKey),
+      value: Value(value),
+      expiresAt: expiresAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(expiresAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory ExtensionStorageTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExtensionStorageTableData(
+      extensionUid: serializer.fromJson<String>(json['extensionUid']),
+      entryKey: serializer.fromJson<String>(json['entryKey']),
+      value: serializer.fromJson<String>(json['value']),
+      expiresAt: serializer.fromJson<int?>(json['expiresAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'extensionUid': serializer.toJson<String>(extensionUid),
+      'entryKey': serializer.toJson<String>(entryKey),
+      'value': serializer.toJson<String>(value),
+      'expiresAt': serializer.toJson<int?>(expiresAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+    };
+  }
+
+  ExtensionStorageTableData copyWith({
+    String? extensionUid,
+    String? entryKey,
+    String? value,
+    Value<int?> expiresAt = const Value.absent(),
+    int? updatedAt,
+  }) => ExtensionStorageTableData(
+    extensionUid: extensionUid ?? this.extensionUid,
+    entryKey: entryKey ?? this.entryKey,
+    value: value ?? this.value,
+    expiresAt: expiresAt.present ? expiresAt.value : this.expiresAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  ExtensionStorageTableData copyWithCompanion(
+    ExtensionStorageTableCompanion data,
+  ) {
+    return ExtensionStorageTableData(
+      extensionUid: data.extensionUid.present
+          ? data.extensionUid.value
+          : this.extensionUid,
+      entryKey: data.entryKey.present ? data.entryKey.value : this.entryKey,
+      value: data.value.present ? data.value.value : this.value,
+      expiresAt: data.expiresAt.present ? data.expiresAt.value : this.expiresAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExtensionStorageTableData(')
+          ..write('extensionUid: $extensionUid, ')
+          ..write('entryKey: $entryKey, ')
+          ..write('value: $value, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(extensionUid, entryKey, value, expiresAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExtensionStorageTableData &&
+          other.extensionUid == this.extensionUid &&
+          other.entryKey == this.entryKey &&
+          other.value == this.value &&
+          other.expiresAt == this.expiresAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ExtensionStorageTableCompanion
+    extends UpdateCompanion<ExtensionStorageTableData> {
+  final Value<String> extensionUid;
+  final Value<String> entryKey;
+  final Value<String> value;
+  final Value<int?> expiresAt;
+  final Value<int> updatedAt;
+  final Value<int> rowid;
+  const ExtensionStorageTableCompanion({
+    this.extensionUid = const Value.absent(),
+    this.entryKey = const Value.absent(),
+    this.value = const Value.absent(),
+    this.expiresAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ExtensionStorageTableCompanion.insert({
+    required String extensionUid,
+    required String entryKey,
+    required String value,
+    this.expiresAt = const Value.absent(),
+    required int updatedAt,
+    this.rowid = const Value.absent(),
+  }) : extensionUid = Value(extensionUid),
+       entryKey = Value(entryKey),
+       value = Value(value),
+       updatedAt = Value(updatedAt);
+  static Insertable<ExtensionStorageTableData> custom({
+    Expression<String>? extensionUid,
+    Expression<String>? entryKey,
+    Expression<String>? value,
+    Expression<int>? expiresAt,
+    Expression<int>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (extensionUid != null) 'extension_uid': extensionUid,
+      if (entryKey != null) 'entry_key': entryKey,
+      if (value != null) 'value': value,
+      if (expiresAt != null) 'expires_at': expiresAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ExtensionStorageTableCompanion copyWith({
+    Value<String>? extensionUid,
+    Value<String>? entryKey,
+    Value<String>? value,
+    Value<int?>? expiresAt,
+    Value<int>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return ExtensionStorageTableCompanion(
+      extensionUid: extensionUid ?? this.extensionUid,
+      entryKey: entryKey ?? this.entryKey,
+      value: value ?? this.value,
+      expiresAt: expiresAt ?? this.expiresAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (extensionUid.present) {
+      map['extension_uid'] = Variable<String>(extensionUid.value);
+    }
+    if (entryKey.present) {
+      map['entry_key'] = Variable<String>(entryKey.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (expiresAt.present) {
+      map['expires_at'] = Variable<int>(expiresAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExtensionStorageTableCompanion(')
+          ..write('extensionUid: $extensionUid, ')
+          ..write('entryKey: $entryKey, ')
+          ..write('value: $value, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$WakaranaiDatabase extends GeneratedDatabase {
   _$WakaranaiDatabase(QueryExecutor e) : super(e);
   $WakaranaiDatabaseManager get managers => $WakaranaiDatabaseManager(this);
@@ -6545,6 +6924,8 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
       $LibraryUpdateTableTable(this);
   late final $PageTranslationTableTable pageTranslationTable =
       $PageTranslationTableTable(this);
+  late final $ExtensionStorageTableTable extensionStorageTable =
+      $ExtensionStorageTableTable(this);
   late final Index concreteDataUid = Index(
     'concrete_data_uid',
     'CREATE UNIQUE INDEX concrete_data_uid ON concrete_data_table (uid)',
@@ -6573,6 +6954,10 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
     'page_translation_uid',
     'CREATE UNIQUE INDEX page_translation_uid ON page_translation_table (uid)',
   );
+  late final Index extensionStorageExpiresAt = Index(
+    'extension_storage_expires_at',
+    'CREATE INDEX extension_storage_expires_at ON extension_storage_table (expires_at)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6588,6 +6973,7 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
     downloadTable,
     libraryUpdateTable,
     pageTranslationTable,
+    extensionStorageTable,
     concreteDataUid,
     chapterActivityUid,
     animeEpisodeActivityUid,
@@ -6595,6 +6981,7 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
     downloadUid,
     libraryUpdateUid,
     pageTranslationUid,
+    extensionStorageExpiresAt,
   ];
 }
 
@@ -9860,6 +10247,227 @@ typedef $$PageTranslationTableTableProcessedTableManager =
       PageTranslationTableData,
       PrefetchHooks Function()
     >;
+typedef $$ExtensionStorageTableTableCreateCompanionBuilder =
+    ExtensionStorageTableCompanion Function({
+      required String extensionUid,
+      required String entryKey,
+      required String value,
+      Value<int?> expiresAt,
+      required int updatedAt,
+      Value<int> rowid,
+    });
+typedef $$ExtensionStorageTableTableUpdateCompanionBuilder =
+    ExtensionStorageTableCompanion Function({
+      Value<String> extensionUid,
+      Value<String> entryKey,
+      Value<String> value,
+      Value<int?> expiresAt,
+      Value<int> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$ExtensionStorageTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $ExtensionStorageTableTable> {
+  $$ExtensionStorageTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entryKey => $composableBuilder(
+    column: $table.entryKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ExtensionStorageTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $ExtensionStorageTableTable> {
+  $$ExtensionStorageTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entryKey => $composableBuilder(
+    column: $table.entryKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ExtensionStorageTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $ExtensionStorageTableTable> {
+  $$ExtensionStorageTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get entryKey =>
+      $composableBuilder(column: $table.entryKey, builder: (column) => column);
+
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<int> get expiresAt =>
+      $composableBuilder(column: $table.expiresAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$ExtensionStorageTableTableTableManager
+    extends
+        RootTableManager<
+          _$WakaranaiDatabase,
+          $ExtensionStorageTableTable,
+          ExtensionStorageTableData,
+          $$ExtensionStorageTableTableFilterComposer,
+          $$ExtensionStorageTableTableOrderingComposer,
+          $$ExtensionStorageTableTableAnnotationComposer,
+          $$ExtensionStorageTableTableCreateCompanionBuilder,
+          $$ExtensionStorageTableTableUpdateCompanionBuilder,
+          (
+            ExtensionStorageTableData,
+            BaseReferences<
+              _$WakaranaiDatabase,
+              $ExtensionStorageTableTable,
+              ExtensionStorageTableData
+            >,
+          ),
+          ExtensionStorageTableData,
+          PrefetchHooks Function()
+        > {
+  $$ExtensionStorageTableTableTableManager(
+    _$WakaranaiDatabase db,
+    $ExtensionStorageTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExtensionStorageTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ExtensionStorageTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ExtensionStorageTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> extensionUid = const Value.absent(),
+                Value<String> entryKey = const Value.absent(),
+                Value<String> value = const Value.absent(),
+                Value<int?> expiresAt = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExtensionStorageTableCompanion(
+                extensionUid: extensionUid,
+                entryKey: entryKey,
+                value: value,
+                expiresAt: expiresAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String extensionUid,
+                required String entryKey,
+                required String value,
+                Value<int?> expiresAt = const Value.absent(),
+                required int updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => ExtensionStorageTableCompanion.insert(
+                extensionUid: extensionUid,
+                entryKey: entryKey,
+                value: value,
+                expiresAt: expiresAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ExtensionStorageTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$WakaranaiDatabase,
+      $ExtensionStorageTableTable,
+      ExtensionStorageTableData,
+      $$ExtensionStorageTableTableFilterComposer,
+      $$ExtensionStorageTableTableOrderingComposer,
+      $$ExtensionStorageTableTableAnnotationComposer,
+      $$ExtensionStorageTableTableCreateCompanionBuilder,
+      $$ExtensionStorageTableTableUpdateCompanionBuilder,
+      (
+        ExtensionStorageTableData,
+        BaseReferences<
+          _$WakaranaiDatabase,
+          $ExtensionStorageTableTable,
+          ExtensionStorageTableData
+        >,
+      ),
+      ExtensionStorageTableData,
+      PrefetchHooks Function()
+    >;
 
 class $WakaranaiDatabaseManager {
   final _$WakaranaiDatabase _db;
@@ -9887,4 +10495,6 @@ class $WakaranaiDatabaseManager {
       $$LibraryUpdateTableTableTableManager(_db, _db.libraryUpdateTable);
   $$PageTranslationTableTableTableManager get pageTranslationTable =>
       $$PageTranslationTableTableTableManager(_db, _db.pageTranslationTable);
+  $$ExtensionStorageTableTableTableManager get extensionStorageTable =>
+      $$ExtensionStorageTableTableTableManager(_db, _db.extensionStorageTable);
 }
