@@ -41,4 +41,22 @@ void main() {
     expect(galleryLayoutFromName('mosaic'), GalleryLayout.comfortable);
     expect(galleryLayoutFromName(null), GalleryLayout.comfortable);
   });
+
+  test('keeps the library layout separate from the gallery layout', () async {
+    final GalleryLayoutCubit gallery = GalleryLayoutCubit();
+    final LibraryLayoutCubit library = LibraryLayoutCubit();
+    await gallery.select(GalleryLayout.compact);
+    await library.select(GalleryLayout.list);
+    await gallery.close();
+    await library.close();
+
+    final GalleryLayoutCubit restoredGallery = GalleryLayoutCubit();
+    final LibraryLayoutCubit restoredLibrary = LibraryLayoutCubit();
+    await restoredGallery.init();
+    await restoredLibrary.init();
+    expect(restoredGallery.state, GalleryLayout.compact);
+    expect(restoredLibrary.state, GalleryLayout.list);
+    await restoredGallery.close();
+    await restoredLibrary.close();
+  });
 }

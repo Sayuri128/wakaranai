@@ -25,8 +25,6 @@ class GalleryListTile extends StatefulWidget {
 }
 
 class _GalleryListTileState extends State<GalleryListTile> {
-  static const double _coverWidth = 74;
-
   String? _lastActivity;
 
   @override
@@ -71,43 +69,14 @@ class _GalleryListTileState extends State<GalleryListTile> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                _buildCover(context),
+                GalleryListCover(
+                  uid: widget.item.uid,
+                  cover: widget.item.cover,
+                  headers: widget.item.headers,
+                ),
                 const SizedBox(width: 12),
                 Expanded(child: _buildDetails()),
               ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCover(BuildContext context) {
-    return SizedBox(
-      width: _coverWidth,
-      child: Hero(
-        tag: Heroes.galleryViewToConcreteView(widget.item.uid),
-        flightShuttleBuilder: Heroes.crossfadeFlightShuttle,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(Heroes.galleryCardRadius),
-          child: ColoredBox(
-            color: AppColors.shimmerBase,
-            child: Image(
-              fit: BoxFit.cover,
-              image: getImageProvider(
-                widget.item.cover,
-                headers: widget.item.headers,
-                decodeWidth: decodeWidthFor(context, _coverWidth),
-              ),
-              errorBuilder:
-                  (BuildContext context, Object error, StackTrace? stack) =>
-                      const Center(
-                        child: Icon(
-                          Icons.image_outlined,
-                          color: Colors.white24,
-                          size: 24,
-                        ),
-                      ),
             ),
           ),
         ),
@@ -158,6 +127,58 @@ class _GalleryListTileState extends State<GalleryListTile> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class GalleryListCover extends StatelessWidget {
+  const GalleryListCover({
+    super.key,
+    required this.uid,
+    required this.cover,
+    required this.headers,
+  });
+
+  static const double width = 74;
+
+  final String uid;
+  final String cover;
+  final Map<String, String> headers;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: Hero(
+        tag: Heroes.galleryViewToConcreteView(uid),
+        flightShuttleBuilder: Heroes.crossfadeFlightShuttle,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(Heroes.galleryCardRadius),
+          child: ColoredBox(
+            color: AppColors.shimmerBase,
+            child: cover.isEmpty ? _buildPlaceholder() : _buildImage(context),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImage(BuildContext context) {
+    return Image(
+      fit: BoxFit.cover,
+      image: getImageProvider(
+        cover,
+        headers: headers,
+        decodeWidth: decodeWidthFor(context, width),
+      ),
+      errorBuilder: (BuildContext context, Object error, StackTrace? stack) =>
+          _buildPlaceholder(),
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    return const Center(
+      child: Icon(Icons.image_outlined, color: Colors.white24, size: 24),
     );
   }
 }

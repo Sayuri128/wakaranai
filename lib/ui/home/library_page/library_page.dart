@@ -4,7 +4,15 @@ import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:wakaranai/ui/home/library_page/library_download_actions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/gallery_layout/gallery_layout_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
+import 'package:wakaranai/data/domain/database/library_update_domain.dart';
+import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
+import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
+import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/ui/common/service_viewer/gallery_layout.dart';
+import 'package:wakaranai/ui/home/library_page/library_entry_details.dart';
+import 'package:wakaranai/ui/home/library_page/library_list_tile.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/data/domain/database/category_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
@@ -37,6 +45,7 @@ class _LibraryPageState extends State<LibraryPage> {
   final Set<String> _selected = <String>{};
 
   late final TextEditingController _searchController;
+  late final LibraryEntryDetailsLoader _detailsLoader;
 
   bool get _selectionMode => _selected.isNotEmpty;
 
@@ -48,6 +57,13 @@ class _LibraryPageState extends State<LibraryPage> {
     super.initState();
     _searchController = TextEditingController(
       text: context.read<LibraryCubit>().state.searchQuery,
+    );
+    _detailsLoader = LibraryEntryDetailsLoader(
+      extensionRepository: context.read<ExtensionRepository>(),
+      concreteDataRepository: context.read<ConcreteDataRepository>(),
+      chapterActivityRepository: context.read<ChapterActivityRepository>(),
+      animeEpisodeActivityRepository: context
+          .read<AnimeEpisodeActivityRepository>(),
     );
   }
 
@@ -285,6 +301,14 @@ class _LibraryPageState extends State<LibraryPage> {
             },
           ),
           const SizedBox(width: 8),
+          BlocBuilder<LibraryLayoutCubit, GalleryLayout>(
+            builder: (BuildContext context, GalleryLayout layout) =>
+                _CircleIconButton(
+                  icon: galleryLayoutIcon(layout),
+                  onTap: () => context.read<LibraryLayoutCubit>().cycle(),
+                ),
+          ),
+          const SizedBox(width: 8),
           _CircleIconButton(
             icon: Icons.sort_rounded,
             onTap: () => _showSortSheet(context, state),
@@ -400,42 +424,120 @@ class _LibraryPageState extends State<LibraryPage> {
       backgroundColor: AppColors.dialogSurface,
       child: entries.isEmpty
           ? _buildEmpty(state)
-          : LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-                final int crossAxisCount =
-                    (constraints.maxWidth / 180).floor().clamp(2, 6);
-                final double itemWidth = constraints.maxWidth / crossAxisCount;
-                return GridView.builder(
-                  padding:
-                      EdgeInsets.fromLTRB(12, 4, 12, _selectionMode ? 150 : 24),
-                  physics: const AlwaysScrollableScrollPhysics(
-                    parent: BouncingScrollPhysics(),
-                  ),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    childAspectRatio: GalleryViewCard.aspectRatio(itemWidth),
-                  ),
-                  itemCount: entries.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final LibraryEntryDomain entry = entries[index];
-                    return _LibraryCard(
-                      entry: entry,
-                      headers: state.coverHeaders[entry.extensionUid],
-                      selected: _selected.contains(entry.uid),
-                      selectionMode: _selectionMode,
-                      onTap: () => _selectionMode
-                          ? _toggleSelect(entry.uid)
-                          : _openEntry(context, entry),
-                      onLongPress: () => _toggleSelect(entry.uid),
-                      onMenu: () => _showEntryActions(context, state, entry),
-                    );
-                  },
-                );
-              },
-            ),
+          : _buildEntries(context, state, entries),
     );
+  }
+
+  EdgeInsets get _entriesPadding =>
+      EdgeInsets.fromLTRB(12, 4, 12, _selectionMode ? 150 : 24);
+
+  static const ScrollPhysics _entriesPhysics = AlwaysScrollableScrollPhysics(
+    parent: BouncingScrollPhysics(),
+  );
+
+  Widget _buildEntries(
+    BuildContext context,
+    LibraryState state,
+    List<LibraryEntryDomain> entries,
+  ) {
+    final GalleryLayout layout = context.watch<LibraryLayoutCubit>().state;
+    if (layout == GalleryLayout.list) {
+      return _buildList(context, state, entries);
+    }
+    return _buildGridOf(context, state, entries, layout);
+  }
+
+  Widget _buildGridOf(
+    BuildContext context,
+    LibraryState state,
+    List<LibraryEntryDomain> entries,
+    GalleryLayout layout,
+  ) {
+    final bool compact = layout == GalleryLayout.compact;
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final double cellExtent = compact ? 120 : 180;
+        final int crossAxisCount = (constraints.maxWidth / cellExtent)
+            .floor()
+            .clamp(compact ? 3 : 2, compact ? 8 : 6);
+        final double itemWidth = constraints.maxWidth / crossAxisCount;
+        return GridView.builder(
+          padding: _entriesPadding,
+          physics: _entriesPhysics,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            mainAxisSpacing: compact ? 6 : 8,
+            crossAxisSpacing: compact ? 6 : 8,
+            childAspectRatio: GalleryViewCard.aspectRatio(itemWidth),
+          ),
+          itemCount: entries.length,
+          itemBuilder: (BuildContext context, int index) {
+            final LibraryEntryDomain entry = entries[index];
+            return _LibraryCard(
+              entry: entry,
+              compact: compact,
+              headers: state.coverHeaders[entry.extensionUid],
+              selected: _selected.contains(entry.uid),
+              selectionMode: _selectionMode,
+              onTap: () => _onEntryTap(context, entry),
+              onLongPress: () => _toggleSelect(entry.uid),
+              onMenu: () => _showEntryActions(context, state, entry),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildList(
+    BuildContext context,
+    LibraryState state,
+    List<LibraryEntryDomain> entries,
+  ) {
+    return ListView.separated(
+      padding: _entriesPadding,
+      physics: _entriesPhysics,
+      itemCount: entries.length,
+      separatorBuilder: (BuildContext context, int index) =>
+          const SizedBox(height: kGalleryListRowSpacing),
+      itemBuilder: (BuildContext context, int index) {
+        final LibraryEntryDomain entry = entries[index];
+        return BlocSelector<LibraryUpdatesCubit, LibraryUpdatesState, int>(
+          key: ValueKey<String>(entry.uid),
+          selector: (LibraryUpdatesState updates) =>
+              _unseenCount(updates, entry.uid),
+          builder: (BuildContext context, int unseenCount) => LibraryListTile(
+            entry: entry,
+            headers: state.coverHeaders[entry.extensionUid],
+            selected: _selected.contains(entry.uid),
+            selectionMode: _selectionMode,
+            unseenCount: unseenCount,
+            detailsLoader: _detailsLoader,
+            onTap: () => _onEntryTap(context, entry),
+            onLongPress: () => _toggleSelect(entry.uid),
+            onMenu: () => _showEntryActions(context, state, entry),
+          ),
+        );
+      },
+    );
+  }
+
+  int _unseenCount(LibraryUpdatesState updates, String entryUid) {
+    int count = 0;
+    for (final LibraryUpdateDomain update in updates.updates) {
+      if (!update.seen && update.libraryEntryUid == entryUid) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  void _onEntryTap(BuildContext context, LibraryEntryDomain entry) {
+    if (_selectionMode) {
+      _toggleSelect(entry.uid);
+    } else {
+      _openEntry(context, entry);
+    }
   }
 
   Widget _buildEmpty(LibraryState state) {
@@ -885,9 +987,11 @@ class _LibraryCard extends StatelessWidget {
     required this.onTap,
     required this.onLongPress,
     required this.onMenu,
+    this.compact = false,
   });
 
   final LibraryEntryDomain entry;
+  final bool compact;
   final Map<String, String>? headers;
   final bool selected;
   final bool selectionMode;
@@ -906,6 +1010,7 @@ class _LibraryCard extends StatelessWidget {
             headers: headers ?? const <String, String>{},
             cover: entry.cover ?? '',
             title: entry.title,
+            compact: compact,
             onTap: onTap,
             onLongPress: onLongPress,
           ),

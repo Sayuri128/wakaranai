@@ -37,3 +37,11 @@ class GalleryLayoutCubit extends Cubit<GalleryLayout> {
     }
   }
 }
+
+class LibraryLayoutCubit extends GalleryLayoutCubit {
+  LibraryLayoutCubit({GalleryLayoutPreferences? preferences})
+    : super(
+        preferences: preferences ??
+            GalleryLayoutPreferences(key: GalleryLayoutPreferences.libraryKey),
+      );
+}

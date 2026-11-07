@@ -2,7 +2,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_layout.dart';
 
 class GalleryLayoutPreferences {
-  static const String _layoutKey = 'GALLERY_LAYOUT';
+  GalleryLayoutPreferences({this.key = galleryKey});
+
+  static const String galleryKey = 'GALLERY_LAYOUT';
+  static const String libraryKey = 'LIBRARY_LAYOUT';
+
+  final String key;
 
   SharedPreferences? _preferences;
 
@@ -12,11 +17,11 @@ class GalleryLayoutPreferences {
 
   Future<GalleryLayout> getLayout() async {
     final SharedPreferences preferences = await _load();
-    return galleryLayoutFromName(preferences.getString(_layoutKey));
+    return galleryLayoutFromName(preferences.getString(key));
   }
 
   Future<void> setLayout(GalleryLayout layout) async {
     final SharedPreferences preferences = await _load();
-    await preferences.setString(_layoutKey, layout.name);
+    await preferences.setString(key, layout.name);
   }
 }

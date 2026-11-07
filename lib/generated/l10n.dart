@@ -1312,6 +1312,66 @@ class S {
     );
   }
 
+  /// `Completed`
+  String get title_status_released {
+    return Intl.message(
+      'Completed',
+      name: 'title_status_released',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ongoing`
+  String get title_status_ongoing {
+    return Intl.message(
+      'Ongoing',
+      name: 'title_status_ongoing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paused`
+  String get title_status_paused {
+    return Intl.message(
+      'Paused',
+      name: 'title_status_paused',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Announced`
+  String get title_status_announce {
+    return Intl.message(
+      'Announced',
+      name: 'title_status_announce',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancelled`
+  String get title_status_canceled {
+    return Intl.message(
+      'Cancelled',
+      name: 'title_status_canceled',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} new`
+  String library_new_chapters(Object count) {
+    return Intl.message(
+      '$count new',
+      name: 'library_new_chapters',
+      desc: '',
+      args: [count],
+    );
+  }
+
   /// `Next`
   String get chapter_viewer_next_chapter_button_title {
     return Intl.message(

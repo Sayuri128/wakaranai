@@ -109,6 +109,10 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
             lazy: false,
             create: (BuildContext context) => GalleryLayoutCubit()..init(),
           ),
+          BlocProvider<LibraryLayoutCubit>(
+            lazy: false,
+            create: (BuildContext context) => LibraryLayoutCubit()..init(),
+          ),
           BlocProvider<LibraryCubit>(
             lazy: false,
             create: (BuildContext context) => LibraryCubit(
