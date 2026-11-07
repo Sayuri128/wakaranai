@@ -6,6 +6,7 @@ import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_view_type.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/main.dart';
+import 'package:wakaranai/services/downloads/episode/downloaded_episode_lookup.dart';
 import 'package:wakaranai/services/settings_service/video_player_preference.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/video_sources_mapper.dart';
 import 'package:wakaranai/utils/serial_call_queue.dart';
@@ -58,13 +59,23 @@ class AnimeApiClientVideoSourceProvider implements VideoSourceProvider {
 
 Future<EpisodePlaybackPlan> resolveEpisodePlayback({
   required AnimeVideo episode,
-  required VideoSourceProvider provider,
+  required VideoSourceProvider? provider,
   required VideoPlayerPreference preference,
+  DownloadedEpisodeLookup? downloadedEpisodes,
   Duration timeout = kVideoSourcesTimeout,
   void Function()? onFetchingSources,
 }) async {
+  final PlayableVideo? downloaded =
+      await _downloadedPlayable(downloadedEpisodes, episode);
+  if (downloaded != null) {
+    logger.i('Playing ${episode.uid} from its download');
+    return NativePlaybackPlan(downloaded);
+  }
   if (preference == VideoPlayerPreference.webOnly) {
     return const WebPlaybackPlan(WebPlaybackReason.webOnlyPreference);
+  }
+  if (provider == null) {
+    return _directOrWeb(episode, WebPlaybackReason.failed);
   }
   final bool supported = await _supportsVideoSources(provider);
   if (!supported) {
@@ -92,6 +103,22 @@ Future<EpisodePlaybackPlan> resolveEpisodePlayback({
 
 bool isDirectEpisode(AnimeVideo episode) {
   return episode.type == AnimeVideoType.DIRECT && episode.src.trim().isNotEmpty;
+}
+
+Future<PlayableVideo?> _downloadedPlayable(
+  DownloadedEpisodeLookup? downloadedEpisodes,
+  AnimeVideo episode,
+) async {
+  if (downloadedEpisodes == null) {
+    return null;
+  }
+  try {
+    return await downloadedEpisodes.playableFor(episode.uid);
+  } catch (error, stackTrace) {
+    logger.e('Downloaded episode lookup failed for ${episode.uid}: $error');
+    logger.e(stackTrace);
+    return null;
+  }
 }
 
 Future<bool> _supportsVideoSources(VideoSourceProvider provider) async {

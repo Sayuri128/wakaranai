@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
+import 'package:wakaranai/repositories/database/download_repository.dart';
+import 'package:wakaranai/services/downloads/episode/downloaded_episode_lookup.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/anime_episode_launcher.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
@@ -384,6 +386,9 @@ class AnimeConcreteViewer extends StatelessWidget
       groups: state.concreteView.groups,
       groupIndex: state.groupIndex,
       watchedEpisodeUids: state.animeEpisodeActivities.keys.toSet(),
+      downloadedEpisodes: RepositoryDownloadedEpisodeLookup(
+        context.read<DownloadRepository>(),
+      ),
       onEpisodeOpened: (AnimeVideo openedEpisode) {
         unawaited(libraryUpdatesCubit.markSeenIfNew(openedEpisode.uid));
       },

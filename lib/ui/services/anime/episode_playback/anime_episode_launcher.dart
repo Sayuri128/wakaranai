@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
+import 'package:wakaranai/services/downloads/episode/downloaded_episode_lookup.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
 import 'package:wakaranai/services/settings_service/video_player_preference.dart';
 import 'package:wakaranai/ui/routes.dart';
@@ -25,6 +26,7 @@ class AnimeEpisodeLauncher {
     required this.groupIndex,
     Set<String> watchedEpisodeUids = const <String>{},
     this.onEpisodeOpened,
+    this.downloadedEpisodes,
     SettingsService? settingsService,
   })  : groups = List<AnimeVideoGroup>.unmodifiable(groups),
         _watchedEpisodeUids = <String>{...watchedEpisodeUids},
@@ -32,7 +34,8 @@ class AnimeEpisodeLauncher {
 
   static bool _launchInFlight = false;
 
-  final AnimeApiClient client;
+  final AnimeApiClient? client;
+  final DownloadedEpisodeLookup? downloadedEpisodes;
   final AnimeConcreteView anime;
   final List<AnimeVideoGroup> groups;
   final int groupIndex;
@@ -72,7 +75,7 @@ class AnimeEpisodeLauncher {
         video,
         resolveInPlayer: (EpisodePlaylist target) {
           session.enterEpisode(target);
-          return _resolve(target.current, preference);
+          return resolve(target.current, preference);
         },
       ),
       openWebPlayer: (
@@ -95,17 +98,26 @@ class AnimeEpisodeLauncher {
     onEpisodeOpened?.call(episode);
   }
 
-  Future<EpisodePlaybackPlan> _resolve(
+  Future<EpisodePlaybackPlan> resolve(
     AnimeVideo episode,
     VideoPlayerPreference preference, {
     void Function()? onFetchingSources,
   }) {
     return resolveEpisodePlayback(
       episode: episode,
-      provider: AnimeApiClientVideoSourceProvider(client),
+      provider: _videoSourceProvider(),
       preference: preference,
+      downloadedEpisodes: downloadedEpisodes,
       onFetchingSources: onFetchingSources,
     );
+  }
+
+  VideoSourceProvider? _videoSourceProvider() {
+    final AnimeApiClient? apiClient = client;
+    if (apiClient == null) {
+      return null;
+    }
+    return AnimeApiClientVideoSourceProvider(apiClient);
   }
 
   Future<EpisodePlaybackPlan?> _resolveWithDialog(
@@ -114,7 +126,7 @@ class AnimeEpisodeLauncher {
     VideoPlayerPreference preference,
   ) async {
     VideoSourcesLoadingHandle? loadingHandle;
-    final EpisodePlaybackPlan plan = await _resolve(
+    final EpisodePlaybackPlan plan = await resolve(
       episode,
       preference,
       onFetchingSources: () {

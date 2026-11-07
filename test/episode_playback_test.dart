@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video_source.dart';
@@ -6,6 +7,7 @@ import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_view_type.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
+import 'package:wakaranai/services/downloads/episode/downloaded_episode_lookup.dart';
 import 'package:wakaranai/services/settings_service/video_player_preference.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playback_resolver.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/video_sources_mapper.dart';
@@ -41,9 +43,11 @@ class _FakeProvider implements VideoSourceProvider {
   final Object? failure;
   final bool neverCompletes;
   int fetchCount = 0;
+  int supportCheckCount = 0;
 
   @override
   Future<bool> supportsVideoSources() async {
+    supportCheckCount++;
     if (supportCheckFails) {
       throw const FormatException('script syntax error');
     }
@@ -63,6 +67,40 @@ class _FakeProvider implements VideoSourceProvider {
     return Future<List<AnimeVideoSource>>.value(sources);
   }
 }
+
+class _FakeDownloadedEpisodes implements DownloadedEpisodeLookup {
+  _FakeDownloadedEpisodes({
+    this.videos = const <String, PlayableVideo>{},
+    this.fails = false,
+  });
+
+  final Map<String, PlayableVideo> videos;
+  final bool fails;
+  final List<String> lookedUp = <String>[];
+
+  @override
+  Future<PlayableVideo?> playableFor(String episodeUid) async {
+    lookedUp.add(episodeUid);
+    if (fails) {
+      throw const FileSystemException('storage unavailable');
+    }
+    return videos[episodeUid];
+  }
+
+  @override
+  Future<Set<String>> finishedEpisodeUidsOf(String concreteUid) async {
+    return videos.keys.toSet();
+  }
+}
+
+const PlayableVideo _localVideo = PlayableVideo(
+  streams: <PlayableStream>[
+    PlayableStream(
+      url: 'file:///downloads/1/index.m3u8',
+      format: PlayableStreamFormat.hls,
+    ),
+  ],
+);
 
 const List<AnimeVideoSource> _twoQualities = <AnimeVideoSource>[
   AnimeVideoSource(
@@ -303,6 +341,95 @@ void main() {
         onFetchingSources: () => fetchingCalls++,
       );
       expect(fetchingCalls, 1);
+    });
+  });
+
+  group('downloaded episodes', () {
+    test('a downloaded episode wins over the web-only preference', () async {
+      final _FakeProvider provider = _FakeProvider(sources: _twoQualities);
+
+      final EpisodePlaybackPlan plan = await resolveEpisodePlayback(
+        episode: _episode('1'),
+        provider: provider,
+        preference: VideoPlayerPreference.webOnly,
+        downloadedEpisodes: _FakeDownloadedEpisodes(
+          videos: <String, PlayableVideo>{'1': _localVideo},
+        ),
+      );
+
+      expect((plan as NativePlaybackPlan).video, same(_localVideo));
+    });
+
+    test('a downloaded episode never asks the script or shows loading',
+        () async {
+      final _FakeProvider provider = _FakeProvider(sources: _twoQualities);
+      int fetchingCalls = 0;
+
+      final EpisodePlaybackPlan plan = await resolveEpisodePlayback(
+        episode: _episode('1'),
+        provider: provider,
+        preference: VideoPlayerPreference.auto,
+        downloadedEpisodes: _FakeDownloadedEpisodes(
+          videos: <String, PlayableVideo>{'1': _localVideo},
+        ),
+        onFetchingSources: () => fetchingCalls++,
+      );
+
+      expect((plan as NativePlaybackPlan).video, same(_localVideo));
+      expect(provider.supportCheckCount, 0);
+      expect(provider.fetchCount, 0);
+      expect(fetchingCalls, 0);
+    });
+
+    test('an episode that is not downloaded uses the script', () async {
+      final _FakeDownloadedEpisodes downloads = _FakeDownloadedEpisodes(
+        videos: <String, PlayableVideo>{'2': _localVideo},
+      );
+
+      final EpisodePlaybackPlan plan = await resolveEpisodePlayback(
+        episode: _episode('1'),
+        provider: _FakeProvider(sources: _twoQualities),
+        preference: VideoPlayerPreference.auto,
+        downloadedEpisodes: downloads,
+      );
+
+      expect((plan as NativePlaybackPlan).video.streams, hasLength(2));
+      expect(downloads.lookedUp, <String>['1']);
+    });
+
+    test('a failing lookup falls through to the script', () async {
+      final EpisodePlaybackPlan plan = await resolveEpisodePlayback(
+        episode: _episode('1'),
+        provider: _FakeProvider(sources: _twoQualities),
+        preference: VideoPlayerPreference.auto,
+        downloadedEpisodes: _FakeDownloadedEpisodes(fails: true),
+      );
+
+      expect((plan as NativePlaybackPlan).video.streams, hasLength(2));
+    });
+
+    test('without a provider an episode falls back like a failed script',
+        () async {
+      final EpisodePlaybackPlan web = await resolveEpisodePlayback(
+        episode: _episode('1'),
+        provider: null,
+        preference: VideoPlayerPreference.auto,
+      );
+      expect((web as WebPlaybackPlan).reason, WebPlaybackReason.failed);
+
+      final EpisodePlaybackPlan direct = await resolveEpisodePlayback(
+        episode: _episode(
+          '1',
+          type: AnimeVideoType.DIRECT,
+          src: 'https://cdn.test/a.mp4',
+        ),
+        provider: null,
+        preference: VideoPlayerPreference.auto,
+      );
+      expect(
+        (direct as NativePlaybackPlan).video.streams.single.url,
+        'https://cdn.test/a.mp4',
+      );
     });
   });
 
