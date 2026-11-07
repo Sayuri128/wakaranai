@@ -827,40 +827,16 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     required int streamIndex,
     required String renditionLabel,
   }) {
-    final QualityPreference preference = QualityPreference(
-      streamLabel: _streamLabelToRemember(streamIndex),
+    final QualityPreference preference = rememberedQualityPreference(
+      previous: _qualityPreference,
+      streams: _video.streams,
+      streamIndex: streamIndex,
       renditionLabel: renditionLabel,
-      audioLabel: _audioLabelToRemember(streamIndex),
     );
     _qualityPreference = preference;
     unawaited(
       _persistPreference(() => _preferences.setQualityPreference(preference)),
     );
-  }
-
-  String? _streamLabelToRemember(int streamIndex) {
-    final String? previousLabel = _qualityPreference.fromLegacyLabel
-        ? null
-        : _qualityPreference.streamLabel;
-    if (_video.streams.length < 2) {
-      return previousLabel;
-    }
-    final String? streamLabel = _video.streams[streamIndex].quality?.trim();
-    if (streamLabel == null || streamLabel.isEmpty) {
-      return previousLabel;
-    }
-    return streamLabel;
-  }
-
-  String? _audioLabelToRemember(int streamIndex) {
-    if (_video.streams.length < 2) {
-      return _qualityPreference.audioLabel;
-    }
-    final String? audioLabel = _video.streams[streamIndex].audioLabel?.trim();
-    if (audioLabel == null || audioLabel.isEmpty) {
-      return null;
-    }
-    return audioLabel;
   }
 
   Future<void> _loadRenditions(

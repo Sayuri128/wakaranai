@@ -346,3 +346,48 @@ String _numberedLabel(String label, int total, Map<String, int> seen) {
   seen[label] = occurrence;
   return '$label ($occurrence)';
 }
+
+QualityPreference rememberedQualityPreference({
+  required QualityPreference previous,
+  required List<PlayableStream> streams,
+  required int streamIndex,
+  required String renditionLabel,
+}) {
+  return QualityPreference(
+    streamLabel: _streamLabelToRemember(previous, streams, streamIndex),
+    renditionLabel: renditionLabel,
+    audioLabel: _audioLabelToRemember(previous, streams, streamIndex),
+  );
+}
+
+String? _streamLabelToRemember(
+  QualityPreference previous,
+  List<PlayableStream> streams,
+  int streamIndex,
+) {
+  final String? previousLabel =
+      previous.fromLegacyLabel ? null : previous.streamLabel;
+  if (streams.length < 2) {
+    return previousLabel;
+  }
+  final String? streamLabel = streams[streamIndex].quality?.trim();
+  if (streamLabel == null || streamLabel.isEmpty) {
+    return previousLabel;
+  }
+  return streamLabel;
+}
+
+String? _audioLabelToRemember(
+  QualityPreference previous,
+  List<PlayableStream> streams,
+  int streamIndex,
+) {
+  if (streams.length < 2) {
+    return previous.audioLabel;
+  }
+  final String? audioLabel = streams[streamIndex].audioLabel?.trim();
+  if (audioLabel == null || audioLabel.isEmpty) {
+    return null;
+  }
+  return audioLabel;
+}
