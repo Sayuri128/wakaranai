@@ -1,3 +1,5 @@
+import 'dart:async';
+
 
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
@@ -205,6 +207,9 @@ class MangaConcreteViewer extends ConcreteViewerPage<MangaApiClient,
               deleteDownloadWithConfirmation(context, download);
             }
           },
+          onResume: () => unawaited(
+            context.read<DownloadManagerCubit>().resumeDownload(chapter.uid),
+          ),
         );
       },
     );

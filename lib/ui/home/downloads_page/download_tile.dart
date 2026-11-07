@@ -19,7 +19,7 @@ typedef DownloadOpener = Future<void> Function(
   DownloadDomain download,
 );
 
-enum DownloadTapAction { none, readChapter, playEpisode, retry }
+enum DownloadTapAction { none, readChapter, playEpisode, retry, resume }
 
 const int _bytesPerMegabyte = 1024 * 1024;
 const int _megabytesPerGigabyte = 1024;
@@ -33,8 +33,9 @@ DownloadTapAction downloadTapActionFor(DownloadDomain download) {
       return DownloadTapAction.readChapter;
     case DownloadStatus.failed:
       return DownloadTapAction.retry;
-    case DownloadStatus.queued:
     case DownloadStatus.paused:
+      return DownloadTapAction.resume;
+    case DownloadStatus.queued:
     case DownloadStatus.downloading:
       return DownloadTapAction.none;
   }
@@ -192,7 +193,7 @@ class DownloadTile extends StatelessWidget {
         const SizedBox(height: 6),
         _buildSubtitle(),
         if (!download.isEpisode) DownloadTranslationStatus(download: download),
-        if (download.status == DownloadStatus.downloading) ...<Widget>[
+        if (_showsProgressBar) ...<Widget>[
           const SizedBox(height: 10),
           _buildProgressBar(),
         ],
@@ -200,14 +201,23 @@ class DownloadTile extends StatelessWidget {
     );
   }
 
+  bool get _showsProgressBar {
+    if (download.status == DownloadStatus.downloading) {
+      return true;
+    }
+    return download.isPaused && download.progress > 0;
+  }
+
   Widget _buildProgressBar() {
+    final Color barColor =
+        download.isPaused ? AppColors.mainGrey : AppColors.primary;
     return ClipRRect(
       borderRadius: BorderRadius.circular(4),
       child: LinearProgressIndicator(
         value: download.progress > 0 ? download.progress : null,
         minHeight: 4,
         backgroundColor: AppColors.overlay(0.08),
-        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+        valueColor: AlwaysStoppedAnimation<Color>(barColor),
       ),
     );
   }
@@ -220,12 +230,36 @@ class DownloadTile extends StatelessWidget {
           icon: Icon(Icons.refresh_rounded, color: AppColors.primary),
           onPressed: () => _retry(context),
         ),
+      if (download.isPending) _buildPauseToggle(context),
       if (!download.isEpisode) DownloadTranslationButton(download: download),
       IconButton(
         icon: Icon(Icons.delete_outline_rounded, color: AppColors.mainGrey),
         onPressed: () => _confirmDelete(context),
       ),
     ];
+  }
+
+  Widget _buildPauseToggle(BuildContext context) {
+    if (download.isPaused) {
+      return IconButton(
+        tooltip: S.current.downloads_queue_resume,
+        icon: Icon(Icons.play_arrow_rounded, color: AppColors.primary),
+        onPressed: () => _resume(context),
+      );
+    }
+    return IconButton(
+      tooltip: S.current.downloads_queue_pause,
+      icon: Icon(Icons.pause_rounded, color: AppColors.mainGrey),
+      onPressed: () => unawaited(
+        context.read<DownloadManagerCubit>().pauseDownload(download.uid),
+      ),
+    );
+  }
+
+  void _resume(BuildContext context) {
+    unawaited(
+      context.read<DownloadManagerCubit>().resumeDownload(download.uid),
+    );
   }
 
   void _onTap(BuildContext context, DownloadTapAction action) {
@@ -238,6 +272,9 @@ class DownloadTile extends StatelessWidget {
         break;
       case DownloadTapAction.retry:
         _retry(context);
+        break;
+      case DownloadTapAction.resume:
+        _resume(context);
         break;
       case DownloadTapAction.none:
         break;

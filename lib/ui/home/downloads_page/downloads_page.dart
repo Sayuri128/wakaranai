@@ -12,6 +12,7 @@ import 'package:wakaranai/services/downloads/storage/download_sizes.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/downloads_page/cubit/download_sizes_cubit.dart';
 import 'package:wakaranai/ui/home/downloads_page/download_cover.dart';
+import 'package:wakaranai/ui/home/downloads_page/download_queue_sheet.dart';
 import 'package:wakaranai/ui/home/downloads_page/download_runtime_banner.dart';
 import 'package:wakaranai/ui/home/downloads_page/download_storage_actions.dart';
 import 'package:wakaranai/ui/home/downloads_page/download_tile.dart';
@@ -67,7 +68,7 @@ class _DownloadsPageState extends State<DownloadsPage> {
               return Column(
                 children: <Widget>[
                   Expanded(child: _buildSizedBody(state)),
-                  if (state.downloads.isNotEmpty) _StorageBar(),
+                  if (state.downloads.isNotEmpty) _BottomBar(state: state),
                 ],
               );
             },
@@ -153,23 +154,44 @@ class _DownloadsPageState extends State<DownloadsPage> {
   }
 }
 
+class _BottomBar extends StatelessWidget {
+  const _BottomBar({required this.state});
+
+  final DownloadManagerState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: AppColors.overlay(0.06))),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          if (state.queue.isNotEmpty) ...<Widget>[
+            DownloadQueueControls(state: state),
+            const SizedBox(height: 10),
+          ],
+          _StorageBar(),
+        ],
+      ),
+    );
+  }
+}
+
 class _StorageBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<DownloadSizesCubit, DownloadSizesState>(
       builder: (BuildContext context, DownloadSizesState sizes) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-          decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: AppColors.overlay(0.06))),
-          ),
-          child: Row(
-            children: <Widget>[
-              Expanded(child: _buildUsage(sizes)),
-              const SizedBox(width: 12),
-              _buildFreeUpButton(context),
-            ],
-          ),
+        return Row(
+          children: <Widget>[
+            Expanded(child: _buildUsage(sizes)),
+            const SizedBox(width: 12),
+            _buildFreeUpButton(context),
+          ],
         );
       },
     );

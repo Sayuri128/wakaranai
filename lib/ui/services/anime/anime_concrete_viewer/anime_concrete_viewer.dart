@@ -200,6 +200,9 @@ class AnimeConcreteViewer extends ConcreteViewerPage<AnimeApiClient,
               deleteDownloadWithConfirmation(context, download);
             }
           },
+          onResume: () => unawaited(
+            context.read<DownloadManagerCubit>().resumeDownload(episode.uid),
+          ),
         );
       },
     );

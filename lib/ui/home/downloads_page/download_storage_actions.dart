@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
+import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/services/downloads/storage/download_sizes.dart';
@@ -146,6 +147,7 @@ void showDownloadTitleActions(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
+          ..._titleQueueRows(context, titleDownloads),
           if (hasEpisodes)
             ActionSheetRow(
               icon: Icons.playlist_remove_rounded,
@@ -180,4 +182,50 @@ void showDownloadTitleActions(
       ),
     ),
   );
+}
+
+List<Widget> _titleQueueRows(
+  BuildContext context,
+  List<DownloadDomain> titleDownloads,
+) {
+  final DownloadManagerCubit manager = context.read<DownloadManagerCubit>();
+  final String concreteUid = titleDownloads.first.concreteUid;
+  final bool canPause = titleDownloads.any(
+    (DownloadDomain download) =>
+        download.status == DownloadStatus.queued ||
+        download.status == DownloadStatus.downloading,
+  );
+  final bool canResume = titleDownloads.any(
+    (DownloadDomain download) => download.isPaused,
+  );
+  final bool hasWaiting = titleDownloads.any(
+    (DownloadDomain download) =>
+        download.status == DownloadStatus.queued || download.isPaused,
+  );
+
+  void run(Future<void> Function() action) {
+    Navigator.of(context).pop();
+    unawaited(action());
+  }
+
+  return <Widget>[
+    if (hasWaiting)
+      ActionSheetRow(
+        icon: Icons.vertical_align_top_rounded,
+        label: S.of(context).downloads_queue_move_title_to_top,
+        onTap: () => run(() => manager.moveTitleToTop(concreteUid)),
+      ),
+    if (canPause)
+      ActionSheetRow(
+        icon: Icons.pause_rounded,
+        label: S.of(context).downloads_queue_pause_title,
+        onTap: () => run(() => manager.pauseTitle(concreteUid)),
+      ),
+    if (canResume)
+      ActionSheetRow(
+        icon: Icons.play_arrow_rounded,
+        label: S.of(context).downloads_queue_resume_title,
+        onTap: () => run(() => manager.resumeTitle(concreteUid)),
+      ),
+  ];
 }
