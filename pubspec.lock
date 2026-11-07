@@ -150,7 +150,7 @@ packages:
     description:
       path: "."
       ref: dev
-      resolved-ref: c5462fb240f667b1f10bc3e8d354cbecc2243ac6
+      resolved-ref: "376f8f7e9d2840fed31a7226435c7e88056c5fba"
       url: "https://github.com/Sayuri128/capyscript"
     source: git
     version: "0.4.0"
