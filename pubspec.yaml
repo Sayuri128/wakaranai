@@ -99,16 +99,18 @@ flutter:
     - fonts/Pangolin-OFL.txt
 
   fonts:
-    - family: Ubuntu mono
+    - family: Ubuntu
       fonts:
-        - asset: fonts/Ubuntu-B.ttf
-        - asset: fonts/Ubuntu-C.ttf
-        - asset: fonts/Ubuntu-L.ttf
-        - asset: fonts/Ubuntu-M.ttf
-        - asset: fonts/Ubuntu-R.ttf
         - asset: fonts/Ubuntu-Th.ttf
-        - asset: fonts/UbuntuMono-B.ttf
-        - asset: fonts/UbuntuMono-R.ttf
+          weight: 100
+        - asset: fonts/Ubuntu-L.ttf
+          weight: 300
+        - asset: fonts/Ubuntu-R.ttf
+          weight: 400
+        - asset: fonts/Ubuntu-M.ttf
+          weight: 500
+        - asset: fonts/Ubuntu-B.ttf
+          weight: 700
     - family: Pangolin
       fonts:
         - asset: fonts/Pangolin-Regular.ttf
