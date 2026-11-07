@@ -1,7 +1,12 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 
-enum SourceAttentionReason { notSignedIn, challengeRequired, sessionExpired }
+enum SourceAttentionReason {
+  notSignedIn,
+  challengeRequired,
+  sessionExpired,
+  loginRequired,
+}
 
 class SourceNeedsAttention implements Exception {
   const SourceNeedsAttention({

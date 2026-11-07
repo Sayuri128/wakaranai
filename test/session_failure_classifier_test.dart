@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:capyscript/AST/throw/capyscript_error.dart';
 import 'package:capyscript/Interpreter/capyscript_runtime_error.dart';
+import 'package:capyscript/api_clients/source_error.dart';
 import 'package:capyscript/modules/http/http_response.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/protector_config/protector_config.dart';
@@ -162,6 +163,43 @@ void main() {
 
       expect(mangaLib.sessionKey, hentaiLib.sessionKey);
     });
+
+    test('a script login error asks the user to sign in', () {
+      expect(
+        _reasonFor(const SourceError(SourceErrorKind.loginRequired)),
+        SourceAttentionReason.loginRequired,
+      );
+      expect(
+        _reasonFor(CapyScriptRuntimeError(
+          const SourceError(SourceErrorKind.loginRequired),
+          <String>['getConcrete'],
+        )),
+        SourceAttentionReason.loginRequired,
+      );
+    });
+
+    test('other script errors are never read as session failures', () {
+      for (final SourceErrorKind kind in SourceErrorKind.values) {
+        if (kind == SourceErrorKind.loginRequired) {
+          continue;
+        }
+        expect(
+          _reasonFor(SourceError(kind, 'HTTP 403'), challengeObserved: true),
+          isNull,
+          reason: kind.name,
+        );
+      }
+    });
+
+    test('a script login error on an open source is not flagged', () {
+      expect(
+        _reasonFor(
+          const SourceError(SourceErrorKind.loginRequired),
+          config: _config(protected: false),
+        ),
+        isNull,
+      );
+    });
   });
 
   group('SourceAttentionText', () {
@@ -188,6 +226,13 @@ void main() {
           reason: SourceAttentionReason.sessionExpired,
         )),
         'AniTube needs a quick check in the browser',
+      );
+      expect(
+        SourceAttentionText.message(SourceNeedsAttention(
+          config: _config(name: 'AniTube', needToLogin: false),
+          reason: SourceAttentionReason.loginRequired,
+        )),
+        'AniTube needs you to sign in',
       );
       expect(
         SourceAttentionText.notificationTitle(<SourceNeedsAttention>[

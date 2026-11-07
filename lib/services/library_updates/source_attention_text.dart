@@ -5,6 +5,9 @@ class SourceAttentionText {
   const SourceAttentionText._();
 
   static bool asksToSignIn(SourceNeedsAttention attention) {
+    if (attention.reason == SourceAttentionReason.loginRequired) {
+      return true;
+    }
     return attention.needsLogin &&
         attention.reason != SourceAttentionReason.challengeRequired;
   }

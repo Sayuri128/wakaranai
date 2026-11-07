@@ -1382,6 +1382,123 @@ class S {
     );
   }
 
+  /// `Sign in to {source}`
+  String source_error_login_required_title(Object source) {
+    return Intl.message(
+      'Sign in to $source',
+      name: 'source_error_login_required_title',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Too many requests, try again later`
+  String get source_error_rate_limited_title {
+    return Intl.message(
+      'Too many requests, try again later',
+      name: 'source_error_rate_limited_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Removed from the source`
+  String get source_error_not_found_title {
+    return Intl.message(
+      'Removed from the source',
+      name: 'source_error_not_found_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not available in your region`
+  String get source_error_region_blocked_title {
+    return Intl.message(
+      'Not available in your region',
+      name: 'source_error_region_blocked_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The source is down, try again later`
+  String get source_error_source_down_title {
+    return Intl.message(
+      'The source is down, try again later',
+      name: 'source_error_source_down_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not supported by this source`
+  String get source_error_unsupported_title {
+    return Intl.message(
+      'Not supported by this source',
+      name: 'source_error_unsupported_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign in`
+  String get source_error_sign_in_button {
+    return Intl.message(
+      'Sign in',
+      name: 'source_error_sign_in_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get source_error_retry_button {
+    return Intl.message(
+      'Retry',
+      name: 'source_error_retry_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove from library`
+  String get source_error_remove_from_library_button {
+    return Intl.message(
+      'Remove from library',
+      name: 'source_error_remove_from_library_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open saved details`
+  String get source_error_open_saved_button {
+    return Intl.message(
+      'Open saved details',
+      name: 'source_error_open_saved_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, one{1 title was removed from its source} other{{count} titles were removed from their sources}}`
+  String source_error_removed_titles_found(num count) {
+    return Intl.plural(
+      count,
+      one: '1 title was removed from its source',
+      other: '$count titles were removed from their sources',
+      name: 'source_error_removed_titles_found',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Feeds`
+  String get feeds_row_label {
+    return Intl.message('Feeds', name: 'feeds_row_label', desc: '', args: []);
+  }
+
   /// `Filters`
   String get gallery_filters_button_label {
     return Intl.message(

@@ -1,5 +1,6 @@
 import 'package:capyscript/AST/throw/capyscript_error.dart';
 import 'package:capyscript/Interpreter/capyscript_runtime_error.dart';
+import 'package:capyscript/api_clients/source_error.dart';
 import 'package:capyscript/modules/http/http_response.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:wakaranai/services/configs_service/source_needs_attention.dart';
@@ -31,6 +32,10 @@ class SessionFailureClassifier {
     if (config.protectorConfig == null) {
       return null;
     }
+    final SourceError? sourceError = sourceErrorIn(error);
+    if (sourceError != null) {
+      return _attentionForSourceError(sourceError, config);
+    }
     if (challengeObserved) {
       return SourceNeedsAttention(
         config: config,
@@ -42,6 +47,31 @@ class SessionFailureClassifier {
         config: config,
         reason: SourceAttentionReason.sessionExpired,
       );
+    }
+    return null;
+  }
+
+  static SourceNeedsAttention? _attentionForSourceError(
+    SourceError sourceError,
+    ConfigInfo config,
+  ) {
+    if (sourceError.kind != SourceErrorKind.loginRequired) {
+      return null;
+    }
+    return SourceNeedsAttention(
+      config: config,
+      reason: SourceAttentionReason.loginRequired,
+    );
+  }
+
+  static SourceError? sourceErrorIn(Object? error) {
+    if (error == null) {
+      return null;
+    }
+    for (final Object cause in _causeChain(error)) {
+      if (cause is SourceError) {
+        return cause;
+      }
     }
     return null;
   }
