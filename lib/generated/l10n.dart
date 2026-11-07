@@ -1619,6 +1619,136 @@ class S {
     );
   }
 
+  /// `{count, plural, =1{1 filter active} other{{count} filters active}}`
+  String filters_active_summary(num count) {
+    return Intl.plural(
+      count,
+      one: '1 filter active',
+      other: '$count filters active',
+      name: 'filters_active_summary',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Showing everything`
+  String get filters_none_active {
+    return Intl.message(
+      'Showing everything',
+      name: 'filters_none_active',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear`
+  String get filters_clear_section {
+    return Intl.message(
+      'Clear',
+      name: 'filters_clear_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Any`
+  String get filters_any_option {
+    return Intl.message('Any', name: 'filters_any_option', desc: '', args: []);
+  }
+
+  /// `Show all {count}`
+  String filters_show_all(Object count) {
+    return Intl.message(
+      'Show all $count',
+      name: 'filters_show_all',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Show less`
+  String get filters_show_less {
+    return Intl.message(
+      'Show less',
+      name: 'filters_show_less',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search {name}`
+  String filters_search_hint(Object name) {
+    return Intl.message(
+      'Search $name',
+      name: 'filters_search_hint',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Clear search`
+  String get filters_clear_search {
+    return Intl.message(
+      'Clear search',
+      name: 'filters_clear_search',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Any`
+  String get filters_range_any {
+    return Intl.message('Any', name: 'filters_range_any', desc: '', args: []);
+  }
+
+  /// `Add`
+  String get filters_add_value {
+    return Intl.message('Add', name: 'filters_add_value', desc: '', args: []);
+  }
+
+  /// `Remove {value}`
+  String filters_remove_value(Object value) {
+    return Intl.message(
+      'Remove $value',
+      name: 'filters_remove_value',
+      desc: '',
+      args: [value],
+    );
+  }
+
+  /// `No filters`
+  String get filters_empty_title {
+    return Intl.message(
+      'No filters',
+      name: 'filters_empty_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This source doesn't offer any filters.`
+  String get filters_empty_message {
+    return Intl.message(
+      'This source doesn\'t offer any filters.',
+      name: 'filters_empty_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{Filters} =1{Filters, 1 active} other{Filters, {count} active}}`
+  String filters_button_semantics(num count) {
+    return Intl.plural(
+      count,
+      zero: 'Filters',
+      one: 'Filters, 1 active',
+      other: 'Filters, $count active',
+      name: 'filters_button_semantics',
+      desc: '',
+      args: [count],
+    );
+  }
+
   /// `Comfortable grid`
   String get gallery_layout_comfortable {
     return Intl.message(
