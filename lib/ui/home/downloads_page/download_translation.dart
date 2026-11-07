@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/chapter_translation/chapter_translation_cubit.dart';
-import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
+import 'package:wakaranai/services/downloads/storage/download_files.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
@@ -48,7 +48,7 @@ Future<void> translateDownloads(
     queue.enqueue(
       key: download.uid,
       title: download.title,
-      pages: DownloadManagerCubit.localPagePaths(download),
+      pages: DownloadFiles.localPagePaths(download),
       languages: languages,
     );
   }

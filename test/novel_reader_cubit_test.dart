@@ -4,7 +4,7 @@ import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqlite3/sqlite3.dart';
-import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
+import 'package:wakaranai/services/downloads/storage/download_files.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
@@ -176,7 +176,7 @@ void main() {
     final Directory dir =
         await Directory.systemTemp.createTemp('novel_download_test');
     addTearDown(() => dir.delete(recursive: true));
-    await DownloadManagerCubit.writeNovelChapterFile(dir.path, '<p>saved</p>');
+    await DownloadFiles.writeNovelChapterFile(dir.path, '<p>saved</p>');
 
     DownloadDomain download(DownloadKind kind, DownloadStatus status) {
       return DownloadDomain(
@@ -197,19 +197,19 @@ void main() {
     }
 
     expect(
-      await DownloadManagerCubit.readNovelChapterFile(
+      await DownloadFiles.readNovelChapterFile(
         download(DownloadKind.novelChapter, DownloadStatus.done),
       ),
       '<p>saved</p>',
     );
     expect(
-      await DownloadManagerCubit.readNovelChapterFile(
+      await DownloadFiles.readNovelChapterFile(
         download(DownloadKind.novelChapter, DownloadStatus.queued),
       ),
       isNull,
     );
     expect(
-      await DownloadManagerCubit.readNovelChapterFile(
+      await DownloadFiles.readNovelChapterFile(
         download(DownloadKind.chapter, DownloadStatus.done),
       ),
       isNull,

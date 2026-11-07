@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:wakaranai/services/incognito/incognito_mode.dart';
-import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
+import 'package:wakaranai/services/downloads/storage/download_files.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
@@ -101,7 +101,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         chapter: chapter,
         pages: Pages(
           chapterUid: chapter.uid,
-          value: DownloadManagerCubit.localPagePaths(download),
+          value: DownloadFiles.localPagePaths(download),
         ),
         headers: <String, String>{},
       );

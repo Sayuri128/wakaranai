@@ -21,10 +21,10 @@ import 'package:wakaranai/services/downloads/episode/episode_source_resolver.dar
 import 'package:wakaranai/services/downloads/queue/download_job.dart';
 import 'package:wakaranai/services/downloads/runtime/download_network_policy.dart';
 import 'package:wakaranai/services/downloads/runtime/download_runtime.dart';
+import 'package:wakaranai/services/downloads/storage/download_files.dart';
 import 'package:wakaranai/utils/http_client.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 import 'package:wakaranai/blocs/downloads/download_notification_service.dart';
 import 'package:wakaranai/blocs/downloads/download_throttle.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
@@ -355,7 +355,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
 
     final Directory dir =
-        await _chapterDir(extensionUid, concreteUid, chapterUid);
+        await DownloadFiles.chapterDir(extensionUid, concreteUid, chapterUid);
 
     _cancelled.remove(chapterUid);
 
@@ -463,7 +463,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       return previousDir;
     }
     final Directory dir =
-        await _chapterDir(extensionUid, concreteUid, episode.uid);
+        await DownloadFiles.chapterDir(extensionUid, concreteUid, episode.uid);
     return dir.path;
   }
 
@@ -911,7 +911,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       final Directory dir = Directory(row.dirPath);
       await dir.create(recursive: true);
       final int keptPages =
-          await _keptChapterPages(row, dir, pages.value.length);
+          await DownloadFiles.keptChapterPages(row, dir, pages.value.length);
 
       row = row.copyWith(
         totalPages: pages.value.length,
@@ -933,7 +933,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         }
 
         final String url = pages.value[i];
-        final File file = File(p.join(dir.path, _pageFileName(i)));
+        final File file = File(p.join(dir.path, DownloadFiles.pageFileName(i)));
 
         if (i > keptPages) {
           await _wait(_throttle.pageDelay(job.extensionUid));
@@ -1002,7 +1002,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         _cancelled.remove(job.uid);
         return false;
       }
-      await writeNovelChapterFile(row.dirPath, content.html);
+      await DownloadFiles.writeNovelChapterFile(row.dirPath, content.html);
       if (job.isCancelled) {
         return false;
       }
@@ -1020,62 +1020,6 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       logger.e('Novel chapter download failed for ${job.uid}: $e');
       logger.e(s);
       await _markFailed(job.uid);
-      return false;
-    }
-  }
-
-  static const String novelChapterFileName = 'chapter.html';
-
-  static File novelChapterFile(String dirPath) {
-    return File(p.join(dirPath, novelChapterFileName));
-  }
-
-  static Future<void> writeNovelChapterFile(String dirPath, String html) async {
-    final Directory dir = Directory(dirPath);
-    await dir.create(recursive: true);
-    final File target = novelChapterFile(dirPath);
-    final File partial = File('${target.path}.part');
-    await partial.writeAsString(html, flush: true);
-    await partial.rename(target.path);
-  }
-
-  static Future<String?> readNovelChapterFile(DownloadDomain download) async {
-    if (!download.isNovelChapter || download.status != DownloadStatus.done) {
-      return null;
-    }
-    final File file = novelChapterFile(download.dirPath);
-    try {
-      if (!await file.exists()) {
-        return null;
-      }
-      return await file.readAsString();
-    } on FileSystemException catch (e) {
-      logger.w('Cannot read the saved chapter ${download.uid}: $e');
-      return null;
-    }
-  }
-
-  Future<int> _keptChapterPages(
-    DownloadDomain row,
-    Directory dir,
-    int pageCount,
-  ) async {
-    if (row.totalPages != pageCount) {
-      return 0;
-    }
-    final int recorded = row.downloadedPages.clamp(0, pageCount);
-    for (int i = 0; i < recorded; i++) {
-      if (!await _hasPageFile(File(p.join(dir.path, _pageFileName(i))))) {
-        return i;
-      }
-    }
-    return recorded;
-  }
-
-  static Future<bool> _hasPageFile(File file) async {
-    try {
-      return await file.exists() && await file.length() > 0;
-    } on FileSystemException {
       return false;
     }
   }
@@ -1557,7 +1501,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     await _settleEmptiedQueue();
     await downloadRepository.deleteByUid(uid);
     final bool unwound = await _waitForUnwind(activeJob);
-    await _deleteDir(download.dirPath);
+    await DownloadFiles.deleteDir(download.dirPath);
     if (unwound) {
       _cancelled.remove(uid);
     }
@@ -1591,43 +1535,6 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       await deleteDownload(row);
     }
   }
-
-  Future<void> _deleteDir(String dirPath) async {
-    try {
-      final Directory dir = Directory(dirPath);
-      if (await dir.exists()) {
-        await dir.delete(recursive: true);
-      }
-    } catch (e) {
-      logger.w('Failed to delete download dir $dirPath: $e');
-    }
-  }
-
-  Future<Directory> _chapterDir(
-      String extensionUid, String concreteUid, String chapterUid) async {
-    final Directory docs = await getApplicationDocumentsDirectory();
-    return Directory(p.join(
-      docs.path,
-      'downloads',
-      _sanitize(extensionUid),
-      _sanitize(concreteUid),
-      _sanitize(chapterUid),
-    ));
-  }
-
-  static String _sanitize(String value) {
-    final String cleaned = value.replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_');
-    final String suffix = value.hashCode.toUnsigned(32).toRadixString(16);
-    if (cleaned.length <= 80) return '${cleaned}_$suffix';
-    return '${cleaned.substring(0, 80)}_$suffix';
-  }
-
-  static String _pageFileName(int index) =>
-      '${index.toString().padLeft(4, '0')}.img';
-
-  static List<String> localPagePaths(DownloadDomain download) =>
-      List<String>.generate(download.totalPages,
-          (int i) => p.join(download.dirPath, _pageFileName(i)));
 
   @override
   Future<void> close() async {

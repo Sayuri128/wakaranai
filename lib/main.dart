@@ -16,6 +16,7 @@ import 'package:wakaranai/blocs/chapter_translation/chapter_translation_cubit.da
 import 'package:wakaranai/services/import_export/backup_files.dart';
 import 'package:wakaranai/blocs/chapter_translation/translation_notification_service.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
+import 'package:wakaranai/services/downloads/storage/download_files.dart';
 import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
 import 'package:wakaranai/blocs/language_packs/language_packs_cubit.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
@@ -360,7 +361,7 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
             key: download.uid,
             done: download.status == DownloadStatus.done,
             failed: download.status == DownloadStatus.failed,
-            pages: DownloadManagerCubit.localPagePaths(download),
+            pages: DownloadFiles.localPagePaths(download),
           ),
         )
         .toList();

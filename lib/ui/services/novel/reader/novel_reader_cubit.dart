@@ -5,7 +5,7 @@ import 'package:capyscript/api_clients/novel_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
 import 'package:capyscript/modules/waka_models/models/novel/novel_chapter_content.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
+import 'package:wakaranai/services/downloads/storage/download_files.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
@@ -74,7 +74,7 @@ class NovelReaderCubit extends Cubit<NovelReaderState> {
           await downloadRepository.getByUid(chapter.uid);
       if (download != null) {
         final String? saved =
-            await DownloadManagerCubit.readNovelChapterFile(download);
+            await DownloadFiles.readNovelChapterFile(download);
         if (saved != null) {
           return saved;
         }
