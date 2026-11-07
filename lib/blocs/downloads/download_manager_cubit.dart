@@ -13,6 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:wakaranai/blocs/downloads/download_notification_service.dart';
+import 'package:wakaranai/blocs/downloads/download_throttle.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/services/configs_service/prepared_client_pool.dart';
@@ -60,9 +61,11 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
 
   static const Duration _progressPersistInterval = Duration(milliseconds: 700);
   static const int _pageAttempts = 3;
+  static const int _rateLimitAttempts = 6;
   static const Duration _libraryClientsIdleTimeout = Duration(minutes: 2);
 
   final Dio _dio = createDio();
+  final DownloadThrottle _throttle = DownloadThrottle();
   final PreparedClientPool _libraryClients = PreparedClientPool();
   Timer? _libraryClientsIdle;
   final Queue<_DownloadJob> _jobs = Queue<_DownloadJob>();
@@ -223,6 +226,9 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
           continue;
         }
         _batchIndex++;
+        if (_batchIndex > 1) {
+          await _wait(_throttle.chapterDelay(job.extensionUid));
+        }
         final bool completed = await _runJob(job);
         if (completed) _completedInBatch++;
       }
@@ -285,10 +291,14 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         final String url = pages.value[i];
         final File file = File(p.join(dir.path, _pageFileName(i)));
 
+        if (i > 0) {
+          await _wait(_throttle.pageDelay(job.extensionUid));
+        }
         await _writePage(
           url: url,
           file: file,
           headers: headers,
+          extensionUid: job.extensionUid,
           cancelToken: cancelToken,
         );
 
@@ -334,10 +344,26 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
   }
 
+  Future<void> _wait(Duration duration) async {
+    if (duration > Duration.zero) {
+      await Future<void>.delayed(duration);
+    }
+  }
+
+  bool _isRateLimited(Object error) {
+    if (error is! DioException) {
+      return false;
+    }
+    final int? status = error.response?.statusCode;
+    return status == HttpStatus.tooManyRequests ||
+        status == HttpStatus.serviceUnavailable;
+  }
+
   Future<void> _writePage({
     required String url,
     required File file,
     required Map<String, String> headers,
+    required String extensionUid,
     required CancelToken cancelToken,
   }) async {
     if (url.startsWith('data:')) {
@@ -350,8 +376,10 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
 
     Object? lastError;
+    int failures = 0;
+    int rateLimits = 0;
 
-    for (int attempt = 1; attempt <= _pageAttempts; attempt++) {
+    while (failures < _pageAttempts && rateLimits < _rateLimitAttempts) {
       try {
         final Response<List<int>> response = await _dio.get<List<int>>(
           url,
@@ -372,8 +400,22 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       } catch (e) {
         if (e is DioException && CancelToken.isCancel(e)) rethrow;
         lastError = e;
-        if (attempt < _pageAttempts) {
-          await Future<void>.delayed(Duration(milliseconds: 300 * attempt));
+        if (_isRateLimited(e)) {
+          rateLimits++;
+          _throttle.rateLimited(extensionUid);
+          final String? retryAfter = (e as DioException)
+              .response
+              ?.headers
+              .value(HttpHeaders.retryAfterHeader);
+          logger.w('Rate limited on $url, attempt $rateLimits');
+          await _wait(
+            _throttle.retryWait(rateLimits, retryAfterHeader: retryAfter),
+          );
+          continue;
+        }
+        failures++;
+        if (failures < _pageAttempts) {
+          await _wait(Duration(milliseconds: 300 * failures));
         }
       }
     }
