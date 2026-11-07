@@ -497,6 +497,77 @@
   },
   "downloads_episode_delete_confirmation_message": "This episode will be removed from this device.",
   "downloads_episode_retry": "Retry download",
+  "downloads_quality_title": "Download quality",
+  "downloads_quality_same_as_player": "Same as player",
+  "downloads_quality_highest": "Highest available",
+  "downloads_quality_1080": "1080p",
+  "downloads_quality_720": "720p",
+  "downloads_quality_480": "480p",
+  "downloads_storage_section_title": "Downloads",
+  "downloads_storage_delete_after_watching_title": "Delete episodes after watching",
+  "downloads_storage_delete_after_watching_subtitle": "Remove a downloaded episode once you finish it in the player",
+  "downloads_storage_used": "Storage used",
+  "downloads_storage_calculating": "Calculating…",
+  "downloads_storage_free_up": "Free up space",
+  "downloads_storage_free_up_reclaimable": "Up to {size} can be freed",
+  "@downloads_storage_free_up_reclaimable": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "downloads_storage_free_up_empty": "Nothing to free up",
+  "downloads_storage_title_size": "{count} downloads · {size}",
+  "@downloads_storage_title_size": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "downloads_storage_watched_size": "{count} watched · {size}",
+  "@downloads_storage_watched_size": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "downloads_storage_summary_with_size": "{summary} · {size}",
+  "@downloads_storage_summary_with_size": {
+    "placeholders": {
+      "summary": {},
+      "size": {}
+    }
+  },
+  "downloads_storage_delete_watched": "Delete watched",
+  "downloads_storage_delete_watched_episodes": "Delete watched episodes",
+  "downloads_storage_delete_title_downloads": "Delete all downloads of this title",
+  "downloads_storage_delete_all_short": "Delete all",
+  "downloads_storage_delete_watched_confirm_title": "Delete watched episodes?",
+  "downloads_storage_delete_watched_confirm_message": "{count} watched episodes of {title} ({size}) will be removed from this device.",
+  "@downloads_storage_delete_watched_confirm_message": {
+    "placeholders": {
+      "count": {},
+      "title": {},
+      "size": {}
+    }
+  },
+  "downloads_storage_delete_title_confirm_title": "Delete these downloads?",
+  "downloads_storage_delete_title_confirm_message": "Every download of {title} ({size}) will be removed from this device.",
+  "@downloads_storage_delete_title_confirm_message": {
+    "placeholders": {
+      "title": {},
+      "size": {}
+    }
+  },
+  "downloads_storage_no_watched": "No watched episodes to delete",
+  "downloads_storage_deleted_watched": "Deleted {count} watched episodes",
+  "@downloads_storage_deleted_watched": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "downloads_storage_playback_fallback": "The downloaded file couldn't be played, so it's streaming instead.",
+  "downloads_storage_redownload": "Re-download",
+  "downloads_storage_redownload_started": "Downloading the episode again",
   "settings_export_data_button": "Export data",
   "settings_import_data_button": "Import data",
   "settings_export_sheet_title": "Export data",

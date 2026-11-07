@@ -3081,6 +3081,313 @@ class S {
     );
   }
 
+  /// `Download quality`
+  String get downloads_quality_title {
+    return Intl.message(
+      'Download quality',
+      name: 'downloads_quality_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Same as player`
+  String get downloads_quality_same_as_player {
+    return Intl.message(
+      'Same as player',
+      name: 'downloads_quality_same_as_player',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Highest available`
+  String get downloads_quality_highest {
+    return Intl.message(
+      'Highest available',
+      name: 'downloads_quality_highest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `1080p`
+  String get downloads_quality_1080 {
+    return Intl.message(
+      '1080p',
+      name: 'downloads_quality_1080',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `720p`
+  String get downloads_quality_720 {
+    return Intl.message(
+      '720p',
+      name: 'downloads_quality_720',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `480p`
+  String get downloads_quality_480 {
+    return Intl.message(
+      '480p',
+      name: 'downloads_quality_480',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloads`
+  String get downloads_storage_section_title {
+    return Intl.message(
+      'Downloads',
+      name: 'downloads_storage_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete episodes after watching`
+  String get downloads_storage_delete_after_watching_title {
+    return Intl.message(
+      'Delete episodes after watching',
+      name: 'downloads_storage_delete_after_watching_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove a downloaded episode once you finish it in the player`
+  String get downloads_storage_delete_after_watching_subtitle {
+    return Intl.message(
+      'Remove a downloaded episode once you finish it in the player',
+      name: 'downloads_storage_delete_after_watching_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Storage used`
+  String get downloads_storage_used {
+    return Intl.message(
+      'Storage used',
+      name: 'downloads_storage_used',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Calculating…`
+  String get downloads_storage_calculating {
+    return Intl.message(
+      'Calculating…',
+      name: 'downloads_storage_calculating',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Free up space`
+  String get downloads_storage_free_up {
+    return Intl.message(
+      'Free up space',
+      name: 'downloads_storage_free_up',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Up to {size} can be freed`
+  String downloads_storage_free_up_reclaimable(Object size) {
+    return Intl.message(
+      'Up to $size can be freed',
+      name: 'downloads_storage_free_up_reclaimable',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `Nothing to free up`
+  String get downloads_storage_free_up_empty {
+    return Intl.message(
+      'Nothing to free up',
+      name: 'downloads_storage_free_up_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} downloads · {size}`
+  String downloads_storage_title_size(Object count, Object size) {
+    return Intl.message(
+      '$count downloads · $size',
+      name: 'downloads_storage_title_size',
+      desc: '',
+      args: [count, size],
+    );
+  }
+
+  /// `{count} watched · {size}`
+  String downloads_storage_watched_size(Object count, Object size) {
+    return Intl.message(
+      '$count watched · $size',
+      name: 'downloads_storage_watched_size',
+      desc: '',
+      args: [count, size],
+    );
+  }
+
+  /// `{summary} · {size}`
+  String downloads_storage_summary_with_size(Object summary, Object size) {
+    return Intl.message(
+      '$summary · $size',
+      name: 'downloads_storage_summary_with_size',
+      desc: '',
+      args: [summary, size],
+    );
+  }
+
+  /// `Delete watched`
+  String get downloads_storage_delete_watched {
+    return Intl.message(
+      'Delete watched',
+      name: 'downloads_storage_delete_watched',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete watched episodes`
+  String get downloads_storage_delete_watched_episodes {
+    return Intl.message(
+      'Delete watched episodes',
+      name: 'downloads_storage_delete_watched_episodes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete all downloads of this title`
+  String get downloads_storage_delete_title_downloads {
+    return Intl.message(
+      'Delete all downloads of this title',
+      name: 'downloads_storage_delete_title_downloads',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete all`
+  String get downloads_storage_delete_all_short {
+    return Intl.message(
+      'Delete all',
+      name: 'downloads_storage_delete_all_short',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete watched episodes?`
+  String get downloads_storage_delete_watched_confirm_title {
+    return Intl.message(
+      'Delete watched episodes?',
+      name: 'downloads_storage_delete_watched_confirm_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} watched episodes of {title} ({size}) will be removed from this device.`
+  String downloads_storage_delete_watched_confirm_message(
+    Object count,
+    Object title,
+    Object size,
+  ) {
+    return Intl.message(
+      '$count watched episodes of $title ($size) will be removed from this device.',
+      name: 'downloads_storage_delete_watched_confirm_message',
+      desc: '',
+      args: [count, title, size],
+    );
+  }
+
+  /// `Delete these downloads?`
+  String get downloads_storage_delete_title_confirm_title {
+    return Intl.message(
+      'Delete these downloads?',
+      name: 'downloads_storage_delete_title_confirm_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Every download of {title} ({size}) will be removed from this device.`
+  String downloads_storage_delete_title_confirm_message(
+    Object title,
+    Object size,
+  ) {
+    return Intl.message(
+      'Every download of $title ($size) will be removed from this device.',
+      name: 'downloads_storage_delete_title_confirm_message',
+      desc: '',
+      args: [title, size],
+    );
+  }
+
+  /// `No watched episodes to delete`
+  String get downloads_storage_no_watched {
+    return Intl.message(
+      'No watched episodes to delete',
+      name: 'downloads_storage_no_watched',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Deleted {count} watched episodes`
+  String downloads_storage_deleted_watched(Object count) {
+    return Intl.message(
+      'Deleted $count watched episodes',
+      name: 'downloads_storage_deleted_watched',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `The downloaded file couldn't be played, so it's streaming instead.`
+  String get downloads_storage_playback_fallback {
+    return Intl.message(
+      'The downloaded file couldn\'t be played, so it\'s streaming instead.',
+      name: 'downloads_storage_playback_fallback',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Re-download`
+  String get downloads_storage_redownload {
+    return Intl.message(
+      'Re-download',
+      name: 'downloads_storage_redownload',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading the episode again`
+  String get downloads_storage_redownload_started {
+    return Intl.message(
+      'Downloading the episode again',
+      name: 'downloads_storage_redownload_started',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Export data`
   String get settings_export_data_button {
     return Intl.message(

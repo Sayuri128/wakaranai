@@ -38,6 +38,7 @@ import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_his
 import 'package:wakaranai/ui/home/cubit/home_page_cubit.dart';
 import 'package:wakaranai/repositories/database/page_translation_repository.dart';
 import 'package:wakaranai/services/device/device_capabilities.dart';
+import 'package:wakaranai/services/downloads/storage/download_quality_reader.dart';
 import 'package:wakaranai/services/page_translation/engines/on_device_llm_translator.dart';
 import 'package:wakaranai/services/page_translation/engines/on_device_model.dart';
 import 'package:wakaranai/services/page_translation/engines/page_translation_engines.dart';
@@ -155,6 +156,7 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
             create: (BuildContext context) => DownloadManagerCubit(
               downloadRepository: RepositoryProvider.of(context),
               extensionRepository: RepositoryProvider.of(context),
+              readQualityPreference: defaultDownloadQualityPreferenceReader(),
             )..init(),
           ),
           BlocProvider<HomePageCubit>(

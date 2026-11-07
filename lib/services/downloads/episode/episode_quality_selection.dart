@@ -93,7 +93,7 @@ List<int> downloadableStreamOrder(
   if (streams.isEmpty) {
     return const <int>[];
   }
-  final int preferred = preferredStreamIndex(streams, streamLabel);
+  final int preferred = preferredDownloadStreamIndex(streams, streamLabel);
   final List<int> order = <int>[
     preferred,
     for (int index = 0; index < streams.length; index++)
@@ -105,6 +105,73 @@ List<int> downloadableStreamOrder(
             resolveStreamFormat(streams[index]) != PlayableStreamFormat.dash,
       )
       .toList(growable: false);
+}
+
+final RegExp _qualityTierPattern = RegExp(r'^\d{3,4}p$');
+
+bool isQualityTierLabel(String? label) {
+  final String? normalized = label?.trim().toLowerCase();
+  if (normalized == null || normalized.isEmpty) {
+    return false;
+  }
+  return isAutoQualityLabel(normalized) ||
+      _qualityTierPattern.hasMatch(normalized);
+}
+
+int preferredDownloadStreamIndex(
+  List<PlayableStream> streams,
+  String? streamLabel,
+) {
+  final int exact = _exactStreamIndex(streams, streamLabel);
+  if (exact >= 0 || !isQualityTierLabel(streamLabel)) {
+    return preferredStreamIndex(streams, streamLabel);
+  }
+  final List<int> withHeight = _streamIndexesByHeight(streams);
+  if (withHeight.isEmpty) {
+    return 0;
+  }
+  if (isAutoQualityLabel(streamLabel)) {
+    return withHeight.last;
+  }
+  final int wantedHeight = qualityHeightOf(streamLabel!)!;
+  return withHeight.lastWhereOrNull(
+        (int index) => _streamHeight(streams[index])! <= wantedHeight,
+      ) ??
+      withHeight.first;
+}
+
+int _exactStreamIndex(List<PlayableStream> streams, String? streamLabel) {
+  final String? wanted = streamLabel?.trim().toLowerCase();
+  if (wanted == null || wanted.isEmpty) {
+    return -1;
+  }
+  return streams.indexWhere(
+    (PlayableStream stream) => stream.quality?.trim().toLowerCase() == wanted,
+  );
+}
+
+List<int> _streamIndexesByHeight(List<PlayableStream> streams) {
+  final List<int> indexes = <int>[
+    for (int index = 0; index < streams.length; index++)
+      if (_streamHeight(streams[index]) != null) index,
+  ];
+  indexes.sort((int first, int second) {
+    final int byHeight = _streamHeight(streams[first])!
+        .compareTo(_streamHeight(streams[second])!);
+    if (byHeight != 0) {
+      return byHeight;
+    }
+    return second.compareTo(first);
+  });
+  return indexes;
+}
+
+int? _streamHeight(PlayableStream stream) {
+  final String? label = stream.quality;
+  if (label == null) {
+    return null;
+  }
+  return qualityHeightOf(label);
 }
 
 String? variantQualityLabel(HlsVariant variant) {
