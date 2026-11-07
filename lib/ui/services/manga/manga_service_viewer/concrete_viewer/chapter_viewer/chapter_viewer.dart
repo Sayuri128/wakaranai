@@ -150,6 +150,9 @@ class _ChapterViewerState extends State<ChapterViewer>
   }
 
   void _openChapter() {
+    if (!mounted || _chapterViewCubit.isClosed) {
+      return;
+    }
     unawaited(_chapterViewCubit.init(
       widget.data,
       pagesLoaded: (int current, int total) {

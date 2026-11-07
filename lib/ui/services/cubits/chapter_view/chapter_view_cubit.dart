@@ -149,7 +149,30 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     );
   }
 
+  Future<void>? _initInFlight;
+
   Future<void> init(
+    ChapterViewerData data, {
+    void Function(int page, int totalPage)? pagesLoaded,
+  }) {
+    final Future<void>? running = _initInFlight;
+    if (running != null) {
+      return running;
+    }
+    if (isClosed) {
+      return Future<void>.value();
+    }
+    if (state is ChapterViewError) {
+      emit(ChapterViewInit());
+    }
+    final Future<void> opening = _open(data, pagesLoaded: pagesLoaded);
+    _initInFlight = opening;
+    return opening.whenComplete(() {
+      _initInFlight = null;
+    });
+  }
+
+  Future<void> _open(
     ChapterViewerData data, {
     void Function(int page, int totalPage)? pagesLoaded,
   }) async {
@@ -183,6 +206,9 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         totalPages: loaded.pageCount,
       );
 
+      if (isClosed) {
+        return;
+      }
       emit(
         ChapterViewInitialized(
           data: data,
@@ -208,6 +234,9 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     } catch (e, s) {
       logger.e(e);
       logger.e(s);
+      if (isClosed) {
+        return;
+      }
       emit(ChapterViewError(message: e.toString(), error: e));
     }
   }
