@@ -252,6 +252,7 @@ class _LibraryPageState extends State<LibraryPage> {
         context,
         state,
         <LibraryEntryDomain>[entry],
+        onContinue: () => _openEntry(context, entry, continueOnOpen: true),
       ),
     );
   }
@@ -264,11 +265,18 @@ class _LibraryPageState extends State<LibraryPage> {
     }
   }
 
-  void _openEntry(BuildContext context, LibraryEntryDomain entry) {
+  void _openEntry(
+    BuildContext context,
+    LibraryEntryDomain entry, {
+    bool continueOnOpen = false,
+  }) {
     context.read<LibraryCubit>().markRead(entry.uid);
     Navigator.of(context).pushNamed(
       Routes.libraryConcreteViewer,
-      arguments: LibraryConcreteViewerData(entry: entry),
+      arguments: LibraryConcreteViewerData(
+        entry: entry,
+        continueOnOpen: continueOnOpen,
+      ),
     );
   }
 

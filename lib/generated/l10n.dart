@@ -394,6 +394,16 @@ class S {
     );
   }
 
+  /// `Continue`
+  String get library_continue {
+    return Intl.message(
+      'Continue',
+      name: 'library_continue',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `More`
   String get library_more_actions {
     return Intl.message(
@@ -6431,6 +6441,26 @@ class S {
     return Intl.message(
       'Translate',
       name: 'concrete_selection_translate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start`
+  String get concrete_continue_start {
+    return Intl.message(
+      'Start',
+      name: 'concrete_continue_start',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Continue`
+  String get concrete_continue_resume {
+    return Intl.message(
+      'Continue',
+      name: 'concrete_continue_resume',
       desc: '',
       args: [],
     );

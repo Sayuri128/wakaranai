@@ -16,6 +16,8 @@ import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/concrete_viewer_page.dart';
+import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
+import 'package:wakaranai/ui/services/continue_reading/continue_target.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/services/widgets/chapter_download_button.dart';
@@ -35,6 +37,7 @@ class MangaConcreteViewerData {
   final MangaApiClient client;
   final ConfigInfo configInfo;
   final bool fromLibrary;
+  final AutoContinueRequest? autoContinue;
 
   const MangaConcreteViewerData({
     required this.uid,
@@ -44,6 +47,7 @@ class MangaConcreteViewerData {
     required this.client,
     required this.configInfo,
     this.fromLibrary = false,
+    this.autoContinue,
   });
 
   MangaConcreteViewerData copyWith({
@@ -58,6 +62,7 @@ class MangaConcreteViewerData {
       client: client ?? this.client,
       configInfo: configInfo ?? this.configInfo,
       fromLibrary: fromLibrary,
+      autoContinue: autoContinue,
     );
   }
 }
@@ -97,6 +102,78 @@ class MangaConcreteViewer extends ConcreteViewerPage<MangaApiClient,
   @override
   String get elementsSectionTitle =>
       S.current.concrete_viewer_chapters_section_title;
+
+  @override
+  AutoContinueRequest? get autoContinue => data.autoContinue;
+
+  @override
+  ConcreteContinueAction? continueAction(
+    BuildContext context,
+    ConcreteViewInitialized<MangaApiClient, MangaConcreteView,
+            MangaGalleryView>
+        state,
+  ) {
+    final ContinueTarget<Chapter>? target = resolveChapterContinue(
+      groups: state.concreteView.groups,
+      preferredGroup: state.groupIndex,
+      activities: state.chapterActivities,
+    );
+    if (target == null) {
+      return null;
+    }
+    return ConcreteContinueAction(
+      kind: target.kind,
+      title: target.element.title,
+      onTap: () => _openContinueTarget(context, state, target),
+    );
+  }
+
+  void _openContinueTarget(
+    BuildContext context,
+    ConcreteViewInitialized<MangaApiClient, MangaConcreteView,
+            MangaGalleryView>
+        state,
+    ContinueTarget<Chapter> target,
+  ) {
+    if (target.groupIndex != state.groupIndex) {
+      getConcreteViewCubit(context).changeGroup(target.groupIndex);
+    }
+    final ChapterActivityDomain? activity =
+        state.chapterActivities[target.element.uid];
+    _openChapter(
+      context,
+      state,
+      chapter: target.element,
+      group: state.concreteView.groups[target.groupIndex],
+      initialPage:
+          target.kind == ContinueKind.resume ? activity?.readPages ?? 1 : 1,
+    );
+  }
+
+  void _openChapter(
+    BuildContext context,
+    ConcreteViewInitialized<MangaApiClient, MangaConcreteView,
+            MangaGalleryView>
+        state, {
+    required Chapter chapter,
+    required ChaptersGroup group,
+    required int initialPage,
+  }) {
+    unawaited(Navigator.of(context)
+        .pushNamed(
+      Routes.chapterViewer,
+      arguments: ChapterViewerData(
+          initialPage: initialPage,
+          apiClient: data.client,
+          chapter: chapter,
+          concreteView: state.concreteView,
+          group: group,
+          configInfo: data.configInfo),
+    )
+        .then((_) {
+      getConcreteViewCubit(context).updateActivities();
+    }));
+  }
 
   @override
   Widget buildCoverImage(BuildContext context, String cover) {
@@ -167,20 +244,13 @@ class MangaConcreteViewer extends ConcreteViewerPage<MangaApiClient,
       },
       onTap: () {
         if (concreteViewInitialized.selection.isEmpty) {
-          Navigator.of(context)
-              .pushNamed(
-            Routes.chapterViewer,
-            arguments: ChapterViewerData(
-                initialPage: chapterActivityDomain?.readPages ?? 1,
-                apiClient: data.client,
-                chapter: chapter,
-                concreteView: concreteViewInitialized.concreteView,
-                group: group,
-                configInfo: configInfo),
-          )
-              .then((_) {
-            getConcreteViewCubit(context).updateActivities();
-          });
+          _openChapter(
+            context,
+            concreteViewInitialized,
+            chapter: chapter,
+            group: group,
+            initialPage: chapterActivityDomain?.readPages ?? 1,
+          );
         } else {
           getConcreteViewCubit(context).changeSelection(chapter.uid);
         }

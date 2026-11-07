@@ -507,6 +507,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "compat_update_needs_newer_app": MessageLookupByLibrary.simpleMessage(
       "Update available — needs a newer app version",
     ),
+    "concrete_continue_resume": MessageLookupByLibrary.simpleMessage(
+      "Continue",
+    ),
+    "concrete_continue_start": MessageLookupByLibrary.simpleMessage("Start"),
     "concrete_new_badge": MessageLookupByLibrary.simpleMessage("NEW"),
     "concrete_offline_banner": MessageLookupByLibrary.simpleMessage(
       "Offline — showing cached content. Only downloaded chapters can be opened.",
@@ -1020,6 +1024,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "library_category_uncategorized": MessageLookupByLibrary.simpleMessage(
       "Uncategorized",
     ),
+    "library_continue": MessageLookupByLibrary.simpleMessage("Continue"),
     "library_delete_category": MessageLookupByLibrary.simpleMessage("Delete"),
     "library_download_first_group_hint": MessageLookupByLibrary.simpleMessage(
       "Each title downloads from its first chapter group",

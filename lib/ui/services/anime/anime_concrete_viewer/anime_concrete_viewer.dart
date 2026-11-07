@@ -28,6 +28,8 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/anime_iframe_player/anime_iframe_player.dart';
 import 'package:wakaranai/ui/services/concrete_viewer_page.dart';
+import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
+import 'package:wakaranai/ui/services/continue_reading/continue_target.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/widgets/chapter_download_button.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
@@ -44,6 +46,7 @@ class AnimeConcreteViewerData {
   final AnimeApiClient client;
   final ConfigInfo configInfo;
   final bool fromLibrary;
+  final AutoContinueRequest? autoContinue;
 
   const AnimeConcreteViewerData(
       {required this.uid,
@@ -51,7 +54,8 @@ class AnimeConcreteViewerData {
       required this.galleryCover,
       required this.client,
       required this.configInfo,
-      this.fromLibrary = false});
+      this.fromLibrary = false,
+      this.autoContinue});
 
   AnimeConcreteViewerData copyWith({
     AnimeApiClient? client,
@@ -64,6 +68,7 @@ class AnimeConcreteViewerData {
       client: client ?? this.client,
       configInfo: configInfo ?? this.configInfo,
       fromLibrary: fromLibrary,
+      autoContinue: autoContinue,
     );
   }
 }
@@ -97,6 +102,41 @@ class AnimeConcreteViewer extends ConcreteViewerPage<AnimeApiClient,
 
   @override
   bool get showsAlternativeTitles => false;
+
+  @override
+  AutoContinueRequest? get autoContinue => data.autoContinue;
+
+  @override
+  ConcreteContinueAction? continueAction(
+    BuildContext context,
+    ConcreteViewInitialized<AnimeApiClient, AnimeConcreteView,
+            AnimeGalleryView>
+        state,
+  ) {
+    final ContinueTarget<AnimeVideo>? target = resolveEpisodeContinue(
+      groups: state.concreteView.groups,
+      preferredGroup: state.groupIndex,
+      activities: state.animeEpisodeActivities,
+    );
+    if (target == null) {
+      return null;
+    }
+    return ConcreteContinueAction(
+      kind: target.kind,
+      title: target.element.title,
+      onTap: () {
+        if (target.groupIndex != state.groupIndex) {
+          getConcreteViewCubit(context).changeGroup(target.groupIndex);
+        }
+        unawaited(_playEpisode(
+          context,
+          state,
+          target.element,
+          groupIndex: target.groupIndex,
+        ));
+      },
+    );
+  }
 
   @override
   String get elementsSectionTitle =>
@@ -229,8 +269,9 @@ class AnimeConcreteViewer extends ConcreteViewerPage<AnimeApiClient,
     BuildContext context,
     ConcreteViewInitialized<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
         state,
-    AnimeVideo episode,
-  ) async {
+    AnimeVideo episode, {
+    int? groupIndex,
+  }) async {
     final ConcreteViewCubit<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
         cubit = getConcreteViewCubit(context);
     final LibraryUpdatesCubit libraryUpdatesCubit =
@@ -240,7 +281,7 @@ class AnimeConcreteViewer extends ConcreteViewerPage<AnimeApiClient,
       configInfo: state.configInfo,
       anime: state.concreteView,
       groups: state.concreteView.groups,
-      groupIndex: state.groupIndex,
+      groupIndex: groupIndex ?? state.groupIndex,
       watchedEpisodeUids: state.animeEpisodeActivities.keys.toSet(),
       downloadedEpisodes: RepositoryDownloadedEpisodeLookup(
         context.read<DownloadRepository>(),

@@ -15,6 +15,7 @@ import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
+import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
@@ -58,6 +59,15 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
     ConcreteViewInitialized<T, C, G> state,
     int index,
   );
+
+  AutoContinueRequest? get autoContinue => null;
+
+  ConcreteContinueAction? continueAction(
+    BuildContext context,
+    ConcreteViewInitialized<T, C, G> state,
+  ) {
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,10 +118,13 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
       key: _scaffoldKey,
       backgroundColor: AppColors.backgroundColor,
       extendBodyBehindAppBar: true,
-      body: BlocBuilder<ConcreteViewCubit<T, C, G>, ConcreteViewState<T, C, G>>(
+      body: BlocConsumer<ConcreteViewCubit<T, C, G>, ConcreteViewState<T, C, G>>(
+        listener: _maybeAutoContinue,
         builder: (BuildContext context, ConcreteViewState<T, C, G> state) {
           final ConcreteViewInitialized<T, C, G>? initialized =
               state is ConcreteViewInitialized<T, C, G> ? state : null;
+          final ConcreteContinueAction? continueTarget =
+              initialized == null ? null : continueAction(context, initialized);
           return Stack(
             alignment: Alignment.center,
             children: <Widget>[
@@ -137,12 +150,32 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
                       _buildFavoriteButton(context, initialized.concreteView),
                 ),
               if (initialized != null)
-                getSelectionOverlay(context, initialized),
+                getSelectionOverlay(
+                  context,
+                  initialized,
+                  continueAction: continueTarget,
+                ),
             ],
           );
         },
       ),
     );
+  }
+
+  void _maybeAutoContinue(
+      BuildContext context, ConcreteViewState<T, C, G> state) {
+    if (state is! ConcreteViewInitialized<T, C, G>) {
+      return;
+    }
+    final AutoContinueRequest? request = autoContinue;
+    if (request == null) {
+      return;
+    }
+    final ConcreteContinueAction? action = continueAction(context, state);
+    if (action == null || !request.consume()) {
+      return;
+    }
+    action.onTap();
   }
 
   Widget _buildScrollView(
@@ -174,13 +207,21 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
           ),
         SliverToBoxAdapter(
           child: SizedBox(
-              height: (initialized != null && initialized.selection.isNotEmpty
-                      ? 24 + kSelectionActionBarContentHeight
-                      : 24) +
+              height: _bottomSpacing(initialized) +
                   MediaQuery.of(context).padding.bottom),
         ),
       ],
     );
+  }
+
+  double _bottomSpacing(ConcreteViewInitialized<T, C, G>? initialized) {
+    if (initialized == null) {
+      return 24;
+    }
+    if (initialized.selection.isNotEmpty) {
+      return 24 + kSelectionActionBarContentHeight;
+    }
+    return 80;
   }
 
   int _groupSize(ConcreteViewInitialized<T, C, G> state) {

@@ -15,6 +15,7 @@ Future<void> showLibraryEntryActions(
   LibraryState state,
   List<LibraryEntryDomain> entries, {
   VoidCallback? clearSelection,
+  VoidCallback? onContinue,
 }) async {
   if (entries.isEmpty) {
     return;
@@ -54,6 +55,15 @@ Future<void> showLibraryEntryActions(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
+          if (onContinue != null && entries.length == 1)
+            ActionSheetRow(
+              icon: Icons.play_arrow_rounded,
+              label: S.current.library_continue,
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                onContinue();
+              },
+            ),
           ActionSheetRow(
             icon: Icons.drive_file_move_outline,
             label: S.current.library_move_to_category,

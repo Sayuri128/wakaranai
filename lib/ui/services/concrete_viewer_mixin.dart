@@ -13,6 +13,7 @@ import 'package:wakaranai/blocs/page_translation_settings/page_translation_setti
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/downloads/episode_title_downloader.dart';
+import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/chapter_translation_actions.dart';
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
@@ -136,7 +137,8 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView,
   }
 
   Widget getSelectionOverlay(
-      BuildContext context, ConcreteViewInitialized<T, C, G> state) {
+      BuildContext context, ConcreteViewInitialized<T, C, G> state,
+      {ConcreteContinueAction? continueAction}) {
     final ConcreteViewCubit<T, C, G> cubit = getConcreteViewCubit(context);
     final bool canTranslate = state.configInfo.type == ConfigInfoType.MANGA &&
         context.read<PageTranslationSettingsCubit>().state.enabled;
@@ -145,6 +147,20 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView,
     return Stack(
       fit: StackFit.expand,
       children: <Widget>[
+        if (continueAction != null)
+          Positioned(
+            left: 16.0,
+            right: 76.0,
+            bottom: 16.0 + MediaQuery.of(context).padding.bottom,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 200),
+              opacity: selecting ? 0.0 : 1.0,
+              child: IgnorePointer(
+                ignoring: selecting,
+                child: ConcreteContinueButton(action: continueAction),
+              ),
+            ),
+          ),
         Positioned(
           right: 16.0,
           bottom: 16.0 + MediaQuery.of(context).padding.bottom,

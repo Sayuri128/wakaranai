@@ -12,13 +12,18 @@ import 'package:wakaranai/services/configs_service/extension_resolver.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
 import 'package:wakaranai/ui/services/anime/anime_concrete_viewer/anime_concrete_viewer.dart';
+import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
 class LibraryConcreteViewerData {
   final LibraryEntryDomain entry;
+  final bool continueOnOpen;
 
-  const LibraryConcreteViewerData({required this.entry});
+  const LibraryConcreteViewerData({
+    required this.entry,
+    this.continueOnOpen = false,
+  });
 }
 
 class LibraryConcreteViewer extends StatefulWidget {
@@ -32,6 +37,8 @@ class LibraryConcreteViewer extends StatefulWidget {
 
 class _LibraryConcreteViewerState extends State<LibraryConcreteViewer> {
   late final Future<ExtensionDomain?> _extension;
+  late final AutoContinueRequest? _autoContinue =
+      widget.data.continueOnOpen ? AutoContinueRequest() : null;
 
   @override
   void initState() {
@@ -81,6 +88,7 @@ class _LibraryConcreteViewerState extends State<LibraryConcreteViewer> {
                 client: client,
                 configInfo: configInfo,
                 fromLibrary: true,
+                autoContinue: _autoContinue,
               ),
             ),
           );
@@ -97,6 +105,7 @@ class _LibraryConcreteViewerState extends State<LibraryConcreteViewer> {
               client: client,
               configInfo: configInfo,
               fromLibrary: true,
+              autoContinue: _autoContinue,
             ),
           ),
         );
