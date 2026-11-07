@@ -12,6 +12,7 @@ import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playback_resolver.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
+import 'package:wakaranai/ui/services/anime/native_player/cubit/episode_progress_keeper.dart';
 import 'package:wakaranai/ui/services/anime/native_player/cubit/parked_episode.dart';
 import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store.dart';
 import 'package:wakaranai/ui/services/anime/native_player/native_player_engine.dart';
@@ -60,7 +61,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
   })  : _video = video,
         _engineFactory = engineFactory,
         _progressStoreFor = progressStoreFor,
-        _progressStore = progressStoreFor(playlist.current),
+        _progress = EpisodeProgressKeeper(progressStoreFor(playlist.current)),
         _resolveEpisode = resolveEpisode,
         _subtitleLoader = subtitleLoader,
         _preferences = preferences ?? PlayerPreferences(),
@@ -83,14 +84,12 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
   final Duration _autoNextTick;
 
   PlayableVideo _video;
-  EpisodeProgressStore _progressStore;
+  final EpisodeProgressKeeper _progress;
   NativePlayerEngine? _engine;
   ParkedEpisode? _parkedEpisode;
   ClosedCaptionFile? _captionFile;
   Timer? _progressTimer;
   Timer? _autoNextTimer;
-  EpisodeProgress? _savedProgress;
-  EpisodeProgress? _lastPersistedProgress;
   Duration _lastKnownPosition = Duration.zero;
   int _openGeneration = 0;
   int _subtitleGeneration = 0;
@@ -102,8 +101,6 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
   bool _completionHandled = false;
   SubtitlePreference? _subtitlePreference;
   QualityPreference _qualityPreference = const QualityPreference();
-  Future<void> _pendingSave = Future<void>.value();
-
   PlayableVideo get video => _video;
 
   List<PlayableSkipMarker> get skipMarkers {
@@ -276,7 +273,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     await _openStream(
       state.streamIndex,
       startPosition: startPosition,
-      savedProgress: _savedProgress,
+      savedProgress: _progress.saved,
       autoPlay: true,
     );
   }
@@ -324,7 +321,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     await _openStream(
       index,
       startPosition: position > Duration.zero ? position : null,
-      savedProgress: _savedProgress,
+      savedProgress: _progress.saved,
       autoPlay: wasPlaying,
     );
   }
@@ -510,8 +507,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
   }
 
   Future<void> saveProgress() {
-    _pendingSave = _pendingSave.then((_) => _persistProgress());
-    return _pendingSave;
+    return _progress.save(() => _progressOf(_engine));
   }
 
   @override
@@ -575,7 +571,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       playlist: state.playlist,
       watchedEpisodeUids: state.watchedEpisodeUids,
       video: _video,
-      progressStore: _progressStore,
+      progressStore: _progress.store,
       engine: parkedEngine,
       wasPlaying: parkedEngine?.value.isPlaying ?? false,
       position: _currentPosition(),
@@ -585,8 +581,8 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       selectedRenditionId: state.selectedRenditionId,
       subtitleIndex: state.subtitleIndex,
       captionFile: _captionFile,
-      savedProgress: _savedProgress,
-      lastPersistedProgress: _lastPersistedProgress,
+      savedProgress: _progress.saved,
+      lastPersistedProgress: _progress.lastPersisted,
     );
     if (parkedEngine != null) {
       _detachEngine();
@@ -600,8 +596,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     if (parkedEngine != null) {
       await _pauseQuietly(parkedEngine);
     }
-    _pendingSave = _pendingSave.then((_) => _persistParkedProgress(parked));
-    await _pendingSave;
+    await _progress.saveParked(parked);
   }
 
   Future<void> _pauseQuietly(NativePlayerEngine parkedEngine) async {
@@ -609,20 +604,6 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       await parkedEngine.pause();
     } catch (error) {
       logger.w('Failed to pause the previous episode: $error');
-    }
-  }
-
-  Future<void> _persistParkedProgress(ParkedEpisode parked) async {
-    final EpisodeProgress? progress = parked.progress;
-    if (progress == null || progress == parked.lastPersistedProgress) {
-      return;
-    }
-    try {
-      await parked.progressStore.save(progress);
-      parked.lastPersistedProgress = progress;
-    } catch (error, stackTrace) {
-      logger.e('Failed to save episode progress: $error');
-      logger.e(stackTrace);
     }
   }
 
@@ -644,9 +625,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
 
   void _restoreParkedFields(ParkedEpisode parked) {
     _video = parked.video;
-    _progressStore = parked.progressStore;
-    _savedProgress = parked.savedProgress;
-    _lastPersistedProgress = parked.lastPersistedProgress;
+    _progress.restore(parked);
     _lastKnownPosition = parked.position;
     _captionFile = parked.captionFile;
   }
@@ -744,9 +723,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     int generation,
   ) async {
     _video = playableVideo;
-    _progressStore = _progressStoreFor(target.current);
-    _savedProgress = null;
-    _lastPersistedProgress = null;
+    _progress.startEpisode(_progressStoreFor(target.current));
     _lastKnownPosition = Duration.zero;
     _captionFile = null;
     emit(state.copyWith(
@@ -763,7 +740,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
   }
 
   Future<void> _playCurrentVideo(int generation) async {
-    _savedProgress = await _loadSavedProgress();
+    await _progress.loadSaved();
     if (_isStaleEpisode(generation)) {
       return;
     }
@@ -775,7 +752,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     );
     await _openStream(
       _initialStreamIndex,
-      savedProgress: _savedProgress,
+      savedProgress: _progress.saved,
       autoPlay: true,
     );
     if (_isStaleEpisode(generation)) {
@@ -936,16 +913,6 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       speedRejections: state.speedRejections + 1,
     ));
     await _applyEngineSpeed(fallbackSpeed);
-  }
-
-  Future<EpisodeProgress?> _loadSavedProgress() async {
-    try {
-      return await _progressStore.start();
-    } catch (error, stackTrace) {
-      logger.e('Failed to load episode progress: $error');
-      logger.e(stackTrace);
-      return null;
-    }
   }
 
   Future<void> _openStream(
@@ -1152,36 +1119,11 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     cancelAutoNext();
   }
 
-  Future<void> _persistProgress() async {
-    final EpisodeProgress? progress = _progressOf(_engine);
-    if (progress == null || progress == _lastPersistedProgress) {
-      return;
-    }
-    try {
-      await _progressStore.save(progress);
-      _lastPersistedProgress = progress;
-    } catch (error, stackTrace) {
-      logger.e('Failed to save episode progress: $error');
-      logger.e(stackTrace);
-    }
-  }
-
   EpisodeProgress? _progressOf(NativePlayerEngine? playbackEngine) {
     if (playbackEngine == null) {
       return null;
     }
-    final VideoPlayerValue value = playbackEngine.value;
-    if (!value.isInitialized || value.duration <= Duration.zero) {
-      return null;
-    }
-    final Duration watched = value.isCompleted ? value.duration : value.position;
-    if (watched <= Duration.zero) {
-      return null;
-    }
-    return EpisodeProgress(
-      watchedSeconds: watched.inSeconds,
-      totalSeconds: value.duration.inSeconds,
-    );
+    return episodeProgressOf(playbackEngine.value);
   }
 
   Duration _currentPosition() {
