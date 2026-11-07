@@ -25,7 +25,10 @@ const String importTaskPathKey = 'path';
 const String importTaskSectionsKey = 'sections';
 const String importTaskLocaleKey = 'locale';
 
-Future<bool> runImportTask(Map<String, dynamic>? inputData) async {
+Future<bool> runImportTask(
+  Map<String, dynamic>? inputData, {
+  WakaranaiDatabase? database,
+}) async {
   DartPluginRegistrant.ensureInitialized();
 
   final String? path = inputData?[importTaskPathKey] as String?;
@@ -45,7 +48,7 @@ Future<bool> runImportTask(Map<String, dynamic>? inputData) async {
       ImportExportNotificationService();
 
   final File file = File(path);
-  WakaranaiDatabase? database;
+  WakaranaiDatabase? ownedDatabase;
 
   try {
     await store.setRunning();
@@ -53,17 +56,20 @@ Future<bool> runImportTask(Map<String, dynamic>? inputData) async {
     final ExportBundle bundle = ExportBundle.fromJson(
         jsonDecode(await file.readAsString()) as Map<String, dynamic>);
 
-    database = WakaranaiDatabase();
+    final WakaranaiDatabase taskDatabase =
+        database ?? (ownedDatabase = WakaranaiDatabase());
 
     final ImportExportService service = ImportExportService(
-      concreteDataRepository: ConcreteDataRepository(database: database),
-      chapterActivityRepository: ChapterActivityRepository(database: database),
+      concreteDataRepository: ConcreteDataRepository(database: taskDatabase),
+      chapterActivityRepository:
+          ChapterActivityRepository(database: taskDatabase),
       animeEpisodeActivityRepository:
-          AnimeEpisodeActivityRepository(database: database),
-      categoryRepository: CategoryRepository(database: database),
-      libraryEntryRepository: LibraryEntryRepository(database: database),
-      extensionSourceRepository: ExtensionSourceRepository(database: database),
-      database: database,
+          AnimeEpisodeActivityRepository(database: taskDatabase),
+      categoryRepository: CategoryRepository(database: taskDatabase),
+      libraryEntryRepository: LibraryEntryRepository(database: taskDatabase),
+      extensionSourceRepository:
+          ExtensionSourceRepository(database: taskDatabase),
+      database: taskDatabase,
     );
 
     DateTime lastPublish = DateTime.fromMillisecondsSinceEpoch(0);
@@ -122,7 +128,7 @@ Future<bool> runImportTask(Map<String, dynamic>? inputData) async {
     await notifications.cancelProgress();
     return false;
   } finally {
-    await database?.close();
+    await ownedDatabase?.close();
     try {
       if (await file.exists()) {
         await file.delete();

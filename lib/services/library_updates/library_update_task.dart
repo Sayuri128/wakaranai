@@ -47,7 +47,10 @@ Future<void> cancelLibraryUpdateTask() async {
   await Workmanager().cancelByUniqueName(libraryUpdateTaskUniqueName);
 }
 
-Future<bool> runLibraryUpdateTask(Map<String, dynamic>? inputData) async {
+Future<bool> runLibraryUpdateTask(
+  Map<String, dynamic>? inputData, {
+  WakaranaiDatabase? database,
+}) async {
   DartPluginRegistrant.ensureInitialized();
 
   final String localeName =
@@ -55,18 +58,20 @@ Future<bool> runLibraryUpdateTask(Map<String, dynamic>? inputData) async {
 
   await S.load(Locale(localeName));
 
-  WakaranaiDatabase? database;
+  WakaranaiDatabase? ownedDatabase;
 
   try {
     final SettingsService settings = SettingsService();
     if (!await settings.getCheckUpdates()) return true;
 
-    database = WakaranaiDatabase();
+    final WakaranaiDatabase taskDatabase =
+        database ?? (ownedDatabase = WakaranaiDatabase());
 
     try {
       await ExtensionResolver(
-        extensionRepository: ExtensionRepository(database: database),
-        extensionSourceRepository: ExtensionSourceRepository(database: database),
+        extensionRepository: ExtensionRepository(database: taskDatabase),
+        extensionSourceRepository:
+            ExtensionSourceRepository(database: taskDatabase),
         officialOrg: inputData?[libraryUpdateTaskConfigsOrgKey] as String?,
         officialRepo: inputData?[libraryUpdateTaskConfigsRepoKey] as String?,
       ).refreshOutdated();
@@ -75,10 +80,10 @@ Future<bool> runLibraryUpdateTask(Map<String, dynamic>? inputData) async {
     }
 
     final LibraryUpdateService service = LibraryUpdateService(
-      libraryEntryRepository: LibraryEntryRepository(database: database),
-      libraryUpdateRepository: LibraryUpdateRepository(database: database),
-      concreteDataRepository: ConcreteDataRepository(database: database),
-      extensionRepository: ExtensionRepository(database: database),
+      libraryEntryRepository: LibraryEntryRepository(database: taskDatabase),
+      libraryUpdateRepository: LibraryUpdateRepository(database: taskDatabase),
+      concreteDataRepository: ConcreteDataRepository(database: taskDatabase),
+      extensionRepository: ExtensionRepository(database: taskDatabase),
     );
 
     final LibraryUpdateCheckResult result = await service.check();
@@ -110,7 +115,7 @@ Future<bool> runLibraryUpdateTask(Map<String, dynamic>? inputData) async {
     logger.e(s);
     return false;
   } finally {
-    await database?.close();
+    await ownedDatabase?.close();
   }
 }
 

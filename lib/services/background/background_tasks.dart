@@ -11,23 +11,36 @@ void backgroundCallbackDispatcher() {
   Workmanager().executeTask(
     (String taskName, Map<String, dynamic>? inputData) async {
       await _resolveWebViewUserAgent();
-      final WakaranaiDatabase hostDatabase = WakaranaiDatabase();
-      configureExtensionHost(hostDatabase);
-      try {
-        return await _runTask(taskName, inputData);
-      } finally {
-        await hostDatabase.close();
-      }
+      return runBackgroundTask(taskName, inputData);
     },
   );
 }
 
-Future<bool> _runTask(String taskName, Map<String, dynamic>? inputData) {
+Future<bool> runBackgroundTask(
+  String taskName,
+  Map<String, dynamic>? inputData, {
+  WakaranaiDatabase Function()? openDatabase,
+}) async {
+  final WakaranaiDatabase database =
+      (openDatabase ?? WakaranaiDatabase.new)();
+  configureExtensionHost(database);
+  try {
+    return await _runTask(taskName, inputData, database);
+  } finally {
+    await database.close();
+  }
+}
+
+Future<bool> _runTask(
+  String taskName,
+  Map<String, dynamic>? inputData,
+  WakaranaiDatabase database,
+) {
   switch (taskName) {
     case importTaskName:
-      return runImportTask(inputData);
+      return runImportTask(inputData, database: database);
     case libraryUpdateTaskName:
-      return runLibraryUpdateTask(inputData);
+      return runLibraryUpdateTask(inputData, database: database);
     default:
       return Future<bool>.value(true);
   }
