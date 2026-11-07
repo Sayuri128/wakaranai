@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/download_config/download_config.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
@@ -186,6 +187,22 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     if (autoStart) {
       startQueue();
     }
+  }
+
+  Future<void> enqueueEpisode({
+    required String extensionUid,
+    required String concreteUid,
+    required int concreteId,
+    required String concreteTitle,
+    required String? concreteCover,
+    required AnimeVideo episode,
+    bool autoStart = true,
+  }) async {
+    throw UnimplementedError('enqueueEpisode');
+  }
+
+  Future<void> retryDownload(DownloadDomain download) async {
+    throw UnimplementedError('retryDownload');
   }
 
   void startQueue() {
