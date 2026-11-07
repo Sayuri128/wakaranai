@@ -782,6 +782,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "ext_prefs_reset": MessageLookupByLibrary.simpleMessage(
       "Reset to defaults",
     ),
+    "ext_prefs_reset_one": MessageLookupByLibrary.simpleMessage(
+      "Reset to default",
+    ),
     "ext_prefs_sheet_title": MessageLookupByLibrary.simpleMessage(
       "Extension settings",
     ),

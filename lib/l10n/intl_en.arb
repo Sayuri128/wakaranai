@@ -1341,6 +1341,7 @@
   "native_player_pip_enter": "Picture-in-picture",
   "ext_prefs_sheet_title": "Extension settings",
   "ext_prefs_reset": "Reset to defaults",
+  "ext_prefs_reset_one": "Reset to default",
   "ext_prefs_done": "Done",
   "ext_prefs_mirror_title": "Mirror",
   "ext_prefs_mirror_summary": "Which site address requests go to. Automatic tries each mirror until one responds.",

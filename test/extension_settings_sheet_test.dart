@@ -172,6 +172,48 @@ void main() {
     expect(await store.read(_uid, 'pageSize'), isNull);
   });
 
+  testWidgets('clearing a number field falls back to the default',
+      (WidgetTester tester) async {
+    await _pumpHost(tester, store, (bool changed) {});
+
+    final Finder pageSize = find.widgetWithText(TextFormField, 'Page size');
+    await tester.enterText(pageSize, '1');
+    await tester.enterText(pageSize, '12');
+    await tester.pumpAndSettle();
+    expect(await store.read(_uid, 'pageSize'), 12);
+
+    await tester.enterText(pageSize, '1');
+    await tester.enterText(pageSize, '');
+    await tester.pumpAndSettle();
+
+    expect(await store.read(_uid, 'pageSize'), isNull);
+    expect(find.text('Enter a number'), findsNothing);
+  });
+
+  testWidgets('clearing a text field removes the stored value',
+      (WidgetTester tester) async {
+    await store.write(_uid, 'token', 'abc');
+    await _pumpHost(tester, store, (bool changed) {});
+
+    await tester.enterText(find.widgetWithText(TextFormField, 'abc'), '');
+    await tester.pumpAndSettle();
+
+    expect(await store.readAll(_uid), isNot(contains('token')));
+  });
+
+  testWidgets('a single preference can be reset to its default',
+      (WidgetTester tester) async {
+    await store.write(_uid, 'lang', 'ja');
+    await store.write(_uid, 'adult', true);
+    await _pumpHost(tester, store, (bool changed) {});
+
+    await tester.tap(find.byTooltip('Reset to default'));
+    await tester.pumpAndSettle();
+
+    expect(await store.readAll(_uid), <String, Object>{'adult': true});
+    expect(find.byTooltip('Reset to default'), findsNothing);
+  });
+
   testWidgets('reset to defaults clears stored values',
       (WidgetTester tester) async {
     await store.write(_uid, 'lang', 'ja');

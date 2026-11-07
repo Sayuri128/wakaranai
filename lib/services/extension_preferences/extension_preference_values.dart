@@ -36,7 +36,7 @@ class ExtensionPreferenceValues {
       case ExtensionPreferenceType.multiselect:
         return _sanitizeMultiselect(definition, stored);
       case ExtensionPreferenceType.text:
-        return stored is String ? stored : null;
+        return _sanitizeText(stored);
       case ExtensionPreferenceType.number:
         return stored is num ? stored : null;
     }
@@ -74,6 +74,13 @@ class ExtensionPreferenceValues {
       return value.toInt().toString();
     }
     return value.toString();
+  }
+
+  static String? _sanitizeText(Object? stored) {
+    if (stored is! String || stored.trim().isEmpty) {
+      return null;
+    }
+    return stored;
   }
 
   static String? _sanitizeSelect(

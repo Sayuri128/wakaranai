@@ -7146,6 +7146,16 @@ class S {
     );
   }
 
+  /// `Reset to default`
+  String get ext_prefs_reset_one {
+    return Intl.message(
+      'Reset to default',
+      name: 'ext_prefs_reset_one',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Done`
   String get ext_prefs_done {
     return Intl.message('Done', name: 'ext_prefs_done', desc: '', args: []);

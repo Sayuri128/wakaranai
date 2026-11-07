@@ -139,6 +139,15 @@ void main() {
     expect(await host.resolvePreference(ExtensionPreference.mirrorKey), isNull);
   });
 
+  test('an empty stored text value falls back to the default', () async {
+    final ConfigInfo config = _config();
+    await store.write(config.uid, 'token', '');
+
+    final ExtensionHost host = _host(store, config);
+
+    expect(await host.resolvePreference('token'), 'none');
+  });
+
   test('the provider reads live values without rebuilding the client',
       () async {
     final ConfigInfo config = _config();

@@ -324,7 +324,11 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
     final Object? selected = _currentValue(definition);
     return _PreferenceCard(
       children: <Widget>[
-        _PreferenceHeader(title: definition.title, summary: definition.summary),
+        _PreferenceHeader(
+          title: definition.title,
+          summary: definition.summary,
+          trailing: _buildResetButton(definition),
+        ),
         for (final ExtensionPreferenceOption option in definition.options)
           _OptionRow(
             label: option.label,
@@ -341,7 +345,11 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
         current is List ? current.map((Object? e) => '$e').toList() : <String>[];
     return _PreferenceCard(
       children: <Widget>[
-        _PreferenceHeader(title: definition.title, summary: definition.summary),
+        _PreferenceHeader(
+          title: definition.title,
+          summary: definition.summary,
+          trailing: _buildResetButton(definition),
+        ),
         for (final ExtensionPreferenceOption option in definition.options)
           _CheckRow(
             label: option.label,
@@ -349,6 +357,22 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
             onTap: () => _toggleOption(definition, selected, option.value),
           ),
       ],
+    );
+  }
+
+  Widget? _buildResetButton(ExtensionPreference definition) {
+    if (!_stored.containsKey(definition.key)) {
+      return null;
+    }
+    return IconButton(
+      tooltip: S.current.ext_prefs_reset_one,
+      visualDensity: VisualDensity.compact,
+      icon: Icon(
+        Icons.restart_alt_rounded,
+        size: 20,
+        color: AppColors.mainGrey,
+      ),
+      onPressed: () => _remove(definition.key),
     );
   }
 
@@ -422,7 +446,11 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
   }
 
   String? _validateNumber(String? text) {
-    if (ExtensionPreferenceValues.parseNumber(text ?? '') == null) {
+    final String value = text ?? '';
+    if (value.trim().isEmpty) {
+      return null;
+    }
+    if (ExtensionPreferenceValues.parseNumber(value) == null) {
       return S.current.ext_prefs_number_invalid;
     }
     return null;
@@ -433,6 +461,10 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
     String text, {
     required bool numeric,
   }) {
+    if (text.trim().isEmpty) {
+      _remove(definition.key);
+      return;
+    }
     if (!numeric) {
       _write(definition.key, text);
       return;
