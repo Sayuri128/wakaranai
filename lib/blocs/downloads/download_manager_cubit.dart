@@ -396,9 +396,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     if (existing == null) {
       return false;
     }
-    return existing.status == DownloadStatus.done ||
-        existing.status == DownloadStatus.downloading ||
-        existing.status == DownloadStatus.queued;
+    return existing.status == DownloadStatus.done || existing.isPending;
   }
 
   Future<void> enqueueChapter({

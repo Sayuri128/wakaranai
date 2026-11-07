@@ -34,6 +34,7 @@ DownloadTapAction downloadTapActionFor(DownloadDomain download) {
     case DownloadStatus.failed:
       return DownloadTapAction.retry;
     case DownloadStatus.queued:
+    case DownloadStatus.paused:
     case DownloadStatus.downloading:
       return DownloadTapAction.none;
   }
@@ -60,16 +61,29 @@ String downloadStatusLabel(DownloadDomain download, {int? sizeBytes}) {
         sizeBytes,
       );
     case DownloadStatus.downloading:
-      if (download.isEpisode) {
-        return _episodeProgressLabel(download);
-      }
-      return S.current.downloads_pages_progress(
-          download.downloadedPages, download.totalPages);
+      return _progressLabel(download);
+    case DownloadStatus.paused:
+      return _pausedLabel(download);
     case DownloadStatus.queued:
       return S.current.downloads_status_queued;
     case DownloadStatus.failed:
       return _withSize(S.current.downloads_status_failed, sizeBytes);
   }
+}
+
+String _progressLabel(DownloadDomain download) {
+  if (download.isEpisode) {
+    return _episodeProgressLabel(download);
+  }
+  return S.current
+      .downloads_pages_progress(download.downloadedPages, download.totalPages);
+}
+
+String _pausedLabel(DownloadDomain download) {
+  if (download.progress <= 0) {
+    return S.current.downloads_queue_status_paused;
+  }
+  return S.current.downloads_queue_paused_progress(_progressLabel(download));
 }
 
 String _withSize(String label, int? sizeBytes) {
@@ -249,6 +263,7 @@ class DownloadTile extends StatelessWidget {
         return AppColors.red;
       case DownloadStatus.done:
       case DownloadStatus.queued:
+      case DownloadStatus.paused:
         return AppColors.mainGrey;
     }
   }

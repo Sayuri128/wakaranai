@@ -23,6 +23,7 @@ const Set<DownloadStatus> _keptDownloadStatuses = <DownloadStatus>{
   DownloadStatus.queued,
   DownloadStatus.downloading,
   DownloadStatus.done,
+  DownloadStatus.paused,
 };
 
 Future<Set<String>> keptDownloadUidsOf(

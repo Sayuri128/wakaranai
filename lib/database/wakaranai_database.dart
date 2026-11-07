@@ -115,6 +115,11 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
             await _addColumnIfMissing(m, animeEpisodeActivityTable,
                 animeEpisodeActivityTable.markedWatched);
           }
+          if (from < 16) {
+            await _addColumnIfMissing(
+                m, downloadTable, downloadTable.queuePosition);
+            await _backfillDownloadQueuePositions();
+          }
         },
       );
 
@@ -141,6 +146,15 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
     await customStatement(
       'DELETE FROM $table WHERE id NOT IN '
       '(SELECT MIN(id) FROM $table GROUP BY uid);',
+    );
+  }
+
+  Future<void> _backfillDownloadQueuePositions() async {
+    await customStatement(
+      'UPDATE download_table SET queue_position = ('
+      'SELECT COUNT(*) FROM download_table AS earlier '
+      'WHERE earlier.status IN (0, 1) AND earlier.id <= download_table.id'
+      ') WHERE status IN (0, 1);',
     );
   }
 
@@ -189,7 +203,7 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
   }
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 }
 
 LazyDatabase _openConnection() {

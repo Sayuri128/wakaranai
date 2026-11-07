@@ -3855,6 +3855,166 @@ class S {
     );
   }
 
+  /// `Paused`
+  String get downloads_queue_status_paused {
+    return Intl.message(
+      'Paused',
+      name: 'downloads_queue_status_paused',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paused · {progress}`
+  String downloads_queue_paused_progress(Object progress) {
+    return Intl.message(
+      'Paused · $progress',
+      name: 'downloads_queue_paused_progress',
+      desc: '',
+      args: [progress],
+    );
+  }
+
+  /// `Pause`
+  String get downloads_queue_pause {
+    return Intl.message(
+      'Pause',
+      name: 'downloads_queue_pause',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resume`
+  String get downloads_queue_resume {
+    return Intl.message(
+      'Resume',
+      name: 'downloads_queue_resume',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pause all`
+  String get downloads_queue_pause_all {
+    return Intl.message(
+      'Pause all',
+      name: 'downloads_queue_pause_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resume all`
+  String get downloads_queue_resume_all {
+    return Intl.message(
+      'Resume all',
+      name: 'downloads_queue_resume_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pause downloads of this title`
+  String get downloads_queue_pause_title {
+    return Intl.message(
+      'Pause downloads of this title',
+      name: 'downloads_queue_pause_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resume downloads of this title`
+  String get downloads_queue_resume_title {
+    return Intl.message(
+      'Resume downloads of this title',
+      name: 'downloads_queue_resume_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Move to the top of the queue`
+  String get downloads_queue_move_title_to_top {
+    return Intl.message(
+      'Move to the top of the queue',
+      name: 'downloads_queue_move_title_to_top',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Queue`
+  String get downloads_queue_title {
+    return Intl.message(
+      'Queue',
+      name: 'downloads_queue_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Queue ({count})`
+  String downloads_queue_button(Object count) {
+    return Intl.message(
+      'Queue ($count)',
+      name: 'downloads_queue_button',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Download next`
+  String get downloads_queue_download_next {
+    return Intl.message(
+      'Download next',
+      name: 'downloads_queue_download_next',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove from queue`
+  String get downloads_queue_remove {
+    return Intl.message(
+      'Remove from queue',
+      name: 'downloads_queue_remove',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading now`
+  String get downloads_queue_now_downloading {
+    return Intl.message(
+      'Downloading now',
+      name: 'downloads_queue_now_downloading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nothing is waiting to download`
+  String get downloads_queue_empty {
+    return Intl.message(
+      'Nothing is waiting to download',
+      name: 'downloads_queue_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Drag the handles to change the download order`
+  String get downloads_queue_reorder_hint {
+    return Intl.message(
+      'Drag the handles to change the download order',
+      name: 'downloads_queue_reorder_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Library updates`
   String get updates_notification_channel_name {
     return Intl.message(

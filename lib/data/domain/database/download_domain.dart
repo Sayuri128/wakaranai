@@ -23,8 +23,16 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
   final int downloadedBytes;
   final int totalBytes;
   final String? playback;
+  final int queuePosition;
 
   bool get isEpisode => kind == DownloadKind.episode;
+
+  bool get isPaused => status == DownloadStatus.paused;
+
+  bool get isPending =>
+      status == DownloadStatus.queued ||
+      status == DownloadStatus.downloading ||
+      status == DownloadStatus.paused;
 
   Map<String, String> get headersMap => headers != null
       ? (jsonDecode(headers!) as Map<String, dynamic>)
@@ -63,6 +71,7 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
     this.downloadedBytes = 0,
     this.totalBytes = 0,
     this.playback,
+    this.queuePosition = 0,
     required super.createdAt,
     super.updatedAt,
   });
@@ -86,6 +95,7 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
         downloadedBytes: data.downloadedBytes,
         totalBytes: data.totalBytes,
         playback: data.playback,
+        queuePosition: data.queuePosition,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
       );
@@ -112,6 +122,7 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
         downloadedBytes: Value(downloadedBytes),
         totalBytes: Value(totalBytes),
         playback: Value(playback),
+        queuePosition: Value(queuePosition),
         createdAt: Value(createdAt),
       );
     }
@@ -166,6 +177,7 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
         downloadedBytes: downloadedBytes ?? this.downloadedBytes,
         totalBytes: totalBytes ?? this.totalBytes,
         playback: playback ?? this.playback,
+        queuePosition: queuePosition,
         createdAt: createdAt,
         updatedAt: updatedAt,
       );

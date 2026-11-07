@@ -637,6 +637,32 @@
   "downloads_runtime_waiting_for_wifi": "Waiting for Wi-Fi",
   "downloads_runtime_waiting_for_wifi_message": "Downloads resume automatically once you are back on Wi-Fi",
   "downloads_runtime_app_must_stay_open": "Android stopped background downloading. Keep the app open until downloads finish.",
+  "downloads_queue_status_paused": "Paused",
+  "downloads_queue_paused_progress": "Paused · {progress}",
+  "@downloads_queue_paused_progress": {
+    "placeholders": {
+      "progress": {}
+    }
+  },
+  "downloads_queue_pause": "Pause",
+  "downloads_queue_resume": "Resume",
+  "downloads_queue_pause_all": "Pause all",
+  "downloads_queue_resume_all": "Resume all",
+  "downloads_queue_pause_title": "Pause downloads of this title",
+  "downloads_queue_resume_title": "Resume downloads of this title",
+  "downloads_queue_move_title_to_top": "Move to the top of the queue",
+  "downloads_queue_title": "Queue",
+  "downloads_queue_button": "Queue ({count})",
+  "@downloads_queue_button": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "downloads_queue_download_next": "Download next",
+  "downloads_queue_remove": "Remove from queue",
+  "downloads_queue_now_downloading": "Downloading now",
+  "downloads_queue_empty": "Nothing is waiting to download",
+  "downloads_queue_reorder_hint": "Drag the handles to change the download order",
   "updates_notification_channel_name": "Library updates",
   "updates_notification_title": "{count} new items",
   "@updates_notification_title": {

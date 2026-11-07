@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:wakaranai/data/entities/base_table.dart';
 import 'package:wakaranai/data/entities/concrete_data_table.dart';
 
-enum DownloadStatus { queued, downloading, done, failed }
+enum DownloadStatus { queued, downloading, done, failed, paused }
 
 enum DownloadKind { chapter, episode }
 
@@ -42,4 +42,6 @@ class DownloadTable extends BaseTable {
   IntColumn get totalBytes => integer().withDefault(const Constant(0))();
 
   TextColumn get playback => text().nullable()();
+
+  IntColumn get queuePosition => integer().withDefault(const Constant(0))();
 }

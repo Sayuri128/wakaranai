@@ -373,4 +373,60 @@ void main() {
     expect(await _userVersion(replayed), replayed.schemaVersion);
     await replayed.close();
   });
+  test('upgrade from v15 adds the queue position and orders pending rows',
+      () async {
+    final Database raw = sqlite3.openInMemory();
+    addTearDown(raw.dispose);
+
+    final WakaranaiDatabase first = await _open(raw);
+    await first.close();
+
+    raw.execute('ALTER TABLE download_table DROP COLUMN queue_position;');
+    final List<(String, int)> rows = <(String, int)>[
+      ('done', 2),
+      ('queued-a', 0),
+      ('failed', 3),
+      ('downloading', 1),
+      ('queued-b', 0),
+    ];
+    for (final (String uid, int status) in rows) {
+      raw.execute(
+        'INSERT INTO download_table '
+        '(uid, extension_uid, concrete_uid, concrete_id, concrete_title, '
+        'title, status, dir_path, created_at) '
+        "VALUES ('$uid', 'ext', 'concrete', 1, 'Title', '$uid', $status, "
+        "'/tmp/$uid', 0);",
+      );
+    }
+    raw.execute('PRAGMA user_version = 15;');
+
+    final WakaranaiDatabase second = await _open(raw);
+    expect(await _userVersion(second), second.schemaVersion);
+
+    Future<Map<Object?, Object?>> positions(WakaranaiDatabase db) async {
+      final List<QueryRow> stored = await db
+          .customSelect('SELECT uid, queue_position FROM download_table;')
+          .get();
+      return <Object?, Object?>{
+        for (final QueryRow row in stored)
+          row.data['uid']: row.data['queue_position'],
+      };
+    }
+
+    final Map<Object?, Object?> expected = <Object?, Object?>{
+      'done': 0,
+      'queued-a': 1,
+      'failed': 0,
+      'downloading': 2,
+      'queued-b': 3,
+    };
+    expect(await positions(second), expected);
+    await second.close();
+
+    raw.execute('PRAGMA user_version = 15;');
+    final WakaranaiDatabase replayed = await _open(raw);
+    expect(await _userVersion(replayed), replayed.schemaVersion);
+    expect(await positions(replayed), expected);
+    await replayed.close();
+  });
 }

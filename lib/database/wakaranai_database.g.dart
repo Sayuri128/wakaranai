@@ -4409,6 +4409,18 @@ class $DownloadTableTable extends DownloadTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _queuePositionMeta = const VerificationMeta(
+    'queuePosition',
+  );
+  @override
+  late final GeneratedColumn<int> queuePosition = GeneratedColumn<int>(
+    'queue_position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4431,6 +4443,7 @@ class $DownloadTableTable extends DownloadTable
     downloadedBytes,
     totalBytes,
     playback,
+    queuePosition,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4581,6 +4594,15 @@ class $DownloadTableTable extends DownloadTable
         playback.isAcceptableOrUnknown(data['playback']!, _playbackMeta),
       );
     }
+    if (data.containsKey('queue_position')) {
+      context.handle(
+        _queuePositionMeta,
+        queuePosition.isAcceptableOrUnknown(
+          data['queue_position']!,
+          _queuePositionMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -4674,6 +4696,10 @@ class $DownloadTableTable extends DownloadTable
         DriftSqlType.string,
         data['${effectivePrefix}playback'],
       ),
+      queuePosition: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}queue_position'],
+      )!,
     );
   }
 
@@ -4710,6 +4736,7 @@ class DownloadTableData extends DataClass
   final int downloadedBytes;
   final int totalBytes;
   final String? playback;
+  final int queuePosition;
   const DownloadTableData({
     required this.id,
     required this.createdAt,
@@ -4731,6 +4758,7 @@ class DownloadTableData extends DataClass
     required this.downloadedBytes,
     required this.totalBytes,
     this.playback,
+    required this.queuePosition,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4773,6 +4801,7 @@ class DownloadTableData extends DataClass
     if (!nullToAbsent || playback != null) {
       map['playback'] = Variable<String>(playback);
     }
+    map['queue_position'] = Variable<int>(queuePosition);
     return map;
   }
 
@@ -4806,6 +4835,7 @@ class DownloadTableData extends DataClass
       playback: playback == null && nullToAbsent
           ? const Value.absent()
           : Value(playback),
+      queuePosition: Value(queuePosition),
     );
   }
 
@@ -4839,6 +4869,7 @@ class DownloadTableData extends DataClass
       downloadedBytes: serializer.fromJson<int>(json['downloadedBytes']),
       totalBytes: serializer.fromJson<int>(json['totalBytes']),
       playback: serializer.fromJson<String?>(json['playback']),
+      queuePosition: serializer.fromJson<int>(json['queuePosition']),
     );
   }
   @override
@@ -4869,6 +4900,7 @@ class DownloadTableData extends DataClass
       'downloadedBytes': serializer.toJson<int>(downloadedBytes),
       'totalBytes': serializer.toJson<int>(totalBytes),
       'playback': serializer.toJson<String?>(playback),
+      'queuePosition': serializer.toJson<int>(queuePosition),
     };
   }
 
@@ -4893,6 +4925,7 @@ class DownloadTableData extends DataClass
     int? downloadedBytes,
     int? totalBytes,
     Value<String?> playback = const Value.absent(),
+    int? queuePosition,
   }) => DownloadTableData(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -4916,6 +4949,7 @@ class DownloadTableData extends DataClass
     downloadedBytes: downloadedBytes ?? this.downloadedBytes,
     totalBytes: totalBytes ?? this.totalBytes,
     playback: playback.present ? playback.value : this.playback,
+    queuePosition: queuePosition ?? this.queuePosition,
   );
   DownloadTableData copyWithCompanion(DownloadTableCompanion data) {
     return DownloadTableData(
@@ -4957,6 +4991,9 @@ class DownloadTableData extends DataClass
           ? data.totalBytes.value
           : this.totalBytes,
       playback: data.playback.present ? data.playback.value : this.playback,
+      queuePosition: data.queuePosition.present
+          ? data.queuePosition.value
+          : this.queuePosition,
     );
   }
 
@@ -4982,13 +5019,14 @@ class DownloadTableData extends DataClass
           ..write('kind: $kind, ')
           ..write('downloadedBytes: $downloadedBytes, ')
           ..write('totalBytes: $totalBytes, ')
-          ..write('playback: $playback')
+          ..write('playback: $playback, ')
+          ..write('queuePosition: $queuePosition')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     createdAt,
     updatedAt,
@@ -5009,7 +5047,8 @@ class DownloadTableData extends DataClass
     downloadedBytes,
     totalBytes,
     playback,
-  );
+    queuePosition,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5033,7 +5072,8 @@ class DownloadTableData extends DataClass
           other.kind == this.kind &&
           other.downloadedBytes == this.downloadedBytes &&
           other.totalBytes == this.totalBytes &&
-          other.playback == this.playback);
+          other.playback == this.playback &&
+          other.queuePosition == this.queuePosition);
 }
 
 class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
@@ -5057,6 +5097,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
   final Value<int> downloadedBytes;
   final Value<int> totalBytes;
   final Value<String?> playback;
+  final Value<int> queuePosition;
   const DownloadTableCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -5078,6 +5119,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     this.downloadedBytes = const Value.absent(),
     this.totalBytes = const Value.absent(),
     this.playback = const Value.absent(),
+    this.queuePosition = const Value.absent(),
   });
   DownloadTableCompanion.insert({
     this.id = const Value.absent(),
@@ -5100,6 +5142,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     this.downloadedBytes = const Value.absent(),
     this.totalBytes = const Value.absent(),
     this.playback = const Value.absent(),
+    this.queuePosition = const Value.absent(),
   }) : uid = Value(uid),
        extensionUid = Value(extensionUid),
        concreteUid = Value(concreteUid),
@@ -5129,6 +5172,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     Expression<int>? downloadedBytes,
     Expression<int>? totalBytes,
     Expression<String>? playback,
+    Expression<int>? queuePosition,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -5151,6 +5195,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
       if (downloadedBytes != null) 'downloaded_bytes': downloadedBytes,
       if (totalBytes != null) 'total_bytes': totalBytes,
       if (playback != null) 'playback': playback,
+      if (queuePosition != null) 'queue_position': queuePosition,
     });
   }
 
@@ -5175,6 +5220,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     Value<int>? downloadedBytes,
     Value<int>? totalBytes,
     Value<String?>? playback,
+    Value<int>? queuePosition,
   }) {
     return DownloadTableCompanion(
       id: id ?? this.id,
@@ -5197,6 +5243,7 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
       downloadedBytes: downloadedBytes ?? this.downloadedBytes,
       totalBytes: totalBytes ?? this.totalBytes,
       playback: playback ?? this.playback,
+      queuePosition: queuePosition ?? this.queuePosition,
     );
   }
 
@@ -5267,6 +5314,9 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     if (playback.present) {
       map['playback'] = Variable<String>(playback.value);
     }
+    if (queuePosition.present) {
+      map['queue_position'] = Variable<int>(queuePosition.value);
+    }
     return map;
   }
 
@@ -5292,7 +5342,8 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
           ..write('kind: $kind, ')
           ..write('downloadedBytes: $downloadedBytes, ')
           ..write('totalBytes: $totalBytes, ')
-          ..write('playback: $playback')
+          ..write('playback: $playback, ')
+          ..write('queuePosition: $queuePosition')
           ..write(')'))
         .toString();
   }
@@ -9194,6 +9245,7 @@ typedef $$DownloadTableTableCreateCompanionBuilder =
       Value<int> downloadedBytes,
       Value<int> totalBytes,
       Value<String?> playback,
+      Value<int> queuePosition,
     });
 typedef $$DownloadTableTableUpdateCompanionBuilder =
     DownloadTableCompanion Function({
@@ -9217,6 +9269,7 @@ typedef $$DownloadTableTableUpdateCompanionBuilder =
       Value<int> downloadedBytes,
       Value<int> totalBytes,
       Value<String?> playback,
+      Value<int> queuePosition,
     });
 
 class $$DownloadTableTableFilterComposer
@@ -9329,6 +9382,11 @@ class $$DownloadTableTableFilterComposer
     column: $table.playback,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<int> get queuePosition => $composableBuilder(
+    column: $table.queuePosition,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$DownloadTableTableOrderingComposer
@@ -9439,6 +9497,11 @@ class $$DownloadTableTableOrderingComposer
     column: $table.playback,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get queuePosition => $composableBuilder(
+    column: $table.queuePosition,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$DownloadTableTableAnnotationComposer
@@ -9527,6 +9590,11 @@ class $$DownloadTableTableAnnotationComposer
 
   GeneratedColumn<String> get playback =>
       $composableBuilder(column: $table.playback, builder: (column) => column);
+
+  GeneratedColumn<int> get queuePosition => $composableBuilder(
+    column: $table.queuePosition,
+    builder: (column) => column,
+  );
 }
 
 class $$DownloadTableTableTableManager
@@ -9586,6 +9654,7 @@ class $$DownloadTableTableTableManager
                 Value<int> downloadedBytes = const Value.absent(),
                 Value<int> totalBytes = const Value.absent(),
                 Value<String?> playback = const Value.absent(),
+                Value<int> queuePosition = const Value.absent(),
               }) => DownloadTableCompanion(
                 id: id,
                 createdAt: createdAt,
@@ -9607,6 +9676,7 @@ class $$DownloadTableTableTableManager
                 downloadedBytes: downloadedBytes,
                 totalBytes: totalBytes,
                 playback: playback,
+                queuePosition: queuePosition,
               ),
           createCompanionCallback:
               ({
@@ -9630,6 +9700,7 @@ class $$DownloadTableTableTableManager
                 Value<int> downloadedBytes = const Value.absent(),
                 Value<int> totalBytes = const Value.absent(),
                 Value<String?> playback = const Value.absent(),
+                Value<int> queuePosition = const Value.absent(),
               }) => DownloadTableCompanion.insert(
                 id: id,
                 createdAt: createdAt,
@@ -9651,6 +9722,7 @@ class $$DownloadTableTableTableManager
                 downloadedBytes: downloadedBytes,
                 totalBytes: totalBytes,
                 playback: playback,
+                queuePosition: queuePosition,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

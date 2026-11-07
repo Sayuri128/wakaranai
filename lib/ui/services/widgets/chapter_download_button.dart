@@ -53,12 +53,14 @@ class ChapterDownloadButton extends StatelessWidget {
     required this.onDownload,
     required this.onDelete,
     required this.onRetry,
+    this.onResume,
   });
 
   final DownloadDomain? download;
   final VoidCallback onDownload;
   final VoidCallback onDelete;
   final VoidCallback onRetry;
+  final VoidCallback? onResume;
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +91,12 @@ class ChapterDownloadButton extends StatelessWidget {
           icon: Icons.schedule_rounded,
           color: AppColors.mainGrey,
           onTap: onDelete,
+        );
+      case DownloadStatus.paused:
+        return _iconButton(
+          icon: Icons.pause_circle_outline_rounded,
+          color: AppColors.mainGrey,
+          onTap: onResume ?? onDelete,
         );
       case DownloadStatus.failed:
         return _iconButton(

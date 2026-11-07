@@ -41,7 +41,8 @@ Future<int> _fileSize(File file) async {
 
 bool isDownloadSettled(DownloadDomain download) {
   return download.status == DownloadStatus.done ||
-      download.status == DownloadStatus.failed;
+      download.status == DownloadStatus.failed ||
+      download.status == DownloadStatus.paused;
 }
 
 String downloadSizeSignature(DownloadDomain download) {
