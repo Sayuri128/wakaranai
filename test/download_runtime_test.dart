@@ -63,9 +63,7 @@ class _SilentNotifications extends DownloadNotificationService {
 }
 
 class _FakeRuntime implements DownloadRuntime {
-  _FakeRuntime({this.startOutcome = DownloadRuntimeStart.started});
-
-  DownloadRuntimeStart startOutcome;
+  DownloadRuntimeStart startOutcome = DownloadRuntimeStart.started;
   final List<String> calls = <String>[];
   final StreamController<DownloadRuntimeEvent> _events =
       StreamController<DownloadRuntimeEvent>.broadcast();

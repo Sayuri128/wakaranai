@@ -3688,16 +3688,6 @@ class S {
     );
   }
 
-  /// `Downloads`
-  String get downloads_runtime_settings_section_title {
-    return Intl.message(
-      'Downloads',
-      name: 'downloads_runtime_settings_section_title',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Download over Wi-Fi only`
   String get downloads_runtime_wifi_only_title {
     return Intl.message(

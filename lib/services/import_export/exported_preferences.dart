@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/repositories/shared_pref/auto_backup_preferences.dart';
+import 'package:wakaranai/repositories/shared_pref/download_storage_preferences.dart';
 import 'package:wakaranai/repositories/shared_pref/downloads_order_preferences.dart';
 import 'package:wakaranai/repositories/shared_pref/gallery_layout_preferences.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
@@ -20,6 +21,8 @@ class ExportedPreferences {
     GalleryLayoutPreferences.galleryKey,
     GalleryLayoutPreferences.libraryKey,
     DownloadsOrderPreferences.newestFirstKey,
+    DownloadStoragePreferences.qualityKey,
+    DownloadStoragePreferences.deleteAfterWatchingKey,
     AutoBackupPreferences.enabledKey,
   };
 

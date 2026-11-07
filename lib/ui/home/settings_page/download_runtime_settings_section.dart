@@ -8,20 +8,6 @@ import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.da
 import 'package:wakaranai/ui/home/settings_page/settings_widgets.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
-class DownloadRuntimeSettingsSection extends StatelessWidget {
-  const DownloadRuntimeSettingsSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SettingsSection(
-      title: S.of(context).downloads_runtime_settings_section_title,
-      tiles: <Widget>[
-        DownloadWifiOnlyTile(),
-      ],
-    );
-  }
-}
-
 class DownloadWifiOnlyTile extends StatelessWidget {
   const DownloadWifiOnlyTile({super.key});
 

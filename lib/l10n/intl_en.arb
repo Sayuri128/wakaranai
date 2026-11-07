@@ -608,7 +608,6 @@
       "count": {}
     }
   },
-  "downloads_runtime_settings_section_title": "Downloads",
   "downloads_runtime_wifi_only_title": "Download over Wi-Fi only",
   "downloads_runtime_wifi_only_subtitle": "Queued downloads wait until you are on Wi-Fi or ethernet",
   "downloads_runtime_waiting_for_wifi": "Waiting for Wi-Fi",

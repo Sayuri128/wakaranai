@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/shared_pref/download_storage_preferences.dart';
+import 'package:wakaranai/ui/home/settings_page/download_runtime_settings_section.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_widgets.dart';
 import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -75,6 +76,7 @@ class _DownloadStorageSettingsSectionState
     return SettingsSection(
       title: S.of(context).downloads_storage_section_title,
       tiles: <Widget>[
+        DownloadWifiOnlyTile(),
         SettingsTile(
           icon: Icons.high_quality_rounded,
           title: S.of(context).downloads_quality_title,

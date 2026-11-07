@@ -626,8 +626,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_runtime_app_must_stay_open": MessageLookupByLibrary.simpleMessage(
       "Android stopped background downloading. Keep the app open until downloads finish.",
     ),
-    "downloads_runtime_settings_section_title":
-        MessageLookupByLibrary.simpleMessage("Downloads"),
     "downloads_runtime_waiting_for_wifi": MessageLookupByLibrary.simpleMessage(
       "Waiting for Wi-Fi",
     ),
