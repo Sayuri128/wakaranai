@@ -26,7 +26,9 @@ class DownloadFiles {
   static String _sanitize(String value) {
     final String cleaned = value.replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_');
     final String suffix = value.hashCode.toUnsigned(32).toRadixString(16);
-    if (cleaned.length <= 80) return '${cleaned}_$suffix';
+    if (cleaned.length <= 80) {
+      return '${cleaned}_$suffix';
+    }
     return '${cleaned.substring(0, 80)}_$suffix';
   }
 

@@ -1,28 +1,28 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'dart:io';
 
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/download_config/download_config.dart';
-import 'package:capyscript/modules/waka_models/models/novel/novel_chapter_content.dart';
 import 'package:collection/collection.dart';
-import 'package:dio/dio.dart';
-import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/services/downloads/episode/episode_download_manifest.dart';
 import 'package:wakaranai/services/downloads/episode/episode_downloader.dart';
 import 'package:wakaranai/services/downloads/episode/episode_source_resolver.dart';
-import 'package:wakaranai/services/downloads/queue/download_job.dart';
+import 'package:wakaranai/services/downloads/jobs/chapter_job_runner.dart';
+import 'package:wakaranai/services/downloads/jobs/chapter_page_writer.dart';
+import 'package:wakaranai/services/downloads/jobs/download_job.dart';
+import 'package:wakaranai/services/downloads/jobs/episode_job_runner.dart';
+import 'package:wakaranai/services/downloads/jobs/novel_chapter_job_runner.dart';
 import 'package:wakaranai/services/downloads/runtime/download_network_policy.dart';
 import 'package:wakaranai/services/downloads/runtime/download_runtime.dart';
 import 'package:wakaranai/services/downloads/runtime/download_runtime_coordinator.dart';
 import 'package:wakaranai/services/downloads/storage/download_files.dart';
+import 'package:wakaranai/services/downloads/storage/download_quality_reader.dart';
 import 'package:wakaranai/utils/http_client.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path/path.dart' as p;
 import 'package:wakaranai/blocs/downloads/download_notification_service.dart';
 import 'package:wakaranai/blocs/downloads/download_throttle.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
@@ -39,46 +39,6 @@ export 'package:wakaranai/services/downloads/runtime/download_runtime_coordinato
     show DownloadRuntimeStatus;
 
 part 'download_manager_state.dart';
-
-typedef QualityPreferenceReader = Future<QualityPreference> Function();
-typedef DownloadWait = Future<void> Function(Duration duration);
-
-class _EpisodeProgressRecorder {
-  _EpisodeProgressRecorder({required this.interval, required this.publish});
-
-  final Duration interval;
-  final Future<void> Function(EpisodeDownloadProgress progress) publish;
-  final Stopwatch _sinceLastPublish = Stopwatch();
-  Future<void> _publishing = Future<void>.value();
-  EpisodeDownloadProgress? _unpublished;
-
-  void record(EpisodeDownloadProgress progress) {
-    final bool due = !_sinceLastPublish.isRunning ||
-        _sinceLastPublish.elapsed >= interval;
-    if (!due) {
-      _unpublished = progress;
-      return;
-    }
-    _sinceLastPublish
-      ..reset()
-      ..start();
-    _unpublished = null;
-    _enqueue(progress);
-  }
-
-  Future<void> flush() {
-    final EpisodeDownloadProgress? pending = _unpublished;
-    _unpublished = null;
-    if (pending != null) {
-      _enqueue(pending);
-    }
-    return _publishing;
-  }
-
-  void _enqueue(EpisodeDownloadProgress progress) {
-    _publishing = _publishing.then((_) => publish(progress));
-  }
-}
 
 class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   DownloadManagerCubit({
@@ -125,20 +85,37 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   final DownloadClientPool _clients;
   late final StreamSubscription<bool> _networkPolicyChanges;
 
-  static const Duration _progressPersistInterval = Duration(milliseconds: 700);
-  static const int _pageAttempts = 3;
-  static const int _rateLimitAttempts = 6;
-  static const int _episodeSourceRefreshes = 2;
   static const Duration _jobUnwindTimeout = Duration(seconds: 10);
 
-  final Dio _dio = createDio();
   final DownloadThrottle _throttle;
   final DownloadWait _delay;
-  late final EpisodeSourceResolver _episodeSources = _injectedSourceResolver ??
-      PooledClientEpisodeSourceResolver(
-          loadClient: _clients.animeClientForUid);
-  late final EpisodeDownloader _episodeDownloader =
-      _injectedEpisodeDownloader ?? EpisodeDownloader(throttle: _throttle);
+  late final ChapterJobRunner _chapterRunner = ChapterJobRunner(
+    downloadRepository: downloadRepository,
+    reportProgress: _showJobProgress,
+    consumeDeletion: _cancelled.remove,
+    pageWriter: ChapterPageWriter(
+      dio: createDio(),
+      throttle: _throttle,
+      wait: _delay,
+    ),
+    throttle: _throttle,
+    wait: _delay,
+  );
+  late final NovelChapterJobRunner _novelChapterRunner = NovelChapterJobRunner(
+    downloadRepository: downloadRepository,
+    reportProgress: _showJobProgress,
+    consumeDeletion: _cancelled.remove,
+  );
+  late final EpisodeJobRunner _episodeRunner = EpisodeJobRunner(
+    downloadRepository: downloadRepository,
+    reportProgress: _showJobProgress,
+    readQualityPreference: _readQualityPreference,
+    sources: _injectedSourceResolver ??
+        PooledClientEpisodeSourceResolver(
+            loadClient: _clients.animeClientForUid),
+    downloader:
+        _injectedEpisodeDownloader ?? EpisodeDownloader(throttle: _throttle),
+  );
   final Queue<DownloadJob> _jobs = Queue<DownloadJob>();
   final Set<String> _cancelled = <String>{};
   final Set<String> _pauseRequested = <String>{};
@@ -687,7 +664,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     _batchIndex++;
     await _applyConfiguredPacing(job.extensionUid);
     if (_batchIndex > 1) {
-      await _wait(_pauseBefore(job));
+      await waitIfPositive(_delay, _pauseBefore(job));
     }
     _previousJobInBatch = job;
     final bool completed = await _runJob(job);
@@ -730,11 +707,11 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   Future<bool> _runJob(DownloadJob job) {
     switch (job) {
       case ChapterDownloadJob():
-        return _runChapterJob(job);
+        return _chapterRunner.run(job);
       case NovelChapterDownloadJob():
-        return _runNovelChapterJob(job);
+        return _novelChapterRunner.run(job);
       case EpisodeDownloadJob():
-        return _runEpisodeJob(job);
+        return _episodeRunner.run(job);
     }
   }
 
@@ -751,371 +728,6 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       queueIndex: _batchIndex,
       queueTotal: _batchTotal,
     );
-  }
-
-  Future<void> _markFailed(String uid) async {
-    final DownloadDomain? current = await downloadRepository.getByUid(uid);
-    if (current != null) {
-      await downloadRepository
-          .update(current.copyWith(status: DownloadStatus.failed));
-    }
-  }
-
-  Future<bool> _runChapterJob(ChapterDownloadJob job) async {
-    if (job.isCancelled) {
-      return false;
-    }
-    DownloadDomain? row = await downloadRepository.getByUid(job.chapterUid);
-    if (row == null || job.isCancelled) {
-      return false;
-    }
-
-    final CancelToken cancelToken = job.cancelToken;
-
-    try {
-      await downloadRepository
-          .update(row.copyWith(status: DownloadStatus.downloading));
-      await _showJobProgress(job, progress: 0, max: 0);
-
-      final pages =
-          await job.client.getPages(uid: job.chapterUid, data: job.data);
-      final Map<String, String> headers = await job.client
-          .getImageHeaders(uid: pages.chapterUid, data: <String, dynamic>{});
-      final String headersJson = jsonEncode(headers);
-
-      final Directory dir = Directory(row.dirPath);
-      await dir.create(recursive: true);
-      final int keptPages =
-          await DownloadFiles.keptChapterPages(row, dir, pages.value.length);
-
-      row = row.copyWith(
-        totalPages: pages.value.length,
-        downloadedPages: keptPages,
-        headers: headersJson,
-        status: DownloadStatus.downloading,
-      );
-      await downloadRepository.update(row);
-
-      DateTime lastPublish = DateTime.fromMillisecondsSinceEpoch(0);
-
-      for (int i = keptPages; i < pages.value.length; i++) {
-        if (_cancelled.contains(job.chapterUid)) {
-          _cancelled.remove(job.chapterUid);
-          return false;
-        }
-        if (cancelToken.isCancelled) {
-          return false;
-        }
-
-        final String url = pages.value[i];
-        final File file = File(p.join(dir.path, DownloadFiles.pageFileName(i)));
-
-        if (i > keptPages) {
-          await _wait(_throttle.pageDelay(job.extensionUid));
-        }
-        await _writePage(
-          url: url,
-          file: file,
-          headers: headers,
-          extensionUid: job.extensionUid,
-          cancelToken: cancelToken,
-        );
-
-        row = row!.copyWith(downloadedPages: i + 1);
-
-        final bool last = i == pages.value.length - 1;
-        final DateTime now = DateTime.now();
-        if (last || now.difference(lastPublish) >= _progressPersistInterval) {
-          lastPublish = now;
-          await downloadRepository.update(row);
-          await _showJobProgress(
-            job,
-            progress: i + 1,
-            max: pages.value.length,
-          );
-        }
-      }
-
-      await downloadRepository.update(row!.copyWith(
-        status: DownloadStatus.done,
-        downloadedPages: pages.value.length,
-        totalPages: pages.value.length,
-      ));
-      return true;
-    } catch (e, s) {
-      if (cancelToken.isCancelled ||
-          (e is DioException && CancelToken.isCancel(e))) {
-        return false;
-      }
-      logger.e('Download failed for ${job.chapterUid}: $e');
-      logger.e(s);
-      await _markFailed(job.chapterUid);
-      return false;
-    }
-  }
-
-  Future<bool> _runNovelChapterJob(NovelChapterDownloadJob job) async {
-    if (job.isCancelled) {
-      return false;
-    }
-    final DownloadDomain? row = await downloadRepository.getByUid(job.uid);
-    if (row == null || job.isCancelled) {
-      return false;
-    }
-    try {
-      await downloadRepository
-          .update(row.copyWith(status: DownloadStatus.downloading));
-      await _showJobProgress(job, progress: 0, max: 0);
-      final NovelChapterContent content = await runSerializedOn(
-        job.client,
-        () => job.client.getChapterText(
-          uid: job.chapterUid,
-          data: job.data ?? <String, dynamic>{},
-        ),
-      );
-      if (job.isCancelled || _cancelled.contains(job.uid)) {
-        _cancelled.remove(job.uid);
-        return false;
-      }
-      await DownloadFiles.writeNovelChapterFile(row.dirPath, content.html);
-      if (job.isCancelled) {
-        return false;
-      }
-      await downloadRepository.update(row.copyWith(
-        status: DownloadStatus.done,
-        downloadedPages: 1,
-        totalPages: 1,
-      ));
-      await _showJobProgress(job, progress: 1, max: 1);
-      return true;
-    } catch (e, s) {
-      if (job.isCancelled) {
-        return false;
-      }
-      logger.e('Novel chapter download failed for ${job.uid}: $e');
-      logger.e(s);
-      await _markFailed(job.uid);
-      return false;
-    }
-  }
-
-  Future<bool> _runEpisodeJob(EpisodeDownloadJob job) async {
-    if (job.isCancelled) {
-      return false;
-    }
-    final DownloadDomain? row = await downloadRepository.getByUid(job.uid);
-    if (row == null || job.isCancelled) {
-      return false;
-    }
-
-    final CancelToken cancelToken = job.cancelToken;
-    final _EpisodeProgressRecorder recorder = _EpisodeProgressRecorder(
-      interval: _progressPersistInterval,
-      publish: (EpisodeDownloadProgress progress) =>
-          _publishEpisodeProgress(job, cancelToken, progress),
-    );
-
-    try {
-      await downloadRepository
-          .update(row.copyWith(status: DownloadStatus.downloading));
-      await _showJobProgress(job, progress: 0, max: 0);
-
-      final EpisodeDownloadManifest manifest = await _downloadEpisode(
-        job: job,
-        dir: Directory(row.dirPath),
-        cancelToken: cancelToken,
-        recorder: recorder,
-      );
-      await recorder.flush();
-      return await _completeEpisode(job, manifest);
-    } catch (e, s) {
-      await recorder.flush();
-      if (cancelToken.isCancelled ||
-          (e is DioException && CancelToken.isCancel(e))) {
-        return false;
-      }
-      logger.e('Episode download failed for ${job.uid}: $e');
-      logger.e(s);
-      await _markFailed(job.uid);
-      return false;
-    }
-  }
-
-  Future<EpisodeDownloadManifest> _downloadEpisode({
-    required EpisodeDownloadJob job,
-    required Directory dir,
-    required CancelToken cancelToken,
-    required _EpisodeProgressRecorder recorder,
-  }) async {
-    final QualityPreference quality = await _readQualityPreference();
-    int refreshes = 0;
-    while (true) {
-      final PlayableVideo video = await _episodeSources.resolve(
-        extensionUid: job.extensionUid,
-        episode: job.episode,
-      );
-      _throwIfCancelled(cancelToken);
-      try {
-        return await _episodeDownloader.download(
-          video: video,
-          quality: quality,
-          dir: dir,
-          throttleKey: job.extensionUid,
-          cancelToken: cancelToken,
-          onProgress: recorder.record,
-        );
-      } on EpisodeSourceExpired catch (e) {
-        if (refreshes >= _episodeSourceRefreshes) {
-          rethrow;
-        }
-        refreshes++;
-        logger.w('Sources of ${job.uid} expired ($e), resolving them again');
-      }
-    }
-  }
-
-  void _throwIfCancelled(CancelToken cancelToken) {
-    final DioException? cancelError = cancelToken.cancelError;
-    if (cancelError != null) {
-      throw cancelError;
-    }
-  }
-
-  Future<bool> _completeEpisode(
-    EpisodeDownloadJob job,
-    EpisodeDownloadManifest manifest,
-  ) async {
-    if (job.isCancelled) {
-      return false;
-    }
-    final DownloadDomain? current = await downloadRepository.getByUid(job.uid);
-    if (current == null || job.isCancelled) {
-      return false;
-    }
-    await downloadRepository.update(current.copyWith(
-      status: DownloadStatus.done,
-      playback: manifest.encode(),
-    ));
-    return true;
-  }
-
-  Future<void> _publishEpisodeProgress(
-    EpisodeDownloadJob job,
-    CancelToken cancelToken,
-    EpisodeDownloadProgress progress,
-  ) async {
-    if (cancelToken.isCancelled) {
-      return;
-    }
-    try {
-      final DownloadDomain? current =
-          await downloadRepository.getByUid(job.uid);
-      if (current == null || cancelToken.isCancelled) {
-        return;
-      }
-      await downloadRepository.update(current.copyWith(
-        downloadedPages: progress.completedSegments,
-        totalPages: progress.totalSegments,
-        downloadedBytes: progress.downloadedBytes,
-        totalBytes: progress.totalBytes,
-      ));
-      final (int done, int max) = _episodeNotificationProgress(progress);
-      await _showJobProgress(job, progress: done, max: max);
-    } catch (e) {
-      logger.w('Could not record progress of ${job.uid}: $e');
-    }
-  }
-
-  static (int, int) _episodeNotificationProgress(
-      EpisodeDownloadProgress progress) {
-    if (progress.totalSegments > 0) {
-      return (progress.completedSegments, progress.totalSegments);
-    }
-    if (progress.totalBytes > 0) {
-      final int percent =
-          (progress.downloadedBytes * 100 ~/ progress.totalBytes).clamp(0, 100);
-      return (percent, 100);
-    }
-    return (0, 0);
-  }
-
-  Future<void> _wait(Duration duration) async {
-    if (duration > Duration.zero) {
-      await _delay(duration);
-    }
-  }
-
-  bool _isRateLimited(Object error) {
-    if (error is! DioException) {
-      return false;
-    }
-    final int? status = error.response?.statusCode;
-    return status == HttpStatus.tooManyRequests ||
-        status == HttpStatus.serviceUnavailable;
-  }
-
-  Future<void> _writePage({
-    required String url,
-    required File file,
-    required Map<String, String> headers,
-    required String extensionUid,
-    required CancelToken cancelToken,
-  }) async {
-    if (url.startsWith('data:')) {
-      final Uint8List bytes = base64Decode(url.split(',').last);
-      if (bytes.isEmpty) {
-        throw StateError('Empty inline page data');
-      }
-      await file.writeAsBytes(bytes);
-      return;
-    }
-
-    Object? lastError;
-    int failures = 0;
-    int rateLimits = 0;
-
-    while (failures < _pageAttempts && rateLimits < _rateLimitAttempts) {
-      try {
-        final Response<List<int>> response = await _dio.get<List<int>>(
-          url,
-          cancelToken: cancelToken,
-          options: Options(
-            responseType: ResponseType.bytes,
-            headers: headers,
-          ),
-        );
-
-        final List<int>? data = response.data;
-        if (data == null || data.isEmpty) {
-          throw StateError('Empty response for $url');
-        }
-
-        await file.writeAsBytes(data);
-        return;
-      } catch (e) {
-        if (e is DioException && CancelToken.isCancel(e)) rethrow;
-        lastError = e;
-        if (_isRateLimited(e)) {
-          rateLimits++;
-          _throttle.rateLimited(extensionUid);
-          final String? retryAfter = (e as DioException)
-              .response
-              ?.headers
-              .value(HttpHeaders.retryAfterHeader);
-          logger.w('Rate limited on $url, attempt $rateLimits');
-          await _wait(
-            _throttle.retryWait(rateLimits, retryAfterHeader: retryAfter),
-          );
-          continue;
-        }
-        failures++;
-        if (failures < _pageAttempts) {
-          await _wait(Duration(milliseconds: 300 * failures));
-        }
-      }
-    }
-
-    throw StateError('Failed to download $url: $lastError');
   }
 
   Future<void> retry({

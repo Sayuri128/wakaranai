@@ -5,6 +5,14 @@ const int kDefaultSegmentConcurrency = 3;
 const int kMinSegmentConcurrency = 1;
 const int kMaxSegmentConcurrency = 8;
 
+typedef DownloadWait = Future<void> Function(Duration duration);
+
+Future<void> waitIfPositive(DownloadWait wait, Duration duration) async {
+  if (duration > Duration.zero) {
+    await wait(duration);
+  }
+}
+
 int resolveSegmentConcurrency(
   int? configured, {
   int fallback = kDefaultSegmentConcurrency,

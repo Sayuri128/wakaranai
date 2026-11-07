@@ -1,7 +1,8 @@
-import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/repositories/shared_pref/download_storage_preferences.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_quality.dart';
+
+typedef QualityPreferenceReader = Future<QualityPreference> Function();
 
 QualityPreference? fixedQualityPreferenceOf(
   DownloadQuality quality, {
