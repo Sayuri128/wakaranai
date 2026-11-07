@@ -6929,6 +6929,86 @@ class S {
     );
   }
 
+  /// `Add another server`
+  String get extension_instance_add {
+    return Intl.message(
+      'Add another server',
+      name: 'extension_instance_add',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add`
+  String get extension_instance_add_confirm {
+    return Intl.message(
+      'Add',
+      name: 'extension_instance_add_confirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Added {name}`
+  String extension_instance_added(Object name) {
+    return Intl.message(
+      'Added $name',
+      name: 'extension_instance_added',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Could not add the server. Check your connection and try again.`
+  String get extension_instance_add_failed {
+    return Intl.message(
+      'Could not add the server. Check your connection and try again.',
+      name: 'extension_instance_add_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rename`
+  String get extension_instance_rename {
+    return Intl.message(
+      'Rename',
+      name: 'extension_instance_rename',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save`
+  String get extension_instance_rename_confirm {
+    return Intl.message(
+      'Save',
+      name: 'extension_instance_rename_confirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Watched`
+  String get concrete_selection_mark_watched {
+    return Intl.message(
+      'Watched',
+      name: 'concrete_selection_mark_watched',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unwatched`
+  String get concrete_selection_mark_unwatched {
+    return Intl.message(
+      'Unwatched',
+      name: 'concrete_selection_mark_unwatched',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Page fit`
   String get reader_page_fit_title {
     return Intl.message(

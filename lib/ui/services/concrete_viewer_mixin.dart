@@ -134,6 +134,26 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView,
     cubit.clearSelection();
   }
 
+  String _markDoneLabel(
+    BuildContext context,
+    ConcreteViewInitialized<T, C, G> state,
+  ) {
+    if (state.configInfo.type == ConfigInfoType.ANIME) {
+      return S.of(context).concrete_selection_mark_watched;
+    }
+    return S.of(context).concrete_selection_mark_read;
+  }
+
+  String _markNotDoneLabel(
+    BuildContext context,
+    ConcreteViewInitialized<T, C, G> state,
+  ) {
+    if (state.configInfo.type == ConfigInfoType.ANIME) {
+      return S.of(context).concrete_selection_mark_unwatched;
+    }
+    return S.of(context).concrete_selection_mark_unread;
+  }
+
   List<SelectionAction> extraSelectionActions(
     BuildContext context,
     ConcreteViewInitialized<T, C, G> state,
@@ -211,13 +231,13 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView,
                 ),
               SelectionAction(
                 icon: Icons.done_all,
-                label: S.of(context).concrete_selection_mark_read,
+                label: _markDoneLabel(context, state),
                 color: AppColors.primary,
                 onTap: cubit.markSelectedAsCompleted,
               ),
               SelectionAction(
                 icon: Icons.remove_done,
-                label: S.of(context).concrete_selection_mark_unread,
+                label: _markNotDoneLabel(context, state),
                 onTap: cubit.markSelectedAsNotCompleted,
               ),
             ],
