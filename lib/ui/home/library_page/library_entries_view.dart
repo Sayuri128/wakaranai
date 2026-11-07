@@ -195,22 +195,31 @@ Future<void> checkLibraryUpdatesNow(BuildContext context) async {
       context: context,
       message: S.current.updates_check_found(result.updates.length),
     );
-  } else if (result.removedFromSource.isNotEmpty) {
-    SnackBars.showErrorSnackBar(
-      context: context,
-      error: S.current.source_error_removed_titles_found(
-        result.removedFromSource.length,
-      ),
-    );
-  } else if (result.failed > 0) {
-    SnackBars.showErrorSnackBar(
-      context: context,
-      error: S.current.updates_check_failed(result.failed),
-    );
   } else {
-    SnackBars.showSnackBar(
-      context: context,
-      message: S.current.updates_check_none,
-    );
+    final String? problems = libraryCheckProblemsMessage(result);
+    if (problems != null) {
+      SnackBars.showErrorSnackBar(context: context, error: problems);
+    } else {
+      SnackBars.showSnackBar(
+        context: context,
+        message: S.current.updates_check_none,
+      );
+    }
   }
+}
+
+String? libraryCheckProblemsMessage(LibraryUpdateCheckResult result) {
+  final List<String> lines = <String>[];
+  if (result.removedFromSource.isNotEmpty) {
+    lines.add(S.current.source_error_removed_titles_found(
+      result.removedFromSource.length,
+    ));
+  }
+  if (result.failed > 0) {
+    lines.add(S.current.updates_check_failed(result.failed));
+  }
+  if (lines.isEmpty) {
+    return null;
+  }
+  return lines.join('\n');
 }
