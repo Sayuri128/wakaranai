@@ -24,8 +24,8 @@ class ActivitySettingsSection extends StatelessWidget {
       title: S.current.home_navigation_bar_activity_history_title,
       action: _InfoButton(onTap: () => _showImportExportInfo(context)),
       tiles: <Widget>[
-        const IncognitoTile(),
-        const AutoBackupTiles(),
+        IncognitoTile(),
+        AutoBackupTiles(),
         SettingsTile(
           icon: Icons.file_upload_outlined,
           title: S.current.settings_export_data_button,

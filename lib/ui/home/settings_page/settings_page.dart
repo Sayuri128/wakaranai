@@ -69,8 +69,8 @@ class SettingsPage extends StatelessWidget {
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.only(bottom: 24),
                   children: <Widget>[
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                       child: SettingsHeader(),
                     ),
                     SettingsUpdateBanner(),
@@ -79,7 +79,7 @@ class SettingsPage extends StatelessWidget {
                     ),
                     ReaderSettingsSection(state: state),
                     PlayerSettingsSection(state: state),
-                    const TrackersSettingsSection(),
+                    TrackersSettingsSection(),
                     DownloadStorageSettingsSection(),
                     ContentSettingsSection(state: state),
                     if (kDebugMode) DeveloperSettingsSection(state: state),

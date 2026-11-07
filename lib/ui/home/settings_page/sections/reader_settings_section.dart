@@ -28,7 +28,7 @@ class ReaderSettingsSection extends StatelessWidget {
           ),
           onTap: () => _showReaderModePicker(context, state.defaultMode),
         ),
-        const ReaderDisplayTiles(),
+        ReaderDisplayTiles(),
         SettingsTile(
           icon: Icons.translate_rounded,
           title: S.current.settings_page_translation_title,
