@@ -4,6 +4,7 @@ import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_view_type.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video_group/anime_video_group.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/services/downloads/chapter_download_selection.dart';
 import 'package:wakaranai/services/downloads/episode_title_downloader.dart';
 
@@ -55,6 +56,22 @@ DownloadableAnimeTitle _title({
     concreteId: 1,
     watchedUids: watched,
     downloadedUids: downloaded,
+  );
+}
+
+AnimeEpisodeActivityDomain _activity(
+  String uid, {
+  int? watchedTime,
+  int? totalTime,
+}) {
+  return AnimeEpisodeActivityDomain(
+    id: 0,
+    uid: uid,
+    title: uid,
+    concreteId: 1,
+    watchedTime: watchedTime,
+    totalTime: totalTime,
+    createdAt: DateTime(2024),
   );
 }
 
@@ -141,6 +158,43 @@ void main() {
     expect(
       _uids(title.select(<int>{0, 1}, ChapterDownloadAmount.all)),
       <String>['a1', 'shared', 'b3'],
+    );
+  });
+
+  test('only finished episodes count as watched', () {
+    final Set<String> watched = finishedEpisodeUids(<AnimeEpisodeActivityDomain>[
+      _activity('finished', watchedTime: 1400, totalTime: 1440),
+      _activity('half', watchedTime: 720, totalTime: 1440),
+      _activity('web', watchedTime: null, totalTime: null),
+      _activity('unknown-length', watchedTime: 300, totalTime: null),
+      _activity('zero-length', watchedTime: 0, totalTime: 0),
+    ]);
+
+    expect(watched, <String>{
+      'finished',
+      'web',
+      'unknown-length',
+      'zero-length',
+    });
+  });
+
+  test('next episodes start at a half-watched episode', () {
+    final DownloadableAnimeTitle title = _title(
+      groups: <AnimeVideoGroup>[_ascendingGroup('Dub · Player', 'e', 10)],
+      watched: finishedEpisodeUids(<AnimeEpisodeActivityDomain>[
+        _activity('e1', watchedTime: 1440, totalTime: 1440),
+        _activity('e2', watchedTime: 1380, totalTime: 1440),
+        _activity('e3', watchedTime: 600, totalTime: 1440),
+      ]),
+    );
+
+    expect(
+      _uids(title.select(<int>{0}, ChapterDownloadAmount.nextFive)),
+      <String>['e3', 'e4', 'e5', 'e6', 'e7'],
+    );
+    expect(
+      _uids(title.select(<int>{0}, ChapterDownloadAmount.unread)),
+      <String>['e3', 'e4', 'e5', 'e6', 'e7', 'e8', 'e9', 'e10'],
     );
   });
 

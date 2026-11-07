@@ -11,6 +11,7 @@ import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/services/downloads/chapter_download_selection.dart';
 import 'package:wakaranai/services/downloads/title_downloader.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
+import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store.dart';
 import 'package:wakaranai/utils/serial_call_queue.dart';
 
 List<AnimeVideo> selectedEpisodesInWatchOrder(
@@ -22,6 +23,15 @@ List<AnimeVideo> selectedEpisodesInWatchOrder(
       .ascending
       .where((AnimeVideo episode) => selected.contains(episode.uid))
       .toList();
+}
+
+Set<String> finishedEpisodeUids(
+  Iterable<AnimeEpisodeActivityDomain> activities,
+) {
+  return <String>{
+    for (final AnimeEpisodeActivityDomain activity in activities)
+      if (isEpisodeActivityFinished(activity)) activity.uid,
+  };
 }
 
 class DownloadableAnimeTitle implements TitleDownloadContent {
@@ -137,9 +147,6 @@ class EpisodeTitleDownloader {
           concreteUid,
         ) ??
         <AnimeEpisodeActivityDomain>[];
-    return <String>{
-      for (final AnimeEpisodeActivityDomain activity in activities)
-        activity.uid,
-    };
+    return finishedEpisodeUids(activities);
   }
 }

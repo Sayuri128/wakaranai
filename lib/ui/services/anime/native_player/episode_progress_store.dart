@@ -45,12 +45,26 @@ Duration? resolveResumePosition({
   if (total <= Duration.zero) {
     return savedPosition;
   }
-  final double watchedFraction =
-      savedPosition.inMilliseconds / total.inMilliseconds;
-  if (watchedFraction >= kResumeFinishedFraction) {
+  if (_reachedFinishedFraction(
+    watched: savedPosition.inMilliseconds,
+    total: total.inMilliseconds,
+  )) {
     return null;
   }
   return savedPosition;
+}
+
+bool isEpisodeActivityFinished(AnimeEpisodeActivityDomain activity) {
+  final int? watchedSeconds = activity.watchedTime;
+  final int? totalSeconds = activity.totalTime;
+  if (watchedSeconds == null || totalSeconds == null || totalSeconds <= 0) {
+    return true;
+  }
+  return _reachedFinishedFraction(watched: watchedSeconds, total: totalSeconds);
+}
+
+bool _reachedFinishedFraction({required int watched, required int total}) {
+  return watched / total >= kResumeFinishedFraction;
 }
 
 abstract class EpisodeProgressStore {
