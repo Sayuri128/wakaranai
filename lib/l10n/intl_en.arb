@@ -1306,5 +1306,25 @@
   "settings_player_skip_opening_value": "{seconds}s",
   "settings_player_auto_next_title": "Auto-play next episode",
   "settings_player_auto_next_subtitle": "Count down and start the next episode when one ends",
-  "native_player_pip_enter": "Picture-in-picture"
+  "native_player_pip_enter": "Picture-in-picture",
+  "ext_prefs_sheet_title": "Extension settings",
+  "ext_prefs_reset": "Reset to defaults",
+  "ext_prefs_done": "Done",
+  "ext_prefs_mirror_title": "Mirror",
+  "ext_prefs_mirror_summary": "Which site address requests go to. Automatic tries each mirror until one responds.",
+  "ext_prefs_mirror_automatic": "Automatic",
+  "ext_prefs_number_invalid": "Enter a number",
+  "ext_prefs_default_hint": "Default: {value}",
+  "@ext_prefs_default_hint": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "ext_prefs_clear_data": "Clear stored data",
+  "ext_prefs_clear_data_done": "Stored data for {source} cleared",
+  "@ext_prefs_clear_data_done": {
+    "placeholders": {
+      "source": {}
+    }
+  }
 }

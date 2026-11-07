@@ -10,6 +10,8 @@ class OutlinedTextFormField extends StatelessWidget {
     required this.hint,
     this.validator,
     this.onChanged,
+    this.keyboardType,
+    this.autovalidateMode,
   });
 
   final TextEditingController controller;
@@ -17,6 +19,8 @@ class OutlinedTextFormField extends StatelessWidget {
   final String hint;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
+  final TextInputType? keyboardType;
+  final AutovalidateMode? autovalidateMode;
 
   OutlineInputBorder _border(Color color, {double width = 1}) {
     return OutlineInputBorder(
@@ -31,6 +35,8 @@ class OutlinedTextFormField extends StatelessWidget {
       controller: controller,
       onChanged: onChanged,
       validator: validator,
+      keyboardType: keyboardType,
+      autovalidateMode: autovalidateMode,
       cursorColor: AppColors.primary,
       style: medium(size: 15),
       decoration: InputDecoration(

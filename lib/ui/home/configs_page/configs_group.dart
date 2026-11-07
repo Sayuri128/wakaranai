@@ -6,9 +6,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
+import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/repositories/database/extension_storage_repository.dart';
 import 'package:wakaranai/services/configs_service/extension_listing_status.dart';
+import 'package:wakaranai/services/extension_preferences/extension_host_services.dart';
+import 'package:wakaranai/services/extension_preferences/extension_preference_values.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
+import 'package:wakaranai/ui/home/configs_page/extension_settings/extension_settings_sheet.dart';
 import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
@@ -102,10 +107,11 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
     if (status == ExtensionListingStatus.updateNeedsNewerApp) {
       return () => _showCompatibilityInfo(context, extension, status);
     }
-    if (extension.config.protectorConfig == null) {
-      return null;
-    }
-    return () => _showSessionActions(context, extension.config);
+    return () => unawaited(_showExtensionActions(
+          context,
+          extension.config,
+          allowSettings: !status.isDisabled,
+        ));
   }
 
   Future<void> _showCompatibilityInfo(
@@ -134,6 +140,8 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
                   _onCardClick(context, extension);
                 },
               ),
+            if (installed && hasExtensionSettings(config))
+              _buildSettingsRow(context, sheetContext, config),
             if (installed && config.protectorConfig != null)
               ActionSheetRow(
                 label: S.current.extension_clear_session,
@@ -255,21 +263,93 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
     );
   }
 
-  Future<void> _showSessionActions(BuildContext context, ConfigInfo config) {
-    return showActionSheet(
+  Future<void> _showExtensionActions(
+    BuildContext context,
+    ConfigInfo config, {
+    required bool allowSettings,
+  }) async {
+    final bool showSettings = allowSettings && hasExtensionSettings(config);
+    final bool showSession = config.protectorConfig != null;
+    final bool showClearData = await _hasStoredData(context, config);
+    if (!context.mounted) {
+      return;
+    }
+    if (!showSettings && !showSession && !showClearData) {
+      return;
+    }
+    await showActionSheet(
       context,
       title: config.name.trim(),
       child: Builder(
-        builder: (BuildContext sheetContext) => ActionSheetRow(
-          label: S.current.extension_clear_session,
-          icon: Icons.cleaning_services_rounded,
-          destructive: true,
-          onTap: () {
-            Navigator.of(sheetContext).pop();
-            unawaited(_clearSession(context, config));
-          },
+        builder: (BuildContext sheetContext) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            if (showSettings) _buildSettingsRow(context, sheetContext, config),
+            if (showSession)
+              ActionSheetRow(
+                label: S.current.extension_clear_session,
+                icon: Icons.cleaning_services_rounded,
+                destructive: true,
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  unawaited(_clearSession(context, config));
+                },
+              ),
+            if (showClearData)
+              ActionSheetRow(
+                label: S.current.ext_prefs_clear_data,
+                icon: Icons.delete_sweep_rounded,
+                destructive: true,
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  unawaited(_clearStoredData(context, config));
+                },
+              ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSettingsRow(
+    BuildContext context,
+    BuildContext sheetContext,
+    ConfigInfo config,
+  ) {
+    return ActionSheetRow(
+      label: S.current.ext_prefs_sheet_title,
+      icon: Icons.settings_rounded,
+      onTap: () {
+        Navigator.of(sheetContext).pop();
+        unawaited(showExtensionSettingsSheet(context, config: config));
+      },
+    );
+  }
+
+  ExtensionStorageRepository _storageRepository(BuildContext context) {
+    return ExtensionStorageRepository(
+      database: context.read<WakaranaiDatabase>(),
+    );
+  }
+
+  Future<bool> _hasStoredData(BuildContext context, ConfigInfo config) async {
+    try {
+      return await _storageRepository(context).countEntries(config.uid) > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> _clearStoredData(BuildContext context, ConfigInfo config) async {
+    await ExtensionDataCleaner(storageRepository: _storageRepository(context))
+        .clearStorage(config.uid);
+    if (!context.mounted) {
+      return;
+    }
+    SnackBars.showSnackBar(
+      context: context,
+      message: S.current.ext_prefs_clear_data_done(config.name.trim()),
     );
   }
 

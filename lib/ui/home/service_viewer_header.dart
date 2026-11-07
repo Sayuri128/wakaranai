@@ -7,6 +7,7 @@ import 'package:wakaranai/blocs/gallery_layout/gallery_layout_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_layout.dart';
+import 'package:wakaranai/ui/home/configs_page/extension_settings/extension_settings_entry.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/services/filters/gallery_filters_sheet.dart';
 import 'package:wakaranai/ui/widgets/search_field.dart';
@@ -59,6 +60,7 @@ class ServiceViewerHeader extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                ExtensionSettingsButton(config: configInfo, cubit: cubit),
                 _buildLayoutButton(),
                 if (configInfo.protectorConfig != null)
                   _buildRoundIconButton(

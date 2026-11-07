@@ -6928,6 +6928,101 @@ class S {
       args: [],
     );
   }
+
+  /// `Extension settings`
+  String get ext_prefs_sheet_title {
+    return Intl.message(
+      'Extension settings',
+      name: 'ext_prefs_sheet_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reset to defaults`
+  String get ext_prefs_reset {
+    return Intl.message(
+      'Reset to defaults',
+      name: 'ext_prefs_reset',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get ext_prefs_done {
+    return Intl.message('Done', name: 'ext_prefs_done', desc: '', args: []);
+  }
+
+  /// `Mirror`
+  String get ext_prefs_mirror_title {
+    return Intl.message(
+      'Mirror',
+      name: 'ext_prefs_mirror_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Which site address requests go to. Automatic tries each mirror until one responds.`
+  String get ext_prefs_mirror_summary {
+    return Intl.message(
+      'Which site address requests go to. Automatic tries each mirror until one responds.',
+      name: 'ext_prefs_mirror_summary',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Automatic`
+  String get ext_prefs_mirror_automatic {
+    return Intl.message(
+      'Automatic',
+      name: 'ext_prefs_mirror_automatic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a number`
+  String get ext_prefs_number_invalid {
+    return Intl.message(
+      'Enter a number',
+      name: 'ext_prefs_number_invalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Default: {value}`
+  String ext_prefs_default_hint(Object value) {
+    return Intl.message(
+      'Default: $value',
+      name: 'ext_prefs_default_hint',
+      desc: '',
+      args: [value],
+    );
+  }
+
+  /// `Clear stored data`
+  String get ext_prefs_clear_data {
+    return Intl.message(
+      'Clear stored data',
+      name: 'ext_prefs_clear_data',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stored data for {source} cleared`
+  String ext_prefs_clear_data_done(Object source) {
+    return Intl.message(
+      'Stored data for $source cleared',
+      name: 'ext_prefs_clear_data_done',
+      desc: '',
+      args: [source],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
