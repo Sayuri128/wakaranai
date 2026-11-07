@@ -2,6 +2,35 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:wakaranai/utils/browser_challenge_detector.dart';
 
 void main() {
+  group('isSameSiteAsPing', () {
+    test('matches the ping host and its subdomains', () {
+      expect(
+        isSameSiteAsPing('https://anitube.in.ua/123', 'https://anitube.in.ua/'),
+        isTrue,
+      );
+      expect(
+        isSameSiteAsPing('https://api.mangalib.me/x', 'https://mangalib.me/'),
+        isTrue,
+      );
+      expect(
+        isSameSiteAsPing('https://mangalib.me/x', 'https://www.mangalib.me/'),
+        isTrue,
+      );
+    });
+
+    test('rejects embed hosts that differ from the ping host', () {
+      expect(
+        isSameSiteAsPing('https://moonanime.net/e/1', 'https://anitube.in.ua/'),
+        isFalse,
+      );
+    });
+
+    test('treats unknown or unparsable hosts as the same site', () {
+      expect(isSameSiteAsPing('https://moonanime.net/e/1', null), isTrue);
+      expect(isSameSiteAsPing('not a url', 'https://anitube.in.ua/'), isTrue);
+    });
+  });
+
   group('BrowserChallengeDetector', () {
     test('detects the Cloudflare interstitial by its title', () {
       const String html =

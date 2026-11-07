@@ -42,6 +42,8 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
   static const Duration _jsRetryBaseDelay = Duration(milliseconds: 100);
   static const Duration _jsRetryMaxDelay = Duration(seconds: 1);
   static const int _maxJsAttempts = 20;
+  static const Duration _jsCallTimeout = Duration(seconds: 8);
+  static const Duration _jsTotalBudget = Duration(seconds: 15);
   static const String _documentHtmlScript =
       'return document.documentElement.innerHTML';
 
@@ -251,9 +253,11 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
     }
     logger.w('Browser challenge ($kind) did not clear on ${pending.url}');
     final String body = _lastChallengeBody;
-    _emitIfOpen(
-      BrowserInterceptorChallengeRequired(url: pending.url, kind: kind),
-    );
+    if (isSameSiteAsPing(pending.url, _pingUrl)) {
+      _emitIfOpen(
+        BrowserInterceptorChallengeRequired(url: pending.url, kind: kind),
+      );
+    }
     _resolvePendingLoad(_response(statusCode: challengeStatusCode, body: body));
   }
 
@@ -415,6 +419,7 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
     }
     await DocumentReadiness.waitFor(readyController);
 
+    final Stopwatch elapsed = Stopwatch()..start();
     Object? lastError;
     for (int attempt = 1; attempt <= _maxJsAttempts; attempt++) {
       final InAppWebViewController? controller = _availableController();
@@ -424,13 +429,25 @@ class BrowserInterceptorCubit extends Cubit<BrowserInterceptorState>
       }
       try {
         final CallAsyncJavaScriptResult? result = await controller
-            .callAsyncJavaScript(functionBody: code);
+            .callAsyncJavaScript(functionBody: code)
+            .timeout(_jsCallTimeout);
         if (result != null && result.error == null && result.value != null) {
           return result.value;
         }
         lastError = result?.error;
+      } on TimeoutException {
+        logger.w(
+          'executeJsScript call did not finish within ${_jsCallTimeout.inSeconds}s',
+        );
+        return null;
       } catch (e) {
         lastError = e;
+      }
+      if (elapsed.elapsed >= _jsTotalBudget) {
+        logger.w(
+          'executeJsScript gave up after ${elapsed.elapsed.inSeconds}s and $attempt attempts',
+        );
+        return null;
       }
       await Future<void>.delayed(_jsRetryDelay(attempt));
     }

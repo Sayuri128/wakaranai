@@ -91,3 +91,20 @@ class BrowserChallengeDetector {
     return prefixes.any(haystack.startsWith);
   }
 }
+
+bool isSameSiteAsPing(String url, String? pingUrl) {
+  if (pingUrl == null) {
+    return true;
+  }
+  final String? challengedHost = Uri.tryParse(url)?.host.toLowerCase();
+  final String? pingHost = Uri.tryParse(pingUrl)?.host.toLowerCase();
+  if (challengedHost == null ||
+      pingHost == null ||
+      challengedHost.isEmpty ||
+      pingHost.isEmpty) {
+    return true;
+  }
+  return challengedHost == pingHost ||
+      challengedHost.endsWith('.$pingHost') ||
+      pingHost.endsWith('.$challengedHost');
+}
