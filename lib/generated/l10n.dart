@@ -114,10 +114,10 @@ class S {
     );
   }
 
-  /// `Anime`
+  /// `Video`
   String get home_anime_group_title {
     return Intl.message(
-      'Anime',
+      'Video',
       name: 'home_anime_group_title',
       desc: '',
       args: [],
@@ -2824,10 +2824,10 @@ class S {
     );
   }
 
-  /// `Anime`
+  /// `Video`
   String get activity_history_anime_appbar_title {
     return Intl.message(
-      'Anime',
+      'Video',
       name: 'activity_history_anime_appbar_title',
       desc: '',
       args: [],
@@ -2884,10 +2884,10 @@ class S {
     );
   }
 
-  /// `No history :c\nStart watching anime to see your history here`
+  /// `No history :c\nStart watching to see your history here`
   String get activity_history_empty_anime_list_message {
     return Intl.message(
-      'No history :c\nStart watching anime to see your history here',
+      'No history :c\nStart watching to see your history here',
       name: 'activity_history_empty_anime_list_message',
       desc: '',
       args: [],
@@ -6476,6 +6476,146 @@ class S {
     );
   }
 
+  /// `All`
+  String get configs_filter_all_kinds {
+    return Intl.message(
+      'All',
+      name: 'configs_filter_all_kinds',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All languages`
+  String get configs_filter_all_languages {
+    return Intl.message(
+      'All languages',
+      name: 'configs_filter_all_languages',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Language`
+  String get configs_filter_language_title {
+    return Intl.message(
+      'Language',
+      name: 'configs_filter_language_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Anime`
+  String get content_kind_anime {
+    return Intl.message(
+      'Anime',
+      name: 'content_kind_anime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Movies`
+  String get content_kind_movie {
+    return Intl.message(
+      'Movies',
+      name: 'content_kind_movie',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Series`
+  String get content_kind_series {
+    return Intl.message(
+      'Series',
+      name: 'content_kind_series',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cartoons`
+  String get content_kind_cartoon {
+    return Intl.message(
+      'Cartoons',
+      name: 'content_kind_cartoon',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dramas`
+  String get content_kind_dorama {
+    return Intl.message(
+      'Dramas',
+      name: 'content_kind_dorama',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Documentaries`
+  String get content_kind_documentary {
+    return Intl.message(
+      'Documentaries',
+      name: 'content_kind_documentary',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manga`
+  String get content_kind_manga {
+    return Intl.message(
+      'Manga',
+      name: 'content_kind_manga',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manhwa`
+  String get content_kind_manhwa {
+    return Intl.message(
+      'Manhwa',
+      name: 'content_kind_manhwa',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manhua`
+  String get content_kind_manhua {
+    return Intl.message(
+      'Manhua',
+      name: 'content_kind_manhua',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comics`
+  String get content_kind_comic {
+    return Intl.message(
+      'Comics',
+      name: 'content_kind_comic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Novels`
+  String get content_kind_novel {
+    return Intl.message(
+      'Novels',
+      name: 'content_kind_novel',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Page fit`
   String get reader_page_fit_title {
     return Intl.message(
@@ -7336,10 +7476,10 @@ class S {
     );
   }
 
-  /// `Play anime in the built-in player when the source provides a direct stream`
+  /// `Play videos in the built-in player when the source provides a direct stream`
   String get settings_video_player_subtitle {
     return Intl.message(
-      'Play anime in the built-in player when the source provides a direct stream',
+      'Play videos in the built-in player when the source provides a direct stream',
       name: 'settings_video_player_subtitle',
       desc: '',
       args: [],

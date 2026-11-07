@@ -1,9 +1,13 @@
-﻿import 'package:flutter/material.dart';
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
+import 'package:wakaranai/ui/home/configs_page/configs_filter.dart';
+import 'package:wakaranai/ui/home/configs_page/configs_filter_bar.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_group.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_list_skeleton.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/extension_sources_page_result.dart';
@@ -12,8 +16,34 @@ import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
-class ConfigPage extends StatelessWidget {
+class ConfigPage extends StatefulWidget {
   const ConfigPage({super.key});
+
+  @override
+  State<ConfigPage> createState() => _ConfigPageState();
+}
+
+class _ConfigPageState extends State<ConfigPage> {
+  final ConfigsFilterPreferences _filterPreferences = ConfigsFilterPreferences();
+  ConfigsFilter _filter = const ConfigsFilter();
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_restoreFilter());
+  }
+
+  Future<void> _restoreFilter() async {
+    final ConfigsFilter stored = await _filterPreferences.read();
+    if (mounted) {
+      setState(() => _filter = stored);
+    }
+  }
+
+  void _changeFilter(ConfigsFilter filter) {
+    setState(() => _filter = filter);
+    unawaited(_filterPreferences.write(filter));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -138,13 +168,33 @@ class ConfigPage extends StatelessWidget {
     final bool showNsfw =
         settingsState is SettingsInitialized && settingsState.showNsfw;
 
-    final List<BaseExtension> mangaConfigs =
+    final List<BaseExtension> visibleManga =
         _filterNsfw(state.mangaRemoteConfigs, showNsfw);
-    final List<BaseExtension> animeConfigs =
+    final List<BaseExtension> visibleVideo =
         _filterNsfw(state.animeRemoteConfigs, showNsfw);
+    final List<BaseExtension> visible = <BaseExtension>[
+      ...visibleManga,
+      ...visibleVideo,
+    ];
+    final List<String> kinds = availableContentKinds(visible);
+    final List<String> languages = availableLanguages(visible);
+    final ConfigsFilter filter = _applicableFilter(kinds, languages);
+    final List<BaseExtension> mangaConfigs = visibleManga
+        .where(filter.matches)
+        .toList(growable: false);
+    final List<BaseExtension> animeConfigs = visibleVideo
+        .where(filter.matches)
+        .toList(growable: false);
+    final ConfigsFilterBar filterBar = ConfigsFilterBar(
+      kinds: kinds,
+      languages: languages,
+      filter: filter,
+      onChanged: _changeFilter,
+    );
 
     if (mangaConfigs.isEmpty && animeConfigs.isEmpty) {
       return <Widget>[
+        if (filterBar.isUseful) SliverToBoxAdapter(child: filterBar),
         SliverFillRemaining(
           hasScrollBody: false,
           child: ServiceViewerMessage(
@@ -157,6 +207,7 @@ class ConfigPage extends StatelessWidget {
     }
 
     return <Widget>[
+      if (filterBar.isUseful) SliverToBoxAdapter(child: filterBar),
       if (mangaConfigs.isNotEmpty)
         ConfigsGroup(
           key: const ValueKey<String>('manga'),
@@ -173,6 +224,20 @@ class ConfigPage extends StatelessWidget {
         ),
       const SliverToBoxAdapter(child: SizedBox(height: 24)),
     ];
+  }
+
+  ConfigsFilter _applicableFilter(
+    List<String> kinds,
+    List<String> languages,
+  ) {
+    ConfigsFilter filter = _filter;
+    if (filter.kind != null && !kinds.contains(filter.kind)) {
+      filter = filter.withKind(null);
+    }
+    if (filter.language != null && !languages.contains(filter.language)) {
+      filter = filter.withLanguage(null);
+    }
+    return filter;
   }
 
   List<BaseExtension> _filterNsfw(

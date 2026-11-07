@@ -319,14 +319,14 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "activity_history_anime_appbar_title": MessageLookupByLibrary.simpleMessage(
-      "Anime",
+      "Video",
     ),
     "activity_history_deleted_activity": MessageLookupByLibrary.simpleMessage(
       "Deleted activity successfully",
     ),
     "activity_history_empty_anime_list_message":
         MessageLookupByLibrary.simpleMessage(
-          "No history :c\nStart watching anime to see your history here",
+          "No history :c\nStart watching to see your history here",
         ),
     "activity_history_empty_manga_list_message":
         MessageLookupByLibrary.simpleMessage(
@@ -557,6 +557,26 @@ class MessageLookup extends MessageLookupByLibrary {
     "concrete_viewer_retry_button": MessageLookupByLibrary.simpleMessage(
       "Retry",
     ),
+    "configs_filter_all_kinds": MessageLookupByLibrary.simpleMessage("All"),
+    "configs_filter_all_languages": MessageLookupByLibrary.simpleMessage(
+      "All languages",
+    ),
+    "configs_filter_language_title": MessageLookupByLibrary.simpleMessage(
+      "Language",
+    ),
+    "content_kind_anime": MessageLookupByLibrary.simpleMessage("Anime"),
+    "content_kind_cartoon": MessageLookupByLibrary.simpleMessage("Cartoons"),
+    "content_kind_comic": MessageLookupByLibrary.simpleMessage("Comics"),
+    "content_kind_documentary": MessageLookupByLibrary.simpleMessage(
+      "Documentaries",
+    ),
+    "content_kind_dorama": MessageLookupByLibrary.simpleMessage("Dramas"),
+    "content_kind_manga": MessageLookupByLibrary.simpleMessage("Manga"),
+    "content_kind_manhua": MessageLookupByLibrary.simpleMessage("Manhua"),
+    "content_kind_manhwa": MessageLookupByLibrary.simpleMessage("Manhwa"),
+    "content_kind_movie": MessageLookupByLibrary.simpleMessage("Movies"),
+    "content_kind_novel": MessageLookupByLibrary.simpleMessage("Novels"),
+    "content_kind_series": MessageLookupByLibrary.simpleMessage("Series"),
     "deepl_key_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
     "deepl_key_change": MessageLookupByLibrary.simpleMessage("Change"),
     "deepl_key_dialog_message": MessageLookupByLibrary.simpleMessage(
@@ -971,7 +991,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Compact grid",
     ),
     "gallery_layout_list": MessageLookupByLibrary.simpleMessage("List"),
-    "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Anime"),
+    "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Video"),
     "home_configs_source_initializing_error": m56,
     "home_extensions_error_title": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t load extensions",
@@ -1721,7 +1741,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "External player",
     ),
     "settings_video_player_subtitle": MessageLookupByLibrary.simpleMessage(
-      "Play anime in the built-in player when the source provides a direct stream",
+      "Play videos in the built-in player when the source provides a direct stream",
     ),
     "settings_video_player_title": MessageLookupByLibrary.simpleMessage(
       "Video player",
