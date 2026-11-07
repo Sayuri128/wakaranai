@@ -10,7 +10,7 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/shared_pref/downloads_order_preferences.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
-import 'package:wakaranai/ui/home/downloads_page/download_reader_launcher.dart';
+import 'package:wakaranai/ui/home/downloads_page/download_tile.dart';
 import 'package:wakaranai/ui/home/downloads_page/download_translation.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/chapter_translation_actions.dart';
 import 'package:wakaranai/ui/home/library_page/library_concrete_viewer.dart';
@@ -97,7 +97,7 @@ class _DownloadsPageState extends State<DownloadsPage> {
         for (final List<DownloadDomain> titleDownloads in grouped.values) ...<Widget>[
           _GroupHeader(downloads: titleDownloads),
           for (final DownloadDomain download in titleDownloads)
-            _DownloadTile(download: download),
+            DownloadTile(download: download),
         ],
       ],
     );
@@ -176,7 +176,7 @@ class _GroupHeader extends StatelessWidget {
           onTap: () => _openConcrete(context, sample),
           child: Row(
             children: <Widget>[
-              _Cover(url: sample.concreteCover),
+              _Cover(url: sample.concreteCover, isEpisode: sample.isEpisode),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -190,20 +190,26 @@ class _GroupHeader extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      S.current.downloads_chapters_summary(
-                          doneCount, downloads.length),
+                      _summary(sample, doneCount),
                       style: regular(size: 12, color: AppColors.mainGrey),
                     ),
                   ],
                 ),
               ),
-              TranslateAllButton(downloads: downloads),
+              if (!sample.isEpisode) TranslateAllButton(downloads: downloads),
               Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
             ],
           ),
         ),
       ),
     );
+  }
+
+  String _summary(DownloadDomain sample, int doneCount) {
+    if (sample.isEpisode) {
+      return S.current.downloads_episode_summary(doneCount, downloads.length);
+    }
+    return S.current.downloads_chapters_summary(doneCount, downloads.length);
   }
 
   Future<void> _openConcrete(
@@ -230,9 +236,10 @@ class _GroupHeader extends StatelessWidget {
 }
 
 class _Cover extends StatelessWidget {
-  const _Cover({required this.url});
+  const _Cover({required this.url, required this.isEpisode});
 
   final String? url;
+  final bool isEpisode;
 
   @override
   Widget build(BuildContext context) {
@@ -259,126 +266,13 @@ class _Cover extends StatelessWidget {
     return ColoredBox(
       color: AppColors.overlay(0.08),
       child: Center(
-        child:
-            Icon(Icons.menu_book_rounded, color: AppColors.mainGrey, size: 22),
-      ),
-    );
-  }
-}
-
-class _DownloadTile extends StatelessWidget {
-  const _DownloadTile({required this.download});
-
-  final DownloadDomain download;
-
-  @override
-  Widget build(BuildContext context) {
-    final bool openable = download.status == DownloadStatus.done;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: Material(
-        color: AppColors.overlay(0.04),
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: openable ? () => _open(context) : null,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(download.title.trim(), style: medium(size: 15)),
-                      const SizedBox(height: 6),
-                      _buildSubtitle(context),
-                      DownloadTranslationStatus(download: download),
-                      if (download.status ==
-                          DownloadStatus.downloading) ...<Widget>[
-                        const SizedBox(height: 10),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: download.progress > 0
-                                ? download.progress
-                                : null,
-                            minHeight: 4,
-                            backgroundColor: AppColors.overlay(0.08),
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                AppColors.primary),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                DownloadTranslationButton(download: download),
-                IconButton(
-                  icon: Icon(Icons.delete_outline_rounded,
-                      color: AppColors.mainGrey),
-                  onPressed: () => _confirmDelete(context),
-                ),
-              ],
-            ),
-          ),
+        child: Icon(
+          isEpisode ? Icons.movie_rounded : Icons.menu_book_rounded,
+          color: AppColors.mainGrey,
+          size: 22,
         ),
       ),
     );
-  }
-
-  void _open(BuildContext context) {
-    Navigator.of(context).pushNamed(
-      Routes.downloadReader,
-      arguments: DownloadReaderData(download: download),
-    );
-  }
-
-  Widget _buildSubtitle(BuildContext context) {
-    late final String label;
-    late final Color color;
-
-    switch (download.status) {
-      case DownloadStatus.done:
-        label = S.current
-            .downloads_pages_progress(download.totalPages, download.totalPages);
-        color = AppColors.mainGrey;
-        break;
-      case DownloadStatus.downloading:
-        label = S.current.downloads_pages_progress(
-            download.downloadedPages, download.totalPages);
-        color = AppColors.primary;
-        break;
-      case DownloadStatus.queued:
-        label = S.current.downloads_status_queued;
-        color = AppColors.mainGrey;
-        break;
-      case DownloadStatus.failed:
-        label = S.current.downloads_status_failed;
-        color = AppColors.red;
-        break;
-    }
-
-    return Text(label, style: regular(size: 12, color: color));
-  }
-
-  void _confirmDelete(BuildContext context) {
-    showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialogContext) => ConfirmationDialog(
-        title: S.current.downloads_delete_confirmation_title,
-        message: S.current.downloads_delete_confirmation_message,
-        yesText: S.current.downloads_confirm_delete,
-        noText: S.current.downloads_confirm_cancel,
-        destructive: true,
-      ),
-    ).then((bool? confirmed) {
-      if (confirmed == true && context.mounted) {
-        context.read<DownloadManagerCubit>().deleteDownload(download);
-      }
-    });
   }
 }
 
