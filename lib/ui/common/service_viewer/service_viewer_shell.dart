@@ -5,17 +5,13 @@ import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
+import 'package:wakaranai/blocs/service_view/service_gallery_cubit.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_gallery_kind.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_body.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
-import 'package:wakaranai/ui/home/service_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
 import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
-import 'package:wakaranai/ui/widgets/source_error_view.dart';
-import 'package:wakaranai/utils/source_error_description.dart';
 
 typedef NextViewerArguments<T extends ApiClient> = Object Function(
     T client, ConfigInfo configInfo);
@@ -42,14 +38,11 @@ class _ServiceViewerShellState<T extends ApiClient, G extends GalleryView>
     extends State<ServiceViewerShell<T, G>> {
   final GlobalKey _scaffold = GlobalKey();
 
-  final RefreshController _refreshController =
-      RefreshController(initialRefresh: false);
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void dispose() {
     _searchController.dispose();
-    _refreshController.dispose();
     super.dispose();
   }
 
@@ -70,26 +63,18 @@ class _ServiceViewerShellState<T extends ApiClient, G extends GalleryView>
             configInfo: configInfo,
             apiClient: apiClient,
             initCompleter: interceptorInitCompleter,
-            onRecovered: () => _reloadGallery(configInfo),
-            child: ServiceViewCubitWrapper<T, G>(
-              client: apiClient,
-              builder: (BuildContext context, ServiceViewState<T, G> state) =>
-                  BlocListener<ServiceViewCubit<T, G>, ServiceViewState<T, G>>(
-                listener: (BuildContext context, ServiceViewState<T, G> state) {
-                  if (state is ServiceViewInitialized<T, G>) {
-                    _refreshController.loadComplete();
-                    _showFailure(state.failure, apiClient, configInfo);
-                  }
-                },
-                child: ServiceViewerBody<T, G>(
-                  kind: widget.kind,
-                  scaffold: _scaffold,
-                  configInfo: configInfo,
-                  state: state,
-                  apiClient: apiClient,
-                  refreshController: _refreshController,
-                  searchController: _searchController,
-                ),
+            onRecovered: _reloadGalleries,
+            child: BlocProvider<ServiceGalleryCubit<T, G>>(
+              create: (BuildContext context) => ServiceGalleryCubit<T, G>(
+                client: apiClient,
+                configInfo: configInfo,
+              ),
+              child: ServiceViewerBody<T, G>(
+                kind: widget.kind,
+                scaffold: _scaffold,
+                configInfo: configInfo,
+                apiClient: apiClient,
+                searchController: _searchController,
               ),
             ),
           );
@@ -98,6 +83,9 @@ class _ServiceViewerShellState<T extends ApiClient, G extends GalleryView>
             _onInterceptorInitialized(apiClient, configInfo),
         configInfo: configInfo);
   }
+
+  ServiceGalleryCubit<T, G>? get _gallery =>
+      _scaffold.currentContext?.read<ServiceGalleryCubit<T, G>>();
 
   void _onInterceptorInitialized(T apiClient, ConfigInfo configInfo) {
     final NextViewerArguments<T>? nextViewerArguments =
@@ -114,52 +102,15 @@ class _ServiceViewerShellState<T extends ApiClient, G extends GalleryView>
         }
       });
     } else {
-      _scaffold.currentContext
-          ?.read<ServiceViewCubit<T, G>>()
-          .init(configInfo);
+      _gallery?.start();
     }
   }
 
-  void _showFailure(
-    ServiceViewFailure? failure,
-    T apiClient,
-    ConfigInfo configInfo,
-  ) {
-    if (failure == null || !mounted) {
+  void _reloadGalleries() {
+    final ServiceGalleryCubit<T, G>? gallery = _gallery;
+    if (gallery == null) {
       return;
     }
-    final SourceErrorDescription? description = describeSourceErrorFor(
-      failure.error,
-      configInfo,
-    );
-    if (description == null) {
-      return;
-    }
-    showSourceErrorSnackBar(
-      context,
-      description: description,
-      onRetry: failure.retry,
-      onSignIn: () => unawaited(
-        signInToSource(
-          context,
-          apiClient: apiClient,
-          configInfo: configInfo,
-          onSignedIn: failure.retry,
-        ),
-      ),
-    );
-  }
-
-  void _reloadGallery(ConfigInfo configInfo) {
-    final ServiceViewCubit<T, G>? cubit =
-        _scaffold.currentContext?.read<ServiceViewCubit<T, G>>();
-    if (cubit == null) {
-      return;
-    }
-    if (cubit.state is ServiceViewInitialized<T, G>) {
-      unawaited(cubit.refresh());
-      return;
-    }
-    cubit.init(configInfo);
+    unawaited(gallery.reloadLoadedGalleries());
   }
 }

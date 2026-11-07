@@ -1,6 +1,6 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
-import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
+import 'package:wakaranai/blocs/service_view/service_gallery_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/extension_preferences/extension_preference_values.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_settings/extension_settings_sheet.dart';
@@ -10,11 +10,11 @@ class ExtensionSettingsButton extends StatelessWidget {
   const ExtensionSettingsButton({
     super.key,
     required this.config,
-    required this.cubit,
+    required this.gallery,
   });
 
   final ConfigInfo config;
-  final ServiceViewCubit cubit;
+  final ServiceGalleryCubit gallery;
 
   @override
   Widget build(BuildContext context) {
@@ -34,20 +34,15 @@ class ExtensionSettingsButton extends StatelessWidget {
       context,
       config: config,
     );
-    if (!changed || cubit.isClosed) {
+    if (!changed || gallery.isClosed) {
       return;
     }
-    await reloadServiceViewAfterPreferenceChange(cubit, config);
+    await reloadServiceViewAfterPreferenceChange(gallery);
   }
 }
 
 Future<void> reloadServiceViewAfterPreferenceChange(
-  ServiceViewCubit cubit,
-  ConfigInfo config,
-) async {
-  if (cubit.state is ServiceViewInitialized) {
-    await cubit.refresh();
-    return;
-  }
-  cubit.init(config);
+  ServiceGalleryCubit gallery,
+) {
+  return gallery.reloadLoadedGalleries();
 }

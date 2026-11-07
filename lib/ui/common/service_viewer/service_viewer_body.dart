@@ -3,247 +3,166 @@ import 'dart:async';
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/gallery_feed/gallery_feed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wakaranai/blocs/gallery_layout/gallery_layout_cubit.dart';
+import 'package:wakaranai/blocs/service_view/service_gallery_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/ui/common/service_viewer/gallery_feed_pills.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_grid_skeleton.dart';
-import 'package:wakaranai/ui/common/service_viewer/gallery_items_view.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_layout.dart';
-import 'package:wakaranai/ui/common/service_viewer/gallery_layout_transition.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_gallery_kind.dart';
-import 'package:wakaranai/ui/common/service_viewer/service_viewer_loader.dart';
-import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
+import 'package:wakaranai/ui/common/service_viewer/service_gallery_page.dart';
 import 'package:wakaranai/ui/home/service_viewer_header.dart';
-import 'package:wakaranai/ui/home/web_browser_page.dart';
-import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
-import 'package:wakaranai/ui/services/widgets/gallery_title_actions_sheet.dart';
-import 'package:wakaranai/ui/widgets/scroll_to_top_area.dart';
-import 'package:wakaranai/ui/widgets/source_error_view.dart';
+import 'package:wakaranai/ui/widgets/keep_alive_page.dart';
+import 'package:wakaranai/ui/widgets/segmented_tabs.dart';
 import 'package:wakaranai/utils/app_colors.dart';
-import 'package:wakaranai/utils/source_error_description.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class ServiceViewerBody<T extends ApiClient, G extends GalleryView>
-    extends StatelessWidget {
+    extends StatefulWidget {
   const ServiceViewerBody({
     super.key,
     required this.kind,
     required this.scaffold,
-    required this.state,
     required this.apiClient,
     required this.configInfo,
-    required this.refreshController,
     required this.searchController,
   });
 
   final ServiceGalleryKind<T, G> kind;
-  final ServiceViewState<T, G> state;
   final GlobalKey scaffold;
   final T apiClient;
   final ConfigInfo configInfo;
-
-  final RefreshController refreshController;
   final TextEditingController searchController;
 
-  ServiceViewInitialized<T, G> get stateInitialized =>
-      state as ServiceViewInitialized<T, G>;
+  @override
+  State<ServiceViewerBody<T, G>> createState() =>
+      _ServiceViewerBodyState<T, G>();
+}
 
-  ServiceViewError<T, G> get stateError => state as ServiceViewError<T, G>;
+class _ServiceViewerBodyState<T extends ApiClient, G extends GalleryView>
+    extends State<ServiceViewerBody<T, G>> {
+  static const Duration _pageAnimationDuration = Duration(milliseconds: 300);
 
-  ServiceViewCubit<T, G> _cubit(BuildContext context) =>
-      context.read<ServiceViewCubit<T, G>>();
+  late final ServiceGalleryCubit<T, G> _gallery =
+      context.read<ServiceGalleryCubit<T, G>>();
+  late final PageController _pageController = PageController(
+    initialPage: _gallery.selectedFeedIndex,
+  );
+  int? _tabAnimationTarget;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final bool initialized = state is ServiceViewInitialized<T, G>;
-    return Scaffold(
-      key: scaffold,
-      backgroundColor: AppColors.backgroundColor,
-      body: Column(
-        children: <Widget>[
-          _buildHeader(context),
-          _buildFeeds(context),
-          if (initialized && stateInitialized.searchQuery.isNotEmpty)
-            _buildSearchChip(context),
-          Expanded(
-            child: ScrollToTopArea(
-              refreshController: refreshController,
-              child: Stack(
-                alignment: Alignment.center,
-                children: <Widget>[
-                  GalleryLayoutTransition(
-                    layout: context.watch<GalleryLayoutCubit>().state,
-                    geometry: const ServiceGalleryGeometry(),
-                    position: () => refreshController.position,
-                    builder:
-                        (
-                          BuildContext context,
-                          GalleryLayout layout,
-                          GalleryMorph? morph,
-                        ) => _buildRefresher(context, layout, morph),
-                  ),
-                  if (initialized && stateInitialized.loading)
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: LinearProgressIndicator(
-                        minHeight: 2,
-                        color: AppColors.primary,
-                        backgroundColor: Colors.transparent,
-                      ),
-                    ),
-                  if (!initialized && state is! ServiceViewError<T, G>)
-                    GalleryGridSkeleton(
-                      layout: context.watch<GalleryLayoutCubit>().state,
-                    )
-                  else if (state is ServiceViewError<T, G>)
-                    _buildError(context)
-                  else if (stateInitialized.galleryViews.isEmpty &&
-                      !stateInitialized.loading)
-                    _buildEmpty(context),
-                ],
+    return BlocBuilder<ServiceGalleryCubit<T, G>, ServiceGalleryState>(
+      bloc: _gallery,
+      builder: (BuildContext context, ServiceGalleryState galleryState) {
+        return Scaffold(
+          key: widget.scaffold,
+          backgroundColor: AppColors.backgroundColor,
+          body: Column(
+            children: <Widget>[
+              ServiceViewerHeader(
+                configInfo: widget.configInfo,
+                apiClient: widget.apiClient,
+                searchController: widget.searchController,
+                gallery: _gallery,
               ),
-            ),
+              if (_gallery.hasFeeds) _buildFeedTabs(galleryState),
+              _buildSearchChip(galleryState),
+              Expanded(child: _buildGalleries(galleryState)),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  bool get _showsFeeds {
-    if (configInfo.feeds.isEmpty) {
-      return false;
-    }
-    if (state is ServiceViewInitialized<T, G>) {
-      return stateInitialized.searchQuery.isEmpty;
-    }
-    return true;
-  }
-
-  Widget _buildFeeds(BuildContext context) {
+  Widget _buildFeedTabs(ServiceGalleryState galleryState) {
     return AnimatedSize(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOut,
       alignment: Alignment.topCenter,
-      child: _showsFeeds
-          ? Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: _buildFeedSwitcher(context),
-            )
-          : const SizedBox(width: double.infinity),
+      child: galleryState.searching
+          ? const SizedBox(width: double.infinity)
+          : Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+              child: SegmentedTabs(
+                labels: <String>[
+                  for (final GalleryFeed feed in _gallery.feeds) feed.title,
+                ],
+                selectedIndex: _gallery.selectedFeedIndex,
+                pageController: _pageController,
+                semanticsLabel: S.of(context).feeds_row_label,
+                onSelected: (int index) => unawaited(_onTabSelected(index)),
+              ),
+            ),
     );
   }
 
-  Widget _buildFeedSwitcher(BuildContext context) {
-    final String? selectedFeedId = _cubit(context).selectedFeed;
-    void onSelected(String feedId) {
-      unawaited(_cubit(context).selectFeed(feedId));
+  Future<void> _onTabSelected(int index) async {
+    _gallery.selectFeed(_gallery.feeds[index].id);
+    if (!_pageController.hasClients) {
+      return;
     }
-
-    if (configInfo.feeds.length > GalleryFeedSegments.maxSegments) {
-      return GalleryFeedPills(
-        feeds: configInfo.feeds,
-        selectedFeedId: selectedFeedId,
-        onSelected: onSelected,
-      );
-    }
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: GalleryFeedSegments(
-        feeds: configInfo.feeds,
-        selectedFeedId: selectedFeedId,
-        onSelected: onSelected,
-      ),
+    _tabAnimationTarget = index;
+    await _pageController.animateToPage(
+      index,
+      duration: _pageAnimationDuration,
+      curve: Curves.easeOutCubic,
     );
+    if (!mounted || _tabAnimationTarget != index) {
+      return;
+    }
+    _tabAnimationTarget = null;
+    _selectFeedAtCurrentPage();
   }
 
-  Widget _buildRefresher(
-    BuildContext context,
-    GalleryLayout layout,
-    GalleryMorph? morph,
-  ) {
-    final bool initialized = state is ServiceViewInitialized<T, G>;
-    return SmartRefresher(
-      enablePullUp: true,
-      enablePullDown: true,
-      onRefresh: () async {
-        await _cubit(context).refresh();
-        refreshController.refreshCompleted();
-      },
-      footer: CustomFooter(
-        builder: (BuildContext context, LoadStatus? mode) {
-          return ServiceViewerLoader(cubit: _cubit(context));
-        },
-      ),
-      controller: refreshController,
-      onLoading: () async {
-        if (state is ServiceViewLoading<T, G>) {
-          return;
+  void _onPageChanged(int index) {
+    if (_tabAnimationTarget != null) {
+      return;
+    }
+    _gallery.selectFeed(_gallery.feeds[index].id);
+  }
+
+  void _selectFeedAtCurrentPage() {
+    if (!_pageController.hasClients) {
+      return;
+    }
+    final double? page = _pageController.page;
+    if (page == null) {
+      return;
+    }
+    _gallery.selectFeed(_gallery.feeds[page.round()].id);
+  }
+
+  Widget _buildSearchChip(ServiceGalleryState galleryState) {
+    final ServiceViewCubit<T, G>? single = _gallery.singleGallery;
+    if (single == null) {
+      return _buildSearchChipFor(galleryState.searchQuery);
+    }
+    return BlocBuilder<ServiceViewCubit<T, G>, ServiceViewState<T, G>>(
+      bloc: single,
+      builder: (BuildContext context, ServiceViewState<T, G> state) {
+        if (state is ServiceViewInitialized<T, G>) {
+          return _buildSearchChipFor(state.searchQuery);
         }
-        if (initialized && !stateInitialized.loading) {
-          unawaited(_cubit(context).getGallery());
-        }
+        return const SizedBox.shrink();
       },
-      child: _buildGrid(context, layout, morph),
     );
   }
 
-  Widget _buildGrid(
-    BuildContext context,
-    GalleryLayout layout,
-    GalleryMorph? morph,
-  ) {
-    if (state is! ServiceViewInitialized<T, G>) {
-      return const SizedBox();
+  Widget _buildSearchChipFor(String searchQuery) {
+    if (searchQuery.isEmpty) {
+      return const SizedBox.shrink();
     }
-    return GalleryItemsView(
-      layout: layout,
-      morph: morph,
-      itemCount: stateInitialized.galleryViews.length,
-      itemAt: (int index) =>
-          _galleryItem(context, stateInitialized.galleryViews[index]),
-      activityLoader: (String uid) async =>
-          latestActivityTitle(await kind.loadActivities(context, uid)),
-    ).build(context);
-  }
-
-  GalleryItem _galleryItem(BuildContext context, G galleryView) {
-    final String title = kind.titleOf(galleryView);
-    final String cover = kind.coverOf(galleryView);
-    return GalleryItem(
-      uid: galleryView.uid,
-      title: title,
-      cover: cover,
-      headers:
-          stateInitialized.galleryViewImagesHeaders[galleryView.uid] ??
-          <String, String>{},
-      onLongPress: () => showGalleryTitleActions(
-        context,
-        title: GalleryTitle(
-          uid: galleryView.uid,
-          extensionUid: configInfo.uid,
-          title: title,
-          cover: cover,
-          data: galleryView.data,
-        ),
-        downloadClient: apiClient,
-      ),
-      onTap: () => _onGalleryViewClick(context, galleryView),
-      subtitle: galleryView.subtitle,
-      status: kind.statusOf(galleryView),
-      tags: galleryView.tags,
-      year: galleryView.year,
-      rating: galleryView.rating,
-      latestChapter: galleryView.latestChapter,
-    );
-  }
-
-  Widget _buildSearchChip(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: Align(
@@ -252,151 +171,92 @@ class ServiceViewerBody<T extends ApiClient, G extends GalleryView>
           backgroundColor: AppColors.overlay(0.08),
           side: BorderSide.none,
           label: Text(
-            S
-                .of(context)
-                .service_view_search_results_for(stateInitialized.searchQuery),
+            S.of(context).service_view_search_results_for(searchQuery),
             style: regular(size: 13),
           ),
           deleteIconColor: AppColors.mainGrey,
           deleteIcon: const Icon(Icons.close_rounded, size: 16),
           onDeleted: () {
-            searchController.clear();
-            _cubit(context).search('');
+            widget.searchController.clear();
+            _gallery.search('');
           },
         ),
       ),
     );
   }
 
-  Widget _buildEmpty(BuildContext context) {
-    final bool searching = stateInitialized.searchQuery.isNotEmpty;
-    return ServiceViewerMessage(
-      icon: searching ? Icons.search_off_rounded : Icons.inbox_rounded,
-      title: searching
-          ? S.of(context).service_view_no_results_title
-          : S.of(context).service_view_empty_title,
-      message: searching
-          ? S
-                .of(context)
-                .service_view_no_results_message(stateInitialized.searchQuery)
-          : S.of(context).service_view_empty_message,
-    );
-  }
-
-  Widget _buildError(BuildContext context) {
-    final SourceErrorDescription? description = describeSourceErrorFor(
-      stateError.error,
-      configInfo,
-    );
-    if (description != null) {
-      return _buildSourceError(context, description);
+  Widget _buildGalleries(ServiceGalleryState galleryState) {
+    final ServiceViewCubit<T, G>? single = _gallery.singleGallery;
+    if (single != null) {
+      return _buildGalleryPage(single, active: true);
     }
-    return ServiceViewerMessage(
-      icon: Icons.error_outline_rounded,
-      title: S.of(context).service_view_error_title,
-      actions: <Widget>[
-        ElevatedButton.icon(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.mainBlack,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
+    final ServiceViewCubit<T, G>? search = _gallery.searchGallery;
+    final bool searching = galleryState.searching && search != null;
+    return Stack(
+      fit: StackFit.expand,
+      children: <Widget>[
+        Offstage(
+          offstage: searching,
+          child: TickerMode(
+            enabled: !searching,
+            child: HeroMode(
+              enabled: !searching,
+              child: _buildFeedPages(galleryState, searching: searching),
             ),
           ),
-          onPressed: () => unawaited(
-            BrowserInterceptorScope.retry(context, stateError.retry),
-          ),
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(S.of(context).service_view_retry_button_title),
         ),
-        if (configInfo.protectorConfig != null)
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.mainWhite,
-              side: BorderSide(color: AppColors.mainGrey),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            onPressed: () => openWebView(context, apiClient, configInfo),
-            icon: const Icon(Icons.public_rounded),
-            label: Text(S.of(context).service_view_open_web_view_button_title),
-          ),
+        if (searching)
+          _buildGalleryPage(search, active: true, key: ObjectKey(search)),
       ],
     );
   }
 
-  Widget _buildSourceError(
-    BuildContext context,
-    SourceErrorDescription description,
-  ) {
-    final void Function() retry = stateError.retry;
-    void retryWithInterceptor() {
-      unawaited(BrowserInterceptorScope.retry(context, retry));
-    }
-
-    return SourceErrorView(
-      description: description,
-      onRetry: retryWithInterceptor,
-      onSignIn: () => unawaited(
-        signInToSource(
-          context,
-          apiClient: apiClient,
-          configInfo: configInfo,
-          onSignedIn: retry,
-        ),
-      ),
-      extraActions: _galleryErrorExtraActions(
-        context,
-        description,
-        onRetry: retryWithInterceptor,
-      ),
+  Widget _buildFeedPages(
+    ServiceGalleryState galleryState, {
+    required bool searching,
+  }) {
+    final List<GalleryFeed> feeds = _gallery.feeds;
+    return PageView.builder(
+      controller: _pageController,
+      itemCount: feeds.length,
+      onPageChanged: _onPageChanged,
+      itemBuilder: (BuildContext context, int index) {
+        final GalleryFeed feed = feeds[index];
+        final bool selected = feed.id == galleryState.selectedFeedId;
+        return KeepAlivePage(
+          key: ValueKey<String>(feed.id),
+          child: HeroMode(
+            enabled: selected,
+            child: _buildFeedPage(feed, active: selected && !searching),
+          ),
+        );
+      },
     );
   }
 
-  List<SourceErrorExtraAction> _galleryErrorExtraActions(
-    BuildContext context,
-    SourceErrorDescription description, {
-    required VoidCallback onRetry,
-  }) {
-    final List<SourceErrorExtraAction> actions = <SourceErrorExtraAction>[];
-    if (!description.offersRetry) {
-      actions.add(SourceErrorExtraAction(
-        icon: Icons.refresh_rounded,
-        label: S.of(context).source_error_retry_button,
-        onPressed: onRetry,
-      ));
+  Widget _buildFeedPage(GalleryFeed feed, {required bool active}) {
+    final ServiceViewCubit<T, G>? cubit = _gallery.feedGallery(feed.id);
+    if (cubit == null) {
+      return BlocBuilder<GalleryLayoutCubit, GalleryLayout>(
+        builder: (BuildContext context, GalleryLayout layout) =>
+            GalleryGridSkeleton(layout: layout),
+      );
     }
-    if (configInfo.protectorConfig != null && !description.offersSignIn) {
-      actions.add(SourceErrorExtraAction(
-        icon: Icons.public_rounded,
-        label: S.of(context).service_view_open_web_view_button_title,
-        onPressed: () => unawaited(openWebView(context, apiClient, configInfo)),
-      ));
-    }
-    return actions;
+    return _buildGalleryPage(cubit, active: active);
   }
 
-  Widget _buildHeader(BuildContext context) => ServiceViewerHeader(
-    configInfo: configInfo,
-    apiClient: apiClient,
-    searchController: searchController,
-    cubit: _cubit(context),
-  );
-
-  Future<void> _onGalleryViewClick(BuildContext context, G galleryView) async {
-    await Navigator.of(context).pushNamed(
-      kind.concreteRoute,
-      arguments: kind.concreteArguments(
-        client: apiClient,
-        configInfo: configInfo,
-        galleryView: galleryView,
-        coverHeaders:
-            stateInitialized.galleryViewImagesHeaders[galleryView.uid] ??
-            <String, String>{},
-      ),
+  Widget _buildGalleryPage(
+    ServiceViewCubit<T, G> cubit, {
+    required bool active,
+    Key? key,
+  }) {
+    return ServiceGalleryPage<T, G>(
+      key: key,
+      kind: widget.kind,
+      cubit: cubit,
+      apiClient: widget.apiClient,
+      configInfo: widget.configInfo,
+      active: active,
     );
   }
 }

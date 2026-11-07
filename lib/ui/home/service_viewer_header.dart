@@ -4,7 +4,7 @@ import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/f
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/gallery_layout/gallery_layout_cubit.dart';
-import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
+import 'package:wakaranai/blocs/service_view/service_gallery_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_layout.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_settings/extension_settings_entry.dart';
@@ -22,22 +22,16 @@ class ServiceViewerHeader extends StatelessWidget {
     required this.configInfo,
     required this.apiClient,
     required this.searchController,
-    required this.cubit,
+    required this.gallery,
     super.key,
   });
 
-  final ServiceViewCubit cubit;
+  final ServiceGalleryCubit gallery;
   final ConfigInfo configInfo;
   final ApiClient apiClient;
   final TextEditingController searchController;
 
-  Map<String, FilterData> get _selectedFilters {
-    final ServiceViewState state = cubit.state;
-    if (state is ServiceViewInitialized) {
-      return state.selectedFilters;
-    }
-    return const <String, FilterData>{};
-  }
+  Map<String, FilterData> get _selectedFilters => gallery.state.filters;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +54,7 @@ class ServiceViewerHeader extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                ExtensionSettingsButton(config: configInfo, cubit: cubit),
+                ExtensionSettingsButton(config: configInfo, gallery: gallery),
                 _buildLayoutButton(),
                 if (configInfo.protectorConfig != null)
                   _buildRoundIconButton(
@@ -79,8 +73,8 @@ class ServiceViewerHeader extends StatelessWidget {
                         controller: searchController,
                         hintText:
                             S.current.service_viewer_search_field_hint_text,
-                        onSubmitted: (String value) => cubit.search(value),
-                        onClear: () => cubit.search(''),
+                        onSubmitted: (String value) => gallery.search(value),
+                        onClear: () => gallery.search(''),
                       ),
                     ),
                   if (configInfo.searchAvailable && hasFilters)
@@ -170,7 +164,7 @@ class ServiceViewerHeader extends StatelessWidget {
       current: _selectedFilters,
     );
     if (result == null) return;
-    cubit.applyFilters(result);
+    gallery.applyFilters(result);
   }
 
   Widget _buildLayoutButton() {

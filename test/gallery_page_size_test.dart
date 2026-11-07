@@ -5,12 +5,14 @@ import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/m
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/blocs/service_view/gallery_feed_memory.dart';
+import 'package:wakaranai/blocs/service_view/service_gallery_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/services/configs_service/api_client_factory.dart';
 import 'package:wakaranai/services/extension_preferences/extension_preferences_store.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_settings/extension_settings_entry.dart';
 
 typedef _Cubit = ServiceViewCubit<MangaApiClient, MangaGalleryView>;
+typedef _Gallery = ServiceGalleryCubit<MangaApiClient, MangaGalleryView>;
 typedef _Initialized
     = ServiceViewInitialized<MangaApiClient, MangaGalleryView>;
 
@@ -61,6 +63,7 @@ List<String> _uids(_Initialized state) {
 void main() {
   late ExtensionPreferencesStore store;
   late ConfigInfo config;
+  late _Gallery gallery;
   late _Cubit cubit;
 
   setUp(() {
@@ -70,23 +73,25 @@ void main() {
     final MangaApiClient client = ApiClientFactory(
       hostFactory: ExtensionHostFactory(preferenceStore: store),
     ).manga(config: config, code: _echoPageSizeScript);
-    cubit = _Cubit(
-      ServiceViewInitial<MangaApiClient, MangaGalleryView>(client: client),
+    gallery = _Gallery(
+      client: client,
+      configInfo: config,
       feedMemory: GalleryFeedMemory(),
     );
+    cubit = gallery.singleGallery!;
   });
 
-  tearDown(() => cubit.close());
+  tearDown(() => gallery.close());
 
   test('a changed page size reloads the open gallery from page one', () async {
-    cubit.init(config);
+    gallery.start();
     expect(_uids(await _settled(cubit)), <String>['page1size50']);
 
     await cubit.getGallery();
     expect((await _settled(cubit)).currentPage, 2);
 
     await store.write(config.uid, ExtensionPreference.pageSizeKey, 100);
-    await reloadServiceViewAfterPreferenceChange(cubit, config);
+    await reloadServiceViewAfterPreferenceChange(gallery);
     final _Initialized reloaded = await _settled(cubit);
 
     expect(reloaded.currentPage, 1);

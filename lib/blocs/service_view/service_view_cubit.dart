@@ -25,11 +25,31 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
   final GalleryFeedMemory _feedMemory;
   ConfigInfo? _configInfo;
   String? _selectedFeed;
+  String _query = '';
+  Map<String, FilterData> _filters = const <String, FilterData>{};
   int _generation = 0;
 
   String? get selectedFeed => _selectedFeed;
 
-  void init(ConfigInfo configInfo) {
+  @override
+  void emit(ServiceViewState<T, G> state) {
+    if (isClosed) {
+      return;
+    }
+    super.emit(state);
+  }
+
+  void init(
+    ConfigInfo configInfo, {
+    String? query,
+    Map<String, FilterData>? filters,
+  }) {
+    if (query != null) {
+      _query = query;
+    }
+    if (filters != null) {
+      _filters = filters;
+    }
     unawaited(_load(configInfo));
   }
 
@@ -41,8 +61,8 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
 
     final List<G>? galleryViews = await _getGalleryViews(
         page: 1,
-        query: null,
-        filters: null,
+        query: _query.isEmpty ? null : _query,
+        filters: _filters.isEmpty ? null : _filters.values.toList(),
         generation: generation,
         retry: () {
           init(configInfo);
@@ -62,12 +82,12 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
     if (galleryViews != null && generation == _generation) {
       emit(ServiceViewInitialized<T, G>(
           client: state.client,
-          searchQuery: '',
+          searchQuery: _query,
           configInfo: configInfo,
           galleryViews: galleryViews,
           galleryViewImagesHeaders: imagesHeaders,
           currentPage: 1,
-          selectedFilters: const <String, FilterData>{},
+          selectedFilters: _filters,
           selectedFeed: _selectedFeed,
           loading: false));
     }
@@ -302,6 +322,7 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
     // Stay in the initialized state (with loading: true) so the grid keeps its
     // current content instead of flashing to a full-screen spinner.
     final int generation = ++_generation;
+    _query = _searchQueryFrom(query);
     emit(state.copyWith(loading: true));
     if (query == null || query.trim().isEmpty) {
       emit(state.copyWith(
@@ -354,6 +375,13 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
     );
   }
 
+  String _searchQueryFrom(String? query) {
+    if (query == null || query.trim().isEmpty) {
+      return '';
+    }
+    return query;
+  }
+
   Future<Map<String, Map<String, String>>> _getImageHeaders(
       List<G> galleryViews, ServiceViewInitialized<T, G> state) async {
     final Map<String, Map<String, String>> imagesHeaders =
@@ -369,14 +397,24 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
   }
 
   void applyFilters(Map<String, FilterData> filters) {
+    _filters = filters;
     final ServiceViewState<T, G> current = state;
     if (current is! ServiceViewInitialized<T, G>) {
+      _reloadWithFilters();
       return;
     }
 
     emit(current.copyWith(selectedFilters: filters));
 
     search(current.searchQuery.isEmpty ? null : current.searchQuery);
+  }
+
+  void _reloadWithFilters() {
+    final ConfigInfo? configInfo = _configInfo;
+    if (configInfo == null) {
+      return;
+    }
+    init(configInfo);
   }
 
   void removeFilter(String param) {
