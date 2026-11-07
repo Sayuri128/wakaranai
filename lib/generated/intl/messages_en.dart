@@ -1061,6 +1061,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_translation_label": MessageLookupByLibrary.simpleMessage(
       "Translation",
     ),
+    "player_dub_player": MessageLookupByLibrary.simpleMessage("Dub / player"),
+    "player_episodes": MessageLookupByLibrary.simpleMessage("Episodes"),
+    "player_playlist": MessageLookupByLibrary.simpleMessage("Playlist"),
+    "player_previous_episode": MessageLookupByLibrary.simpleMessage(
+      "Previous episode",
+    ),
     "save_image_error": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t save image",
     ),

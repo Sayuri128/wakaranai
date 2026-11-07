@@ -5978,6 +5978,46 @@ class S {
     );
   }
 
+  /// `Previous episode`
+  String get player_previous_episode {
+    return Intl.message(
+      'Previous episode',
+      name: 'player_previous_episode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Episodes`
+  String get player_episodes {
+    return Intl.message(
+      'Episodes',
+      name: 'player_episodes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dub / player`
+  String get player_dub_player {
+    return Intl.message(
+      'Dub / player',
+      name: 'player_dub_player',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Playlist`
+  String get player_playlist {
+    return Intl.message(
+      'Playlist',
+      name: 'player_playlist',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Player`
   String get settings_player_section_title {
     return Intl.message(
