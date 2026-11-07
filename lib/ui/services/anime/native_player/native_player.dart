@@ -74,6 +74,7 @@ class _NativePlayerState extends State<NativePlayer> {
   @override
   void initState() {
     super.initState();
+    unawaited(_deviceControls.rememberOpeningVolume());
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     SystemChrome.setPreferredOrientations(<DeviceOrientation>[
       DeviceOrientation.landscapeLeft,
@@ -85,6 +86,7 @@ class _NativePlayerState extends State<NativePlayer> {
   void dispose() {
     unawaited(WakelockPlus.disable());
     unawaited(_deviceControls.restoreBrightness());
+    unawaited(_deviceControls.restoreVolume());
     SystemChrome.setPreferredOrientations(<DeviceOrientation>[]);
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.manual,
