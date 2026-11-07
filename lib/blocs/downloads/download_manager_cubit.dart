@@ -18,6 +18,7 @@ import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/services/downloads/episode/episode_download_manifest.dart';
 import 'package:wakaranai/services/downloads/episode/episode_downloader.dart';
 import 'package:wakaranai/services/downloads/episode/episode_source_resolver.dart';
+import 'package:wakaranai/services/downloads/queue/download_job.dart';
 import 'package:wakaranai/services/downloads/runtime/download_network_policy.dart';
 import 'package:wakaranai/services/downloads/runtime/download_runtime.dart';
 import 'package:wakaranai/utils/http_client.dart';
@@ -40,127 +41,6 @@ part 'download_manager_state.dart';
 
 typedef QualityPreferenceReader = Future<QualityPreference> Function();
 typedef DownloadWait = Future<void> Function(Duration duration);
-
-sealed class _DownloadJob {
-  final String extensionUid;
-  final String concreteTitle;
-  final CancelToken cancelToken = CancelToken();
-  final Completer<void> _unwound = Completer<void>();
-
-  _DownloadJob({
-    required this.extensionUid,
-    required this.concreteTitle,
-  });
-
-  String get uid;
-
-  String get title;
-
-  Future<void> get unwound => _unwound.future;
-
-  bool get isCancelled => cancelToken.isCancelled;
-
-  void markUnwound() {
-    if (!_unwound.isCompleted) {
-      _unwound.complete();
-    }
-  }
-
-  void cancel([String reason = 'deleted']) {
-    if (!cancelToken.isCancelled) {
-      cancelToken.cancel(reason);
-    }
-  }
-
-  _DownloadJob restarted();
-}
-
-class _ChapterJob extends _DownloadJob {
-  final MangaApiClient client;
-  final String chapterUid;
-  final String chapterTitle;
-  final Map<String, dynamic>? data;
-
-  _ChapterJob({
-    required this.client,
-    required super.extensionUid,
-    required super.concreteTitle,
-    required this.chapterUid,
-    required this.chapterTitle,
-    required this.data,
-  });
-
-  @override
-  String get uid => chapterUid;
-
-  @override
-  String get title => chapterTitle;
-
-  @override
-  _ChapterJob restarted() => _ChapterJob(
-        client: client,
-        extensionUid: extensionUid,
-        concreteTitle: concreteTitle,
-        chapterUid: chapterUid,
-        chapterTitle: chapterTitle,
-        data: data,
-      );
-}
-
-class _NovelChapterJob extends _DownloadJob {
-  final NovelApiClient client;
-  final String chapterUid;
-  final String chapterTitle;
-  final Map<String, dynamic>? data;
-
-  _NovelChapterJob({
-    required this.client,
-    required super.extensionUid,
-    required super.concreteTitle,
-    required this.chapterUid,
-    required this.chapterTitle,
-    required this.data,
-  });
-
-  @override
-  String get uid => chapterUid;
-
-  @override
-  String get title => chapterTitle;
-
-  @override
-  _NovelChapterJob restarted() => _NovelChapterJob(
-        client: client,
-        extensionUid: extensionUid,
-        concreteTitle: concreteTitle,
-        chapterUid: chapterUid,
-        chapterTitle: chapterTitle,
-        data: data,
-      );
-}
-
-class _EpisodeJob extends _DownloadJob {
-  final AnimeVideo episode;
-
-  _EpisodeJob({
-    required super.extensionUid,
-    required super.concreteTitle,
-    required this.episode,
-  });
-
-  @override
-  String get uid => episode.uid;
-
-  @override
-  String get title => episode.title;
-
-  @override
-  _EpisodeJob restarted() => _EpisodeJob(
-        extensionUid: extensionUid,
-        concreteTitle: concreteTitle,
-        episode: episode,
-      );
-}
 
 class _EpisodeProgressRecorder {
   _EpisodeProgressRecorder({required this.interval, required this.publish});
@@ -254,15 +134,15 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   late final EpisodeDownloader _episodeDownloader =
       _injectedEpisodeDownloader ?? EpisodeDownloader(throttle: _throttle);
   Timer? _libraryClientsIdle;
-  final Queue<_DownloadJob> _jobs = Queue<_DownloadJob>();
+  final Queue<DownloadJob> _jobs = Queue<DownloadJob>();
   final Set<String> _cancelled = <String>{};
   final Set<String> _pauseRequested = <String>{};
-  final Set<_DownloadJob> _stoppedByUser = Set<_DownloadJob>.identity();
-  final Map<String, _DownloadJob> _pausedJobs = <String, _DownloadJob>{};
+  final Set<DownloadJob> _stoppedByUser = Set<DownloadJob>.identity();
+  final Map<String, DownloadJob> _pausedJobs = <String, DownloadJob>{};
   final Object _queueControl = Object();
-  _DownloadJob? _activeJob;
-  _DownloadJob? _pausedJob;
-  _DownloadJob? _previousJobInBatch;
+  DownloadJob? _activeJob;
+  DownloadJob? _pausedJob;
+  DownloadJob? _previousJobInBatch;
   bool _processing = false;
   bool _runtimeWanted = false;
   bool _runtimeRunning = false;
@@ -321,7 +201,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     if (_hasJobInMemory(row.uid)) {
       return false;
     }
-    final _DownloadJob? job = await _rebuildJob(row);
+    final DownloadJob? job = await _rebuildJob(row);
     final DownloadDomain? current = await downloadRepository.getByUid(row.uid);
     if (current == null ||
         current.status != DownloadStatus.queued ||
@@ -341,16 +221,16 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
 
   bool _hasJobInMemory(String uid) {
     return _activeJob?.uid == uid ||
-        _jobs.any((_DownloadJob job) => job.uid == uid);
+        _jobs.any((DownloadJob job) => job.uid == uid);
   }
 
-  Future<_DownloadJob?> _rebuildJob(DownloadDomain row) async {
+  Future<DownloadJob?> _rebuildJob(DownloadDomain row) async {
     if (row.isEpisode) {
       final AnimeVideo? episode = downloadedEpisodeOf(row);
       if (episode == null) {
         return null;
       }
-      return _EpisodeJob(
+      return EpisodeDownloadJob(
         extensionUid: row.extensionUid,
         concreteTitle: row.concreteTitle,
         episode: episode,
@@ -359,7 +239,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     return _rebuildChapterJob(row);
   }
 
-  Future<_DownloadJob?> _rebuildChapterJob(DownloadDomain row) async {
+  Future<DownloadJob?> _rebuildChapterJob(DownloadDomain row) async {
     try {
       final ExtensionDomain? extension =
           await _installedExtension(row.extensionUid);
@@ -368,7 +248,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       }
       final ApiClient client = await chapterClientForExtension(extension);
       final String? rawData = row.data;
-      return _chapterJobFor(
+      return chapterDownloadJobFor(
         client: client,
         extensionUid: row.extensionUid,
         concreteTitle: row.concreteTitle,
@@ -384,8 +264,8 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
   }
 
-  void _addJob(_DownloadJob job) {
-    _jobs.removeWhere((_DownloadJob queued) => queued.uid == job.uid);
+  void _addJob(DownloadJob job) {
+    _jobs.removeWhere((DownloadJob queued) => queued.uid == job.uid);
     _jobs.add(job);
   }
 
@@ -412,44 +292,6 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       return client;
     }
     throw StateError('${extension.config.name} has no chapters to download');
-  }
-
-  static _DownloadJob _chapterJobFor({
-    required ApiClient client,
-    required String extensionUid,
-    required String concreteTitle,
-    required String chapterUid,
-    required String title,
-    required Map<String, dynamic>? data,
-  }) {
-    if (client is NovelApiClient) {
-      return _NovelChapterJob(
-        client: client,
-        extensionUid: extensionUid,
-        concreteTitle: concreteTitle,
-        chapterUid: chapterUid,
-        chapterTitle: title,
-        data: data,
-      );
-    }
-    if (client is MangaApiClient) {
-      return _ChapterJob(
-        client: client,
-        extensionUid: extensionUid,
-        concreteTitle: concreteTitle,
-        chapterUid: chapterUid,
-        chapterTitle: title,
-        data: data,
-      );
-    }
-    throw StateError('${client.runtimeType} has no chapters to download');
-  }
-
-  static DownloadKind _chapterKindFor(ApiClient client) {
-    if (client is NovelApiClient) {
-      return DownloadKind.novelChapter;
-    }
-    return DownloadKind.chapter;
   }
 
   Future<AnimeApiClient> animeClientForExtension(
@@ -532,7 +374,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         totalPages: 0,
         dirPath: dir.path,
         data: data != null ? jsonEncode(data) : null,
-        kind: _chapterKindFor(client),
+        kind: chapterDownloadKindFor(client),
         createdAt: DateTime.now(),
       ),
       by: (DownloadDomain d) => d.uid,
@@ -540,7 +382,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     );
     await downloadRepository.moveToQueueEnd(chapterUid);
 
-    _addJob(_chapterJobFor(
+    _addJob(chapterDownloadJobFor(
       client: client,
       extensionUid: extensionUid,
       concreteTitle: concreteTitle,
@@ -599,7 +441,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     );
     await downloadRepository.moveToQueueEnd(episode.uid);
 
-    _addJob(_EpisodeJob(
+    _addJob(EpisodeDownloadJob(
       extensionUid: extensionUid,
       concreteTitle: concreteTitle,
       episode: episode,
@@ -712,7 +554,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
           break;
         }
         _setHold(DownloadQueueHold.none);
-        final _DownloadJob job = _jobs.removeFirst();
+        final DownloadJob job = _jobs.removeFirst();
         if (_cancelled.contains(job.uid)) {
           _cancelled.remove(job.uid);
           continue;
@@ -800,7 +642,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   }
 
   void _pauseActiveJob() {
-    final _DownloadJob? job = _activeJob;
+    final DownloadJob? job = _activeJob;
     if (job == null || identical(_pausedJob, job)) {
       return;
     }
@@ -808,7 +650,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     job.cancel('paused');
   }
 
-  Future<void> _settleStoppedJob(_DownloadJob job) async {
+  Future<void> _settleStoppedJob(DownloadJob job) async {
     final bool heldForWifi = identical(_pausedJob, job);
     final bool stoppedByUser = _stoppedByUser.remove(job);
     if (heldForWifi) {
@@ -842,7 +684,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     return row;
   }
 
-  Future<void> _parkPausedJob(DownloadDomain row, _DownloadJob job) async {
+  Future<void> _parkPausedJob(DownloadDomain row, DownloadJob job) async {
     await downloadRepository
         .update(row.copyWith(status: DownloadStatus.paused));
     _pausedJobs[job.uid] = job.restarted();
@@ -851,11 +693,11 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
   }
 
-  Future<void> _requeueStoppedJob(DownloadDomain row, _DownloadJob job) async {
+  Future<void> _requeueStoppedJob(DownloadDomain row, DownloadJob job) async {
     await downloadRepository
         .update(row.copyWith(status: DownloadStatus.queued));
     final bool queuedAgain =
-        _jobs.any((_DownloadJob queued) => queued.uid == job.uid);
+        _jobs.any((DownloadJob queued) => queued.uid == job.uid);
     if (_cancelled.contains(job.uid) || queuedAgain) {
       return;
     }
@@ -966,7 +808,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     emit(state.copyWith(runtimeStatus: status));
   }
 
-  Future<void> _runActiveJob(_DownloadJob job) async {
+  Future<void> _runActiveJob(DownloadJob job) async {
     _batchIndex++;
     await _applyConfiguredPacing(job.extensionUid);
     if (_batchIndex > 1) {
@@ -979,10 +821,10 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
   }
 
-  Duration _pauseBefore(_DownloadJob job) {
-    final _DownloadJob? previous = _previousJobInBatch;
-    final bool followsEpisodeOfSameExtension = job is _EpisodeJob &&
-        previous is _EpisodeJob &&
+  Duration _pauseBefore(DownloadJob job) {
+    final DownloadJob? previous = _previousJobInBatch;
+    final bool followsEpisodeOfSameExtension = job is EpisodeDownloadJob &&
+        previous is EpisodeDownloadJob &&
         previous.extensionUid == job.extensionUid;
     if (followsEpisodeOfSameExtension) {
       return _throttle.episodeDelay(job.extensionUid);
@@ -1010,19 +852,19 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
   }
 
-  Future<bool> _runJob(_DownloadJob job) {
+  Future<bool> _runJob(DownloadJob job) {
     switch (job) {
-      case _ChapterJob():
+      case ChapterDownloadJob():
         return _runChapterJob(job);
-      case _NovelChapterJob():
+      case NovelChapterDownloadJob():
         return _runNovelChapterJob(job);
-      case _EpisodeJob():
+      case EpisodeDownloadJob():
         return _runEpisodeJob(job);
     }
   }
 
   Future<void> _showJobProgress(
-    _DownloadJob job, {
+    DownloadJob job, {
     required int progress,
     required int max,
   }) {
@@ -1044,7 +886,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
   }
 
-  Future<bool> _runChapterJob(_ChapterJob job) async {
+  Future<bool> _runChapterJob(ChapterDownloadJob job) async {
     if (job.isCancelled) {
       return false;
     }
@@ -1137,7 +979,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
   }
 
-  Future<bool> _runNovelChapterJob(_NovelChapterJob job) async {
+  Future<bool> _runNovelChapterJob(NovelChapterDownloadJob job) async {
     if (job.isCancelled) {
       return false;
     }
@@ -1238,7 +1080,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
   }
 
-  Future<bool> _runEpisodeJob(_EpisodeJob job) async {
+  Future<bool> _runEpisodeJob(EpisodeDownloadJob job) async {
     if (job.isCancelled) {
       return false;
     }
@@ -1281,7 +1123,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   }
 
   Future<EpisodeDownloadManifest> _downloadEpisode({
-    required _EpisodeJob job,
+    required EpisodeDownloadJob job,
     required Directory dir,
     required CancelToken cancelToken,
     required _EpisodeProgressRecorder recorder,
@@ -1321,7 +1163,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   }
 
   Future<bool> _completeEpisode(
-    _EpisodeJob job,
+    EpisodeDownloadJob job,
     EpisodeDownloadManifest manifest,
   ) async {
     if (job.isCancelled) {
@@ -1339,7 +1181,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   }
 
   Future<void> _publishEpisodeProgress(
-    _EpisodeJob job,
+    EpisodeDownloadJob job,
     CancelToken cancelToken,
     EpisodeDownloadProgress progress,
   ) async {
@@ -1565,7 +1407,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
 
   void _detachWaitingJobs(List<String> uids) {
     final Set<String> targets = uids.toSet();
-    for (final _DownloadJob job in _jobs.toList()) {
+    for (final DownloadJob job in _jobs.toList()) {
       if (targets.contains(job.uid)) {
         _jobs.remove(job);
         _pausedJobs[job.uid] = job;
@@ -1574,7 +1416,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   }
 
   void _pauseActive(String uid) {
-    final _DownloadJob? job = _activeJob;
+    final DownloadJob? job = _activeJob;
     if (job == null || job.uid != uid) {
       return;
     }
@@ -1618,7 +1460,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     if (row == null || !_isPaused(row) || _hasJobInMemory(uid)) {
       return false;
     }
-    final _DownloadJob? job = await _resumableJob(row);
+    final DownloadJob? job = await _resumableJob(row);
     final DownloadDomain? current = await downloadRepository.getByUid(uid);
     if (current == null ||
         !_isPaused(current) ||
@@ -1643,8 +1485,8 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     return true;
   }
 
-  Future<_DownloadJob?> _resumableJob(DownloadDomain row) async {
-    final _DownloadJob? rebuilt = await _rebuildJob(row);
+  Future<DownloadJob?> _resumableJob(DownloadDomain row) async {
+    final DownloadJob? rebuilt = await _rebuildJob(row);
     if (rebuilt != null) {
       return rebuilt;
     }
@@ -1691,15 +1533,15 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     final Map<String, int> rank = <String, int>{
       for (int index = 0; index < order.length; index++) order[index]: index,
     };
-    final List<_DownloadJob> waiting = _jobs.toList();
-    final Map<_DownloadJob, int> arrival = Map<_DownloadJob, int>.identity();
+    final List<DownloadJob> waiting = _jobs.toList();
+    final Map<DownloadJob, int> arrival = Map<DownloadJob, int>.identity();
     for (int index = 0; index < waiting.length; index++) {
       arrival[waiting[index]] = index;
     }
-    int rankOf(_DownloadJob job) =>
+    int rankOf(DownloadJob job) =>
         rank[job.uid] ?? order.length + arrival[job]!;
     waiting.sort(
-        (_DownloadJob a, _DownloadJob b) => rankOf(a).compareTo(rankOf(b)));
+        (DownloadJob a, DownloadJob b) => rankOf(a).compareTo(rankOf(b)));
     _jobs
       ..clear()
       ..addAll(waiting);
@@ -1709,8 +1551,8 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     final String uid = download.uid;
     _cancelled.add(uid);
     _pausedJobs.remove(uid);
-    _jobs.removeWhere((_DownloadJob j) => j.uid == uid);
-    final _DownloadJob? activeJob = _activeJob?.uid == uid ? _activeJob : null;
+    _jobs.removeWhere((DownloadJob j) => j.uid == uid);
+    final DownloadJob? activeJob = _activeJob?.uid == uid ? _activeJob : null;
     activeJob?.cancel();
     await _settleEmptiedQueue();
     await downloadRepository.deleteByUid(uid);
@@ -1721,7 +1563,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
   }
 
-  Future<bool> _waitForUnwind(_DownloadJob? job) async {
+  Future<bool> _waitForUnwind(DownloadJob? job) async {
     if (job == null) {
       return true;
     }
