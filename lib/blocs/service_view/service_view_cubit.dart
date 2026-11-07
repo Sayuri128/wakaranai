@@ -6,6 +6,7 @@ import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/f
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/main.dart';
+import 'package:wakaranai/utils/serial_call_queue.dart';
 
 part 'service_view_state.dart';
 
@@ -26,8 +27,10 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
     final Map<String, Map<String, String>> imagesHeaders =
         <String, Map<String, String>>{};
     for (final GalleryView galleryView in (galleryViews ?? <GalleryView>[])) {
-      imagesHeaders[galleryView.uid] = await state.client
-          .getImageHeaders(uid: galleryView.uid, data: galleryView.data);
+      imagesHeaders[galleryView.uid] = await runSerializedOn(
+          state.client,
+          () => state.client
+              .getImageHeaders(uid: galleryView.uid, data: galleryView.data));
     }
 
     if (galleryViews != null) {
@@ -56,11 +59,10 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
       // TODO: avoid dynamic.
       // Will it be enough to add the getGallery method to the ApiClient interface??
       // What about the services that will be added over time? Will they all support gallery view?
-      await (client as dynamic)
-          .getGallery(page: page, query: query, filters: filters)
-          .then((value) {
-        galleryViews = value;
-      });
+      galleryViews = await runSerializedOn<dynamic>(
+          client,
+          () => (client as dynamic)
+              .getGallery(page: page, query: query, filters: filters));
     } catch (exception, stacktrace) {
       logger.e(exception);
       logger.e(stacktrace);
@@ -206,8 +208,10 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
     final Map<String, Map<String, String>> imagesHeaders =
         <String, Map<String, String>>{};
     for (final GalleryView galleryView in (galleryViews)) {
-      imagesHeaders[galleryView.uid] = await state.client
-          .getImageHeaders(uid: galleryView.uid, data: galleryView.data);
+      imagesHeaders[galleryView.uid] = await runSerializedOn(
+          state.client,
+          () => state.client
+              .getImageHeaders(uid: galleryView.uid, data: galleryView.data));
       await Future<void>.delayed(Duration.zero);
     }
     return imagesHeaders;

@@ -11,6 +11,7 @@ import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/services/downloads/chapter_download_selection.dart';
 import 'package:wakaranai/services/downloads/title_downloader.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
+import 'package:wakaranai/utils/serial_call_queue.dart';
 
 List<AnimeVideo> selectedEpisodesInWatchOrder(
   List<AnimeVideo> groupEpisodes,
@@ -83,9 +84,9 @@ class EpisodeTitleDownloader {
     required String uid,
     required Map<String, dynamic> galleryData,
   }) async {
-    final AnimeConcreteView concrete = await client.getConcrete(
-      uid: uid,
-      data: galleryData,
+    final AnimeConcreteView concrete = await runSerializedOn(
+      client,
+      () => client.getConcrete(uid: uid, data: galleryData),
     );
     final ConcreteDataDomain? saved = await concreteDataRepository.saveConcrete(
       concrete,

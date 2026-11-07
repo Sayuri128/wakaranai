@@ -13,6 +13,7 @@ import 'package:wakaranai/repositories/database/chapter_activity_repository.dart
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/services/downloads/chapter_download_selection.dart';
+import 'package:wakaranai/utils/serial_call_queue.dart';
 
 abstract class TitleDownloadContent {
   List<ElementsGroupOfConcrete<ElementOfElementsGroupOfConcrete>> get groups;
@@ -98,9 +99,9 @@ class TitleDownloader {
     required String uid,
     required Map<String, dynamic> galleryData,
   }) async {
-    final MangaConcreteView concrete = await client.getConcrete(
-      uid: uid,
-      data: galleryData,
+    final MangaConcreteView concrete = await runSerializedOn(
+      client,
+      () => client.getConcrete(uid: uid, data: galleryData),
     );
     final ConcreteDataDomain? saved = await concreteDataRepository.saveConcrete(
       concrete,
