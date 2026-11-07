@@ -1063,5 +1063,22 @@
   "settings_video_player_auto": "Auto",
   "settings_video_player_web_only": "Web player only",
   "episode_playback_loading_sources": "Loading video…",
-  "episode_playback_fallback_notice": "Couldn't load the video stream, opened the web player instead"
+  "episode_playback_fallback_notice": "Couldn't load the video stream, opened the web player instead",
+  "native_player_fit_mode": "Video fit",
+  "native_player_fit_mode_fit": "Fit",
+  "native_player_fit_mode_fill": "Fill",
+  "native_player_fit_mode_stretch": "Stretch",
+  "native_player_skip_opening": "+{seconds}s",
+  "native_player_speed_unsupported": "This playback speed isn't supported",
+  "native_player_auto_next_countdown": "Next episode in {seconds}s",
+  "native_player_auto_next_play_now": "Play now",
+  "native_player_auto_next_cancel": "Cancel",
+  "settings_player_section_title": "Player",
+  "settings_player_hold_speed_title": "Hold to speed up",
+  "settings_player_hold_speed_subtitle": "Long-press the video to play faster while you hold",
+  "settings_player_skip_opening_title": "Skip opening",
+  "settings_player_skip_opening_subtitle": "How far the skip button jumps ahead",
+  "settings_player_skip_opening_value": "{seconds}s",
+  "settings_player_auto_next_title": "Auto-play next episode",
+  "settings_player_auto_next_subtitle": "Count down and start the next episode when one ends"
 }

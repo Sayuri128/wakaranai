@@ -10,11 +10,13 @@ import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/native_player/cubit/native_player_cubit.dart';
 import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store.dart';
 import 'package:wakaranai/ui/services/anime/native_player/native_player_engine.dart';
+import 'package:wakaranai/ui/services/anime/native_player/player_device_controls.dart';
 import 'package:wakaranai/ui/services/anime/native_player/subtitle_loader.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_overlay.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
@@ -61,6 +63,9 @@ class NativePlayer extends StatefulWidget {
 }
 
 class _NativePlayerState extends State<NativePlayer> {
+  final PlayerDeviceControls _deviceControls = PluginPlayerDeviceControls();
+  bool _leaving = false;
+
   @override
   void initState() {
     super.initState();
@@ -74,6 +79,7 @@ class _NativePlayerState extends State<NativePlayer> {
   @override
   void dispose() {
     unawaited(WakelockPlus.disable());
+    unawaited(_deviceControls.restoreBrightness());
     SystemChrome.setPreferredOrientations(<DeviceOrientation>[]);
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.manual,
@@ -87,14 +93,31 @@ class _NativePlayerState extends State<NativePlayer> {
     return BlocProvider<NativePlayerCubit>(
       lazy: false,
       create: _createCubit,
-      child: BlocConsumer<NativePlayerCubit, NativePlayerState>(
-        listenWhen: (NativePlayerState previous, NativePlayerState current) =>
-            previous.isPlaying != current.isPlaying ||
-            previous.subtitleFailed != current.subtitleFailed,
-        listener: _onStateChanged,
-        builder: (BuildContext context, NativePlayerState state) {
-          return _buildForState(context, state);
-        },
+      child: MultiBlocListener(
+        listeners: <BlocListener<NativePlayerCubit, NativePlayerState>>[
+          BlocListener<NativePlayerCubit, NativePlayerState>(
+            listenWhen: (NativePlayerState previous, NativePlayerState current) =>
+                previous.isPlaying != current.isPlaying ||
+                previous.subtitleFailed != current.subtitleFailed,
+            listener: _onStateChanged,
+          ),
+          BlocListener<NativePlayerCubit, NativePlayerState>(
+            listenWhen: (NativePlayerState previous, NativePlayerState current) =>
+                previous.speedRejections < current.speedRejections,
+            listener: _onSpeedRejected,
+          ),
+          BlocListener<NativePlayerCubit, NativePlayerState>(
+            listenWhen: (NativePlayerState previous, NativePlayerState current) =>
+                !previous.nextEpisodeRequested && current.nextEpisodeRequested,
+            listener: (BuildContext context, NativePlayerState state) =>
+                _playNextEpisode(),
+          ),
+        ],
+        child: BlocBuilder<NativePlayerCubit, NativePlayerState>(
+          builder: (BuildContext context, NativePlayerState state) {
+            return _buildForState(context, state);
+          },
+        ),
       ),
     );
   }
@@ -111,6 +134,8 @@ class _NativePlayerState extends State<NativePlayer> {
         episode: widget.data.episode,
       ),
       subtitleLoader: DioSubtitleLoader(),
+      preferences: PlayerPreferences(),
+      hasNextEpisode: widget.data.hasNextEpisode,
     );
     unawaited(cubit.init());
     return cubit;
@@ -130,6 +155,13 @@ class _NativePlayerState extends State<NativePlayer> {
     }
   }
 
+  void _onSpeedRejected(BuildContext context, NativePlayerState state) {
+    SnackBars.showErrorSnackBar(
+      context: context,
+      error: S.of(context).native_player_speed_unsupported,
+    );
+  }
+
   void _close() {
     Navigator.of(context).maybePop();
   }
@@ -139,6 +171,10 @@ class _NativePlayerState extends State<NativePlayer> {
   }
 
   void _playNextEpisode() {
+    if (_leaving) {
+      return;
+    }
+    _leaving = true;
     Navigator.of(context).pop(NativePlayerResult.nextEpisode);
   }
 
@@ -245,9 +281,10 @@ class _NativePlayerState extends State<NativePlayer> {
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          Center(child: _buildVideoView(engine, state.engineGeneration)),
+          _buildVideoView(engine, state.engineGeneration, state.fitMode),
           NativePlayerOverlay(
             playback: engine,
+            deviceControls: _deviceControls,
             state: state,
             title: widget.data.anime.title,
             subtitle: widget.data.episode.title,
@@ -261,14 +298,45 @@ class _NativePlayerState extends State<NativePlayer> {
     );
   }
 
-  Widget _buildVideoView(NativePlayerEngine engine, int generation) {
+  Widget _buildVideoView(
+    NativePlayerEngine engine,
+    int generation,
+    PlayerFitMode fitMode,
+  ) {
     return ValueListenableBuilder<VideoPlayerValue>(
       key: ValueKey<int>(generation),
       valueListenable: engine,
       builder: (BuildContext context, VideoPlayerValue value, Widget? child) {
-        return AspectRatio(aspectRatio: value.aspectRatio, child: child);
+        return ClipRect(
+          child: FittedBox(
+            fit: boxFitFor(fitMode),
+            child: SizedBox.fromSize(
+              size: _videoSizeOf(value),
+              child: child,
+            ),
+          ),
+        );
       },
       child: engine.buildView(),
     );
+  }
+
+  Size _videoSizeOf(VideoPlayerValue value) {
+    final Size size = value.size;
+    if (size.width > 0 && size.height > 0) {
+      return size;
+    }
+    return Size(value.aspectRatio * 1080, 1080);
+  }
+}
+
+BoxFit boxFitFor(PlayerFitMode mode) {
+  switch (mode) {
+    case PlayerFitMode.fit:
+      return BoxFit.contain;
+    case PlayerFitMode.fill:
+      return BoxFit.cover;
+    case PlayerFitMode.stretch:
+      return BoxFit.fill;
   }
 }

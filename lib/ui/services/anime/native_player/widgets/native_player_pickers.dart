@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/generated/l10n.dart';
-import 'package:wakaranai/ui/services/anime/native_player/cubit/native_player_cubit.dart';
+import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_speed_sheet.dart';
 import 'package:wakaranai/ui/widgets/action_sheet.dart';
 
 String streamQualityLabel(List<PlayableStream> streams, int index) {
@@ -25,14 +25,23 @@ String subtitleLabel(List<PlayableSubtitle> subtitles, int index) {
   return S.current.native_player_subtitle_fallback(index + 1);
 }
 
+String speedMultiplierLabel(double speed) {
+  final double rounded = double.parse(speed.toStringAsFixed(2));
+  if (rounded == rounded.roundToDouble()) {
+    return '${rounded.toStringAsFixed(0)}×';
+  }
+  String number = rounded.toStringAsFixed(2);
+  if (number.endsWith('0')) {
+    number = number.substring(0, number.length - 1);
+  }
+  return '$number×';
+}
+
 String playbackSpeedLabel(double speed) {
   if (speed == 1.0) {
     return S.current.native_player_speed_normal;
   }
-  final String number = speed == speed.roundToDouble()
-      ? speed.toStringAsFixed(0)
-      : speed.toString();
-  return '$number×';
+  return speedMultiplierLabel(speed);
 }
 
 Future<void> showQualityPicker(
@@ -67,17 +76,9 @@ Future<void> showSpeedPicker(
   return showActionSheet(
     context,
     title: S.of(context).native_player_speed,
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        for (final double speed in kNativePlayerSpeeds)
-          _buildRow(
-            context,
-            label: playbackSpeedLabel(speed),
-            selected: speed == selectedSpeed,
-            onTap: () => onSelected(speed),
-          ),
-      ],
+    child: NativePlayerSpeedSheet(
+      initialSpeed: selectedSpeed,
+      onSelected: onSelected,
     ),
   );
 }

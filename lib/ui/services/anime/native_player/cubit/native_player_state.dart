@@ -12,6 +12,13 @@ class NativePlayerState extends Equatable {
     this.subtitleLoading = false,
     this.subtitleFailed = false,
     this.playbackSpeed = 1.0,
+    this.holdSpeed = kDefaultHoldSpeed,
+    this.holdActive = false,
+    this.speedRejections = 0,
+    this.fitMode = PlayerFitMode.fit,
+    this.skipOpeningSeconds = kDefaultSkipOpeningSeconds,
+    this.autoNextSecondsLeft,
+    this.nextEpisodeRequested = false,
     this.isPlaying = false,
     this.errorMessage,
   });
@@ -24,8 +31,17 @@ class NativePlayerState extends Equatable {
   final bool subtitleLoading;
   final bool subtitleFailed;
   final double playbackSpeed;
+  final double holdSpeed;
+  final bool holdActive;
+  final int speedRejections;
+  final PlayerFitMode fitMode;
+  final int skipOpeningSeconds;
+  final int? autoNextSecondsLeft;
+  final bool nextEpisodeRequested;
   final bool isPlaying;
   final String? errorMessage;
+
+  double get effectiveSpeed => holdActive ? holdSpeed : playbackSpeed;
 
   NativePlayerState copyWith({
     NativePlayerStatus? status,
@@ -36,6 +52,13 @@ class NativePlayerState extends Equatable {
     bool? subtitleLoading,
     bool? subtitleFailed,
     double? playbackSpeed,
+    double? holdSpeed,
+    bool? holdActive,
+    int? speedRejections,
+    PlayerFitMode? fitMode,
+    int? skipOpeningSeconds,
+    ValueGetter<int?>? autoNextSecondsLeft,
+    bool? nextEpisodeRequested,
     bool? isPlaying,
     ValueGetter<String?>? errorMessage,
   }) {
@@ -48,6 +71,15 @@ class NativePlayerState extends Equatable {
       subtitleLoading: subtitleLoading ?? this.subtitleLoading,
       subtitleFailed: subtitleFailed ?? this.subtitleFailed,
       playbackSpeed: playbackSpeed ?? this.playbackSpeed,
+      holdSpeed: holdSpeed ?? this.holdSpeed,
+      holdActive: holdActive ?? this.holdActive,
+      speedRejections: speedRejections ?? this.speedRejections,
+      fitMode: fitMode ?? this.fitMode,
+      skipOpeningSeconds: skipOpeningSeconds ?? this.skipOpeningSeconds,
+      autoNextSecondsLeft: autoNextSecondsLeft != null
+          ? autoNextSecondsLeft()
+          : this.autoNextSecondsLeft,
+      nextEpisodeRequested: nextEpisodeRequested ?? this.nextEpisodeRequested,
       isPlaying: isPlaying ?? this.isPlaying,
       errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
     );
@@ -63,6 +95,13 @@ class NativePlayerState extends Equatable {
         subtitleLoading,
         subtitleFailed,
         playbackSpeed,
+        holdSpeed,
+        holdActive,
+        speedRejections,
+        fitMode,
+        skipOpeningSeconds,
+        autoNextSecondsLeft,
+        nextEpisodeRequested,
         isPlaying,
         errorMessage,
       ];

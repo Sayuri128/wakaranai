@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
 class NativePlayerBottomBar extends StatelessWidget {
@@ -12,6 +13,8 @@ class NativePlayerBottomBar extends StatelessWidget {
     required this.onSubtitles,
     required this.onSpeed,
     required this.onQuality,
+    required this.fitMode,
+    required this.onFitMode,
     required this.onOpenWebPlayer,
     required this.onLock,
     this.subtitlesActive = false,
@@ -25,6 +28,8 @@ class NativePlayerBottomBar extends StatelessWidget {
   final VoidCallback? onSubtitles;
   final VoidCallback onSpeed;
   final VoidCallback? onQuality;
+  final PlayerFitMode fitMode;
+  final VoidCallback onFitMode;
   final VoidCallback onOpenWebPlayer;
   final VoidCallback onLock;
 
@@ -72,6 +77,11 @@ class NativePlayerBottomBar extends StatelessWidget {
             onPressed: onQuality!,
           ),
         _buildButton(
+          icon: fitModeIcon(fitMode),
+          tooltip: strings.native_player_fit_mode,
+          onPressed: onFitMode,
+        ),
+        _buildButton(
           icon: Icons.public_rounded,
           tooltip: strings.native_player_open_web_player,
           onPressed: onOpenWebPlayer,
@@ -99,5 +109,27 @@ class NativePlayerBottomBar extends StatelessWidget {
       color: highlighted ? AppColors.primary : AppColors.onMedia,
       icon: Icon(icon),
     );
+  }
+}
+
+IconData fitModeIcon(PlayerFitMode mode) {
+  switch (mode) {
+    case PlayerFitMode.fit:
+      return Icons.fit_screen_rounded;
+    case PlayerFitMode.fill:
+      return Icons.crop_free_rounded;
+    case PlayerFitMode.stretch:
+      return Icons.open_in_full_rounded;
+  }
+}
+
+String fitModeLabel(PlayerFitMode mode) {
+  switch (mode) {
+    case PlayerFitMode.fit:
+      return S.current.native_player_fit_mode_fit;
+    case PlayerFitMode.fill:
+      return S.current.native_player_fit_mode_fill;
+    case PlayerFitMode.stretch:
+      return S.current.native_player_fit_mode_stretch;
   }
 }

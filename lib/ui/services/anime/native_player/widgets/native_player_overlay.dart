@@ -5,8 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/ui/services/anime/native_player/cubit/native_player_cubit.dart';
+import 'package:wakaranai/ui/services/anime/native_player/player_device_controls.dart';
+import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_auto_next_card.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_bottom_bar.dart';
+import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_gesture_layer.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_pickers.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_seek_bar.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -16,6 +20,8 @@ const Duration _controlsAutoHideDelay = Duration(seconds: 3);
 const Duration _lockHintDuration = Duration(milliseconds: 2500);
 const Duration _seekIndicatorDuration = Duration(milliseconds: 700);
 const Duration _fadeDuration = Duration(milliseconds: 200);
+const Duration _flashMessageDuration = Duration(milliseconds: 1200);
+const double _skipOpeningVisibleFraction = 0.3;
 
 enum _SeekSide { backward, forward }
 
@@ -23,6 +29,7 @@ class NativePlayerOverlay extends StatefulWidget {
   const NativePlayerOverlay({
     super.key,
     required this.playback,
+    required this.deviceControls,
     required this.state,
     required this.title,
     required this.subtitle,
@@ -32,6 +39,7 @@ class NativePlayerOverlay extends StatefulWidget {
   });
 
   final ValueListenable<VideoPlayerValue> playback;
+  final PlayerDeviceControls deviceControls;
   final NativePlayerState state;
   final String title;
   final String? subtitle;
@@ -50,7 +58,8 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
   Timer? _hideTimer;
   Timer? _lockHintTimer;
   Timer? _seekIndicatorTimer;
-  Offset? _doubleTapPosition;
+  Timer? _flashMessageTimer;
+  String? _flashMessage;
   _SeekSide? _seekSide;
   int _seekSeconds = 0;
 
@@ -80,6 +89,7 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
     _hideTimer?.cancel();
     _lockHintTimer?.cancel();
     _seekIndicatorTimer?.cancel();
+    _flashMessageTimer?.cancel();
     super.dispose();
   }
 
@@ -121,18 +131,9 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
     }
   }
 
-  void _handleDoubleTapDown(TapDownDetails details) {
-    _doubleTapPosition = details.localPosition;
-  }
-
-  void _handleDoubleTap() {
+  void _handleDoubleTap(Offset tapPosition, Size overlaySize) {
     if (_locked) {
       _showLockHint();
-      return;
-    }
-    final Offset? tapPosition = _doubleTapPosition;
-    final Size? overlaySize = context.size;
-    if (tapPosition == null || overlaySize == null) {
       return;
     }
     final _SeekSide side = tapPosition.dx < overlaySize.width / 2
@@ -163,6 +164,41 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
         });
       }
     });
+  }
+
+  void _showFlashMessage(String message) {
+    _flashMessageTimer?.cancel();
+    setState(() {
+      _flashMessage = message;
+    });
+    _flashMessageTimer = Timer(_flashMessageDuration, () {
+      if (mounted) {
+        setState(() {
+          _flashMessage = null;
+        });
+      }
+    });
+  }
+
+  void _applyFitMode(PlayerFitMode mode) {
+    if (mode == widget.state.fitMode) {
+      return;
+    }
+    unawaited(_cubit.setFitMode(mode));
+    _showFlashMessage(fitModeLabel(mode));
+  }
+
+  void _cycleFitMode() {
+    _applyFitMode(nextFitMode(widget.state.fitMode));
+    _registerInteraction();
+  }
+
+  void _skipOpening() {
+    unawaited(_cubit.skipOpening());
+    _showFlashMessage(
+      S.of(context).native_player_seek_forward(widget.state.skipOpeningSeconds),
+    );
+    _registerInteraction();
   }
 
   void _lock() {
@@ -246,8 +282,10 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
           _buildBufferingIndicator(),
           _buildSeekIndicator(_SeekSide.backward),
           _buildSeekIndicator(_SeekSide.forward),
+          _buildFlashMessage(),
           _buildCaption(),
           _buildControls(),
+          _buildAutoNextCard(),
           _buildLockHint(),
         ],
       ),
@@ -255,11 +293,72 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
   }
 
   Widget _buildGestureLayer() {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    final NativePlayerCubit cubit = _cubit;
+    return NativePlayerGestureLayer(
+      playback: widget.playback,
+      deviceControls: widget.deviceControls,
+      locked: _locked,
+      holdActive: widget.state.holdActive,
+      holdSpeed: widget.state.holdSpeed,
       onTap: _handleTap,
-      onDoubleTapDown: _handleDoubleTapDown,
-      onDoubleTap: _handleDoubleTap,
+      onDoubleTapAt: _handleDoubleTap,
+      onHoldStart: () => unawaited(cubit.startHoldSpeed()),
+      onHoldEnd: () => unawaited(cubit.endHoldSpeed()),
+      onSeek: (Duration position) => unawaited(cubit.seekTo(position)),
+      onFitModeRequested: _applyFitMode,
+      onLockedGesture: _showLockHint,
+    );
+  }
+
+  Widget _buildFlashMessage() {
+    final String? message = _flashMessage;
+    return Align(
+      alignment: const Alignment(0, -0.45),
+      child: IgnorePointer(
+        child: AnimatedOpacity(
+          duration: _fadeDuration,
+          opacity: message == null ? 0 : 1,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.55),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              message ?? '',
+              style: semibold(size: 14, color: AppColors.onMedia),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAutoNextCard() {
+    final int? secondsLeft = widget.state.autoNextSecondsLeft;
+    final NativePlayerCubit cubit = _cubit;
+    final bool controlsShown = _controlsVisible && !_locked;
+    return AnimatedPositioned(
+      duration: _fadeDuration,
+      right: 16,
+      bottom: controlsShown ? 132 : 16,
+      child: SafeArea(
+        child: AnimatedSwitcher(
+          duration: _fadeDuration,
+          child: _buildAutoNextContent(cubit, secondsLeft),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAutoNextContent(NativePlayerCubit cubit, int? secondsLeft) {
+    if (secondsLeft == null) {
+      return const SizedBox.shrink();
+    }
+    return NativePlayerAutoNextCard(
+      secondsLeft: secondsLeft,
+      onPlayNow: cubit.playNextNow,
+      onCancel: cubit.cancelAutoNext,
     );
   }
 
@@ -316,7 +415,7 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
   }
 
   Widget _buildCaption() {
-    final double bottomInset = _controlsVisible && !_locked ? 132 : 32;
+    final double bottomInset = _controlsVisible && !_locked ? 168 : 32;
     return AnimatedPositioned(
       duration: _fadeDuration,
       left: 48,
@@ -445,6 +544,7 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
+              _buildSkipOpeningRow(),
               NativePlayerSeekBar(
                 playback: widget.playback,
                 onScrubStart: () => _hideTimer?.cancel(),
@@ -455,6 +555,63 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
               ),
               _buildBottomBar(),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkipOpeningRow() {
+    return ValueListenableBuilder<VideoPlayerValue>(
+      valueListenable: widget.playback,
+      builder: (BuildContext context, VideoPlayerValue value, Widget? child) {
+        if (!_skipOpeningAvailable(value)) {
+          return const SizedBox.shrink();
+        }
+        return Align(alignment: Alignment.centerRight, child: child);
+      },
+      child: _buildSkipOpeningButton(),
+    );
+  }
+
+  bool _skipOpeningAvailable(VideoPlayerValue value) {
+    final int totalMilliseconds = value.duration.inMilliseconds;
+    if (totalMilliseconds <= 0) {
+      return false;
+    }
+    final double watchedFraction =
+        value.position.inMilliseconds / totalMilliseconds;
+    return watchedFraction < _skipOpeningVisibleFraction;
+  }
+
+  Widget _buildSkipOpeningButton() {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8, bottom: 4),
+      child: Material(
+        color: AppColors.onMedia.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: _skipOpening,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(
+                  Icons.fast_forward_rounded,
+                  size: 16,
+                  color: AppColors.onMedia,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  S.of(context).native_player_skip_opening(
+                        widget.state.skipOpeningSeconds,
+                      ),
+                  style: medium(size: 13, color: AppColors.onMedia),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -477,6 +634,8 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
       onSubtitles: hasSubtitles ? () => unawaited(_openSubtitlePicker()) : null,
       onSpeed: () => unawaited(_openSpeedPicker()),
       onQuality: hasQualities ? () => unawaited(_openQualityPicker()) : null,
+      fitMode: widget.state.fitMode,
+      onFitMode: _cycleFitMode,
       onOpenWebPlayer: widget.onOpenWebPlayer,
       onLock: _lock,
     );

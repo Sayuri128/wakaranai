@@ -5887,6 +5887,176 @@ class S {
       args: [],
     );
   }
+
+  /// `Video fit`
+  String get native_player_fit_mode {
+    return Intl.message(
+      'Video fit',
+      name: 'native_player_fit_mode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fit`
+  String get native_player_fit_mode_fit {
+    return Intl.message(
+      'Fit',
+      name: 'native_player_fit_mode_fit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fill`
+  String get native_player_fit_mode_fill {
+    return Intl.message(
+      'Fill',
+      name: 'native_player_fit_mode_fill',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stretch`
+  String get native_player_fit_mode_stretch {
+    return Intl.message(
+      'Stretch',
+      name: 'native_player_fit_mode_stretch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `+{seconds}s`
+  String native_player_skip_opening(Object seconds) {
+    return Intl.message(
+      '+${seconds}s',
+      name: 'native_player_skip_opening',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `This playback speed isn't supported`
+  String get native_player_speed_unsupported {
+    return Intl.message(
+      'This playback speed isn\'t supported',
+      name: 'native_player_speed_unsupported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next episode in {seconds}s`
+  String native_player_auto_next_countdown(Object seconds) {
+    return Intl.message(
+      'Next episode in ${seconds}s',
+      name: 'native_player_auto_next_countdown',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `Play now`
+  String get native_player_auto_next_play_now {
+    return Intl.message(
+      'Play now',
+      name: 'native_player_auto_next_play_now',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get native_player_auto_next_cancel {
+    return Intl.message(
+      'Cancel',
+      name: 'native_player_auto_next_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Player`
+  String get settings_player_section_title {
+    return Intl.message(
+      'Player',
+      name: 'settings_player_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hold to speed up`
+  String get settings_player_hold_speed_title {
+    return Intl.message(
+      'Hold to speed up',
+      name: 'settings_player_hold_speed_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Long-press the video to play faster while you hold`
+  String get settings_player_hold_speed_subtitle {
+    return Intl.message(
+      'Long-press the video to play faster while you hold',
+      name: 'settings_player_hold_speed_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skip opening`
+  String get settings_player_skip_opening_title {
+    return Intl.message(
+      'Skip opening',
+      name: 'settings_player_skip_opening_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `How far the skip button jumps ahead`
+  String get settings_player_skip_opening_subtitle {
+    return Intl.message(
+      'How far the skip button jumps ahead',
+      name: 'settings_player_skip_opening_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{seconds}s`
+  String settings_player_skip_opening_value(Object seconds) {
+    return Intl.message(
+      '${seconds}s',
+      name: 'settings_player_skip_opening_value',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `Auto-play next episode`
+  String get settings_player_auto_next_title {
+    return Intl.message(
+      'Auto-play next episode',
+      name: 'settings_player_auto_next_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Count down and start the next episode when one ends`
+  String get settings_player_auto_next_subtitle {
+    return Intl.message(
+      'Count down and start the next episode when one ends',
+      name: 'settings_player_auto_next_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
