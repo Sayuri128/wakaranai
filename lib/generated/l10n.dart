@@ -2824,20 +2824,20 @@ class S {
     );
   }
 
-  /// `Manga`
+  /// `Reading`
   String get activity_history_manga_appbar_title {
     return Intl.message(
-      'Manga',
+      'Reading',
       name: 'activity_history_manga_appbar_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `Video`
+  /// `Watching`
   String get activity_history_anime_appbar_title {
     return Intl.message(
-      'Video',
+      'Watching',
       name: 'activity_history_anime_appbar_title',
       desc: '',
       args: [],
@@ -2884,10 +2884,10 @@ class S {
     );
   }
 
-  /// `No history :c\nStart reading manga to see your history here`
+  /// `No history :c\nStart reading to see your history here`
   String get activity_history_empty_manga_list_message {
     return Intl.message(
-      'No history :c\nStart reading manga to see your history here',
+      'No history :c\nStart reading to see your history here',
       name: 'activity_history_empty_manga_list_message',
       desc: '',
       args: [],

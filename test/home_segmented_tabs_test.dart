@@ -133,12 +133,12 @@ void main() {
     ));
     await _settle(tester);
 
-    expect(find.text('Manga'), findsOneWidget);
-    expect(find.text('Video'), findsOneWidget);
-    expect(find.textContaining('Start reading manga'), findsOneWidget);
+    expect(find.text('Reading'), findsOneWidget);
+    expect(find.text('Watching'), findsOneWidget);
+    expect(find.textContaining('Start reading to see'), findsOneWidget);
     final double mangaLeft = _indicatorRect(tester).left;
 
-    await tester.tap(find.text('Video'));
+    await tester.tap(find.text('Watching'));
     await _settle(tester);
 
     expect(find.textContaining('Start watching to see'), findsOneWidget);

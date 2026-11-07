@@ -337,7 +337,7 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "activity_history_anime_appbar_title": MessageLookupByLibrary.simpleMessage(
-      "Video",
+      "Watching",
     ),
     "activity_history_deleted_activity": MessageLookupByLibrary.simpleMessage(
       "Deleted activity successfully",
@@ -348,7 +348,7 @@ class MessageLookup extends MessageLookupByLibrary {
         ),
     "activity_history_empty_manga_list_message":
         MessageLookupByLibrary.simpleMessage(
-          "No history :c\nStart reading manga to see your history here",
+          "No history :c\nStart reading to see your history here",
         ),
     "activity_history_error_loading_extension":
         MessageLookupByLibrary.simpleMessage(
@@ -361,7 +361,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "activity_history_long_tap_dialog_delete_button":
         MessageLookupByLibrary.simpleMessage("Delete"),
     "activity_history_manga_appbar_title": MessageLookupByLibrary.simpleMessage(
-      "Manga",
+      "Reading",
     ),
     "add_extension_source_page_add_button_title":
         MessageLookupByLibrary.simpleMessage("Save"),
