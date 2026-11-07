@@ -4,10 +4,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:io';
 
-import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/api_client.dart';
-import 'package:capyscript/api_clients/manga_api_client.dart';
-import 'package:capyscript/api_clients/novel_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/download_config/download_config.dart';
 import 'package:capyscript/modules/waka_models/models/novel/novel_chapter_content.dart';
@@ -30,7 +27,7 @@ import 'package:wakaranai/blocs/downloads/download_throttle.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
-import 'package:wakaranai/services/configs_service/prepared_client_pool.dart';
+import 'package:wakaranai/services/downloads/download_client_pool.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
@@ -101,6 +98,8 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
             PlayerPreferences().getQualityPreference,
         _runtime = downloadRuntime ?? createDownloadRuntime(),
         _networkPolicy = networkPolicy ?? DownloadNetworkPolicy.platform(),
+        _clients =
+            DownloadClientPool(extensionRepository: extensionRepository),
         super(const DownloadManagerState()) {
     _runtimeEvents = _runtime.events.listen(_onRuntimeEvent);
     _networkPolicyChanges =
@@ -115,6 +114,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   final QualityPreferenceReader _readQualityPreference;
   final DownloadRuntime _runtime;
   final DownloadNetworkPolicy _networkPolicy;
+  final DownloadClientPool _clients;
   late final StreamSubscription<DownloadRuntimeEvent> _runtimeEvents;
   late final StreamSubscription<bool> _networkPolicyChanges;
 
@@ -122,18 +122,16 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   static const int _pageAttempts = 3;
   static const int _rateLimitAttempts = 6;
   static const int _episodeSourceRefreshes = 2;
-  static const Duration _libraryClientsIdleTimeout = Duration(minutes: 2);
   static const Duration _jobUnwindTimeout = Duration(seconds: 10);
 
   final Dio _dio = createDio();
   final DownloadThrottle _throttle;
   final DownloadWait _delay;
-  final PreparedClientPool _libraryClients = PreparedClientPool();
   late final EpisodeSourceResolver _episodeSources = _injectedSourceResolver ??
-      PooledClientEpisodeSourceResolver(loadClient: _animeClientForUid);
+      PooledClientEpisodeSourceResolver(
+          loadClient: _clients.animeClientForUid);
   late final EpisodeDownloader _episodeDownloader =
       _injectedEpisodeDownloader ?? EpisodeDownloader(throttle: _throttle);
-  Timer? _libraryClientsIdle;
   final Queue<DownloadJob> _jobs = Queue<DownloadJob>();
   final Set<String> _cancelled = <String>{};
   final Set<String> _pauseRequested = <String>{};
@@ -242,7 +240,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   Future<DownloadJob?> _rebuildChapterJob(DownloadDomain row) async {
     try {
       final ExtensionDomain? extension =
-          await _installedExtension(row.extensionUid);
+          await _clients.installedExtension(row.extensionUid);
       if (extension == null) {
         return null;
       }
@@ -269,59 +267,14 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     _jobs.add(job);
   }
 
-  Future<MangaApiClient> clientForExtension(ExtensionDomain extension) async {
-    final ApiClient client = await _pooledClientFor(extension);
-    if (client is! MangaApiClient) {
-      throw StateError('${extension.config.name} is not a manga extension');
-    }
-    return client;
+  Future<ApiClient> chapterClientForExtension(ExtensionDomain extension) {
+    return _clients.chapterClientFor(extension);
   }
 
-  Future<NovelApiClient> novelClientForExtension(
-      ExtensionDomain extension) async {
-    final ApiClient client = await _pooledClientFor(extension);
-    if (client is! NovelApiClient) {
-      throw StateError('${extension.config.name} is not a novel extension');
-    }
-    return client;
-  }
-
-  Future<ApiClient> chapterClientForExtension(ExtensionDomain extension) async {
-    final ApiClient client = await _pooledClientFor(extension);
-    if (client is MangaApiClient || client is NovelApiClient) {
-      return client;
-    }
-    throw StateError('${extension.config.name} has no chapters to download');
-  }
-
-  Future<AnimeApiClient> animeClientForExtension(
-      ExtensionDomain extension) async {
-    final ApiClient client = await _pooledClientFor(extension);
-    if (client is! AnimeApiClient) {
-      throw StateError('${extension.config.name} is not an anime extension');
-    }
-    return client;
-  }
-
-  Future<ApiClient> _pooledClientFor(ExtensionDomain extension) {
-    _libraryClientsIdle?.cancel();
-    return _libraryClients.clientFor(extension);
-  }
-
-  Future<AnimeApiClient> _animeClientForUid(String extensionUid) async {
-    final ExtensionDomain? extension = await _installedExtension(extensionUid);
-    if (extension == null) {
-      throw StateError('Extension $extensionUid is not installed');
-    }
-    return animeClientForExtension(extension);
-  }
-
-  Future<ExtensionDomain?> _installedExtension(String extensionUid) async {
-    final ExtensionRepository? extensions = extensionRepository;
-    if (extensions == null) {
-      return null;
-    }
-    return extensions.getByUid(extensionUid);
+  void _scheduleClientsRelease() {
+    _clients.scheduleIdleRelease(
+      stillIdle: () => !_processing && _jobs.isEmpty,
+    );
   }
 
   bool isDownloaded(String chapterUid) {
@@ -493,7 +446,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
 
   Future<void> _retryChapter(DownloadDomain download) async {
     final ExtensionDomain? extension =
-        await _installedExtension(download.extensionUid);
+        await _clients.installedExtension(download.extensionUid);
     if (extension == null) {
       logger.w('Cannot retry ${download.uid}: extension '
           '${download.extensionUid} is not installed');
@@ -506,7 +459,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       logger.e('Cannot retry ${download.uid}: $e');
       logger.e(s);
       if (!_processing) {
-        _scheduleLibraryClientsRelease();
+        _scheduleClientsRelease();
       }
     }
   }
@@ -526,22 +479,10 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
   }
 
-  void _scheduleLibraryClientsRelease() {
-    _libraryClientsIdle?.cancel();
-    if (_libraryClients.isEmpty) {
-      return;
-    }
-    _libraryClientsIdle = Timer(_libraryClientsIdleTimeout, () {
-      if (!_processing && _jobs.isEmpty) {
-        unawaited(_libraryClients.dispose());
-      }
-    });
-  }
-
   Future<void> _process() async {
     if (_processing) return;
     _processing = true;
-    _libraryClientsIdle?.cancel();
+    _clients.cancelIdleRelease();
     _completedInBatch = 0;
     _batchIndex = 0;
     _previousJobInBatch = null;
@@ -579,7 +520,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       } else {
         await _finishBatch(completed);
       }
-      _scheduleLibraryClientsRelease();
+      _scheduleClientsRelease();
     }
   }
 
@@ -1544,8 +1485,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     await _setRuntimeWanted(false);
     await _networkPolicy.dispose();
     await _runtime.dispose();
-    _libraryClientsIdle?.cancel();
-    await _libraryClients.dispose();
+    await _clients.dispose();
     return super.close();
   }
 }
