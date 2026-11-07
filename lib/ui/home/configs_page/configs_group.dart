@@ -3,6 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
+import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
+import 'package:wakaranai/ui/widgets/action_sheet.dart';
+import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/configs_page/config_card.dart';
@@ -46,6 +50,9 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
                         (BaseExtension e) => ConfigCard(
                           configInfo: e.config,
                           onTap: () => _onCardClick(context, e),
+                          onLongPress: e.config.protectorConfig == null
+                              ? null
+                              : () => _showSessionActions(context, e.config),
                         ),
                       ),
                     ],
@@ -90,6 +97,35 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text('$count', style: medium(size: 12, color: AppColors.mainGrey)),
+    );
+  }
+
+  Future<void> _showSessionActions(BuildContext context, ConfigInfo config) {
+    return showActionSheet(
+      context,
+      title: config.name.trim(),
+      child: Builder(
+        builder: (BuildContext sheetContext) => ActionSheetRow(
+          label: S.current.extension_clear_session,
+          icon: Icons.cleaning_services_rounded,
+          destructive: true,
+          onTap: () {
+            Navigator.of(sheetContext).pop();
+            unawaited(_clearSession(context, config));
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _clearSession(BuildContext context, ConfigInfo config) async {
+    await ProtectorStorageService().clearForConfig(config);
+    if (!context.mounted) {
+      return;
+    }
+    SnackBars.showSnackBar(
+      context: context,
+      message: S.current.extension_clear_session_done(config.name.trim()),
     );
   }
 

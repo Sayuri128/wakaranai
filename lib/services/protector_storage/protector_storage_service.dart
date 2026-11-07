@@ -72,6 +72,19 @@ class ProtectorStorageService {
     await _secureStorage.write(key: item.uid, value: jsonEncode(item.toJson()));
   }
 
+  Future<void> clearForConfig(ConfigInfo config) async {
+    await _secureStorage.delete(key: sessionKey(config));
+
+    final RegExp legacyKey =
+        RegExp('^${RegExp.escape(config.name)}_(\\d+)\$');
+    final List<String> keys = (await _secureStorage.readAll()).keys.toList();
+    for (final String key in keys) {
+      if (legacyKey.hasMatch(key)) {
+        await _secureStorage.delete(key: key);
+      }
+    }
+  }
+
   Future<void> clear() async {
     final Map<String, String> all = await _secureStorage.readAll();
 

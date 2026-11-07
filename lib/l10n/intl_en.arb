@@ -459,6 +459,65 @@
       "count": {}
     }
   },
+  "updates_attention_sign_in": "{source} needs you to sign in",
+  "@updates_attention_sign_in": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "updates_attention_sign_in_again": "{source} needs you to sign in again",
+  "@updates_attention_sign_in_again": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "updates_attention_browser_check": "{source} needs a quick check in the browser",
+  "@updates_attention_browser_check": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "updates_attention_many": "{count} sources need your attention",
+  "@updates_attention_many": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "updates_attention_sheet_title": "Sources need attention",
+  "updates_attention_action_open": "Open",
+  "updates_attention_action_review": "Review",
+  "updates_attention_session_saved": "Session saved for {source}. Pull to refresh to check again",
+  "@updates_attention_session_saved": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "updates_attention_unavailable": "{source} has no browser sign-in",
+  "@updates_attention_unavailable": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "updates_attention_notification_sign_in_title": "Sign in needed: {sources}",
+  "@updates_attention_notification_sign_in_title": {
+    "placeholders": {
+      "sources": {}
+    }
+  },
+  "updates_attention_notification_browser_title": "Browser check needed: {sources}",
+  "@updates_attention_notification_browser_title": {
+    "placeholders": {
+      "sources": {}
+    }
+  },
+  "updates_attention_notification_body": "Update checks are paused for these sources. Pull to refresh your library to fix it.",
+  "extension_clear_session": "Clear saved session",
+  "extension_clear_session_done": "Saved session for {source} cleared",
+  "@extension_clear_session_done": {
+    "placeholders": {
+      "source": {}
+    }
+  },
   "updates_time_now": "Just now",
   "updates_time_minutes": "{count}m ago",
   "@updates_time_minutes": {

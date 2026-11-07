@@ -8,9 +8,15 @@ import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class ConfigCard extends StatelessWidget {
-  const ConfigCard({super.key, this.onTap, required this.configInfo});
+  const ConfigCard({
+    super.key,
+    this.onTap,
+    this.onLongPress,
+    required this.configInfo,
+  });
 
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final ConfigInfo configInfo;
 
   static const Map<String, String> _logoHeaders = <String, String>{
@@ -29,6 +35,7 @@ class ConfigCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           splashColor: AppColors.mediumLight.withValues(alpha: 0.2),
           onTap: onTap,
+          onLongPress: onLongPress,
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Row(

@@ -1,5 +1,7 @@
+import 'package:capyscript/AST/throw/capyscript_error.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/protector_config/protector_config.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/filters/gallery_filter.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
@@ -15,6 +17,7 @@ import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
 import 'package:wakaranai/repositories/database/library_update_repository.dart';
+import 'package:wakaranai/services/configs_service/source_needs_attention.dart';
 import 'package:wakaranai/services/library_updates/library_update_service.dart';
 
 const String _extensionUid = 'ext.test';
@@ -63,14 +66,45 @@ ExtensionDomain _extension() {
   );
 }
 
+ExtensionDomain _protectedExtension({
+  required String uid,
+  required String name,
+  String? sessionGroup,
+}) {
+  return ExtensionDomain(
+    id: 0,
+    config: ConfigInfo(
+      name: name,
+      uid: uid,
+      logoUrl: '',
+      nsfw: false,
+      language: 'en',
+      version: 1,
+      filters: const <GalleryFilter>[],
+      type: ConfigInfoType.MANGA,
+      searchAvailable: true,
+      protectorConfig: ProtectorConfig(
+        pingUrl: 'https://example.com',
+        needToLogin: true,
+        inAppBrowserInterceptor: false,
+        sessionGroup: sessionGroup,
+      ),
+    ),
+    sourceCode: 'noop',
+    createdAt: DateTime.now(),
+  );
+}
+
 LibraryEntryDomain _entry({
   bool trackUpdates = true,
   bool notifyUpdates = true,
+  String uid = _titleUid,
+  String extensionUid = _extensionUid,
 }) {
   return LibraryEntryDomain(
     id: 0,
-    uid: _titleUid,
-    extensionUid: _extensionUid,
+    uid: uid,
+    extensionUid: extensionUid,
     title: 'Test Title',
     cover: 'cover.png',
     data: '{}',
@@ -233,6 +267,129 @@ void main() {
 
     expect(result.failed, 1);
     expect(result.updates, isEmpty);
+  });
+
+  group('sources that need the user', () {
+    const String mangaLibUid = 'ext.mangalib';
+    const String hentaiLibUid = 'ext.hentailib';
+
+    Future<void> addTitles(String extensionUid, int count) async {
+      for (int index = 0; index < count; index++) {
+        await harness.libraryEntryRepository.create(
+          _entry(uid: '$extensionUid-$index', extensionUid: extensionUid),
+        );
+      }
+    }
+
+    test('an expired session is reported once and the rest are skipped',
+        () async {
+      await harness.extensionRepository.create(
+        _protectedExtension(uid: mangaLibUid, name: 'MangaLib'),
+      );
+      await addTitles(mangaLibUid, 3);
+      int calls = 0;
+
+      final LibraryUpdateCheckResult result = await harness.service(
+        (ExtensionDomain _, LibraryEntryDomain __) async {
+          calls++;
+          throw CapyScriptError('HTTP 401');
+        },
+      ).check();
+
+      expect(calls, 1, reason: 'the source must not be hammered');
+      expect(result.failed, 1);
+      expect(result.skipped, 2);
+      expect(result.checked, 0);
+      expect(result.needsAttention, hasLength(1));
+      expect(result.needsAttention.single.sourceName, 'MangaLib');
+      expect(result.needsAttention.single.reason,
+          SourceAttentionReason.sessionExpired);
+    });
+
+    test('sources sharing a session are reported once', () async {
+      await harness.extensionRepository.create(_protectedExtension(
+        uid: mangaLibUid,
+        name: 'MangaLib',
+        sessionGroup: 'lib_social',
+      ));
+      await harness.extensionRepository.create(_protectedExtension(
+        uid: hentaiLibUid,
+        name: 'HentaiLib',
+        sessionGroup: 'lib_social',
+      ));
+      await addTitles(mangaLibUid, 2);
+      await addTitles(hentaiLibUid, 2);
+
+      final LibraryUpdateCheckResult result = await harness.service(
+        (ExtensionDomain extension, LibraryEntryDomain __) async {
+          throw SourceNeedsAttention(
+            config: extension.config,
+            reason: SourceAttentionReason.notSignedIn,
+          );
+        },
+      ).check();
+
+      expect(result.needsAttention, hasLength(1));
+      expect(result.needsAttention.single.sessionKey, 'lib_social');
+      expect(result.checked, 0);
+      expect(result.failed + result.skipped, 4);
+      expect(result.failed, lessThanOrEqualTo(2));
+    });
+
+    test('other sources keep being checked', () async {
+      await harness.extensionRepository.create(
+        _protectedExtension(uid: mangaLibUid, name: 'MangaLib'),
+      );
+      await addTitles(mangaLibUid, 2);
+      await harness.libraryEntryRepository.create(_entry());
+
+      final LibraryUpdateCheckResult result = await harness.service(
+        (ExtensionDomain extension, LibraryEntryDomain __) async {
+          if (extension.config.uid == mangaLibUid) {
+            throw CapyScriptError('HTTP 403');
+          }
+          return _view(<String>['c1']);
+        },
+      ).check();
+
+      expect(result.checked, 1);
+      expect(result.failed, 1);
+      expect(result.skipped, 1);
+      expect(result.needsAttention, hasLength(1));
+    });
+
+    test('an unclear failure on a protected source stays a plain failure',
+        () async {
+      await harness.extensionRepository.create(
+        _protectedExtension(uid: mangaLibUid, name: 'MangaLib'),
+      );
+      await addTitles(mangaLibUid, 2);
+      int calls = 0;
+
+      final LibraryUpdateCheckResult result = await harness.service(
+        (ExtensionDomain _, LibraryEntryDomain __) async {
+          calls++;
+          throw Exception('network down');
+        },
+      ).check();
+
+      expect(calls, 2);
+      expect(result.failed, 2);
+      expect(result.skipped, 0);
+      expect(result.needsAttention, isEmpty);
+    });
+
+    test('an auth-looking failure on an open source is not flagged', () async {
+      await harness.libraryEntryRepository.create(_entry());
+
+      final LibraryUpdateCheckResult result = await harness.service(
+        (ExtensionDomain _, LibraryEntryDomain __) async =>
+            throw CapyScriptError('HTTP 403'),
+      ).check();
+
+      expect(result.failed, 1);
+      expect(result.needsAttention, isEmpty);
+    });
   });
 
   test('an unreadable snapshot reports nothing rather than every chapter',

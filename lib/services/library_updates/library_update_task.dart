@@ -10,7 +10,9 @@ import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
 import 'package:wakaranai/repositories/database/library_update_repository.dart';
+import 'package:wakaranai/repositories/shared_pref/source_attention_preferences.dart';
 import 'package:wakaranai/services/configs_service/extension_resolver.dart';
+import 'package:wakaranai/services/configs_service/source_needs_attention.dart';
 import 'package:wakaranai/services/library_updates/library_update_notification_service.dart';
 import 'package:wakaranai/services/library_updates/library_update_service.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
@@ -81,14 +83,24 @@ Future<bool> runLibraryUpdateTask(Map<String, dynamic>? inputData) async {
 
     final LibraryUpdateCheckResult result = await service.check();
 
-    if (result.notifiable.isNotEmpty &&
-        await settings.getUpdateNotifications(reload: true)) {
-      await LibraryUpdateNotificationService().showUpdates(result.notifiable);
+    final bool notificationsEnabled =
+        await settings.getUpdateNotifications(reload: true);
+    final LibraryUpdateNotificationService notifications =
+        LibraryUpdateNotificationService();
+
+    if (result.notifiable.isNotEmpty && notificationsEnabled) {
+      await notifications.showUpdates(result.notifiable);
+    }
+
+    if (result.needsAttention.isNotEmpty && notificationsEnabled) {
+      await _notifySourceAttention(result.needsAttention, notifications);
     }
 
     logger.i(
       'Library update check: ${result.updates.length} new, '
-      '${result.checked} checked, ${result.failed} failed',
+      '${result.checked} checked, ${result.failed} failed, '
+      '${result.skipped} skipped, '
+      '${result.needsAttention.length} sources need attention',
     );
 
     return true;
@@ -99,4 +111,19 @@ Future<bool> runLibraryUpdateTask(Map<String, dynamic>? inputData) async {
   } finally {
     await database?.close();
   }
+}
+
+Future<void> _notifySourceAttention(
+  List<SourceNeedsAttention> attentions,
+  LibraryUpdateNotificationService notifications,
+) async {
+  final SourceAttentionPreferences preferences = SourceAttentionPreferences();
+  final DateTime now = DateTime.now();
+  final List<SourceNeedsAttention> due =
+      await preferences.dueForNotification(attentions, now);
+  if (due.isEmpty) {
+    return;
+  }
+  await notifications.showSourceAttention(due);
+  await preferences.markNotified(due, now);
 }

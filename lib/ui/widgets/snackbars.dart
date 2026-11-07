@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
+class SnackBarActionData {
+  const SnackBarActionData({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback onPressed;
+}
+
 class SnackBars {
   static void showErrorSnackBar(
       {required BuildContext context, required String error}) {
@@ -25,14 +32,41 @@ class SnackBars {
     );
   }
 
+  static void showAttentionSnackBar({
+    required BuildContext context,
+    required String message,
+    required SnackBarActionData action,
+  }) {
+    _show(
+      context,
+      message: message,
+      accent: AppColors.red,
+      icon: Icons.lock_outline_rounded,
+      duration: const Duration(seconds: 8),
+      action: action,
+    );
+  }
+
   static void _show(
     BuildContext context, {
     required String message,
     required Color accent,
     required IconData icon,
     required Duration duration,
+    SnackBarActionData? action,
   }) {
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+
+    SnackBarActionData? dismissingAction;
+    if (action != null) {
+      dismissingAction = SnackBarActionData(
+        label: action.label,
+        onPressed: () {
+          messenger.hideCurrentSnackBar();
+          action.onPressed();
+        },
+      );
+    }
 
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
@@ -44,7 +78,12 @@ class SnackBars {
         padding: EdgeInsets.zero,
         margin: const EdgeInsets.all(16),
         dismissDirection: DismissDirection.horizontal,
-        content: _SnackBarBody(message: message, accent: accent, icon: icon),
+        content: _SnackBarBody(
+          message: message,
+          accent: accent,
+          icon: icon,
+          action: dismissingAction,
+        ),
       ),
     );
   }
@@ -55,14 +94,17 @@ class _SnackBarBody extends StatelessWidget {
     required this.message,
     required this.accent,
     required this.icon,
+    this.action,
   });
 
   final String message;
   final Color accent;
   final IconData icon;
+  final SnackBarActionData? action;
 
   @override
   Widget build(BuildContext context) {
+    final SnackBarActionData? action = this.action;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -88,7 +130,36 @@ class _SnackBarBody extends StatelessWidget {
               style: medium(size: 13, color: AppColors.mainWhite),
             ),
           ),
+          if (action != null) ...<Widget>[
+            const SizedBox(width: 8),
+            _SnackBarActionButton(action: action),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+class _SnackBarActionButton extends StatelessWidget {
+  const _SnackBarActionButton({required this.action});
+
+  final SnackBarActionData action;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.primary,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: action.onPressed,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          child: Text(
+            action.label,
+            style: semibold(size: 13, color: AppColors.mainBlack),
+          ),
+        ),
       ),
     );
   }

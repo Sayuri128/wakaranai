@@ -65,6 +65,20 @@ void main() {
     expect(item?.data.body, 'current');
   });
 
+  test('clearing one source drops its session and legacy keys only', () async {
+    FlutterSecureStorage.setMockInitialValues({
+      'Source_2': _stored('Source_2', 'legacy'),
+      'protector_uid-1': _stored('protector_uid-1', 'current'),
+      'Other_9': _stored('Other_9', 'other'),
+    });
+    final service = ProtectorStorageService();
+
+    await service.clearForConfig(_config());
+
+    expect(await service.getItemForConfig(_config()), isNull);
+    expect((await service.getItem(uid: 'Other_9'))?.data.body, 'other');
+  });
+
   test('returns null when nothing was stored', () async {
     FlutterSecureStorage.setMockInitialValues({});
 

@@ -14,6 +14,7 @@ import 'package:wakaranai/ui/common/service_viewer/gallery_layout_transition.dar
 import 'package:wakaranai/ui/home/library_page/library_grid_geometry.dart';
 import 'package:wakaranai/ui/home/library_page/library_entry_details.dart';
 import 'package:wakaranai/ui/home/library_page/library_list_tile.dart';
+import 'package:wakaranai/ui/home/library_page/source_attention_prompt.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/data/domain/database/category_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
@@ -399,7 +400,9 @@ class _LibraryPageState extends State<LibraryPage> {
 
     if (result == null || !context.mounted) return;
 
-    if (result.updates.isNotEmpty) {
+    if (result.needsAttention.isNotEmpty) {
+      SourceAttentionPrompt.show(context, result.needsAttention);
+    } else if (result.updates.isNotEmpty) {
       SnackBars.showSnackBar(
         context: context,
         message: S.current.updates_check_found(result.updates.length),

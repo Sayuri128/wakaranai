@@ -2,9 +2,12 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:wakaranai/data/domain/database/library_update_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
+import 'package:wakaranai/services/configs_service/source_needs_attention.dart';
+import 'package:wakaranai/services/library_updates/source_attention_text.dart';
 
 class LibraryUpdateNotificationService {
   static const int _updatesId = 8821;
+  static const int _attentionId = 8822;
   static const String _channelId = 'library_updates';
   static const int _maxLines = 5;
 
@@ -38,6 +41,40 @@ class LibraryUpdateNotificationService {
           ?.requestNotificationsPermission();
     } catch (e, s) {
       logger.w('Failed to request notification permission: $e');
+      logger.w(s);
+    }
+  }
+
+  Future<void> showSourceAttention(
+    List<SourceNeedsAttention> attentions,
+  ) async {
+    if (attentions.isEmpty) {
+      return;
+    }
+
+    try {
+      await _ensureInitialized();
+
+      final String title = SourceAttentionText.notificationTitle(attentions);
+      final String body = S.current.updates_attention_notification_body;
+
+      final AndroidNotificationDetails android = AndroidNotificationDetails(
+        _channelId,
+        S.current.updates_notification_channel_name,
+        importance: Importance.defaultImportance,
+        priority: Priority.defaultPriority,
+        autoCancel: true,
+        styleInformation: BigTextStyleInformation(body, contentTitle: title),
+      );
+
+      await _plugin.show(
+        _attentionId,
+        title,
+        body,
+        NotificationDetails(android: android),
+      );
+    } catch (e, s) {
+      logger.w('Failed to show source attention notification: $e');
       logger.w(s);
     }
   }

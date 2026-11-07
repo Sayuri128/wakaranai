@@ -3152,6 +3152,146 @@ class S {
     );
   }
 
+  /// `{source} needs you to sign in`
+  String updates_attention_sign_in(Object source) {
+    return Intl.message(
+      '$source needs you to sign in',
+      name: 'updates_attention_sign_in',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `{source} needs you to sign in again`
+  String updates_attention_sign_in_again(Object source) {
+    return Intl.message(
+      '$source needs you to sign in again',
+      name: 'updates_attention_sign_in_again',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `{source} needs a quick check in the browser`
+  String updates_attention_browser_check(Object source) {
+    return Intl.message(
+      '$source needs a quick check in the browser',
+      name: 'updates_attention_browser_check',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `{count} sources need your attention`
+  String updates_attention_many(Object count) {
+    return Intl.message(
+      '$count sources need your attention',
+      name: 'updates_attention_many',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Sources need attention`
+  String get updates_attention_sheet_title {
+    return Intl.message(
+      'Sources need attention',
+      name: 'updates_attention_sheet_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open`
+  String get updates_attention_action_open {
+    return Intl.message(
+      'Open',
+      name: 'updates_attention_action_open',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Review`
+  String get updates_attention_action_review {
+    return Intl.message(
+      'Review',
+      name: 'updates_attention_action_review',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Session saved for {source}. Pull to refresh to check again`
+  String updates_attention_session_saved(Object source) {
+    return Intl.message(
+      'Session saved for $source. Pull to refresh to check again',
+      name: 'updates_attention_session_saved',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `{source} has no browser sign-in`
+  String updates_attention_unavailable(Object source) {
+    return Intl.message(
+      '$source has no browser sign-in',
+      name: 'updates_attention_unavailable',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Sign in needed: {sources}`
+  String updates_attention_notification_sign_in_title(Object sources) {
+    return Intl.message(
+      'Sign in needed: $sources',
+      name: 'updates_attention_notification_sign_in_title',
+      desc: '',
+      args: [sources],
+    );
+  }
+
+  /// `Browser check needed: {sources}`
+  String updates_attention_notification_browser_title(Object sources) {
+    return Intl.message(
+      'Browser check needed: $sources',
+      name: 'updates_attention_notification_browser_title',
+      desc: '',
+      args: [sources],
+    );
+  }
+
+  /// `Update checks are paused for these sources. Pull to refresh your library to fix it.`
+  String get updates_attention_notification_body {
+    return Intl.message(
+      'Update checks are paused for these sources. Pull to refresh your library to fix it.',
+      name: 'updates_attention_notification_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear saved session`
+  String get extension_clear_session {
+    return Intl.message(
+      'Clear saved session',
+      name: 'extension_clear_session',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saved session for {source} cleared`
+  String extension_clear_session_done(Object source) {
+    return Intl.message(
+      'Saved session for $source cleared',
+      name: 'extension_clear_session_done',
+      desc: '',
+      args: [source],
+    );
+  }
+
   /// `Just now`
   String get updates_time_now {
     return Intl.message(
