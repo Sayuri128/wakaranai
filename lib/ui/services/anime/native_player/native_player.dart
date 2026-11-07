@@ -87,6 +87,7 @@ class _NativePlayerState extends State<NativePlayer> {
   late final PictureInPicture _pictureInPicture;
   late final bool _ownsPictureInPicture;
   ModalRoute<Object?>? _route;
+  NativePlayerCubit? _cubit;
   bool _pictureInPictureSupported = false;
   bool _leaving = false;
 
@@ -136,6 +137,11 @@ class _NativePlayerState extends State<NativePlayer> {
     Navigator.of(context).popUntil((Route<dynamic> other) => other == route);
   }
 
+  void _onPictureInPictureExited() {
+    _applyPlayerSystemUi();
+    _leaveWith(_cubit?.state.webPlayerRequest);
+  }
+
   void _enterPictureInPicture() {
     unawaited(_pictureInPicture.enter());
   }
@@ -165,7 +171,7 @@ class _NativePlayerState extends State<NativePlayer> {
         pictureInPicture: _pictureInPicture,
         enabled: _pictureInPictureSupported,
         onEnter: _onPictureInPictureEntered,
-        onExit: _applyPlayerSystemUi,
+        onExit: _onPictureInPictureExited,
         child: _buildListeners(),
       ),
     );
@@ -189,8 +195,7 @@ class _NativePlayerState extends State<NativePlayer> {
           listenWhen: (NativePlayerState previous, NativePlayerState current) =>
               previous.webPlayerRequest == null &&
               current.webPlayerRequest != null,
-          listener: (BuildContext context, NativePlayerState state) =>
-              _leaveWith(state.webPlayerRequest),
+          listener: _onWebPlayerRequested,
         ),
       ],
       child: ValueListenableBuilder<bool>(
@@ -222,6 +227,7 @@ class _NativePlayerState extends State<NativePlayer> {
     final NativePlayerCubitFactory factory =
         widget.cubitFactory ?? _createCubit;
     final NativePlayerCubit cubit = factory(context);
+    _cubit = cubit;
     unawaited(cubit.init());
     return cubit;
   }
@@ -270,6 +276,13 @@ class _NativePlayerState extends State<NativePlayer> {
       context: context,
       error: S.of(context).native_player_speed_unsupported,
     );
+  }
+
+  void _onWebPlayerRequested(BuildContext context, NativePlayerState state) {
+    if (_inPictureInPicture) {
+      return;
+    }
+    _leaveWith(state.webPlayerRequest);
   }
 
   void _close() {

@@ -16,6 +16,7 @@ import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playback_resolver.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
 import 'package:wakaranai/ui/services/anime/native_player/cubit/native_player_cubit.dart';
 import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store.dart';
@@ -227,9 +228,13 @@ PlayableVideo _videoFor(String uid) {
 }
 
 class _Harness {
-  _Harness({this.holdInitialize = false});
+  _Harness({
+    this.holdInitialize = false,
+    this.webOnlyUids = const <String>{},
+  });
 
   final bool holdInitialize;
+  final Set<String> webOnlyUids;
   final List<_FakeEngine> engines = <_FakeEngine>[];
   final List<String> resolvedUids = <String>[];
   final Completer<void> initializeGate = Completer<void>();
@@ -259,6 +264,9 @@ class _Harness {
 
   Future<EpisodePlaybackPlan> _resolve(EpisodePlaylist target) async {
     resolvedUids.add(target.current.uid);
+    if (webOnlyUids.contains(target.current.uid)) {
+      return const WebPlaybackPlan(WebPlaybackReason.unsupported);
+    }
     return NativePlaybackPlan(_videoFor(target.current.uid));
   }
 
@@ -330,6 +338,62 @@ Future<void> _pumpPlayer(
   );
   await tester.pump();
   await tester.pump();
+}
+
+class _PlayerRouteOutcome {
+  bool finished = false;
+  Object? result;
+}
+
+Future<_PlayerRouteOutcome> _pumpPlayerRoute(
+  WidgetTester tester, {
+  required _Harness harness,
+  required _FakePictureInPicture pictureInPicture,
+}) async {
+  tester.view.physicalSize = const Size(1600, 800);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+  final _PlayerRouteOutcome outcome = _PlayerRouteOutcome();
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  await tester.pumpWidget(
+    MaterialApp(
+      navigatorKey: navigatorKey,
+      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+      home: const SizedBox.shrink(),
+    ),
+  );
+  final Future<Object?> pushed = navigatorKey.currentState!.push<Object?>(
+    MaterialPageRoute<Object?>(
+      builder: (BuildContext context) => NativePlayer(
+        data: NativePlayerData(
+          video: _videoFor('e1'),
+          anime: _anime,
+          playlist: harness.playlist,
+          resolveEpisode: harness._resolve,
+        ),
+        pictureInPicture: pictureInPicture,
+        deviceControls: _FakeDeviceControls(),
+        cubitFactory: harness.build,
+      ),
+    ),
+  );
+  unawaited(pushed.then((Object? result) {
+    outcome.finished = true;
+    outcome.result = result;
+  }));
+  await tester.pumpAndSettle();
+  return outcome;
+}
+
+Future<void> _pumpFrames(WidgetTester tester, int count) async {
+  for (int frame = 0; frame < count; frame++) {
+    await tester.pump();
+  }
 }
 
 Future<void> _unmount(WidgetTester tester) async {
@@ -586,6 +650,67 @@ void main() {
       expect(harness.resolvedUids, <String>['e2']);
       expect(cubit.state.playlist.current.uid, 'e2');
       expect(pictureInPicture.configs.last.hasNext, isFalse);
+
+      await _unmount(tester);
+    });
+
+    testWidgets('holds a web player request until picture-in-picture ends',
+        (WidgetTester tester) async {
+      _recordSystemUi();
+      final _Harness harness = _Harness(webOnlyUids: <String>{'e2'});
+      final _FakePictureInPicture pictureInPicture = _FakePictureInPicture();
+      final _PlayerRouteOutcome outcome = await _pumpPlayerRoute(
+        tester,
+        harness: harness,
+        pictureInPicture: pictureInPicture,
+      );
+      final NativePlayerCubit cubit = harness.cubit!;
+      final _FakeEngine firstEngine = harness.engines.single;
+
+      pictureInPicture.mode.value = true;
+      await tester.pump();
+      pictureInPicture.actionController
+          .add(PictureInPictureAction.nextEpisode);
+      await _pumpFrames(tester, 4);
+
+      expect(harness.resolvedUids, <String>['e2']);
+      expect(cubit.state.webPlayerRequest, isNotNull);
+      expect(cubit.state.isPlaying, isFalse);
+      expect(firstEngine.value.isPlaying, isFalse);
+      expect(find.byType(NativePlayer), findsOneWidget);
+      expect(outcome.finished, isFalse);
+      expect(pictureInPicture.disableCalls, 0);
+
+      pictureInPicture.mode.value = false;
+      await tester.pumpAndSettle();
+
+      expect(outcome.finished, isTrue);
+      final Object? result = outcome.result;
+      expect(result, isA<OpenInWebPlayer>());
+      expect((result! as OpenInWebPlayer).position.current.uid, 'e2');
+      expect(find.byType(NativePlayer), findsNothing);
+      expect(pictureInPicture.disableCalls, 1);
+
+      await _unmount(tester);
+    });
+
+    testWidgets('outside picture-in-picture a web player request leaves at once',
+        (WidgetTester tester) async {
+      _recordSystemUi();
+      final _Harness harness = _Harness(webOnlyUids: <String>{'e2'});
+      final _FakePictureInPicture pictureInPicture = _FakePictureInPicture();
+      final _PlayerRouteOutcome outcome = await _pumpPlayerRoute(
+        tester,
+        harness: harness,
+        pictureInPicture: pictureInPicture,
+      );
+
+      unawaited(harness.cubit!.playNext());
+      await tester.pumpAndSettle();
+
+      expect(outcome.finished, isTrue);
+      expect(outcome.result, isA<OpenInWebPlayer>());
+      expect(find.byType(NativePlayer), findsNothing);
 
       await _unmount(tester);
     });

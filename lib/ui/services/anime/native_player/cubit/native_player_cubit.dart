@@ -477,6 +477,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       subtitleFailed: false,
       errorMessage: () => null,
       switchingEpisode: true,
+      webPlayerRequest: () => null,
     ));
   }
 
