@@ -334,12 +334,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
             totalPages: 0,
           );
 
-          await chapterActivityRepository
-              .createUpdateBy<$ChapterActivityTableTable, String>(
-            activity,
-            by: (tbl) => tbl.uid,
-            where: (tbl) => tbl.uid,
-          );
+          await chapterActivityRepository.markCompleted(activity);
         } else if (state.configInfo.type == ConfigInfoType.ANIME) {
           final AnimeEpisodeActivityDomain activity =
               AnimeEpisodeActivityDomain(

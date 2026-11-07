@@ -25,6 +25,43 @@ class ChapterActivityRepository extends BaseRepository<ChapterActivityDomain,
     }
   }
 
+  Future<ChapterActivityDomain?> markCompleted(
+    ChapterActivityDomain activity,
+  ) async {
+    final ChapterActivityDomain? existing =
+        await getBy<$ChapterActivityTableTable>(
+      activity.uid,
+      where: (tbl) => tbl.uid,
+    );
+    return createUpdateBy<$ChapterActivityTableTable, String>(
+      _completedActivity(activity, existing),
+      by: (ChapterActivityDomain domain) => domain.uid,
+      where: (tbl) => tbl.uid,
+    );
+  }
+
+  ChapterActivityDomain _completedActivity(
+    ChapterActivityDomain activity,
+    ChapterActivityDomain? existing,
+  ) {
+    if (existing == null) {
+      return activity.copyWith(readPages: 0, totalPages: 0);
+    }
+    final int totalPages = existing.totalPages;
+    final int readPages = totalPages > 0 ? totalPages : existing.readPages;
+    return ChapterActivityDomain(
+      id: existing.id,
+      uid: activity.uid,
+      title: activity.title,
+      timestamp: activity.timestamp,
+      data: activity.data,
+      concreteId: activity.concreteId,
+      readPages: readPages,
+      totalPages: totalPages,
+      createdAt: existing.createdAt,
+    );
+  }
+
   @override
   DeleteStatement deleteStatement() {
     return database.chapterActivityTable.delete();
