@@ -130,6 +130,7 @@ ExportAnimeEpisodeActivity _$ExportAnimeEpisodeActivityFromJson(Map json) =>
       data: json['data'] as String?,
       watchedTime: (json['watchedTime'] as num?)?.toInt(),
       totalTime: (json['totalTime'] as num?)?.toInt(),
+      markedWatched: json['markedWatched'] as bool? ?? false,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
@@ -143,6 +144,7 @@ Map<String, dynamic> _$ExportAnimeEpisodeActivityToJson(
   'data': instance.data,
   'watchedTime': instance.watchedTime,
   'totalTime': instance.totalTime,
+  'markedWatched': instance.markedWatched,
   'createdAt': instance.createdAt.toIso8601String(),
 };
 

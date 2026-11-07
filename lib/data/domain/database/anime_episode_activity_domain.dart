@@ -15,6 +15,7 @@ class AnimeEpisodeActivityDomain extends BaseActivityDomain<AnimeEpisodeActivity
   final String? data;
   final int? watchedTime;
   final int? totalTime;
+  final bool markedWatched;
 
   Map<String, dynamic> get dataJson => data != null ? jsonDecode(data!) : {};
   
@@ -32,6 +33,7 @@ class AnimeEpisodeActivityDomain extends BaseActivityDomain<AnimeEpisodeActivity
     required super.concreteId,
     this.watchedTime,
     this.totalTime,
+    this.markedWatched = false,
     required super.createdAt,
      super.updatedAt,
   });
@@ -47,6 +49,7 @@ class AnimeEpisodeActivityDomain extends BaseActivityDomain<AnimeEpisodeActivity
         concreteId: data.concreteId,
         watchedTime: data.watchedTime,
         totalTime: data.totalTime,
+        markedWatched: data.markedWatched,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
       );
@@ -64,6 +67,7 @@ class AnimeEpisodeActivityDomain extends BaseActivityDomain<AnimeEpisodeActivity
         concreteId: Value(concreteId),
         watchedTime: Value(watchedTime),
         totalTime: Value(totalTime),
+        markedWatched: Value(markedWatched),
         createdAt: Value(createdAt),
       );
     }
@@ -77,6 +81,8 @@ class AnimeEpisodeActivityDomain extends BaseActivityDomain<AnimeEpisodeActivity
       concreteId: Value(concreteId),
       watchedTime: Value(watchedTime),
       totalTime: Value(totalTime),
+      markedWatched:
+          markedWatched ? const Value(true) : const Value.absent(),
       createdAt: Value(createdAt),
       updatedAt: Value(update ? DateTime.now() : updatedAt),
     );

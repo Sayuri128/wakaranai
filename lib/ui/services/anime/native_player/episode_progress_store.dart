@@ -55,6 +55,9 @@ Duration? resolveResumePosition({
 }
 
 bool isEpisodeActivityFinished(AnimeEpisodeActivityDomain activity) {
+  if (activity.markedWatched) {
+    return true;
+  }
   final int? watchedSeconds = activity.watchedTime;
   final int? totalSeconds = activity.totalTime;
   if (watchedSeconds == null || totalSeconds == null || totalSeconds <= 0) {

@@ -111,6 +111,10 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
             await _createTableIfMissing(m, extensionStorageTable);
             await _createIndexIfMissing(m, extensionStorageExpiresAt);
           }
+          if (from < 15) {
+            await _addColumnIfMissing(m, animeEpisodeActivityTable,
+                animeEpisodeActivityTable.markedWatched);
+          }
         },
       );
 
@@ -185,7 +189,7 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
   }
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 }
 
 LazyDatabase _openConnection() {

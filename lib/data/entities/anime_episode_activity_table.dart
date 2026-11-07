@@ -20,4 +20,7 @@ class AnimeEpisodeActivityTable extends BaseTable {
 
   IntColumn get totalTime => integer().nullable()();
 
+  BoolColumn get markedWatched =>
+      boolean().withDefault(const Constant(false))();
+
 }

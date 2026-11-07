@@ -150,6 +150,7 @@ class ImportExportService {
                 data: a.data,
                 watchedTime: a.watchedTime,
                 totalTime: a.totalTime,
+                markedWatched: a.markedWatched,
                 createdAt: a.createdAt,
               ))
           .toList();
@@ -476,6 +477,7 @@ class ImportExportService {
       data: activity.data,
       watchedTime: activity.watchedTime,
       totalTime: activity.totalTime,
+      markedWatched: activity.markedWatched,
       createdAt: activity.createdAt,
     );
 

@@ -60,6 +60,7 @@ void main() {
     expect(stored, isNotNull);
     expect(stored!.watchedTime, 600);
     expect(stored.totalTime, 1440);
+    expect(stored.markedWatched, isTrue);
   });
 
   test('marking an unseen episode as completed records it without times',
@@ -70,5 +71,33 @@ void main() {
     expect(stored, isNotNull);
     expect(stored!.watchedTime, isNull);
     expect(stored.totalTime, isNull);
+    expect(stored.markedWatched, isTrue);
+  });
+
+  test('opening an episode leaves it unmarked', () async {
+    await activityRepository.createUpdateBy<$AnimeEpisodeActivityTableTable,
+        String>(
+      activity(),
+      by: (AnimeEpisodeActivityDomain domain) => domain.uid,
+      where: (tbl) => tbl.uid,
+    );
+
+    final AnimeEpisodeActivityDomain? stored = await readActivity();
+    expect(stored!.markedWatched, isFalse);
+  });
+
+  test('saving progress after a manual mark keeps the mark', () async {
+    await activityRepository.markCompleted(activity());
+
+    await activityRepository.createUpdateBy<$AnimeEpisodeActivityTableTable,
+        String>(
+      activity(watchedTime: 30, totalTime: 1440),
+      by: (AnimeEpisodeActivityDomain domain) => domain.uid,
+      where: (tbl) => tbl.uid,
+    );
+
+    final AnimeEpisodeActivityDomain? stored = await readActivity();
+    expect(stored!.watchedTime, 30);
+    expect(stored.markedWatched, isTrue);
   });
 }

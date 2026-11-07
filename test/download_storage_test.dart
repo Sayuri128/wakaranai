@@ -36,7 +36,12 @@ DownloadDomain _download(
   );
 }
 
-AnimeEpisodeActivityDomain _activity(String uid, {int? watched, int? total}) {
+AnimeEpisodeActivityDomain _activity(
+  String uid, {
+  int? watched,
+  int? total,
+  bool markedWatched = false,
+}) {
   return AnimeEpisodeActivityDomain(
     id: 0,
     uid: uid,
@@ -44,6 +49,7 @@ AnimeEpisodeActivityDomain _activity(String uid, {int? watched, int? total}) {
     concreteId: 1,
     watchedTime: watched,
     totalTime: total,
+    markedWatched: markedWatched,
     createdAt: DateTime(2026),
   );
 }
@@ -226,17 +232,48 @@ void main() {
           return <AnimeEpisodeActivityDomain>[
             _activity('e1', watched: 1380, total: 1400),
             _activity('e2', watched: 100, total: 1400),
-            _activity('e3'),
+            _activity('e3', watched: 100, total: 1400, markedWatched: true),
+            _activity('e4', markedWatched: true),
           ];
         },
       );
 
       final List<DownloadDomain> watched = await finder.watchedDownloadsOf(
-        <DownloadDomain>[_download('e1'), _download('e2'), _download('e3')],
+        <DownloadDomain>[
+          _download('e1'),
+          _download('e2'),
+          _download('e3'),
+          _download('e4'),
+        ],
       );
 
-      expect(watched.map((DownloadDomain d) => d.uid), <String>['e1', 'e3']);
+      expect(
+        watched.map((DownloadDomain d) => d.uid),
+        <String>['e1', 'e3', 'e4'],
+      );
       expect(askedFor, <String>['concrete']);
+    });
+
+    test('opened episodes without real progress are not deleted', () async {
+      final WatchedEpisodeFinder finder = WatchedEpisodeFinder(
+        readActivities: (String concreteUid) async {
+          return <AnimeEpisodeActivityDomain>[
+            _activity('opened'),
+            _activity('unknown-length', watched: 1300),
+            _activity('zero-length', watched: 0, total: 0),
+          ];
+        },
+      );
+
+      final List<DownloadDomain> watched = await finder.watchedDownloadsOf(
+        <DownloadDomain>[
+          _download('opened'),
+          _download('unknown-length'),
+          _download('zero-length'),
+        ],
+      );
+
+      expect(watched, isEmpty);
     });
 
     test('skips the activity lookup for manga titles', () async {

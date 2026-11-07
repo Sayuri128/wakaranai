@@ -45,6 +45,7 @@ class AnimeEpisodeActivityRepository extends BaseRepository<
         concreteId: activity.concreteId,
         watchedTime: existing?.watchedTime ?? activity.watchedTime,
         totalTime: existing?.totalTime ?? activity.totalTime,
+        markedWatched: true,
         createdAt: activity.createdAt,
       ),
       by: (AnimeEpisodeActivityDomain domain) => domain.uid,
@@ -68,6 +69,7 @@ class AnimeEpisodeActivityRepository extends BaseRepository<
       concreteId: data.concreteId,
       watchedTime: data.watchedTime,
       totalTime: data.totalTime,
+      markedWatched: data.markedWatched,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     );

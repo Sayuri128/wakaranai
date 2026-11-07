@@ -2576,6 +2576,21 @@ class $AnimeEpisodeActivityTableTable extends AnimeEpisodeActivityTable
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _markedWatchedMeta = const VerificationMeta(
+    'markedWatched',
+  );
+  @override
+  late final GeneratedColumn<bool> markedWatched = GeneratedColumn<bool>(
+    'marked_watched',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("marked_watched" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2588,6 +2603,7 @@ class $AnimeEpisodeActivityTableTable extends AnimeEpisodeActivityTable
     concreteId,
     watchedTime,
     totalTime,
+    markedWatched,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2667,6 +2683,15 @@ class $AnimeEpisodeActivityTableTable extends AnimeEpisodeActivityTable
         totalTime.isAcceptableOrUnknown(data['total_time']!, _totalTimeMeta),
       );
     }
+    if (data.containsKey('marked_watched')) {
+      context.handle(
+        _markedWatchedMeta,
+        markedWatched.isAcceptableOrUnknown(
+          data['marked_watched']!,
+          _markedWatchedMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2719,6 +2744,10 @@ class $AnimeEpisodeActivityTableTable extends AnimeEpisodeActivityTable
         DriftSqlType.int,
         data['${effectivePrefix}total_time'],
       ),
+      markedWatched: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}marked_watched'],
+      )!,
     );
   }
 
@@ -2740,6 +2769,7 @@ class AnimeEpisodeActivityTableData extends DataClass
   final int concreteId;
   final int? watchedTime;
   final int? totalTime;
+  final bool markedWatched;
   const AnimeEpisodeActivityTableData({
     required this.id,
     required this.createdAt,
@@ -2751,6 +2781,7 @@ class AnimeEpisodeActivityTableData extends DataClass
     required this.concreteId,
     this.watchedTime,
     this.totalTime,
+    required this.markedWatched,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2775,6 +2806,7 @@ class AnimeEpisodeActivityTableData extends DataClass
     if (!nullToAbsent || totalTime != null) {
       map['total_time'] = Variable<int>(totalTime);
     }
+    map['marked_watched'] = Variable<bool>(markedWatched);
     return map;
   }
 
@@ -2798,6 +2830,7 @@ class AnimeEpisodeActivityTableData extends DataClass
       totalTime: totalTime == null && nullToAbsent
           ? const Value.absent()
           : Value(totalTime),
+      markedWatched: Value(markedWatched),
     );
   }
 
@@ -2817,6 +2850,7 @@ class AnimeEpisodeActivityTableData extends DataClass
       concreteId: serializer.fromJson<int>(json['concreteId']),
       watchedTime: serializer.fromJson<int?>(json['watchedTime']),
       totalTime: serializer.fromJson<int?>(json['totalTime']),
+      markedWatched: serializer.fromJson<bool>(json['markedWatched']),
     );
   }
   @override
@@ -2833,6 +2867,7 @@ class AnimeEpisodeActivityTableData extends DataClass
       'concreteId': serializer.toJson<int>(concreteId),
       'watchedTime': serializer.toJson<int?>(watchedTime),
       'totalTime': serializer.toJson<int?>(totalTime),
+      'markedWatched': serializer.toJson<bool>(markedWatched),
     };
   }
 
@@ -2847,6 +2882,7 @@ class AnimeEpisodeActivityTableData extends DataClass
     int? concreteId,
     Value<int?> watchedTime = const Value.absent(),
     Value<int?> totalTime = const Value.absent(),
+    bool? markedWatched,
   }) => AnimeEpisodeActivityTableData(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -2858,6 +2894,7 @@ class AnimeEpisodeActivityTableData extends DataClass
     concreteId: concreteId ?? this.concreteId,
     watchedTime: watchedTime.present ? watchedTime.value : this.watchedTime,
     totalTime: totalTime.present ? totalTime.value : this.totalTime,
+    markedWatched: markedWatched ?? this.markedWatched,
   );
   AnimeEpisodeActivityTableData copyWithCompanion(
     AnimeEpisodeActivityTableCompanion data,
@@ -2877,6 +2914,9 @@ class AnimeEpisodeActivityTableData extends DataClass
           ? data.watchedTime.value
           : this.watchedTime,
       totalTime: data.totalTime.present ? data.totalTime.value : this.totalTime,
+      markedWatched: data.markedWatched.present
+          ? data.markedWatched.value
+          : this.markedWatched,
     );
   }
 
@@ -2892,7 +2932,8 @@ class AnimeEpisodeActivityTableData extends DataClass
           ..write('data: $data, ')
           ..write('concreteId: $concreteId, ')
           ..write('watchedTime: $watchedTime, ')
-          ..write('totalTime: $totalTime')
+          ..write('totalTime: $totalTime, ')
+          ..write('markedWatched: $markedWatched')
           ..write(')'))
         .toString();
   }
@@ -2909,6 +2950,7 @@ class AnimeEpisodeActivityTableData extends DataClass
     concreteId,
     watchedTime,
     totalTime,
+    markedWatched,
   );
   @override
   bool operator ==(Object other) =>
@@ -2923,7 +2965,8 @@ class AnimeEpisodeActivityTableData extends DataClass
           other.data == this.data &&
           other.concreteId == this.concreteId &&
           other.watchedTime == this.watchedTime &&
-          other.totalTime == this.totalTime);
+          other.totalTime == this.totalTime &&
+          other.markedWatched == this.markedWatched);
 }
 
 class AnimeEpisodeActivityTableCompanion
@@ -2938,6 +2981,7 @@ class AnimeEpisodeActivityTableCompanion
   final Value<int> concreteId;
   final Value<int?> watchedTime;
   final Value<int?> totalTime;
+  final Value<bool> markedWatched;
   const AnimeEpisodeActivityTableCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -2949,6 +2993,7 @@ class AnimeEpisodeActivityTableCompanion
     this.concreteId = const Value.absent(),
     this.watchedTime = const Value.absent(),
     this.totalTime = const Value.absent(),
+    this.markedWatched = const Value.absent(),
   });
   AnimeEpisodeActivityTableCompanion.insert({
     this.id = const Value.absent(),
@@ -2961,6 +3006,7 @@ class AnimeEpisodeActivityTableCompanion
     required int concreteId,
     this.watchedTime = const Value.absent(),
     this.totalTime = const Value.absent(),
+    this.markedWatched = const Value.absent(),
   }) : uid = Value(uid),
        title = Value(title),
        concreteId = Value(concreteId);
@@ -2975,6 +3021,7 @@ class AnimeEpisodeActivityTableCompanion
     Expression<int>? concreteId,
     Expression<int>? watchedTime,
     Expression<int>? totalTime,
+    Expression<bool>? markedWatched,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2987,6 +3034,7 @@ class AnimeEpisodeActivityTableCompanion
       if (concreteId != null) 'concrete_id': concreteId,
       if (watchedTime != null) 'watched_time': watchedTime,
       if (totalTime != null) 'total_time': totalTime,
+      if (markedWatched != null) 'marked_watched': markedWatched,
     });
   }
 
@@ -3001,6 +3049,7 @@ class AnimeEpisodeActivityTableCompanion
     Value<int>? concreteId,
     Value<int?>? watchedTime,
     Value<int?>? totalTime,
+    Value<bool>? markedWatched,
   }) {
     return AnimeEpisodeActivityTableCompanion(
       id: id ?? this.id,
@@ -3013,6 +3062,7 @@ class AnimeEpisodeActivityTableCompanion
       concreteId: concreteId ?? this.concreteId,
       watchedTime: watchedTime ?? this.watchedTime,
       totalTime: totalTime ?? this.totalTime,
+      markedWatched: markedWatched ?? this.markedWatched,
     );
   }
 
@@ -3049,6 +3099,9 @@ class AnimeEpisodeActivityTableCompanion
     if (totalTime.present) {
       map['total_time'] = Variable<int>(totalTime.value);
     }
+    if (markedWatched.present) {
+      map['marked_watched'] = Variable<bool>(markedWatched.value);
+    }
     return map;
   }
 
@@ -3064,7 +3117,8 @@ class AnimeEpisodeActivityTableCompanion
           ..write('data: $data, ')
           ..write('concreteId: $concreteId, ')
           ..write('watchedTime: $watchedTime, ')
-          ..write('totalTime: $totalTime')
+          ..write('totalTime: $totalTime, ')
+          ..write('markedWatched: $markedWatched')
           ..write(')'))
         .toString();
   }
@@ -8243,6 +8297,7 @@ typedef $$AnimeEpisodeActivityTableTableCreateCompanionBuilder =
       required int concreteId,
       Value<int?> watchedTime,
       Value<int?> totalTime,
+      Value<bool> markedWatched,
     });
 typedef $$AnimeEpisodeActivityTableTableUpdateCompanionBuilder =
     AnimeEpisodeActivityTableCompanion Function({
@@ -8256,6 +8311,7 @@ typedef $$AnimeEpisodeActivityTableTableUpdateCompanionBuilder =
       Value<int> concreteId,
       Value<int?> watchedTime,
       Value<int?> totalTime,
+      Value<bool> markedWatched,
     });
 
 class $$AnimeEpisodeActivityTableTableFilterComposer
@@ -8314,6 +8370,11 @@ class $$AnimeEpisodeActivityTableTableFilterComposer
 
   ColumnFilters<int> get totalTime => $composableBuilder(
     column: $table.totalTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get markedWatched => $composableBuilder(
+    column: $table.markedWatched,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -8376,6 +8437,11 @@ class $$AnimeEpisodeActivityTableTableOrderingComposer
     column: $table.totalTime,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get markedWatched => $composableBuilder(
+    column: $table.markedWatched,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AnimeEpisodeActivityTableTableAnnotationComposer
@@ -8420,6 +8486,11 @@ class $$AnimeEpisodeActivityTableTableAnnotationComposer
 
   GeneratedColumn<int> get totalTime =>
       $composableBuilder(column: $table.totalTime, builder: (column) => column);
+
+  GeneratedColumn<bool> get markedWatched => $composableBuilder(
+    column: $table.markedWatched,
+    builder: (column) => column,
+  );
 }
 
 class $$AnimeEpisodeActivityTableTableTableManager
@@ -8478,6 +8549,7 @@ class $$AnimeEpisodeActivityTableTableTableManager
                 Value<int> concreteId = const Value.absent(),
                 Value<int?> watchedTime = const Value.absent(),
                 Value<int?> totalTime = const Value.absent(),
+                Value<bool> markedWatched = const Value.absent(),
               }) => AnimeEpisodeActivityTableCompanion(
                 id: id,
                 createdAt: createdAt,
@@ -8489,6 +8561,7 @@ class $$AnimeEpisodeActivityTableTableTableManager
                 concreteId: concreteId,
                 watchedTime: watchedTime,
                 totalTime: totalTime,
+                markedWatched: markedWatched,
               ),
           createCompanionCallback:
               ({
@@ -8502,6 +8575,7 @@ class $$AnimeEpisodeActivityTableTableTableManager
                 required int concreteId,
                 Value<int?> watchedTime = const Value.absent(),
                 Value<int?> totalTime = const Value.absent(),
+                Value<bool> markedWatched = const Value.absent(),
               }) => AnimeEpisodeActivityTableCompanion.insert(
                 id: id,
                 createdAt: createdAt,
@@ -8513,6 +8587,7 @@ class $$AnimeEpisodeActivityTableTableTableManager
                 concreteId: concreteId,
                 watchedTime: watchedTime,
                 totalTime: totalTime,
+                markedWatched: markedWatched,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

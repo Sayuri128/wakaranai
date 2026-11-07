@@ -63,6 +63,7 @@ AnimeEpisodeActivityDomain _activity(
   String uid, {
   int? watchedTime,
   int? totalTime,
+  bool markedWatched = false,
 }) {
   return AnimeEpisodeActivityDomain(
     id: 0,
@@ -71,6 +72,7 @@ AnimeEpisodeActivityDomain _activity(
     concreteId: 1,
     watchedTime: watchedTime,
     totalTime: totalTime,
+    markedWatched: markedWatched,
     createdAt: DateTime(2024),
   );
 }
@@ -168,6 +170,12 @@ void main() {
       _activity('web', watchedTime: null, totalTime: null),
       _activity('unknown-length', watchedTime: 300, totalTime: null),
       _activity('zero-length', watchedTime: 0, totalTime: 0),
+      _activity(
+        'marked-half',
+        watchedTime: 720,
+        totalTime: 1440,
+        markedWatched: true,
+      ),
     ]);
 
     expect(watched, <String>{
@@ -175,6 +183,7 @@ void main() {
       'web',
       'unknown-length',
       'zero-length',
+      'marked-half',
     });
   });
 

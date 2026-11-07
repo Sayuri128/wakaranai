@@ -344,4 +344,33 @@ void main() {
     expect(await _userVersion(replayed), replayed.schemaVersion);
     await replayed.close();
   });
+
+  test('upgrade from v14 adds the episode watched mark column', () async {
+    final Database raw = sqlite3.openInMemory();
+    addTearDown(raw.dispose);
+
+    final WakaranaiDatabase first = await _open(raw);
+    await first.close();
+
+    raw.execute(
+      'ALTER TABLE anime_episode_activity_table DROP COLUMN marked_watched;',
+    );
+    raw.execute('PRAGMA user_version = 14;');
+
+    final WakaranaiDatabase second = await _open(raw);
+    expect(await _userVersion(second), second.schemaVersion);
+
+    final Set<Object?> columns = (await second
+            .customSelect('PRAGMA table_info(anime_episode_activity_table);')
+            .get())
+        .map((QueryRow r) => r.data['name'])
+        .toSet();
+    expect(columns, contains('marked_watched'));
+    await second.close();
+
+    raw.execute('PRAGMA user_version = 14;');
+    final WakaranaiDatabase replayed = await _open(raw);
+    expect(await _userVersion(replayed), replayed.schemaVersion);
+    await replayed.close();
+  });
 }

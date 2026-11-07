@@ -140,6 +140,7 @@ class ExportAnimeEpisodeActivity {
   final String? data;
   final int? watchedTime;
   final int? totalTime;
+  final bool markedWatched;
   final DateTime createdAt;
 
   const ExportAnimeEpisodeActivity({
@@ -150,6 +151,7 @@ class ExportAnimeEpisodeActivity {
     this.data,
     this.watchedTime,
     this.totalTime,
+    this.markedWatched = false,
     required this.createdAt,
   });
 
