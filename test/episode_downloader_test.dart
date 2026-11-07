@@ -9,6 +9,7 @@ import 'package:wakaranai/blocs/downloads/download_throttle.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/services/downloads/episode/episode_download_manifest.dart';
+import 'package:wakaranai/services/downloads/episode/episode_download_plan.dart';
 import 'package:wakaranai/services/downloads/episode/episode_downloader.dart';
 
 class FakeRequest {
@@ -146,7 +147,17 @@ List<int> bytesOf(String label, int length) {
   return List<int>.generate(length, (int i) => (label.hashCode + i) & 0xff);
 }
 
-const String masterUrl = 'https://origin.example/hls/master.m3u8?sig=1';
+List<int> mp4Bytes(String label, int length) {
+  final List<int> header = <int>[0, 0, 0, 0x18, ...ascii.encode('ftypisom')];
+  return <int>[...header, ...bytesOf(label, length - header.length)];
+}
+
+List<int> webmBytes(String label, int length) {
+  final List<int> header = <int>[0x1a, 0x45, 0xdf, 0xa3];
+  return <int>[...header, ...bytesOf(label, length - header.length)];
+}
+
+const String masterUrl ='https://origin.example/hls/master.m3u8?sig=1';
 const String cdn = 'https://cdn.example/v720';
 const String keyUrl = 'https://cdn.example/keys/k1?sig=1';
 const String subtitleUrl = 'https://subs.example/ep1.vtt';
@@ -533,7 +544,7 @@ main.mp4
 
   group('mp4', () {
     const String mp4Url = 'https://mp4upload.example/files/ep1.mp4';
-    final List<int> content = bytesOf('mp4', 1000);
+    final List<int> content = mp4Bytes('mp4', 1000);
     const PlayableVideo mp4Video = PlayableVideo(
       streams: <PlayableStream>[
         PlayableStream(
@@ -556,6 +567,167 @@ main.mp4
       await handle.truncate(length);
       await handle.close();
     }
+
+    Future<void> seedFingerprint({int? total, String? etag}) {
+      return writeMp4SourceFingerprint(
+        dir,
+        Mp4SourceFingerprint(totalBytes: total, etag: etag),
+      );
+    }
+
+    List<String?> rangesOf(FakeEpisodeHttp http) {
+      return http.requests
+          .map((FakeRequest request) => request.header('range'))
+          .toList();
+    }
+
+    Future<void> expectRejected(FakeEpisodeHttp http, String reason) async {
+      await expectLater(
+        run(http, video: mp4Video),
+        throwsA(
+          isA<UnsupportedEpisodeDownload>().having(
+            (UnsupportedEpisodeDownload error) => error.reason,
+            'reason',
+            contains(reason),
+          ),
+        ),
+      );
+      expect(http.requests, hasLength(1));
+      expect(fileIn('video.mp4').existsSync(), isFalse);
+      expect(fileIn('video.mp4.part').existsSync(), isFalse);
+    }
+
+    test('rejects a web page declared as html', () async {
+      final FakeEpisodeHttp http = FakeEpisodeHttp()
+        ..serve(
+          mp4Url,
+          (_) => FakeReply(
+            200,
+            body: mp4Bytes('mp4', 100),
+            headers: const <String, String>{
+              'Content-Type': 'text/html; charset=UTF-8',
+            },
+          ),
+        );
+
+      await expectRejected(http, 'web page');
+    });
+
+    test('rejects a web page whose content type claims video', () async {
+      final FakeEpisodeHttp http = FakeEpisodeHttp()
+        ..serve(
+          mp4Url,
+          (_) => FakeReply(
+            200,
+            body: utf8.encode(
+              '\n  <!DOCTYPE html><html><body>Just a moment...</body></html>',
+            ),
+            headers: const <String, String>{'Content-Type': 'video/mp4'},
+          ),
+        );
+
+      await expectRejected(http, 'web page');
+    });
+
+    test('rejects a dash manifest', () async {
+      final FakeEpisodeHttp http = FakeEpisodeHttp()
+        ..serveText(
+          mp4Url,
+          '<?xml version="1.0" encoding="UTF-8"?>\n'
+          '<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" type="static"></MPD>\n',
+        );
+
+      await expectRejected(http, 'DASH');
+    });
+
+    test('rejects a dash content type', () async {
+      final FakeEpisodeHttp http = FakeEpisodeHttp()
+        ..serve(
+          mp4Url,
+          (_) => FakeReply(
+            200,
+            body: mp4Bytes('mp4', 100),
+            headers: const <String, String>{
+              'Content-Type': 'application/dash+xml',
+            },
+          ),
+        );
+
+      await expectRejected(http, 'DASH');
+    });
+
+    test('rejects an hls playlist served as a progressive file', () async {
+      final FakeEpisodeHttp http = FakeEpisodeHttp()
+        ..serveText(mp4Url, '#EXTM3U\n#EXTINF:4,\nchunk0.ts\n');
+
+      await expectRejected(http, 'HLS playlist');
+    });
+
+    test('accepts a webm file', () async {
+      final List<int> webm = webmBytes('webm', 600);
+      final FakeEpisodeHttp http = FakeEpisodeHttp()..serveBytes(mp4Url, webm);
+
+      final EpisodeDownloadManifest manifest = await run(
+        http,
+        video: mp4Video,
+      );
+
+      expect(manifest.format, EpisodeMediaFormat.mp4);
+      expect(await fileIn('video.mp4').readAsBytes(), webm);
+    });
+
+    test('restarts from zero when the resumed file has another size', () async {
+      await seedPartial(400);
+      await seedFingerprint(total: 1000);
+      final List<int> replaced = mp4Bytes('replaced', 1200);
+      final FakeEpisodeHttp http = FakeEpisodeHttp()
+        ..serveBytes(mp4Url, replaced);
+
+      await run(http, video: mp4Video);
+
+      expect(rangesOf(http), <String>['bytes=400-', 'bytes=0-']);
+      expect(await fileIn('video.mp4').readAsBytes(), replaced);
+      expect(fileIn('video.mp4.part').existsSync(), isFalse);
+      expect(fileIn(kMp4SourceFileName).existsSync(), isFalse);
+    });
+
+    test('sends the stored etag as If-Range when resuming', () async {
+      await seedPartial(400);
+      await seedFingerprint(total: 1000, etag: '"v1"');
+      final FakeEpisodeHttp http = FakeEpisodeHttp()
+        ..serveBytes(mp4Url, content);
+
+      await run(http, video: mp4Video);
+
+      expect(http.requests.single.header('range'), 'bytes=400-');
+      expect(http.requests.single.header('if-range'), '"v1"');
+      expect(await fileIn('video.mp4').readAsBytes(), content);
+    });
+
+    test('remembers the validator of the first response', () async {
+      final FakeEpisodeHttp http = FakeEpisodeHttp();
+      int calls = 0;
+      http.serve(mp4Url, (FakeRequest request) {
+        calls++;
+        final FakeReply full = rangeAware(request, content);
+        final Map<String, String> headers = <String, String>{
+          ...full.headers,
+          'ETag': '"v7"',
+          'Last-Modified': 'Wed, 21 Oct 2026 07:28:00 GMT',
+        };
+        final List<int> body = calls == 1
+            ? full.body.sublist(0, 300)
+            : full.body;
+        return FakeReply(full.status, body: body, headers: headers);
+      });
+
+      await run(http, video: mp4Video);
+
+      expect(http.requests.first.header('if-range'), isNull);
+      expect(http.requests.last.header('range'), 'bytes=300-');
+      expect(http.requests.last.header('if-range'), '"v7"');
+      expect(await fileIn('video.mp4').readAsBytes(), content);
+    });
 
     test('downloads progressively with the source headers', () async {
       final FakeEpisodeHttp http = FakeEpisodeHttp()
@@ -583,14 +755,16 @@ main.mp4
       expect(progress.last.totalSegments, 0);
     });
 
-    test('appends to a partial file on 206', () async {
+    test('appends to a partial file of the same size on 206', () async {
       await seedPartial(400);
+      await seedFingerprint(total: 1000);
       final FakeEpisodeHttp http = FakeEpisodeHttp()
         ..serveBytes(mp4Url, content);
 
       await run(http, video: mp4Video);
 
       expect(http.requests.single.header('range'), 'bytes=400-');
+      expect(http.requests.single.header('if-range'), isNull);
       expect(await fileIn('video.mp4').readAsBytes(), content);
       expect(fileIn('video.mp4.part').existsSync(), isFalse);
     });
@@ -680,6 +854,29 @@ main.mp4
     expect(await fileIn('v/000001.ts').readAsBytes(), bytesOf('chunk', 30));
   });
 
+  test('refuses an auto stream that turns out to be dash', () async {
+    const String autoUrl = 'https://host.example/play?id=2';
+    final FakeEpisodeHttp http = FakeEpisodeHttp();
+    http.serveText(
+      autoUrl,
+      '<?xml version="1.0" encoding="UTF-8"?>\n'
+      '<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" type="static">\n'
+      '</MPD>\n',
+    );
+
+    await expectLater(
+      run(
+        http,
+        video: const PlayableVideo(
+          streams: <PlayableStream>[PlayableStream(url: autoUrl)],
+        ),
+      ),
+      throwsA(isA<UnsupportedEpisodeDownload>()),
+    );
+    expect(http.urls, <String>[autoUrl]);
+    expect(fileIn('video.mp4').existsSync(), isFalse);
+  });
+
   test(
     'keeps going when a subtitle fails and detects srt by content',
     () async {
@@ -742,7 +939,7 @@ main.mp4
   test('falls through from a preferred dash stream to mp4', () async {
     const String mp4Url = 'https://host.example/ep.mp4';
     final FakeEpisodeHttp http = FakeEpisodeHttp()
-      ..serveBytes(mp4Url, bytesOf('x', 50));
+      ..serveBytes(mp4Url, mp4Bytes('x', 50));
 
     final EpisodeDownloadManifest manifest = await run(
       http,

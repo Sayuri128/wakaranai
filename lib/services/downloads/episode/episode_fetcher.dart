@@ -7,6 +7,7 @@ import 'package:wakaranai/main.dart';
 import 'package:wakaranai/services/downloads/episode/episode_download_errors.dart';
 import 'package:wakaranai/services/downloads/episode/episode_file_io.dart';
 import 'package:wakaranai/services/downloads/episode/episode_http.dart';
+import 'package:wakaranai/services/downloads/episode/episode_media_sniff.dart';
 import 'package:wakaranai/services/downloads/episode/hls_playlist.dart';
 
 typedef EpisodeResponseHandler<T> =
@@ -166,13 +167,22 @@ class EpisodeFetcher {
     return send<EpisodeProbeResult>(
       url: url,
       headers: () => headers,
-      onResponse: _probeResponse,
+      onResponse: (EpisodeHttpResponse response) =>
+          _probeResponse(response, url),
     );
   }
 
   Future<EpisodeProbeResult> _probeResponse(
     EpisodeHttpResponse response,
+    String url,
   ) async {
+    final SniffedMedia? declared = sniffContentType(
+      response.header('content-type'),
+    );
+    if (declared != null) {
+      await response.discard();
+      throw nonVideoRejection(declared, url);
+    }
     final BytesBuilder head = BytesBuilder(copy: false);
     bool? hls;
     await for (final List<int> chunk in response.body) {
@@ -187,12 +197,24 @@ class EpisodeFetcher {
     if (hls == true || looksLikeHlsPlaylist(decodeText(bytes))) {
       return EpisodeProbeResult.hls(decodeText(bytes));
     }
+    _rejectMarkup(bytes, url);
     return const EpisodeProbeResult.progressive();
+  }
+
+  void _rejectMarkup(Uint8List head, String url) {
+    final SniffedMedia sniffed = sniffMediaHead(head);
+    if (sniffed == SniffedMedia.dashManifest ||
+        sniffed == SniffedMedia.webPage) {
+      throw nonVideoRejection(sniffed, url);
+    }
   }
 
   bool? _classifyHead(Uint8List bytes) {
     final String text = decodeText(bytes).replaceFirst('﻿', '');
     final String trimmed = text.trimLeft();
+    if (trimmed.startsWith('<') && bytes.length < kMediaSniffLength) {
+      return null;
+    }
     if (trimmed.length < 7) {
       return bytes.length >= 64 ? false : null;
     }

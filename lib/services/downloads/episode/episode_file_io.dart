@@ -112,6 +112,61 @@ class _FilePump {
   }
 }
 
+class StreamHead {
+  StreamHead._(this._chunks, this._rest);
+
+  final List<List<int>> _chunks;
+  final StreamIterator<List<int>>? _rest;
+
+  Uint8List get bytes {
+    final BytesBuilder builder = BytesBuilder(copy: true);
+    for (final List<int> chunk in _chunks) {
+      builder.add(chunk);
+    }
+    return builder.takeBytes();
+  }
+
+  Stream<List<int>> get body async* {
+    for (final List<int> chunk in _chunks) {
+      yield chunk;
+    }
+    final StreamIterator<List<int>>? rest = _rest;
+    if (rest == null) {
+      return;
+    }
+    try {
+      while (await rest.moveNext()) {
+        yield rest.current;
+      }
+    } finally {
+      await rest.cancel();
+    }
+  }
+
+  Future<void> discard() async {
+    await _rest?.cancel();
+  }
+}
+
+Future<StreamHead> peekStreamHead(Stream<List<int>> source, int length) async {
+  final StreamIterator<List<int>> iterator = StreamIterator<List<int>>(source);
+  final List<List<int>> chunks = <List<int>>[];
+  int peeked = 0;
+  try {
+    while (peeked < length) {
+      if (!await iterator.moveNext()) {
+        return StreamHead._(chunks, null);
+      }
+      chunks.add(iterator.current);
+      peeked += iterator.current.length;
+    }
+  } catch (_) {
+    await iterator.cancel();
+    rethrow;
+  }
+  return StreamHead._(chunks, iterator);
+}
+
 Future<Uint8List> readStreamFully(
   Stream<List<int>> body, {
   required CancelToken cancelToken,
