@@ -6466,6 +6466,176 @@ class S {
     );
   }
 
+  /// `Page fit`
+  String get reader_page_fit_title {
+    return Intl.message(
+      'Page fit',
+      name: 'reader_page_fit_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fit screen`
+  String get reader_page_fit_screen {
+    return Intl.message(
+      'Fit screen',
+      name: 'reader_page_fit_screen',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fit width`
+  String get reader_page_fit_width {
+    return Intl.message(
+      'Fit width',
+      name: 'reader_page_fit_width',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fit height`
+  String get reader_page_fit_height {
+    return Intl.message(
+      'Fit height',
+      name: 'reader_page_fit_height',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Background`
+  String get reader_background_title {
+    return Intl.message(
+      'Background',
+      name: 'reader_background_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Black`
+  String get reader_background_black {
+    return Intl.message(
+      'Black',
+      name: 'reader_background_black',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Grey`
+  String get reader_background_grey {
+    return Intl.message(
+      'Grey',
+      name: 'reader_background_grey',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `White`
+  String get reader_background_white {
+    return Intl.message(
+      'White',
+      name: 'reader_background_white',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Theme`
+  String get reader_background_theme {
+    return Intl.message(
+      'Theme',
+      name: 'reader_background_theme',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Crop borders`
+  String get reader_crop_borders_title {
+    return Intl.message(
+      'Crop borders',
+      name: 'reader_crop_borders_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Trim empty white or black margins in page modes`
+  String get reader_crop_borders_subtitle {
+    return Intl.message(
+      'Trim empty white or black margins in page modes',
+      name: 'reader_crop_borders_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Two pages in landscape`
+  String get reader_double_page_title {
+    return Intl.message(
+      'Two pages in landscape',
+      name: 'reader_double_page_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show pages side by side when the phone is turned sideways`
+  String get reader_double_page_subtitle {
+    return Intl.message(
+      'Show pages side by side when the phone is turned sideways',
+      name: 'reader_double_page_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Turn pages with volume keys`
+  String get reader_volume_keys_title {
+    return Intl.message(
+      'Turn pages with volume keys',
+      name: 'reader_volume_keys_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invert volume keys`
+  String get reader_volume_keys_invert_title {
+    return Intl.message(
+      'Invert volume keys',
+      name: 'reader_volume_keys_invert_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Incognito mode`
+  String get settings_incognito_title {
+    return Intl.message(
+      'Incognito mode',
+      name: 'settings_incognito_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Don't save reading or watching progress, history or statistics`
+  String get settings_incognito_subtitle {
+    return Intl.message(
+      'Don\'t save reading or watching progress, history or statistics',
+      name: 'settings_incognito_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Translate every page in the background`
   String get page_translation_translate_chapter_hint {
     return Intl.message(

@@ -22,6 +22,10 @@ import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
 import 'package:wakaranai/services/page_translation/engines/on_device_model.dart';
 import 'package:wakaranai/blocs/language_packs/language_packs_cubit.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
+import 'package:wakaranai/blocs/reader_preferences/reader_preferences_cubit.dart';
+import 'package:wakaranai/repositories/shared_pref/reader_preferences.dart';
+import 'package:wakaranai/services/device/volume_key_events.dart';
+import 'package:wakaranai/ui/services/cubits/chapter_view/reader_spreads.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/page_translation_repository.dart';
 import 'package:wakaranai/repositories/shared_pref/title_translation_languages_repository.dart';
@@ -34,6 +38,7 @@ import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
+import 'package:wakaranai/utils/page_bitmap_cache.dart';
 import 'package:wakaranai/utils/page_image.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_cubit.dart';
@@ -53,6 +58,7 @@ import 'package:wakaranai/ui/widgets/source_error_view.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/source_error_description.dart';
 import 'package:wakaranai/utils/text_styles.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/reader_background.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/reader_controls.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/reader_horizontal_gestures.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/reader_translation_overlays.dart';
@@ -111,6 +117,16 @@ class _ChapterViewerState extends State<ChapterViewer>
   final ItemPositionsListener _itemPositionsListener =
       ItemPositionsListener.create();
 
+  @override
+  final ScrollOffsetController _scrollOffsetController =
+      ScrollOffsetController();
+
+  @override
+  late ReaderPreferences _readerPreferences;
+
+  StreamSubscription<ReaderPreferences>? _preferencesSubscription;
+  StreamSubscription<VolumeKey>? _volumeKeySubscription;
+
   bool _initialized = false;
 
   ChapterViewMode? _lastMode;
@@ -132,6 +148,7 @@ class _ChapterViewerState extends State<ChapterViewer>
 
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     unawaited(WakelockPlus.enable());
+    _listenToReaderPreferences();
 
     _setUpTranslation();
 
@@ -147,6 +164,59 @@ class _ChapterViewerState extends State<ChapterViewer>
           downloadRepository: context.read<DownloadRepository>(),
         );
     _openChapter();
+  }
+
+  void _listenToReaderPreferences() {
+    final ReaderPreferencesCubit preferences =
+        context.read<ReaderPreferencesCubit>();
+    _readerPreferences = preferences.state;
+    _preferencesSubscription = preferences.stream.listen((
+      ReaderPreferences updated,
+    ) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _readerPreferences = updated);
+      unawaited(VolumeKeyEvents.setIntercepting(updated.volumeKeys));
+    });
+    unawaited(VolumeKeyEvents.setIntercepting(_readerPreferences.volumeKeys));
+    _volumeKeySubscription = VolumeKeyEvents.keys.listen(_onVolumeKey);
+  }
+
+  void _onVolumeKey(VolumeKey key) {
+    final bool down = key == VolumeKey.down;
+    final bool forward = down != _readerPreferences.invertVolumeKeys;
+    _turnPage(forward: forward);
+  }
+
+  void _turnPage({required bool forward}) {
+    final ChapterViewState state = _chapterViewCubit.state;
+    if (state is! ChapterViewInitialized) {
+      return;
+    }
+    if (state.mode == ChapterViewMode.webtoon) {
+      final double distance = MediaQuery.sizeOf(context).height * 0.8;
+      unawaited(_scrollOffsetController.animateScroll(
+        offset: forward ? distance : -distance,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      ));
+      return;
+    }
+    if (!_pageController.hasClients) {
+      return;
+    }
+    if (forward) {
+      unawaited(_pageController.nextPage(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.ease,
+      ));
+    } else {
+      unawaited(_pageController.previousPage(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.ease,
+      ));
+    }
   }
 
   void _openChapter() {
@@ -170,6 +240,9 @@ class _ChapterViewerState extends State<ChapterViewer>
   @override
   void dispose() {
     unawaited(WakelockPlus.disable());
+    unawaited(VolumeKeyEvents.setIntercepting(false));
+    unawaited(_preferencesSubscription?.cancel());
+    unawaited(_volumeKeySubscription?.cancel());
     _itemPositionsListener.itemPositions.removeListener(
       _onWebtoonPositionsChanged,
     );
@@ -198,7 +271,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                 listener: _onTranslationPhase,
                 child: _buildPage(),
               ),
-        backgroundColor: AppColors.mainBlack,
+        backgroundColor: readerBackgroundColor(_readerPreferences.background),
       ),
     );
   }
@@ -237,7 +310,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                   state,
                   state.currentPage,
                 );
-                _pageController.jumpToPage(index);
+                _jumpPagedTo(state, index);
                 _onPagedIndexChanged(index);
               }
             });
@@ -268,12 +341,12 @@ class _ChapterViewerState extends State<ChapterViewer>
               _buildBackground(context),
               _buildViewer(context, state),
               _buildSelectionOverlay(),
-              if (state.mode != ChapterViewMode.webtoon)
-                ReaderHorizontalGestures(
-                  mode: state.mode,
-                  controlsEnabled: state.controlsEnabled,
-                  pageController: _pageController,
-                ),
+              ReaderTapZones(
+                mode: state.mode,
+                controlsEnabled: state.controlsEnabled,
+                onForward: () => _turnPage(forward: true),
+                onBackward: () => _turnPage(forward: false),
+              ),
               _buildControls(context, state),
               ReaderPageCounter(
                 currentPage: state.currentPage,
@@ -396,6 +469,10 @@ class _ChapterViewerState extends State<ChapterViewer>
     showModalBottomSheet(
       context: context,
       enableDrag: true,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+      ),
       backgroundColor: AppColors.backgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -470,7 +547,7 @@ class _ChapterViewerState extends State<ChapterViewer>
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
-      color: Colors.black,
+      color: readerBackgroundColor(_readerPreferences.background),
     );
   }
 }

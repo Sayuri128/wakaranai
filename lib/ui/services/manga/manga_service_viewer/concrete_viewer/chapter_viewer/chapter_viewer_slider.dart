@@ -1,11 +1,6 @@
 part of 'chapter_viewer.dart';
 
-mixin _ReaderSliderControl on State<ChapterViewer> {
-  PageController get _pageController;
-
-  ItemScrollController get _itemScrollController;
-
-  int _stripIndexOfCurrentPage(ChapterViewInitialized state, int page);
+mixin _ReaderSliderControl on State<ChapterViewer>, _ReaderStripNavigation {
 
   late final AnimationController _sliderController;
   double _sliderFrom = 1;
@@ -65,7 +60,8 @@ mixin _ReaderSliderControl on State<ChapterViewer> {
             switch (state.mode) {
               case ChapterViewMode.rightToLeft:
               case ChapterViewMode.leftToRight:
-                _pageController.jumpToPage(
+                _jumpPagedTo(
+                  state,
                   _stripIndexOfCurrentPage(state, dragged.toInt()),
                 );
                 break;

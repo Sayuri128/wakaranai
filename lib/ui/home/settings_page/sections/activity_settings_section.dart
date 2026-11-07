@@ -8,6 +8,7 @@ import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/home/settings_page/import_export_sheet.dart';
 import 'package:wakaranai/ui/home/settings_page/sections/auto_backup_tiles.dart';
+import 'package:wakaranai/ui/home/settings_page/sections/reader_display_tiles.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_widgets.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
@@ -23,6 +24,7 @@ class ActivitySettingsSection extends StatelessWidget {
       title: S.current.home_navigation_bar_activity_history_title,
       action: _InfoButton(onTap: () => _showImportExportInfo(context)),
       tiles: <Widget>[
+        const IncognitoTile(),
         const AutoBackupTiles(),
         SettingsTile(
           icon: Icons.file_upload_outlined,

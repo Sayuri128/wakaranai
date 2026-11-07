@@ -1,4 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/reader_preferences/reader_preferences_cubit.dart';
+import 'package:wakaranai/repositories/shared_pref/reader_preferences.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/reader_preference_labels.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/page_translation/title_languages.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_cubit.dart';
@@ -43,7 +47,7 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -91,11 +95,90 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
                 setState(() => _enableTapControlsState = newValue);
               },
             ),
+            ..._buildDisplayRows(context),
             ..._buildTranslationRows(context),
           ],
         ),
       ),
     );
+  }
+
+  List<Widget> _buildDisplayRows(BuildContext context) {
+    final ReaderPreferencesCubit cubit = context.read<ReaderPreferencesCubit>();
+    return <Widget>[
+      BlocBuilder<ReaderPreferencesCubit, ReaderPreferences>(
+        bloc: cubit,
+        builder: (BuildContext context, ReaderPreferences preferences) {
+          final bool paged = _mode != ChapterViewMode.webtoon;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              if (paged) ...<Widget>[
+                const SizedBox(height: 20),
+                Text(S.current.reader_page_fit_title, style: semibold(size: 16)),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: <Widget>[
+                    for (final ReaderPageFit fit in ReaderPageFit.values)
+                      _ModeChip(
+                        label: readerPageFitLabel(fit),
+                        selected: fit == preferences.pageFit,
+                        onTap: () => cubit.setPageFit(fit),
+                      ),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 20),
+              Text(S.current.reader_background_title, style: semibold(size: 16)),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: <Widget>[
+                  for (final ReaderBackground background
+                      in ReaderBackground.values)
+                    _ModeChip(
+                      label: readerBackgroundLabel(background),
+                      selected: background == preferences.background,
+                      onTap: () => cubit.setBackground(background),
+                    ),
+                ],
+              ),
+              if (paged) ...<Widget>[
+                const SizedBox(height: 20),
+                _SwitchRow(
+                  label: S.current.reader_crop_borders_title,
+                  value: preferences.cropBorders,
+                  onChanged: cubit.setCropBorders,
+                ),
+                const SizedBox(height: 10),
+                _SwitchRow(
+                  label: S.current.reader_double_page_title,
+                  value: preferences.doublePageSpread,
+                  onChanged: cubit.setDoublePageSpread,
+                ),
+              ],
+              const SizedBox(height: 10),
+              _SwitchRow(
+                label: S.current.reader_volume_keys_title,
+                value: preferences.volumeKeys,
+                onChanged: cubit.setVolumeKeys,
+              ),
+              if (preferences.volumeKeys) ...<Widget>[
+                const SizedBox(height: 10),
+                _SwitchRow(
+                  label: S.current.reader_volume_keys_invert_title,
+                  value: preferences.invertVolumeKeys,
+                  onChanged: cubit.setInvertVolumeKeys,
+                ),
+              ],
+            ],
+          );
+        },
+      ),
+    ];
   }
 
   List<Widget> _buildTranslationRows(BuildContext context) {

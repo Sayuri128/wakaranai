@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:wakaranai/utils/page_bitmap.dart';
+import 'package:wakaranai/utils/page_border_trim.dart';
 import 'package:wakaranai/utils/page_bitmap_cache.dart';
 
 export 'package:wakaranai/utils/page_bitmap.dart'
@@ -42,6 +44,7 @@ class PageImage extends StatefulWidget {
     required this.path,
     required this.headers,
     this.intrinsic = false,
+    this.cropBorders = false,
     this.onSizeResolved,
     this.loadingBuilder,
     this.errorBuilder,
@@ -50,6 +53,7 @@ class PageImage extends StatefulWidget {
   final String path;
   final Map<String, String> headers;
   final bool intrinsic;
+  final bool cropBorders;
   final ValueChanged<Size>? onSizeResolved;
   final WidgetBuilder? loadingBuilder;
   final Widget Function(BuildContext context, VoidCallback retry)? errorBuilder;
@@ -62,6 +66,7 @@ class _PageImageState extends State<PageImage> {
   PageBitmap? _bitmap;
   Object? _error;
   PageBitmapLease? _lease;
+  PageTrim _trim = PageTrim.none;
 
   @override
   void initState() {
@@ -76,7 +81,12 @@ class _PageImageState extends State<PageImage> {
       _releaseCurrent();
       _bitmap = null;
       _error = null;
+      _trim = PageTrim.none;
       _load();
+      return;
+    }
+    if (oldWidget.cropBorders != widget.cropBorders) {
+      _applyTrimSetting();
     }
   }
 
@@ -103,14 +113,47 @@ class _PageImageState extends State<PageImage> {
       setState(() {
         _bitmap = bitmap;
         _error = null;
+        _trim = widget.cropBorders
+            ? PageBorderTrimmer.cached(widget.path) ?? PageTrim.none
+            : PageTrim.none;
       });
-      widget.onSizeResolved?.call(bitmap.size);
+      widget.onSizeResolved?.call(_trim.trimmedSize(bitmap.size));
+      if (widget.cropBorders) {
+        unawaited(_resolveTrim(bitmap, lease));
+      }
     } catch (e) {
       if (!mounted || !identical(_lease, lease)) {
         return;
       }
       setState(() => _error = e);
     }
+  }
+
+  Future<void> _resolveTrim(PageBitmap bitmap, PageBitmapLease lease) async {
+    final PageTrim trim =
+        await PageBorderTrimmer.trimFor(widget.path, bitmap.image);
+    if (!mounted ||
+        !identical(_lease, lease) ||
+        !widget.cropBorders ||
+        identical(trim, _trim)) {
+      return;
+    }
+    setState(() => _trim = trim);
+    widget.onSizeResolved?.call(trim.trimmedSize(bitmap.size));
+  }
+
+  void _applyTrimSetting() {
+    final PageBitmap? bitmap = _bitmap;
+    final PageBitmapLease? lease = _lease;
+    if (bitmap == null || lease == null) {
+      return;
+    }
+    if (!widget.cropBorders) {
+      setState(() => _trim = PageTrim.none);
+      widget.onSizeResolved?.call(bitmap.size);
+      return;
+    }
+    unawaited(_resolveTrim(bitmap, lease));
   }
 
   Future<void> _retry() async {
@@ -143,27 +186,29 @@ class _PageImageState extends State<PageImage> {
     if (bitmap == null) {
       return _placeholder(context);
     }
+    final Size size = _trim.trimmedSize(bitmap.size);
     final CustomPaint painter = CustomPaint(
-      size: widget.intrinsic ? bitmap.size : Size.infinite,
-      painter: _PageBitmapPainter(bitmap.image),
+      size: widget.intrinsic ? size : Size.infinite,
+      painter: _PageBitmapPainter(bitmap.image, _trim.sourceRect(bitmap.image)),
     );
     if (widget.intrinsic) {
-      return SizedBox.fromSize(size: bitmap.size, child: painter);
+      return SizedBox.fromSize(size: size, child: painter);
     }
-    return AspectRatio(aspectRatio: bitmap.aspectRatio, child: painter);
+    return AspectRatio(aspectRatio: size.width / size.height, child: painter);
   }
 }
 
 class _PageBitmapPainter extends CustomPainter {
-  const _PageBitmapPainter(this.image);
+  const _PageBitmapPainter(this.image, this.source);
 
   final ui.Image image;
+  final Rect source;
 
   @override
   void paint(ui.Canvas canvas, Size size) {
     canvas.drawImageRect(
       image,
-      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+      source,
       Offset.zero & size,
       Paint()..filterQuality = FilterQuality.medium,
     );
@@ -171,7 +216,7 @@ class _PageBitmapPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_PageBitmapPainter oldDelegate) =>
-      oldDelegate.image != image;
+      oldDelegate.image != image || oldDelegate.source != source;
 }
 
 /// Downscales uniformly to a thumbnail-sized texture. Only appropriate for the

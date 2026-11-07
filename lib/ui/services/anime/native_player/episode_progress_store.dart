@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
+import 'package:wakaranai/services/incognito/incognito_mode.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
@@ -137,7 +138,7 @@ class ActivityEpisodeProgressStore implements EpisodeProgressStore {
     required int? totalTime,
   }) async {
     final int? concreteId = _concreteId;
-    if (concreteId == null) {
+    if (concreteId == null || IncognitoMode.active) {
       return;
     }
     await animeEpisodeActivityRepository

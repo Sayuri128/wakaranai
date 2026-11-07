@@ -8,6 +8,7 @@ import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:wakaranai/services/incognito/incognito_mode.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
@@ -74,7 +75,9 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
 
     final ChapterActivityDomain? activity = _pendingActivity;
     _pendingActivity = null;
-    if (activity == null) return;
+    if (activity == null || IncognitoMode.active) {
+      return;
+    }
 
     await chapterActivityRepository
         .createUpdateBy<$ChapterActivityTableTable, String>(
@@ -121,7 +124,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     required int readPages,
     required int totalPages,
   }) async {
-    if (concreteData == null) {
+    if (concreteData == null || IncognitoMode.active) {
       return;
     }
     await chapterActivityRepository

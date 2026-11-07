@@ -10,6 +10,7 @@ import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.view.KeyEvent
 import java.io.File
 import java.io.IOException
 import io.flutter.embedding.android.FlutterActivity
@@ -20,6 +21,7 @@ class MainActivity: FlutterActivity() {
     private val pictureInPicture = PictureInPictureChannel(this)
     private val downloadRuntime by lazy { DownloadRuntimeChannel(applicationContext) }
     private val networkState by lazy { NetworkStateChannel(applicationContext) }
+    private val volumeKeys = VolumeKeyChannel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +31,13 @@ class MainActivity: FlutterActivity() {
     override fun onDestroy() {
         pictureInPicture.unregisterReceiver()
         super.onDestroy()
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (volumeKeys.handle(event)) {
+            return true
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     override fun onUserLeaveHint() {
@@ -49,6 +58,7 @@ class MainActivity: FlutterActivity() {
         pictureInPicture.attach(flutterEngine.dartExecutor.binaryMessenger)
         downloadRuntime.attach(flutterEngine.dartExecutor.binaryMessenger)
         networkState.attach(flutterEngine.dartExecutor.binaryMessenger)
+        volumeKeys.attach(flutterEngine.dartExecutor.binaryMessenger)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "wakaranai/device")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -91,6 +101,7 @@ class MainActivity: FlutterActivity() {
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
         downloadRuntime.detach()
         networkState.detach()
+        volumeKeys.detach()
         super.cleanUpFlutterEngine(flutterEngine)
     }
 

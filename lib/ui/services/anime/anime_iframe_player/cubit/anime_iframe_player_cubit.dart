@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:flutter/foundation.dart';
+import 'package:wakaranai/services/incognito/incognito_mode.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
@@ -24,6 +25,9 @@ class AnimeIframePlayerCubit extends Cubit<AnimeIframePlayerState> {
     required AnimeConcreteView anime,
     required AnimeVideo video,
   }) async {
+    if (IncognitoMode.active) {
+      return;
+    }
     final concreteData = await concreteDataRepository.getByUid(anime.uid);
 
     if (concreteData != null) {

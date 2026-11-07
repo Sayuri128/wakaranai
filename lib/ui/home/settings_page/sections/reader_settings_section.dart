@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
+import 'package:wakaranai/ui/home/settings_page/sections/reader_display_tiles.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_widgets.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -27,6 +28,7 @@ class ReaderSettingsSection extends StatelessWidget {
           ),
           onTap: () => _showReaderModePicker(context, state.defaultMode),
         ),
+        const ReaderDisplayTiles(),
         SettingsTile(
           icon: Icons.translate_rounded,
           title: S.current.settings_page_translation_title,

@@ -1397,6 +1397,39 @@ class MessageLookup extends MessageLookupByLibrary {
     "player_skip_skipped_recap": MessageLookupByLibrary.simpleMessage(
       "Skipped recap",
     ),
+    "reader_background_black": MessageLookupByLibrary.simpleMessage("Black"),
+    "reader_background_grey": MessageLookupByLibrary.simpleMessage("Grey"),
+    "reader_background_theme": MessageLookupByLibrary.simpleMessage("Theme"),
+    "reader_background_title": MessageLookupByLibrary.simpleMessage(
+      "Background",
+    ),
+    "reader_background_white": MessageLookupByLibrary.simpleMessage("White"),
+    "reader_crop_borders_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Trim empty white or black margins in page modes",
+    ),
+    "reader_crop_borders_title": MessageLookupByLibrary.simpleMessage(
+      "Crop borders",
+    ),
+    "reader_double_page_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Show pages side by side when the phone is turned sideways",
+    ),
+    "reader_double_page_title": MessageLookupByLibrary.simpleMessage(
+      "Two pages in landscape",
+    ),
+    "reader_page_fit_height": MessageLookupByLibrary.simpleMessage(
+      "Fit height",
+    ),
+    "reader_page_fit_screen": MessageLookupByLibrary.simpleMessage(
+      "Fit screen",
+    ),
+    "reader_page_fit_title": MessageLookupByLibrary.simpleMessage("Page fit"),
+    "reader_page_fit_width": MessageLookupByLibrary.simpleMessage("Fit width"),
+    "reader_volume_keys_invert_title": MessageLookupByLibrary.simpleMessage(
+      "Invert volume keys",
+    ),
+    "reader_volume_keys_title": MessageLookupByLibrary.simpleMessage(
+      "Turn pages with volume keys",
+    ),
     "save_image_error": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t save image",
     ),
@@ -1573,6 +1606,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settings_import_skipped": m82,
     "settings_import_success": m83,
+    "settings_incognito_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Don\'t save reading or watching progress, history or statistics",
+    ),
+    "settings_incognito_title": MessageLookupByLibrary.simpleMessage(
+      "Incognito mode",
+    ),
     "settings_local_extension_server_missing":
         MessageLookupByLibrary.simpleMessage(
           "Set LOCAL_REPOSITORY_URL in .env to enable",

@@ -14,6 +14,10 @@ mixin _ReaderStripNavigation on State<ChapterViewer> {
 
   ItemPositionsListener get _itemPositionsListener;
 
+  ScrollOffsetController get _scrollOffsetController;
+
+  ReaderPreferences get _readerPreferences;
+
   PageTranslationCubit? get _translationCubit;
 
   void _requestTranslations(ChapterViewInitialized state, int index);
@@ -31,6 +35,9 @@ mixin _ReaderStripNavigation on State<ChapterViewer> {
   }
 
   ReaderStrip? _strip;
+  ReaderSpreads? _spreads;
+  ReaderStrip? _spreadsStrip;
+  bool? _spreadsPaired;
   List<LoadedChapter>? _stripChapters;
   ChapterLoad? _stripNextLoad;
   ChapterLoad? _stripPreviousLoad;
@@ -55,6 +62,50 @@ mixin _ReaderStripNavigation on State<ChapterViewer> {
     _stripNextLoad = state.nextLoad;
     _stripPreviousLoad = state.previousLoad;
     return strip;
+  }
+
+  bool _pairsPages(ChapterViewInitialized state) {
+    return _readerPreferences.doublePageSpread &&
+        state.mode != ChapterViewMode.webtoon &&
+        MediaQuery.orientationOf(context) == Orientation.landscape;
+  }
+
+  ReaderSpreads _spreadsFor(ReaderStrip strip, {required bool paired}) {
+    final ReaderSpreads? cached = _spreads;
+    if (cached != null &&
+        identical(_spreadsStrip, strip) &&
+        _spreadsPaired == paired) {
+      return cached;
+    }
+    final ReaderSpreads spreads = paired
+        ? ReaderSpreads.pair(strip.items, isWide: _isWidePage)
+        : ReaderSpreads.single(strip.length);
+    _spreads = spreads;
+    _spreadsStrip = strip;
+    _spreadsPaired = paired;
+    return spreads;
+  }
+
+  bool _isWidePage(ReaderStripPage page) {
+    final Size? size =
+        _pageSizes[page.path] ?? PageBitmapCache.instance.knownSize(page.path);
+    if (size == null) {
+      return false;
+    }
+    return size.width > size.height;
+  }
+
+  ReaderSpreads _currentSpreads(ChapterViewInitialized state) {
+    return _spreadsFor(_stripFor(state), paired: _pairsPages(state));
+  }
+
+  void _jumpPagedTo(ChapterViewInitialized state, int stripIndex) {
+    if (!_pageController.hasClients) {
+      return;
+    }
+    _pageController.jumpToPage(
+      _currentSpreads(state).spreadOfItem(stripIndex),
+    );
   }
 
   int _stripIndexOfCurrentPage(ChapterViewInitialized state, int page) {
@@ -169,7 +220,13 @@ mixin _ReaderStripNavigation on State<ChapterViewer> {
     if (!_pageController.hasClients) {
       return;
     }
-    final int oldIndex = (_pageController.page ?? 0).round();
+    final bool paired = _pairsPages(state);
+    final ReaderSpreads oldSpreads = _spreadsFor(oldStrip, paired: paired);
+    final int oldSpread = (_pageController.page ?? 0).round();
+    if (oldSpread < 0 || oldSpread >= oldSpreads.length) {
+      return;
+    }
+    final int oldIndex = oldSpreads.firstItemOf(oldSpread);
     if (oldIndex < 0 || oldIndex >= oldStrip.length) {
       return;
     }
@@ -181,10 +238,11 @@ mixin _ReaderStripNavigation on State<ChapterViewer> {
     if (index == null) {
       return;
     }
+    final int spread = _spreadsFor(strip, paired: paired).spreadOfItem(index);
     _restoringAnchor = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && _pageController.hasClients) {
-        _pageController.jumpToPage(index);
+        _pageController.jumpToPage(spread);
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _restoringAnchor = false;
@@ -294,6 +352,7 @@ mixin _ReaderStripNavigation on State<ChapterViewer> {
 
   Widget _buildPagedStrip(ChapterViewInitialized state, BuildContext context) {
     final ReaderStrip strip = _stripFor(state);
+    final ReaderSpreads spreads = _currentSpreads(state);
     return PhotoViewGallery.builder(
       allowImplicitScrolling: true,
       loadingBuilder: (BuildContext context, ImageChunkEvent? event) {
@@ -312,11 +371,84 @@ mixin _ReaderStripNavigation on State<ChapterViewer> {
       },
       pageController: _pageController,
       scrollPhysics: const BouncingScrollPhysics(),
-      itemCount: strip.length,
+      itemCount: spreads.length,
       reverse: state.mode == ChapterViewMode.rightToLeft,
-      onPageChanged: _onPagedIndexChanged,
-      builder: (BuildContext context, int index) =>
-          _buildPagedItem(context, strip.items[index]),
+      backgroundDecoration: BoxDecoration(
+        color: readerBackgroundColor(_readerPreferences.background),
+      ),
+      onPageChanged: (int spread) =>
+          _onPagedIndexChanged(spreads.lastItemOf(spread)),
+      builder: (BuildContext context, int spread) =>
+          _buildPagedSpread(context, state, strip, spreads.spreads[spread]),
+    );
+  }
+
+  PhotoViewGalleryPageOptions _buildPagedSpread(
+    BuildContext context,
+    ChapterViewInitialized state,
+    ReaderStrip strip,
+    List<int> spread,
+  ) {
+    if (spread.length == 1) {
+      return _buildPagedItem(context, strip.items[spread.single]);
+    }
+    final ReaderStripPage first = strip.items[spread.first] as ReaderStripPage;
+    final ReaderStripPage second = strip.items[spread.last] as ReaderStripPage;
+    final List<ReaderStripPage> visual =
+        state.mode == ChapterViewMode.rightToLeft
+            ? <ReaderStripPage>[second, first]
+            : <ReaderStripPage>[first, second];
+    const double height = 1000;
+    final List<double> widths = visual
+        .map((ReaderStripPage page) => _spreadPageWidth(page, height))
+        .toList(growable: false);
+    return PhotoViewGalleryPageOptions.customChild(
+      initialScale: PhotoViewComputedScale.contained,
+      minScale: PhotoViewComputedScale.contained,
+      maxScale: PhotoViewComputedScale.covered * 3.0,
+      filterQuality: FilterQuality.none,
+      childSize: Size(widths[0] + widths[1], height),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          for (int index = 0; index < visual.length; index++)
+            SizedBox(
+              width: widths[index],
+              height: height,
+              child: _buildSpreadPage(visual[index]),
+            ),
+        ],
+      ),
+    );
+  }
+
+  double _spreadPageWidth(ReaderStripPage page, double height) {
+    final Size? size =
+        _pageSizes[page.path] ?? PageBitmapCache.instance.knownSize(page.path);
+    if (size == null || size.height <= 0) {
+      return height * 0.7;
+    }
+    return height * size.width / size.height;
+  }
+
+  Widget _buildSpreadPage(ReaderStripPage item) {
+    final String page = item.path;
+    return TranslatedPage(
+      key: _translatedPageKey(page),
+      cubit: _translationCubit,
+      path: page,
+      child: PageImage(
+        path: page,
+        headers: item.chapter.headers,
+        cropBorders: _readerPreferences.cropBorders,
+        onSizeResolved: (Size size) {
+          if (_pageSizes[page] != size && mounted) {
+            setState(() => _pageSizes[page] = size);
+          }
+        },
+        errorBuilder: (BuildContext context, VoidCallback retry) =>
+            ReaderPageError(onRetry: retry),
+      ),
     );
   }
 
@@ -401,10 +533,12 @@ mixin _ReaderStripNavigation on State<ChapterViewer> {
   ) {
     final String page = item.path;
     return PhotoViewGalleryPageOptions.customChild(
-      initialScale: PhotoViewComputedScale.contained,
+      initialScale: _initialScaleFor(context, page),
       minScale: PhotoViewComputedScale.contained,
       maxScale: PhotoViewComputedScale.covered * 3.0,
-      basePosition: Alignment.center,
+      basePosition: _readerPreferences.pageFit == ReaderPageFit.width
+          ? Alignment.topCenter
+          : Alignment.center,
       // photo_view only applies zoom through its Transform when
       // filterQuality is none; otherwise it scales the Image widget
       // it builds, which a custom child never receives. PageImage
@@ -419,6 +553,7 @@ mixin _ReaderStripNavigation on State<ChapterViewer> {
           path: page,
           headers: item.chapter.headers,
           intrinsic: true,
+          cropBorders: _readerPreferences.cropBorders,
           onSizeResolved: (Size size) {
             if (_pageSizes[page] != size && mounted) {
               setState(() => _pageSizes[page] = size);
@@ -436,6 +571,22 @@ mixin _ReaderStripNavigation on State<ChapterViewer> {
     );
   }
 
+  Object _initialScaleFor(BuildContext context, String page) {
+    final Size? size = _pageSizes[page];
+    final Size screen = MediaQuery.sizeOf(context);
+    if (size == null || size.width <= 0 || size.height <= 0) {
+      return PhotoViewComputedScale.contained;
+    }
+    switch (_readerPreferences.pageFit) {
+      case ReaderPageFit.screen:
+        return PhotoViewComputedScale.contained;
+      case ReaderPageFit.width:
+        return screen.width / size.width;
+      case ReaderPageFit.height:
+        return screen.height / size.height;
+    }
+  }
+
   Widget _buildWebtoonStrip(
     ChapterViewInitialized state,
     BuildContext context,
@@ -444,6 +595,7 @@ mixin _ReaderStripNavigation on State<ChapterViewer> {
     return ScrollablePositionedList.builder(
       itemScrollController: _itemScrollController,
       itemPositionsListener: _itemPositionsListener,
+      scrollOffsetController: _scrollOffsetController,
       initialScrollIndex: _stripIndexOfCurrentPage(state, state.currentPage),
       physics: const AlwaysScrollableScrollPhysics(
         parent: BouncingScrollPhysics(),

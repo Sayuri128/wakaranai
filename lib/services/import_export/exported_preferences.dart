@@ -10,6 +10,7 @@ import 'package:wakaranai/services/settings_service/settings_service.dart';
 class ExportedPreferences {
   static const List<String> keyPrefixes = <String>[
     'PLAYER_',
+    'READER_',
     'PAGE_TRANSLATION_',
     ExtensionPreferencesStore.keyPrefix,
   ];
