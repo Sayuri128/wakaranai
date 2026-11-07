@@ -39,6 +39,24 @@
   "library_delete_category": "Delete",
   "library_move_to_category": "Move to category",
   "library_remove": "Remove from library",
+  "library_more_actions": "More",
+  "library_download_first_group_hint": "Each title downloads from its first chapter group",
+  "library_download_many_loading": "{count, plural, =1{Looking up chapters for 1 title…} other{Looking up chapters for {count} titles…}}",
+  "@library_download_many_loading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "library_download_many_failed": "{count, plural, =1{1 title couldn't be loaded} other{{count} titles couldn't be loaded}}",
+  "@library_download_many_failed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "library_add": "Add to library",
   "library_add_to_category": "Add to category",
   "title_download": "Download",

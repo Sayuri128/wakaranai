@@ -144,6 +144,24 @@ class LibraryCubit extends Cubit<LibraryState> {
     await libraryEntryRepository.update(entry.copyWith(notifyUpdates: value));
   }
 
+  Future<void> setTrackUpdatesMany(
+      Iterable<LibraryEntryDomain> entries, bool value) async {
+    for (final LibraryEntryDomain entry in entries) {
+      if (entry.trackUpdates != value) {
+        await setTrackUpdates(entry, value);
+      }
+    }
+  }
+
+  Future<void> setNotifyUpdatesMany(
+      Iterable<LibraryEntryDomain> entries, bool value) async {
+    for (final LibraryEntryDomain entry in entries) {
+      if (entry.notifyUpdates != value) {
+        await setNotifyUpdates(entry, value);
+      }
+    }
+  }
+
   Future<void> markRead(String uid) async {
     final LibraryEntryDomain? existing =
         await libraryEntryRepository.getByUid(uid);

@@ -1,9 +1,8 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
-import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
-import 'package:wakaranai/ui/services/widgets/title_download_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:wakaranai/ui/home/library_page/library_download_actions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
@@ -170,7 +169,26 @@ class _LibraryPageState extends State<LibraryPage> {
                               icon: Icons.drive_file_move_outline,
                               label: S.current.library_move_to_category,
                               color: AppColors.primary,
-                              onTap: () => _showBulkMoveSheet(context, state),
+                              onTap: () => _showMoveToCategorySheet(
+                                context,
+                                state,
+                                _selectedEntries(state),
+                                fromSelection: true,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: 1,
+                            height: 28,
+                            color: AppColors.overlay(0.08),
+                          ),
+                          Expanded(
+                            child: _SelectionAction(
+                              icon: Icons.more_horiz_rounded,
+                              label: S.current.library_more_actions,
+                              color: AppColors.mainWhite,
+                              onTap: () =>
+                                  _showSelectionActions(context, state),
                             ),
                           ),
                           Container(
@@ -483,163 +501,191 @@ class _LibraryPageState extends State<LibraryPage> {
     );
   }
 
+  List<LibraryEntryDomain> _selectedEntries(LibraryState state) {
+    return state.entries
+        .where((LibraryEntryDomain e) => _selected.contains(e.uid))
+        .toList();
+  }
+
   Future<void> _showEntryActions(
-      BuildContext context, LibraryState state, LibraryEntryDomain entry) async {
-    final ExtensionDomain? extension =
-        await context.read<ExtensionRepository>().getByUid(entry.extensionUid);
-    final bool canDownload =
-        extension?.config.type == ConfigInfoType.MANGA;
+      BuildContext context, LibraryState state, LibraryEntryDomain entry) {
+    return _showActions(context, state, <LibraryEntryDomain>[entry],
+        fromSelection: false);
+  }
+
+  Future<void> _showSelectionActions(
+      BuildContext context, LibraryState state) {
+    return _showActions(context, state, _selectedEntries(state),
+        fromSelection: true);
+  }
+
+  Future<Set<String>> _mangaExtensionUids(
+      BuildContext context, List<LibraryEntryDomain> entries) async {
+    final ExtensionRepository extensions = context.read<ExtensionRepository>();
+    final Set<String> manga = <String>{};
+    final Set<String> extensionUids =
+        entries.map((LibraryEntryDomain e) => e.extensionUid).toSet();
+    for (final String uid in extensionUids) {
+      final ExtensionDomain? extension = await extensions.getByUid(uid);
+      if (extension?.config.type == ConfigInfoType.MANGA) {
+        manga.add(uid);
+      }
+    }
+    return manga;
+  }
+
+  Future<void> _showActions(
+    BuildContext context,
+    LibraryState state,
+    List<LibraryEntryDomain> entries, {
+    required bool fromSelection,
+  }) async {
+    if (entries.isEmpty) {
+      return;
+    }
+    final Set<String> mangaExtensions =
+        await _mangaExtensionUids(context, entries);
     if (!context.mounted) {
       return;
     }
+    final List<LibraryEntryDomain> downloadable = entries
+        .where(
+            (LibraryEntryDomain e) => mangaExtensions.contains(e.extensionUid))
+        .toList();
+    final bool allTracked =
+        entries.every((LibraryEntryDomain e) => e.trackUpdates);
+    final bool allNotify =
+        entries.every((LibraryEntryDomain e) => e.notifyUpdates);
+    final LibraryCubit library = context.read<LibraryCubit>();
+
+    void finish(BuildContext sheetContext) {
+      Navigator.of(sheetContext).pop();
+      if (fromSelection) {
+        _clearSelection();
+      }
+    }
+
     await showActionSheet(
       context,
-      title: entry.title,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          ActionSheetRow(
-            icon: Icons.drive_file_move_outline,
-            label: S.current.library_move_to_category,
-            onTap: () {
-              Navigator.of(context).pop();
-              _showMoveToCategorySheet(context, state, entry);
-            },
-          ),
-          if (canDownload)
+      title: entries.length == 1
+          ? entries.single.title
+          : S.current.library_selected_count(entries.length),
+      child: Builder(
+        builder: (BuildContext sheetContext) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
             ActionSheetRow(
-              icon: Icons.download_rounded,
-              label: S.current.title_download,
+              icon: Icons.drive_file_move_outline,
+              label: S.current.library_move_to_category,
               onTap: () {
-                Navigator.of(context).pop();
-                _showDownloadSheet(context, entry);
+                Navigator.of(sheetContext).pop();
+                _showMoveToCategorySheet(context, state, entries,
+                    fromSelection: fromSelection);
               },
             ),
-          ActionSheetRow(
-            icon: Icons.autorenew_rounded,
-            label: S.current.library_track_updates,
-            selected: entry.trackUpdates,
-            onTap: () {
-              context
-                  .read<LibraryCubit>()
-                  .setTrackUpdates(entry, !entry.trackUpdates);
-              Navigator.of(context).pop();
-            },
-          ),
-          ActionSheetRow(
-            icon: entry.notifyUpdates
-                ? Icons.notifications_off_outlined
-                : Icons.notifications_active_outlined,
-            label: entry.notifyUpdates
-                ? S.current.library_mute_notifications
-                : S.current.library_unmute_notifications,
-            onTap: () {
-              context
-                  .read<LibraryCubit>()
-                  .setNotifyUpdates(entry, !entry.notifyUpdates);
-              Navigator.of(context).pop();
-            },
-          ),
-          ActionSheetRow(
-            icon: Icons.delete_outline_rounded,
-            label: S.current.library_remove,
-            destructive: true,
-            onTap: () {
-              context.read<LibraryCubit>().removeFromLibrary(entry.uid);
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
+            if (downloadable.isNotEmpty)
+              ActionSheetRow(
+                icon: Icons.download_rounded,
+                label: S.current.title_download,
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _download(context, downloadable,
+                      fromSelection: fromSelection);
+                },
+              ),
+            ActionSheetRow(
+              icon: Icons.autorenew_rounded,
+              label: S.current.library_track_updates,
+              selected: allTracked,
+              onTap: () {
+                library.setTrackUpdatesMany(entries, !allTracked);
+                finish(sheetContext);
+              },
+            ),
+            ActionSheetRow(
+              icon: allNotify
+                  ? Icons.notifications_off_outlined
+                  : Icons.notifications_active_outlined,
+              label: allNotify
+                  ? S.current.library_mute_notifications
+                  : S.current.library_unmute_notifications,
+              onTap: () {
+                library.setNotifyUpdatesMany(entries, !allNotify);
+                finish(sheetContext);
+              },
+            ),
+            ActionSheetRow(
+              icon: Icons.delete_outline_rounded,
+              label: S.current.library_remove,
+              destructive: true,
+              onTap: () {
+                library.removeMany(
+                    entries.map((LibraryEntryDomain e) => e.uid).toList());
+                finish(sheetContext);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void _showDownloadSheet(BuildContext context, LibraryEntryDomain entry) {
-    final LibraryCubit library = context.read<LibraryCubit>();
-    final DownloadManagerCubit downloads = context.read<DownloadManagerCubit>();
-    showTitleDownloadSheet(
+  void _download(BuildContext context, List<LibraryEntryDomain> entries,
+      {required bool fromSelection}) {
+    if (entries.length == 1) {
+      showLibraryDownloadSheet(context, entries.single);
+      if (fromSelection) {
+        _clearSelection();
+      }
+      return;
+    }
+    showLibraryBulkDownloadSheet(
       context,
-      request: TitleDownloadRequest(
-        uid: entry.uid,
-        extensionUid: entry.extensionUid,
-        galleryData: entry.dataJson,
-        loadClient: () async {
-          final ExtensionDomain? extension =
-              await library.extensionResolver.resolve(entry.extensionUid);
-          if (extension == null) {
-            throw StateError('Extension ${entry.extensionUid} is unavailable');
-          }
-          return downloads.clientForExtension(extension);
-        },
-      ),
+      entries,
+      onStarted: fromSelection ? _clearSelection : null,
     );
   }
 
   void _showMoveToCategorySheet(
-      BuildContext context, LibraryState state, LibraryEntryDomain entry) {
-    showActionSheet(
-      context,
-      title: S.current.library_move_to_category,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          ActionSheetRow(
-            label: S.current.library_no_category,
-            selected: entry.categoryId == null,
-            onTap: () {
-              context.read<LibraryCubit>().moveToCategory(entry, null);
-              Navigator.of(context).pop();
-            },
-          ),
-          for (final CategoryDomain c in state.categories)
-            ActionSheetRow(
-              label: c.name,
-              selected: entry.categoryId == c.id,
-              onTap: () {
-                context.read<LibraryCubit>().moveToCategory(entry, c.id);
-                Navigator.of(context).pop();
-              },
-            ),
-        ],
-      ),
-    );
-  }
+    BuildContext context,
+    LibraryState state,
+    List<LibraryEntryDomain> entries, {
+    required bool fromSelection,
+  }) {
+    final LibraryCubit library = context.read<LibraryCubit>();
+    bool allIn(int? categoryId) =>
+        entries.every((LibraryEntryDomain e) => e.categoryId == categoryId);
 
-  void _showBulkMoveSheet(BuildContext context, LibraryState state) {
-    final List<LibraryEntryDomain> selectedEntries = state.entries
-        .where((LibraryEntryDomain e) => _selected.contains(e.uid))
-        .toList();
+    void move(BuildContext sheetContext, int? categoryId) {
+      library.moveManyToCategory(entries, categoryId);
+      Navigator.of(sheetContext).pop();
+      if (fromSelection) {
+        _clearSelection();
+      }
+    }
+
     showActionSheet(
       context,
       title: S.current.library_move_to_category,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          ActionSheetRow(
-            label: S.current.library_no_category,
-            onTap: () {
-              context
-                  .read<LibraryCubit>()
-                  .moveManyToCategory(selectedEntries, null);
-              Navigator.of(context).pop();
-              _clearSelection();
-            },
-          ),
-          for (final CategoryDomain c in state.categories)
+      child: Builder(
+        builder: (BuildContext sheetContext) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
             ActionSheetRow(
-              label: c.name,
-              onTap: () {
-                context
-                    .read<LibraryCubit>()
-                    .moveManyToCategory(selectedEntries, c.id);
-                Navigator.of(context).pop();
-                _clearSelection();
-              },
+              label: S.current.library_no_category,
+              selected: allIn(null),
+              onTap: () => move(sheetContext, null),
             ),
-        ],
+            for (final CategoryDomain c in state.categories)
+              ActionSheetRow(
+                label: c.name,
+                selected: allIn(c.id),
+                onTap: () => move(sheetContext, c.id),
+              ),
+          ],
+        ),
       ),
     );
   }

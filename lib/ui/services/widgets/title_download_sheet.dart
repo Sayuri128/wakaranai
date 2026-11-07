@@ -185,7 +185,7 @@ class _TitleDownloadPanelState extends State<_TitleDownloadPanel> {
         for (final ChapterDownloadAmount amount in ChapterDownloadAmount.values)
           ActionSheetRow(
             icon: Icons.download_rounded,
-            label: _amountLabel(amount),
+            label: chapterDownloadAmountLabel(amount),
             onTap: () => _choose(title, amount),
           ),
       ],
@@ -265,7 +265,7 @@ class _TitleDownloadPanelState extends State<_TitleDownloadPanel> {
   }
 }
 
-String _amountLabel(ChapterDownloadAmount amount) {
+String chapterDownloadAmountLabel(ChapterDownloadAmount amount) {
   switch (amount) {
     case ChapterDownloadAmount.next:
       return S.current.title_download_next;

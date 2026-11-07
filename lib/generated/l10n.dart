@@ -394,6 +394,50 @@ class S {
     );
   }
 
+  /// `More`
+  String get library_more_actions {
+    return Intl.message(
+      'More',
+      name: 'library_more_actions',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Each title downloads from its first chapter group`
+  String get library_download_first_group_hint {
+    return Intl.message(
+      'Each title downloads from its first chapter group',
+      name: 'library_download_first_group_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{Looking up chapters for 1 title…} other{Looking up chapters for {count} titles…}}`
+  String library_download_many_loading(int count) {
+    return Intl.plural(
+      count,
+      one: 'Looking up chapters for 1 title…',
+      other: 'Looking up chapters for $count titles…',
+      name: 'library_download_many_loading',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count, plural, =1{1 title couldn't be loaded} other{{count} titles couldn't be loaded}}`
+  String library_download_many_failed(int count) {
+    return Intl.plural(
+      count,
+      one: '1 title couldn\'t be loaded',
+      other: '$count titles couldn\'t be loaded',
+      name: 'library_download_many_failed',
+      desc: '',
+      args: [count],
+    );
+  }
+
   /// `Add to library`
   String get library_add {
     return Intl.message(
