@@ -24,6 +24,8 @@ class NativePlayerState extends Equatable {
     this.fitMode = PlayerFitMode.fit,
     this.skipOpeningSeconds = kDefaultSkipOpeningSeconds,
     this.autoNextSecondsLeft,
+    this.lastAutoSkipType,
+    this.autoSkipCount = 0,
     this.isPlaying = false,
     this.switchingEpisode = false,
     this.errorMessage,
@@ -49,6 +51,8 @@ class NativePlayerState extends Equatable {
   final PlayerFitMode fitMode;
   final int skipOpeningSeconds;
   final int? autoNextSecondsLeft;
+  final PlayableSkipType? lastAutoSkipType;
+  final int autoSkipCount;
   final bool isPlaying;
   final bool switchingEpisode;
   final String? errorMessage;
@@ -83,6 +87,8 @@ class NativePlayerState extends Equatable {
     PlayerFitMode? fitMode,
     int? skipOpeningSeconds,
     ValueGetter<int?>? autoNextSecondsLeft,
+    ValueGetter<PlayableSkipType?>? lastAutoSkipType,
+    int? autoSkipCount,
     bool? isPlaying,
     bool? switchingEpisode,
     ValueGetter<String?>? errorMessage,
@@ -114,6 +120,10 @@ class NativePlayerState extends Equatable {
       autoNextSecondsLeft: autoNextSecondsLeft != null
           ? autoNextSecondsLeft()
           : this.autoNextSecondsLeft,
+      lastAutoSkipType: lastAutoSkipType != null
+          ? lastAutoSkipType()
+          : this.lastAutoSkipType,
+      autoSkipCount: autoSkipCount ?? this.autoSkipCount,
       isPlaying: isPlaying ?? this.isPlaying,
       switchingEpisode: switchingEpisode ?? this.switchingEpisode,
       errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
@@ -142,6 +152,8 @@ class NativePlayerState extends Equatable {
         fitMode,
         skipOpeningSeconds,
         autoNextSecondsLeft,
+        lastAutoSkipType,
+        autoSkipCount,
         isPlaying,
         switchingEpisode,
         errorMessage,

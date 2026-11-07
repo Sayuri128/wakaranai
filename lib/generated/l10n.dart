@@ -6799,6 +6799,86 @@ class S {
     );
   }
 
+  /// `Skip intro`
+  String get player_skip_intro {
+    return Intl.message(
+      'Skip intro',
+      name: 'player_skip_intro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skip outro`
+  String get player_skip_outro {
+    return Intl.message(
+      'Skip outro',
+      name: 'player_skip_outro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skip recap`
+  String get player_skip_recap {
+    return Intl.message(
+      'Skip recap',
+      name: 'player_skip_recap',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skipped intro`
+  String get player_skip_skipped_intro {
+    return Intl.message(
+      'Skipped intro',
+      name: 'player_skip_skipped_intro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skipped outro`
+  String get player_skip_skipped_outro {
+    return Intl.message(
+      'Skipped outro',
+      name: 'player_skip_skipped_outro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skipped recap`
+  String get player_skip_skipped_recap {
+    return Intl.message(
+      'Skipped recap',
+      name: 'player_skip_skipped_recap',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto-skip intros and outros`
+  String get player_skip_auto_title {
+    return Intl.message(
+      'Auto-skip intros and outros',
+      name: 'player_skip_auto_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Jump past them when the extension marks where they are`
+  String get player_skip_auto_subtitle {
+    return Intl.message(
+      'Jump past them when the extension marks where they are',
+      name: 'player_skip_auto_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Previous episode`
   String get player_previous_episode {
     return Intl.message(

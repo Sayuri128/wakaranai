@@ -12,18 +12,58 @@ class PlayableVideo {
   final List<PlayableSubtitle> subtitles;
 }
 
+enum PlayableSkipType { intro, outro, recap }
+
+class PlayableSkipMarker {
+  const PlayableSkipMarker({
+    required this.type,
+    required this.start,
+    required this.end,
+  });
+
+  final PlayableSkipType type;
+  final Duration start;
+  final Duration end;
+
+  bool contains(Duration position) {
+    return position >= start && position < end;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is PlayableSkipMarker &&
+        other.type == type &&
+        other.start == start &&
+        other.end == end;
+  }
+
+  @override
+  int get hashCode => Object.hash(type, start, end);
+
+  @override
+  String toString() {
+    return 'PlayableSkipMarker(${type.name}, $start, $end)';
+  }
+}
+
 class PlayableStream {
   const PlayableStream({
     required this.url,
     this.quality,
     this.format = PlayableStreamFormat.auto,
     this.headers = const <String, String>{},
+    this.skipMarkers = const <PlayableSkipMarker>[],
+    this.audioLabel,
+    this.preferForDownload = false,
   });
 
   final String url;
   final String? quality;
   final PlayableStreamFormat format;
   final Map<String, String> headers;
+  final List<PlayableSkipMarker> skipMarkers;
+  final String? audioLabel;
+  final bool preferForDownload;
 }
 
 class PlayableSubtitle {

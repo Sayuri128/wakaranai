@@ -1,8 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:video_player/video_player.dart';
+import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 
 const String kAutoQualityLabel = 'Auto';
+const String kStreamLabelSeparator = ' · ';
 
 final RegExp _heightPattern = RegExp(r'(\d{3,4})\s*p\b', caseSensitive: false);
 
@@ -300,4 +302,47 @@ String? currentQualityLabel(
     }
   }
   return null;
+}
+
+String? streamBaseLabel(PlayableStream stream) {
+  final List<String> parts = <String>[
+    for (final String? part in <String?>[stream.quality, stream.audioLabel])
+      if (part != null && part.trim().isNotEmpty) part.trim(),
+  ];
+  if (parts.isEmpty) {
+    return null;
+  }
+  return parts.join(kStreamLabelSeparator);
+}
+
+List<String> streamLabelsFor(
+  List<PlayableStream> streams, {
+  required String Function(int index) fallback,
+}) {
+  final List<String> labels = <String>[
+    for (int index = 0; index < streams.length; index++)
+      streamBaseLabel(streams[index]) ?? fallback(index),
+  ];
+  return _disambiguatedLabels(labels);
+}
+
+List<String> _disambiguatedLabels(List<String> labels) {
+  final Map<String, int> totals = <String, int>{};
+  for (final String label in labels) {
+    totals[label] = (totals[label] ?? 0) + 1;
+  }
+  final Map<String, int> seen = <String, int>{};
+  return <String>[
+    for (final String label in labels)
+      _numberedLabel(label, totals[label]!, seen),
+  ];
+}
+
+String _numberedLabel(String label, int total, Map<String, int> seen) {
+  if (total < 2) {
+    return label;
+  }
+  final int occurrence = (seen[label] ?? 0) + 1;
+  seen[label] = occurrence;
+  return '$label ($occurrence)';
 }

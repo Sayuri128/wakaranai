@@ -9,12 +9,11 @@ import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
-String streamQualityLabel(List<PlayableStream> streams, int index) {
-  final String? quality = streams[index].quality?.trim();
-  if (quality != null && quality.isNotEmpty) {
-    return quality;
-  }
-  return S.current.native_player_quality_fallback(index + 1);
+List<String> streamQualityLabels(List<PlayableStream> streams) {
+  return streamLabelsFor(
+    streams,
+    fallback: (int index) => S.current.native_player_quality_fallback(index + 1),
+  );
 }
 
 String subtitleLabel(List<PlayableSubtitle> subtitles, int index) {

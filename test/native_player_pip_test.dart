@@ -219,10 +219,17 @@ const AnimeConcreteView _anime = AnimeConcreteView(
   status: AnimeStatus.ONGOING,
 );
 
-PlayableVideo _videoFor(String uid) {
+PlayableVideo _videoFor(
+  String uid, {
+  List<PlayableSkipMarker> skipMarkers = const <PlayableSkipMarker>[],
+}) {
   return PlayableVideo(
     streams: <PlayableStream>[
-      PlayableStream(url: 'https://cdn.test/$uid.mp4', quality: '1080p'),
+      PlayableStream(
+        url: 'https://cdn.test/$uid.mp4',
+        quality: '1080p',
+        skipMarkers: skipMarkers,
+      ),
     ],
   );
 }
@@ -231,10 +238,12 @@ class _Harness {
   _Harness({
     this.holdInitialize = false,
     this.webOnlyUids = const <String>{},
+    this.skipMarkers = const <PlayableSkipMarker>[],
   });
 
   final bool holdInitialize;
   final Set<String> webOnlyUids;
+  final List<PlayableSkipMarker> skipMarkers;
   final List<_FakeEngine> engines = <_FakeEngine>[];
   final List<String> resolvedUids = <String>[];
   final Completer<void> initializeGate = Completer<void>();
@@ -248,7 +257,7 @@ class _Harness {
 
   NativePlayerCubit build(BuildContext context) {
     final NativePlayerCubit created = NativePlayerCubit(
-      video: _videoFor('e1'),
+      video: _videoFor('e1', skipMarkers: skipMarkers),
       playlist: playlist,
       engineFactory: _createEngine,
       progressStoreFor: (AnimeVideo episode) => _FakeProgressStore(),
@@ -551,6 +560,60 @@ void main() {
         systemUi.count('SystemChrome.setPreferredOrientations'),
         orientationCalls + 1,
       );
+
+      await _unmount(tester);
+    });
+
+    testWidgets('shows the marker skip button outside picture-in-picture only',
+        (WidgetTester tester) async {
+      _recordSystemUi();
+      final _Harness harness = _Harness(
+        skipMarkers: const <PlayableSkipMarker>[
+          PlayableSkipMarker(
+            type: PlayableSkipType.intro,
+            start: Duration.zero,
+            end: Duration(seconds: 90),
+          ),
+        ],
+      );
+      final _FakePictureInPicture pictureInPicture = _FakePictureInPicture();
+      await _pumpPlayer(
+        tester,
+        harness: harness,
+        pictureInPicture: pictureInPicture,
+      );
+
+      expect(find.text(strings.player_skip_intro), findsOneWidget);
+      expect(find.text(strings.native_player_skip_opening(85)), findsNothing);
+
+      pictureInPicture.mode.value = true;
+      await tester.pump();
+      expect(find.text(strings.player_skip_intro), findsNothing);
+
+      pictureInPicture.mode.value = false;
+      await tester.pump();
+      await tester.tap(find.text(strings.player_skip_intro));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(harness.engines.last.value.position, const Duration(seconds: 90));
+      expect(find.text(strings.player_skip_intro), findsNothing);
+
+      await _unmount(tester);
+    });
+
+    testWidgets('keeps the fixed skip button when the source has no markers',
+        (WidgetTester tester) async {
+      _recordSystemUi();
+      final _Harness harness = _Harness();
+      await _pumpPlayer(
+        tester,
+        harness: harness,
+        pictureInPicture: _FakePictureInPicture(),
+      );
+
+      expect(find.text(strings.native_player_skip_opening(85)), findsOneWidget);
+      expect(find.text(strings.player_skip_intro), findsNothing);
 
       await _unmount(tester);
     });

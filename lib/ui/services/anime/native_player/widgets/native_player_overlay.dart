@@ -12,6 +12,7 @@ import 'package:wakaranai/ui/services/anime/episode_playback/playlist_sheets.dar
 import 'package:wakaranai/ui/services/anime/native_player/cubit/native_player_cubit.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_device_controls.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_quality.dart';
+import 'package:wakaranai/ui/services/anime/native_player/skip_markers.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_auto_next_card.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_bottom_controls.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_fit_mode.dart';
@@ -19,6 +20,7 @@ import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_pickers.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_seek_bar.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_size_reporter.dart';
+import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_skip_marker_button.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_top_bar.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -86,6 +88,7 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
   @override
   void didUpdateWidget(NativePlayerOverlay oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _announceAutoSkip(oldWidget.state);
     if (oldWidget.state.isPlaying == widget.state.isPlaying) {
       return;
     }
@@ -94,6 +97,16 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
     } else {
       _hideTimer?.cancel();
     }
+  }
+
+  void _announceAutoSkip(NativePlayerState previous) {
+    final PlayableSkipType? skippedType = widget.state.lastAutoSkipType;
+    final bool skippedAgain =
+        widget.state.autoSkipCount > previous.autoSkipCount;
+    if (!skippedAgain || skippedType == null) {
+      return;
+    }
+    _showFlashMessage(autoSkippedLabel(skippedType));
   }
 
   @override
@@ -213,6 +226,10 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
     _registerInteraction();
   }
 
+  void _skipMarker(PlayableSkipMarker marker) {
+    unawaited(_cubit.skipMarker(marker));
+  }
+
   void _lock() {
     _hideTimer?.cancel();
     setState(() {
@@ -265,10 +282,7 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
   List<QualityGroup> _qualityGroups() {
     final List<PlayableStream> streams = _cubit.video.streams;
     return buildQualityGroups(
-      streamLabels: <String>[
-        for (int index = 0; index < streams.length; index++)
-          streamQualityLabel(streams, index),
-      ],
+      streamLabels: streamQualityLabels(streams),
       currentStreamIndex: widget.state.streamIndex,
       renditions: widget.state.renditions,
       autoLabel: S.of(context).native_player_quality_auto,
@@ -365,6 +379,7 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
           _buildFlashMessage(),
           _buildCaption(),
           _buildControls(),
+          _buildSkipMarkerButton(),
           _buildAutoNextCard(),
           _buildLockHint(),
         ],
@@ -431,6 +446,47 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
           child: _buildAutoNextContent(cubit, secondsLeft),
         ),
       ),
+    );
+  }
+
+  Widget _buildSkipMarkerButton() {
+    final bool controlsShown = _controlsVisible && !_locked;
+    final double safeBottom = MediaQuery.paddingOf(context).bottom;
+    final double shownInset =
+        _bottomPanelHeight - safeBottom + _bottomPanelClearance;
+    final List<PlayableSkipMarker> markers = _cubit.skipMarkers;
+    return AnimatedPositioned(
+      duration: _fadeDuration,
+      right: 16,
+      bottom: controlsShown ? shownInset : _hiddenAutoNextInset,
+      child: SafeArea(
+        child: ValueListenableBuilder<VideoPlayerValue>(
+          valueListenable: widget.playback,
+          builder: (BuildContext context, VideoPlayerValue value, Widget? child) {
+            return AnimatedSwitcher(
+              duration: _fadeDuration,
+              child: _buildSkipMarkerContent(markers, value),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkipMarkerContent(
+    List<PlayableSkipMarker> markers,
+    VideoPlayerValue value,
+  ) {
+    final PlayableSkipMarker? marker = _locked || markers.isEmpty
+        ? null
+        : activeSkipMarker(markers, value.position);
+    if (marker == null || widget.state.autoNextSecondsLeft != null) {
+      return const SizedBox.shrink();
+    }
+    return NativePlayerSkipMarkerButton(
+      key: ValueKey<PlayableSkipMarker>(marker),
+      type: marker.type,
+      onSkip: () => _skipMarker(marker),
     );
   }
 
@@ -644,6 +700,9 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
   }
 
   bool _skipOpeningAvailable(VideoPlayerValue value) {
+    if (_cubit.skipMarkers.isNotEmpty) {
+      return false;
+    }
     final int totalMilliseconds = value.duration.inMilliseconds;
     if (totalMilliseconds <= 0) {
       return false;

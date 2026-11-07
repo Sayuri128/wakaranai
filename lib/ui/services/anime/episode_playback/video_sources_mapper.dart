@@ -1,6 +1,8 @@
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_skip_marker.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video_source.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video_subtitle.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
+import 'package:wakaranai/ui/services/anime/native_player/skip_markers.dart';
 
 PlayableVideo playableVideoFromSources(List<AnimeVideoSource> sources) {
   final List<PlayableStream> streams = <PlayableStream>[];
@@ -76,7 +78,40 @@ PlayableStream _mapSource(AnimeVideoSource source, String url) {
     quality: _blankToNull(source.quality),
     format: parseStreamFormat(source.format),
     headers: Map<String, String>.unmodifiable(source.headers),
+    skipMarkers: playableSkipMarkersFrom(source.skip),
+    audioLabel: _blankToNull(source.audioLabel),
+    preferForDownload: source.preferForDownload,
   );
+}
+
+List<PlayableSkipMarker> playableSkipMarkersFrom(
+  List<AnimeSkipMarker> markers,
+) {
+  final List<PlayableSkipMarker> mapped = <PlayableSkipMarker>[];
+  for (final AnimeSkipMarker marker in markers) {
+    final Duration? start = skipMarkerOffset(marker.start);
+    final Duration? end = skipMarkerOffset(marker.end);
+    if (start == null || end == null) {
+      continue;
+    }
+    mapped.add(PlayableSkipMarker(
+      type: _skipTypeOf(marker.type),
+      start: start,
+      end: end,
+    ));
+  }
+  return normalizeSkipMarkers(mapped);
+}
+
+PlayableSkipType _skipTypeOf(AnimeSkipType type) {
+  switch (type) {
+    case AnimeSkipType.intro:
+      return PlayableSkipType.intro;
+    case AnimeSkipType.outro:
+      return PlayableSkipType.outro;
+    case AnimeSkipType.recap:
+      return PlayableSkipType.recap;
+  }
 }
 
 PlayableSubtitle _mapSubtitle(AnimeVideoSubtitle subtitle, String url) {

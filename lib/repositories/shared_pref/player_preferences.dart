@@ -12,6 +12,7 @@ const double kDefaultHoldSpeed = 2.0;
 const double kHoldSpeedStepFactor = 1.5;
 const int kDefaultSkipOpeningSeconds = 85;
 const bool kDefaultAutoPlayNext = true;
+const bool kDefaultAutoSkipMarkers = false;
 
 enum PlayerFitMode { fit, fill, stretch }
 
@@ -105,16 +106,21 @@ class SubtitlePreference {
 }
 
 class QualityPreference {
-  const QualityPreference({this.streamLabel, this.renditionLabel})
-      : fromLegacyLabel = false;
+  const QualityPreference({
+    this.streamLabel,
+    this.renditionLabel,
+    this.audioLabel,
+  }) : fromLegacyLabel = false;
 
   const QualityPreference.legacy(String label)
       : streamLabel = label,
         renditionLabel = label,
+        audioLabel = null,
         fromLegacyLabel = true;
 
   final String? streamLabel;
   final String? renditionLabel;
+  final String? audioLabel;
   final bool fromLegacyLabel;
 
   bool get isEmpty => streamLabel == null && renditionLabel == null;
@@ -124,11 +130,13 @@ class QualityPreference {
     return other is QualityPreference &&
         other.streamLabel == streamLabel &&
         other.renditionLabel == renditionLabel &&
+        other.audioLabel == audioLabel &&
         other.fromLegacyLabel == fromLegacyLabel;
   }
 
   @override
-  int get hashCode => Object.hash(streamLabel, renditionLabel, fromLegacyLabel);
+  int get hashCode =>
+      Object.hash(streamLabel, renditionLabel, audioLabel, fromLegacyLabel);
 }
 
 String? _trimmedOrNull(String? value) {
@@ -146,9 +154,11 @@ class PlayerPreferences {
   static const String legacyQualityKey = 'PLAYER_QUALITY';
   static const String qualityStreamKey = 'PLAYER_QUALITY_STREAM';
   static const String qualityRenditionKey = 'PLAYER_QUALITY_RENDITION';
+  static const String qualityAudioKey = 'PLAYER_QUALITY_AUDIO';
   static const String skipOpeningSecondsKey = 'PLAYER_SKIP_OPENING_SECONDS';
   static const String autoPlayNextKey = 'PLAYER_AUTO_PLAY_NEXT';
   static const String fitModeKey = 'PLAYER_FIT_MODE';
+  static const String autoSkipMarkersKey = 'PLAYER_AUTO_SKIP_MARKERS';
 
   SharedPreferences? _preferences;
 
@@ -203,10 +213,13 @@ class PlayerPreferences {
         _trimmedOrNull(preferences.getString(qualityStreamKey));
     final String? renditionLabel =
         _trimmedOrNull(preferences.getString(qualityRenditionKey));
-    if (streamLabel != null || renditionLabel != null) {
+    final String? audioLabel =
+        _trimmedOrNull(preferences.getString(qualityAudioKey));
+    if (streamLabel != null || renditionLabel != null || audioLabel != null) {
       return QualityPreference(
         streamLabel: streamLabel,
         renditionLabel: renditionLabel,
+        audioLabel: audioLabel,
       );
     }
     final String? legacyLabel =
@@ -228,6 +241,11 @@ class PlayerPreferences {
       preferences,
       qualityRenditionKey,
       _trimmedOrNull(preference.renditionLabel),
+    );
+    await _writeOptionalString(
+      preferences,
+      qualityAudioKey,
+      _trimmedOrNull(preference.audioLabel),
     );
     await preferences.remove(legacyQualityKey);
   }
@@ -266,6 +284,16 @@ class PlayerPreferences {
   Future<void> setAutoPlayNext(bool enabled) async {
     final SharedPreferences preferences = await _load();
     await preferences.setBool(autoPlayNextKey, enabled);
+  }
+
+  Future<bool> getAutoSkipMarkers() async {
+    final SharedPreferences preferences = await _load();
+    return preferences.getBool(autoSkipMarkersKey) ?? kDefaultAutoSkipMarkers;
+  }
+
+  Future<void> setAutoSkipMarkers(bool enabled) async {
+    final SharedPreferences preferences = await _load();
+    await preferences.setBool(autoSkipMarkersKey, enabled);
   }
 
   Future<PlayerFitMode> getFitMode() async {

@@ -163,6 +163,7 @@ class SettingsCubit extends Cubit<SettingsState> {
         playerSkipOpeningSeconds:
             await _playerPreferences.getSkipOpeningSeconds(),
         playerAutoPlayNext: await _playerPreferences.getAutoPlayNext(),
+        playerAutoSkipMarkers: await _playerPreferences.getAutoSkipMarkers(),
         downloadWifiOnly: await _settingsService.getDownloadWifiOnly(),
       ),
     );
@@ -233,6 +234,15 @@ class SettingsCubit extends Cubit<SettingsState> {
     }
     await _playerPreferences.setAutoPlayNext(value);
     emit(state.copyWith(playerAutoPlayNext: value));
+  }
+
+  Future<void> onChangedPlayerAutoSkipMarkers(bool value) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) {
+      return;
+    }
+    await _playerPreferences.setAutoSkipMarkers(value);
+    emit(state.copyWith(playerAutoSkipMarkers: value));
   }
 
   Future<void> onChangedDownloadWifiOnly(bool value) async {

@@ -55,6 +55,26 @@ class PlayerSettingsSection extends StatelessWidget {
           ),
         ),
         SettingsTile(
+          icon: Icons.skip_next_rounded,
+          title: S.current.player_skip_auto_title,
+          subtitle: S.current.player_skip_auto_subtitle,
+          trailing: Switch(
+            value: state.playerAutoSkipMarkers,
+            activeThumbColor: AppColors.mainBlack,
+            activeTrackColor: AppColors.primary,
+            onChanged: (bool value) => unawaited(
+              context
+                  .read<SettingsCubit>()
+                  .onChangedPlayerAutoSkipMarkers(value),
+            ),
+          ),
+          onTap: () => unawaited(
+            context
+                .read<SettingsCubit>()
+                .onChangedPlayerAutoSkipMarkers(!state.playerAutoSkipMarkers),
+          ),
+        ),
+        SettingsTile(
           icon: Icons.playlist_play_rounded,
           title: S.current.settings_player_auto_next_title,
           subtitle: S.current.settings_player_auto_next_subtitle,

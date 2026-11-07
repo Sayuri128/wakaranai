@@ -16,6 +16,7 @@ import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store
 import 'package:wakaranai/ui/services/anime/native_player/native_player_engine.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_quality.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_track_selection.dart';
+import 'package:wakaranai/ui/services/anime/native_player/skip_markers.dart';
 import 'package:wakaranai/ui/services/anime/native_player/subtitle_loader.dart';
 
 part 'native_player_state.dart';
@@ -94,12 +95,22 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
   int _episodeGeneration = 0;
   int _initialStreamIndex = 0;
   bool _autoPlayNext = kDefaultAutoPlayNext;
+  bool _autoSkipMarkers = kDefaultAutoSkipMarkers;
+  final SkipMarkerTracker _skipTracker = SkipMarkerTracker();
   bool _completionHandled = false;
   SubtitlePreference? _subtitlePreference;
   QualityPreference _qualityPreference = const QualityPreference();
   Future<void> _pendingSave = Future<void>.value();
 
   PlayableVideo get video => _video;
+
+  List<PlayableSkipMarker> get skipMarkers {
+    final int index = state.streamIndex;
+    if (index < 0 || index >= _video.streams.length) {
+      return const <PlayableSkipMarker>[];
+    }
+    return _video.streams[index].skipMarkers;
+  }
 
   bool get canSwitchEpisodes => _resolveEpisode != null;
 
@@ -295,12 +306,32 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       return;
     }
     final Duration target = _clampToDuration(position, currentEngine.value);
-    _lastKnownPosition = target;
-    await currentEngine.seekTo(target);
+    _skipTracker.noteUserSeek(skipMarkers, target);
+    await _seekEngine(currentEngine, target);
   }
 
   Future<void> skipOpening() {
     return seekBy(Duration(seconds: state.skipOpeningSeconds));
+  }
+
+  Future<void> skipMarker(PlayableSkipMarker marker) async {
+    final NativePlayerEngine? currentEngine = _engine;
+    if (currentEngine == null || state.status != NativePlayerStatus.ready) {
+      return;
+    }
+    _skipTracker.markHandled(marker);
+    await _seekEngine(
+      currentEngine,
+      _clampToDuration(marker.end, currentEngine.value),
+    );
+  }
+
+  Future<void> _seekEngine(
+    NativePlayerEngine currentEngine,
+    Duration target,
+  ) async {
+    _lastKnownPosition = target;
+    await currentEngine.seekTo(target);
   }
 
   Future<void> setPlaybackSpeed(double speed) async {
@@ -678,9 +709,11 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     if (_isStaleEpisode(generation)) {
       return;
     }
+    _skipTracker.reset();
     _initialStreamIndex = preferredStreamIndex(
       _video.streams,
       _qualityPreference.streamLabel,
+      preferredAudio: _qualityPreference.audioLabel,
     );
     await _openStream(
       _initialStreamIndex,
@@ -706,6 +739,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
           await _preferences.getSkipOpeningSeconds();
       _qualityPreference = await _preferences.getQualityPreference();
       _autoPlayNext = await _preferences.getAutoPlayNext();
+      _autoSkipMarkers = await _preferences.getAutoSkipMarkers();
       _subtitlePreference = await _preferences.getSubtitle();
       if (isClosed) {
         return;
@@ -738,6 +772,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     final QualityPreference preference = QualityPreference(
       streamLabel: _streamLabelToRemember(streamIndex),
       renditionLabel: renditionLabel,
+      audioLabel: _audioLabelToRemember(streamIndex),
     );
     _qualityPreference = preference;
     unawaited(
@@ -757,6 +792,17 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       return previousLabel;
     }
     return streamLabel;
+  }
+
+  String? _audioLabelToRemember(int streamIndex) {
+    if (_video.streams.length < 2) {
+      return _qualityPreference.audioLabel;
+    }
+    final String? audioLabel = _video.streams[streamIndex].audioLabel?.trim();
+    if (audioLabel == null || audioLabel.isEmpty) {
+      return null;
+    }
+    return audioLabel;
   }
 
   Future<void> _loadRenditions(
@@ -1012,7 +1058,27 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
         unawaited(saveProgress());
       }
     }
+    _autoSkipIfDue(currentEngine, value);
     _trackCompletion(value);
+  }
+
+  void _autoSkipIfDue(NativePlayerEngine currentEngine, VideoPlayerValue value) {
+    if (!_autoSkipMarkers || !value.isPlaying || value.isCompleted) {
+      return;
+    }
+    final PlayableSkipMarker? marker =
+        _skipTracker.takeAutoSkip(skipMarkers, value.position);
+    if (marker == null) {
+      return;
+    }
+    emit(state.copyWith(
+      lastAutoSkipType: () => marker.type,
+      autoSkipCount: state.autoSkipCount + 1,
+    ));
+    unawaited(_seekEngine(
+      currentEngine,
+      _clampToDuration(marker.end, value),
+    ));
   }
 
   void _trackCompletion(VideoPlayerValue value) {

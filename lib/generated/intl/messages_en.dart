@@ -1279,6 +1279,24 @@ class MessageLookup extends MessageLookupByLibrary {
     "player_previous_episode": MessageLookupByLibrary.simpleMessage(
       "Previous episode",
     ),
+    "player_skip_auto_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Jump past them when the extension marks where they are",
+    ),
+    "player_skip_auto_title": MessageLookupByLibrary.simpleMessage(
+      "Auto-skip intros and outros",
+    ),
+    "player_skip_intro": MessageLookupByLibrary.simpleMessage("Skip intro"),
+    "player_skip_outro": MessageLookupByLibrary.simpleMessage("Skip outro"),
+    "player_skip_recap": MessageLookupByLibrary.simpleMessage("Skip recap"),
+    "player_skip_skipped_intro": MessageLookupByLibrary.simpleMessage(
+      "Skipped intro",
+    ),
+    "player_skip_skipped_outro": MessageLookupByLibrary.simpleMessage(
+      "Skipped outro",
+    ),
+    "player_skip_skipped_recap": MessageLookupByLibrary.simpleMessage(
+      "Skipped recap",
+    ),
     "save_image_error": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t save image",
     ),

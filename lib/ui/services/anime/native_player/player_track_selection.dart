@@ -19,19 +19,32 @@ String? _primaryLanguageTag(String? language) {
 
 int preferredStreamIndex(
   List<PlayableStream> streams,
-  String? preferredQuality,
-) {
-  final String? wanted = _normalized(preferredQuality);
-  if (wanted == null) {
-    return 0;
+  String? preferredQuality, {
+  String? preferredAudio,
+}) {
+  final String? wantedQuality = _normalized(preferredQuality);
+  final String? wantedAudio = _normalized(preferredAudio);
+  bool sameQuality(PlayableStream stream) {
+    return wantedQuality != null && _normalized(stream.quality) == wantedQuality;
   }
-  final int index = streams.indexWhere(
-    (PlayableStream stream) => _normalized(stream.quality) == wanted,
-  );
-  if (index < 0) {
-    return 0;
+
+  bool sameAudio(PlayableStream stream) {
+    return wantedAudio != null && _normalized(stream.audioLabel) == wantedAudio;
   }
-  return index;
+
+  final List<bool Function(PlayableStream stream)> matchers =
+      <bool Function(PlayableStream stream)>[
+    (PlayableStream stream) => sameQuality(stream) && sameAudio(stream),
+    sameAudio,
+    sameQuality,
+  ];
+  for (final bool Function(PlayableStream stream) matcher in matchers) {
+    final int index = streams.indexWhere(matcher);
+    if (index >= 0) {
+      return index;
+    }
+  }
+  return 0;
 }
 
 SubtitlePreference? subtitlePreferenceFor(PlayableSubtitle subtitle) {
