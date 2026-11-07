@@ -6,8 +6,8 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/downloads_page/downloads_page.dart';
 import 'package:wakaranai/ui/home/library_page/library_page.dart';
 import 'package:wakaranai/ui/widgets/keep_alive_page.dart';
+import 'package:wakaranai/ui/widgets/segmented_tabs.dart';
 import 'package:wakaranai/utils/app_colors.dart';
-import 'package:wakaranai/utils/text_styles.dart';
 
 class LibraryHomePage extends StatefulWidget {
   const LibraryHomePage({super.key});
@@ -80,14 +80,14 @@ class _LibraryHomePageState extends State<LibraryHomePage> {
       child: Row(
         children: <Widget>[
           Expanded(
-            child: _SegmentedTabs(
-              current: _currentPage,
+            child: SegmentedTabs(
+              selectedIndex: _currentPage,
               labels: <String>[
                 S.current.library_tab_titles,
                 S.current.downloads_title,
               ],
               badges: <int>[0, activeDownloads + activeTranslations],
-              onTap: _goToPage,
+              onSelected: _goToPage,
             ),
           ),
           AnimatedSize(
@@ -104,108 +104,6 @@ class _LibraryHomePageState extends State<LibraryHomePage> {
                 : const SizedBox.shrink(),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SegmentedTabs extends StatelessWidget {
-  const _SegmentedTabs({
-    required this.current,
-    required this.labels,
-    required this.badges,
-    required this.onTap,
-  });
-
-  final int current;
-  final List<String> labels;
-  final List<int> badges;
-  final ValueChanged<int> onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 44,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.overlay(0.06),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Stack(
-        children: <Widget>[
-          _buildIndicator(),
-          Row(
-            children: <Widget>[
-              for (int i = 0; i < labels.length; i++)
-                Expanded(child: _buildTab(i)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildIndicator() {
-    return AnimatedAlign(
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOutCubic,
-      alignment: current == 0 ? Alignment.centerLeft : Alignment.centerRight,
-      child: FractionallySizedBox(
-        widthFactor: 1 / labels.length,
-        heightFactor: 1,
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTab(int index) {
-    final bool selected = index == current;
-    final int badge = badges[index];
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => onTap(index),
-      child: Center(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(
-              labels[index],
-              style: semibold(
-                size: 14,
-                color: selected ? AppColors.mainBlack : AppColors.mainGrey,
-              ),
-            ),
-            if (badge > 0) ...<Widget>[
-              const SizedBox(width: 6),
-              _buildBadge(badge, selected),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBadge(int count, bool selected) {
-    final Color background = selected
-        ? AppColors.mainBlack.withValues(alpha: 0.2)
-        : AppColors.primary.withValues(alpha: 0.2);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        '$count',
-        style: semibold(
-          size: 11,
-          color: selected ? AppColors.mainBlack : AppColors.primary,
-        ),
       ),
     );
   }

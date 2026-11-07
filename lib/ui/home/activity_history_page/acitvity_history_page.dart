@@ -10,6 +10,7 @@ import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/widgets/activity_history_long_tap_dialog.dart';
+import 'package:wakaranai/ui/widgets/segmented_tabs.dart';
 import 'package:wakaranai/ui/widgets/shimmer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/images.dart';
@@ -80,65 +81,13 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      child: _buildSegmentedTabs(),
-    );
-  }
-
-  Widget _buildSegmentedTabs() {
-    return Container(
-      height: 44,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.overlay(0.06),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Stack(
-        children: <Widget>[
-          AnimatedAlign(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutCubic,
-            alignment:
-                _currentPage == 0 ? Alignment.centerLeft : Alignment.centerRight,
-            child: FractionallySizedBox(
-              widthFactor: 0.5,
-              heightFactor: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ),
-          Row(
-            children: <Widget>[
-              _buildSegment(
-                  S.current.activity_history_manga_appbar_title, 0),
-              _buildSegment(
-                  S.current.activity_history_anime_appbar_title, 1),
-            ],
-          ),
+      child: SegmentedTabs(
+        selectedIndex: _currentPage,
+        labels: <String>[
+          S.current.activity_history_manga_appbar_title,
+          S.current.activity_history_anime_appbar_title,
         ],
-      ),
-    );
-  }
-
-  Widget _buildSegment(String label, int index) {
-    final bool selected = _currentPage == index;
-    return Expanded(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => _goToPage(index),
-        child: Center(
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 200),
-            style: semibold(
-              size: 14,
-              color: selected ? AppColors.mainBlack : AppColors.mainGrey,
-            ),
-            child: Text(label),
-          ),
-        ),
+        onSelected: _goToPage,
       ),
     );
   }
