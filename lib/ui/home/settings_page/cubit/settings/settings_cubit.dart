@@ -511,8 +511,16 @@ class SettingsCubit extends Cubit<SettingsState> {
     if (sections.contains(ExportSection.settings)) {
       await (await SharedPreferences.getInstance()).reload();
       await themeCubit.init();
+      await _syncUpdateTaskWithSettings();
       init();
     }
+  }
+
+  Future<void> _syncUpdateTaskWithSettings() async {
+    await _rescheduleUpdateTask(
+      enabled: await _settingsService.getCheckUpdates(),
+      frequencyHours: await _settingsService.getUpdateFrequencyHours(),
+    );
   }
 
   void clearOutcome() {
@@ -563,6 +571,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       if (sections.contains(ExportSection.settings)) {
         settingsImported = true;
         await themeCubit.init();
+        await _syncUpdateTaskWithSettings();
       }
 
       final String message = S.current.settings_import_success(

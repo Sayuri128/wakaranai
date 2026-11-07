@@ -403,6 +403,9 @@ void main() {
       'VIDEO_PLAYER_PREFERENCE': 'native',
       'GALLERY_LAYOUT': 'list',
       'PAGE_TRANSLATION_TARGET': 'de',
+      'CHECK_LIBRARY_UPDATES': true,
+      'UPDATE_NOTIFICATIONS': false,
+      'UPDATE_FREQUENCY_HOURS': 24,
       'SOURCE_ATTENTION_NOTIFIED_AT_mangalib': 123,
       'AUTO_BACKUP_LAST_AT': 456,
       'default_extension_id': 7,
@@ -439,6 +442,9 @@ void main() {
     expect(restored.getString('VIDEO_PLAYER_PREFERENCE'), 'native');
     expect(restored.getString('GALLERY_LAYOUT'), 'list');
     expect(restored.getString('PAGE_TRANSLATION_TARGET'), 'de');
+    expect(restored.getBool('CHECK_LIBRARY_UPDATES'), isTrue);
+    expect(restored.getBool('UPDATE_NOTIFICATIONS'), isFalse);
+    expect(restored.getInt('UPDATE_FREQUENCY_HOURS'), 24);
     expect(restored.containsKey('SOURCE_ATTENTION_NOTIFIED_AT_mangalib'),
         isFalse);
     expect(restored.containsKey('AUTO_BACKUP_LAST_AT'), isFalse);

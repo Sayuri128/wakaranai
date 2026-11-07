@@ -13,6 +13,9 @@ class ExportedPreferences {
 
   static const Set<String> exactKeys = <String>{
     SettingsService.videoPlayerPreferencePrefsKey,
+    SettingsService.checkUpdatesPrefsKey,
+    SettingsService.updateNotificationsPrefsKey,
+    SettingsService.updateFrequencyPrefsKey,
     GalleryLayoutPreferences.galleryKey,
     GalleryLayoutPreferences.libraryKey,
     DownloadsOrderPreferences.newestFirstKey,
