@@ -16,6 +16,8 @@ import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/services/downloads/episode/episode_download_manifest.dart';
 import 'package:wakaranai/services/downloads/episode/episode_downloader.dart';
 import 'package:wakaranai/services/downloads/episode/episode_source_resolver.dart';
+import 'package:wakaranai/services/downloads/runtime/download_network_policy.dart';
+import 'package:wakaranai/services/downloads/runtime/download_runtime.dart';
 import 'package:wakaranai/utils/http_client.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
@@ -38,6 +40,7 @@ typedef QualityPreferenceReader = Future<QualityPreference> Function();
 sealed class _DownloadJob {
   final String extensionUid;
   final String concreteTitle;
+  final CancelToken cancelToken = CancelToken();
   final Completer<void> _unwound = Completer<void>();
 
   _DownloadJob({
@@ -51,13 +54,21 @@ sealed class _DownloadJob {
 
   Future<void> get unwound => _unwound.future;
 
+  bool get isCancelled => cancelToken.isCancelled;
+
   void markUnwound() {
     if (!_unwound.isCompleted) {
       _unwound.complete();
     }
   }
 
-  void cancel() {}
+  void cancel([String reason = 'deleted']) {
+    if (!cancelToken.isCancelled) {
+      cancelToken.cancel(reason);
+    }
+  }
+
+  _DownloadJob restarted();
 }
 
 class _ChapterJob extends _DownloadJob {
@@ -80,11 +91,20 @@ class _ChapterJob extends _DownloadJob {
 
   @override
   String get title => chapterTitle;
+
+  @override
+  _ChapterJob restarted() => _ChapterJob(
+        client: client,
+        extensionUid: extensionUid,
+        concreteTitle: concreteTitle,
+        chapterUid: chapterUid,
+        chapterTitle: chapterTitle,
+        data: data,
+      );
 }
 
 class _EpisodeJob extends _DownloadJob {
   final AnimeVideo episode;
-  final CancelToken cancelToken = CancelToken();
 
   _EpisodeJob({
     required super.extensionUid,
@@ -98,14 +118,12 @@ class _EpisodeJob extends _DownloadJob {
   @override
   String get title => episode.title;
 
-  bool get isCancelled => cancelToken.isCancelled;
-
   @override
-  void cancel() {
-    if (!cancelToken.isCancelled) {
-      cancelToken.cancel('deleted');
-    }
-  }
+  _EpisodeJob restarted() => _EpisodeJob(
+        extensionUid: extensionUid,
+        concreteTitle: concreteTitle,
+        episode: episode,
+      );
 }
 
 class _EpisodeProgressRecorder {
@@ -153,13 +171,21 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     EpisodeSourceResolver? episodeSourceResolver,
     EpisodeDownloader? episodeDownloader,
     QualityPreferenceReader? readQualityPreference,
+    DownloadRuntime? downloadRuntime,
+    DownloadNetworkPolicy? networkPolicy,
   })  : notificationService =
             notificationService ?? DownloadNotificationService(),
         _injectedSourceResolver = episodeSourceResolver,
         _injectedEpisodeDownloader = episodeDownloader,
         _readQualityPreference = readQualityPreference ??
             PlayerPreferences().getQualityPreference,
-        super(const DownloadManagerState());
+        _runtime = downloadRuntime ?? createDownloadRuntime(),
+        _networkPolicy = networkPolicy ?? DownloadNetworkPolicy.platform(),
+        super(const DownloadManagerState()) {
+    _runtimeEvents = _runtime.events.listen(_onRuntimeEvent);
+    _networkPolicyChanges =
+        _networkPolicy.changes.listen(_onNetworkPolicyChanged);
+  }
 
   final DownloadRepository downloadRepository;
   final ExtensionRepository? extensionRepository;
@@ -167,6 +193,10 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   final EpisodeSourceResolver? _injectedSourceResolver;
   final EpisodeDownloader? _injectedEpisodeDownloader;
   final QualityPreferenceReader _readQualityPreference;
+  final DownloadRuntime _runtime;
+  final DownloadNetworkPolicy _networkPolicy;
+  late final StreamSubscription<DownloadRuntimeEvent> _runtimeEvents;
+  late final StreamSubscription<bool> _networkPolicyChanges;
 
   static const Duration _progressPersistInterval = Duration(milliseconds: 700);
   static const int _pageAttempts = 3;
@@ -185,9 +215,12 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   Timer? _libraryClientsIdle;
   final Queue<_DownloadJob> _jobs = Queue<_DownloadJob>();
   final Set<String> _cancelled = <String>{};
-  final Map<String, CancelToken> _inFlight = <String, CancelToken>{};
   _DownloadJob? _activeJob;
+  _DownloadJob? _pausedJob;
   bool _processing = false;
+  bool _runtimeWanted = false;
+  bool _runtimeRunning = false;
+  Future<void> _runtimeSync = Future<void>.value();
   int _completedInBatch = 0;
   int _batchIndex = 0;
   bool _permissionRequested = false;
@@ -207,6 +240,11 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       _recovered = true;
       unawaited(_recoverInterrupted());
     }
+    unawaited(_networkPolicy.start());
+  }
+
+  void setWifiOnly(bool value) {
+    _networkPolicy.setWifiOnly(value);
   }
 
   Future<void> _recoverInterrupted() async {
@@ -481,15 +519,23 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     _batchIndex = 0;
     try {
       await _ensurePermission();
+      await _networkPolicy.start();
       while (_jobs.isNotEmpty) {
+        if (!_networkPolicy.allowsDownloads) {
+          _setHold(DownloadQueueHold.waitingForWifi);
+          break;
+        }
+        _setHold(DownloadQueueHold.none);
         final _DownloadJob job = _jobs.removeFirst();
         if (_cancelled.contains(job.uid)) {
           _cancelled.remove(job.uid);
           continue;
         }
+        unawaited(_setRuntimeWanted(true));
         _activeJob = job;
         try {
           await _runActiveJob(job);
+          await _requeueIfPaused(job);
         } finally {
           _activeJob = null;
           job.markUnwound();
@@ -502,8 +548,155 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         await notificationService.showComplete(_completedInBatch);
       }
       _completedInBatch = 0;
+      _releaseHoldIfIdle();
+      await _stopRuntimeIfIdle();
       _scheduleLibraryClientsRelease();
     }
+  }
+
+  void _onNetworkPolicyChanged(bool allowsDownloads) {
+    if (isClosed) {
+      return;
+    }
+    if (allowsDownloads) {
+      _setHold(DownloadQueueHold.none);
+      if (_jobs.isNotEmpty) {
+        startQueue();
+      }
+      return;
+    }
+    _pauseActiveJob();
+    if (_jobs.isNotEmpty || _activeJob != null) {
+      _setHold(DownloadQueueHold.waitingForWifi);
+    }
+  }
+
+  void _pauseActiveJob() {
+    final _DownloadJob? job = _activeJob;
+    if (job == null || identical(_pausedJob, job)) {
+      return;
+    }
+    _pausedJob = job;
+    job.cancel('paused');
+  }
+
+  Future<void> _requeueIfPaused(_DownloadJob job) async {
+    if (!identical(_pausedJob, job)) {
+      return;
+    }
+    _pausedJob = null;
+    if (_cancelled.contains(job.uid)) {
+      return;
+    }
+    final DownloadDomain? row = await downloadRepository.getByUid(job.uid);
+    if (row == null ||
+        row.status == DownloadStatus.done ||
+        _cancelled.contains(job.uid)) {
+      return;
+    }
+    await downloadRepository
+        .update(row.copyWith(status: DownloadStatus.queued));
+    _jobs.addFirst(job.restarted());
+    if (_batchIndex > 0) {
+      _batchIndex--;
+    }
+  }
+
+  void _setHold(DownloadQueueHold hold) {
+    if (isClosed || state.hold == hold) {
+      return;
+    }
+    emit(state.copyWith(hold: hold));
+  }
+
+  void _releaseHoldIfIdle() {
+    if (_jobs.isEmpty && _activeJob == null) {
+      _setHold(DownloadQueueHold.none);
+    }
+  }
+
+  Future<void> _stopRuntimeIfIdle() async {
+    if (_processing) {
+      return;
+    }
+    await _setRuntimeWanted(false);
+  }
+
+  Future<void> _setRuntimeWanted(bool wanted) {
+    _runtimeWanted = wanted;
+    return _runtimeSync = _runtimeSync.then((_) => _syncRuntime());
+  }
+
+  Future<void> _syncRuntime() async {
+    try {
+      final bool wanted = _runtimeWanted && !isClosed;
+      if (!wanted) {
+        await _stopRuntime();
+        return;
+      }
+      if (_runtimeRunning) {
+        return;
+      }
+      _onRuntimeStart(await _runtime.start());
+    } catch (e, s) {
+      logger.w('Could not update the download service: $e');
+      logger.w(s);
+    }
+  }
+
+  Future<void> _stopRuntime() async {
+    if (_runtimeRunning) {
+      _runtimeRunning = false;
+      await _runtime.stop();
+    }
+    _setRuntimeStatus(DownloadRuntimeStatus.inactive);
+  }
+
+  void _onRuntimeStart(DownloadRuntimeStart outcome) {
+    switch (outcome) {
+      case DownloadRuntimeStart.started:
+      case DownloadRuntimeStart.alreadyRunning:
+        _runtimeRunning = true;
+        _setRuntimeStatus(DownloadRuntimeStatus.active);
+        break;
+      case DownloadRuntimeStart.notAllowed:
+        logger.w('Downloads could not enter the foreground; they continue '
+            'only while the app stays open');
+        _markRuntimeRestricted(DownloadRuntimeStatus.startNotAllowed);
+        break;
+      case DownloadRuntimeStart.unsupported:
+        break;
+    }
+  }
+
+  void _onRuntimeEvent(DownloadRuntimeEvent event) {
+    switch (event) {
+      case DownloadRuntimeEvent.startNotAllowed:
+        logger.w('The download service was refused the foreground; '
+            'downloads continue only while the app stays open');
+        _markRuntimeRestricted(DownloadRuntimeStatus.startNotAllowed);
+        break;
+      case DownloadRuntimeEvent.timedOut:
+        logger.w('The download service reached its Android time limit; '
+            'downloads continue only while the app stays open');
+        _markRuntimeRestricted(DownloadRuntimeStatus.timedOut);
+        break;
+    }
+  }
+
+  void _markRuntimeRestricted(DownloadRuntimeStatus status) {
+    _runtimeRunning = false;
+    if (state.runtimeStatus == DownloadRuntimeStatus.timedOut) {
+      return;
+    }
+    _setRuntimeStatus(status);
+  }
+
+  void _setRuntimeStatus(DownloadRuntimeStatus status) {
+    if (isClosed || state.runtimeStatus == status) {
+      return;
+    }
+    emit(state.copyWith(runtimeStatus: status));
   }
 
 
@@ -570,11 +763,15 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   }
 
   Future<bool> _runChapterJob(_ChapterJob job) async {
+    if (job.isCancelled) {
+      return false;
+    }
     DownloadDomain? row = await downloadRepository.getByUid(job.chapterUid);
-    if (row == null) return false;
+    if (row == null || job.isCancelled) {
+      return false;
+    }
 
-    final CancelToken cancelToken = CancelToken();
-    _inFlight[job.chapterUid] = cancelToken;
+    final CancelToken cancelToken = job.cancelToken;
 
     try {
       await downloadRepository
@@ -603,6 +800,9 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       for (int i = 0; i < pages.value.length; i++) {
         if (_cancelled.contains(job.chapterUid)) {
           _cancelled.remove(job.chapterUid);
+          return false;
+        }
+        if (cancelToken.isCancelled) {
           return false;
         }
 
@@ -642,15 +842,14 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       ));
       return true;
     } catch (e, s) {
-      if (e is DioException && CancelToken.isCancel(e)) {
+      if (cancelToken.isCancelled ||
+          (e is DioException && CancelToken.isCancel(e))) {
         return false;
       }
       logger.e('Download failed for ${job.chapterUid}: $e');
       logger.e(s);
       await _markFailed(job.chapterUid);
       return false;
-    } finally {
-      _inFlight.remove(job.chapterUid);
     }
   }
 
@@ -898,9 +1097,11 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     final String uid = download.uid;
     _cancelled.add(uid);
     _jobs.removeWhere((_DownloadJob j) => j.uid == uid);
-    _inFlight.remove(uid)?.cancel('deleted');
     final _DownloadJob? activeJob = _activeJob?.uid == uid ? _activeJob : null;
     activeJob?.cancel();
+    if (!_processing) {
+      _releaseHoldIfIdle();
+    }
     await downloadRepository.deleteByUid(uid);
     final bool unwound = await _waitForUnwind(activeJob);
     await _deleteDir(download.dirPath);
@@ -978,6 +1179,11 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   @override
   Future<void> close() async {
     await _sub?.cancel();
+    await _networkPolicyChanges.cancel();
+    await _runtimeEvents.cancel();
+    await _setRuntimeWanted(false);
+    await _networkPolicy.dispose();
+    await _runtime.dispose();
     _libraryClientsIdle?.cancel();
     await _libraryClients.dispose();
     return super.close();

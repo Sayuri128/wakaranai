@@ -33,6 +33,7 @@ class SettingsService {
   static const String pageTranslationLabelOpacityPrefsKey =
       'PAGE_TRANSLATION_LABEL_OPACITY';
   static const String videoPlayerPreferencePrefsKey = 'VIDEO_PLAYER_PREFERENCE';
+  static const String downloadWifiOnlyPrefsKey = 'DOWNLOAD_WIFI_ONLY';
 
   static const int defaultUpdateFrequencyHours = 12;
 
@@ -227,5 +228,17 @@ class SettingsService {
     _prefs ??= await SharedPreferences.getInstance();
 
     await _prefs!.setString(videoPlayerPreferencePrefsKey, value.name);
+  }
+
+  Future<bool> getDownloadWifiOnly() async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    return _prefs!.getBool(downloadWifiOnlyPrefsKey) ?? false;
+  }
+
+  Future<void> setDownloadWifiOnly(bool value) async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    await _prefs!.setBool(downloadWifiOnlyPrefsKey, value);
   }
 }
