@@ -9,7 +9,6 @@ import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
-import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/pages/pages.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -211,10 +210,6 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   final bool _showGestureOverlay = false;
 
-  bool _canLoadNext = false;
-  bool _canLoadPrevious = false;
-  bool _autoAdvancing = false;
-
   bool _initialized = false;
 
   late final AnimationController _sliderController;
@@ -262,8 +257,6 @@ class _ChapterViewerState extends State<ChapterViewer>
         )..init(
           widget.data,
           pagesLoaded: (int current, int total) {
-            _canLoadNext = current == total;
-            _canLoadPrevious = current == 1;
             final ChapterViewState state = _chapterViewCubit.state;
             if (state is ChapterViewInitialized) {
               _prefetchAround(state, current - 1);
@@ -810,7 +803,12 @@ class _ChapterViewerState extends State<ChapterViewer>
                   index: _stripIndexOfCurrentPage(state, state.currentPage),
                 );
               } else {
-                _pageController.jumpToPage(max(0, state.currentPage - 1));
+                final int index = _stripIndexOfCurrentPage(
+                  state,
+                  state.currentPage,
+                );
+                _pageController.jumpToPage(index);
+                _onPagedIndexChanged(index);
               }
             });
             _animateSliderTo(state, animate: false);
@@ -843,7 +841,6 @@ class _ChapterViewerState extends State<ChapterViewer>
               if (state.mode != ChapterViewMode.webtoon)
                 _buildHorizontalGestures(state, context),
               _buildControls(context, state),
-              _buildLoaders(context, state),
               _buildPageCounter(context, state),
               _buildTranslationStatus(context, state),
               _buildPeekButton(context, state),
@@ -926,8 +923,7 @@ class _ChapterViewerState extends State<ChapterViewer>
             children: <Widget>[
               GestureDetector(
                 onTap: () {
-                  _pageController.animateToPage(
-                    max(0, state.currentPage - 2),
+                  _pageController.previousPage(
                     duration: const Duration(milliseconds: 200),
                     curve: Curves.ease,
                   );
@@ -968,8 +964,7 @@ class _ChapterViewerState extends State<ChapterViewer>
               GestureDetector(
                 // behavior: HitTestBehavior.translucent,
                 onTap: () {
-                  _pageController.animateToPage(
-                    min(state.currentPages.value.length - 1, state.currentPage),
+                  _pageController.nextPage(
                     duration: const Duration(milliseconds: 200),
                     curve: Curves.ease,
                   );
@@ -1211,7 +1206,7 @@ class _ChapterViewerState extends State<ChapterViewer>
               case ChapterViewMode.rightToLeft:
               case ChapterViewMode.leftToRight:
                 _pageController.jumpToPage(
-                  min(dragged.toInt() - 1, state.currentPages.value.length - 1),
+                  _stripIndexOfCurrentPage(state, dragged.toInt()),
                 );
                 break;
               case ChapterViewMode.webtoon:
@@ -1221,9 +1216,6 @@ class _ChapterViewerState extends State<ChapterViewer>
                 break;
             }
 
-            _canLoadNext =
-                dragged.toInt() - 1 == state.currentPages.value.length - 1;
-            _canLoadPrevious = dragged.toInt() - 1 == 0;
             if (mounted) {
               setState(() {});
             }
@@ -1370,36 +1362,9 @@ class _ChapterViewerState extends State<ChapterViewer>
   static const int _prefetchRadius = 2;
   static const double _minSelectionSide = 24;
   static const int _translateAhead = 2;
-  static const double _autoAdvanceOverscroll = 96;
   static const int _preloadNextWithin = 6;
   static const double _readingLine = 0.5;
   static const double _edgeTolerance = 0.01;
-
-  bool _maybeAutoAdvance(
-    ScrollUpdateNotification notification,
-    ChapterViewInitialized state,
-  ) {
-    if (_autoAdvancing ||
-        notification.dragDetails == null ||
-        !state.canGetNextPages ||
-        notification.metrics.pixels <
-            notification.metrics.maxScrollExtent + _autoAdvanceOverscroll) {
-      return false;
-    }
-    _autoAdvancing = true;
-    context.read<ChapterViewCubit>().onPagesChanged(
-      next: true,
-      onDone: () {
-        _canLoadNext = false;
-        _canLoadPrevious = true;
-        if (mounted) setState(() {});
-      },
-    );
-    Future<void>.delayed(const Duration(milliseconds: 800), () {
-      _autoAdvancing = false;
-    });
-    return false;
-  }
 
   ReaderStrip _stripFor(ChapterViewInitialized state) {
     final ReaderStrip? cached = _strip;
@@ -1474,8 +1439,22 @@ class _ChapterViewerState extends State<ChapterViewer>
       (ItemPosition position) => position.index >= threshold,
     );
     if (nearEnd) {
-      unawaited(_chapterViewCubit.loadNextInStrip());
+      _maybeLoadNextChapterNear(state, strip);
     }
+  }
+
+  void _maybeLoadNextChapterNear(
+    ChapterViewInitialized state,
+    ReaderStrip strip,
+  ) {
+    if (state.nextLoad != ChapterLoad.idle || strip.length == 0) {
+      return;
+    }
+    final ReaderStripItem last = strip.items.last;
+    if (last is! ReaderStripDivider || last.isEnd) {
+      return;
+    }
+    unawaited(_chapterViewCubit.loadNextInStrip());
   }
 
   ReaderStripPage? _readingPage(
@@ -1513,10 +1492,52 @@ class _ChapterViewerState extends State<ChapterViewer>
     return atReadingLine ?? lastAbove ?? firstBelow;
   }
 
+  void _keepPagedPositionAfterPrepend(
+    ChapterViewInitialized state,
+    ReaderStrip oldStrip,
+  ) {
+    if (!_pageController.hasClients) {
+      return;
+    }
+    final int oldIndex = (_pageController.page ?? 0).round();
+    if (oldIndex < 0 || oldIndex >= oldStrip.length) {
+      return;
+    }
+    final ReaderStrip strip = _stripFor(state);
+    final ReaderStripItem anchor = oldStrip.items[oldIndex];
+    final int? index = anchor is ReaderStripPrevious
+        ? _lastPageIndexOf(state, strip, anchor.previous.uid)
+        : strip.indexOfKey(anchor.key);
+    if (index == null) {
+      return;
+    }
+    _restoringAnchor = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _pageController.hasClients) {
+        _pageController.jumpToPage(index);
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _restoringAnchor = false;
+        _onPagedIndexChanged(index);
+      });
+    });
+  }
+
+  int? _lastPageIndexOf(
+    ChapterViewInitialized state,
+    ReaderStrip strip,
+    String chapterUid,
+  ) {
+    final LoadedChapter? chapter = state.loadedChapter(chapterUid);
+    if (chapter == null || chapter.pageCount == 0) {
+      return null;
+    }
+    return strip.indexOfPage(chapterUid, chapter.pageCount - 1);
+  }
+
   bool _chapterPrepended(ChapterViewState previous, ChapterViewState current) {
     return previous is ChapterViewInitialized &&
         current is ChapterViewInitialized &&
-        current.mode == ChapterViewMode.webtoon &&
         current.chapters.length > previous.chapters.length &&
         current.chapters.first.uid != previous.chapters.first.uid;
   }
@@ -1545,6 +1566,10 @@ class _ChapterViewerState extends State<ChapterViewer>
   void _keepPositionAfterPrepend(ChapterViewInitialized state) {
     final ReaderStrip? oldStrip = _strip;
     if (oldStrip == null) {
+      return;
+    }
+    if (state.mode != ChapterViewMode.webtoon) {
+      _keepPagedPositionAfterPrepend(state, oldStrip);
       return;
     }
     final ({String key, double leadingEdge})? anchor = _currentAnchor(oldStrip);
@@ -1589,90 +1614,154 @@ class _ChapterViewerState extends State<ChapterViewer>
     switch (state.mode) {
       case ChapterViewMode.rightToLeft:
       case ChapterViewMode.leftToRight:
-        return NotificationListener<ScrollUpdateNotification>(
-          onNotification: (ScrollUpdateNotification notification) =>
-              _maybeAutoAdvance(notification, state),
-          child: PhotoViewGallery.builder(
-            allowImplicitScrolling: true,
-            loadingBuilder: (BuildContext context, ImageChunkEvent? event) {
-              return Center(
-                child: SizedBox(
-                  width: 32,
-                  height: 32,
-                  child: CircularProgressIndicator(
-                    color: AppColors.primary,
-                    value: event != null && event.expectedTotalBytes != null
-                        ? event.cumulativeBytesLoaded /
-                              event.expectedTotalBytes!
-                        : 0,
-                  ),
-                ),
-              );
-            },
-            pageController: _pageController,
-            scrollPhysics: const BouncingScrollPhysics(),
-            itemCount: state.currentPages.value.length,
-            reverse: state.mode == ChapterViewMode.rightToLeft,
-            onPageChanged: (int index) {
-              _prefetchAround(state, index);
-              context.read<ChapterViewCubit>().onPageChanged(
-                index + 1,
-                state.currentPages,
-                onDone: (Pages currentPages) {
-                  if (index == 0) {
-                    _canLoadPrevious = true;
-                  } else if (index == currentPages.value.length - 1) {
-                    _canLoadNext = true;
-                  } else {
-                    _canLoadPrevious = false;
-                    _canLoadNext = false;
-                  }
-                },
-              );
-              setState(() {});
-            },
-            builder: (BuildContext context, int index) {
-              final String page = state.currentPages.value[index];
-              return PhotoViewGalleryPageOptions.customChild(
-                initialScale: PhotoViewComputedScale.contained,
-                minScale: PhotoViewComputedScale.contained,
-                maxScale: PhotoViewComputedScale.covered * 3.0,
-                basePosition: Alignment.center,
-                // photo_view only applies zoom through its Transform when
-                // filterQuality is none; otherwise it scales the Image widget
-                // it builds, which a custom child never receives. PageImage
-                // does its own filtering.
-                filterQuality: FilterQuality.none,
-                childSize: _pageSizes[page],
-                child: TranslatedPage(
-                  key: _translatedPageKey(page),
-                  cubit: _translationCubit,
-                  path: page,
-                  child: PageImage(
-                    path: page,
-                    headers: state.headers,
-                    intrinsic: true,
-                    onSizeResolved: (Size size) {
-                      if (_pageSizes[page] != size && mounted) {
-                        setState(() => _pageSizes[page] = size);
-                      }
-                    },
-                    loadingBuilder: (BuildContext context) =>
-                        SizedBox.fromSize(size: MediaQuery.of(context).size),
-                    errorBuilder: (BuildContext context, VoidCallback retry) =>
-                        SizedBox.fromSize(
-                          size: MediaQuery.of(context).size,
-                          child: _buildPageError(retry),
-                        ),
-                  ),
-                ),
-              );
-            },
-          ),
-        );
+        return _buildPagedStrip(state, context);
       case ChapterViewMode.webtoon:
         return _buildWebtoonStrip(state, context);
     }
+  }
+
+  Widget _buildPagedStrip(ChapterViewInitialized state, BuildContext context) {
+    final ReaderStrip strip = _stripFor(state);
+    return PhotoViewGallery.builder(
+      allowImplicitScrolling: true,
+      loadingBuilder: (BuildContext context, ImageChunkEvent? event) {
+        return Center(
+          child: SizedBox(
+            width: 32,
+            height: 32,
+            child: CircularProgressIndicator(
+              color: AppColors.primary,
+              value: event != null && event.expectedTotalBytes != null
+                  ? event.cumulativeBytesLoaded / event.expectedTotalBytes!
+                  : 0,
+            ),
+          ),
+        );
+      },
+      pageController: _pageController,
+      scrollPhysics: const BouncingScrollPhysics(),
+      itemCount: strip.length,
+      reverse: state.mode == ChapterViewMode.rightToLeft,
+      onPageChanged: _onPagedIndexChanged,
+      builder: (BuildContext context, int index) =>
+          _buildPagedItem(context, strip.items[index]),
+    );
+  }
+
+  void _onPagedIndexChanged(int index) {
+    final ChapterViewState state = _chapterViewCubit.state;
+    if (_restoringAnchor || state is! ChapterViewInitialized) {
+      return;
+    }
+    final ReaderStrip strip = _stripFor(state);
+    if (index < 0 || index >= strip.length) {
+      return;
+    }
+    if (index >= strip.length - 1 - _preloadNextWithin) {
+      _maybeLoadNextChapterNear(state, strip);
+    }
+    final ReaderStripItem item = strip.items[index];
+    switch (item) {
+      case ReaderStripPage():
+        _chapterViewCubit.onStripPosition(item.chapter.uid, item.pageIndex + 1);
+        final ChapterViewState updated = _chapterViewCubit.state;
+        if (updated is ChapterViewInitialized) {
+          _prefetchAround(updated, item.pageIndex);
+        }
+      case ReaderStripDivider():
+        _chapterViewCubit.onStripPosition(
+          item.finished.uid,
+          item.finished.pageCount,
+        );
+      case ReaderStripPrevious():
+        break;
+    }
+  }
+
+  PhotoViewGalleryPageOptions _buildPagedItem(
+    BuildContext context,
+    ReaderStripItem item,
+  ) {
+    switch (item) {
+      case ReaderStripPage():
+        return _buildPagedPage(context, item);
+      case ReaderStripDivider():
+        return _buildPagedCard(
+          context,
+          ChapterDivider(
+            divider: item,
+            onRetry: () => unawaited(_chapterViewCubit.loadNextInStrip()),
+            onBack: () => Navigator.of(context).pop(),
+          ),
+        );
+      case ReaderStripPrevious():
+        return _buildPagedCard(
+          context,
+          PreviousChapterCard(
+            item: item,
+            onLoad: () => unawaited(_chapterViewCubit.loadPreviousInStrip()),
+          ),
+        );
+    }
+  }
+
+  PhotoViewGalleryPageOptions _buildPagedCard(
+    BuildContext context,
+    Widget card,
+  ) {
+    final Size screen = MediaQuery.sizeOf(context);
+    return PhotoViewGalleryPageOptions.customChild(
+      initialScale: PhotoViewComputedScale.contained,
+      minScale: PhotoViewComputedScale.contained,
+      maxScale: PhotoViewComputedScale.contained,
+      disableGestures: true,
+      childSize: screen,
+      child: SizedBox.fromSize(
+        size: screen,
+        child: Center(child: SingleChildScrollView(child: card)),
+      ),
+    );
+  }
+
+  PhotoViewGalleryPageOptions _buildPagedPage(
+    BuildContext context,
+    ReaderStripPage item,
+  ) {
+    final String page = item.path;
+    return PhotoViewGalleryPageOptions.customChild(
+      initialScale: PhotoViewComputedScale.contained,
+      minScale: PhotoViewComputedScale.contained,
+      maxScale: PhotoViewComputedScale.covered * 3.0,
+      basePosition: Alignment.center,
+      // photo_view only applies zoom through its Transform when
+      // filterQuality is none; otherwise it scales the Image widget
+      // it builds, which a custom child never receives. PageImage
+      // does its own filtering.
+      filterQuality: FilterQuality.none,
+      childSize: _pageSizes[page],
+      child: TranslatedPage(
+        key: _translatedPageKey(page),
+        cubit: _translationCubit,
+        path: page,
+        child: PageImage(
+          path: page,
+          headers: item.chapter.headers,
+          intrinsic: true,
+          onSizeResolved: (Size size) {
+            if (_pageSizes[page] != size && mounted) {
+              setState(() => _pageSizes[page] = size);
+            }
+          },
+          loadingBuilder: (BuildContext context) =>
+              SizedBox.fromSize(size: MediaQuery.of(context).size),
+          errorBuilder: (BuildContext context, VoidCallback retry) =>
+              SizedBox.fromSize(
+                size: MediaQuery.of(context).size,
+                child: _buildPageError(retry),
+              ),
+        ),
+      ),
+    );
   }
 
   Widget _buildWebtoonStrip(
@@ -1774,87 +1863,6 @@ class _ChapterViewerState extends State<ChapterViewer>
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
       color: Colors.black,
-    );
-  }
-
-  Widget _buildLoaders(BuildContext context, ChapterViewInitialized state) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            _buildControlButtons(context, state),
-            const SizedBox(height: 96),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildControlButtons(
-    BuildContext context,
-    ChapterViewInitialized state,
-  ) {
-    if (state.mode == ChapterViewMode.webtoon) {
-      return const SizedBox.shrink();
-    }
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 350),
-      child:
-          (_canLoadPrevious && state.canGetPreviousPages) ||
-              (_canLoadNext && state.canGetNextPages)
-          ? ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.mainBlack,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-              onPressed: () {
-                if (_canLoadNext && state.canGetNextPages) {
-                  context.read<ChapterViewCubit>().onPagesChanged(
-                    next: true,
-                    onDone: () {
-                      _canLoadNext = false;
-                      _canLoadPrevious = true;
-                      setState(() {});
-                    },
-                  );
-                } else if (_canLoadPrevious && state.canGetPreviousPages) {
-                  context.read<ChapterViewCubit>().onPagesChanged(
-                    next: false,
-                    onDone: () {
-                      _canLoadPrevious = false;
-                      _canLoadNext = true;
-                      setState(() {});
-                    },
-                  );
-                }
-              },
-              icon: Icon(
-                _canLoadNext && state.canGetNextPages
-                    ? Icons.arrow_forward_rounded
-                    : Icons.arrow_back_rounded,
-                size: 20,
-              ),
-              label: Text(
-                _canLoadNext && state.canGetNextPages
-                    ? S.current.chapter_viewer_next_chapter_button_title
-                    : _canLoadPrevious && state.canGetPreviousPages
-                    ? S.current.chapter_viewer_previous_chapter_button_title
-                    : "",
-                style: semibold(size: 15, color: AppColors.mainBlack),
-              ),
-            )
-          : const SizedBox(),
     );
   }
 }
