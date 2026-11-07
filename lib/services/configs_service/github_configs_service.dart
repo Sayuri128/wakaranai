@@ -8,6 +8,8 @@ import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 import 'package:wakaranai/services/configs_service/capyscript_import_bundler.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
+import 'package:wakaranai/services/configs_service/remote_config_parser.dart';
+import 'package:wakaranai/main.dart';
 
 class GitHubConfigsService implements ConfigsService {
   static const String defaultBranch = 'main';
@@ -127,10 +129,11 @@ class GitHubConfigsService implements ConfigsService {
     final Map<String, dynamic> decoded =
         jsonDecode(response.data!) as Map<String, dynamic>;
 
-    return (decoded['configs'] as List<dynamic>)
-        .whereType<Map<String, dynamic>>()
-        .map(RemoteConfig.fromJson)
-        .toList();
+    final dynamic entries = decoded['configs'];
+    if (entries is! List) {
+      throw Exception('$_indexPath from $org/$repository has no configs list');
+    }
+    return const RemoteConfigParser().parseAll(entries);
   }
 
   Future<List<RemoteConfig>> _fetchConfigsFromDirectories() async {
@@ -155,32 +158,40 @@ class GitHubConfigsService implements ConfigsService {
     for (int i = 0; i < directories.length; i += _maxConcurrentFetches) {
       final int end =
           (i + _maxConcurrentFetches).clamp(0, directories.length);
-      configs.addAll(await Future.wait(
+      final List<RemoteConfig?> batch = await Future.wait(
         directories.sublist(i, end).map((GithubTreeItemModel e) => _getConfig(
               treeItem: e,
               directory: directory,
               category: category,
             )),
-      ));
+      );
+      configs.addAll(batch.whereType<RemoteConfig>());
     }
 
     return configs;
   }
 
-  Future<RemoteConfig> _getConfig({
+  Future<RemoteConfig?> _getConfig({
     required GithubTreeItemModel treeItem,
     required String directory,
     required String category,
   }) async {
-    final String config = await _getRawContent(
-      '$directory/${treeItem.name}/config.json',
-    );
+    final String path = '$directory/${treeItem.name}';
+    final String config = await _getRawContent('$path/config.json');
 
-    return RemoteConfig.fromJson(
+    final dynamic decodedConfig;
+    try {
+      decodedConfig = jsonDecode(config);
+    } on FormatException catch (error) {
+      logger.w('Skipping $path: config.json is not valid JSON ($error)');
+      return null;
+    }
+
+    return const RemoteConfigParser().parseEntry(
       <String, dynamic>{
         "category": category,
-        "path": '$directory/${treeItem.name}',
-        "config": jsonDecode(config),
+        "path": path,
+        "config": decodedConfig,
       },
     );
   }
