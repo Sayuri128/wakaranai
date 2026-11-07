@@ -52,6 +52,8 @@ First of all you need to create a new json file called `config.json` with the fo
   the script makes. See [Request policy](#request-policy).
 * `feeds` (api 2, optional): Alternative listings for the gallery, such as "Popular" or "Latest".
   See [Feeds](#feeds).
+* `pagination` (api 2, optional): The gallery page sizes the user can pick from. See
+  [Page size](#page-size).
 
 see [template](./extension_templates/manga/config.json)
 
@@ -67,19 +69,20 @@ each extension should have the following functions:
 
 ```capyscript
 
-function getGallery(page, query, filters, feed) {
+function getGallery(page, query, filters, feed, pageSize) {
 
 }
 
 ```
 
 where `page` is the page number (the first page is `1`), `query` is the search query, `filters` is
-the list of filters the user selected and `feed` is the id of the selected [feed](#feeds). `query`
-is `""` when the user is not searching — then the extension should return the home page. See
-[Filters](#filters) for the shape of `filters`.
+the list of filters the user selected, `feed` is the id of the selected [feed](#feeds) and
+`pageSize` is how many items the user wants per page (api 2, see [Page size](#page-size); `0` when
+the extension declares no `pagination`). `query` is `""` when the user is not searching — then the
+extension should return the home page. See [Filters](#filters) for the shape of `filters`.
 
-Arguments are bound by name and extra ones are ignored, so an extension without feeds can keep the
-three-argument `getGallery(page, query, filters)`.
+Arguments are bound by name and extra ones are ignored, so an extension without feeds or page sizes
+can keep the three-argument `getGallery(page, query, filters)`.
 
 * `getConcrete` - returns a concrete model created with `buildConcrete` function
 
@@ -290,9 +293,10 @@ for (i = 0; i < filters.length; i = i + 1) {
 `apiVersion` tells the app which extension API the script was written for. Version `1` is
 everything that existed before the fields and modules marked *api 2* in these guides; leave the
 field out (or set `1`) if you use none of them. Set `"apiVersion": 2` when the config declares
-`preferences`, `requestPolicy`, `feeds`, `downloadConfig.segmentConcurrency` or
-`downloadConfig.episodeDelayMs`, or the script imports `preferences`, `storage` or `errors`, or
-calls `currentMirror()`. The repository validator reports any api 2 feature used without it.
+`preferences`, `requestPolicy`, `feeds`, `pagination`, `downloadConfig.segmentConcurrency` or
+`downloadConfig.episodeDelayMs`, or the script imports `preferences`, `storage` or `errors`, calls
+`currentMirror()`, or declares a `pageSize` parameter on `getGallery`. The repository validator
+reports any api 2 feature used without it.
 
 `minAppVersion` is for everything else that only works from a given release on, such as a new
 model field your extension depends on. It is compared with the running app's version.
@@ -326,15 +330,15 @@ is on the default listing. A search overrides feeds, so treat a non-empty `query
 whatever `feed` holds. MangaDex keeps its old listing for `""`:
 
 ```capyscript
-function getGallery(page, query, filters, feed) {
+function getGallery(page, query, filters, feed, pageSize) {
     if (query == "" && feed == "latest") {
         return getLatestGallery(page, filters);
     }
-    params = {"limit": 20, "offset": 20 * page, "includes": ["cover_art"]};
+    limit = galleryPageSize(pageSize);
+    params = {"limit": limit, "offset": limit * (page - 1), "includes": ["cover_art"]};
     if (query != "") {
         params["title"] = query;
     } else if (feed == "popular") {
-        params["offset"] = 20 * (page - 1);
         params["order"] = {"followedCount": "desc"};
     }
     ...
@@ -343,13 +347,70 @@ function getGallery(page, query, filters, feed) {
 
 Filters apply to every feed; it is up to the script which of them a feed can honour.
 
+## Page size
+
+**(api 2)** An extension whose API takes a page size can let the user choose how many items a
+gallery page holds. Declare the sizes in `config.json`:
+
+```json
+"pagination": {
+  "pageSizes": [20, 50, 100],
+  "defaultPageSize": 20
+}
+```
+
+* `pageSizes` — the sizes offered, each a whole number from `1` to `500`. Only list sizes the API
+  accepts.
+* `defaultPageSize` — the size used until the user picks another one. It must be one of
+  `pageSizes`; pick the size the extension used before, so updating it changes nothing until the
+  user opts in.
+
+The app is lenient when it reads the field: invalid sizes are dropped, duplicates collapse, a
+default that is not in the list falls back to the first size, and an empty or malformed
+`pagination` counts as absent. The repository validator is strict and rejects all of these.
+
+The app renders a built-in **Page size** row in the extension settings sheet, like the mirror
+picker, and stores the choice under the reserved key `__pageSize`. Don't
+declare that key yourself and don't read it with `getPreference`; the size arrives as the
+`pageSize` argument of `getGallery`, already checked: it is the user's choice while the config
+still offers it, else `defaultPageSize`. When the extension declares no `pagination`, `pageSize`
+is `0`. Scripts that don't declare the parameter keep working, since extra arguments are ignored.
+
+Pages are 1-based, so the first item of a page is at offset `pageSize * (page - 1)`; page `1`
+starts at offset `0`. MangaDex offers
+20, 50 and 100 (its API caps `limit` at 100) and guards the argument so the script also runs with
+a missing or out-of-range value:
+
+```capyscript
+function galleryPageSize(requestedPageSize) {
+    if (requestedPageSize == null) {
+        return 20;
+    }
+    if (requestedPageSize < 1) {
+        return 20;
+    }
+    if (requestedPageSize > 100) {
+        return 100;
+    }
+    return requestedPageSize;
+}
+```
+
+It also stops at the API's ceiling of 10000 results (`offset + limit` may not exceed it), returning
+`[]` for pages past it instead of failing with an HTTP 400.
+
+A feed does not have to honour the size. MangaDex's "Latest updates" pages are built from windows
+of 100 chapters deduplicated into titles, so they ignore `pageSize`: capping them would mean
+carrying leftover titles into the next page and would break the guarantee that consecutive pages
+never repeat a title.
+
 ## Preferences
 
 Preferences are per-extension settings the app renders on the extension's page and the script
 reads with [`getPreference`](caypscript_modules.md#preferences). Each entry has:
 
 * `key` — the name the script reads. Must be unique within the extension. Don't start it with
-  `__`; the app uses that prefix for its own keys such as `__mirror`.
+  `__`; the app reserves that prefix for its own keys such as `__mirror` and `__pageSize`.
 * `type` — `toggle`, `select`, `multiselect`, `text` or `number`. Entries with any other type are
   ignored, so a newer type never breaks an older app.
 * `title` — the label in the settings list.

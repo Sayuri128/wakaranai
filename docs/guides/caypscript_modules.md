@@ -306,6 +306,10 @@ build the client without an extension host), so keep a fallback in the script as
 are a bool for `toggle`, a string for `select` and `text`, a number for `number`, and a list of
 strings for `multiselect`.
 
+Keys starting with `__` belong to the app. Read the active mirror with `currentMirror()` and the
+gallery page size from the `pageSize` argument of
+[`getGallery`](extensions.md#page-size), not with `getPreference`.
+
 ---
 
 ## Storage
