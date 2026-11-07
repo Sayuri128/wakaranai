@@ -9,6 +9,7 @@ const List<double> kHoldSpeedOptions = <double>[1.5, 2.0, 3.0, 4.0];
 const List<int> kSkipOpeningOptions = <int>[60, 75, 85, 90, 120];
 
 const double kDefaultHoldSpeed = 2.0;
+const double kHoldSpeedStepFactor = 1.5;
 const int kDefaultSkipOpeningSeconds = 85;
 const bool kDefaultAutoPlayNext = true;
 
@@ -27,6 +28,21 @@ double normalizePlaybackSpeed(double speed) {
   final double steps = (clamped / kPlaybackSpeedStep).roundToDouble();
   final double stepped = steps * kPlaybackSpeedStep;
   return double.parse(stepped.toStringAsFixed(2));
+}
+
+double? holdPlaybackSpeed({
+  required double currentSpeed,
+  required double configuredHoldSpeed,
+}) {
+  if (configuredHoldSpeed > currentSpeed) {
+    return configuredHoldSpeed;
+  }
+  final double stepped =
+      normalizePlaybackSpeed(currentSpeed * kHoldSpeedStepFactor);
+  if (stepped <= currentSpeed) {
+    return null;
+  }
+  return stepped;
 }
 
 enum SubtitlePreferenceKind { off, language, label }

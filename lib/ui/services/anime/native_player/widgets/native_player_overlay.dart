@@ -377,7 +377,7 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
       deviceControls: widget.deviceControls,
       locked: _locked,
       holdActive: widget.state.holdActive,
-      holdSpeed: widget.state.holdSpeed,
+      holdSpeed: widget.state.displayedHoldSpeed,
       onTap: _handleTap,
       onDoubleTapAt: _handleDoubleTap,
       onHoldStart: () => unawaited(cubit.startHoldSpeed()),

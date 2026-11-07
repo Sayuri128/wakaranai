@@ -693,6 +693,60 @@ void main() {
       await cubit.close();
     });
 
+    test('never slows down when already faster than the hold speed',
+        () async {
+      final _Harness harness = _Harness();
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      await cubit.setPlaybackSpeed(2.5);
+
+      await cubit.startHoldSpeed();
+
+      expect(cubit.state.holdActive, isTrue);
+      expect(cubit.state.activeHoldSpeed, 3.75);
+      expect(cubit.state.displayedHoldSpeed, 3.75);
+      expect(harness.engines.single.value.playbackSpeed, 3.75);
+
+      await cubit.endHoldSpeed();
+
+      expect(cubit.state.activeHoldSpeed, isNull);
+      expect(harness.engines.single.value.playbackSpeed, 2.5);
+      await cubit.close();
+    });
+
+    test('does nothing at the maximum speed', () async {
+      final _Harness harness = _Harness();
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      await cubit.setPlaybackSpeed(4.0);
+      final int speedChanges = harness.engines.single.speeds.length;
+
+      await cubit.startHoldSpeed();
+
+      expect(cubit.state.holdActive, isFalse);
+      expect(harness.engines.single.speeds, hasLength(speedChanges));
+      await cubit.close();
+    });
+
+    test('a faster speed picked while holding raises the hold speed',
+        () async {
+      final _Harness harness = _Harness();
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      await cubit.startHoldSpeed();
+      expect(harness.engines.single.value.playbackSpeed, 2.0);
+
+      await cubit.setPlaybackSpeed(3.0);
+
+      expect(cubit.state.activeHoldSpeed, 4.0);
+      expect(harness.engines.single.value.playbackSpeed, 4.0);
+
+      await cubit.endHoldSpeed();
+
+      expect(harness.engines.single.value.playbackSpeed, 3.0);
+      await cubit.close();
+    });
+
     test('does nothing while paused', () async {
       final _Harness harness = _Harness();
       final NativePlayerCubit cubit = harness.build();

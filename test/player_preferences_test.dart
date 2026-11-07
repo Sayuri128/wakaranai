@@ -91,6 +91,41 @@ void main() {
     });
   });
 
+  group('holdPlaybackSpeed', () {
+    test('uses the configured speed when it is faster', () {
+      expect(
+        holdPlaybackSpeed(currentSpeed: 1.0, configuredHoldSpeed: 2.0),
+        2.0,
+      );
+      expect(
+        holdPlaybackSpeed(currentSpeed: 0.5, configuredHoldSpeed: 1.5),
+        1.5,
+      );
+    });
+
+    test('steps above the current speed when it is not slower', () {
+      expect(
+        holdPlaybackSpeed(currentSpeed: 2.0, configuredHoldSpeed: 2.0),
+        3.0,
+      );
+      expect(
+        holdPlaybackSpeed(currentSpeed: 2.5, configuredHoldSpeed: 1.5),
+        3.75,
+      );
+      expect(
+        holdPlaybackSpeed(currentSpeed: 3.0, configuredHoldSpeed: 2.0),
+        4.0,
+      );
+    });
+
+    test('returns nothing when no faster speed exists', () {
+      expect(
+        holdPlaybackSpeed(currentSpeed: 4.0, configuredHoldSpeed: 4.0),
+        isNull,
+      );
+    });
+  });
+
   group('SubtitlePreference', () {
     test('encodes and decodes every kind', () {
       const List<SubtitlePreference> preferences = <SubtitlePreference>[

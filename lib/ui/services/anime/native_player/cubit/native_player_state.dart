@@ -19,6 +19,7 @@ class NativePlayerState extends Equatable {
     this.playbackSpeed = 1.0,
     this.holdSpeed = kDefaultHoldSpeed,
     this.holdActive = false,
+    this.activeHoldSpeed,
     this.speedRejections = 0,
     this.fitMode = PlayerFitMode.fit,
     this.skipOpeningSeconds = kDefaultSkipOpeningSeconds,
@@ -42,6 +43,7 @@ class NativePlayerState extends Equatable {
   final double playbackSpeed;
   final double holdSpeed;
   final bool holdActive;
+  final double? activeHoldSpeed;
   final int speedRejections;
   final PlayerFitMode fitMode;
   final int skipOpeningSeconds;
@@ -49,7 +51,14 @@ class NativePlayerState extends Equatable {
   final bool isPlaying;
   final String? errorMessage;
 
-  double get effectiveSpeed => holdActive ? holdSpeed : playbackSpeed;
+  double get effectiveSpeed {
+    if (!holdActive) {
+      return playbackSpeed;
+    }
+    return activeHoldSpeed ?? playbackSpeed;
+  }
+
+  double get displayedHoldSpeed => activeHoldSpeed ?? holdSpeed;
 
   NativePlayerState copyWith({
     EpisodePlaylist? playlist,
@@ -67,6 +76,7 @@ class NativePlayerState extends Equatable {
     double? playbackSpeed,
     double? holdSpeed,
     bool? holdActive,
+    ValueGetter<double?>? activeHoldSpeed,
     int? speedRejections,
     PlayerFitMode? fitMode,
     int? skipOpeningSeconds,
@@ -93,6 +103,8 @@ class NativePlayerState extends Equatable {
       playbackSpeed: playbackSpeed ?? this.playbackSpeed,
       holdSpeed: holdSpeed ?? this.holdSpeed,
       holdActive: holdActive ?? this.holdActive,
+      activeHoldSpeed:
+          activeHoldSpeed != null ? activeHoldSpeed() : this.activeHoldSpeed,
       speedRejections: speedRejections ?? this.speedRejections,
       fitMode: fitMode ?? this.fitMode,
       skipOpeningSeconds: skipOpeningSeconds ?? this.skipOpeningSeconds,
@@ -121,6 +133,7 @@ class NativePlayerState extends Equatable {
         playbackSpeed,
         holdSpeed,
         holdActive,
+        activeHoldSpeed,
         speedRejections,
         fitMode,
         skipOpeningSeconds,

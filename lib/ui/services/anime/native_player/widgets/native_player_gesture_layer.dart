@@ -101,6 +101,15 @@ class _NativePlayerGestureLayerState extends State<NativePlayerGestureLayer> {
   _DragMode? _visibleLevelMode;
   Timer? _levelIndicatorTimer;
   bool _holding = false;
+  late double _shownHoldSpeed = widget.holdSpeed;
+
+  @override
+  void didUpdateWidget(NativePlayerGestureLayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.holdActive) {
+      _shownHoldSpeed = widget.holdSpeed;
+    }
+  }
 
   @override
   void dispose() {
@@ -377,7 +386,7 @@ class _NativePlayerGestureLayerState extends State<NativePlayerGestureLayer> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     Text(
-                      speedMultiplierLabel(widget.holdSpeed),
+                      speedMultiplierLabel(_shownHoldSpeed),
                       style: semibold(size: 14, color: AppColors.onMedia),
                     ),
                     const SizedBox(width: 6),

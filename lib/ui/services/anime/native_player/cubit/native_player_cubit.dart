@@ -279,7 +279,9 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     final double previousSpeed = state.playbackSpeed;
     final double normalizedSpeed = normalizePlaybackSpeed(speed);
     emit(state.copyWith(playbackSpeed: normalizedSpeed));
-    if (!state.holdActive) {
+    if (state.holdActive) {
+      await _refreshHoldSpeed();
+    } else {
       final bool applied = await _applyEngineSpeed(normalizedSpeed);
       if (!applied) {
         await _rejectSpeed(fallbackSpeed: previousSpeed);
@@ -297,11 +299,19 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
         !state.isPlaying) {
       return;
     }
-    emit(state.copyWith(holdActive: true));
-    final bool applied = await _applyEngineSpeed(state.holdSpeed);
+    final double? holdSpeed = holdPlaybackSpeed(
+      currentSpeed: state.playbackSpeed,
+      configuredHoldSpeed: state.holdSpeed,
+    );
+    if (holdSpeed == null) {
+      return;
+    }
+    emit(state.copyWith(holdActive: true, activeHoldSpeed: () => holdSpeed));
+    final bool applied = await _applyEngineSpeed(holdSpeed);
     if (!applied && !isClosed) {
       emit(state.copyWith(
         holdActive: false,
+        activeHoldSpeed: () => null,
         speedRejections: state.speedRejections + 1,
       ));
       await _applyEngineSpeed(state.playbackSpeed);
@@ -312,8 +322,24 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     if (!state.holdActive || isClosed) {
       return;
     }
-    emit(state.copyWith(holdActive: false));
+    emit(state.copyWith(holdActive: false, activeHoldSpeed: () => null));
     await _applyEngineSpeed(state.playbackSpeed);
+  }
+
+  Future<void> _refreshHoldSpeed() async {
+    final double holdSpeed = holdPlaybackSpeed(
+          currentSpeed: state.playbackSpeed,
+          configuredHoldSpeed: state.holdSpeed,
+        ) ??
+        state.playbackSpeed;
+    if (holdSpeed == state.activeHoldSpeed) {
+      return;
+    }
+    emit(state.copyWith(activeHoldSpeed: () => holdSpeed));
+    final bool applied = await _applyEngineSpeed(holdSpeed);
+    if (!applied) {
+      await endHoldSpeed();
+    }
   }
 
   Future<void> setFitMode(PlayerFitMode mode) async {
@@ -406,6 +432,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       engine: () => null,
       isPlaying: false,
       holdActive: false,
+      activeHoldSpeed: () => null,
       streamIndex: 0,
       renditions: const <PlayerRendition>[],
       selectedRenditionId: () => null,
@@ -764,6 +791,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     emit(state.copyWith(
       playbackSpeed: 1.0,
       holdActive: false,
+      activeHoldSpeed: () => null,
       speedRejections: state.speedRejections + 1,
     ));
     await _trySetSpeed(preparedEngine, 1.0);
@@ -816,7 +844,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
   void _startAutoNextCountdown() {
     _autoNextTimer?.cancel();
     if (state.holdActive) {
-      emit(state.copyWith(holdActive: false));
+      emit(state.copyWith(holdActive: false, activeHoldSpeed: () => null));
     }
     emit(state.copyWith(
       autoNextSecondsLeft: () => kAutoNextCountdownSeconds,
