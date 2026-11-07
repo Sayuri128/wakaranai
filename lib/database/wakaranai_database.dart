@@ -98,6 +98,13 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
             await _createTableIfMissing(m, pageTranslationTable);
             await _createIndexIfMissing(m, pageTranslationUid);
           }
+          if (from < 13) {
+            await _addColumnIfMissing(m, downloadTable, downloadTable.kind);
+            await _addColumnIfMissing(
+                m, downloadTable, downloadTable.downloadedBytes);
+            await _addColumnIfMissing(m, downloadTable, downloadTable.totalBytes);
+            await _addColumnIfMissing(m, downloadTable, downloadTable.playback);
+          }
         },
       );
 
@@ -172,7 +179,7 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
   }
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 }
 
 LazyDatabase _openConnection() {

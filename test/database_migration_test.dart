@@ -274,4 +274,38 @@ void main() {
     expect(await _userVersion(replayed), replayed.schemaVersion);
     await replayed.close();
   });
+
+  test('upgrade from v12 adds the episode download columns', () async {
+    final Database raw = sqlite3.openInMemory();
+    addTearDown(raw.dispose);
+
+    final WakaranaiDatabase first = await _open(raw);
+    await first.close();
+
+    raw.execute('ALTER TABLE download_table DROP COLUMN kind;');
+    raw.execute('ALTER TABLE download_table DROP COLUMN downloaded_bytes;');
+    raw.execute('ALTER TABLE download_table DROP COLUMN total_bytes;');
+    raw.execute('ALTER TABLE download_table DROP COLUMN playback;');
+    raw.execute('PRAGMA user_version = 12;');
+
+    final WakaranaiDatabase second = await _open(raw);
+    expect(await _userVersion(second), second.schemaVersion);
+
+    final Set<Object?> columns = (await second
+            .customSelect('PRAGMA table_info(download_table);')
+            .get())
+        .map((QueryRow r) => r.data['name'])
+        .toSet();
+    expect(
+      columns,
+      containsAll(
+          <String>['kind', 'downloaded_bytes', 'total_bytes', 'playback']),
+    );
+    await second.close();
+
+    raw.execute('PRAGMA user_version = 12;');
+    final WakaranaiDatabase replayed = await _open(raw);
+    expect(await _userVersion(replayed), replayed.schemaVersion);
+    await replayed.close();
+  });
 }

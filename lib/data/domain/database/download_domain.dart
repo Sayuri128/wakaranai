@@ -19,14 +19,27 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
   final String dirPath;
   final String? headers;
   final String? data;
+  final DownloadKind kind;
+  final int downloadedBytes;
+  final int totalBytes;
+  final String? playback;
+
+  bool get isEpisode => kind == DownloadKind.episode;
 
   Map<String, String> get headersMap => headers != null
       ? (jsonDecode(headers!) as Map<String, dynamic>)
           .map((String k, dynamic v) => MapEntry(k, v.toString()))
       : <String, String>{};
 
-  double get progress =>
-      totalPages == 0 ? 0 : (downloadedPages / totalPages).clamp(0.0, 1.0);
+  double get progress {
+    if (totalPages > 0) {
+      return (downloadedPages / totalPages).clamp(0.0, 1.0);
+    }
+    if (totalBytes > 0) {
+      return (downloadedBytes / totalBytes).clamp(0.0, 1.0);
+    }
+    return 0;
+  }
 
   Map<String, dynamic> get dataJson =>
       data != null ? jsonDecode(data!) as Map<String, dynamic> : {};
@@ -46,6 +59,10 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
     required this.dirPath,
     this.headers,
     this.data,
+    this.kind = DownloadKind.chapter,
+    this.downloadedBytes = 0,
+    this.totalBytes = 0,
+    this.playback,
     required super.createdAt,
     super.updatedAt,
   });
@@ -65,6 +82,10 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
         dirPath: data.dirPath,
         headers: data.headers,
         data: data.data,
+        kind: data.kind,
+        downloadedBytes: data.downloadedBytes,
+        totalBytes: data.totalBytes,
+        playback: data.playback,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
       );
@@ -87,6 +108,10 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
         dirPath: Value(dirPath),
         headers: Value(headers),
         data: Value(data),
+        kind: Value(kind),
+        downloadedBytes: Value(downloadedBytes),
+        totalBytes: Value(totalBytes),
+        playback: Value(playback),
         createdAt: Value(createdAt),
       );
     }
@@ -104,6 +129,10 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
       dirPath: Value(dirPath),
       headers: Value(headers),
       data: Value(data),
+      kind: Value(kind),
+      downloadedBytes: Value(downloadedBytes),
+      totalBytes: Value(totalBytes),
+      playback: Value(playback),
       createdAt: Value(createdAt),
       updatedAt: Value(update ? DateTime.now() : updatedAt),
     );
@@ -114,6 +143,9 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
     int? downloadedPages,
     int? totalPages,
     String? headers,
+    int? downloadedBytes,
+    int? totalBytes,
+    String? playback,
   }) =>
       DownloadDomain(
         id: id,
@@ -130,6 +162,10 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
         dirPath: dirPath,
         headers: headers ?? this.headers,
         data: data,
+        kind: kind,
+        downloadedBytes: downloadedBytes ?? this.downloadedBytes,
+        totalBytes: totalBytes ?? this.totalBytes,
+        playback: playback ?? this.playback,
         createdAt: createdAt,
         updatedAt: updatedAt,
       );

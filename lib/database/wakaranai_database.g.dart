@@ -4311,6 +4311,51 @@ class $DownloadTableTable extends DownloadTable
     requiredDuringInsert: false,
   );
   @override
+  late final GeneratedColumnWithTypeConverter<DownloadKind, int> kind =
+      GeneratedColumn<int>(
+        'kind',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      ).withConverter<DownloadKind>($DownloadTableTable.$converterkind);
+  static const VerificationMeta _downloadedBytesMeta = const VerificationMeta(
+    'downloadedBytes',
+  );
+  @override
+  late final GeneratedColumn<int> downloadedBytes = GeneratedColumn<int>(
+    'downloaded_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _totalBytesMeta = const VerificationMeta(
+    'totalBytes',
+  );
+  @override
+  late final GeneratedColumn<int> totalBytes = GeneratedColumn<int>(
+    'total_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _playbackMeta = const VerificationMeta(
+    'playback',
+  );
+  @override
+  late final GeneratedColumn<String> playback = GeneratedColumn<String>(
+    'playback',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     createdAt,
@@ -4328,6 +4373,10 @@ class $DownloadTableTable extends DownloadTable
     dirPath,
     headers,
     data,
+    kind,
+    downloadedBytes,
+    totalBytes,
+    playback,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4457,6 +4506,27 @@ class $DownloadTableTable extends DownloadTable
         this.data.isAcceptableOrUnknown(data['data']!, _dataMeta),
       );
     }
+    if (data.containsKey('downloaded_bytes')) {
+      context.handle(
+        _downloadedBytesMeta,
+        downloadedBytes.isAcceptableOrUnknown(
+          data['downloaded_bytes']!,
+          _downloadedBytesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('total_bytes')) {
+      context.handle(
+        _totalBytesMeta,
+        totalBytes.isAcceptableOrUnknown(data['total_bytes']!, _totalBytesMeta),
+      );
+    }
+    if (data.containsKey('playback')) {
+      context.handle(
+        _playbackMeta,
+        playback.isAcceptableOrUnknown(data['playback']!, _playbackMeta),
+      );
+    }
     return context;
   }
 
@@ -4532,6 +4602,24 @@ class $DownloadTableTable extends DownloadTable
         DriftSqlType.string,
         data['${effectivePrefix}data'],
       ),
+      kind: $DownloadTableTable.$converterkind.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}kind'],
+        )!,
+      ),
+      downloadedBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}downloaded_bytes'],
+      )!,
+      totalBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_bytes'],
+      )!,
+      playback: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}playback'],
+      ),
     );
   }
 
@@ -4542,6 +4630,8 @@ class $DownloadTableTable extends DownloadTable
 
   static JsonTypeConverter2<DownloadStatus, int, int> $converterstatus =
       const EnumIndexConverter<DownloadStatus>(DownloadStatus.values);
+  static JsonTypeConverter2<DownloadKind, int, int> $converterkind =
+      const EnumIndexConverter<DownloadKind>(DownloadKind.values);
 }
 
 class DownloadTableData extends DataClass
@@ -4562,6 +4652,10 @@ class DownloadTableData extends DataClass
   final String dirPath;
   final String? headers;
   final String? data;
+  final DownloadKind kind;
+  final int downloadedBytes;
+  final int totalBytes;
+  final String? playback;
   const DownloadTableData({
     required this.id,
     required this.createdAt,
@@ -4579,6 +4673,10 @@ class DownloadTableData extends DataClass
     required this.dirPath,
     this.headers,
     this.data,
+    required this.kind,
+    required this.downloadedBytes,
+    required this.totalBytes,
+    this.playback,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4611,6 +4709,16 @@ class DownloadTableData extends DataClass
     if (!nullToAbsent || data != null) {
       map['data'] = Variable<String>(data);
     }
+    {
+      map['kind'] = Variable<int>(
+        $DownloadTableTable.$converterkind.toSql(kind),
+      );
+    }
+    map['downloaded_bytes'] = Variable<int>(downloadedBytes);
+    map['total_bytes'] = Variable<int>(totalBytes);
+    if (!nullToAbsent || playback != null) {
+      map['playback'] = Variable<String>(playback);
+    }
     return map;
   }
 
@@ -4638,6 +4746,12 @@ class DownloadTableData extends DataClass
           ? const Value.absent()
           : Value(headers),
       data: data == null && nullToAbsent ? const Value.absent() : Value(data),
+      kind: Value(kind),
+      downloadedBytes: Value(downloadedBytes),
+      totalBytes: Value(totalBytes),
+      playback: playback == null && nullToAbsent
+          ? const Value.absent()
+          : Value(playback),
     );
   }
 
@@ -4665,6 +4779,12 @@ class DownloadTableData extends DataClass
       dirPath: serializer.fromJson<String>(json['dirPath']),
       headers: serializer.fromJson<String?>(json['headers']),
       data: serializer.fromJson<String?>(json['data']),
+      kind: $DownloadTableTable.$converterkind.fromJson(
+        serializer.fromJson<int>(json['kind']),
+      ),
+      downloadedBytes: serializer.fromJson<int>(json['downloadedBytes']),
+      totalBytes: serializer.fromJson<int>(json['totalBytes']),
+      playback: serializer.fromJson<String?>(json['playback']),
     );
   }
   @override
@@ -4689,6 +4809,12 @@ class DownloadTableData extends DataClass
       'dirPath': serializer.toJson<String>(dirPath),
       'headers': serializer.toJson<String?>(headers),
       'data': serializer.toJson<String?>(data),
+      'kind': serializer.toJson<int>(
+        $DownloadTableTable.$converterkind.toJson(kind),
+      ),
+      'downloadedBytes': serializer.toJson<int>(downloadedBytes),
+      'totalBytes': serializer.toJson<int>(totalBytes),
+      'playback': serializer.toJson<String?>(playback),
     };
   }
 
@@ -4709,6 +4835,10 @@ class DownloadTableData extends DataClass
     String? dirPath,
     Value<String?> headers = const Value.absent(),
     Value<String?> data = const Value.absent(),
+    DownloadKind? kind,
+    int? downloadedBytes,
+    int? totalBytes,
+    Value<String?> playback = const Value.absent(),
   }) => DownloadTableData(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -4728,6 +4858,10 @@ class DownloadTableData extends DataClass
     dirPath: dirPath ?? this.dirPath,
     headers: headers.present ? headers.value : this.headers,
     data: data.present ? data.value : this.data,
+    kind: kind ?? this.kind,
+    downloadedBytes: downloadedBytes ?? this.downloadedBytes,
+    totalBytes: totalBytes ?? this.totalBytes,
+    playback: playback.present ? playback.value : this.playback,
   );
   DownloadTableData copyWithCompanion(DownloadTableCompanion data) {
     return DownloadTableData(
@@ -4761,6 +4895,14 @@ class DownloadTableData extends DataClass
       dirPath: data.dirPath.present ? data.dirPath.value : this.dirPath,
       headers: data.headers.present ? data.headers.value : this.headers,
       data: data.data.present ? data.data.value : this.data,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      downloadedBytes: data.downloadedBytes.present
+          ? data.downloadedBytes.value
+          : this.downloadedBytes,
+      totalBytes: data.totalBytes.present
+          ? data.totalBytes.value
+          : this.totalBytes,
+      playback: data.playback.present ? data.playback.value : this.playback,
     );
   }
 
@@ -4782,7 +4924,11 @@ class DownloadTableData extends DataClass
           ..write('totalPages: $totalPages, ')
           ..write('dirPath: $dirPath, ')
           ..write('headers: $headers, ')
-          ..write('data: $data')
+          ..write('data: $data, ')
+          ..write('kind: $kind, ')
+          ..write('downloadedBytes: $downloadedBytes, ')
+          ..write('totalBytes: $totalBytes, ')
+          ..write('playback: $playback')
           ..write(')'))
         .toString();
   }
@@ -4805,6 +4951,10 @@ class DownloadTableData extends DataClass
     dirPath,
     headers,
     data,
+    kind,
+    downloadedBytes,
+    totalBytes,
+    playback,
   );
   @override
   bool operator ==(Object other) =>
@@ -4825,7 +4975,11 @@ class DownloadTableData extends DataClass
           other.totalPages == this.totalPages &&
           other.dirPath == this.dirPath &&
           other.headers == this.headers &&
-          other.data == this.data);
+          other.data == this.data &&
+          other.kind == this.kind &&
+          other.downloadedBytes == this.downloadedBytes &&
+          other.totalBytes == this.totalBytes &&
+          other.playback == this.playback);
 }
 
 class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
@@ -4845,6 +4999,10 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
   final Value<String> dirPath;
   final Value<String?> headers;
   final Value<String?> data;
+  final Value<DownloadKind> kind;
+  final Value<int> downloadedBytes;
+  final Value<int> totalBytes;
+  final Value<String?> playback;
   const DownloadTableCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -4862,6 +5020,10 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     this.dirPath = const Value.absent(),
     this.headers = const Value.absent(),
     this.data = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.downloadedBytes = const Value.absent(),
+    this.totalBytes = const Value.absent(),
+    this.playback = const Value.absent(),
   });
   DownloadTableCompanion.insert({
     this.id = const Value.absent(),
@@ -4880,6 +5042,10 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     required String dirPath,
     this.headers = const Value.absent(),
     this.data = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.downloadedBytes = const Value.absent(),
+    this.totalBytes = const Value.absent(),
+    this.playback = const Value.absent(),
   }) : uid = Value(uid),
        extensionUid = Value(extensionUid),
        concreteUid = Value(concreteUid),
@@ -4905,6 +5071,10 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     Expression<String>? dirPath,
     Expression<String>? headers,
     Expression<String>? data,
+    Expression<int>? kind,
+    Expression<int>? downloadedBytes,
+    Expression<int>? totalBytes,
+    Expression<String>? playback,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -4923,6 +5093,10 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
       if (dirPath != null) 'dir_path': dirPath,
       if (headers != null) 'headers': headers,
       if (data != null) 'data': data,
+      if (kind != null) 'kind': kind,
+      if (downloadedBytes != null) 'downloaded_bytes': downloadedBytes,
+      if (totalBytes != null) 'total_bytes': totalBytes,
+      if (playback != null) 'playback': playback,
     });
   }
 
@@ -4943,6 +5117,10 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     Value<String>? dirPath,
     Value<String?>? headers,
     Value<String?>? data,
+    Value<DownloadKind>? kind,
+    Value<int>? downloadedBytes,
+    Value<int>? totalBytes,
+    Value<String?>? playback,
   }) {
     return DownloadTableCompanion(
       id: id ?? this.id,
@@ -4961,6 +5139,10 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
       dirPath: dirPath ?? this.dirPath,
       headers: headers ?? this.headers,
       data: data ?? this.data,
+      kind: kind ?? this.kind,
+      downloadedBytes: downloadedBytes ?? this.downloadedBytes,
+      totalBytes: totalBytes ?? this.totalBytes,
+      playback: playback ?? this.playback,
     );
   }
 
@@ -5017,6 +5199,20 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     if (data.present) {
       map['data'] = Variable<String>(data.value);
     }
+    if (kind.present) {
+      map['kind'] = Variable<int>(
+        $DownloadTableTable.$converterkind.toSql(kind.value),
+      );
+    }
+    if (downloadedBytes.present) {
+      map['downloaded_bytes'] = Variable<int>(downloadedBytes.value);
+    }
+    if (totalBytes.present) {
+      map['total_bytes'] = Variable<int>(totalBytes.value);
+    }
+    if (playback.present) {
+      map['playback'] = Variable<String>(playback.value);
+    }
     return map;
   }
 
@@ -5038,7 +5234,11 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
           ..write('totalPages: $totalPages, ')
           ..write('dirPath: $dirPath, ')
           ..write('headers: $headers, ')
-          ..write('data: $data')
+          ..write('data: $data, ')
+          ..write('kind: $kind, ')
+          ..write('downloadedBytes: $downloadedBytes, ')
+          ..write('totalBytes: $totalBytes, ')
+          ..write('playback: $playback')
           ..write(')'))
         .toString();
   }
@@ -8528,6 +8728,10 @@ typedef $$DownloadTableTableCreateCompanionBuilder =
       required String dirPath,
       Value<String?> headers,
       Value<String?> data,
+      Value<DownloadKind> kind,
+      Value<int> downloadedBytes,
+      Value<int> totalBytes,
+      Value<String?> playback,
     });
 typedef $$DownloadTableTableUpdateCompanionBuilder =
     DownloadTableCompanion Function({
@@ -8547,6 +8751,10 @@ typedef $$DownloadTableTableUpdateCompanionBuilder =
       Value<String> dirPath,
       Value<String?> headers,
       Value<String?> data,
+      Value<DownloadKind> kind,
+      Value<int> downloadedBytes,
+      Value<int> totalBytes,
+      Value<String?> playback,
     });
 
 class $$DownloadTableTableFilterComposer
@@ -8636,6 +8844,27 @@ class $$DownloadTableTableFilterComposer
 
   ColumnFilters<String> get data => $composableBuilder(
     column: $table.data,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DownloadKind, DownloadKind, int> get kind =>
+      $composableBuilder(
+        column: $table.kind,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<int> get downloadedBytes => $composableBuilder(
+    column: $table.downloadedBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalBytes => $composableBuilder(
+    column: $table.totalBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get playback => $composableBuilder(
+    column: $table.playback,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -8728,6 +8957,26 @@ class $$DownloadTableTableOrderingComposer
     column: $table.data,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get downloadedBytes => $composableBuilder(
+    column: $table.downloadedBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalBytes => $composableBuilder(
+    column: $table.totalBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get playback => $composableBuilder(
+    column: $table.playback,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$DownloadTableTableAnnotationComposer
@@ -8800,6 +9049,22 @@ class $$DownloadTableTableAnnotationComposer
 
   GeneratedColumn<String> get data =>
       $composableBuilder(column: $table.data, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DownloadKind, int> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<int> get downloadedBytes => $composableBuilder(
+    column: $table.downloadedBytes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalBytes => $composableBuilder(
+    column: $table.totalBytes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get playback =>
+      $composableBuilder(column: $table.playback, builder: (column) => column);
 }
 
 class $$DownloadTableTableTableManager
@@ -8855,6 +9120,10 @@ class $$DownloadTableTableTableManager
                 Value<String> dirPath = const Value.absent(),
                 Value<String?> headers = const Value.absent(),
                 Value<String?> data = const Value.absent(),
+                Value<DownloadKind> kind = const Value.absent(),
+                Value<int> downloadedBytes = const Value.absent(),
+                Value<int> totalBytes = const Value.absent(),
+                Value<String?> playback = const Value.absent(),
               }) => DownloadTableCompanion(
                 id: id,
                 createdAt: createdAt,
@@ -8872,6 +9141,10 @@ class $$DownloadTableTableTableManager
                 dirPath: dirPath,
                 headers: headers,
                 data: data,
+                kind: kind,
+                downloadedBytes: downloadedBytes,
+                totalBytes: totalBytes,
+                playback: playback,
               ),
           createCompanionCallback:
               ({
@@ -8891,6 +9164,10 @@ class $$DownloadTableTableTableManager
                 required String dirPath,
                 Value<String?> headers = const Value.absent(),
                 Value<String?> data = const Value.absent(),
+                Value<DownloadKind> kind = const Value.absent(),
+                Value<int> downloadedBytes = const Value.absent(),
+                Value<int> totalBytes = const Value.absent(),
+                Value<String?> playback = const Value.absent(),
               }) => DownloadTableCompanion.insert(
                 id: id,
                 createdAt: createdAt,
@@ -8908,6 +9185,10 @@ class $$DownloadTableTableTableManager
                 dirPath: dirPath,
                 headers: headers,
                 data: data,
+                kind: kind,
+                downloadedBytes: downloadedBytes,
+                totalBytes: totalBytes,
+                playback: playback,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
