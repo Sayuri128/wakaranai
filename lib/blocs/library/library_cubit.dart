@@ -1,10 +1,8 @@
 import 'dart:async';
 
-import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/api_client.dart';
-import 'package:capyscript/api_clients/manga_api_client.dart';
-import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/services/configs_service/api_client_factory.dart';
 import 'package:wakaranai/data/domain/database/category_domain.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
@@ -101,9 +99,8 @@ class LibraryCubit extends Cubit<LibraryState> {
         await extensionResolver.resolve(entry.extensionUid);
     if (extension == null) return const <String, String>{};
 
-    final ApiClient client = extension.config.type == ConfigInfoType.MANGA
-        ? MangaApiClient(code: extension.sourceCode)
-        : AnimeApiClient(code: extension.sourceCode);
+    final ApiClient client = ApiClientFactory.instance
+        .create(config: extension.config, code: extension.sourceCode);
 
     return client.getImageHeaders(uid: entry.uid, data: entry.dataJson);
   }

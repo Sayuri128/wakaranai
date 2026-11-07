@@ -2,22 +2,16 @@ import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/services/configs_service/api_client_factory.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 
 part 'api_client_controller_state.dart';
-
-Future<ApiClient> _buildAnimeApiClient(String code) async =>
-    AnimeApiClient(code: code);
-
-Future<ApiClient> _buildMangaApiClient(String code) async =>
-    MangaApiClient(code: code);
 
 class ApiClientControllerCubit<T extends ApiClient, C>
     extends Cubit<ApiClientControllerState> {
@@ -47,12 +41,8 @@ class ApiClientControllerCubit<T extends ApiClient, C>
       final String script = await _resolveScript(extension);
       final ConfigInfo config = extension.config;
 
-      final ApiClient client = await compute<String, ApiClient>(
-        config.type == ConfigInfoType.ANIME
-            ? _buildAnimeApiClient
-            : _buildMangaApiClient,
-        script,
-      );
+      final ApiClient client =
+          ApiClientFactory.instance.create(config: config, code: script);
 
       if (isClosed) return;
 

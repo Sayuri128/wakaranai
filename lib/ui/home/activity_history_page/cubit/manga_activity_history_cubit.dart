@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:flutter/material.dart';
+import 'package:wakaranai/services/configs_service/api_client_factory.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
@@ -100,7 +100,8 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
       return;
     }
 
-    final apiClient = MangaApiClient(code: extension.sourceCode);
+    final apiClient = ApiClientFactory.instance
+        .manga(config: extension.config, code: extension.sourceCode);
 
     final coverHeaders = await apiClient.getImageHeaders(
       uid: concrete.uid,
