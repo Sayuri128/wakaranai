@@ -3,7 +3,9 @@ package io.github.sayuri128.wakaranai
 import android.app.ActivityManager
 import android.content.ContentValues
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
@@ -15,8 +17,34 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterActivity() {
+    private val pictureInPicture = PictureInPictureChannel(this)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pictureInPicture.registerReceiver()
+    }
+
+    override fun onDestroy() {
+        pictureInPicture.unregisterReceiver()
+        super.onDestroy()
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        pictureInPicture.onUserLeaveHint()
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration,
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        pictureInPicture.onPictureInPictureModeChanged(isInPictureInPictureMode)
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        pictureInPicture.attach(flutterEngine.dartExecutor.binaryMessenger)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "wakaranai/device")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
