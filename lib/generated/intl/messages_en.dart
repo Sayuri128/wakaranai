@@ -561,7 +561,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "export_section_settings": MessageLookupByLibrary.simpleMessage("Settings"),
     "export_section_settings_subtitle": MessageLookupByLibrary.simpleMessage(
-      "Theme, reader mode and toggles",
+      "Theme, reader, player, layout and translation preferences",
     ),
     "export_section_sources": MessageLookupByLibrary.simpleMessage(
       "Extension sources",

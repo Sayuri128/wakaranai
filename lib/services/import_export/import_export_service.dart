@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/category_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
@@ -16,6 +17,7 @@ import 'package:wakaranai/repositories/database/chapter_activity_repository.dart
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
+import 'package:wakaranai/services/import_export/exported_preferences.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_palette.dart';
@@ -211,6 +213,9 @@ class ImportExportService {
         defaultReaderMode: (await settingsService.getDefaultReaderMode()).name,
         showNsfw: await settingsService.getShowNsfw(),
         collectStatistics: await settingsService.getCollectStatistics(),
+        preferences: ExportedPreferences.collect(
+          await SharedPreferences.getInstance(),
+        ),
       );
       step++;
     }
@@ -640,6 +645,14 @@ class ImportExportService {
     }
     if (settings.collectStatistics != null) {
       await settingsService.setCollectStatistics(settings.collectStatistics!);
+    }
+
+    final List<ExportPreference>? preferences = settings.preferences;
+    if (preferences != null) {
+      await ExportedPreferences.apply(
+        await SharedPreferences.getInstance(),
+        preferences,
+      );
     }
   }
 }

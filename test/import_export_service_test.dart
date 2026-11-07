@@ -391,4 +391,143 @@ void main() {
     expect(bundle.pageTranslations, isNull);
     expect(bundle.hasSection(ExportSection.translations), isFalse);
   });
+
+  test('player preferences round-trip with their value types', () async {
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      'PLAYER_PLAYBACK_SPEED': 1.5,
+      'PLAYER_HOLD_SPEED': 2.0,
+      'PLAYER_SKIP_OPENING_SECONDS': 85,
+      'PLAYER_AUTO_PLAY_NEXT': false,
+      'PLAYER_SUBTITLE': 'en',
+      'PLAYER_RECENT_TRACKS': <String>['ja', 'en'],
+      'VIDEO_PLAYER_PREFERENCE': 'native',
+      'GALLERY_LAYOUT': 'list',
+      'PAGE_TRANSLATION_TARGET': 'de',
+      'SOURCE_ATTENTION_NOTIFIED_AT_mangalib': 123,
+      'AUTO_BACKUP_LAST_AT': 456,
+      'default_extension_id': 7,
+    });
+
+    final _Env source = _Env();
+    final ExportBundle bundle = _roundTrip(
+      await source.service.buildExport(<ExportSection>{ExportSection.settings}),
+    );
+    await source.dispose();
+
+    final List<String> exportedKeys = bundle.settings!.preferences!
+        .map((ExportPreference entry) => entry.key)
+        .toList();
+    expect(exportedKeys, isNot(contains('SOURCE_ATTENTION_NOTIFIED_AT_mangalib')));
+    expect(exportedKeys, isNot(contains('AUTO_BACKUP_LAST_AT')));
+    expect(exportedKeys, isNot(contains('default_extension_id')));
+
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    final _Env target = _Env();
+    await target.service
+        .applyImport(bundle, <ExportSection>{ExportSection.settings});
+
+    final SharedPreferences restored = await SharedPreferences.getInstance();
+    expect(restored.get('PLAYER_PLAYBACK_SPEED'), isA<double>());
+    expect(restored.getDouble('PLAYER_PLAYBACK_SPEED'), 1.5);
+    expect(restored.get('PLAYER_HOLD_SPEED'), isA<double>());
+    expect(restored.getDouble('PLAYER_HOLD_SPEED'), 2.0);
+    expect(restored.get('PLAYER_SKIP_OPENING_SECONDS'), isA<int>());
+    expect(restored.getInt('PLAYER_SKIP_OPENING_SECONDS'), 85);
+    expect(restored.getBool('PLAYER_AUTO_PLAY_NEXT'), isFalse);
+    expect(restored.getString('PLAYER_SUBTITLE'), 'en');
+    expect(restored.getStringList('PLAYER_RECENT_TRACKS'), <String>['ja', 'en']);
+    expect(restored.getString('VIDEO_PLAYER_PREFERENCE'), 'native');
+    expect(restored.getString('GALLERY_LAYOUT'), 'list');
+    expect(restored.getString('PAGE_TRANSLATION_TARGET'), 'de');
+    expect(restored.containsKey('SOURCE_ATTENTION_NOTIFIED_AT_mangalib'),
+        isFalse);
+    expect(restored.containsKey('AUTO_BACKUP_LAST_AT'), isFalse);
+    expect(restored.containsKey('default_extension_id'), isFalse);
+
+    await target.dispose();
+  });
+
+  test('settings from a bundle without preferences keep local player settings',
+      () async {
+    final ExportBundle bundle = ExportBundle.fromJson(<String, dynamic>{
+      'version': 2,
+      'exportedAt': DateTime(2026).toIso8601String(),
+      'settings': <String, dynamic>{
+        'themeId': AppThemeId.sakura.name,
+        'showNsfw': true,
+      },
+    });
+    expect(bundle.settings!.preferences, isNull);
+
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      'PLAYER_PLAYBACK_SPEED': 1.25,
+    });
+    final _Env target = _Env();
+    final ImportResult result = await target.service
+        .applyImport(bundle, <ExportSection>{ExportSection.settings});
+
+    expect(result.imported, 1);
+    final SharedPreferences restored = await SharedPreferences.getInstance();
+    expect(restored.getDouble('PLAYER_PLAYBACK_SPEED'), 1.25);
+    expect(await SettingsService().getThemeId(), AppThemeId.sakura);
+
+    await target.dispose();
+  });
+
+  test('unknown keys, types and preference names are ignored on import',
+      () async {
+    final ExportBundle bundle = ExportBundle.fromJson(
+      jsonDecode(jsonEncode(<String, dynamic>{
+        'version': 3,
+        'exportedAt': DateTime(2026).toIso8601String(),
+        'someFutureSection': <String>['x'],
+        'settings': <String, dynamic>{
+          'someFutureSetting': 42,
+          'preferences': <Map<String, dynamic>>[
+            <String, dynamic>{
+              'key': 'PLAYER_HOLD_SPEED',
+              'type': 'double',
+              'value': 3,
+            },
+            <String, dynamic>{
+              'key': 'PLAYER_FUTURE_OPTION',
+              'type': 'someFutureType',
+              'value': <String, dynamic>{'a': 1},
+            },
+            <String, dynamic>{
+              'key': 'PLAYER_QUALITY',
+              'type': 'int',
+              'value': 'not a number',
+            },
+            <String, dynamic>{
+              'key': 'APP_THEME_ID',
+              'type': 'string',
+              'value': 'sakura',
+            },
+            <String, dynamic>{
+              'key': 'SOURCE_ATTENTION_NOTIFIED_AT_mangalib',
+              'type': 'int',
+              'value': 1,
+            },
+          ],
+        },
+      })) as Map<String, dynamic>,
+    );
+
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    final _Env target = _Env();
+    await target.service
+        .applyImport(bundle, <ExportSection>{ExportSection.settings});
+
+    final SharedPreferences restored = await SharedPreferences.getInstance();
+    expect(restored.get('PLAYER_HOLD_SPEED'), isA<double>());
+    expect(restored.getDouble('PLAYER_HOLD_SPEED'), 3.0);
+    expect(restored.containsKey('PLAYER_FUTURE_OPTION'), isFalse);
+    expect(restored.containsKey('PLAYER_QUALITY'), isFalse);
+    expect(restored.containsKey('APP_THEME_ID'), isFalse);
+    expect(restored.containsKey('SOURCE_ATTENTION_NOTIFIED_AT_mangalib'),
+        isFalse);
+
+    await target.dispose();
+  });
 }

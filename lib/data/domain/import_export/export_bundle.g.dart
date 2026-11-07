@@ -208,6 +208,11 @@ ExportSettings _$ExportSettingsFromJson(Map json) => ExportSettings(
   defaultReaderMode: json['defaultReaderMode'] as String?,
   showNsfw: json['showNsfw'] as bool?,
   collectStatistics: json['collectStatistics'] as bool?,
+  preferences: (json['preferences'] as List<dynamic>?)
+      ?.map(
+        (e) => ExportPreference.fromJson(Map<String, dynamic>.from(e as Map)),
+      )
+      .toList(),
 );
 
 Map<String, dynamic> _$ExportSettingsToJson(ExportSettings instance) =>
@@ -216,6 +221,20 @@ Map<String, dynamic> _$ExportSettingsToJson(ExportSettings instance) =>
       'defaultReaderMode': instance.defaultReaderMode,
       'showNsfw': instance.showNsfw,
       'collectStatistics': instance.collectStatistics,
+      'preferences': instance.preferences?.map((e) => e.toJson()).toList(),
+    };
+
+ExportPreference _$ExportPreferenceFromJson(Map json) => ExportPreference(
+  key: json['key'] as String,
+  type: json['type'] as String,
+  value: json['value'],
+);
+
+Map<String, dynamic> _$ExportPreferenceToJson(ExportPreference instance) =>
+    <String, dynamic>{
+      'key': instance.key,
+      'type': instance.type,
+      'value': instance.value,
     };
 
 ExportPageTranslation _$ExportPageTranslationFromJson(Map json) =>

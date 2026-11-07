@@ -2947,10 +2947,10 @@ class S {
     );
   }
 
-  /// `Theme, reader mode and toggles`
+  /// `Theme, reader, player, layout and translation preferences`
   String get export_section_settings_subtitle {
     return Intl.message(
-      'Theme, reader mode and toggles',
+      'Theme, reader, player, layout and translation preferences',
       name: 'export_section_settings_subtitle',
       desc: '',
       args: [],

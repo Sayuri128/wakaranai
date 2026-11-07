@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DownloadsOrderPreferences {
-  static const String _newestFirstKey = 'DOWNLOADS_NEWEST_FIRST';
+  static const String newestFirstKey = 'DOWNLOADS_NEWEST_FIRST';
 
   SharedPreferences? _preferences;
 
@@ -11,11 +11,11 @@ class DownloadsOrderPreferences {
 
   Future<bool> isNewestFirst() async {
     final SharedPreferences preferences = await _load();
-    return preferences.getBool(_newestFirstKey) ?? true;
+    return preferences.getBool(newestFirstKey) ?? true;
   }
 
   Future<void> setNewestFirst(bool newestFirst) async {
     final SharedPreferences preferences = await _load();
-    await preferences.setBool(_newestFirstKey, newestFirst);
+    await preferences.setBool(newestFirstKey, newestFirst);
   }
 }

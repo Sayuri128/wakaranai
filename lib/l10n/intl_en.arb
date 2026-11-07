@@ -402,7 +402,7 @@
   "export_section_sources": "Extension sources",
   "export_section_sources_subtitle": "Repositories you added",
   "export_section_settings": "Settings",
-  "export_section_settings_subtitle": "Theme, reader mode and toggles",
+  "export_section_settings_subtitle": "Theme, reader, player, layout and translation preferences",
   "export_section_translations": "Page translations",
   "export_section_translations_subtitle": "Translated pages, so they don't need to be translated again",
   "downloads_notification_channel_name": "Downloads",

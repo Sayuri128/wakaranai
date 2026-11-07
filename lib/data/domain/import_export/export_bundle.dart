@@ -233,18 +233,44 @@ class ExportSettings {
   final String? defaultReaderMode;
   final bool? showNsfw;
   final bool? collectStatistics;
+  final List<ExportPreference>? preferences;
 
   const ExportSettings({
     this.themeId,
     this.defaultReaderMode,
     this.showNsfw,
     this.collectStatistics,
+    this.preferences,
   });
 
   factory ExportSettings.fromJson(Map<String, dynamic> json) =>
       _$ExportSettingsFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExportSettingsToJson(this);
+}
+
+@JsonSerializable()
+class ExportPreference {
+  static const String boolType = 'bool';
+  static const String intType = 'int';
+  static const String doubleType = 'double';
+  static const String stringType = 'string';
+  static const String stringListType = 'stringList';
+
+  final String key;
+  final String type;
+  final Object? value;
+
+  const ExportPreference({
+    required this.key,
+    required this.type,
+    required this.value,
+  });
+
+  factory ExportPreference.fromJson(Map<String, dynamic> json) =>
+      _$ExportPreferenceFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ExportPreferenceToJson(this);
 }
 
 @JsonSerializable()

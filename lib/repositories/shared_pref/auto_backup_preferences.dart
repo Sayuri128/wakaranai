@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AutoBackupPreferences {
-  static const String _enabledKey = 'AUTO_BACKUP_ENABLED';
+  static const String enabledKey = 'AUTO_BACKUP_ENABLED';
   static const String _lastBackupKey = 'AUTO_BACKUP_LAST_AT';
 
   SharedPreferences? _preferences;
@@ -12,12 +12,12 @@ class AutoBackupPreferences {
 
   Future<bool> isEnabled() async {
     final SharedPreferences preferences = await _load();
-    return preferences.getBool(_enabledKey) ?? true;
+    return preferences.getBool(enabledKey) ?? true;
   }
 
   Future<void> setEnabled(bool enabled) async {
     final SharedPreferences preferences = await _load();
-    await preferences.setBool(_enabledKey, enabled);
+    await preferences.setBool(enabledKey, enabled);
   }
 
   Future<DateTime?> lastBackupAt() async {
