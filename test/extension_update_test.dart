@@ -1,3 +1,4 @@
+import 'package:capyscript/capyscript_api_version.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/filters/gallery_filter.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/filters/switcher/swircher.dart';
@@ -114,6 +115,60 @@ void main() {
     expect(await resolver(service).refreshOutdated(), 1);
     expect((await extensions.getByUid('a'))!.config.version, 2);
     expect((await extensions.getByUid('b'))!.sourceCode, 'old b');
+  });
+
+  test('keeps the cached script when an update needs a newer app', () async {
+    await install('a', 'old a', revision: 'r1');
+    await install('b', 'old b', revision: 'r1');
+    final service = _FakeConfigsService(<RemoteConfig>[
+      RemoteConfig(
+        path: 'manga/a',
+        config: _config('a', version: 2),
+        revision: 'r2',
+        apiVersion: capyscriptApiVersion + 1,
+      ),
+      RemoteConfig(path: 'manga/b', config: _config('b'), revision: 'r2'),
+    ], <String, String>{'manga/a': 'new a', 'manga/b': 'new b'});
+
+    expect(await resolver(service).refreshOutdated(), 1);
+
+    final ExtensionDomain kept = (await extensions.getByUid('a'))!;
+    expect(kept.sourceCode, 'old a');
+    expect(kept.revision, 'r1');
+    expect(kept.config.version, 1);
+    expect((await extensions.getByUid('b'))!.sourceCode, 'new b');
+    expect(service.downloaded, <String>['manga/b']);
+  });
+
+  test('never installs an extension that needs a newer app', () async {
+    final service = _FakeConfigsService(<RemoteConfig>[
+      RemoteConfig(
+        path: 'manga/a',
+        config: _config('a'),
+        revision: 'r1',
+        apiVersion: capyscriptApiVersion + 1,
+      ),
+    ], <String, String>{'manga/a': 'new a'});
+
+    expect(await resolver(service).resolve('a'), isNull);
+    expect(await extensions.getByUid('a'), isNull);
+    expect(service.downloaded, isEmpty);
+  });
+
+  test('resolves the cached script when the remote needs a newer app',
+      () async {
+    await install('a', 'old a', revision: 'r1');
+    final service = _FakeConfigsService(<RemoteConfig>[
+      RemoteConfig(
+        path: 'manga/a',
+        config: _config('a'),
+        revision: 'r2',
+        apiVersion: capyscriptApiVersion + 1,
+      ),
+    ], <String, String>{'manga/a': 'new a'});
+
+    expect((await resolver(service).resolve('a'))!.sourceCode, 'old a');
+    expect(service.downloaded, isEmpty);
   });
 
   test('installed extensions keep their filters', () async {

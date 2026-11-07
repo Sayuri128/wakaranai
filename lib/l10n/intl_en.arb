@@ -642,6 +642,27 @@
       "source": {}
     }
   },
+  "compat_requires_newer_app": "Update the app to use this source",
+  "compat_update_needs_newer_app": "Update available — needs a newer app version",
+  "compat_chip_requires_newer_app": "Needs app update",
+  "compat_chip_update_needs_newer_app": "Update needs newer app",
+  "compat_reason_api_version": "This source needs extension API {required}, this app supports up to {supported}.",
+  "@compat_reason_api_version": {
+    "placeholders": {
+      "required": {},
+      "supported": {}
+    }
+  },
+  "compat_reason_min_app_version": "This source needs app version {required} or newer, you have {current}.",
+  "@compat_reason_min_app_version": {
+    "placeholders": {
+      "required": {},
+      "current": {}
+    }
+  },
+  "compat_installed_keeps_working": "Your installed version keeps working until you update the app.",
+  "compat_open_installed": "Open installed version",
+  "compat_download_latest_app": "Download the latest app version",
   "updates_time_now": "Just now",
   "updates_time_minutes": "{count}m ago",
   "@updates_time_minutes": {

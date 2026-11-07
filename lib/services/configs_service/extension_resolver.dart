@@ -54,6 +54,10 @@ class ExtensionResolver {
       for (final RemoteConfig remote in remotes) {
         final ExtensionDomain? local = pending.remove(remote.config.uid);
         if (local == null || !isOutdated(local, remote)) continue;
+        if (remote.compatibility.requiresNewerApp) {
+          logger.i('Keeping ${remote.config.uid}: its update needs a newer app');
+          continue;
+        }
         try {
           final String script =
               (await service.getRemoteScript(remote.path)).script;
@@ -90,6 +94,10 @@ class ExtensionResolver {
             .where((RemoteConfig e) => e.config.uid == uid)
             .firstOrNull;
         if (match == null) continue;
+        if (match.compatibility.requiresNewerApp) {
+          logger.w('Not installing $uid: it needs a newer app version');
+          continue;
+        }
 
         final String script =
             (await service.getRemoteScript(match.path)).script;

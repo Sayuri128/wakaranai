@@ -3666,6 +3666,96 @@ class S {
     );
   }
 
+  /// `Update the app to use this source`
+  String get compat_requires_newer_app {
+    return Intl.message(
+      'Update the app to use this source',
+      name: 'compat_requires_newer_app',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update available — needs a newer app version`
+  String get compat_update_needs_newer_app {
+    return Intl.message(
+      'Update available — needs a newer app version',
+      name: 'compat_update_needs_newer_app',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Needs app update`
+  String get compat_chip_requires_newer_app {
+    return Intl.message(
+      'Needs app update',
+      name: 'compat_chip_requires_newer_app',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update needs newer app`
+  String get compat_chip_update_needs_newer_app {
+    return Intl.message(
+      'Update needs newer app',
+      name: 'compat_chip_update_needs_newer_app',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This source needs extension API {required}, this app supports up to {supported}.`
+  String compat_reason_api_version(Object required, Object supported) {
+    return Intl.message(
+      'This source needs extension API $required, this app supports up to $supported.',
+      name: 'compat_reason_api_version',
+      desc: '',
+      args: [required, supported],
+    );
+  }
+
+  /// `This source needs app version {required} or newer, you have {current}.`
+  String compat_reason_min_app_version(Object required, Object current) {
+    return Intl.message(
+      'This source needs app version $required or newer, you have $current.',
+      name: 'compat_reason_min_app_version',
+      desc: '',
+      args: [required, current],
+    );
+  }
+
+  /// `Your installed version keeps working until you update the app.`
+  String get compat_installed_keeps_working {
+    return Intl.message(
+      'Your installed version keeps working until you update the app.',
+      name: 'compat_installed_keeps_working',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open installed version`
+  String get compat_open_installed {
+    return Intl.message(
+      'Open installed version',
+      name: 'compat_open_installed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download the latest app version`
+  String get compat_download_latest_app {
+    return Intl.message(
+      'Download the latest app version',
+      name: 'compat_download_latest_app',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Just now`
   String get updates_time_now {
     return Intl.message(

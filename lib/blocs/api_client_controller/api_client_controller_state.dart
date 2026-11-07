@@ -18,3 +18,10 @@ class ApiClientControllerError extends ApiClientControllerState {
 
   ApiClientControllerError({required this.message});
 }
+
+class ApiClientControllerRequiresNewerApp extends ApiClientControllerError {
+  final ExtensionCompatibility compatibility;
+
+  ApiClientControllerRequiresNewerApp(
+      {required super.message, required this.compatibility});
+}

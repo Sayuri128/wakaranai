@@ -8,6 +8,7 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
+import 'package:wakaranai/ui/home/configs_page/extension_compatibility_texts.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
 class ApiControllerWrapper<T extends ApiClient> extends StatelessWidget {
@@ -29,6 +30,9 @@ class ApiControllerWrapper<T extends ApiClient> extends StatelessWidget {
         builder: (BuildContext context, ApiClientControllerState state) {
           if (state is ApiClientControllerInitialized<T>) {
             return builder(state.apiClient, state.configInfo);
+          }
+          if (state is ApiClientControllerRequiresNewerApp) {
+            return _buildRequiresNewerApp(context, state);
           }
           if (state is ApiClientControllerError) {
             return _buildError(context, state);
@@ -67,22 +71,42 @@ class ApiControllerWrapper<T extends ApiClient> extends StatelessWidget {
               icon: const Icon(Icons.refresh_rounded),
               label: Text(S.of(context).service_view_retry_button_title),
             ),
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.mainWhite,
-                side: BorderSide(color: AppColors.overlay(0.16)),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14)),
-              ),
-              onPressed: () => Navigator.of(context).maybePop(),
-              icon: const Icon(Icons.arrow_back_rounded),
-              label: Text(S.of(context).common_go_back),
-            ),
+            _buildGoBackButton(context),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildRequiresNewerApp(
+      BuildContext context, ApiClientControllerRequiresNewerApp state) {
+    return Material(
+      color: AppColors.backgroundColor,
+      child: SafeArea(
+        child: ServiceViewerMessage(
+          icon: Icons.system_update_rounded,
+          title: state.message,
+          message: extensionCompatibilityReason(state.compatibility),
+          actions: <Widget>[
+            _buildGoBackButton(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGoBackButton(BuildContext context) {
+    return OutlinedButton.icon(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.mainWhite,
+        side: BorderSide(color: AppColors.overlay(0.16)),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      onPressed: () => Navigator.of(context).maybePop(),
+      icon: const Icon(Icons.arrow_back_rounded),
+      label: Text(S.of(context).common_go_back),
     );
   }
 }
