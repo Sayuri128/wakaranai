@@ -14,6 +14,7 @@ class GalleryViewCard extends StatelessWidget {
     required this.cover,
     required this.title,
     this.inLibrary = false,
+    this.compact = false,
   });
 
   final VoidCallback? onTap;
@@ -24,6 +25,7 @@ class GalleryViewCard extends StatelessWidget {
   final String cover;
   final String title;
   final bool inLibrary;
+  final bool compact;
 
   static double aspectRatio(double width) => width <= 200 ? 9 / 16 : 6 / 9;
 
@@ -120,15 +122,19 @@ class GalleryViewCard extends StatelessWidget {
             Align(
               alignment: Alignment.bottomLeft,
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(compact ? 6 : 8),
                 child: Text(
                   title,
-                  maxLines: 3,
-                  style: medium(color: AppColors.onMedia).copyWith(
-                    shadows: const <Shadow>[
-                      Shadow(color: Colors.black, blurRadius: 4),
-                    ],
-                  ),
+                  maxLines: compact ? 2 : 3,
+                  style:
+                      medium(
+                        size: compact ? 12 : 14,
+                        color: AppColors.onMedia,
+                      ).copyWith(
+                        shadows: const <Shadow>[
+                          Shadow(color: Colors.black, blurRadius: 4),
+                        ],
+                      ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

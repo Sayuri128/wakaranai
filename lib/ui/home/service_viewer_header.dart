@@ -2,8 +2,11 @@ import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/filters/data/filters/filter_data.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/gallery_layout/gallery_layout_cubit.dart';
 import 'package:wakaranai/blocs/service_view/service_view_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/common/service_viewer/gallery_layout.dart';
 import 'package:wakaranai/ui/home/web_browser_page.dart';
 import 'package:wakaranai/ui/services/filters/gallery_filters_sheet.dart';
 import 'package:wakaranai/ui/widgets/search_field.dart';
@@ -56,6 +59,7 @@ class ServiceViewerHeader extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                _buildLayoutButton(),
                 if (configInfo.protectorConfig != null)
                   _buildRoundIconButton(
                     icon: Icons.explore_rounded,
@@ -100,7 +104,9 @@ class ServiceViewerHeader extends StatelessWidget {
     required bool expanded,
   }) {
     final Widget button = Material(
-      color: count > 0 ? AppColors.primary.withValues(alpha: 0.16) : AppColors.overlay(0.06),
+      color: count > 0
+          ? AppColors.primary.withValues(alpha: 0.16)
+          : AppColors.overlay(0.06),
       borderRadius: BorderRadius.circular(24),
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
@@ -132,8 +138,10 @@ class ServiceViewerHeader extends StatelessWidget {
               if (count > 0) ...<Widget>[
                 const SizedBox(width: 8),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(10),
@@ -163,11 +171,26 @@ class ServiceViewerHeader extends StatelessWidget {
     cubit.applyFilters(result);
   }
 
+  Widget _buildLayoutButton() {
+    return BlocBuilder<GalleryLayoutCubit, GalleryLayout>(
+      builder: (BuildContext context, GalleryLayout layout) =>
+          _buildRoundIconButton(
+            icon: galleryLayoutIcon(layout),
+            tooltip: S.current.gallery_layout_button_tooltip(
+              galleryLayoutLabel(layout),
+            ),
+            onTap: () => context.read<GalleryLayoutCubit>().cycle(),
+          ),
+    );
+  }
+
   Widget _buildRoundIconButton({
     required IconData icon,
     required VoidCallback onTap,
+    String? tooltip,
   }) {
     return IconButton(
+      tooltip: tooltip,
       splashRadius: 22,
       icon: Icon(icon, color: AppColors.mainWhite),
       onPressed: onTap,

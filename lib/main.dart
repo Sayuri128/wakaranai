@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:wakaranai/blocs/gallery_layout/gallery_layout_cubit.dart';
 import 'package:wakaranai/blocs/auto_backup/auto_backup_cubit.dart';
 import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/blocs/chapter_translation/chapter_translation_cubit.dart';
@@ -103,6 +104,10 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
           BlocProvider<ThemeCubit>(
             lazy: false,
             create: (BuildContext context) => ThemeCubit()..init(),
+          ),
+          BlocProvider<GalleryLayoutCubit>(
+            lazy: false,
+            create: (BuildContext context) => GalleryLayoutCubit()..init(),
           ),
           BlocProvider<LibraryCubit>(
             lazy: false,

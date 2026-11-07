@@ -1252,6 +1252,66 @@ class S {
     );
   }
 
+  /// `Comfortable grid`
+  String get gallery_layout_comfortable {
+    return Intl.message(
+      'Comfortable grid',
+      name: 'gallery_layout_comfortable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compact grid`
+  String get gallery_layout_compact {
+    return Intl.message(
+      'Compact grid',
+      name: 'gallery_layout_compact',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `List`
+  String get gallery_layout_list {
+    return Intl.message(
+      'List',
+      name: 'gallery_layout_list',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Layout: {layout}`
+  String gallery_layout_button_tooltip(Object layout) {
+    return Intl.message(
+      'Layout: $layout',
+      name: 'gallery_layout_button_tooltip',
+      desc: '',
+      args: [layout],
+    );
+  }
+
+  /// `Last opened: {title}`
+  String gallery_last_opened(Object title) {
+    return Intl.message(
+      'Last opened: $title',
+      name: 'gallery_last_opened',
+      desc: '',
+      args: [title],
+    );
+  }
+
+  /// `In library`
+  String get gallery_in_library {
+    return Intl.message(
+      'In library',
+      name: 'gallery_in_library',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Next`
   String get chapter_viewer_next_chapter_button_title {
     return Intl.message(
