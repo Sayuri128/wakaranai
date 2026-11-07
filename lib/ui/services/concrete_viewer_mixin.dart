@@ -88,6 +88,13 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView<dynamic>,
     cubit.clearSelection();
   }
 
+  List<SelectionAction> extraSelectionActions(
+    BuildContext context,
+    ConcreteViewInitialized<T, C, G> state,
+  ) {
+    return const <SelectionAction>[];
+  }
+
   Widget getSelectionOverlay(
       BuildContext context, ConcreteViewInitialized<T, C, G> state) {
     final ConcreteViewCubit<T, C, G> cubit = getConcreteViewCubit(context);
@@ -155,6 +162,7 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView<dynamic>,
               ),
             ],
             secondaryActions: <SelectionAction>[
+              ...extraSelectionActions(context, state),
               SelectionAction(
                 icon: Icons.select_all,
                 label: S.of(context).concrete_selection_select_all,

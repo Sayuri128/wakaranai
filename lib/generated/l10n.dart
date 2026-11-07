@@ -5602,6 +5602,231 @@ class S {
       args: [],
     );
   }
+
+  /// `Play`
+  String get native_player_play {
+    return Intl.message('Play', name: 'native_player_play', desc: '', args: []);
+  }
+
+  /// `Pause`
+  String get native_player_pause {
+    return Intl.message(
+      'Pause',
+      name: 'native_player_pause',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next episode`
+  String get native_player_next_episode {
+    return Intl.message(
+      'Next episode',
+      name: 'native_player_next_episode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Quality`
+  String get native_player_quality {
+    return Intl.message(
+      'Quality',
+      name: 'native_player_quality',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Source {index}`
+  String native_player_quality_fallback(Object index) {
+    return Intl.message(
+      'Source $index',
+      name: 'native_player_quality_fallback',
+      desc: '',
+      args: [index],
+    );
+  }
+
+  /// `Playback speed`
+  String get native_player_speed {
+    return Intl.message(
+      'Playback speed',
+      name: 'native_player_speed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Normal`
+  String get native_player_speed_normal {
+    return Intl.message(
+      'Normal',
+      name: 'native_player_speed_normal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subtitles`
+  String get native_player_subtitles {
+    return Intl.message(
+      'Subtitles',
+      name: 'native_player_subtitles',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Off`
+  String get native_player_subtitles_off {
+    return Intl.message(
+      'Off',
+      name: 'native_player_subtitles_off',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subtitle {index}`
+  String native_player_subtitle_fallback(Object index) {
+    return Intl.message(
+      'Subtitle $index',
+      name: 'native_player_subtitle_fallback',
+      desc: '',
+      args: [index],
+    );
+  }
+
+  /// `Couldn't load these subtitles`
+  String get native_player_subtitle_failed {
+    return Intl.message(
+      'Couldn\'t load these subtitles',
+      name: 'native_player_subtitle_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open in web player`
+  String get native_player_open_web_player {
+    return Intl.message(
+      'Open in web player',
+      name: 'native_player_open_web_player',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lock controls`
+  String get native_player_lock {
+    return Intl.message(
+      'Lock controls',
+      name: 'native_player_lock',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unlock controls`
+  String get native_player_unlock {
+    return Intl.message(
+      'Unlock controls',
+      name: 'native_player_unlock',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't play this video`
+  String get native_player_error_title {
+    return Intl.message(
+      'Couldn\'t play this video',
+      name: 'native_player_error_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get native_player_retry {
+    return Intl.message(
+      'Retry',
+      name: 'native_player_retry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `−{seconds}s`
+  String native_player_seek_backward(Object seconds) {
+    return Intl.message(
+      '−${seconds}s',
+      name: 'native_player_seek_backward',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `+{seconds}s`
+  String native_player_seek_forward(Object seconds) {
+    return Intl.message(
+      '+${seconds}s',
+      name: 'native_player_seek_forward',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `Play URL in native player`
+  String get native_player_debug_action {
+    return Intl.message(
+      'Play URL in native player',
+      name: 'native_player_debug_action',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Play a stream URL`
+  String get native_player_debug_url_title {
+    return Intl.message(
+      'Play a stream URL',
+      name: 'native_player_debug_url_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stream URL`
+  String get native_player_debug_url_label {
+    return Intl.message(
+      'Stream URL',
+      name: 'native_player_debug_url_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `https://example.com/video.m3u8`
+  String get native_player_debug_url_hint {
+    return Intl.message(
+      'https://example.com/video.m3u8',
+      name: 'native_player_debug_url_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Play`
+  String get native_player_debug_play {
+    return Intl.message(
+      'Play',
+      name: 'native_player_debug_play',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

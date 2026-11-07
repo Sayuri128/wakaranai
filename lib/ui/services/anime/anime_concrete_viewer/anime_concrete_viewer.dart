@@ -8,9 +8,14 @@ import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video_group/anime_video_group.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_gallery_view/anime_gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wakaranai/data/domain/playable_video.dart';
+import 'package:wakaranai/ui/services/anime/native_player/debug_stream_url_dialog.dart';
+import 'package:wakaranai/ui/services/anime/native_player/native_player.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
@@ -375,6 +380,65 @@ class AnimeConcreteViewer extends StatelessWidget
       },
     ),
     );
+  }
+
+  @override
+  List<SelectionAction> extraSelectionActions(
+    BuildContext context,
+    ConcreteViewInitialized<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
+        state,
+  ) {
+    if (!kDebugMode || state.selection.length != 1) {
+      return const <SelectionAction>[];
+    }
+    return <SelectionAction>[
+      SelectionAction(
+        icon: Icons.play_circle_outline_rounded,
+        label: S.of(context).native_player_debug_action,
+        onTap: () => unawaited(_playSelectedInNativePlayer(context, state)),
+      ),
+    ];
+  }
+
+  Future<void> _playSelectedInNativePlayer(
+    BuildContext context,
+    ConcreteViewInitialized<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
+        state,
+  ) async {
+    final String selectedUid = state.selection.first;
+    final AnimeVideo? episode = state
+        .concreteView.groups[state.groupIndex].elements
+        .firstWhereOrNull((AnimeVideo video) => video.uid == selectedUid);
+    if (episode == null) {
+      return;
+    }
+    final ConcreteViewCubit<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
+        cubit = getConcreteViewCubit(context);
+    final String? streamUrl = await showDebugStreamUrlDialog(context);
+    if (streamUrl == null || !context.mounted) {
+      return;
+    }
+    cubit.clearSelection();
+    final NativePlayerResult? result = await openNativePlayer(
+      context,
+      NativePlayerData(
+        video: PlayableVideo(
+          streams: <PlayableStream>[PlayableStream(url: streamUrl)],
+        ),
+        episode: episode,
+        anime: state.concreteView,
+      ),
+    );
+    if (result == NativePlayerResult.openInWebPlayer && context.mounted) {
+      await Navigator.of(context).pushNamed(
+        Routes.iframeAnimePlayer,
+        arguments: AnimeIframePlayerData(
+          anime: state.concreteView,
+          video: episode,
+        ),
+      );
+    }
+    cubit.updateActivities();
   }
 
   Widget? _buildEpisodeSubtitle(

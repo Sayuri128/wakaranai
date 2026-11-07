@@ -28,6 +28,7 @@ import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/anime_concrete_viewer/anime_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/anime/anime_iframe_player/anime_iframe_player.dart';
 import 'package:wakaranai/ui/services/anime/anime_service_viewer/anime_service_viewer.dart';
+import 'package:wakaranai/ui/services/anime/native_player/native_player.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
@@ -142,6 +143,8 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
               WebBrowserPage(data: settings.arguments as WebBrowserData),
           Routes.iframeAnimePlayer: (BuildContext context) => AnimeIframePlayer(
               data: settings.arguments as AnimeIframePlayerData),
+          Routes.nativeAnimePlayer: (BuildContext context) => NativePlayer(
+              data: settings.arguments as NativePlayerData),
           Routes.libraryConcreteViewer: (BuildContext context) =>
               LibraryConcreteViewer(
                   data: settings.arguments as LibraryConcreteViewerData),

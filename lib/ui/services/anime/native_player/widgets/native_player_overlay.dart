@@ -1,0 +1,512 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:video_player/video_player.dart';
+import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/ui/services/anime/native_player/cubit/native_player_cubit.dart';
+import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_bottom_bar.dart';
+import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_pickers.dart';
+import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_seek_bar.dart';
+import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/text_styles.dart';
+
+const Duration _controlsAutoHideDelay = Duration(seconds: 3);
+const Duration _lockHintDuration = Duration(milliseconds: 2500);
+const Duration _seekIndicatorDuration = Duration(milliseconds: 700);
+const Duration _fadeDuration = Duration(milliseconds: 200);
+
+enum _SeekSide { backward, forward }
+
+class NativePlayerOverlay extends StatefulWidget {
+  const NativePlayerOverlay({
+    super.key,
+    required this.playback,
+    required this.state,
+    required this.title,
+    required this.subtitle,
+    required this.onBack,
+    required this.onOpenWebPlayer,
+    required this.onNextEpisode,
+  });
+
+  final ValueListenable<VideoPlayerValue> playback;
+  final NativePlayerState state;
+  final String title;
+  final String? subtitle;
+  final VoidCallback onBack;
+  final VoidCallback onOpenWebPlayer;
+  final VoidCallback? onNextEpisode;
+
+  @override
+  State<NativePlayerOverlay> createState() => _NativePlayerOverlayState();
+}
+
+class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
+  bool _controlsVisible = true;
+  bool _locked = false;
+  bool _lockHintVisible = false;
+  Timer? _hideTimer;
+  Timer? _lockHintTimer;
+  Timer? _seekIndicatorTimer;
+  Offset? _doubleTapPosition;
+  _SeekSide? _seekSide;
+  int _seekSeconds = 0;
+
+  NativePlayerCubit get _cubit => context.read<NativePlayerCubit>();
+
+  @override
+  void initState() {
+    super.initState();
+    _scheduleAutoHide();
+  }
+
+  @override
+  void didUpdateWidget(NativePlayerOverlay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.state.isPlaying == widget.state.isPlaying) {
+      return;
+    }
+    if (widget.state.isPlaying) {
+      _scheduleAutoHide();
+    } else {
+      _hideTimer?.cancel();
+    }
+  }
+
+  @override
+  void dispose() {
+    _hideTimer?.cancel();
+    _lockHintTimer?.cancel();
+    _seekIndicatorTimer?.cancel();
+    super.dispose();
+  }
+
+  void _scheduleAutoHide() {
+    _hideTimer?.cancel();
+    if (!widget.state.isPlaying) {
+      return;
+    }
+    _hideTimer = Timer(_controlsAutoHideDelay, () {
+      if (mounted) {
+        setState(() {
+          _controlsVisible = false;
+        });
+      }
+    });
+  }
+
+  void _registerInteraction() {
+    if (!_controlsVisible) {
+      setState(() {
+        _controlsVisible = true;
+      });
+    }
+    _scheduleAutoHide();
+  }
+
+  void _handleTap() {
+    if (_locked) {
+      _showLockHint();
+      return;
+    }
+    setState(() {
+      _controlsVisible = !_controlsVisible;
+    });
+    if (_controlsVisible) {
+      _scheduleAutoHide();
+    } else {
+      _hideTimer?.cancel();
+    }
+  }
+
+  void _handleDoubleTapDown(TapDownDetails details) {
+    _doubleTapPosition = details.localPosition;
+  }
+
+  void _handleDoubleTap() {
+    if (_locked) {
+      _showLockHint();
+      return;
+    }
+    final Offset? tapPosition = _doubleTapPosition;
+    final Size? overlaySize = context.size;
+    if (tapPosition == null || overlaySize == null) {
+      return;
+    }
+    final _SeekSide side = tapPosition.dx < overlaySize.width / 2
+        ? _SeekSide.backward
+        : _SeekSide.forward;
+    _showSeekIndicator(side);
+    final Duration offset = side == _SeekSide.backward
+        ? -kNativePlayerSeekStep
+        : kNativePlayerSeekStep;
+    unawaited(_cubit.seekBy(offset));
+  }
+
+  void _showSeekIndicator(_SeekSide side) {
+    _seekIndicatorTimer?.cancel();
+    setState(() {
+      if (_seekSide == side) {
+        _seekSeconds += kNativePlayerSeekStep.inSeconds;
+      } else {
+        _seekSide = side;
+        _seekSeconds = kNativePlayerSeekStep.inSeconds;
+      }
+    });
+    _seekIndicatorTimer = Timer(_seekIndicatorDuration, () {
+      if (mounted) {
+        setState(() {
+          _seekSide = null;
+          _seekSeconds = 0;
+        });
+      }
+    });
+  }
+
+  void _lock() {
+    _hideTimer?.cancel();
+    setState(() {
+      _locked = true;
+      _controlsVisible = false;
+    });
+    _showLockHint();
+  }
+
+  void _unlock() {
+    _lockHintTimer?.cancel();
+    setState(() {
+      _locked = false;
+      _lockHintVisible = false;
+      _controlsVisible = true;
+    });
+    _scheduleAutoHide();
+  }
+
+  void _showLockHint() {
+    _lockHintTimer?.cancel();
+    setState(() {
+      _lockHintVisible = true;
+    });
+    _lockHintTimer = Timer(_lockHintDuration, () {
+      if (mounted) {
+        setState(() {
+          _lockHintVisible = false;
+        });
+      }
+    });
+  }
+
+  Future<void> _openQualityPicker() async {
+    _hideTimer?.cancel();
+    await showQualityPicker(
+      context,
+      streams: _cubit.video.streams,
+      selectedIndex: widget.state.streamIndex,
+      onSelected: (int index) => unawaited(_cubit.selectQuality(index)),
+    );
+    _scheduleAutoHide();
+  }
+
+  Future<void> _openSpeedPicker() async {
+    _hideTimer?.cancel();
+    await showSpeedPicker(
+      context,
+      selectedSpeed: widget.state.playbackSpeed,
+      onSelected: (double speed) => unawaited(_cubit.setPlaybackSpeed(speed)),
+    );
+    _scheduleAutoHide();
+  }
+
+  Future<void> _openSubtitlePicker() async {
+    _hideTimer?.cancel();
+    await showSubtitlePicker(
+      context,
+      subtitles: _cubit.video.subtitles,
+      selectedIndex: widget.state.subtitleIndex,
+      onSelected: (int? index) => unawaited(_cubit.selectSubtitle(index)),
+    );
+    _scheduleAutoHide();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: !_locked,
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        if (!didPop) {
+          _showLockHint();
+        }
+      },
+      child: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          _buildGestureLayer(),
+          _buildBufferingIndicator(),
+          _buildSeekIndicator(_SeekSide.backward),
+          _buildSeekIndicator(_SeekSide.forward),
+          _buildCaption(),
+          _buildControls(),
+          _buildLockHint(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGestureLayer() {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _handleTap,
+      onDoubleTapDown: _handleDoubleTapDown,
+      onDoubleTap: _handleDoubleTap,
+    );
+  }
+
+  Widget _buildBufferingIndicator() {
+    return IgnorePointer(
+      child: Center(
+        child: ValueListenableBuilder<VideoPlayerValue>(
+          valueListenable: widget.playback,
+          builder: (BuildContext context, VideoPlayerValue value, Widget? child) {
+            if (!value.isBuffering) {
+              return const SizedBox.shrink();
+            }
+            return CircularProgressIndicator(color: AppColors.primary);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSeekIndicator(_SeekSide side) {
+    final bool visible = _seekSide == side;
+    final bool backward = side == _SeekSide.backward;
+    final String label = backward
+        ? S.of(context).native_player_seek_backward(_seekSeconds)
+        : S.of(context).native_player_seek_forward(_seekSeconds);
+    return Align(
+      alignment: backward ? const Alignment(-0.6, 0) : const Alignment(0.6, 0),
+      child: IgnorePointer(
+        child: AnimatedOpacity(
+          duration: _fadeDuration,
+          opacity: visible ? 1 : 0,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.55),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(
+                  backward ? Icons.fast_rewind_rounded : Icons.fast_forward_rounded,
+                  color: AppColors.onMedia,
+                  size: 22,
+                ),
+                const SizedBox(width: 8),
+                Text(label, style: semibold(size: 15, color: AppColors.onMedia)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCaption() {
+    final double bottomInset = _controlsVisible && !_locked ? 132 : 32;
+    return AnimatedPositioned(
+      duration: _fadeDuration,
+      left: 48,
+      right: 48,
+      bottom: bottomInset,
+      child: IgnorePointer(
+        child: ValueListenableBuilder<VideoPlayerValue>(
+          valueListenable: widget.playback,
+          builder: (BuildContext context, VideoPlayerValue value, Widget? child) {
+            final String text = value.caption.text.trim();
+            if (text.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return _buildCaptionBubble(text);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCaptionBubble(String text) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: medium(size: 17, color: AppColors.onMedia),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildControls() {
+    final bool visible = _controlsVisible && !_locked;
+    return IgnorePointer(
+      ignoring: !visible,
+      child: AnimatedOpacity(
+        duration: _fadeDuration,
+        opacity: visible ? 1 : 0,
+        child: Column(
+          children: <Widget>[
+            _buildTopBar(),
+            const Spacer(),
+            _buildBottomPanel(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopBar() {
+    return IgnorePointer(
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: <Color>[
+              Colors.black.withValues(alpha: 0.6),
+              Colors.transparent,
+            ],
+          ),
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
+            child: _buildTitles(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitles() {
+    final String? subtitle = widget.subtitle;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Text(
+          widget.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: semibold(size: 16, color: AppColors.onMedia),
+        ),
+        if (subtitle != null && subtitle.isNotEmpty) ...<Widget>[
+          const SizedBox(height: 2),
+          Text(
+            subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: regular(
+              size: 13,
+              color: AppColors.onMedia.withValues(alpha: 0.75),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildBottomPanel() {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: <Color>[
+            Colors.transparent,
+            Colors.black.withValues(alpha: 0.75),
+          ],
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 28, 16, 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              NativePlayerSeekBar(
+                playback: widget.playback,
+                onScrubStart: () => _hideTimer?.cancel(),
+                onSeek: (Duration position) {
+                  unawaited(_cubit.seekTo(position));
+                  _scheduleAutoHide();
+                },
+              ),
+              _buildBottomBar(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomBar() {
+    final NativePlayerCubit cubit = _cubit;
+    final bool hasSubtitles = cubit.video.subtitles.isNotEmpty;
+    final bool hasQualities = cubit.video.streams.length > 1;
+    return NativePlayerBottomBar(
+      isPlaying: widget.state.isPlaying,
+      subtitlesActive: widget.state.subtitleIndex != null,
+      onBack: widget.onBack,
+      onTogglePlay: () {
+        unawaited(cubit.togglePlayPause());
+        _registerInteraction();
+      },
+      onNextEpisode: widget.onNextEpisode,
+      onSubtitles: hasSubtitles ? () => unawaited(_openSubtitlePicker()) : null,
+      onSpeed: () => unawaited(_openSpeedPicker()),
+      onQuality: hasQualities ? () => unawaited(_openQualityPicker()) : null,
+      onOpenWebPlayer: widget.onOpenWebPlayer,
+      onLock: _lock,
+    );
+  }
+
+  Widget _buildLockHint() {
+    final bool visible = _locked && _lockHintVisible;
+    return Positioned(
+      right: 24,
+      bottom: 24,
+      child: SafeArea(
+        child: IgnorePointer(
+          ignoring: !visible,
+          child: AnimatedOpacity(
+            duration: _fadeDuration,
+            opacity: visible ? 1 : 0,
+            child: Material(
+              color: Colors.black.withValues(alpha: 0.6),
+              shape: const StadiumBorder(),
+              child: IconButton(
+                tooltip: S.of(context).native_player_unlock,
+                onPressed: _unlock,
+                iconSize: 26,
+                color: AppColors.onMedia,
+                icon: const Icon(Icons.lock_open_rounded),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
