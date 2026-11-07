@@ -65,6 +65,7 @@ dependencies:
   video_player: ^2.14.1
   screen_brightness: ^2.1.11
   volume_controller: ^3.7.1
+  flutter_widget_from_html_core: ^0.17.4
 
 dependency_overrides:
   intl: 0.20.2
