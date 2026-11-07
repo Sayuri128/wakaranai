@@ -18,56 +18,98 @@ Future<int> pipeStreamToFile(
 }) async {
   await file.parent.create(recursive: true);
   final RandomAccessFile handle = await file.open(mode: mode);
+  final _FilePump pump = _FilePump(handle, onChunk);
+  bool succeeded = false;
   try {
-    return await _pumpIntoFile(body, handle, cancelToken, onChunk);
+    final int written = await pump.run(body, cancelToken);
+    succeeded = true;
+    return written;
   } finally {
-    await handle.close();
+    await pump.settle();
+    await _closeHandle(handle, quietly: !succeeded);
   }
 }
 
-Future<int> _pumpIntoFile(
-  Stream<List<int>> body,
-  RandomAccessFile handle,
-  CancelToken cancelToken,
-  void Function(int chunkLength)? onChunk,
-) {
-  final Completer<int> done = Completer<int>();
-  int written = 0;
-  late final StreamSubscription<List<int>> subscription;
+Future<void> _closeHandle(
+  RandomAccessFile handle, {
+  required bool quietly,
+}) async {
+  try {
+    await handle.close();
+  } on FileSystemException {
+    if (!quietly) {
+      rethrow;
+    }
+  }
+}
 
-  void fail(Object error, [StackTrace? stackTrace]) {
-    if (done.isCompleted) {
+class _FilePump {
+  _FilePump(this._handle, this._onChunk);
+
+  final RandomAccessFile _handle;
+  final void Function(int chunkLength)? _onChunk;
+  final Completer<int> _done = Completer<int>();
+  late final StreamSubscription<List<int>> _subscription;
+  Future<void>? _pendingWrite;
+  int _written = 0;
+
+  Future<int> run(Stream<List<int>> body, CancelToken cancelToken) {
+    _subscription = body.listen(
+      _writeChunk,
+      onError: _fail,
+      onDone: _finish,
+      cancelOnError: true,
+    );
+    final DioException? cancelError = cancelToken.cancelError;
+    if (cancelError != null) {
+      _fail(cancelError);
+    } else {
+      unawaited(cancelToken.whenCancel.then(_fail));
+    }
+    return _done.future;
+  }
+
+  Future<void> settle() async {
+    final Future<void>? pendingWrite = _pendingWrite;
+    if (pendingWrite == null) {
       return;
     }
-    done.completeError(error, stackTrace);
-    unawaited(subscription.cancel());
+    try {
+      await pendingWrite;
+    } catch (_) {
+      return;
+    }
   }
 
-  void writeChunk(List<int> chunk) {
-    subscription.pause();
-    handle.writeFrom(chunk).then((_) {
-      written += chunk.length;
-      onChunk?.call(chunk.length);
-      subscription.resume();
-    }, onError: fail);
+  void _writeChunk(List<int> chunk) {
+    _subscription.pause();
+    final Future<void> write = _handle.writeFrom(chunk);
+    _pendingWrite = write;
+    write.then((_) => _afterWrite(chunk.length), onError: _fail);
   }
 
-  subscription = body.listen(
-    writeChunk,
-    onError: fail,
-    onDone: () {
-      if (!done.isCompleted) {
-        done.complete(written);
-      }
-    },
-    cancelOnError: true,
-  );
-  if (cancelToken.isCancelled) {
-    fail(cancelToken.cancelError!);
-  } else {
-    unawaited(cancelToken.whenCancel.then(fail));
+  void _afterWrite(int chunkLength) {
+    if (_done.isCompleted) {
+      return;
+    }
+    _written += chunkLength;
+    _onChunk?.call(chunkLength);
+    _subscription.resume();
   }
-  return done.future;
+
+  void _finish() {
+    if (!_done.isCompleted) {
+      _done.complete(_written);
+    }
+  }
+
+  void _fail(Object error, [StackTrace? stackTrace]) {
+    if (_done.isCompleted) {
+      return;
+    }
+    _done.completeError(error, stackTrace);
+    unawaited(_subscription.cancel());
+  }
 }
 
 Future<Uint8List> readStreamFully(
