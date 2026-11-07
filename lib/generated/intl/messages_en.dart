@@ -192,6 +192,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m77(count) => "${count}m ago";
 
+  static String m78(host) => "Cookies cleared for ${host}";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "activity_history_anime_appbar_title": MessageLookupByLibrary.simpleMessage(
@@ -1397,6 +1399,35 @@ class MessageLookup extends MessageLookupByLibrary {
     "updates_time_minutes": m77,
     "updates_time_now": MessageLookupByLibrary.simpleMessage("Just now"),
     "updates_title": MessageLookupByLibrary.simpleMessage("Updates"),
+    "web_browser_back": MessageLookupByLibrary.simpleMessage("Back"),
+    "web_browser_clear_cookies": MessageLookupByLibrary.simpleMessage(
+      "Clear cookies for this site",
+    ),
+    "web_browser_cookies_cleared": m78,
+    "web_browser_copy_link": MessageLookupByLibrary.simpleMessage("Copy link"),
+    "web_browser_error_title": MessageLookupByLibrary.simpleMessage(
+      "Couldn\'t load this page",
+    ),
+    "web_browser_forward": MessageLookupByLibrary.simpleMessage("Forward"),
+    "web_browser_link_copied": MessageLookupByLibrary.simpleMessage(
+      "Link copied",
+    ),
+    "web_browser_looks_good": MessageLookupByLibrary.simpleMessage(
+      "Looks good — continue",
+    ),
+    "web_browser_more": MessageLookupByLibrary.simpleMessage("More"),
     "web_browser_no_login_button": MessageLookupByLibrary.simpleMessage("Done"),
+    "web_browser_open_external": MessageLookupByLibrary.simpleMessage(
+      "Open in external browser",
+    ),
+    "web_browser_open_external_failed": MessageLookupByLibrary.simpleMessage(
+      "Couldn\'t open an external browser",
+    ),
+    "web_browser_popup_close": MessageLookupByLibrary.simpleMessage(
+      "Close window",
+    ),
+    "web_browser_reload": MessageLookupByLibrary.simpleMessage("Reload"),
+    "web_browser_retry": MessageLookupByLibrary.simpleMessage("Retry"),
+    "web_browser_stop": MessageLookupByLibrary.simpleMessage("Stop loading"),
   };
 }

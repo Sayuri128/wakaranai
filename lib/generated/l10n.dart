@@ -5277,6 +5277,141 @@ class S {
       args: [],
     );
   }
+
+  /// `Back`
+  String get web_browser_back {
+    return Intl.message('Back', name: 'web_browser_back', desc: '', args: []);
+  }
+
+  /// `Forward`
+  String get web_browser_forward {
+    return Intl.message(
+      'Forward',
+      name: 'web_browser_forward',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reload`
+  String get web_browser_reload {
+    return Intl.message(
+      'Reload',
+      name: 'web_browser_reload',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stop loading`
+  String get web_browser_stop {
+    return Intl.message(
+      'Stop loading',
+      name: 'web_browser_stop',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `More`
+  String get web_browser_more {
+    return Intl.message('More', name: 'web_browser_more', desc: '', args: []);
+  }
+
+  /// `Copy link`
+  String get web_browser_copy_link {
+    return Intl.message(
+      'Copy link',
+      name: 'web_browser_copy_link',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link copied`
+  String get web_browser_link_copied {
+    return Intl.message(
+      'Link copied',
+      name: 'web_browser_link_copied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open in external browser`
+  String get web_browser_open_external {
+    return Intl.message(
+      'Open in external browser',
+      name: 'web_browser_open_external',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't open an external browser`
+  String get web_browser_open_external_failed {
+    return Intl.message(
+      'Couldn\'t open an external browser',
+      name: 'web_browser_open_external_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear cookies for this site`
+  String get web_browser_clear_cookies {
+    return Intl.message(
+      'Clear cookies for this site',
+      name: 'web_browser_clear_cookies',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cookies cleared for {host}`
+  String web_browser_cookies_cleared(Object host) {
+    return Intl.message(
+      'Cookies cleared for $host',
+      name: 'web_browser_cookies_cleared',
+      desc: '',
+      args: [host],
+    );
+  }
+
+  /// `Looks good — continue`
+  String get web_browser_looks_good {
+    return Intl.message(
+      'Looks good — continue',
+      name: 'web_browser_looks_good',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load this page`
+  String get web_browser_error_title {
+    return Intl.message(
+      'Couldn\'t load this page',
+      name: 'web_browser_error_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get web_browser_retry {
+    return Intl.message('Retry', name: 'web_browser_retry', desc: '', args: []);
+  }
+
+  /// `Close window`
+  String get web_browser_popup_close {
+    return Intl.message(
+      'Close window',
+      name: 'web_browser_popup_close',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

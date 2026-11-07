@@ -955,5 +955,20 @@
   },
   "settings_auto_backup_failed": "The last backup failed · tap Back up now to retry",
   "settings_auto_backup_now": "Back up now",
-  "settings_auto_backup_saved": "Backup saved to Download/Wakaranai"
+  "settings_auto_backup_saved": "Backup saved to Download/Wakaranai",
+  "web_browser_back": "Back",
+  "web_browser_forward": "Forward",
+  "web_browser_reload": "Reload",
+  "web_browser_stop": "Stop loading",
+  "web_browser_more": "More",
+  "web_browser_copy_link": "Copy link",
+  "web_browser_link_copied": "Link copied",
+  "web_browser_open_external": "Open in external browser",
+  "web_browser_open_external_failed": "Couldn't open an external browser",
+  "web_browser_clear_cookies": "Clear cookies for this site",
+  "web_browser_cookies_cleared": "Cookies cleared for {host}",
+  "web_browser_looks_good": "Looks good — continue",
+  "web_browser_error_title": "Couldn't load this page",
+  "web_browser_retry": "Retry",
+  "web_browser_popup_close": "Close window"
 }
