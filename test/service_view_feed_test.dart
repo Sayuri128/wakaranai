@@ -39,6 +39,7 @@ class _FakeClient extends MangaApiClient {
     String? query,
     List<FilterData>? filters,
     String? feed,
+    int? pageSize,
   }) async {
     calls.add(_GalleryCall(page, query, feed));
     final Object? error = failWith;

@@ -39,6 +39,7 @@ class ExtensionHostFactory {
       preferences: preferencesFor(config),
       storage: storageFor(config),
       requestPolicy: config.requestPolicy,
+      pagination: config.pagination,
     );
   }
 }

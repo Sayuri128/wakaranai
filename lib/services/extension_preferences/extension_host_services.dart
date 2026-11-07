@@ -28,6 +28,12 @@ class StoredExtensionPreferencesProvider extends ExtensionPreferencesProvider {
         stored,
       );
     }
+    if (key == ExtensionPreference.pageSizeKey) {
+      return ExtensionPreferenceValues.sanitizePageSize(
+        config.pagination,
+        stored,
+      );
+    }
     final ExtensionPreference? definition = _definition(key);
     if (definition == null) {
       return null;

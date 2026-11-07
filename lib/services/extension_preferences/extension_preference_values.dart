@@ -1,9 +1,16 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/gallery_pagination/gallery_pagination.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/preferences/extension_preference.dart';
 
 bool hasExtensionSettings(ConfigInfo config) {
   return editablePreferences(config).isNotEmpty ||
-      extensionMirrors(config).isNotEmpty;
+      extensionMirrors(config).isNotEmpty ||
+      config.pagination != null;
+}
+
+bool _isReservedPreferenceKey(String key) {
+  return key == ExtensionPreference.mirrorKey ||
+      key == ExtensionPreference.pageSizeKey;
 }
 
 List<String> extensionMirrors(ConfigInfo config) {
@@ -20,7 +27,7 @@ List<String> extensionMirrors(ConfigInfo config) {
 List<ExtensionPreference> editablePreferences(ConfigInfo config) {
   return config.preferences
       .where((ExtensionPreference preference) =>
-          preference.key != ExtensionPreference.mirrorKey)
+          !_isReservedPreferenceKey(preference.key))
       .toList();
 }
 
@@ -44,6 +51,16 @@ class ExtensionPreferenceValues {
 
   static String? sanitizeMirror(List<String> mirrors, Object? stored) {
     if (stored is String && mirrors.contains(stored)) {
+      return stored;
+    }
+    return null;
+  }
+
+  static int? sanitizePageSize(GalleryPagination? pagination, Object? stored) {
+    if (pagination == null || stored is! int) {
+      return null;
+    }
+    if (pagination.pageSizes.contains(stored)) {
       return stored;
     }
     return null;

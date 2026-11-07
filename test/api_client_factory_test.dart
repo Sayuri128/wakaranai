@@ -18,6 +18,10 @@ ConfigInfo _config(int type) => ConfigInfo.fromJson(<String, dynamic>{
         <String, dynamic>{'key': 'lang', 'type': 'text', 'title': 'Language'},
       ],
       'requestPolicy': <String, dynamic>{'userAgent': 'UA'},
+      'pagination': <String, dynamic>{
+        'pageSizes': <int>[24, 48],
+        'defaultPageSize': 48,
+      },
     });
 
 void main() {
@@ -35,6 +39,8 @@ void main() {
     expect(client.host.extensionUid, 'ext-uid');
     expect(client.host.preferenceDefinitions.single.key, 'lang');
     expect(client.host.requestPolicy?.userAgent, 'UA');
+    expect(client.host.pagination?.pageSizes, <int>[24, 48]);
+    expect(client.host.pagination?.defaultPageSize, 48);
     expect(client.interpreter.host, same(client.host));
   });
 }
