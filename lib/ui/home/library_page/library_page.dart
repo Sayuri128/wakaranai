@@ -10,6 +10,8 @@ import 'package:wakaranai/repositories/database/anime_episode_activity_repositor
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_layout.dart';
+import 'package:wakaranai/ui/common/service_viewer/gallery_layout_transition.dart';
+import 'package:wakaranai/ui/home/library_page/library_grid_geometry.dart';
 import 'package:wakaranai/ui/home/library_page/library_entry_details.dart';
 import 'package:wakaranai/ui/home/library_page/library_list_tile.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
@@ -45,6 +47,7 @@ class _LibraryPageState extends State<LibraryPage> {
 
   late final TextEditingController _searchController;
   late final LibraryEntryDetailsLoader _detailsLoader;
+  final ScrollController _entriesController = ScrollController();
 
   bool get _selectionMode => _selected.isNotEmpty;
 
@@ -69,6 +72,7 @@ class _LibraryPageState extends State<LibraryPage> {
   @override
   void dispose() {
     _searchController.dispose();
+    _entriesController.dispose();
     super.dispose();
   }
 
@@ -152,7 +156,9 @@ class _LibraryPageState extends State<LibraryPage> {
                         children: <Widget>[
                           Expanded(
                             child: Text(
-                              S.current.library_selected_count(_selected.length),
+                              S.current.library_selected_count(
+                                _selected.length,
+                              ),
                               style: semibold(size: 15),
                             ),
                           ),
@@ -217,9 +223,9 @@ class _LibraryPageState extends State<LibraryPage> {
                               label: S.current.library_remove,
                               color: AppColors.red,
                               onTap: () {
-                                context
-                                    .read<LibraryCubit>()
-                                    .removeMany(_selected.toList());
+                                context.read<LibraryCubit>().removeMany(
+                                  _selected.toList(),
+                                );
                                 _clearSelection();
                               },
                             ),
@@ -265,8 +271,9 @@ class _LibraryPageState extends State<LibraryPage> {
     if (_selectedCategory == _uncategorizedId) {
       entries = entries.where((LibraryEntryDomain e) => e.categoryId == null);
     } else if (_selectedCategory != _allCategoryId) {
-      entries = entries
-          .where((LibraryEntryDomain e) => e.categoryId == _selectedCategory);
+      entries = entries.where(
+        (LibraryEntryDomain e) => e.categoryId == _selectedCategory,
+      );
     }
     entries = entries.where(state.matchesSearch);
     return state.sortedEntries(entries.toList());
@@ -291,32 +298,32 @@ class _LibraryPageState extends State<LibraryPage> {
 
   List<Widget> _buildHeaderActions(BuildContext context, LibraryState state) {
     return <Widget>[
-          BlocBuilder<LibraryUpdatesCubit, LibraryUpdatesState>(
-            builder: (BuildContext context, LibraryUpdatesState updatesState) {
-              return _UpdatesButton(
-                unseenCount: updatesState.unseenCount,
-                onTap: () => Navigator.of(context).pushNamed(Routes.updates),
-              );
-            },
-          ),
-          const SizedBox(width: 8),
-          BlocBuilder<LibraryLayoutCubit, GalleryLayout>(
-            builder: (BuildContext context, GalleryLayout layout) =>
-                _CircleIconButton(
-                  icon: galleryLayoutIcon(layout),
-                  onTap: () => context.read<LibraryLayoutCubit>().cycle(),
-                ),
-          ),
-          const SizedBox(width: 8),
-          _CircleIconButton(
-            icon: Icons.sort_rounded,
-            onTap: () => _showSortSheet(context, state),
-          ),
-          const SizedBox(width: 8),
-          _CircleIconButton(
-            icon: Icons.folder_outlined,
-            onTap: () => _showManageCategoriesSheet(context, state),
-          ),
+      BlocBuilder<LibraryUpdatesCubit, LibraryUpdatesState>(
+        builder: (BuildContext context, LibraryUpdatesState updatesState) {
+          return _UpdatesButton(
+            unseenCount: updatesState.unseenCount,
+            onTap: () => Navigator.of(context).pushNamed(Routes.updates),
+          );
+        },
+      ),
+      const SizedBox(width: 8),
+      BlocBuilder<LibraryLayoutCubit, GalleryLayout>(
+        builder: (BuildContext context, GalleryLayout layout) =>
+            _CircleIconButton(
+              icon: galleryLayoutIcon(layout),
+              onTap: () => context.read<LibraryLayoutCubit>().cycle(),
+            ),
+      ),
+      const SizedBox(width: 8),
+      _CircleIconButton(
+        icon: Icons.sort_rounded,
+        onTap: () => _showSortSheet(context, state),
+      ),
+      const SizedBox(width: 8),
+      _CircleIconButton(
+        icon: Icons.folder_outlined,
+        onTap: () => _showManageCategoriesSheet(context, state),
+      ),
     ];
   }
 
@@ -361,7 +368,9 @@ class _LibraryPageState extends State<LibraryPage> {
         _CategoryChipData(c.id, c.name),
       if (_hasUncategorized(state))
         _CategoryChipData(
-            _uncategorizedId, S.current.library_category_uncategorized),
+          _uncategorizedId,
+          S.current.library_category_uncategorized,
+        ),
     ];
 
     return SizedBox(
@@ -410,9 +419,7 @@ class _LibraryPageState extends State<LibraryPage> {
 
   Widget _buildGrid(BuildContext context, LibraryState state) {
     if (state.loading) {
-      return Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
-      );
+      return Center(child: CircularProgressIndicator(color: AppColors.primary));
     }
 
     final List<LibraryEntryDomain> entries = _visibleEntries(state);
@@ -427,8 +434,12 @@ class _LibraryPageState extends State<LibraryPage> {
     );
   }
 
-  EdgeInsets get _entriesPadding =>
-      EdgeInsets.fromLTRB(12, 4, 12, _selectionMode ? 150 : 24);
+  EdgeInsets get _entriesPadding => EdgeInsets.fromLTRB(
+    LibraryGridGeometry.horizontalPadding,
+    LibraryGridGeometry.top,
+    LibraryGridGeometry.horizontalPadding,
+    _selectionMode ? 150 : 24,
+  );
 
   static const ScrollPhysics _entriesPhysics = AlwaysScrollableScrollPhysics(
     parent: BouncingScrollPhysics(),
@@ -439,11 +450,19 @@ class _LibraryPageState extends State<LibraryPage> {
     LibraryState state,
     List<LibraryEntryDomain> entries,
   ) {
-    final GalleryLayout layout = context.watch<LibraryLayoutCubit>().state;
-    if (layout == GalleryLayout.list) {
-      return _buildList(context, state, entries);
-    }
-    return _buildGridOf(context, state, entries, layout);
+    return GalleryLayoutTransition(
+      layout: context.watch<LibraryLayoutCubit>().state,
+      geometry: const LibraryGridGeometry(),
+      position: () =>
+          _entriesController.hasClients ? _entriesController.position : null,
+      builder:
+          (BuildContext context, GalleryLayout layout, GalleryMorph? morph) {
+            if (layout == GalleryLayout.list) {
+              return _buildList(context, state, entries);
+            }
+            return _buildGridOf(context, state, entries, layout, morph);
+          },
+    );
   }
 
   Widget _buildGridOf(
@@ -451,41 +470,43 @@ class _LibraryPageState extends State<LibraryPage> {
     LibraryState state,
     List<LibraryEntryDomain> entries,
     GalleryLayout layout,
+    GalleryMorph? morph,
   ) {
     final bool compact = layout == GalleryLayout.compact;
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final double cellExtent = compact ? 120 : 180;
-        final int crossAxisCount = (constraints.maxWidth / cellExtent)
-            .floor()
-            .clamp(compact ? 3 : 2, compact ? 8 : 6);
-        final double itemWidth = constraints.maxWidth / crossAxisCount;
         return GridView.builder(
+          controller: _entriesController,
           padding: _entriesPadding,
           physics: _entriesPhysics,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            mainAxisSpacing: compact ? 6 : 8,
-            crossAxisSpacing: compact ? 6 : 8,
-            childAspectRatio: GalleryViewCard.aspectRatio(itemWidth),
+          gridDelegate: LibraryGridGeometry.delegate(
+            layout,
+            constraints.maxWidth,
           ),
           itemCount: entries.length,
           itemBuilder: (BuildContext context, int index) {
             final LibraryEntryDomain entry = entries[index];
-            return BlocSelector<LibraryUpdatesCubit, LibraryUpdatesState, int>(
-              selector: (LibraryUpdatesState updates) =>
-                  updates.unseenForEntry(entry.uid),
-              builder: (BuildContext context, int unseenCount) => _LibraryCard(
-                entry: entry,
-                compact: compact,
-                unseenCount: unseenCount,
-                headers: state.coverHeaders[entry.extensionUid],
-                selected: _selected.contains(entry.uid),
-                selectionMode: _selectionMode,
-                onTap: () => _onEntryTap(context, entry),
-                onLongPress: () => _toggleSelect(entry.uid),
-                onMenu: () => _showEntryActions(context, state, entry),
-              ),
+            return GalleryMorphCell(
+              morph: morph,
+              index: index,
+              child:
+                  BlocSelector<LibraryUpdatesCubit, LibraryUpdatesState, int>(
+                    selector: (LibraryUpdatesState updates) =>
+                        updates.unseenForEntry(entry.uid),
+                    builder: (BuildContext context, int unseenCount) =>
+                        _LibraryCard(
+                          entry: entry,
+                          compact: compact,
+                          unseenCount: unseenCount,
+                          headers: state.coverHeaders[entry.extensionUid],
+                          selected: _selected.contains(entry.uid),
+                          selectionMode: _selectionMode,
+                          onTap: () => _onEntryTap(context, entry),
+                          onLongPress: () => _toggleSelect(entry.uid),
+                          onMenu: () =>
+                              _showEntryActions(context, state, entry),
+                        ),
+                  ),
             );
           },
         );
@@ -499,6 +520,7 @@ class _LibraryPageState extends State<LibraryPage> {
     List<LibraryEntryDomain> entries,
   ) {
     return ListView.separated(
+      controller: _entriesController,
       padding: _entriesPadding,
       physics: _entriesPhysics,
       itemCount: entries.length,
@@ -547,8 +569,9 @@ class _LibraryPageState extends State<LibraryPage> {
                 ? ServiceViewerMessage(
                     icon: Icons.search_off_rounded,
                     title: S.current.library_search_no_results_title,
-                    message: S.current
-                        .library_search_no_results_message(state.searchQuery),
+                    message: S.current.library_search_no_results_message(
+                      state.searchQuery,
+                    ),
                   )
                 : ServiceViewerMessage(
                     icon: Icons.favorite_border_rounded,
@@ -604,23 +627,33 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   Future<void> _showEntryActions(
-      BuildContext context, LibraryState state, LibraryEntryDomain entry) {
-    return _showActions(context, state, <LibraryEntryDomain>[entry],
-        fromSelection: false);
+    BuildContext context,
+    LibraryState state,
+    LibraryEntryDomain entry,
+  ) {
+    return _showActions(context, state, <LibraryEntryDomain>[
+      entry,
+    ], fromSelection: false);
   }
 
-  Future<void> _showSelectionActions(
-      BuildContext context, LibraryState state) {
-    return _showActions(context, state, _selectedEntries(state),
-        fromSelection: true);
+  Future<void> _showSelectionActions(BuildContext context, LibraryState state) {
+    return _showActions(
+      context,
+      state,
+      _selectedEntries(state),
+      fromSelection: true,
+    );
   }
 
   Future<Set<String>> _mangaExtensionUids(
-      BuildContext context, List<LibraryEntryDomain> entries) async {
+    BuildContext context,
+    List<LibraryEntryDomain> entries,
+  ) async {
     final ExtensionRepository extensions = context.read<ExtensionRepository>();
     final Set<String> manga = <String>{};
-    final Set<String> extensionUids =
-        entries.map((LibraryEntryDomain e) => e.extensionUid).toSet();
+    final Set<String> extensionUids = entries
+        .map((LibraryEntryDomain e) => e.extensionUid)
+        .toSet();
     for (final String uid in extensionUids) {
       final ExtensionDomain? extension = await extensions.getByUid(uid);
       if (extension?.config.type == ConfigInfoType.MANGA) {
@@ -639,19 +672,24 @@ class _LibraryPageState extends State<LibraryPage> {
     if (entries.isEmpty) {
       return;
     }
-    final Set<String> mangaExtensions =
-        await _mangaExtensionUids(context, entries);
+    final Set<String> mangaExtensions = await _mangaExtensionUids(
+      context,
+      entries,
+    );
     if (!context.mounted) {
       return;
     }
     final List<LibraryEntryDomain> downloadable = entries
         .where(
-            (LibraryEntryDomain e) => mangaExtensions.contains(e.extensionUid))
+          (LibraryEntryDomain e) => mangaExtensions.contains(e.extensionUid),
+        )
         .toList();
-    final bool allTracked =
-        entries.every((LibraryEntryDomain e) => e.trackUpdates);
-    final bool allNotify =
-        entries.every((LibraryEntryDomain e) => e.notifyUpdates);
+    final bool allTracked = entries.every(
+      (LibraryEntryDomain e) => e.trackUpdates,
+    );
+    final bool allNotify = entries.every(
+      (LibraryEntryDomain e) => e.notifyUpdates,
+    );
     final LibraryCubit library = context.read<LibraryCubit>();
 
     void finish(BuildContext sheetContext) {
@@ -676,8 +714,12 @@ class _LibraryPageState extends State<LibraryPage> {
               label: S.current.library_move_to_category,
               onTap: () {
                 Navigator.of(sheetContext).pop();
-                _showMoveToCategorySheet(context, state, entries,
-                    fromSelection: fromSelection);
+                _showMoveToCategorySheet(
+                  context,
+                  state,
+                  entries,
+                  fromSelection: fromSelection,
+                );
               },
             ),
             if (downloadable.isNotEmpty)
@@ -686,8 +728,11 @@ class _LibraryPageState extends State<LibraryPage> {
                 label: S.current.title_download,
                 onTap: () {
                   Navigator.of(sheetContext).pop();
-                  _download(context, downloadable,
-                      fromSelection: fromSelection);
+                  _download(
+                    context,
+                    downloadable,
+                    fromSelection: fromSelection,
+                  );
                 },
               ),
             ActionSheetRow(
@@ -717,7 +762,8 @@ class _LibraryPageState extends State<LibraryPage> {
               destructive: true,
               onTap: () {
                 library.removeMany(
-                    entries.map((LibraryEntryDomain e) => e.uid).toList());
+                  entries.map((LibraryEntryDomain e) => e.uid).toList(),
+                );
                 finish(sheetContext);
               },
             ),
@@ -727,8 +773,11 @@ class _LibraryPageState extends State<LibraryPage> {
     );
   }
 
-  void _download(BuildContext context, List<LibraryEntryDomain> entries,
-      {required bool fromSelection}) {
+  void _download(
+    BuildContext context,
+    List<LibraryEntryDomain> entries, {
+    required bool fromSelection,
+  }) {
     if (entries.length == 1) {
       showLibraryDownloadSheet(context, entries.single);
       if (fromSelection) {
@@ -813,8 +862,7 @@ class _LibraryPageState extends State<LibraryPage> {
                     icon: Icons.delete_outline_rounded,
                     small: true,
                     destructive: true,
-                    onTap: () =>
-                        context.read<LibraryCubit>().deleteCategory(c),
+                    onTap: () => context.read<LibraryCubit>().deleteCategory(c),
                   ),
                 ],
               ),
@@ -835,19 +883,26 @@ class _LibraryPageState extends State<LibraryPage> {
     );
   }
 
-  void _showCategoryNameDialog(BuildContext context, {CategoryDomain? category}) {
-    final TextEditingController controller =
-        TextEditingController(text: category?.name ?? '');
+  void _showCategoryNameDialog(
+    BuildContext context, {
+    CategoryDomain? category,
+  }) {
+    final TextEditingController controller = TextEditingController(
+      text: category?.name ?? '',
+    );
     showDialog<void>(
       context: context,
       builder: (BuildContext dialogContext) {
         return Dialog(
           backgroundColor: AppColors.dialogSurface,
           surfaceTintColor: Colors.transparent,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          insetPadding:
-              const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 32,
+            vertical: 24,
+          ),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -902,9 +957,10 @@ class _LibraryPageState extends State<LibraryPage> {
                           if (category == null) {
                             context.read<LibraryCubit>().addCategory(name);
                           } else {
-                            context
-                                .read<LibraryCubit>()
-                                .renameCategory(category, name);
+                            context.read<LibraryCubit>().renameCategory(
+                              category,
+                              name,
+                            );
                           }
                           Navigator.of(dialogContext).pop();
                         },
@@ -1054,8 +1110,11 @@ class _LibraryCard extends StatelessWidget {
                 onTap: onMenu,
                 child: Padding(
                   padding: const EdgeInsets.all(4),
-                  child: Icon(Icons.more_vert_rounded,
-                      color: AppColors.onMedia, size: 20),
+                  child: Icon(
+                    Icons.more_vert_rounded,
+                    color: AppColors.onMedia,
+                    size: 20,
+                  ),
                 ),
               ),
             ),
@@ -1129,10 +1188,7 @@ class _UpdatesButton extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: <Widget>[
-        _CircleIconButton(
-          icon: Icons.notifications_none_rounded,
-          onTap: onTap,
-        ),
+        _CircleIconButton(icon: Icons.notifications_none_rounded, onTap: onTap),
         if (unseenCount > 0)
           Positioned(
             top: -2,
@@ -1143,7 +1199,10 @@ class _UpdatesButton extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.backgroundColor, width: 1.5),
+                border: Border.all(
+                  color: AppColors.backgroundColor,
+                  width: 1.5,
+                ),
               ),
               child: Text(
                 unseenCount > 99 ? '99+' : '$unseenCount',

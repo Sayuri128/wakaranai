@@ -4,6 +4,7 @@ import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_layout.dart';
+import 'package:wakaranai/ui/common/service_viewer/gallery_layout_transition.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_list_tile.dart';
 import 'package:wakaranai/ui/common/title_status.dart';
 import 'package:wakaranai/ui/gallery_view_card.dart';
@@ -82,9 +83,11 @@ class GalleryItemsView {
     required this.itemCount,
     required this.itemAt,
     required this.activityLoader,
+    this.morph,
   });
 
   final GalleryLayout layout;
+  final GalleryMorph? morph;
   final int itemCount;
   final GalleryItem Function(int index) itemAt;
   final GalleryActivityLoader activityLoader;
@@ -111,17 +114,21 @@ class GalleryItemsView {
       itemCount: itemCount,
       itemBuilder: (BuildContext context, int index) {
         final GalleryItem item = itemAt(index);
-        return _InLibrarySelector(
-          uid: item.uid,
-          builder: (bool inLibrary) => GalleryViewCard(
-            cover: item.cover,
+        return GalleryMorphCell(
+          morph: morph,
+          index: index,
+          child: _InLibrarySelector(
             uid: item.uid,
-            title: item.title,
-            inLibrary: inLibrary,
-            compact: layout == GalleryLayout.compact,
-            headers: item.headers,
-            onLongPress: item.onLongPress,
-            onTap: item.onTap,
+            builder: (bool inLibrary) => GalleryViewCard(
+              cover: item.cover,
+              uid: item.uid,
+              title: item.title,
+              inLibrary: inLibrary,
+              compact: layout == GalleryLayout.compact,
+              headers: item.headers,
+              onLongPress: item.onLongPress,
+              onTap: item.onTap,
+            ),
           ),
         );
       },

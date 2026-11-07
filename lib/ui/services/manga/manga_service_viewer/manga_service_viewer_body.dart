@@ -11,6 +11,8 @@ import 'package:wakaranai/blocs/gallery_layout/gallery_layout_cubit.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_grid_skeleton.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_items_view.dart';
+import 'package:wakaranai/ui/common/service_viewer/gallery_layout.dart';
+import 'package:wakaranai/ui/common/service_viewer/gallery_layout_transition.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_loader.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/services/widgets/gallery_title_actions_sheet.dart';
@@ -71,32 +73,44 @@ class MangaServiceViewBody extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.center,
                 children: <Widget>[
-                  SmartRefresher(
-                    enablePullUp: true,
-                    enablePullDown: true,
-                    onRefresh: () async {
-                      await _cubit(context).refresh();
-                      refreshController.refreshCompleted();
-                    },
-                    footer: CustomFooter(
-                      builder: (BuildContext context, LoadStatus? mode) {
-                        return ServiceViewerLoader(cubit: _cubit(context));
-                      },
-                    ),
-                    controller: refreshController,
-                    onLoading: () async {
-                      if (state
-                          is ServiceViewLoading<
-                            MangaApiClient,
-                            MangaGalleryView
-                          >) {
-                        return;
-                      }
-                      if (initialized && !stateInitialized.loading) {
-                        unawaited(_cubit(context).getGallery());
-                      }
-                    },
-                    child: _buildGrid(context),
+                  GalleryLayoutTransition(
+                    layout: context.watch<GalleryLayoutCubit>().state,
+                    geometry: const ServiceGalleryGeometry(),
+                    position: () => refreshController.position,
+                    builder:
+                        (
+                          BuildContext context,
+                          GalleryLayout layout,
+                          GalleryMorph? morph,
+                        ) => SmartRefresher(
+                          enablePullUp: true,
+                          enablePullDown: true,
+                          onRefresh: () async {
+                            await _cubit(context).refresh();
+                            refreshController.refreshCompleted();
+                          },
+                          footer: CustomFooter(
+                            builder: (BuildContext context, LoadStatus? mode) {
+                              return ServiceViewerLoader(
+                                cubit: _cubit(context),
+                              );
+                            },
+                          ),
+                          controller: refreshController,
+                          onLoading: () async {
+                            if (state
+                                is ServiceViewLoading<
+                                  MangaApiClient,
+                                  MangaGalleryView
+                                >) {
+                              return;
+                            }
+                            if (initialized && !stateInitialized.loading) {
+                              unawaited(_cubit(context).getGallery());
+                            }
+                          },
+                          child: _buildGrid(context, layout, morph),
+                        ),
                   ),
                   if (initialized && stateInitialized.loading)
                     Positioned(
@@ -133,12 +147,17 @@ class MangaServiceViewBody extends StatelessWidget {
     );
   }
 
-  Widget _buildGrid(BuildContext context) {
+  Widget _buildGrid(
+    BuildContext context,
+    GalleryLayout layout,
+    GalleryMorph? morph,
+  ) {
     if (state is! ServiceViewInitialized<MangaApiClient, MangaGalleryView>) {
       return const SizedBox();
     }
     return GalleryItemsView(
-      layout: context.watch<GalleryLayoutCubit>().state,
+      layout: layout,
+      morph: morph,
       itemCount: stateInitialized.galleryViews.length,
       itemAt: (int index) =>
           _galleryItem(context, stateInitialized.galleryViews[index]),
