@@ -1432,6 +1432,116 @@ class S {
     );
   }
 
+  /// `Finished`
+  String get chapter_divider_finished {
+    return Intl.message(
+      'Finished',
+      name: 'chapter_divider_finished',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next`
+  String get chapter_divider_next {
+    return Intl.message(
+      'Next',
+      name: 'chapter_divider_next',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} pages`
+  String chapter_divider_pages(Object count) {
+    return Intl.message(
+      '$count pages',
+      name: 'chapter_divider_pages',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Downloaded`
+  String get chapter_divider_downloaded {
+    return Intl.message(
+      'Downloaded',
+      name: 'chapter_divider_downloaded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Loading the next chapter…`
+  String get chapter_divider_loading {
+    return Intl.message(
+      'Loading the next chapter…',
+      name: 'chapter_divider_loading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load the chapter`
+  String get chapter_divider_failed {
+    return Intl.message(
+      'Couldn\'t load the chapter',
+      name: 'chapter_divider_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You're all caught up`
+  String get chapter_divider_end_title {
+    return Intl.message(
+      'You\'re all caught up',
+      name: 'chapter_divider_end_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `There are no more chapters`
+  String get chapter_divider_end_message {
+    return Intl.message(
+      'There are no more chapters',
+      name: 'chapter_divider_end_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back to title`
+  String get chapter_divider_back {
+    return Intl.message(
+      'Back to title',
+      name: 'chapter_divider_back',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Previous chapter`
+  String get chapter_divider_previous {
+    return Intl.message(
+      'Previous chapter',
+      name: 'chapter_divider_previous',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Load previous chapter`
+  String get chapter_divider_load_previous {
+    return Intl.message(
+      'Load previous chapter',
+      name: 'chapter_divider_load_previous',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `New version {version} available`
   String settings_download_latest_release(Object version) {
     return Intl.message(

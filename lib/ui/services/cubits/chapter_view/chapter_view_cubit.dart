@@ -5,7 +5,6 @@ import 'dart:math';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/pages/pages.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -21,6 +20,9 @@ import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/repositories/shared_pref/default_manga_reader_mode_repository/default_manga_reader_repository.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
+import 'package:wakaranai/ui/services/cubits/chapter_view/reader_strip.dart';
+import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
+import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/utils/page_image.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
@@ -76,34 +78,75 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
 
     await chapterActivityRepository
         .createUpdateBy<$ChapterActivityTableTable, String>(
-      activity,
-      by: (tbl) => tbl.uid,
-      where: (tbl) => tbl.uid,
-    );
+          activity,
+          by: (tbl) => tbl.uid,
+          where: (tbl) => tbl.uid,
+        );
   }
 
   bool isLocalPages(Pages pages) =>
       pages.value.isNotEmpty && isLocalPagePath(pages.value.first);
 
-  Future<({Pages pages, Map<String, String> headers})> _loadPages(
-      String uid, Map<String, dynamic>? data) async {
-    final DownloadDomain? download = await downloadRepository.getByUid(uid);
+  Future<LoadedChapter> _loadChapter(Chapter chapter) async {
+    final DownloadDomain? download = await downloadRepository.getByUid(
+      chapter.uid,
+    );
     if (download != null &&
         download.status == DownloadStatus.done &&
         download.totalPages > 0) {
-      return (
+      return LoadedChapter(
+        chapter: chapter,
         pages: Pages(
-          chapterUid: uid,
+          chapterUid: chapter.uid,
           value: DownloadManagerCubit.localPagePaths(download),
         ),
         headers: <String, String>{},
       );
     }
 
-    final Pages pages = await apiClient.getPages(uid: uid, data: data);
-    final Map<String, String> headers = await apiClient
-        .getImageHeaders(uid: pages.chapterUid, data: <String, dynamic>{});
-    return (pages: pages, headers: headers);
+    final Pages pages = await apiClient.getPages(
+      uid: chapter.uid,
+      data: chapter.data,
+    );
+    final Map<String, String> headers = await apiClient.getImageHeaders(
+      uid: pages.chapterUid,
+      data: <String, dynamic>{},
+    );
+    return LoadedChapter(chapter: chapter, pages: pages, headers: headers);
+  }
+
+  Future<void> _writeChapterActivity(
+    ConcreteDataDomain? concreteData,
+    Chapter chapter, {
+    required int readPages,
+    required int totalPages,
+  }) async {
+    if (concreteData == null) {
+      return;
+    }
+    await chapterActivityRepository
+        .createUpdateBy<$ChapterActivityTableTable, String>(
+          ChapterActivityDomain(
+            uid: chapter.uid,
+            concreteId: concreteData.id,
+            title: chapter.title,
+            data: jsonEncode(chapter.data),
+            timestamp: chapter.timestamp,
+            readPages: readPages,
+            id: 0,
+            totalPages: totalPages,
+            createdAt: DateTime.now(),
+          ),
+          by: (tbl) => tbl.uid,
+          where: (tbl) => tbl.uid,
+        );
+  }
+
+  ({bool previous, bool next}) _neighbours(ChaptersGroup group, String uid) {
+    return (
+      previous: chapterBefore(group.elements, uid) != null,
+      next: chapterAfter(group.elements, uid) != null,
+    );
   }
 
   Future<void> init(
@@ -124,71 +167,48 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
         logger.w(s);
       }
 
-      final ({Pages pages, Map<String, String> headers}) loaded =
-          await _loadPages(data.chapter.uid, data.chapter.data);
-
-      final List<Pages> pagesS = <Pages>[loaded.pages];
-
-      final int chapterIndex = data.group.elements.indexWhere(
-          (Chapter element) => element.uid == pagesS.last.chapterUid);
-      final Pages currentPages = pagesS.last;
-
-      final bool canGetPreviousPages = (chapterIndex - 1) >= 0;
-      final bool canGetNextPages =
-          (chapterIndex + 1) < data.group.elements.length;
-
-      final concreteData = await concreteDataRepository.getByUid(
-        data.concreteView.uid,
+      final LoadedChapter loaded = await _loadChapter(data.chapter);
+      final ({bool previous, bool next}) neighbours = _neighbours(
+        data.group,
+        loaded.uid,
       );
 
-      if (concreteData != null) {
-        await chapterActivityRepository
-            .createUpdateBy<$ChapterActivityTableTable, String>(
-          ChapterActivityDomain(
-            uid: data.chapter.uid,
-            concreteId: concreteData.id,
-            title: data.chapter.title,
-            data: jsonEncode(data.chapter.data),
-            timestamp: data.chapter.timestamp,
-            readPages: initialPage,
-            id: 0,
-            totalPages: currentPages.value.length,
-            createdAt: DateTime.now(),
-          ),
-          by: (tbl) => tbl.uid,
-          where: (tbl) => tbl.uid,
-        );
-      }
+      final ConcreteDataDomain? concreteData = await concreteDataRepository
+          .getByUid(data.concreteView.uid);
+
+      await _writeChapterActivity(
+        concreteData,
+        data.chapter,
+        readPages: initialPage,
+        totalPages: loaded.pageCount,
+      );
 
       emit(
         ChapterViewInitialized(
           data: data,
-          pages: pagesS,
+          chapters: <LoadedChapter>[loaded],
           headers: loaded.headers,
-          currentPages: currentPages,
+          currentPages: loaded.pages,
           currentPage: max(1, initialPage),
           concreteData: concreteData,
-          totalPages: currentPages.value.length,
+          totalPages: loaded.pageCount,
           controlsVisible: true,
           controlsEnabled: false,
-          mode: mode ??
+          mode:
+              mode ??
               (settingsCubit.state is SettingsInitialized
                   ? (settingsCubit.state as SettingsInitialized).defaultMode
                   : ChapterViewMode.leftToRight),
           group: data.group,
-          canGetPreviousPages: canGetPreviousPages,
-          canGetNextPages: canGetNextPages,
+          canGetPreviousPages: neighbours.previous,
+          canGetNextPages: neighbours.next,
         ),
       );
-      pagesLoaded?.call(initialPage, currentPages.value.length);
+      pagesLoaded?.call(initialPage, loaded.pageCount);
     } catch (e, s) {
       logger.e(e);
       logger.e(s);
-      emit(
-        ChapterViewError(
-          message: e.toString(),
-        ),
-      );
+      emit(ChapterViewError(message: e.toString()));
     }
   }
 
@@ -207,81 +227,176 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     }
   }
 
-  Future<void> _loadAdjacentChapter(ChapterViewInitialized state,
-      {required bool next, VoidCallback? onDone}) async {
-    final int chapterIndex = state.group.elements.indexWhere(
-            (Chapter element) => element.uid == state.currentPages.chapterUid) +
-        (next ? 1 : -1);
+  Future<void> _loadAdjacentChapter(
+    ChapterViewInitialized state, {
+    required bool next,
+    VoidCallback? onDone,
+  }) async {
+    final String currentUid = state.currentPages.chapterUid;
+    final Chapter? target = next
+        ? chapterAfter(state.group.elements, currentUid)
+        : chapterBefore(state.group.elements, currentUid);
+    if (target == null) {
+      emit(state);
+      return;
+    }
 
-    final bool canGetPreviousPages = chapterIndex > 0;
-    final bool canGetNextPages = chapterIndex < state.group.elements.length - 1;
-
-    final chapter = state.group.elements[chapterIndex];
-
-    Pages? optionalLoadedPages = state.pages
-        .firstWhereOrNull((Pages element) => element.chapterUid == chapter.uid);
-
-    final List<Pages> newPages = <Pages>[...state.pages];
-
-    Map<String, String>? loadedHeaders;
-
-    if (optionalLoadedPages == null) {
-      final ({Pages pages, Map<String, String> headers}) loaded =
-          await _loadPages(
-        state.group.elements[chapterIndex].uid,
-        state.group.elements[chapterIndex].data,
-      );
-      optionalLoadedPages = loaded.pages;
-      loadedHeaders = loaded.headers;
+    LoadedChapter? loaded = state.loadedChapter(target.uid);
+    final List<LoadedChapter> chapters = <LoadedChapter>[...state.chapters];
+    if (loaded == null) {
+      loaded = await _loadChapter(target);
       if (next) {
-        newPages.add(optionalLoadedPages);
+        chapters.add(loaded);
       } else {
-        newPages.insert(0, optionalLoadedPages);
+        chapters.insert(0, loaded);
       }
     }
 
     await _flushActivity();
+    final int landingPage = next ? 1 : loaded.pageCount;
+    await _writeChapterActivity(
+      state.concreteData,
+      target,
+      readPages: landingPage,
+      totalPages: loaded.pageCount,
+    );
 
-    final concreteData = state.concreteData;
-    if (concreteData != null) {
-      await chapterActivityRepository
-          .createUpdateBy<$ChapterActivityTableTable, String>(
-        ChapterActivityDomain(
-          uid: chapter.uid,
-          concreteId: concreteData.id,
-          readPages: next ? 1 : optionalLoadedPages.value.length,
-          id: 0,
-          totalPages: optionalLoadedPages.value.length,
-          title: chapter.title,
-          timestamp: chapter.timestamp,
-          data: jsonEncode(chapter.data),
-          createdAt: concreteData.createdAt,
-        ),
-        by: (tbl) => tbl.uid,
-        where: (tbl) => tbl.uid,
-      );
-    }
+    final ({bool previous, bool next}) neighbours = _neighbours(
+      state.group,
+      target.uid,
+    );
     emit(
       state.copyWith(
-        canGetNextPages: canGetNextPages,
-        canGetPreviousPages: canGetPreviousPages,
-        pages: newPages,
-        totalPages: optionalLoadedPages.value.length,
-        currentPage: next ? 1 : optionalLoadedPages.value.length,
-        currentPages: optionalLoadedPages,
-        headers: loadedHeaders ??
-            (isLocalPages(optionalLoadedPages)
-                ? <String, String>{}
-                : await apiClient.getImageHeaders(
-                    uid: optionalLoadedPages.chapterUid, data: {})),
+        canGetNextPages: neighbours.next,
+        canGetPreviousPages: neighbours.previous,
+        chapters: chapters,
+        totalPages: loaded.pageCount,
+        currentPage: landingPage,
+        currentPages: loaded.pages,
+        headers: loaded.headers,
       ),
     );
 
     onDone?.call();
   }
 
-  void onPageChanged(int index, Pages currentPages,
-      {void Function(Pages)? onDone}) {
+  Future<void> loadNextInStrip() async {
+    final ChapterViewState current = state;
+    if (current is! ChapterViewInitialized ||
+        current.nextLoad == ChapterLoad.loading) {
+      return;
+    }
+    final Chapter? target = chapterAfter(
+      current.group.elements,
+      current.chapters.last.uid,
+    );
+    if (target == null) {
+      return;
+    }
+    emit(current.copyWith(nextLoad: ChapterLoad.loading));
+    try {
+      final LoadedChapter loaded = await _loadChapter(target);
+      final ChapterViewState latest = state;
+      if (latest is! ChapterViewInitialized) {
+        return;
+      }
+      emit(
+        latest.copyWith(
+          chapters: <LoadedChapter>[...latest.chapters, loaded],
+          nextLoad: ChapterLoad.idle,
+        ),
+      );
+    } catch (e, s) {
+      logger.e(e);
+      logger.e(s);
+      final ChapterViewState latest = state;
+      if (latest is ChapterViewInitialized) {
+        emit(latest.copyWith(nextLoad: ChapterLoad.failed));
+      }
+    }
+  }
+
+  Future<bool> loadPreviousInStrip() async {
+    final ChapterViewState current = state;
+    if (current is! ChapterViewInitialized ||
+        current.previousLoad == ChapterLoad.loading) {
+      return false;
+    }
+    final Chapter? target = chapterBefore(
+      current.group.elements,
+      current.chapters.first.uid,
+    );
+    if (target == null) {
+      return false;
+    }
+    emit(current.copyWith(previousLoad: ChapterLoad.loading));
+    try {
+      final LoadedChapter loaded = await _loadChapter(target);
+      final ChapterViewState latest = state;
+      if (latest is! ChapterViewInitialized) {
+        return false;
+      }
+      emit(
+        latest.copyWith(
+          chapters: <LoadedChapter>[loaded, ...latest.chapters],
+          previousLoad: ChapterLoad.idle,
+        ),
+      );
+      return true;
+    } catch (e, s) {
+      logger.e(e);
+      logger.e(s);
+      final ChapterViewState latest = state;
+      if (latest is ChapterViewInitialized) {
+        emit(latest.copyWith(previousLoad: ChapterLoad.failed));
+      }
+      return false;
+    }
+  }
+
+  void onStripPosition(String chapterUid, int page) {
+    final ChapterViewState current = state;
+    if (current is! ChapterViewInitialized) {
+      return;
+    }
+    if (chapterUid == current.currentPages.chapterUid) {
+      onPageChanged(page, current.currentPages);
+      return;
+    }
+    final LoadedChapter? loaded = current.loadedChapter(chapterUid);
+    if (loaded == null) {
+      return;
+    }
+    unawaited(_flushActivity());
+    final ({bool previous, bool next}) neighbours = _neighbours(
+      current.group,
+      chapterUid,
+    );
+    emit(
+      current.copyWith(
+        currentPages: loaded.pages,
+        headers: loaded.headers,
+        currentPage: page,
+        totalPages: loaded.pageCount,
+        canGetNextPages: neighbours.next,
+        canGetPreviousPages: neighbours.previous,
+      ),
+    );
+    unawaited(
+      _writeChapterActivity(
+        current.concreteData,
+        loaded.chapter,
+        readPages: page,
+        totalPages: loaded.pageCount,
+      ),
+    );
+  }
+
+  void onPageChanged(
+    int index,
+    Pages currentPages, {
+    void Function(Pages)? onDone,
+  }) {
     if (state is! ChapterViewInitialized) return;
     if (currentPages.chapterUid != stateInitialized.currentPages.chapterUid) {
       return;
@@ -296,7 +411,8 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     final concreteData = stateInitialized.concreteData;
     if (concreteData != null && stateInitialized.currentPage < index) {
       final chapter = stateInitialized.group.elements.firstWhere(
-          (Chapter element) => element.uid == currentPages.chapterUid);
+        (Chapter element) => element.uid == currentPages.chapterUid,
+      );
 
       _scheduleActivityWrite(
         ChapterActivityDomain(
@@ -324,8 +440,11 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
 
   void onChangeVisibility() {
     if (state is ChapterViewInitialized) {
-      emit((state as ChapterViewInitialized).copyWith(
-          controlsVisible: !(state as ChapterViewInitialized).controlsVisible));
+      emit(
+        (state as ChapterViewInitialized).copyWith(
+          controlsVisible: !(state as ChapterViewInitialized).controlsVisible,
+        ),
+      );
     }
   }
 
@@ -340,13 +459,13 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
     if (state is ChapterViewInitialized) {
       defaultMangaReaderRepository
           .setDefaultMangaReaderMode(
-        mode,
-        (state as ChapterViewInitialized).data.configInfo.uid,
-        (state as ChapterViewInitialized).data.concreteView.uid,
-      )
+            mode,
+            (state as ChapterViewInitialized).data.configInfo.uid,
+            (state as ChapterViewInitialized).data.concreteView.uid,
+          )
           .catchError((e) {
-        logger.e(e);
-      });
+            logger.e(e);
+          });
 
       emit((state as ChapterViewInitialized).copyWith(mode: mode));
     }

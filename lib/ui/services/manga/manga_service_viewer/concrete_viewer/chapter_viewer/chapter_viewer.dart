@@ -39,6 +39,8 @@ import 'package:wakaranai/utils/page_image.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_cubit.dart';
 import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dart';
+import 'package:wakaranai/ui/services/cubits/chapter_view/reader_strip.dart';
+import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_divider.dart';
 import 'package:wakaranai/ui/services/cubits/page_translation/page_translation_cubit.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/translated_page.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/translation_languages_sheet.dart';
@@ -220,6 +222,13 @@ class _ChapterViewerState extends State<ChapterViewer>
   double? _seekOverride;
   ChapterViewMode? _lastMode;
   int _lastPage = -1;
+  String? _lastChapterUid;
+
+  ReaderStrip? _strip;
+  List<LoadedChapter>? _stripChapters;
+  ChapterLoad? _stripNextLoad;
+  ChapterLoad? _stripPreviousLoad;
+  bool _restoringAnchor = false;
 
   @override
   void initState() {
@@ -772,28 +781,39 @@ class _ChapterViewerState extends State<ChapterViewer>
 
   Widget _buildPage() {
     return BlocConsumer<ChapterViewCubit, ChapterViewState>(
-      listenWhen: (ChapterViewState previous, ChapterViewState current) =>
-          current is ChapterViewInitialized &&
-          (!_initialized ||
-              (previous is ChapterViewInitialized &&
-                  (current.mode != previous.mode ||
-                      current.currentPage != previous.currentPage))),
+      listenWhen: (ChapterViewState previous, ChapterViewState current) {
+        if (_chapterPrepended(previous, current)) {
+          _keepPositionAfterPrepend(current as ChapterViewInitialized);
+        }
+        return current is ChapterViewInitialized &&
+            (!_initialized ||
+                (previous is ChapterViewInitialized &&
+                    (current.mode != previous.mode ||
+                        current.currentPage != previous.currentPage ||
+                        current.currentPages.chapterUid !=
+                            previous.currentPages.chapterUid)));
+      },
       listener: (BuildContext context, ChapterViewState state) {
         if (state is ChapterViewInitialized) {
           final bool isInit = !_initialized;
           final bool modeChanged = _lastMode != null && state.mode != _lastMode;
+          final bool chapterChanged =
+              _lastChapterUid != null &&
+              state.currentPages.chapterUid != _lastChapterUid;
           _initialized = true;
 
           if (isInit || modeChanged) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (state.mode == ChapterViewMode.webtoon) {
                 _itemScrollController.jumpTo(
-                  index: max(0, state.currentPage - 1),
+                  index: _stripIndexOfCurrentPage(state, state.currentPage),
                 );
               } else {
                 _pageController.jumpToPage(max(0, state.currentPage - 1));
               }
             });
+            _animateSliderTo(state, animate: false);
+          } else if (chapterChanged) {
             _animateSliderTo(state, animate: false);
           } else if (state.currentPage != _lastPage) {
             _animateSliderTo(state, animate: _seekOverride == null);
@@ -801,6 +821,7 @@ class _ChapterViewerState extends State<ChapterViewer>
 
           _lastMode = state.mode;
           _lastPage = state.currentPage;
+          _lastChapterUid = state.currentPages.chapterUid;
         }
       },
       builder: (BuildContext context, ChapterViewState state) {
@@ -1187,11 +1208,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                 break;
               case ChapterViewMode.webtoon:
                 _itemScrollController.jumpTo(
-                  index: min(
-                    dragged.toInt(),
-                    state.currentPages.value.length - 1,
-                  ),
-                  alignment: dragged == state.totalPages.toDouble() - 1 ? 1 : 0,
+                  index: _stripIndexOfCurrentPage(state, dragged.toInt()),
                 );
                 break;
             }
@@ -1346,7 +1363,7 @@ class _ChapterViewerState extends State<ChapterViewer>
   static const double _minSelectionSide = 24;
   static const int _translateAhead = 2;
   static const double _autoAdvanceOverscroll = 96;
-  static const double _chapterEdgeDistance = 500;
+  static const int _preloadNextWithin = 6;
   static const double _readingLine = 0.5;
   static const double _edgeTolerance = 0.01;
 
@@ -1376,61 +1393,172 @@ class _ChapterViewerState extends State<ChapterViewer>
     return false;
   }
 
-  void _updateChapterEdgeButtons(ScrollMetrics metrics) {
-    final bool nearEnd =
-        metrics.pixels >= metrics.maxScrollExtent - _chapterEdgeDistance;
-    final bool nearStart =
-        metrics.pixels <= metrics.minScrollExtent + _chapterEdgeDistance;
-    if (nearEnd == _canLoadNext && nearStart == _canLoadPrevious) {
-      return;
+  ReaderStrip _stripFor(ChapterViewInitialized state) {
+    final ReaderStrip? cached = _strip;
+    if (cached != null &&
+        identical(_stripChapters, state.chapters) &&
+        _stripNextLoad == state.nextLoad &&
+        _stripPreviousLoad == state.previousLoad) {
+      return cached;
     }
-    setState(() {
-      _canLoadNext = nearEnd;
-      _canLoadPrevious = nearStart;
-    });
+    final ReaderStrip strip = ReaderStrip.build(
+      chapters: state.chapters,
+      order: state.group.elements,
+      nextLoad: state.nextLoad,
+      previousLoad: state.previousLoad,
+    );
+    _strip = strip;
+    _stripChapters = state.chapters;
+    _stripNextLoad = state.nextLoad;
+    _stripPreviousLoad = state.previousLoad;
+    return strip;
+  }
+
+  int _stripIndexOfCurrentPage(ChapterViewInitialized state, int page) {
+    final ReaderStrip strip = _stripFor(state);
+    final int pageIndex = (page - 1).clamp(0, max(0, state.totalPages - 1));
+    return strip.indexOfPage(state.currentPages.chapterUid, pageIndex) ?? 0;
   }
 
   void _onWebtoonPositionsChanged() {
     final ChapterViewState state = _chapterViewCubit.state;
-    if (state is! ChapterViewInitialized ||
+    if (_restoringAnchor ||
+        state is! ChapterViewInitialized ||
         state.mode != ChapterViewMode.webtoon) {
       return;
     }
-    final int? index = _webtoonPageIndex(
-      _itemPositionsListener.itemPositions.value,
-      state.currentPages.value.length,
-    );
-    if (index == null || index + 1 == state.currentPage) {
+    final ReaderStrip strip = _stripFor(state);
+    final Iterable<ItemPosition> positions =
+        _itemPositionsListener.itemPositions.value;
+    _maybeLoadNextChapter(state, strip, positions);
+
+    final ReaderStripPage? page = _readingPage(strip, positions);
+    if (page == null) {
       return;
     }
-    _prefetchAround(state, index);
-    _chapterViewCubit.onPageChanged(index + 1, state.currentPages);
+    final bool samePage =
+        page.chapter.uid == state.currentPages.chapterUid &&
+        page.pageIndex + 1 == state.currentPage;
+    if (samePage) {
+      return;
+    }
+    _chapterViewCubit.onStripPosition(page.chapter.uid, page.pageIndex + 1);
+    final ChapterViewState updated = _chapterViewCubit.state;
+    if (updated is ChapterViewInitialized) {
+      _prefetchAround(updated, page.pageIndex);
+    }
   }
 
-  int? _webtoonPageIndex(Iterable<ItemPosition> positions, int itemCount) {
-    int? firstVisible;
-    int? atReadingLine;
+  void _maybeLoadNextChapter(
+    ChapterViewInitialized state,
+    ReaderStrip strip,
+    Iterable<ItemPosition> positions,
+  ) {
+    if (state.nextLoad != ChapterLoad.idle || strip.length == 0) {
+      return;
+    }
+    final ReaderStripItem last = strip.items.last;
+    if (last is! ReaderStripDivider || last.isEnd) {
+      return;
+    }
+    final int threshold = strip.length - 1 - _preloadNextWithin;
+    final bool nearEnd = positions.any(
+      (ItemPosition position) => position.index >= threshold,
+    );
+    if (nearEnd) {
+      unawaited(_chapterViewCubit.loadNextInStrip());
+    }
+  }
+
+  ReaderStripPage? _readingPage(
+    ReaderStrip strip,
+    Iterable<ItemPosition> positions,
+  ) {
+    ReaderStripPage? atReadingLine;
+    ReaderStripPage? lastAbove;
+    int lastAboveIndex = -1;
+    ReaderStripPage? firstBelow;
+    int firstBelowIndex = strip.length;
     for (final ItemPosition position in positions) {
-      if (position.index >= itemCount ||
+      if (position.index >= strip.length ||
           position.itemTrailingEdge <= 0 ||
           position.itemLeadingEdge >= 1) {
         continue;
       }
-      final bool lastPageFullyScrolled =
-          position.index == itemCount - 1 &&
-          position.itemTrailingEdge <= 1 + _edgeTolerance;
-      if (lastPageFullyScrolled) {
-        return position.index;
+      final ReaderStripItem item = strip.items[position.index];
+      if (item is! ReaderStripPage) {
+        continue;
       }
       if (position.itemLeadingEdge <= _readingLine &&
           position.itemTrailingEdge > _readingLine) {
-        atReadingLine = position.index;
-      }
-      if (firstVisible == null || position.index < firstVisible) {
-        firstVisible = position.index;
+        atReadingLine = item;
+      } else if (position.itemTrailingEdge <= _readingLine + _edgeTolerance) {
+        if (position.index > lastAboveIndex) {
+          lastAboveIndex = position.index;
+          lastAbove = item;
+        }
+      } else if (position.index < firstBelowIndex) {
+        firstBelowIndex = position.index;
+        firstBelow = item;
       }
     }
-    return atReadingLine ?? firstVisible;
+    return atReadingLine ?? lastAbove ?? firstBelow;
+  }
+
+  bool _chapterPrepended(ChapterViewState previous, ChapterViewState current) {
+    return previous is ChapterViewInitialized &&
+        current is ChapterViewInitialized &&
+        current.mode == ChapterViewMode.webtoon &&
+        current.chapters.length > previous.chapters.length &&
+        current.chapters.first.uid != previous.chapters.first.uid;
+  }
+
+  ({String key, double leadingEdge})? _currentAnchor(ReaderStrip strip) {
+    ItemPosition? anchor;
+    for (final ItemPosition position
+        in _itemPositionsListener.itemPositions.value) {
+      if (position.index >= strip.length ||
+          strip.items[position.index] is! ReaderStripPage) {
+        continue;
+      }
+      if (anchor == null || position.index < anchor.index) {
+        anchor = position;
+      }
+    }
+    if (anchor == null) {
+      return null;
+    }
+    return (
+      key: strip.items[anchor.index].key,
+      leadingEdge: anchor.itemLeadingEdge,
+    );
+  }
+
+  void _keepPositionAfterPrepend(ChapterViewInitialized state) {
+    final ReaderStrip? oldStrip = _strip;
+    if (oldStrip == null) {
+      return;
+    }
+    final ({String key, double leadingEdge})? anchor = _currentAnchor(oldStrip);
+    if (anchor == null) {
+      return;
+    }
+    final int? index = _stripFor(state).indexOfKey(anchor.key);
+    if (index == null) {
+      return;
+    }
+    _restoringAnchor = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _itemScrollController.isAttached) {
+        _itemScrollController.jumpTo(
+          index: index,
+          alignment: anchor.leadingEdge,
+        );
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _restoringAnchor = false;
+      });
+    });
   }
 
   double _webtoonCacheExtent(BuildContext context) =>
@@ -1535,46 +1663,70 @@ class _ChapterViewerState extends State<ChapterViewer>
           ),
         );
       case ChapterViewMode.webtoon:
-        return NotificationListener<ScrollUpdateNotification>(
-          onNotification: (ScrollUpdateNotification notification) {
-            _maybeAutoAdvance(notification, state);
-            _updateChapterEdgeButtons(notification.metrics);
-            return false;
-          },
-          child: ScrollablePositionedList.builder(
-            itemScrollController: _itemScrollController,
-            itemPositionsListener: _itemPositionsListener,
-            initialScrollIndex: max(0, state.currentPage - 1),
-            physics: const AlwaysScrollableScrollPhysics(
-              parent: BouncingScrollPhysics(),
-            ),
-            itemCount: state.currentPages.value.length,
-            minCacheExtent: _webtoonCacheExtent(context),
-            padding: EdgeInsets.zero,
-            itemBuilder: (BuildContext context, int index) => TranslatedPage(
-              key: _translatedPageKey(state.currentPages.value[index]),
-              cubit: _translationCubit,
-              path: state.currentPages.value[index],
-              child: PageImage(
-                path: state.currentPages.value[index],
-                headers: state.headers,
-                errorBuilder: (BuildContext context, VoidCallback retry) =>
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.5,
-                      child: _buildPageError(retry),
-                    ),
-                loadingBuilder: (BuildContext context) => SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  child: Center(
-                    child: CircularProgressIndicator(color: AppColors.primary),
-                  ),
-                ),
-              ),
-            ),
-          ),
+        return _buildWebtoonStrip(state, context);
+    }
+  }
+
+  Widget _buildWebtoonStrip(
+    ChapterViewInitialized state,
+    BuildContext context,
+  ) {
+    final ReaderStrip strip = _stripFor(state);
+    return ScrollablePositionedList.builder(
+      itemScrollController: _itemScrollController,
+      itemPositionsListener: _itemPositionsListener,
+      initialScrollIndex: _stripIndexOfCurrentPage(state, state.currentPage),
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
+      itemCount: strip.length,
+      minCacheExtent: _webtoonCacheExtent(context),
+      padding: EdgeInsets.zero,
+      itemBuilder: (BuildContext context, int index) =>
+          _buildStripItem(context, strip.items[index]),
+    );
+  }
+
+  Widget _buildStripItem(BuildContext context, ReaderStripItem item) {
+    switch (item) {
+      case ReaderStripPage():
+        return _buildWebtoonPage(context, item);
+      case ReaderStripDivider():
+        return ChapterDivider(
+          divider: item,
+          onRetry: () => unawaited(_chapterViewCubit.loadNextInStrip()),
+          onBack: () => Navigator.of(context).pop(),
+        );
+      case ReaderStripPrevious():
+        return PreviousChapterCard(
+          item: item,
+          onLoad: () => unawaited(_chapterViewCubit.loadPreviousInStrip()),
         );
     }
+  }
+
+  Widget _buildWebtoonPage(BuildContext context, ReaderStripPage item) {
+    final String path = item.path;
+    return TranslatedPage(
+      key: _translatedPageKey(path),
+      cubit: _translationCubit,
+      path: path,
+      child: PageImage(
+        path: path,
+        headers: item.chapter.headers,
+        errorBuilder: (BuildContext context, VoidCallback retry) => SizedBox(
+          height: MediaQuery.of(context).size.height * 0.5,
+          child: _buildPageError(retry),
+        ),
+        loadingBuilder: (BuildContext context) => SizedBox(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildPageError(VoidCallback onRetry) {
@@ -1638,6 +1790,9 @@ class _ChapterViewerState extends State<ChapterViewer>
     BuildContext context,
     ChapterViewInitialized state,
   ) {
+    if (state.mode == ChapterViewMode.webtoon) {
+      return const SizedBox.shrink();
+    }
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 350),
       child:
