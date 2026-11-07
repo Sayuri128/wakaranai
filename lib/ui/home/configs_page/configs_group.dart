@@ -3,6 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wakaranai/ui/widgets/text_input_sheet.dart';
+import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
+import 'package:wakaranai/services/configs_service/extension_instances.dart';
+import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
@@ -37,12 +41,14 @@ class ConfigsGroup extends StatefulWidget {
       {super.key,
       required this.title,
       required this.remoteConfigs,
-      this.listingStatusOf = _alwaysAvailable});
+      this.listingStatusOf = _alwaysAvailable,
+      this.onInstancesChanged});
 
   final String title;
   final List<BaseExtension> remoteConfigs;
   final ExtensionListingStatus Function(BaseExtension extension)
       listingStatusOf;
+  final VoidCallback? onInstancesChanged;
 
   static ExtensionListingStatus _alwaysAvailable(BaseExtension extension) {
     return ExtensionListingStatus.available;
@@ -117,7 +123,7 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
     }
     return () => unawaited(_showExtensionActions(
           context,
-          extension.config,
+          extension,
           allowSettings: !status.isDisabled,
         ));
   }
@@ -273,9 +279,14 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
 
   Future<void> _showExtensionActions(
     BuildContext context,
-    ConfigInfo config, {
+    BaseExtension extension, {
     required bool allowSettings,
   }) async {
+    final ConfigInfo config = extension.config;
+    final bool isInstance =
+        extension is ExtensionDomain && extension.isInstance;
+    final bool canAddInstance =
+        config.multiInstance && !isInstance && allowSettings;
     final bool showSettings = allowSettings && hasExtensionSettings(config);
     final bool showSession = config.protectorConfig != null;
     final bool showClearData = await _hasStoredData(context, config);
@@ -283,7 +294,11 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
     if (!context.mounted) {
       return;
     }
-    if (!showSettings && !showSession && !showClearData && !installed) {
+    if (!showSettings &&
+        !showSession &&
+        !showClearData &&
+        !installed &&
+        !canAddInstance) {
       return;
     }
     await showActionSheet(
@@ -294,6 +309,24 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            if (canAddInstance)
+              ActionSheetRow(
+                label: S.current.extension_instance_add,
+                icon: Icons.add_rounded,
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  unawaited(_addInstance(context, extension));
+                },
+              ),
+            if (isInstance)
+              ActionSheetRow(
+                label: S.current.extension_instance_rename,
+                icon: Icons.drive_file_rename_outline_rounded,
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  unawaited(_renameInstance(context, extension));
+                },
+              ),
             if (showSettings) _buildSettingsRow(context, sheetContext, config),
             if (showSession)
               ActionSheetRow(
@@ -393,6 +426,7 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
       extensionRepository: context.read<ExtensionRepository>(),
     );
     await ProtectorStorageService().clearForConfig(config);
+    widget.onInstancesChanged?.call();
     if (!context.mounted) {
       return;
     }
@@ -400,6 +434,88 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
       context: context,
       message: S.current.extension_uninstall_done(name),
     );
+  }
+
+  ExtensionInstances _instances(BuildContext context) {
+    return ExtensionInstances(repository: context.read<ExtensionRepository>());
+  }
+
+  Future<String> _scriptFor(
+    BuildContext context,
+    BaseExtension extension,
+  ) async {
+    if (extension is ExtensionDomain) {
+      return extension.sourceCode;
+    }
+    final RemoteConfig remote = extension as RemoteConfig;
+    final ExtensionDomain? cached =
+        await context.read<ExtensionRepository>().getByUid(remote.config.uid);
+    if (cached != null && cached.revision == remote.revision) {
+      return cached.sourceCode;
+    }
+    final RemoteConfigsCubit configs = context.read<RemoteConfigsCubit>();
+    return (await configs.configService.getRemoteScript(remote.path)).script;
+  }
+
+  Future<void> _addInstance(
+    BuildContext context,
+    BaseExtension extension,
+  ) async {
+    final ExtensionInstances instances = _instances(context);
+    final String? name = await showTextInputSheet(
+      context,
+      title: S.current.extension_instance_add,
+      initialValue: await instances.nextName(extension.config),
+      confirmLabel: S.current.extension_instance_add_confirm,
+    );
+    if (name == null || !context.mounted) {
+      return;
+    }
+    try {
+      final String? revision =
+          extension is RemoteConfig ? extension.revision : null;
+      await instances.create(
+        base: extension.config,
+        revision: revision ?? (extension as ExtensionDomain).revision,
+        name: name,
+        script: () => _scriptFor(context, extension),
+      );
+      widget.onInstancesChanged?.call();
+      if (context.mounted) {
+        SnackBars.showSnackBar(
+          context: context,
+          message: S.current.extension_instance_added(name),
+        );
+      }
+    } catch (error) {
+      if (context.mounted) {
+        SnackBars.showErrorSnackBar(
+          context: context,
+          error: S.current.extension_instance_add_failed,
+        );
+      }
+    }
+  }
+
+  Future<void> _renameInstance(
+    BuildContext context,
+    BaseExtension extension,
+  ) async {
+    if (extension is! ExtensionDomain) {
+      return;
+    }
+    final ExtensionInstances instances = _instances(context);
+    final String? name = await showTextInputSheet(
+      context,
+      title: S.current.extension_instance_rename,
+      initialValue: extension.config.name,
+      confirmLabel: S.current.extension_instance_rename_confirm,
+    );
+    if (name == null) {
+      return;
+    }
+    await instances.rename(extension, name);
+    widget.onInstancesChanged?.call();
   }
 
   Future<void> _clearStoredData(BuildContext context, ConfigInfo config) async {

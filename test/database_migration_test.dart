@@ -456,4 +456,29 @@ void main() {
     expect(await _userVersion(replayed), replayed.schemaVersion);
     await replayed.close();
   });
+
+  test('upgrade from v17 adds the extension base uid column', () async {
+    final Database raw = sqlite3.openInMemory();
+    addTearDown(raw.dispose);
+
+    final WakaranaiDatabase first = await _open(raw);
+    await first.close();
+
+    raw.execute('ALTER TABLE extension_table DROP COLUMN base_uid;');
+    raw.execute('PRAGMA user_version = 17;');
+
+    final WakaranaiDatabase second = await _open(raw);
+    expect(await _userVersion(second), second.schemaVersion);
+    final List<QueryRow> columns = await second
+        .customSelect("SELECT name FROM pragma_table_info('extension_table') "
+            "WHERE name = 'base_uid';")
+        .get();
+    expect(columns, hasLength(1));
+    await second.close();
+
+    raw.execute('PRAGMA user_version = 17;');
+    final WakaranaiDatabase replayed = await _open(raw);
+    expect(await _userVersion(replayed), replayed.schemaVersion);
+    await replayed.close();
+  });
 }

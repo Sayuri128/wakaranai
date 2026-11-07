@@ -25,4 +25,6 @@ class ExtensionTable extends BaseTable {
   TextColumn get configJson => text().nullable()();
 
   TextColumn get revision => text().nullable()();
+
+  TextColumn get baseUid => text().nullable()();
 }

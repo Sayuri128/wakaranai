@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/services/configs_service/extension_instances.dart';
+import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
@@ -27,11 +30,41 @@ class ConfigPage extends StatefulWidget {
 class _ConfigPageState extends State<ConfigPage> {
   final ConfigsFilterPreferences _filterPreferences = ConfigsFilterPreferences();
   ConfigsFilter _filter = const ConfigsFilter();
+  List<ExtensionDomain> _instances = const <ExtensionDomain>[];
 
   @override
   void initState() {
     super.initState();
     unawaited(_restoreFilter());
+    unawaited(_loadInstances());
+  }
+
+  Future<void> _loadInstances() async {
+    final List<ExtensionDomain> instances = await ExtensionInstances(
+      repository: context.read<ExtensionRepository>(),
+    ).all();
+    if (mounted) {
+      setState(() => _instances = instances);
+    }
+  }
+
+  void _reloadInstances() {
+    unawaited(_loadInstances());
+  }
+
+  List<BaseExtension> _withInstances(List<BaseExtension> extensions) {
+    if (_instances.isEmpty) {
+      return extensions;
+    }
+    final List<BaseExtension> result = <BaseExtension>[];
+    for (final BaseExtension extension in extensions) {
+      result.add(extension);
+      result.addAll(_instances.where(
+        (ExtensionDomain instance) =>
+            instance.baseUid == extension.config.uid,
+      ));
+    }
+    return result;
   }
 
   Future<void> _restoreFilter() async {
@@ -171,12 +204,12 @@ class _ConfigPageState extends State<ConfigPage> {
 
     final List<BaseExtension> visibleManga = <BaseExtension>[
       LocalSource.extension(S.current.local_source_name),
-      ..._filterNsfw(state.mangaRemoteConfigs, showNsfw),
+      ..._withInstances(_filterNsfw(state.mangaRemoteConfigs, showNsfw)),
     ];
     final List<BaseExtension> visibleVideo =
-        _filterNsfw(state.animeRemoteConfigs, showNsfw);
+        _withInstances(_filterNsfw(state.animeRemoteConfigs, showNsfw));
     final List<BaseExtension> visibleNovels =
-        _filterNsfw(state.novelRemoteConfigs, showNsfw);
+        _withInstances(_filterNsfw(state.novelRemoteConfigs, showNsfw));
     final List<BaseExtension> visible = <BaseExtension>[
       ...visibleManga,
       ...visibleVideo,
@@ -223,6 +256,7 @@ class _ConfigPageState extends State<ConfigPage> {
           title: S.current.home_manga_group_title,
           remoteConfigs: mangaConfigs,
           listingStatusOf: state.listingStatusOf,
+          onInstancesChanged: _reloadInstances,
         ),
       if (animeConfigs.isNotEmpty)
         ConfigsGroup(
@@ -230,6 +264,7 @@ class _ConfigPageState extends State<ConfigPage> {
           title: S.current.home_anime_group_title,
           remoteConfigs: animeConfigs,
           listingStatusOf: state.listingStatusOf,
+          onInstancesChanged: _reloadInstances,
         ),
       if (novelConfigs.isNotEmpty)
         ConfigsGroup(
@@ -237,6 +272,7 @@ class _ConfigPageState extends State<ConfigPage> {
           title: S.current.home_novel_group_title,
           remoteConfigs: novelConfigs,
           listingStatusOf: state.listingStatusOf,
+          onInstancesChanged: _reloadInstances,
         ),
       const SliverToBoxAdapter(child: SizedBox(height: 24)),
     ];

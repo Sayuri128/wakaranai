@@ -620,6 +620,17 @@ class $ExtensionTableTable extends ExtensionTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _baseUidMeta = const VerificationMeta(
+    'baseUid',
+  );
+  @override
+  late final GeneratedColumn<String> baseUid = GeneratedColumn<String>(
+    'base_uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -637,6 +648,7 @@ class $ExtensionTableTable extends ExtensionTable
     protectorConfig,
     configJson,
     revision,
+    baseUid,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -761,6 +773,12 @@ class $ExtensionTableTable extends ExtensionTable
         revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
       );
     }
+    if (data.containsKey('base_uid')) {
+      context.handle(
+        _baseUidMeta,
+        baseUid.isAcceptableOrUnknown(data['base_uid']!, _baseUidMeta),
+      );
+    }
     return context;
   }
 
@@ -830,6 +848,10 @@ class $ExtensionTableTable extends ExtensionTable
         DriftSqlType.string,
         data['${effectivePrefix}revision'],
       ),
+      baseUid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}base_uid'],
+      ),
     );
   }
 
@@ -856,6 +878,7 @@ class ExtensionTableData extends DataClass
   final String? protectorConfig;
   final String? configJson;
   final String? revision;
+  final String? baseUid;
   const ExtensionTableData({
     required this.id,
     required this.createdAt,
@@ -872,6 +895,7 @@ class ExtensionTableData extends DataClass
     this.protectorConfig,
     this.configJson,
     this.revision,
+    this.baseUid,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -898,6 +922,9 @@ class ExtensionTableData extends DataClass
     }
     if (!nullToAbsent || revision != null) {
       map['revision'] = Variable<String>(revision);
+    }
+    if (!nullToAbsent || baseUid != null) {
+      map['base_uid'] = Variable<String>(baseUid);
     }
     return map;
   }
@@ -927,6 +954,9 @@ class ExtensionTableData extends DataClass
       revision: revision == null && nullToAbsent
           ? const Value.absent()
           : Value(revision),
+      baseUid: baseUid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(baseUid),
     );
   }
 
@@ -951,6 +981,7 @@ class ExtensionTableData extends DataClass
       protectorConfig: serializer.fromJson<String?>(json['protectorConfig']),
       configJson: serializer.fromJson<String?>(json['configJson']),
       revision: serializer.fromJson<String?>(json['revision']),
+      baseUid: serializer.fromJson<String?>(json['baseUid']),
     );
   }
   @override
@@ -972,6 +1003,7 @@ class ExtensionTableData extends DataClass
       'protectorConfig': serializer.toJson<String?>(protectorConfig),
       'configJson': serializer.toJson<String?>(configJson),
       'revision': serializer.toJson<String?>(revision),
+      'baseUid': serializer.toJson<String?>(baseUid),
     };
   }
 
@@ -991,6 +1023,7 @@ class ExtensionTableData extends DataClass
     Value<String?> protectorConfig = const Value.absent(),
     Value<String?> configJson = const Value.absent(),
     Value<String?> revision = const Value.absent(),
+    Value<String?> baseUid = const Value.absent(),
   }) => ExtensionTableData(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -1009,6 +1042,7 @@ class ExtensionTableData extends DataClass
         : this.protectorConfig,
     configJson: configJson.present ? configJson.value : this.configJson,
     revision: revision.present ? revision.value : this.revision,
+    baseUid: baseUid.present ? baseUid.value : this.baseUid,
   );
   ExtensionTableData copyWithCompanion(ExtensionTableCompanion data) {
     return ExtensionTableData(
@@ -1035,6 +1069,7 @@ class ExtensionTableData extends DataClass
           ? data.configJson.value
           : this.configJson,
       revision: data.revision.present ? data.revision.value : this.revision,
+      baseUid: data.baseUid.present ? data.baseUid.value : this.baseUid,
     );
   }
 
@@ -1055,7 +1090,8 @@ class ExtensionTableData extends DataClass
           ..write('searchAvailable: $searchAvailable, ')
           ..write('protectorConfig: $protectorConfig, ')
           ..write('configJson: $configJson, ')
-          ..write('revision: $revision')
+          ..write('revision: $revision, ')
+          ..write('baseUid: $baseUid')
           ..write(')'))
         .toString();
   }
@@ -1077,6 +1113,7 @@ class ExtensionTableData extends DataClass
     protectorConfig,
     configJson,
     revision,
+    baseUid,
   );
   @override
   bool operator ==(Object other) =>
@@ -1096,7 +1133,8 @@ class ExtensionTableData extends DataClass
           other.searchAvailable == this.searchAvailable &&
           other.protectorConfig == this.protectorConfig &&
           other.configJson == this.configJson &&
-          other.revision == this.revision);
+          other.revision == this.revision &&
+          other.baseUid == this.baseUid);
 }
 
 class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
@@ -1115,6 +1153,7 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
   final Value<String?> protectorConfig;
   final Value<String?> configJson;
   final Value<String?> revision;
+  final Value<String?> baseUid;
   const ExtensionTableCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1131,6 +1170,7 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     this.protectorConfig = const Value.absent(),
     this.configJson = const Value.absent(),
     this.revision = const Value.absent(),
+    this.baseUid = const Value.absent(),
   });
   ExtensionTableCompanion.insert({
     this.id = const Value.absent(),
@@ -1148,6 +1188,7 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     this.protectorConfig = const Value.absent(),
     this.configJson = const Value.absent(),
     this.revision = const Value.absent(),
+    this.baseUid = const Value.absent(),
   }) : uid = Value(uid),
        name = Value(name),
        type = Value(type),
@@ -1173,6 +1214,7 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     Expression<String>? protectorConfig,
     Expression<String>? configJson,
     Expression<String>? revision,
+    Expression<String>? baseUid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1190,6 +1232,7 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
       if (protectorConfig != null) 'protector_config': protectorConfig,
       if (configJson != null) 'config_json': configJson,
       if (revision != null) 'revision': revision,
+      if (baseUid != null) 'base_uid': baseUid,
     });
   }
 
@@ -1209,6 +1252,7 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     Value<String?>? protectorConfig,
     Value<String?>? configJson,
     Value<String?>? revision,
+    Value<String?>? baseUid,
   }) {
     return ExtensionTableCompanion(
       id: id ?? this.id,
@@ -1226,6 +1270,7 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
       protectorConfig: protectorConfig ?? this.protectorConfig,
       configJson: configJson ?? this.configJson,
       revision: revision ?? this.revision,
+      baseUid: baseUid ?? this.baseUid,
     );
   }
 
@@ -1277,6 +1322,9 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     if (revision.present) {
       map['revision'] = Variable<String>(revision.value);
     }
+    if (baseUid.present) {
+      map['base_uid'] = Variable<String>(baseUid.value);
+    }
     return map;
   }
 
@@ -1297,7 +1345,8 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
           ..write('searchAvailable: $searchAvailable, ')
           ..write('protectorConfig: $protectorConfig, ')
           ..write('configJson: $configJson, ')
-          ..write('revision: $revision')
+          ..write('revision: $revision, ')
+          ..write('baseUid: $baseUid')
           ..write(')'))
         .toString();
   }
@@ -8049,6 +8098,7 @@ typedef $$ExtensionTableTableCreateCompanionBuilder =
       Value<String?> protectorConfig,
       Value<String?> configJson,
       Value<String?> revision,
+      Value<String?> baseUid,
     });
 typedef $$ExtensionTableTableUpdateCompanionBuilder =
     ExtensionTableCompanion Function({
@@ -8067,6 +8117,7 @@ typedef $$ExtensionTableTableUpdateCompanionBuilder =
       Value<String?> protectorConfig,
       Value<String?> configJson,
       Value<String?> revision,
+      Value<String?> baseUid,
     });
 
 class $$ExtensionTableTableFilterComposer
@@ -8150,6 +8201,11 @@ class $$ExtensionTableTableFilterComposer
 
   ColumnFilters<String> get revision => $composableBuilder(
     column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get baseUid => $composableBuilder(
+    column: $table.baseUid,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -8237,6 +8293,11 @@ class $$ExtensionTableTableOrderingComposer
     column: $table.revision,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get baseUid => $composableBuilder(
+    column: $table.baseUid,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ExtensionTableTableAnnotationComposer
@@ -8300,6 +8361,9 @@ class $$ExtensionTableTableAnnotationComposer
 
   GeneratedColumn<String> get revision =>
       $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  GeneratedColumn<String> get baseUid =>
+      $composableBuilder(column: $table.baseUid, builder: (column) => column);
 }
 
 class $$ExtensionTableTableTableManager
@@ -8354,6 +8418,7 @@ class $$ExtensionTableTableTableManager
                 Value<String?> protectorConfig = const Value.absent(),
                 Value<String?> configJson = const Value.absent(),
                 Value<String?> revision = const Value.absent(),
+                Value<String?> baseUid = const Value.absent(),
               }) => ExtensionTableCompanion(
                 id: id,
                 createdAt: createdAt,
@@ -8370,6 +8435,7 @@ class $$ExtensionTableTableTableManager
                 protectorConfig: protectorConfig,
                 configJson: configJson,
                 revision: revision,
+                baseUid: baseUid,
               ),
           createCompanionCallback:
               ({
@@ -8388,6 +8454,7 @@ class $$ExtensionTableTableTableManager
                 Value<String?> protectorConfig = const Value.absent(),
                 Value<String?> configJson = const Value.absent(),
                 Value<String?> revision = const Value.absent(),
+                Value<String?> baseUid = const Value.absent(),
               }) => ExtensionTableCompanion.insert(
                 id: id,
                 createdAt: createdAt,
@@ -8404,6 +8471,7 @@ class $$ExtensionTableTableTableManager
                 protectorConfig: protectorConfig,
                 configJson: configJson,
                 revision: revision,
+                baseUid: baseUid,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

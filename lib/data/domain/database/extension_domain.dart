@@ -14,6 +14,9 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
   final ConfigInfo config;
   final String sourceCode;
   final String? revision;
+  final String? baseUid;
+
+  bool get isInstance => baseUid != null;
 
   factory ExtensionDomain.fromDrift(ExtensionTableData data) {
     return ExtensionDomain(
@@ -34,6 +37,7 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
       ),
       sourceCode: data.sourceCode,
       revision: data.revision,
+      baseUid: data.baseUid,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     );
@@ -86,6 +90,7 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
       ),
       configJson: Value(jsonEncode(config.toJson())),
       revision: Value(revision),
+      baseUid: Value(baseUid),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -97,6 +102,7 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
     required this.sourceCode,
     required super.createdAt,
     this.revision,
+    this.baseUid,
     super.updatedAt,
   });
 
@@ -112,6 +118,7 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
       config: config ?? this.config,
       sourceCode: sourceCode ?? this.sourceCode,
       revision: revision ?? this.revision,
+      baseUid: baseUid,
       updatedAt: updatedAt ?? this.updatedAt,
       createdAt: createdAt ?? this.createdAt,
       id: id ?? this.id,

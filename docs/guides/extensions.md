@@ -75,6 +75,11 @@ see [template](./extension_templates/manga/main.capyscript)
 
 each extension should have the following functions:
 
+* `multiInstance` (optional): `true` lets the user add the extension more than once, for sources
+  that point at a server the user chooses (Komga, Kavita, OPDS). Long-pressing it in the Configs
+  tab offers "Add another server"; every copy gets its own uid, so its settings, stored data,
+  login, library and history are separate, and copies follow the original's updates. Older app
+  releases ignore the field.
 * `getGallery` - returns a list of gallery models created with `buildGallery` function
 
 ```capyscript

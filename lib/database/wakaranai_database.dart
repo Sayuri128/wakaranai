@@ -126,6 +126,10 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
             await _createTableIfMissing(m, trackerLinkTable);
             await _createIndexIfMissing(m, trackerLinkConcrete);
           }
+          if (from < 18) {
+            await _addColumnIfMissing(
+                m, extensionTable, extensionTable.baseUid);
+          }
         },
       );
 
@@ -209,7 +213,7 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
   }
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 }
 
 LazyDatabase _openConnection() {

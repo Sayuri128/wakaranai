@@ -7,6 +7,8 @@ import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:wakaranai/services/configs_service/extension_instances.dart';
 import 'package:wakaranai/services/configs_service/github_configs_service.dart';
 import 'package:wakaranai/services/local_source/local_source.dart';
 import 'package:wakaranai/utils/github_url_parser.dart';
@@ -39,10 +41,15 @@ class ExtensionResolver {
     final List<ExtensionDomain> installed = await extensionRepository.getAll();
     if (installed.isEmpty) return 0;
 
-    final Map<String, ExtensionDomain> pending = <String, ExtensionDomain>{
-      for (final ExtensionDomain extension in installed)
-        extension.config.uid: extension,
-    };
+    final Map<String, List<ExtensionDomain>> pending =
+        <String, List<ExtensionDomain>>{};
+    for (final ExtensionDomain extension in installed) {
+      if (LocalSource.isLocal(extension.config.uid)) {
+        continue;
+      }
+      final String key = extension.baseUid ?? extension.config.uid;
+      pending.putIfAbsent(key, () => <ExtensionDomain>[]).add(extension);
+    }
     int refreshed = 0;
 
     for (final ConfigsService service in await _candidateServices()) {
@@ -56,8 +63,12 @@ class ExtensionResolver {
       }
 
       for (final RemoteConfig remote in remotes) {
-        final ExtensionDomain? local = pending.remove(remote.config.uid);
-        if (local == null || !isOutdated(local, remote)) continue;
+        final List<ExtensionDomain>? locals = pending.remove(remote.config.uid);
+        if (locals == null) continue;
+        final List<ExtensionDomain> outdated = locals
+            .where((ExtensionDomain local) => isOutdated(local, remote))
+            .toList(growable: false);
+        if (outdated.isEmpty) continue;
         if (remote.compatibility.requiresNewerApp) {
           logger.i('Keeping ${remote.config.uid}: its update needs a newer app');
           continue;
@@ -65,12 +76,14 @@ class ExtensionResolver {
         try {
           final String script =
               (await service.getRemoteScript(remote.path)).script;
-          await extensionRepository.createUpdateByUid(local.copyWith(
-            config: remote.config,
-            sourceCode: script,
-            revision: remote.revision,
-          ));
-          refreshed++;
+          for (final ExtensionDomain local in outdated) {
+            await extensionRepository.createUpdateByUid(local.copyWith(
+              config: _updatedConfig(local, remote.config),
+              sourceCode: script,
+              revision: remote.revision,
+            ));
+            refreshed++;
+          }
         } catch (e) {
           logger.w('Failed to update extension ${remote.config.uid}: $e');
         }
@@ -81,6 +94,17 @@ class ExtensionResolver {
       logger.i('Updated $refreshed extension(s)');
     }
     return refreshed;
+  }
+
+  static ConfigInfo _updatedConfig(ExtensionDomain local, ConfigInfo remote) {
+    if (!local.isInstance) {
+      return remote;
+    }
+    return ExtensionInstances.instanceConfig(
+      remote,
+      uid: local.config.uid,
+      name: local.config.name,
+    );
   }
 
   static bool isOutdated(ExtensionDomain local, RemoteConfig remote) {
