@@ -7,8 +7,10 @@ import 'dart:io';
 import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/api_clients/novel_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/download_config/download_config.dart';
+import 'package:capyscript/modules/waka_models/models/novel/novel_chapter_content.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
@@ -96,6 +98,38 @@ class _ChapterJob extends _DownloadJob {
 
   @override
   _ChapterJob restarted() => _ChapterJob(
+        client: client,
+        extensionUid: extensionUid,
+        concreteTitle: concreteTitle,
+        chapterUid: chapterUid,
+        chapterTitle: chapterTitle,
+        data: data,
+      );
+}
+
+class _NovelChapterJob extends _DownloadJob {
+  final NovelApiClient client;
+  final String chapterUid;
+  final String chapterTitle;
+  final Map<String, dynamic>? data;
+
+  _NovelChapterJob({
+    required this.client,
+    required super.extensionUid,
+    required super.concreteTitle,
+    required this.chapterUid,
+    required this.chapterTitle,
+    required this.data,
+  });
+
+  @override
+  String get uid => chapterUid;
+
+  @override
+  String get title => chapterTitle;
+
+  @override
+  _NovelChapterJob restarted() => _NovelChapterJob(
         client: client,
         extensionUid: extensionUid,
         concreteTitle: concreteTitle,
@@ -325,21 +359,21 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     return _rebuildChapterJob(row);
   }
 
-  Future<_ChapterJob?> _rebuildChapterJob(DownloadDomain row) async {
+  Future<_DownloadJob?> _rebuildChapterJob(DownloadDomain row) async {
     try {
       final ExtensionDomain? extension =
           await _installedExtension(row.extensionUid);
       if (extension == null) {
         return null;
       }
-      final MangaApiClient client = await clientForExtension(extension);
+      final ApiClient client = await chapterClientForExtension(extension);
       final String? rawData = row.data;
-      return _ChapterJob(
+      return _chapterJobFor(
         client: client,
         extensionUid: row.extensionUid,
         concreteTitle: row.concreteTitle,
         chapterUid: row.uid,
-        chapterTitle: row.title,
+        title: row.title,
         data: rawData == null
             ? null
             : jsonDecode(rawData) as Map<String, dynamic>?,
@@ -361,6 +395,61 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       throw StateError('${extension.config.name} is not a manga extension');
     }
     return client;
+  }
+
+  Future<NovelApiClient> novelClientForExtension(
+      ExtensionDomain extension) async {
+    final ApiClient client = await _pooledClientFor(extension);
+    if (client is! NovelApiClient) {
+      throw StateError('${extension.config.name} is not a novel extension');
+    }
+    return client;
+  }
+
+  Future<ApiClient> chapterClientForExtension(ExtensionDomain extension) async {
+    final ApiClient client = await _pooledClientFor(extension);
+    if (client is MangaApiClient || client is NovelApiClient) {
+      return client;
+    }
+    throw StateError('${extension.config.name} has no chapters to download');
+  }
+
+  static _DownloadJob _chapterJobFor({
+    required ApiClient client,
+    required String extensionUid,
+    required String concreteTitle,
+    required String chapterUid,
+    required String title,
+    required Map<String, dynamic>? data,
+  }) {
+    if (client is NovelApiClient) {
+      return _NovelChapterJob(
+        client: client,
+        extensionUid: extensionUid,
+        concreteTitle: concreteTitle,
+        chapterUid: chapterUid,
+        chapterTitle: title,
+        data: data,
+      );
+    }
+    if (client is MangaApiClient) {
+      return _ChapterJob(
+        client: client,
+        extensionUid: extensionUid,
+        concreteTitle: concreteTitle,
+        chapterUid: chapterUid,
+        chapterTitle: title,
+        data: data,
+      );
+    }
+    throw StateError('${client.runtimeType} has no chapters to download');
+  }
+
+  static DownloadKind _chapterKindFor(ApiClient client) {
+    if (client is NovelApiClient) {
+      return DownloadKind.novelChapter;
+    }
+    return DownloadKind.chapter;
   }
 
   Future<AnimeApiClient> animeClientForExtension(
@@ -406,7 +495,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   }
 
   Future<void> enqueueChapter({
-    required MangaApiClient client,
+    required ApiClient client,
     required String extensionUid,
     required String concreteUid,
     required int concreteId,
@@ -443,6 +532,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         totalPages: 0,
         dirPath: dir.path,
         data: data != null ? jsonEncode(data) : null,
+        kind: _chapterKindFor(client),
         createdAt: DateTime.now(),
       ),
       by: (DownloadDomain d) => d.uid,
@@ -450,12 +540,12 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     );
     await downloadRepository.moveToQueueEnd(chapterUid);
 
-    _addJob(_ChapterJob(
+    _addJob(_chapterJobFor(
       client: client,
       extensionUid: extensionUid,
       concreteTitle: concreteTitle,
       chapterUid: chapterUid,
-      chapterTitle: title,
+      title: title,
       data: data,
     ));
 
@@ -568,7 +658,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       return;
     }
     try {
-      final MangaApiClient client = await clientForExtension(extension);
+      final ApiClient client = await chapterClientForExtension(extension);
       await retry(client: client, download: download);
     } catch (e, s) {
       logger.e('Cannot retry ${download.uid}: $e');
@@ -924,6 +1014,8 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     switch (job) {
       case _ChapterJob():
         return _runChapterJob(job);
+      case _NovelChapterJob():
+        return _runNovelChapterJob(job);
       case _EpisodeJob():
         return _runEpisodeJob(job);
     }
@@ -1042,6 +1134,82 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       logger.e(s);
       await _markFailed(job.chapterUid);
       return false;
+    }
+  }
+
+  Future<bool> _runNovelChapterJob(_NovelChapterJob job) async {
+    if (job.isCancelled) {
+      return false;
+    }
+    final DownloadDomain? row = await downloadRepository.getByUid(job.uid);
+    if (row == null || job.isCancelled) {
+      return false;
+    }
+    try {
+      await downloadRepository
+          .update(row.copyWith(status: DownloadStatus.downloading));
+      await _showJobProgress(job, progress: 0, max: 0);
+      final NovelChapterContent content = await runSerializedOn(
+        job.client,
+        () => job.client.getChapterText(
+          uid: job.chapterUid,
+          data: job.data ?? <String, dynamic>{},
+        ),
+      );
+      if (job.isCancelled || _cancelled.contains(job.uid)) {
+        _cancelled.remove(job.uid);
+        return false;
+      }
+      await writeNovelChapterFile(row.dirPath, content.html);
+      if (job.isCancelled) {
+        return false;
+      }
+      await downloadRepository.update(row.copyWith(
+        status: DownloadStatus.done,
+        downloadedPages: 1,
+        totalPages: 1,
+      ));
+      await _showJobProgress(job, progress: 1, max: 1);
+      return true;
+    } catch (e, s) {
+      if (job.isCancelled) {
+        return false;
+      }
+      logger.e('Novel chapter download failed for ${job.uid}: $e');
+      logger.e(s);
+      await _markFailed(job.uid);
+      return false;
+    }
+  }
+
+  static const String novelChapterFileName = 'chapter.html';
+
+  static File novelChapterFile(String dirPath) {
+    return File(p.join(dirPath, novelChapterFileName));
+  }
+
+  static Future<void> writeNovelChapterFile(String dirPath, String html) async {
+    final Directory dir = Directory(dirPath);
+    await dir.create(recursive: true);
+    final File target = novelChapterFile(dirPath);
+    final File partial = File('${target.path}.part');
+    await partial.writeAsString(html, flush: true);
+    await partial.rename(target.path);
+  }
+
+  static Future<String?> readNovelChapterFile(DownloadDomain download) async {
+    if (!download.isNovelChapter || download.status != DownloadStatus.done) {
+      return null;
+    }
+    final File file = novelChapterFile(download.dirPath);
+    try {
+      if (!await file.exists()) {
+        return null;
+      }
+      return await file.readAsString();
+    } on FileSystemException catch (e) {
+      logger.w('Cannot read the saved chapter ${download.uid}: $e');
+      return null;
     }
   }
 
@@ -1290,7 +1458,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   }
 
   Future<void> retry({
-    required MangaApiClient client,
+    required ApiClient client,
     required DownloadDomain download,
     Map<String, dynamic>? data,
   }) {

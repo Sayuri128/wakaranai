@@ -27,6 +27,10 @@ class DownloadDomain extends BaseDomain<DownloadTableCompanion> {
 
   bool get isEpisode => kind == DownloadKind.episode;
 
+  bool get isNovelChapter => kind == DownloadKind.novelChapter;
+
+  bool get hasPageImages => kind == DownloadKind.chapter;
+
   bool get isPaused => status == DownloadStatus.paused;
 
   bool get isPending =>

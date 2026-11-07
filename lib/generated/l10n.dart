@@ -124,6 +124,16 @@ class S {
     );
   }
 
+  /// `Novels`
+  String get home_novel_group_title {
+    return Intl.message(
+      'Novels',
+      name: 'home_novel_group_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `NSFW`
   String get home_nsfw_suffix {
     return Intl.message('NSFW', name: 'home_nsfw_suffix', desc: '', args: []);
@@ -8281,6 +8291,176 @@ class S {
       name: 'ext_prefs_clear_data_done',
       desc: '',
       args: [source],
+    );
+  }
+
+  /// `Reading settings`
+  String get novel_reader_settings_title {
+    return Intl.message(
+      'Reading settings',
+      name: 'novel_reader_settings_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Text size`
+  String get novel_reader_font_size {
+    return Intl.message(
+      'Text size',
+      name: 'novel_reader_font_size',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Line spacing`
+  String get novel_reader_line_height {
+    return Intl.message(
+      'Line spacing',
+      name: 'novel_reader_line_height',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Side margins`
+  String get novel_reader_margins {
+    return Intl.message(
+      'Side margins',
+      name: 'novel_reader_margins',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Font`
+  String get novel_reader_font_family {
+    return Intl.message(
+      'Font',
+      name: 'novel_reader_font_family',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ubuntu`
+  String get novel_reader_font_ubuntu {
+    return Intl.message(
+      'Ubuntu',
+      name: 'novel_reader_font_ubuntu',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Serif`
+  String get novel_reader_font_serif {
+    return Intl.message(
+      'Serif',
+      name: 'novel_reader_font_serif',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sepia`
+  String get novel_reader_background_sepia {
+    return Intl.message(
+      'Sepia',
+      name: 'novel_reader_background_sepia',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Justify text`
+  String get novel_reader_justify {
+    return Intl.message(
+      'Justify text',
+      name: 'novel_reader_justify',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep screen on`
+  String get novel_reader_keep_screen_on {
+    return Intl.message(
+      'Keep screen on',
+      name: 'novel_reader_keep_screen_on',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Previous chapter`
+  String get novel_reader_previous_chapter {
+    return Intl.message(
+      'Previous chapter',
+      name: 'novel_reader_previous_chapter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next chapter`
+  String get novel_reader_next_chapter {
+    return Intl.message(
+      'Next chapter',
+      name: 'novel_reader_next_chapter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next: {title}`
+  String novel_reader_next_chapter_named(Object title) {
+    return Intl.message(
+      'Next: $title',
+      name: 'novel_reader_next_chapter_named',
+      desc: '',
+      args: [title],
+    );
+  }
+
+  /// `This chapter has no text`
+  String get novel_reader_empty_chapter {
+    return Intl.message(
+      'This chapter has no text',
+      name: 'novel_reader_empty_chapter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{percent}%`
+  String novel_progress_percent(int percent) {
+    return Intl.message(
+      '$percent%',
+      name: 'novel_progress_percent',
+      desc: '',
+      args: [percent],
+    );
+  }
+
+  /// `Saved for offline reading`
+  String get downloads_novel_chapter_done {
+    return Intl.message(
+      'Saved for offline reading',
+      name: 'downloads_novel_chapter_done',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saving text…`
+  String get downloads_novel_chapter_downloading {
+    return Intl.message(
+      'Saving text…',
+      name: 'downloads_novel_chapter_downloading',
+      desc: '',
+      args: [],
     );
   }
 }

@@ -56,6 +56,9 @@ String downloadStatusLabel(DownloadDomain download, {int? sizeBytes}) {
       if (download.isEpisode) {
         return _episodeDoneLabel(download, sizeBytes);
       }
+      if (download.isNovelChapter) {
+        return _withSize(S.current.downloads_novel_chapter_done, sizeBytes);
+      }
       return _withSize(
         S.current
             .downloads_pages_progress(download.totalPages, download.totalPages),
@@ -75,6 +78,9 @@ String downloadStatusLabel(DownloadDomain download, {int? sizeBytes}) {
 String _progressLabel(DownloadDomain download) {
   if (download.isEpisode) {
     return _episodeProgressLabel(download);
+  }
+  if (download.isNovelChapter) {
+    return S.current.downloads_novel_chapter_downloading;
   }
   return S.current
       .downloads_pages_progress(download.downloadedPages, download.totalPages);
@@ -192,7 +198,8 @@ class DownloadTile extends StatelessWidget {
         Text(download.title.trim(), style: medium(size: 15)),
         const SizedBox(height: 6),
         _buildSubtitle(),
-        if (!download.isEpisode) DownloadTranslationStatus(download: download),
+        if (download.hasPageImages)
+          DownloadTranslationStatus(download: download),
         if (_showsProgressBar) ...<Widget>[
           const SizedBox(height: 10),
           _buildProgressBar(),
@@ -231,7 +238,8 @@ class DownloadTile extends StatelessWidget {
           onPressed: () => _retry(context),
         ),
       if (download.isPending) _buildPauseToggle(context),
-      if (!download.isEpisode) DownloadTranslationButton(download: download),
+      if (download.hasPageImages)
+        DownloadTranslationButton(download: download),
       IconButton(
         icon: Icon(Icons.delete_outline_rounded, color: AppColors.mainGrey),
         onPressed: () => _confirmDelete(context),

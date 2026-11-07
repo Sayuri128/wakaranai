@@ -42,6 +42,9 @@ class _FakeConfigsService implements ConfigsService {
   Future<List<BaseExtension>> getAnimeConfigs() async => const [];
 
   @override
+  Future<List<BaseExtension>> getNovelConfigs() async => const [];
+
+  @override
   Future<RemoteScript> getRemoteScript(String path) async {
     downloaded.add(path);
     return RemoteScript(path: path, script: 'new script');

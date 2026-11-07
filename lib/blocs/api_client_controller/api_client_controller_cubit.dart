@@ -1,6 +1,7 @@
 import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/api_clients/novel_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
@@ -58,6 +59,10 @@ class ApiClientControllerCubit<T extends ApiClient, C>
         case ConfigInfoType.MANGA:
           emit(ApiClientControllerInitialized<MangaApiClient>(
               apiClient: client as MangaApiClient, configInfo: config));
+          break;
+        case ConfigInfoType.NOVEL:
+          emit(ApiClientControllerInitialized<NovelApiClient>(
+              apiClient: client as NovelApiClient, configInfo: config));
           break;
       }
     } on ExtensionRequiresNewerAppException catch (e) {

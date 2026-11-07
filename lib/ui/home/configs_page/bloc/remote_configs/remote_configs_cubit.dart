@@ -96,14 +96,20 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
       final List<List<BaseExtension>> value =
           await Future.wait(<Future<List<BaseExtension>>>[
         _configsService.getMangaConfigs(),
-        _configsService.getAnimeConfigs()
+        _configsService.getAnimeConfigs(),
+        _configsService.getNovelConfigs(),
       ]);
       final Map<String, ExtensionListingStatus> listingStatuses =
-          await _listingStatuses(<BaseExtension>[...value[0], ...value[1]]);
+          await _listingStatuses(<BaseExtension>[
+        ...value[0],
+        ...value[1],
+        ...value[2],
+      ]);
       emit(
         RemoteConfigsLoaded(
           mangaRemoteConfigs: value[0].cast(),
           animeRemoteConfigs: value[1].cast(),
+          novelRemoteConfigs: value[2].cast(),
           sourceName: sourceName,
           listingStatuses: listingStatuses,
         ),

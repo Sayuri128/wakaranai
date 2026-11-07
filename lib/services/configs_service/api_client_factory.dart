@@ -2,6 +2,7 @@ import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/api_clients/host/extension_host.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/api_clients/novel_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:wakaranai/repositories/database/extension_storage_repository.dart';
 import 'package:wakaranai/services/extension_preferences/extension_host_services.dart';
@@ -59,6 +60,8 @@ class ApiClientFactory {
         return anime(config: config, code: code);
       case ConfigInfoType.MANGA:
         return manga(config: config, code: code);
+      case ConfigInfoType.NOVEL:
+        return novel(config: config, code: code);
     }
   }
 
@@ -74,5 +77,9 @@ class ApiClientFactory {
 
   AnimeApiClient anime({required ConfigInfo config, required String code}) {
     return AnimeApiClient(code: code, host: hostFactory.hostFor(config));
+  }
+
+  NovelApiClient novel({required ConfigInfo config, required String code}) {
+    return NovelApiClient(code: code, host: hostFactory.hostFor(config));
   }
 }

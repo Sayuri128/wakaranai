@@ -79,6 +79,14 @@ class GitHubConfigsService implements ConfigsService {
   }
 
   @override
+  Future<List<RemoteConfig>> getNovelConfigs() async {
+    final List<RemoteConfig> configs = await _loadConfigs();
+    return configs
+        .where((RemoteConfig e) => e.config.type == ConfigInfoType.NOVEL)
+        .toList();
+  }
+
+  @override
   void invalidate() {
     _configsFuture = null;
   }

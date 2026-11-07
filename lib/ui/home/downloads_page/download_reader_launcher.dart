@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/api_clients/novel_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
@@ -19,9 +20,11 @@ import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/services/novels/novel_progress.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
+import 'package:wakaranai/ui/services/novel/reader/novel_reader.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
 class DownloadReaderData {
@@ -70,6 +73,21 @@ class DownloadReaderLauncher extends StatelessWidget {
           );
         }
 
+        if (download.isNovelChapter) {
+          return ApiControllerWrapper<NovelApiClient>(
+            remoteConfig: extension,
+            builder: (NovelApiClient client, ConfigInfo configInfo) =>
+                NovelReader(
+              data: _buildNovelReaderData(
+                client: client,
+                configInfo: configInfo,
+                concrete: snapshot.data?.concrete,
+                activity: snapshot.data?.activity,
+              ),
+            ),
+          );
+        }
+
         return ApiControllerWrapper<MangaApiClient>(
           remoteConfig: extension,
           builder: (MangaApiClient client, ConfigInfo configInfo) {
@@ -102,6 +120,61 @@ class DownloadReaderLauncher extends StatelessWidget {
       extension: extension,
       concrete: concrete,
       activity: activity,
+    );
+  }
+
+  NovelReaderData _buildNovelReaderData({
+    required NovelApiClient client,
+    required ConfigInfo configInfo,
+    required ConcreteDataDomain? concrete,
+    required ChapterActivityDomain? activity,
+  }) {
+    final ({Chapter chapter, ChaptersGroup group}) located =
+        _locateChapter(_cachedView(concrete));
+    return NovelReaderData(
+      apiClient: client,
+      configInfo: configInfo,
+      concreteUid: download.concreteUid,
+      chapters: located.group.elements,
+      chapter: located.chapter,
+      initialFraction: NovelProgress.resumeFractionOf(activity),
+    );
+  }
+
+  MangaConcreteView? _cachedView(ConcreteDataDomain? concrete) {
+    final String? json = concrete?.concreteJson;
+    if (json == null) {
+      return null;
+    }
+    try {
+      return MangaConcreteView.fromJson(jsonDecode(json) as Map<String, dynamic>);
+    } catch (e, s) {
+      logger.w('Failed to rebuild cached concrete view: $e');
+      logger.w(s);
+      return null;
+    }
+  }
+
+  ({Chapter chapter, ChaptersGroup group}) _locateChapter(
+    MangaConcreteView? view,
+  ) {
+    if (view != null) {
+      for (final ChaptersGroup group in view.groups) {
+        final Chapter? found = group.elements
+            .firstWhereOrNull((Chapter c) => c.uid == download.uid);
+        if (found != null) {
+          return (chapter: found, group: group);
+        }
+      }
+    }
+    final Chapter chapter = Chapter(
+      uid: download.uid,
+      title: download.title,
+      data: download.dataJson,
+    );
+    return (
+      chapter: chapter,
+      group: ChaptersGroup(title: '', elements: <Chapter>[chapter]),
     );
   }
 

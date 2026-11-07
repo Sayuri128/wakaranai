@@ -9,6 +9,7 @@
   "@_HOME": {},
   "home_manga_group_title": "Manga",
   "home_anime_group_title": "Video",
+  "home_novel_group_title": "Novels",
   "home_nsfw_suffix": "NSFW",
   "home_remote_configs_page_appbar_title": "Extensions",
   "home_sources_button": "Sources",
@@ -1509,5 +1510,32 @@
     "placeholders": {
       "source": {}
     }
-  }
+  },
+  "novel_reader_settings_title": "Reading settings",
+  "novel_reader_font_size": "Text size",
+  "novel_reader_line_height": "Line spacing",
+  "novel_reader_margins": "Side margins",
+  "novel_reader_font_family": "Font",
+  "novel_reader_font_ubuntu": "Ubuntu",
+  "novel_reader_font_serif": "Serif",
+  "novel_reader_background_sepia": "Sepia",
+  "novel_reader_justify": "Justify text",
+  "novel_reader_keep_screen_on": "Keep screen on",
+  "novel_reader_previous_chapter": "Previous chapter",
+  "novel_reader_next_chapter": "Next chapter",
+  "novel_reader_next_chapter_named": "Next: {title}",
+  "@novel_reader_next_chapter_named": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "novel_reader_empty_chapter": "This chapter has no text",
+  "novel_progress_percent": "{percent}%",
+  "@novel_progress_percent": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "downloads_novel_chapter_done": "Saved for offline reading",
+  "downloads_novel_chapter_downloading": "Saving text…"
 }

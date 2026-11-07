@@ -95,4 +95,24 @@ void main() {
     expect(configs, hasLength(1));
     expect(configs.single.config.uid, 'future');
   });
+
+  test('a novel entry parses as a novel config', () {
+    final List<RemoteConfig> configs = parser.parseAll(<dynamic>[
+      _entry('novel', type: 2),
+    ]);
+
+    expect(configs.single.config.type, ConfigInfoType.NOVEL);
+  });
+
+  test('an incompatible novel entry keeps its type from the category', () {
+    final List<RemoteConfig> configs = parser.parseAll(<dynamic>[
+      <String, dynamic>{
+        ..._entry('future', type: 9, minAppVersion: '9.0.0'),
+        'category': 'novel',
+      },
+    ]);
+
+    expect(configs.single.config.type, ConfigInfoType.NOVEL);
+    expect(configs.single.config.uid, 'future');
+  });
 }

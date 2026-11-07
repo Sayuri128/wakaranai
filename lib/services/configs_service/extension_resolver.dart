@@ -128,6 +128,7 @@ class ExtensionResolver {
         await Future.wait(<Future<List<BaseExtension>>>[
       service.getMangaConfigs(),
       service.getAnimeConfigs(),
+      service.getNovelConfigs(),
     ]);
     return results
         .expand((List<BaseExtension> e) => e)

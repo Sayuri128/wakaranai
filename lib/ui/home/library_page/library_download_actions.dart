@@ -1,6 +1,5 @@
 import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/api_client.dart';
-import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,7 +37,7 @@ Future<ExtensionDomain> _resolveExtension(
   return extension;
 }
 
-Future<MangaApiClient> Function() _clientLoader(
+Future<ApiClient> Function() _clientLoader(
   BuildContext context,
   String extensionUid,
 ) {
@@ -47,7 +46,7 @@ Future<MangaApiClient> Function() _clientLoader(
   return () async {
     final ExtensionDomain extension =
         await _resolveExtension(library, extensionUid);
-    return downloads.clientForExtension(extension);
+    return downloads.chapterClientForExtension(extension);
   };
 }
 
@@ -71,12 +70,14 @@ void showLibraryDownloadSheet(
 }) {
   switch (type) {
     case ConfigInfoType.MANGA:
+    case ConfigInfoType.NOVEL:
       showTitleDownloadSheet(
         context,
         request: TitleDownloadRequest(
           uid: entry.uid,
           extensionUid: entry.extensionUid,
           galleryData: entry.dataJson,
+          type: type,
           loadClient: _clientLoader(context, entry.extensionUid),
         ),
       );
@@ -175,6 +176,7 @@ class _BulkDownloader {
         await _resolveExtension(library, entry.extensionUid);
     switch (type) {
       case ConfigInfoType.MANGA:
+      case ConfigInfoType.NOVEL:
         return _downloadChapters(entry, extension, amount);
       case ConfigInfoType.ANIME:
         return _downloadEpisodes(entry, extension, amount);
@@ -187,7 +189,7 @@ class _BulkDownloader {
     ChapterDownloadAmount amount,
   ) async {
     final DownloadableTitle title = await chapters.load(
-      client: await downloads.clientForExtension(extension),
+      client: await downloads.chapterClientForExtension(extension),
       extensionUid: entry.extensionUid,
       uid: entry.uid,
       galleryData: entry.dataJson,

@@ -4,8 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:wakaranai/ui/widgets/cover_image.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
+import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/data/domain/ui/activity_list_item.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/services/novels/novel_progress.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
@@ -275,6 +277,19 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
     );
   }
 
+  String _progressLabel(
+    BuildContext context,
+    ConcreteDataDomain concrete,
+    ChapterActivityDomain activity,
+  ) {
+    final ActivityHistoryState state =
+        context.read<MangaActivityHistoryCubit>().state;
+    if (state is ActivityHistoryLoaded && state.isNovel(concrete)) {
+      return S.current.novel_progress_percent(NovelProgress.percentOf(activity));
+    }
+    return '${activity.readPages}/${activity.totalPages}';
+  }
+
   Widget _buildListItem({
     required BuildContext context,
     required DayActivityListItem<BaseActivityDomain> listItem,
@@ -287,6 +302,9 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
     final double progress = hasProgress
         ? (activity.readPages / activity.totalPages).clamp(0.0, 1.0)
         : 0;
+    final String progressLabel = hasProgress
+        ? _progressLabel(context, listItem.data, activity)
+        : '';
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -356,7 +374,7 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              "${activity.readPages}/${activity.totalPages}",
+                              progressLabel,
                               style: regular(
                                   size: 11, color: AppColors.mainGrey),
                             ),

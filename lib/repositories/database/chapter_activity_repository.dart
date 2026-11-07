@@ -26,15 +26,16 @@ class ChapterActivityRepository extends BaseRepository<ChapterActivityDomain,
   }
 
   Future<ChapterActivityDomain?> markCompleted(
-    ChapterActivityDomain activity,
-  ) async {
+    ChapterActivityDomain activity, {
+    int? completedPages,
+  }) async {
     final ChapterActivityDomain? existing =
         await getBy<$ChapterActivityTableTable>(
       activity.uid,
       where: (tbl) => tbl.uid,
     );
     return createUpdateBy<$ChapterActivityTableTable, String>(
-      _completedActivity(activity, existing),
+      _completedActivity(activity, existing, completedPages: completedPages),
       by: (ChapterActivityDomain domain) => domain.uid,
       where: (tbl) => tbl.uid,
     );
@@ -42,8 +43,22 @@ class ChapterActivityRepository extends BaseRepository<ChapterActivityDomain,
 
   ChapterActivityDomain _completedActivity(
     ChapterActivityDomain activity,
-    ChapterActivityDomain? existing,
-  ) {
+    ChapterActivityDomain? existing, {
+    int? completedPages,
+  }) {
+    if (completedPages != null) {
+      return ChapterActivityDomain(
+        id: existing?.id ?? activity.id,
+        uid: activity.uid,
+        title: activity.title,
+        timestamp: activity.timestamp,
+        data: activity.data,
+        concreteId: activity.concreteId,
+        readPages: completedPages,
+        totalPages: completedPages,
+        createdAt: existing?.createdAt ?? activity.createdAt,
+      );
+    }
     if (existing == null) {
       return activity.copyWith(readPages: 0, totalPages: 0);
     }

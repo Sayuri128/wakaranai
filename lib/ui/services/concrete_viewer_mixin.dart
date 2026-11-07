@@ -19,6 +19,7 @@ import 'package:wakaranai/ui/services/widgets/page_translation/chapter_translati
 import 'package:wakaranai/ui/widgets/change_order_icon_button.dart';
 import 'package:wakaranai/ui/widgets/selection_action_bar.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/config_info_type_kinds.dart';
 
 mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView,
     G extends GalleryView> {
@@ -32,8 +33,12 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView,
       await _downloadSelectedEpisodes(context, state);
       return;
     }
-    if (state.configInfo.type != ConfigInfoType.MANGA) return;
-    if (state.domain == null || state.apiClient is! MangaApiClient) return;
+    if (!state.configInfo.type.readsChapters) {
+      return;
+    }
+    if (state.domain == null) {
+      return;
+    }
 
     final DownloadManagerCubit manager = context.read<DownloadManagerCubit>();
     final elements = state.concreteView.groups[state.groupIndex].elements;
@@ -42,7 +47,7 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView,
       final ElementOfElementsGroupOfConcrete element = elements.firstWhere(
           (ElementOfElementsGroupOfConcrete e) => e.uid == uid);
       await manager.enqueueChapter(
-        client: state.apiClient as MangaApiClient,
+        client: state.apiClient,
         extensionUid: state.configInfo.uid,
         concreteUid: state.concreteView.uid,
         concreteId: state.domain!.id,

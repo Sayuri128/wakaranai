@@ -4,6 +4,7 @@ import 'package:wakaranai/repositories/shared_pref/auto_backup_preferences.dart'
 import 'package:wakaranai/repositories/shared_pref/download_storage_preferences.dart';
 import 'package:wakaranai/repositories/shared_pref/downloads_order_preferences.dart';
 import 'package:wakaranai/repositories/shared_pref/gallery_layout_preferences.dart';
+import 'package:wakaranai/repositories/shared_pref/novel_reader_preferences.dart';
 import 'package:wakaranai/services/extension_preferences/extension_preferences_store.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
 
@@ -11,6 +12,7 @@ class ExportedPreferences {
   static const List<String> keyPrefixes = <String>[
     'PLAYER_',
     'READER_',
+    NovelReaderPreferencesStore.keyPrefix,
     'PAGE_TRANSLATION_',
     ExtensionPreferencesStore.keyPrefix,
   ];

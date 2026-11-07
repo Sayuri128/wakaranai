@@ -27,6 +27,7 @@ class TitleDownloadLabels {
   static TitleDownloadKind _kindOf(ConfigInfoType type) {
     switch (type) {
       case ConfigInfoType.MANGA:
+      case ConfigInfoType.NOVEL:
         return TitleDownloadKind.chapters;
       case ConfigInfoType.ANIME:
         return TitleDownloadKind.episodes;

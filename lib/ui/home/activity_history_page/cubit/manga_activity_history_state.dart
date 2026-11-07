@@ -11,10 +11,16 @@ class ActivityHistoryLoading extends ActivityHistoryState {}
 
 class ActivityHistoryLoaded extends ActivityHistoryState {
   final List<ActivityListItem<ChapterActivityDomain>> mangaActivities;
+  final Set<String> novelExtensionUids;
 
   const ActivityHistoryLoaded({
     required this.mangaActivities,
+    this.novelExtensionUids = const <String>{},
   });
+
+  bool isNovel(ConcreteDataDomain concrete) {
+    return novelExtensionUids.contains(concrete.extensionUid);
+  }
 
 }
 

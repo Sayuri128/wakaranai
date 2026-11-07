@@ -11,6 +11,9 @@ List<String> effectiveContentKinds(ConfigInfo config) {
   if (config.type == ConfigInfoType.MANGA) {
     return const <String>[ContentKinds.manga];
   }
+  if (config.type == ConfigInfoType.NOVEL) {
+    return const <String>[ContentKinds.novel];
+  }
   return const <String>[ContentKinds.anime];
 }
 

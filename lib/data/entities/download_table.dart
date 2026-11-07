@@ -4,7 +4,7 @@ import 'package:wakaranai/data/entities/concrete_data_table.dart';
 
 enum DownloadStatus { queued, downloading, done, failed, paused }
 
-enum DownloadKind { chapter, episode }
+enum DownloadKind { chapter, episode, novelChapter }
 
 @TableIndex(name: 'download_uid', columns: <Symbol>{#uid}, unique: true)
 class DownloadTable extends BaseTable {

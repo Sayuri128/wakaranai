@@ -32,6 +32,9 @@ import 'package:wakaranai/ui/services/anime/native_player/native_player.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
+import 'package:wakaranai/ui/services/novel/novel_concrete_viewer.dart';
+import 'package:wakaranai/ui/services/novel/novel_service_viewer.dart';
+import 'package:wakaranai/ui/services/novel/reader/novel_reader.dart';
 import 'package:wakaranai/ui/splashscreen/splashscreen_view.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
@@ -139,6 +142,14 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                   data: settings.arguments as AnimeConcreteViewerData),
           Routes.chapterViewer: (BuildContext context) =>
               ChapterViewer(data: settings.arguments as ChapterViewerData),
+          Routes.novelServiceViewer: (BuildContext context) =>
+              NovelServiceView(
+                  data: settings.arguments as NovelServiceViewData),
+          Routes.novelConcreteViewer: (BuildContext context) =>
+              NovelConcreteViewer(
+                  data: settings.arguments as NovelConcreteViewerData),
+          Routes.novelReader: (BuildContext context) =>
+              NovelReader(data: settings.arguments as NovelReaderData),
           Routes.webBrowser: (BuildContext context) =>
               WebBrowserPage(data: settings.arguments as WebBrowserData),
           Routes.iframeAnimePlayer: (BuildContext context) => AnimeIframePlayer(

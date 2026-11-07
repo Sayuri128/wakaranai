@@ -40,6 +40,10 @@ void main() {
   test('falls back to the extension type when no kinds are declared', () {
     expect(effectiveContentKinds(extensions[0].config), <String>['manga']);
     expect(effectiveContentKinds(extensions[2].config), <String>['anime']);
+    expect(
+      effectiveContentKinds(_extension('ranobe', type: 2).config),
+      <String>['novel'],
+    );
   });
 
   test('lists kinds in a stable order and languages alphabetically', () {

@@ -34,6 +34,15 @@ class RepoConfigsService implements ConfigsService {
   }
 
   @override
+  Future<List<RemoteConfig>> getNovelConfigs() async {
+    return (await _localRepository.getConfigs("novel"))
+        .configs
+        .where((RemoteConfig element) =>
+            element.config.type == ConfigInfoType.NOVEL)
+        .toList();
+  }
+
+  @override
   void invalidate() {}
 
   @override

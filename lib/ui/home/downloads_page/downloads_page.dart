@@ -350,7 +350,7 @@ class _GroupHeader extends StatelessWidget {
                   ],
                 ),
               ),
-              if (!sample.isEpisode) TranslateAllButton(downloads: downloads),
+              if (sample.hasPageImages) TranslateAllButton(downloads: downloads),
               IconButton(
                 tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
                 icon: Icon(Icons.more_horiz_rounded, color: AppColors.mainGrey),

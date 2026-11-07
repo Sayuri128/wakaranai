@@ -19,6 +19,7 @@ import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
 import 'package:wakaranai/blocs/language_packs/language_packs_cubit.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
+import 'package:wakaranai/blocs/novel_reader_preferences/novel_reader_preferences_cubit.dart';
 import 'package:wakaranai/blocs/reader_preferences/reader_preferences_cubit.dart';
 import 'package:wakaranai/blocs/trackers/trackers_cubit.dart';
 import 'package:wakaranai/services/trackers/tracker_sync_service.dart';
@@ -219,6 +220,11 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
           ),
           BlocProvider<ReaderPreferencesCubit>(
             create: (BuildContext context) => ReaderPreferencesCubit()..init(),
+            lazy: false,
+          ),
+          BlocProvider<NovelReaderPreferencesCubit>(
+            create: (BuildContext context) =>
+                NovelReaderPreferencesCubit()..init(),
             lazy: false,
           ),
           BlocProvider<PageTranslationSettingsCubit>(

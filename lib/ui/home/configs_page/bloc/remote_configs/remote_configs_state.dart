@@ -9,11 +9,13 @@ class RemoteConfigsLoaded extends RemoteConfigsState {
   final String sourceName;
   final List<BaseExtension> mangaRemoteConfigs;
   final List<BaseExtension> animeRemoteConfigs;
+  final List<BaseExtension> novelRemoteConfigs;
   final Map<String, ExtensionListingStatus> listingStatuses;
 
   RemoteConfigsLoaded({
     required this.mangaRemoteConfigs,
     required this.animeRemoteConfigs,
+    this.novelRemoteConfigs = const <BaseExtension>[],
     required this.sourceName,
     this.listingStatuses = const <String, ExtensionListingStatus>{},
   });

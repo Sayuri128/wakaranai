@@ -175,9 +175,12 @@ class _ConfigPageState extends State<ConfigPage> {
     ];
     final List<BaseExtension> visibleVideo =
         _filterNsfw(state.animeRemoteConfigs, showNsfw);
+    final List<BaseExtension> visibleNovels =
+        _filterNsfw(state.novelRemoteConfigs, showNsfw);
     final List<BaseExtension> visible = <BaseExtension>[
       ...visibleManga,
       ...visibleVideo,
+      ...visibleNovels,
     ];
     final List<String> kinds = availableContentKinds(visible);
     final List<String> languages = availableLanguages(visible);
@@ -188,6 +191,9 @@ class _ConfigPageState extends State<ConfigPage> {
     final List<BaseExtension> animeConfigs = visibleVideo
         .where(filter.matches)
         .toList(growable: false);
+    final List<BaseExtension> novelConfigs = visibleNovels
+        .where(filter.matches)
+        .toList(growable: false);
     final ConfigsFilterBar filterBar = ConfigsFilterBar(
       kinds: kinds,
       languages: languages,
@@ -195,7 +201,7 @@ class _ConfigPageState extends State<ConfigPage> {
       onChanged: _changeFilter,
     );
 
-    if (mangaConfigs.isEmpty && animeConfigs.isEmpty) {
+    if (mangaConfigs.isEmpty && animeConfigs.isEmpty && novelConfigs.isEmpty) {
       return <Widget>[
         if (filterBar.isUseful) SliverToBoxAdapter(child: filterBar),
         SliverFillRemaining(
@@ -223,6 +229,13 @@ class _ConfigPageState extends State<ConfigPage> {
           key: const ValueKey<String>('anime'),
           title: S.current.home_anime_group_title,
           remoteConfigs: animeConfigs,
+          listingStatusOf: state.listingStatusOf,
+        ),
+      if (novelConfigs.isNotEmpty)
+        ConfigsGroup(
+          key: const ValueKey<String>('novel'),
+          title: S.current.home_novel_group_title,
+          remoteConfigs: novelConfigs,
           listingStatusOf: state.listingStatusOf,
         ),
       const SliverToBoxAdapter(child: SizedBox(height: 24)),

@@ -1,6 +1,7 @@
 import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/api_clients/novel_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
@@ -57,6 +58,23 @@ T expectClient<T extends ApiClient>(ApiClient client) {
   throw StateError('Expected a $T but got ${client.runtimeType}');
 }
 
+ConfigInfoType downloadTypeOf(ApiClient client) {
+  if (client is AnimeApiClient) {
+    return ConfigInfoType.ANIME;
+  }
+  if (client is NovelApiClient) {
+    return ConfigInfoType.NOVEL;
+  }
+  return ConfigInfoType.MANGA;
+}
+
+ApiClient expectChapterClient(ApiClient client) {
+  if (client is MangaApiClient || client is NovelApiClient) {
+    return client;
+  }
+  throw StateError('Expected a chapter client but got ${client.runtimeType}');
+}
+
 typedef _QueueChoice<T> =
     void Function(T title, Set<int> groups, ChapterDownloadAmount amount);
 
@@ -79,6 +97,7 @@ Widget _buildPanel(
 ) {
   switch (request.type) {
     case ConfigInfoType.MANGA:
+    case ConfigInfoType.NOVEL:
       return _buildChapterPanel(context, request, labels);
     case ConfigInfoType.ANIME:
       return _buildEpisodePanel(context, request, labels);
@@ -101,7 +120,7 @@ Widget _buildChapterPanel(
     labels: labels,
     load: () => request.loadWithClient(
       (ApiClient client) => downloader.load(
-        client: expectClient<MangaApiClient>(client),
+        client: expectChapterClient(client),
         extensionUid: request.extensionUid,
         uid: request.uid,
         galleryData: request.galleryData,

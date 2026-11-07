@@ -115,6 +115,9 @@ class RemoteConfigParser {
     if (rawType == 1) {
       return ConfigInfoType.ANIME;
     }
+    if (rawType == 2) {
+      return ConfigInfoType.NOVEL;
+    }
     final String category =
         _stringOrNull(json['category']) ?? path?.split('/').first ?? '';
     if (category == 'manga') {
@@ -122,6 +125,9 @@ class RemoteConfigParser {
     }
     if (category == 'anime') {
       return ConfigInfoType.ANIME;
+    }
+    if (category == 'novel' || category == 'novels') {
+      return ConfigInfoType.NOVEL;
     }
     return null;
   }

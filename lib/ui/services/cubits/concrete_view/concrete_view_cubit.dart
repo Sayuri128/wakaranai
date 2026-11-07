@@ -22,7 +22,9 @@ import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/services/novels/novel_progress.dart';
 import 'package:wakaranai/services/trackers/tracker_progress.dart';
+import 'package:wakaranai/utils/config_info_type_kinds.dart';
 import 'package:wakaranai/utils/serial_call_queue.dart';
 import 'package:wakaranai/utils/source_error_description.dart';
 
@@ -72,7 +74,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView,
       // Fetch chapter activities to show the user's progress
       final Map<String, ChapterActivityDomain> chapterActivities = {};
 
-      if (state.configInfo.type == ConfigInfoType.MANGA) {
+      if (state.configInfo.type.readsChapters) {
         chapterActivities
             .addAll(await _fetchMangaChapterActivities(concreteView));
       }
@@ -168,7 +170,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView,
       final Map<String, ChapterActivityDomain> chapterActivities = {};
       final Map<String, AnimeEpisodeActivityDomain> animeEpisodeActivities = {};
 
-      if (state.configInfo.type == ConfigInfoType.MANGA) {
+      if (state.configInfo.type.readsChapters) {
         chapterActivities
             .addAll(await _fetchMangaChapterActivities(concreteView));
       } else {
@@ -219,7 +221,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView,
       ConcreteView concreteView) async {
     final Map<String, ChapterActivityDomain> chapterActivities = {};
 
-    if (state.configInfo.type == ConfigInfoType.MANGA) {
+    if (state.configInfo.type.readsChapters) {
       final data = await chapterActivityRepository
           .getAllActivitiesByConcreteId(concreteView.uid);
 
@@ -236,7 +238,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView,
       final ConcreteViewInitialized<T, C, G> state =
           this.state as ConcreteViewInitialized<T, C, G>;
 
-      if (state.configInfo.type == ConfigInfoType.MANGA) {
+      if (state.configInfo.type.readsChapters) {
         _fetchMangaChapterActivities(state.concreteView)
             .then((chapterActivities) {
           if (isClosed) {
@@ -350,7 +352,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView,
       final List<String> selection = List.of(state.selection);
 
       for (String uid in selection) {
-        if (state.configInfo.type == ConfigInfoType.MANGA) {
+        if (state.configInfo.type.readsChapters) {
           await chapterActivityRepository.deleteBy<$ChapterActivityTableTable>(
             uid,
             where: (tbl) => tbl.uid,
@@ -381,7 +383,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView,
         final groupItem = state.concreteView.groups[state.groupIndex].elements
             .firstWhere((element) => element.uid == uid);
 
-        if (state.configInfo.type == ConfigInfoType.MANGA) {
+        if (state.configInfo.type.readsChapters) {
           final chapter = groupItem as Chapter;
 
           final ChapterActivityDomain activity = ChapterActivityDomain(
@@ -396,7 +398,12 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView,
             totalPages: 0,
           );
 
-          await chapterActivityRepository.markCompleted(activity);
+          await chapterActivityRepository.markCompleted(
+            activity,
+            completedPages: state.configInfo.type == ConfigInfoType.NOVEL
+                ? NovelProgress.scale
+                : null,
+          );
         } else if (state.configInfo.type == ConfigInfoType.ANIME) {
           final AnimeVideo episode = groupItem as AnimeVideo;
 

@@ -1,4 +1,4 @@
-import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
@@ -48,7 +48,7 @@ class DownloadableTitle implements TitleDownloadContent {
     required this.downloadedUids,
   });
 
-  final MangaApiClient client;
+  final ApiClient client;
   final String extensionUid;
   final MangaConcreteView concrete;
   final int concreteId;
@@ -95,14 +95,15 @@ class TitleDownloader {
   final DownloadRepository downloadRepository;
 
   Future<DownloadableTitle> load({
-    required MangaApiClient client,
+    required ApiClient client,
     required String extensionUid,
     required String uid,
     required Map<String, dynamic> galleryData,
   }) async {
     final MangaConcreteView concrete = await runSerializedOn(
       client,
-      () => client.getConcrete(uid: uid, data: galleryData),
+      () async => await client.getConcrete(uid: uid, data: galleryData)
+          as MangaConcreteView,
     );
     final ConcreteDataDomain? saved = await concreteDataRepository.saveConcrete(
       concrete,

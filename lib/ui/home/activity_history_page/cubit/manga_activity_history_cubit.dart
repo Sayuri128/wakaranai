@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:wakaranai/services/configs_service/api_client_factory.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
+import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/ui/activity_list_item.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/generated/l10n.dart';
@@ -15,6 +17,8 @@ import 'package:wakaranai/ui/home/activity_history_page/cubit/activity_history_c
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
+import 'package:wakaranai/ui/services/novel/novel_concrete_viewer.dart';
+import 'package:wakaranai/ui/services/novel/novel_service_viewer.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 
 part 'manga_activity_history_state.dart';
@@ -52,6 +56,7 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
             activities: chapterActivities,
             getConcreteId: (activity) => activity.concreteId,
           ),
+          novelExtensionUids: await _novelExtensionUids(),
         ),
       );
     } catch (e) {
@@ -61,6 +66,14 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
         ),
       );
     }
+  }
+
+  Future<Set<String>> _novelExtensionUids() async {
+    final List<ExtensionDomain> extensions = await extensionRepository.getAll();
+    return <String>{
+      for (final ExtensionDomain extension in extensions)
+        if (extension.config.type == ConfigInfoType.NOVEL) extension.config.uid,
+    };
   }
 
   void onDelete({
@@ -78,6 +91,7 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
       emit(
         ActivityHistoryLoaded(
           mangaActivities: removeActivityListItem(copy, activity.uid),
+          novelExtensionUids: loadedState.novelExtensionUids,
         ),
       );
     }
@@ -100,6 +114,11 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
       return;
     }
 
+    if (extension.config.type == ConfigInfoType.NOVEL) {
+      await _openNovel(context, concrete: concrete, extension: extension);
+      return;
+    }
+
     final apiClient = ApiClientFactory.instance
         .manga(config: extension.config, code: extension.sourceCode);
 
@@ -114,6 +133,42 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
       arguments: MangaServiceViewData(
         remoteConfig: extension,
         nextViewerData: MangaConcreteViewerData(
+          uid: concrete.uid,
+          galleryData: concrete.dataJson,
+          coverHeaders: coverHeaders,
+          client: apiClient,
+          configInfo: extension.config,
+          galleryCover: concrete.cover,
+        ),
+      ),
+    )
+        .then((_) {
+      init();
+    }));
+  }
+
+  Future<void> _openNovel(
+    BuildContext context, {
+    required ConcreteDataDomain concrete,
+    required ExtensionDomain extension,
+  }) async {
+    final apiClient = ApiClientFactory.instance
+        .novel(config: extension.config, code: extension.sourceCode);
+
+    final Map<String, String> coverHeaders = await apiClient.getImageHeaders(
+      uid: concrete.uid,
+      data: concrete.dataJson,
+    );
+    if (!context.mounted) {
+      return;
+    }
+
+    unawaited(Navigator.of(context)
+        .pushNamed(
+      Routes.novelServiceViewer,
+      arguments: NovelServiceViewData(
+        remoteConfig: extension,
+        nextViewerData: NovelConcreteViewerData(
           uid: concrete.uid,
           galleryData: concrete.dataJson,
           coverHeaders: coverHeaders,
