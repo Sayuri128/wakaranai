@@ -318,9 +318,13 @@ class ServiceViewerBody<T extends ApiClient, G extends GalleryView>
     SourceErrorDescription description,
   ) {
     final void Function() retry = stateError.retry;
+    void retryWithInterceptor() {
+      unawaited(BrowserInterceptorScope.retry(context, retry));
+    }
+
     return SourceErrorView(
       description: description,
-      onRetry: () => unawaited(BrowserInterceptorScope.retry(context, retry)),
+      onRetry: retryWithInterceptor,
       onSignIn: () => unawaited(
         signInToSource(
           context,
@@ -329,7 +333,35 @@ class ServiceViewerBody<T extends ApiClient, G extends GalleryView>
           onSignedIn: retry,
         ),
       ),
+      extraActions: _galleryErrorExtraActions(
+        context,
+        description,
+        onRetry: retryWithInterceptor,
+      ),
     );
+  }
+
+  List<SourceErrorExtraAction> _galleryErrorExtraActions(
+    BuildContext context,
+    SourceErrorDescription description, {
+    required VoidCallback onRetry,
+  }) {
+    final List<SourceErrorExtraAction> actions = <SourceErrorExtraAction>[];
+    if (!description.offersRetry) {
+      actions.add(SourceErrorExtraAction(
+        icon: Icons.refresh_rounded,
+        label: S.of(context).source_error_retry_button,
+        onPressed: onRetry,
+      ));
+    }
+    if (configInfo.protectorConfig != null && !description.offersSignIn) {
+      actions.add(SourceErrorExtraAction(
+        icon: Icons.public_rounded,
+        label: S.of(context).service_view_open_web_view_button_title,
+        onPressed: () => unawaited(openWebView(context, apiClient, configInfo)),
+      ));
+    }
+    return actions;
   }
 
   Widget _buildHeader(BuildContext context) => ServiceViewerHeader(

@@ -318,6 +318,60 @@ void main() {
       expect(error, isA<SourceError>());
     });
 
+    test('a failed feed switch shows an error instead of an empty grid',
+        () async {
+      cubit.init(_config(feeds: _feeds));
+      await _settled(cubit);
+
+      client.failWith = Exception('network down');
+      await cubit.selectFeed('latest');
+      await _drain();
+
+      expect(cubit.state,
+          isA<ServiceViewError<MangaApiClient, MangaGalleryView>>());
+
+      client.failWith = null;
+      (cubit.state as ServiceViewError<MangaApiClient, MangaGalleryView>)
+          .retry();
+      final _Initialized loaded = await _settled(cubit);
+
+      expect(client.lastCall.feed, 'latest');
+      expect(loaded.galleryViews, hasLength(1));
+    });
+
+    test('a typed error after a feed switch becomes an error state',
+        () async {
+      cubit.init(_config(feeds: _feeds));
+      await _settled(cubit);
+
+      client.failWith = const SourceError(SourceErrorKind.sourceDown);
+      await cubit.selectFeed('latest');
+      await _drain();
+
+      final ServiceViewState<MangaApiClient, MangaGalleryView> state =
+          cubit.state;
+      expect(state, isA<ServiceViewError<MangaApiClient, MangaGalleryView>>());
+      expect(
+        (state as ServiceViewError<MangaApiClient, MangaGalleryView>).error,
+        isA<SourceError>(),
+      );
+    });
+
+    test('pull to refresh recovers from the error state', () async {
+      client.failWith = const SourceError(SourceErrorKind.notFound);
+      cubit.init(_config(feeds: _feeds));
+      await _drain();
+      expect(cubit.state,
+          isA<ServiceViewError<MangaApiClient, MangaGalleryView>>());
+
+      client.failWith = null;
+      await cubit.refresh();
+
+      final _Initialized loaded = await _settled(cubit);
+      expect(loaded.galleryViews, hasLength(1));
+      expect(client.lastCall.page, 1);
+    });
+
     test('a typed error while paging keeps the grid and reports a failure',
         () async {
       cubit.init(_config());

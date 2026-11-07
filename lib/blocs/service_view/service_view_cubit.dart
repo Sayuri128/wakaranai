@@ -29,7 +29,11 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
 
   String? get selectedFeed => _selectedFeed;
 
-  void init(ConfigInfo configInfo) async {
+  void init(ConfigInfo configInfo) {
+    unawaited(_load(configInfo));
+  }
+
+  Future<void> _load(ConfigInfo configInfo) async {
     _configInfo = configInfo;
     _selectedFeed = _initialFeedFor(configInfo);
     final int generation = ++_generation;
@@ -130,7 +134,8 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
       required String? query,
       required List<FilterData>? filters,
       required int generation,
-      required void Function() retry}) async {
+      required void Function() retry,
+      bool replacesGrid = false}) async {
     List<G>? galleryViews;
 
     final T client = state.client;
@@ -146,16 +151,21 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
       logger.e(exception);
       logger.e(stacktrace);
       if (generation == _generation) {
-        _reportFailure(exception, retry);
+        _reportFailure(exception, retry, replacesGrid: replacesGrid);
       }
     }
 
     return galleryViews;
   }
 
-  void _reportFailure(Object error, void Function() retry) {
+  void _reportFailure(
+    Object error,
+    void Function() retry, {
+    required bool replacesGrid,
+  }) {
     final ServiceViewState<T, G> current = state;
-    if (current is ServiceViewInitialized<T, G> &&
+    if (!replacesGrid &&
+        current is ServiceViewInitialized<T, G> &&
         findSourceError(error) != null) {
       emit(current.copyWith(
         failure: ServiceViewFailure(error: error, retry: retry),
@@ -166,13 +176,27 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
         message: error.toString(),
         error: error,
         client: state.client,
-        retry: retry));
+        retry: _reloadFromError));
+  }
+
+  void _reloadFromError() {
+    final ConfigInfo? configInfo = _configInfo;
+    if (configInfo == null) {
+      return;
+    }
+    init(configInfo);
   }
 
   /// Reloads the first page while staying in the initialized state, so the
   /// current grid remains visible during a pull-to-refresh.
   Future<void> refresh() async {
-    if (this.state is! ServiceViewInitialized<T, G>) {
+    final ServiceViewState<T, G> current = this.state;
+    final ConfigInfo? configInfo = _configInfo;
+    if (current is ServiceViewError<T, G> && configInfo != null) {
+      await _load(configInfo);
+      return;
+    }
+    if (current is! ServiceViewInitialized<T, G>) {
       return;
     }
     final ServiceViewInitialized<T, G> state =
@@ -223,6 +247,7 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
 
       galleryViews = state.galleryViews;
       currentPage = state.currentPage;
+      final bool loadingFirstPage = currentPage == 0 && galleryViews.isEmpty;
 
       final List<G>? newGalleryViews = await _getGalleryViews(
           page: currentPage += 1,
@@ -230,6 +255,7 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
           query:
               query ?? (state.searchQuery.isEmpty ? null : state.searchQuery),
           generation: generation,
+          replacesGrid: loadingFirstPage,
           retry: () {
             getGallery(query: query);
           });
@@ -238,6 +264,9 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
       }
 
       if (newGalleryViews == null) {
+        if (loadingFirstPage) {
+          return;
+        }
         emit(
           state.copyWith(
             loading: false,
