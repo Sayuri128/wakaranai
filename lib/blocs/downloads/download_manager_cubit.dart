@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:io';
 
+import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
@@ -12,7 +13,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:wakaranai/blocs/downloads/download_notification_service.dart';
+import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
+import 'package:wakaranai/services/configs_service/prepared_client_pool.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
@@ -57,8 +60,11 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
 
   static const Duration _progressPersistInterval = Duration(milliseconds: 700);
   static const int _pageAttempts = 3;
+  static const Duration _libraryClientsIdleTimeout = Duration(minutes: 2);
 
   final Dio _dio = createDio();
+  final PreparedClientPool _libraryClients = PreparedClientPool();
+  Timer? _libraryClientsIdle;
   final Queue<_DownloadJob> _jobs = Queue<_DownloadJob>();
   final Set<String> _cancelled = <String>{};
   final Map<String, CancelToken> _inFlight = <String, CancelToken>{};
@@ -95,6 +101,15 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       await downloadRepository
           .update(row.copyWith(status: DownloadStatus.failed));
     }
+  }
+
+  Future<MangaApiClient> clientForExtension(ExtensionDomain extension) async {
+    _libraryClientsIdle?.cancel();
+    final ApiClient client = await _libraryClients.clientFor(extension);
+    if (client is! MangaApiClient) {
+      throw StateError('${extension.config.name} is not a manga extension');
+    }
+    return client;
   }
 
   bool isDownloaded(String chapterUid) {
@@ -181,9 +196,22 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
   }
 
+  void _scheduleLibraryClientsRelease() {
+    _libraryClientsIdle?.cancel();
+    if (_libraryClients.isEmpty) {
+      return;
+    }
+    _libraryClientsIdle = Timer(_libraryClientsIdleTimeout, () {
+      if (!_processing && _jobs.isEmpty) {
+        unawaited(_libraryClients.dispose());
+      }
+    });
+  }
+
   Future<void> _process() async {
     if (_processing) return;
     _processing = true;
+    _libraryClientsIdle?.cancel();
     _completedInBatch = 0;
     _batchIndex = 0;
     try {
@@ -205,6 +233,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         await notificationService.showComplete(_completedInBatch);
       }
       _completedInBatch = 0;
+      _scheduleLibraryClientsRelease();
     }
   }
 
@@ -435,8 +464,10 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
           (int i) => p.join(download.dirPath, _pageFileName(i)));
 
   @override
-  Future<void> close() {
-    _sub?.cancel();
+  Future<void> close() async {
+    await _sub?.cancel();
+    _libraryClientsIdle?.cancel();
+    await _libraryClients.dispose();
     return super.close();
   }
 }

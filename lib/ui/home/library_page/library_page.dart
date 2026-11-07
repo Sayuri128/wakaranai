@@ -1,3 +1,8 @@
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
+import 'package:wakaranai/data/domain/database/extension_domain.dart';
+import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/ui/services/widgets/title_download_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
@@ -478,9 +483,16 @@ class _LibraryPageState extends State<LibraryPage> {
     );
   }
 
-  void _showEntryActions(
-      BuildContext context, LibraryState state, LibraryEntryDomain entry) {
-    showActionSheet(
+  Future<void> _showEntryActions(
+      BuildContext context, LibraryState state, LibraryEntryDomain entry) async {
+    final ExtensionDomain? extension =
+        await context.read<ExtensionRepository>().getByUid(entry.extensionUid);
+    final bool canDownload =
+        extension?.config.type == ConfigInfoType.MANGA;
+    if (!context.mounted) {
+      return;
+    }
+    await showActionSheet(
       context,
       title: entry.title,
       child: Column(
@@ -495,6 +507,15 @@ class _LibraryPageState extends State<LibraryPage> {
               _showMoveToCategorySheet(context, state, entry);
             },
           ),
+          if (canDownload)
+            ActionSheetRow(
+              icon: Icons.download_rounded,
+              label: S.current.title_download,
+              onTap: () {
+                Navigator.of(context).pop();
+                _showDownloadSheet(context, entry);
+              },
+            ),
           ActionSheetRow(
             icon: Icons.autorenew_rounded,
             label: S.current.library_track_updates,
@@ -530,6 +551,27 @@ class _LibraryPageState extends State<LibraryPage> {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  void _showDownloadSheet(BuildContext context, LibraryEntryDomain entry) {
+    final LibraryCubit library = context.read<LibraryCubit>();
+    final DownloadManagerCubit downloads = context.read<DownloadManagerCubit>();
+    showTitleDownloadSheet(
+      context,
+      request: TitleDownloadRequest(
+        uid: entry.uid,
+        extensionUid: entry.extensionUid,
+        galleryData: entry.dataJson,
+        loadClient: () async {
+          final ExtensionDomain? extension =
+              await library.extensionResolver.resolve(entry.extensionUid);
+          if (extension == null) {
+            throw StateError('Extension ${entry.extensionUid} is unavailable');
+          }
+          return downloads.clientForExtension(extension);
+        },
       ),
     );
   }
