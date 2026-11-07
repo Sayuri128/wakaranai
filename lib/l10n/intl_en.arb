@@ -359,6 +359,7 @@
   "downloads_delete_confirmation_message": "This chapter will be removed from this device.",
   "downloads_confirm_delete": "Delete",
   "downloads_confirm_cancel": "Cancel",
+  "downloads_episode_files_missing": "This episode's downloaded files are missing. Download it again to watch offline.",
   "downloads_pages_progress": "{done}/{total} pages",
   "@downloads_pages_progress": {
     "placeholders": {

@@ -500,6 +500,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_empty_title": MessageLookupByLibrary.simpleMessage(
       "No downloads",
     ),
+    "downloads_episode_files_missing": MessageLookupByLibrary.simpleMessage(
+      "This episode\'s downloaded files are missing. Download it again to watch offline.",
+    ),
     "downloads_notification_channel_name": MessageLookupByLibrary.simpleMessage(
       "Downloads",
     ),

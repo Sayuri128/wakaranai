@@ -2687,6 +2687,16 @@ class S {
     );
   }
 
+  /// `This episode's downloaded files are missing. Download it again to watch offline.`
+  String get downloads_episode_files_missing {
+    return Intl.message(
+      'This episode\'s downloaded files are missing. Download it again to watch offline.',
+      name: 'downloads_episode_files_missing',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{done}/{total} pages`
   String downloads_pages_progress(Object done, Object total) {
     return Intl.message(
