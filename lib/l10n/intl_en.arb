@@ -1088,5 +1088,6 @@
   "settings_player_skip_opening_subtitle": "How far the skip button jumps ahead",
   "settings_player_skip_opening_value": "{seconds}s",
   "settings_player_auto_next_title": "Auto-play next episode",
-  "settings_player_auto_next_subtitle": "Count down and start the next episode when one ends"
+  "settings_player_auto_next_subtitle": "Count down and start the next episode when one ends",
+  "native_player_pip_enter": "Picture-in-picture"
 }

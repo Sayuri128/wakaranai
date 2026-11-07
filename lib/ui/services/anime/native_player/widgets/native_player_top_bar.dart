@@ -21,6 +21,7 @@ class NativePlayerTopBar extends StatelessWidget {
     this.subtitlesActive = false,
     this.onQuality,
     this.qualityLabel,
+    this.onPictureInPicture,
   });
 
   final String title;
@@ -35,6 +36,7 @@ class NativePlayerTopBar extends StatelessWidget {
   final double playbackSpeed;
   final VoidCallback onSpeed;
   final VoidCallback onMore;
+  final VoidCallback? onPictureInPicture;
 
   @override
   Widget build(BuildContext context) {
@@ -135,6 +137,12 @@ class NativePlayerTopBar extends StatelessWidget {
         ),
       if (onQuality != null) _buildQualityButton(strings),
       _buildSpeedButton(strings),
+      if (onPictureInPicture != null)
+        _buildIconButton(
+          icon: Icons.picture_in_picture_alt_rounded,
+          tooltip: strings.native_player_pip_enter,
+          onPressed: onPictureInPicture,
+        ),
       _buildIconButton(
         icon: Icons.more_vert_rounded,
         tooltip: strings.native_player_more,

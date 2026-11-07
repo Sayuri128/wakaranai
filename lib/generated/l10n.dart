@@ -6137,6 +6137,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Picture-in-picture`
+  String get native_player_pip_enter {
+    return Intl.message(
+      'Picture-in-picture',
+      name: 'native_player_pip_enter',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

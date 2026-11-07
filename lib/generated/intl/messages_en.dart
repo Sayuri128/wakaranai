@@ -830,6 +830,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Open in web player",
     ),
     "native_player_pause": MessageLookupByLibrary.simpleMessage("Pause"),
+    "native_player_pip_enter": MessageLookupByLibrary.simpleMessage(
+      "Picture-in-picture",
+    ),
     "native_player_play": MessageLookupByLibrary.simpleMessage("Play"),
     "native_player_quality": MessageLookupByLibrary.simpleMessage("Quality"),
     "native_player_quality_auto": MessageLookupByLibrary.simpleMessage("Auto"),

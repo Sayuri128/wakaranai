@@ -18,9 +18,11 @@ import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.da
 import 'package:wakaranai/ui/services/anime/native_player/cubit/native_player_cubit.dart';
 import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store.dart';
 import 'package:wakaranai/ui/services/anime/native_player/native_player_engine.dart';
+import 'package:wakaranai/ui/services/anime/native_player/picture_in_picture.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_device_controls.dart';
 import 'package:wakaranai/ui/services/anime/native_player/subtitle_loader.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_overlay.dart';
+import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_pip_scope.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -58,23 +60,55 @@ Future<EpisodePlayerResult?> openNativePlayer(
   return null;
 }
 
+typedef NativePlayerCubitFactory = NativePlayerCubit Function(
+  BuildContext context,
+);
+
 class NativePlayer extends StatefulWidget {
-  const NativePlayer({super.key, required this.data});
+  const NativePlayer({
+    super.key,
+    required this.data,
+    this.pictureInPicture,
+    this.deviceControls,
+    this.cubitFactory,
+  });
 
   final NativePlayerData data;
+  final PictureInPicture? pictureInPicture;
+  final PlayerDeviceControls? deviceControls;
+  final NativePlayerCubitFactory? cubitFactory;
 
   @override
   State<NativePlayer> createState() => _NativePlayerState();
 }
 
 class _NativePlayerState extends State<NativePlayer> {
-  final PlayerDeviceControls _deviceControls = PluginPlayerDeviceControls();
+  late final PlayerDeviceControls _deviceControls;
+  late final PictureInPicture _pictureInPicture;
+  late final bool _ownsPictureInPicture;
+  ModalRoute<Object?>? _route;
+  bool _pictureInPictureSupported = false;
   bool _leaving = false;
 
   @override
   void initState() {
     super.initState();
+    _deviceControls = widget.deviceControls ?? PluginPlayerDeviceControls();
+    final PictureInPicture? injectedPictureInPicture = widget.pictureInPicture;
+    _ownsPictureInPicture = injectedPictureInPicture == null;
+    _pictureInPicture = injectedPictureInPicture ?? createPictureInPicture();
     unawaited(_deviceControls.rememberOpeningVolume());
+    unawaited(_resolvePictureInPictureSupport());
+    _applyPlayerSystemUi();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _route = ModalRoute.of(context);
+  }
+
+  void _applyPlayerSystemUi() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     SystemChrome.setPreferredOrientations(<DeviceOrientation>[
       DeviceOrientation.landscapeLeft,
@@ -82,8 +116,35 @@ class _NativePlayerState extends State<NativePlayer> {
     ]);
   }
 
+  Future<void> _resolvePictureInPictureSupport() async {
+    final bool supported = await _pictureInPicture.isSupported();
+    if (!mounted || !supported) {
+      return;
+    }
+    setState(() {
+      _pictureInPictureSupported = true;
+    });
+  }
+
+  bool get _inPictureInPicture => _pictureInPicture.inPictureInPicture.value;
+
+  void _onPictureInPictureEntered() {
+    final ModalRoute<Object?>? route = _route;
+    if (route == null || route.isCurrent || !route.isActive) {
+      return;
+    }
+    Navigator.of(context).popUntil((Route<dynamic> other) => other == route);
+  }
+
+  void _enterPictureInPicture() {
+    unawaited(_pictureInPicture.enter());
+  }
+
   @override
   void dispose() {
+    if (_ownsPictureInPicture) {
+      _pictureInPicture.dispose();
+    }
     unawaited(WakelockPlus.disable());
     unawaited(_deviceControls.restoreBrightness());
     unawaited(_deviceControls.restoreVolume());
@@ -99,43 +160,70 @@ class _NativePlayerState extends State<NativePlayer> {
   Widget build(BuildContext context) {
     return BlocProvider<NativePlayerCubit>(
       lazy: false,
-      create: _createCubit,
-      child: MultiBlocListener(
-        listeners: <BlocListener<NativePlayerCubit, NativePlayerState>>[
-          BlocListener<NativePlayerCubit, NativePlayerState>(
-            listenWhen: (NativePlayerState previous, NativePlayerState current) =>
-                previous.isPlaying != current.isPlaying ||
-                previous.subtitleFailed != current.subtitleFailed,
-            listener: _onStateChanged,
-          ),
-          BlocListener<NativePlayerCubit, NativePlayerState>(
-            listenWhen: (NativePlayerState previous, NativePlayerState current) =>
-                previous.speedRejections < current.speedRejections,
-            listener: _onSpeedRejected,
-          ),
-          BlocListener<NativePlayerCubit, NativePlayerState>(
-            listenWhen: (NativePlayerState previous, NativePlayerState current) =>
-                previous.webPlayerRequest == null &&
-                current.webPlayerRequest != null,
-            listener: (BuildContext context, NativePlayerState state) =>
-                _leaveWith(state.webPlayerRequest),
-          ),
-        ],
-        child: BlocBuilder<NativePlayerCubit, NativePlayerState>(
-          builder: (BuildContext context, NativePlayerState state) {
-            return PopScope(
-              canPop: !state.switchingEpisode,
-              onPopInvokedWithResult: (bool didPop, Object? result) {
-                if (!didPop) {
-                  _cancelSwitch(context);
-                }
-              },
-              child: _buildForState(context, state),
-            );
-          },
-        ),
+      create: _startCubit,
+      child: NativePlayerPipScope(
+        pictureInPicture: _pictureInPicture,
+        enabled: _pictureInPictureSupported,
+        onEnter: _onPictureInPictureEntered,
+        onExit: _applyPlayerSystemUi,
+        child: _buildListeners(),
       ),
     );
+  }
+
+  Widget _buildListeners() {
+    return MultiBlocListener(
+      listeners: <BlocListener<NativePlayerCubit, NativePlayerState>>[
+        BlocListener<NativePlayerCubit, NativePlayerState>(
+          listenWhen: (NativePlayerState previous, NativePlayerState current) =>
+              previous.isPlaying != current.isPlaying ||
+              previous.subtitleFailed != current.subtitleFailed,
+          listener: _onStateChanged,
+        ),
+        BlocListener<NativePlayerCubit, NativePlayerState>(
+          listenWhen: (NativePlayerState previous, NativePlayerState current) =>
+              previous.speedRejections < current.speedRejections,
+          listener: _onSpeedRejected,
+        ),
+        BlocListener<NativePlayerCubit, NativePlayerState>(
+          listenWhen: (NativePlayerState previous, NativePlayerState current) =>
+              previous.webPlayerRequest == null &&
+              current.webPlayerRequest != null,
+          listener: (BuildContext context, NativePlayerState state) =>
+              _leaveWith(state.webPlayerRequest),
+        ),
+      ],
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _pictureInPicture.inPictureInPicture,
+        builder: (BuildContext context, bool inPictureInPicture, Widget? child) {
+          return _buildPlayerStates(inPictureInPicture);
+        },
+      ),
+    );
+  }
+
+  Widget _buildPlayerStates(bool inPictureInPicture) {
+    return BlocBuilder<NativePlayerCubit, NativePlayerState>(
+      builder: (BuildContext context, NativePlayerState state) {
+        return PopScope(
+          canPop: !state.switchingEpisode,
+          onPopInvokedWithResult: (bool didPop, Object? result) {
+            if (!didPop) {
+              _cancelSwitch(context);
+            }
+          },
+          child: _buildForState(context, state, inPictureInPicture),
+        );
+      },
+    );
+  }
+
+  NativePlayerCubit _startCubit(BuildContext context) {
+    final NativePlayerCubitFactory factory =
+        widget.cubitFactory ?? _createCubit;
+    final NativePlayerCubit cubit = factory(context);
+    unawaited(cubit.init());
+    return cubit;
   }
 
   NativePlayerCubit _createCubit(BuildContext context) {
@@ -143,7 +231,7 @@ class _NativePlayerState extends State<NativePlayer> {
         context.read<ConcreteDataRepository>();
     final AnimeEpisodeActivityRepository animeEpisodeActivityRepository =
         context.read<AnimeEpisodeActivityRepository>();
-    final NativePlayerCubit cubit = NativePlayerCubit(
+    return NativePlayerCubit(
       video: widget.data.video,
       playlist: widget.data.playlist,
       engineFactory: VideoPlayerEngine.new,
@@ -158,8 +246,6 @@ class _NativePlayerState extends State<NativePlayer> {
       watchedEpisodeUids: widget.data.watchedEpisodeUids,
       preferences: PlayerPreferences(),
     );
-    unawaited(cubit.init());
-    return cubit;
   }
 
   void _onStateChanged(BuildContext context, NativePlayerState state) {
@@ -168,7 +254,7 @@ class _NativePlayerState extends State<NativePlayer> {
     } else {
       unawaited(WakelockPlus.disable());
     }
-    if (state.subtitleFailed) {
+    if (state.subtitleFailed && !_inPictureInPicture) {
       SnackBars.showErrorSnackBar(
         context: context,
         error: S.of(context).native_player_subtitle_failed,
@@ -177,6 +263,9 @@ class _NativePlayerState extends State<NativePlayer> {
   }
 
   void _onSpeedRejected(BuildContext context, NativePlayerState state) {
+    if (_inPictureInPicture) {
+      return;
+    }
     SnackBars.showErrorSnackBar(
       context: context,
       error: S.of(context).native_player_speed_unsupported,
@@ -203,15 +292,32 @@ class _NativePlayerState extends State<NativePlayer> {
     Navigator.of(context).pop(result);
   }
 
-  Widget _buildForState(BuildContext context, NativePlayerState state) {
+  Widget _buildForState(
+    BuildContext context,
+    NativePlayerState state,
+    bool inPictureInPicture,
+  ) {
     switch (state.status) {
       case NativePlayerStatus.loading:
+        if (inPictureInPicture) {
+          return _buildPictureInPicturePlaceholder();
+        }
         return _buildLoading(context, state);
       case NativePlayerStatus.error:
+        if (inPictureInPicture) {
+          return _buildPictureInPicturePlaceholder();
+        }
         return _buildError(context, state);
       case NativePlayerStatus.ready:
-        return _buildPlayer(context, state);
+        return _buildPlayer(context, state, inPictureInPicture);
     }
+  }
+
+  Widget _buildPictureInPicturePlaceholder() {
+    return const ColoredBox(
+      color: Colors.black,
+      child: SizedBox.expand(),
+    );
   }
 
   Widget _buildLoading(BuildContext context, NativePlayerState state) {
@@ -344,26 +450,38 @@ class _NativePlayerState extends State<NativePlayer> {
     ];
   }
 
-  Widget _buildPlayer(BuildContext context, NativePlayerState state) {
+  Widget _buildPlayer(
+    BuildContext context,
+    NativePlayerState state,
+    bool inPictureInPicture,
+  ) {
     final NativePlayerEngine? engine = state.engine;
     if (engine == null) {
+      if (inPictureInPicture) {
+        return _buildPictureInPicturePlaceholder();
+      }
       return _buildLoading(context, state);
     }
+    final PlayerFitMode fitMode =
+        inPictureInPicture ? PlayerFitMode.fit : state.fitMode;
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          _buildVideoView(engine, state.engineGeneration, state.fitMode),
-          NativePlayerOverlay(
-            playback: engine,
-            deviceControls: _deviceControls,
-            state: state,
-            title: widget.data.anime.title,
-            subtitle: state.playlist.current.title,
-            onBack: _close,
-            onOpenWebPlayer: () => _openInWebPlayer(state.playlist),
-          ),
+          _buildVideoView(engine, state.engineGeneration, fitMode),
+          if (!inPictureInPicture)
+            NativePlayerOverlay(
+              playback: engine,
+              deviceControls: _deviceControls,
+              state: state,
+              title: widget.data.anime.title,
+              subtitle: state.playlist.current.title,
+              onBack: _close,
+              onOpenWebPlayer: () => _openInWebPlayer(state.playlist),
+              onPictureInPicture:
+                  _pictureInPictureSupported ? _enterPictureInPicture : null,
+            ),
         ],
       ),
     );

@@ -46,6 +46,7 @@ class NativePlayerOverlay extends StatefulWidget {
     required this.subtitle,
     required this.onBack,
     required this.onOpenWebPlayer,
+    this.onPictureInPicture,
   });
 
   final ValueListenable<VideoPlayerValue> playback;
@@ -55,6 +56,7 @@ class NativePlayerOverlay extends StatefulWidget {
   final String? subtitle;
   final VoidCallback onBack;
   final VoidCallback onOpenWebPlayer;
+  final VoidCallback? onPictureInPicture;
 
   @override
   State<NativePlayerOverlay> createState() => _NativePlayerOverlayState();
@@ -587,6 +589,7 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
       playbackSpeed: widget.state.playbackSpeed,
       onSpeed: () => unawaited(_openSpeedPicker()),
       onMore: () => unawaited(_openMoreSheet()),
+      onPictureInPicture: widget.onPictureInPicture,
     );
   }
 
