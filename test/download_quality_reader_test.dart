@@ -65,18 +65,25 @@ void main() {
       expect(playerReads, 1);
     });
 
-    test('ignores the player quality when a fixed quality is chosen', () async {
-      int playerReads = 0;
+    test('a fixed quality replaces the player quality but keeps its audio',
+        () async {
       final QualityPreference result = await downloadQualityPreferenceReader(
         readDownloadQuality: () async => DownloadQuality.p480,
-        readPlayerQuality: () async {
-          playerReads++;
-          return playerChoice;
-        },
+        readPlayerQuality: () async => const QualityPreference(
+          streamLabel: 'Kodik',
+          renditionLabel: '360p',
+          audioLabel: 'AniLibria',
+        ),
       )();
 
-      expect(result.renditionLabel, '480p');
-      expect(playerReads, 0);
+      expect(
+        result,
+        const QualityPreference(
+          streamLabel: '480p',
+          renditionLabel: '480p',
+          audioLabel: 'AniLibria',
+        ),
+      );
     });
 
     test('defaults to the player quality with nothing stored', () async {
@@ -138,6 +145,64 @@ void main() {
 
     test('orders the download attempts from the preferred stream', () {
       expect(downloadableStreamOrder(streams, 'Auto'), <int>[1, 0, 2]);
+    });
+  });
+
+  group('download audio preference', () {
+    const List<PlayableStream> dubs = <PlayableStream>[
+      PlayableStream(
+        url: 'https://a/sub720',
+        quality: '720p',
+        audioLabel: 'Sub',
+      ),
+      PlayableStream(
+        url: 'https://a/sub1080',
+        quality: '1080p',
+        audioLabel: 'Sub',
+      ),
+      PlayableStream(
+        url: 'https://a/dub720',
+        quality: '720p',
+        audioLabel: 'Dub',
+      ),
+      PlayableStream(
+        url: 'https://a/dub480',
+        quality: '480p',
+        audioLabel: 'Dub',
+      ),
+    ];
+
+    test('quality and audio together win', () {
+      expect(
+        preferredDownloadStreamIndex(dubs, '720p', audioLabel: 'dub'),
+        2,
+      );
+    });
+
+    test('the remembered audio beats a quality match in another audio', () {
+      expect(
+        preferredDownloadStreamIndex(dubs, '1080p', audioLabel: 'Dub'),
+        2,
+      );
+      expect(
+        preferredDownloadStreamIndex(dubs, 'Kodik', audioLabel: 'Dub'),
+        2,
+      );
+    });
+
+    test('an unknown audio falls back to the quality match', () {
+      expect(
+        preferredDownloadStreamIndex(dubs, '1080p', audioLabel: 'Raw'),
+        1,
+      );
+      expect(preferredDownloadStreamIndex(dubs, null, audioLabel: 'Raw'), 0);
+    });
+
+    test('the download order starts at the remembered audio', () {
+      expect(
+        downloadableStreamOrder(dubs, '480p', audioLabel: 'Dub'),
+        <int>[3, 0, 1, 2],
+      );
     });
   });
 }

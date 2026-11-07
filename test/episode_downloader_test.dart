@@ -1130,5 +1130,36 @@ main.mp4
       expect(manifest.audioLabel, 'Studio Dub');
       expect(manifest.skipMarkers, markers);
     });
+
+    test('downloads the stream with the remembered audio', () async {
+      const String dubUrl = 'https://host.example/dub.mp4';
+      final FakeEpisodeHttp http = FakeEpisodeHttp()
+        ..serveBytes(dubUrl, mp4Bytes('dub', 50));
+
+      final EpisodeDownloadManifest manifest = await run(
+        http,
+        video: const PlayableVideo(
+          streams: <PlayableStream>[
+            PlayableStream(
+              url: 'https://host.example/sub.mp4',
+              quality: '1080p',
+              audioLabel: 'Subtitles',
+            ),
+            PlayableStream(
+              url: dubUrl,
+              quality: '1080p',
+              audioLabel: 'Studio Dub',
+            ),
+          ],
+        ),
+        quality: const QualityPreference(
+          streamLabel: '1080p',
+          audioLabel: 'Studio Dub',
+        ),
+      );
+
+      expect(http.urls, isNot(contains('https://host.example/sub.mp4')));
+      expect(manifest.audioLabel, 'Studio Dub');
+    });
   });
 }

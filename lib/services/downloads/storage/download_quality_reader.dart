@@ -3,23 +3,30 @@ import 'package:wakaranai/repositories/shared_pref/download_storage_preferences.
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_quality.dart';
 
-QualityPreference? fixedQualityPreferenceOf(DownloadQuality quality) {
+QualityPreference? fixedQualityPreferenceOf(
+  DownloadQuality quality, {
+  String? audioLabel,
+}) {
   switch (quality) {
     case DownloadQuality.sameAsPlayer:
       return null;
     case DownloadQuality.highest:
-      return _qualityAt(kAutoQualityLabel);
+      return _qualityAt(kAutoQualityLabel, audioLabel);
     case DownloadQuality.p1080:
-      return _qualityAt('1080p');
+      return _qualityAt('1080p', audioLabel);
     case DownloadQuality.p720:
-      return _qualityAt('720p');
+      return _qualityAt('720p', audioLabel);
     case DownloadQuality.p480:
-      return _qualityAt('480p');
+      return _qualityAt('480p', audioLabel);
   }
 }
 
-QualityPreference _qualityAt(String label) {
-  return QualityPreference(streamLabel: label, renditionLabel: label);
+QualityPreference _qualityAt(String label, String? audioLabel) {
+  return QualityPreference(
+    streamLabel: label,
+    renditionLabel: label,
+    audioLabel: audioLabel,
+  );
 }
 
 QualityPreferenceReader downloadQualityPreferenceReader({
@@ -28,11 +35,15 @@ QualityPreferenceReader downloadQualityPreferenceReader({
 }) {
   return () async {
     final DownloadQuality quality = await readDownloadQuality();
-    final QualityPreference? fixed = fixedQualityPreferenceOf(quality);
+    final QualityPreference playerQuality = await readPlayerQuality();
+    final QualityPreference? fixed = fixedQualityPreferenceOf(
+      quality,
+      audioLabel: playerQuality.audioLabel,
+    );
     if (fixed != null) {
       return fixed;
     }
-    return readPlayerQuality();
+    return playerQuality;
   };
 }
 

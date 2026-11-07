@@ -88,8 +88,9 @@ HlsAudioRendition? pickAudioRendition(
 
 List<int> downloadableStreamOrder(
   List<PlayableStream> streams,
-  String? streamLabel,
-) {
+  String? streamLabel, {
+  String? audioLabel,
+}) {
   final List<int> preferredForDownload = <int>[
     for (int index = 0; index < streams.length; index++)
       if (streams[index].preferForDownload) index,
@@ -99,8 +100,13 @@ List<int> downloadableStreamOrder(
       if (!streams[index].preferForDownload) index,
   ];
   final List<int> order = <int>[
-    ..._qualityOrderAmong(streams, preferredForDownload, streamLabel),
-    ..._qualityOrderAmong(streams, others, streamLabel),
+    ..._qualityOrderAmong(
+      streams,
+      preferredForDownload,
+      streamLabel,
+      audioLabel,
+    ),
+    ..._qualityOrderAmong(streams, others, streamLabel, audioLabel),
   ];
   return order
       .where(
@@ -114,6 +120,7 @@ List<int> _qualityOrderAmong(
   List<PlayableStream> streams,
   List<int> candidates,
   String? streamLabel,
+  String? audioLabel,
 ) {
   if (candidates.isEmpty) {
     return const <int>[];
@@ -121,8 +128,11 @@ List<int> _qualityOrderAmong(
   final List<PlayableStream> subset = <PlayableStream>[
     for (final int index in candidates) streams[index],
   ];
-  final int preferred =
-      candidates[preferredDownloadStreamIndex(subset, streamLabel)];
+  final int preferred = candidates[preferredDownloadStreamIndex(
+    subset,
+    streamLabel,
+    audioLabel: audioLabel,
+  )];
   return <int>[
     preferred,
     for (final int index in candidates)
@@ -142,6 +152,43 @@ bool isQualityTierLabel(String? label) {
 }
 
 int preferredDownloadStreamIndex(
+  List<PlayableStream> streams,
+  String? streamLabel, {
+  String? audioLabel,
+}) {
+  final List<int> sameAudio = _streamIndexesWithAudio(streams, audioLabel);
+  if (sameAudio.isEmpty) {
+    return _preferredQualityIndex(streams, streamLabel);
+  }
+  final List<PlayableStream> withPreferredAudio = <PlayableStream>[
+    for (final int index in sameAudio) streams[index],
+  ];
+  return sameAudio[_preferredQualityIndex(withPreferredAudio, streamLabel)];
+}
+
+List<int> _streamIndexesWithAudio(
+  List<PlayableStream> streams,
+  String? audioLabel,
+) {
+  final String? wanted = _normalizedLabel(audioLabel);
+  if (wanted == null) {
+    return const <int>[];
+  }
+  return <int>[
+    for (int index = 0; index < streams.length; index++)
+      if (_normalizedLabel(streams[index].audioLabel) == wanted) index,
+  ];
+}
+
+String? _normalizedLabel(String? label) {
+  final String? normalized = label?.trim().toLowerCase();
+  if (normalized == null || normalized.isEmpty) {
+    return null;
+  }
+  return normalized;
+}
+
+int _preferredQualityIndex(
   List<PlayableStream> streams,
   String? streamLabel,
 ) {

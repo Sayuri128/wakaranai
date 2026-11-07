@@ -108,6 +108,7 @@ class _EpisodeDownloadRun {
     final List<int> order = downloadableStreamOrder(
       video.streams,
       quality.streamLabel,
+      audioLabel: quality.audioLabel,
     );
     if (order.isEmpty) {
       throw const UnsupportedEpisodeDownload(
