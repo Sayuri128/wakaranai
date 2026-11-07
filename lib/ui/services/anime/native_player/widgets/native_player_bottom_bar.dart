@@ -9,7 +9,6 @@ class NativePlayerBottomBar extends StatelessWidget {
     required this.isPlaying,
     required this.onBack,
     required this.onTogglePlay,
-    required this.onNextEpisode,
     required this.onSubtitles,
     required this.onSpeed,
     required this.onQuality,
@@ -18,13 +17,22 @@ class NativePlayerBottomBar extends StatelessWidget {
     required this.onOpenWebPlayer,
     required this.onLock,
     this.subtitlesActive = false,
+    this.showEpisodeNavigation = false,
+    this.onPreviousEpisode,
+    this.onNextEpisode,
+    this.onEpisodes,
+    this.onGroups,
   });
 
   final bool isPlaying;
   final bool subtitlesActive;
   final VoidCallback onBack;
   final VoidCallback onTogglePlay;
+  final bool showEpisodeNavigation;
+  final VoidCallback? onPreviousEpisode;
   final VoidCallback? onNextEpisode;
+  final VoidCallback? onEpisodes;
+  final VoidCallback? onGroups;
   final VoidCallback? onSubtitles;
   final VoidCallback onSpeed;
   final VoidCallback? onQuality;
@@ -43,19 +51,37 @@ class NativePlayerBottomBar extends StatelessWidget {
           tooltip: strings.common_go_back,
           onPressed: onBack,
         ),
+        if (showEpisodeNavigation)
+          _buildButton(
+            icon: Icons.skip_previous_rounded,
+            tooltip: strings.player_previous_episode,
+            onPressed: onPreviousEpisode,
+          ),
         _buildButton(
           icon: isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
           tooltip: isPlaying ? strings.native_player_pause : strings.native_player_play,
           onPressed: onTogglePlay,
           size: 32,
         ),
-        if (onNextEpisode != null)
+        if (showEpisodeNavigation)
           _buildButton(
             icon: Icons.skip_next_rounded,
             tooltip: strings.native_player_next_episode,
-            onPressed: onNextEpisode!,
+            onPressed: onNextEpisode,
           ),
         const Spacer(),
+        if (onEpisodes != null)
+          _buildButton(
+            icon: Icons.format_list_numbered_rounded,
+            tooltip: strings.player_episodes,
+            onPressed: onEpisodes,
+          ),
+        if (onGroups != null)
+          _buildButton(
+            icon: Icons.record_voice_over_rounded,
+            tooltip: strings.player_dub_player,
+            onPressed: onGroups,
+          ),
         if (onSubtitles != null)
           _buildButton(
             icon: subtitlesActive
@@ -98,7 +124,7 @@ class NativePlayerBottomBar extends StatelessWidget {
   Widget _buildButton({
     required IconData icon,
     required String tooltip,
-    required VoidCallback onPressed,
+    required VoidCallback? onPressed,
     double size = 24,
     bool highlighted = false,
   }) {
@@ -107,6 +133,7 @@ class NativePlayerBottomBar extends StatelessWidget {
       onPressed: onPressed,
       iconSize: size,
       color: highlighted ? AppColors.primary : AppColors.onMedia,
+      disabledColor: AppColors.onMedia.withValues(alpha: 0.3),
       icon: Icon(icon),
     );
   }

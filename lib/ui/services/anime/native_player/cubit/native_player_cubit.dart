@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +8,9 @@ import 'package:video_player/video_player.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/episode_playback_resolver.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
 import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store.dart';
 import 'package:wakaranai/ui/services/anime/native_player/native_player_engine.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_track_selection.dart';
@@ -32,33 +36,49 @@ const List<double> kNativePlayerSpeeds = <double>[
 const Duration kNativePlayerSeekStep = Duration(seconds: 10);
 const int kAutoNextCountdownSeconds = 5;
 
+typedef EpisodeProgressStoreFactory = EpisodeProgressStore Function(
+  AnimeVideo episode,
+);
+
 class NativePlayerCubit extends Cubit<NativePlayerState> {
   NativePlayerCubit({
-    required this.video,
+    required PlayableVideo video,
+    required EpisodePlaylist playlist,
     required NativePlayerEngineFactory engineFactory,
-    required EpisodeProgressStore progressStore,
+    required EpisodeProgressStoreFactory progressStoreFor,
     required SubtitleLoader subtitleLoader,
+    EpisodeResolver? resolveEpisode,
+    Set<String> watchedEpisodeUids = const <String>{},
     PlayerPreferences? preferences,
-    this.hasNextEpisode = false,
     Duration progressSaveInterval = const Duration(seconds: 10),
     Duration autoNextTick = const Duration(seconds: 1),
-  })  : _engineFactory = engineFactory,
-        _progressStore = progressStore,
+  })  : _video = video,
+        _engineFactory = engineFactory,
+        _progressStoreFor = progressStoreFor,
+        _progressStore = progressStoreFor(playlist.current),
+        _resolveEpisode = resolveEpisode,
         _subtitleLoader = subtitleLoader,
         _preferences = preferences ?? PlayerPreferences(),
         _progressSaveInterval = progressSaveInterval,
         _autoNextTick = autoNextTick,
-        super(const NativePlayerState());
+        super(NativePlayerState(
+          playlist: playlist,
+          watchedEpisodeUids: <String>{
+            ...watchedEpisodeUids,
+            playlist.current.uid,
+          },
+        ));
 
-  final PlayableVideo video;
-  final bool hasNextEpisode;
   final NativePlayerEngineFactory _engineFactory;
-  final EpisodeProgressStore _progressStore;
+  final EpisodeProgressStoreFactory _progressStoreFor;
+  final EpisodeResolver? _resolveEpisode;
   final SubtitleLoader _subtitleLoader;
   final PlayerPreferences _preferences;
   final Duration _progressSaveInterval;
   final Duration _autoNextTick;
 
+  PlayableVideo _video;
+  EpisodeProgressStore _progressStore;
   NativePlayerEngine? _engine;
   ClosedCaptionFile? _captionFile;
   Timer? _progressTimer;
@@ -68,14 +88,25 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
   Duration _lastKnownPosition = Duration.zero;
   int _openGeneration = 0;
   int _subtitleGeneration = 0;
+  int _episodeGeneration = 0;
   int _initialStreamIndex = 0;
   bool _autoPlayNext = kDefaultAutoPlayNext;
   bool _completionHandled = false;
   SubtitlePreference? _subtitlePreference;
+  String? _preferredQuality;
   Future<void> _pendingSave = Future<void>.value();
 
+  PlayableVideo get video => _video;
+
+  bool get canSwitchEpisodes => _resolveEpisode != null;
+
+  bool get hasNextEpisode => canSwitchEpisodes && state.playlist.next != null;
+
+  bool get hasPreviousEpisode =>
+      canSwitchEpisodes && state.playlist.previous != null;
+
   Future<void> init() async {
-    if (video.streams.isEmpty) {
+    if (_video.streams.isEmpty) {
       _emitError('No playable streams');
       return;
     }
@@ -83,24 +114,69 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     if (isClosed) {
       return;
     }
-    _savedProgress = await _loadSavedProgress();
-    if (isClosed) {
-      return;
-    }
     _progressTimer = Timer.periodic(
       _progressSaveInterval,
       (Timer timer) => unawaited(saveProgress()),
     );
-    await _openStream(
-      _initialStreamIndex,
-      savedProgress: _savedProgress,
-      autoPlay: true,
-    );
-    await _restorePreferredSubtitle();
+    await _playCurrentVideo(_episodeGeneration);
+  }
+
+  Future<void> playNext() async {
+    final AnimeVideo? next = state.playlist.next;
+    if (next == null) {
+      return;
+    }
+    await switchTo(state.playlist.moveTo(next));
+  }
+
+  Future<void> playPrevious() async {
+    final AnimeVideo? previous = state.playlist.previous;
+    if (previous == null) {
+      return;
+    }
+    await switchTo(state.playlist.moveTo(previous));
+  }
+
+  Future<void> selectEpisode(AnimeVideo episode) {
+    return switchTo(state.playlist.moveTo(episode));
+  }
+
+  Future<void> selectGroup(int groupIndex) async {
+    final EpisodePlaylist? target = state.playlist.switchGroup(groupIndex);
+    if (target == null) {
+      return;
+    }
+    await switchTo(target);
+  }
+
+  Future<void> switchTo(EpisodePlaylist target) async {
+    final EpisodeResolver? resolve = _resolveEpisode;
+    if (resolve == null || isClosed || target.isAt(state.playlist)) {
+      return;
+    }
+    final int generation = await _leaveCurrentEpisode(target);
+    if (_isStaleEpisode(generation)) {
+      return;
+    }
+    final EpisodePlaybackPlan plan = await _resolveSafely(resolve, target);
+    if (_isStaleEpisode(generation)) {
+      return;
+    }
+    switch (plan) {
+      case WebPlaybackPlan():
+        emit(state.copyWith(
+          webPlayerRequest: () => OpenInWebPlayer(
+            target,
+            showFallbackNotice: plan.shouldNotifyUser,
+          ),
+        ));
+      case NativePlaybackPlan():
+        await _startEpisode(target, plan.video, generation);
+    }
   }
 
   Future<void> retry() async {
-    if (video.streams.isEmpty) {
+    if (_video.streams.isEmpty) {
       return;
     }
     final Duration? startPosition =
@@ -114,10 +190,10 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
   }
 
   Future<void> selectQuality(int index) async {
-    if (index < 0 || index >= video.streams.length) {
+    if (index < 0 || index >= _video.streams.length) {
       return;
     }
-    _rememberQuality(video.streams[index]);
+    _rememberQuality(_video.streams[index]);
     if (index == state.streamIndex && state.status == NativePlayerStatus.ready) {
       return;
     }
@@ -228,9 +304,9 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
 
   Future<void> selectSubtitle(int? index) async {
     final bool valid =
-        index != null && index >= 0 && index < video.subtitles.length;
+        index != null && index >= 0 && index < _video.subtitles.length;
     final SubtitlePreference? preference = valid
-        ? subtitlePreferenceFor(video.subtitles[index])
+        ? subtitlePreferenceFor(_video.subtitles[index])
         : const SubtitlePreference.off();
     if (preference != null) {
       _subtitlePreference = preference;
@@ -248,26 +324,22 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     emit(state.copyWith(autoNextSecondsLeft: () => null));
   }
 
-  void playNextNow() {
-    _autoNextTimer?.cancel();
-    _autoNextTimer = null;
+  Future<void> playNextNow() async {
+    cancelAutoNext();
     if (isClosed || !hasNextEpisode) {
       return;
     }
-    emit(state.copyWith(
-      autoNextSecondsLeft: () => null,
-      nextEpisodeRequested: true,
-    ));
+    await playNext();
   }
 
-  void tickAutoNext() {
+  Future<void> tickAutoNext() async {
     final int? secondsLeft = state.autoNextSecondsLeft;
     if (isClosed || secondsLeft == null) {
       return;
     }
     final int remaining = secondsLeft - 1;
     if (remaining <= 0) {
-      playNextNow();
+      await playNextNow();
       return;
     }
     emit(state.copyWith(autoNextSecondsLeft: () => remaining));
@@ -286,9 +358,94 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     _autoNextTimer = null;
     _openGeneration++;
     _subtitleGeneration++;
+    _episodeGeneration++;
     await saveProgress();
     await _releaseEngine();
     return super.close();
+  }
+
+  Future<int> _leaveCurrentEpisode(EpisodePlaylist target) async {
+    final int generation = ++_episodeGeneration;
+    _openGeneration++;
+    _subtitleGeneration++;
+    _resetCompletion();
+    await saveProgress();
+    await _releaseEngine();
+    if (_isStaleEpisode(generation)) {
+      return generation;
+    }
+    emit(state.copyWith(
+      playlist: target,
+      status: NativePlayerStatus.loading,
+      engine: () => null,
+      isPlaying: false,
+      holdActive: false,
+      streamIndex: 0,
+      subtitleIndex: () => null,
+      subtitleLoading: false,
+      subtitleFailed: false,
+      errorMessage: () => null,
+    ));
+    return generation;
+  }
+
+  Future<EpisodePlaybackPlan> _resolveSafely(
+    EpisodeResolver resolve,
+    EpisodePlaylist target,
+  ) async {
+    try {
+      return await resolve(target);
+    } catch (error, stackTrace) {
+      logger.e('Failed to resolve ${target.current.uid}: $error');
+      logger.e(stackTrace);
+      return const WebPlaybackPlan(WebPlaybackReason.failed);
+    }
+  }
+
+  Future<void> _startEpisode(
+    EpisodePlaylist target,
+    PlayableVideo playableVideo,
+    int generation,
+  ) async {
+    _video = playableVideo;
+    _progressStore = _progressStoreFor(target.current);
+    _savedProgress = null;
+    _lastPersistedProgress = null;
+    _lastKnownPosition = Duration.zero;
+    _captionFile = null;
+    emit(state.copyWith(
+      watchedEpisodeUids: <String>{
+        ...state.watchedEpisodeUids,
+        target.current.uid,
+      },
+    ));
+    if (_video.streams.isEmpty) {
+      _emitError('No playable streams');
+      return;
+    }
+    await _playCurrentVideo(generation);
+  }
+
+  Future<void> _playCurrentVideo(int generation) async {
+    _savedProgress = await _loadSavedProgress();
+    if (_isStaleEpisode(generation)) {
+      return;
+    }
+    _initialStreamIndex =
+        preferredStreamIndex(_video.streams, _preferredQuality);
+    await _openStream(
+      _initialStreamIndex,
+      savedProgress: _savedProgress,
+      autoPlay: true,
+    );
+    if (_isStaleEpisode(generation)) {
+      return;
+    }
+    await _restorePreferredSubtitle();
+  }
+
+  bool _isStaleEpisode(int generation) {
+    return generation != _episodeGeneration || isClosed;
   }
 
   Future<void> _loadPreferences() async {
@@ -298,10 +455,9 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       final PlayerFitMode fitMode = await _preferences.getFitMode();
       final int skipOpeningSeconds =
           await _preferences.getSkipOpeningSeconds();
-      final String? quality = await _preferences.getQuality();
+      _preferredQuality = await _preferences.getQuality();
       _autoPlayNext = await _preferences.getAutoPlayNext();
       _subtitlePreference = await _preferences.getSubtitle();
-      _initialStreamIndex = preferredStreamIndex(video.streams, quality);
       if (isClosed) {
         return;
       }
@@ -331,6 +487,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     if (quality == null || quality.isEmpty) {
       return;
     }
+    _preferredQuality = quality;
     unawaited(_persistPreference(() => _preferences.setQuality(quality)));
   }
 
@@ -339,7 +496,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       return;
     }
     final int? index =
-        preferredSubtitleIndex(video.subtitles, _subtitlePreference);
+        preferredSubtitleIndex(_video.subtitles, _subtitlePreference);
     if (index == null) {
       return;
     }
@@ -433,7 +590,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     int index,
     int generation,
   ) async {
-    final PlayableStream stream = video.streams[index];
+    final PlayableStream stream = _video.streams[index];
     try {
       final NativePlayerEngine createdEngine = _engineFactory(stream);
       _engine = createdEngine;
@@ -551,7 +708,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     ));
     _autoNextTimer = Timer.periodic(
       _autoNextTick,
-      (Timer timer) => tickAutoNext(),
+      (Timer timer) => unawaited(tickAutoNext()),
     );
   }
 
@@ -624,7 +781,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     ));
     try {
       final ClosedCaptionFile captionFile =
-          await _subtitleLoader.load(video.subtitles[index]);
+          await _subtitleLoader.load(_video.subtitles[index]);
       if (generation != _subtitleGeneration || isClosed) {
         return;
       }
@@ -632,7 +789,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       await _engine?.setClosedCaptionFile(captionFile);
       emit(state.copyWith(subtitleLoading: false));
     } catch (error, stackTrace) {
-      logger.e('Failed to load subtitle ${video.subtitles[index].url}: $error');
+      logger.e('Failed to load subtitle ${_video.subtitles[index].url}: $error');
       logger.e(stackTrace);
       if (generation != _subtitleGeneration || isClosed) {
         return;

@@ -15,6 +15,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/anime_episode_launcher.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
 import 'package:wakaranai/ui/services/anime/native_player/debug_stream_url_dialog.dart';
 import 'package:wakaranai/ui/services/anime/native_player/native_player.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
@@ -379,14 +381,38 @@ class AnimeConcreteViewer extends StatelessWidget
     final AnimeEpisodeLauncher launcher = AnimeEpisodeLauncher(
       client: state.apiClient,
       anime: state.concreteView,
-      episodes: state.concreteView.groups[state.groupIndex].elements,
+      groups: state.concreteView.groups,
+      groupIndex: state.groupIndex,
+      watchedEpisodeUids: state.animeEpisodeActivities.keys.toSet(),
       onEpisodeOpened: (AnimeVideo openedEpisode) {
         unawaited(libraryUpdatesCubit.markSeenIfNew(openedEpisode.uid));
       },
     );
-    await launcher.play(context, episode);
-    if (!cubit.isClosed) {
-      cubit.updateActivities();
+    final EpisodePlaylist? lastPosition = await launcher.play(context, episode);
+    if (cubit.isClosed) {
+      return;
+    }
+    cubit.updateActivities();
+    _followPlayerGroup(cubit, state.concreteView, lastPosition);
+  }
+
+  void _followPlayerGroup(
+    ConcreteViewCubit<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
+        cubit,
+    AnimeConcreteView playedView,
+    EpisodePlaylist? lastPosition,
+  ) {
+    final ConcreteViewState<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
+        current = cubit.state;
+    if (lastPosition == null ||
+        current is! ConcreteViewInitialized<AnimeApiClient, AnimeConcreteView,
+            AnimeGalleryView>) {
+      return;
+    }
+    final bool sameView = identical(current.concreteView, playedView);
+    final bool groupChanged = lastPosition.groupIndex != current.groupIndex;
+    if (sameView && groupChanged) {
+      cubit.changeGroup(lastPosition.groupIndex);
     }
   }
 
@@ -427,17 +453,21 @@ class AnimeConcreteViewer extends StatelessWidget
       return;
     }
     cubit.clearSelection();
-    final NativePlayerResult? result = await openNativePlayer(
+    final EpisodePlayerResult? result = await openNativePlayer(
       context,
       NativePlayerData(
         video: PlayableVideo(
           streams: <PlayableStream>[PlayableStream(url: streamUrl)],
         ),
-        episode: episode,
         anime: state.concreteView,
+        playlist: EpisodePlaylist(
+          groups: state.concreteView.groups,
+          groupIndex: state.groupIndex,
+          current: episode,
+        ),
       ),
     );
-    if (result == NativePlayerResult.openInWebPlayer && context.mounted) {
+    if (result is OpenInWebPlayer && context.mounted) {
       await Navigator.of(context).pushNamed(
         Routes.iframeAnimePlayer,
         arguments: AnimeIframePlayerData(

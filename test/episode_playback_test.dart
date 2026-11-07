@@ -7,7 +7,6 @@ import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/services/settings_service/video_player_preference.dart';
-import 'package:wakaranai/ui/services/anime/episode_playback/anime_episode_launcher.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playback_resolver.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/video_sources_mapper.dart';
 import 'package:wakaranai/utils/serial_call_queue.dart';
@@ -304,27 +303,6 @@ void main() {
         onFetchingSources: () => fetchingCalls++,
       );
       expect(fetchingCalls, 1);
-    });
-  });
-
-  group('next episode', () {
-    final List<AnimeVideo> episodes = <AnimeVideo>[
-      _episode('a'),
-      _episode('b'),
-      _episode('c'),
-    ];
-
-    test('follows the order shown in the list', () {
-      expect(nextEpisodeAfter(episodes, 'a')?.uid, 'b');
-      expect(nextEpisodeAfter(episodes, 'b')?.uid, 'c');
-    });
-
-    test('the last episode has no next one', () {
-      expect(nextEpisodeAfter(episodes, 'c'), isNull);
-    });
-
-    test('an unknown episode has no next one', () {
-      expect(nextEpisodeAfter(episodes, 'zzz'), isNull);
     });
   });
 

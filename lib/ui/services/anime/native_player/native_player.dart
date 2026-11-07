@@ -13,6 +13,8 @@ import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
 import 'package:wakaranai/ui/services/anime/native_player/cubit/native_player_cubit.dart';
 import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store.dart';
 import 'package:wakaranai/ui/services/anime/native_player/native_player_engine.dart';
@@ -21,25 +23,28 @@ import 'package:wakaranai/ui/services/anime/native_player/subtitle_loader.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_overlay.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-
-enum NativePlayerResult { openInWebPlayer, nextEpisode }
 
 class NativePlayerData {
   const NativePlayerData({
     required this.video,
-    required this.episode,
     required this.anime,
-    this.hasNextEpisode = false,
+    required this.playlist,
+    this.resolveEpisode,
+    this.watchedEpisodeUids = const <String>{},
   });
 
   final PlayableVideo video;
-  final AnimeVideo episode;
   final AnimeConcreteView anime;
-  final bool hasNextEpisode;
+  final EpisodePlaylist playlist;
+  final EpisodeResolver? resolveEpisode;
+  final Set<String> watchedEpisodeUids;
+
+  AnimeVideo get episode => playlist.current;
 }
 
-Future<NativePlayerResult?> openNativePlayer(
+Future<EpisodePlayerResult?> openNativePlayer(
   BuildContext context,
   NativePlayerData data,
 ) async {
@@ -47,7 +52,7 @@ Future<NativePlayerResult?> openNativePlayer(
     Routes.nativeAnimePlayer,
     arguments: data,
   );
-  if (result is NativePlayerResult) {
+  if (result is EpisodePlayerResult) {
     return result;
   }
   return null;
@@ -108,9 +113,10 @@ class _NativePlayerState extends State<NativePlayer> {
           ),
           BlocListener<NativePlayerCubit, NativePlayerState>(
             listenWhen: (NativePlayerState previous, NativePlayerState current) =>
-                !previous.nextEpisodeRequested && current.nextEpisodeRequested,
+                previous.webPlayerRequest == null &&
+                current.webPlayerRequest != null,
             listener: (BuildContext context, NativePlayerState state) =>
-                _playNextEpisode(),
+                _leaveWith(state.webPlayerRequest),
           ),
         ],
         child: BlocBuilder<NativePlayerCubit, NativePlayerState>(
@@ -123,19 +129,24 @@ class _NativePlayerState extends State<NativePlayer> {
   }
 
   NativePlayerCubit _createCubit(BuildContext context) {
+    final ConcreteDataRepository concreteDataRepository =
+        context.read<ConcreteDataRepository>();
+    final AnimeEpisodeActivityRepository animeEpisodeActivityRepository =
+        context.read<AnimeEpisodeActivityRepository>();
     final NativePlayerCubit cubit = NativePlayerCubit(
       video: widget.data.video,
+      playlist: widget.data.playlist,
       engineFactory: VideoPlayerEngine.new,
-      progressStore: ActivityEpisodeProgressStore(
-        concreteDataRepository: context.read<ConcreteDataRepository>(),
-        animeEpisodeActivityRepository:
-            context.read<AnimeEpisodeActivityRepository>(),
+      progressStoreFor: (AnimeVideo episode) => ActivityEpisodeProgressStore(
+        concreteDataRepository: concreteDataRepository,
+        animeEpisodeActivityRepository: animeEpisodeActivityRepository,
         anime: widget.data.anime,
-        episode: widget.data.episode,
+        episode: episode,
       ),
       subtitleLoader: DioSubtitleLoader(),
+      resolveEpisode: widget.data.resolveEpisode,
+      watchedEpisodeUids: widget.data.watchedEpisodeUids,
       preferences: PlayerPreferences(),
-      hasNextEpisode: widget.data.hasNextEpisode,
     );
     unawaited(cubit.init());
     return cubit;
@@ -166,22 +177,22 @@ class _NativePlayerState extends State<NativePlayer> {
     Navigator.of(context).maybePop();
   }
 
-  void _openInWebPlayer() {
-    Navigator.of(context).pop(NativePlayerResult.openInWebPlayer);
+  void _openInWebPlayer(EpisodePlaylist position) {
+    _leaveWith(OpenInWebPlayer(position));
   }
 
-  void _playNextEpisode() {
-    if (_leaving) {
+  void _leaveWith(EpisodePlayerResult? result) {
+    if (_leaving || result == null) {
       return;
     }
     _leaving = true;
-    Navigator.of(context).pop(NativePlayerResult.nextEpisode);
+    Navigator.of(context).pop(result);
   }
 
   Widget _buildForState(BuildContext context, NativePlayerState state) {
     switch (state.status) {
       case NativePlayerStatus.loading:
-        return _buildLoading();
+        return _buildLoading(state.playlist.current.title);
       case NativePlayerStatus.error:
         return _buildError(context, state);
       case NativePlayerStatus.ready:
@@ -189,12 +200,12 @@ class _NativePlayerState extends State<NativePlayer> {
     }
   }
 
-  Widget _buildLoading() {
+  Widget _buildLoading(String episodeTitle) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
         children: <Widget>[
-          Center(child: CircularProgressIndicator(color: AppColors.primary)),
+          Center(child: _buildLoadingContent(episodeTitle)),
           Positioned(
             left: 16,
             bottom: 16,
@@ -212,6 +223,27 @@ class _NativePlayerState extends State<NativePlayer> {
     );
   }
 
+  Widget _buildLoadingContent(String episodeTitle) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        CircularProgressIndicator(color: AppColors.primary),
+        if (episodeTitle.isNotEmpty) ...<Widget>[
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              episodeTitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: medium(size: 14, color: AppColors.onMedia),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _buildError(BuildContext context, NativePlayerState state) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
@@ -225,7 +257,7 @@ class _NativePlayerState extends State<NativePlayer> {
                   icon: Icons.error_outline_rounded,
                   title: S.of(context).native_player_error_title,
                   message: state.errorMessage,
-                  actions: _buildErrorActions(context),
+                  actions: _buildErrorActions(context, state),
                 ),
               ),
             );
@@ -235,7 +267,10 @@ class _NativePlayerState extends State<NativePlayer> {
     );
   }
 
-  List<Widget> _buildErrorActions(BuildContext context) {
+  List<Widget> _buildErrorActions(
+    BuildContext context,
+    NativePlayerState state,
+  ) {
     final ButtonStyle outlinedStyle = OutlinedButton.styleFrom(
       foregroundColor: AppColors.mainWhite,
       side: BorderSide(color: AppColors.mainGrey),
@@ -251,7 +286,7 @@ class _NativePlayerState extends State<NativePlayer> {
       ),
       OutlinedButton.icon(
         style: outlinedStyle,
-        onPressed: _openInWebPlayer,
+        onPressed: () => _openInWebPlayer(state.playlist),
         icon: const Icon(Icons.public_rounded),
         label: Text(S.of(context).native_player_open_web_player),
       ),
@@ -274,7 +309,7 @@ class _NativePlayerState extends State<NativePlayer> {
   Widget _buildPlayer(NativePlayerState state) {
     final NativePlayerEngine? engine = state.engine;
     if (engine == null) {
-      return _buildLoading();
+      return _buildLoading(state.playlist.current.title);
     }
     return Scaffold(
       backgroundColor: Colors.black,
@@ -287,11 +322,9 @@ class _NativePlayerState extends State<NativePlayer> {
             deviceControls: _deviceControls,
             state: state,
             title: widget.data.anime.title,
-            subtitle: widget.data.episode.title,
+            subtitle: state.playlist.current.title,
             onBack: _close,
-            onOpenWebPlayer: _openInWebPlayer,
-            onNextEpisode:
-                widget.data.hasNextEpisode ? _playNextEpisode : null,
+            onOpenWebPlayer: () => _openInWebPlayer(state.playlist),
           ),
         ],
       ),

@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/playlist_sheets.dart';
 import 'package:wakaranai/ui/services/anime/native_player/cubit/native_player_cubit.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_device_controls.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_auto_next_card.dart';
@@ -35,7 +37,6 @@ class NativePlayerOverlay extends StatefulWidget {
     required this.subtitle,
     required this.onBack,
     required this.onOpenWebPlayer,
-    required this.onNextEpisode,
   });
 
   final ValueListenable<VideoPlayerValue> playback;
@@ -45,7 +46,6 @@ class NativePlayerOverlay extends StatefulWidget {
   final String? subtitle;
   final VoidCallback onBack;
   final VoidCallback onOpenWebPlayer;
-  final VoidCallback? onNextEpisode;
 
   @override
   State<NativePlayerOverlay> createState() => _NativePlayerOverlayState();
@@ -266,6 +266,34 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
     _scheduleAutoHide();
   }
 
+  Future<void> _openEpisodesSheet() async {
+    _hideTimer?.cancel();
+    final NativePlayerCubit cubit = _cubit;
+    await showEpisodesSheet(
+      context,
+      playlist: widget.state.playlist,
+      watchedEpisodeUids: widget.state.watchedEpisodeUids,
+      onSelected: (AnimeVideo episode) =>
+          unawaited(cubit.selectEpisode(episode)),
+    );
+    if (mounted) {
+      _scheduleAutoHide();
+    }
+  }
+
+  Future<void> _openGroupsSheet() async {
+    _hideTimer?.cancel();
+    final NativePlayerCubit cubit = _cubit;
+    await showGroupsSheet(
+      context,
+      playlist: widget.state.playlist,
+      onSelected: (int groupIndex) => unawaited(cubit.selectGroup(groupIndex)),
+    );
+    if (mounted) {
+      _scheduleAutoHide();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -357,7 +385,7 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
     }
     return NativePlayerAutoNextCard(
       secondsLeft: secondsLeft,
-      onPlayNow: cubit.playNextNow,
+      onPlayNow: () => unawaited(cubit.playNextNow()),
       onCancel: cubit.cancelAutoNext,
     );
   }
@@ -622,6 +650,8 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
     final NativePlayerCubit cubit = _cubit;
     final bool hasSubtitles = cubit.video.subtitles.isNotEmpty;
     final bool hasQualities = cubit.video.streams.length > 1;
+    final bool playlistEnabled = cubit.canSwitchEpisodes;
+    final bool hasSeveralGroups = widget.state.playlist.hasSeveralGroups;
     return NativePlayerBottomBar(
       isPlaying: widget.state.isPlaying,
       subtitlesActive: widget.state.subtitleIndex != null,
@@ -630,7 +660,16 @@ class _NativePlayerOverlayState extends State<NativePlayerOverlay> {
         unawaited(cubit.togglePlayPause());
         _registerInteraction();
       },
-      onNextEpisode: widget.onNextEpisode,
+      showEpisodeNavigation: playlistEnabled,
+      onPreviousEpisode: cubit.hasPreviousEpisode
+          ? () => unawaited(cubit.playPrevious())
+          : null,
+      onNextEpisode:
+          cubit.hasNextEpisode ? () => unawaited(cubit.playNext()) : null,
+      onEpisodes: playlistEnabled ? () => unawaited(_openEpisodesSheet()) : null,
+      onGroups: playlistEnabled && hasSeveralGroups
+          ? () => unawaited(_openGroupsSheet())
+          : null,
       onSubtitles: hasSubtitles ? () => unawaited(_openSubtitlePicker()) : null,
       onSpeed: () => unawaited(_openSpeedPicker()),
       onQuality: hasQualities ? () => unawaited(_openQualityPicker()) : null,

@@ -1,9 +1,17 @@
+import 'dart:async';
+
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_view_type.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video_group/anime_video_group.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/episode_playback_resolver.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
 import 'package:wakaranai/ui/services/anime/native_player/cubit/native_player_cubit.dart';
 import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store.dart';
 import 'package:wakaranai/ui/services/anime/native_player/native_player_engine.dart';
@@ -125,42 +133,121 @@ class _FakeSubtitleLoader implements SubtitleLoader {
   }
 }
 
+AnimeVideo _episode(String uid, String title) {
+  return AnimeVideo(
+    type: AnimeVideoType.IFRAME,
+    uid: uid,
+    src: 'https://player.test/$uid',
+    title: title,
+    timestamp: null,
+    data: <String, dynamic>{'uid': uid},
+  );
+}
+
+final List<AnimeVideoGroup> _groups = <AnimeVideoGroup>[
+  AnimeVideoGroup(
+    title: 'Dub A',
+    elements: <AnimeVideo>[
+      _episode('a1', 'Серія 1'),
+      _episode('a2', 'Серія 2'),
+      _episode('a3', 'Серія 3'),
+    ],
+  ),
+  AnimeVideoGroup(
+    title: 'Dub B',
+    elements: <AnimeVideo>[
+      _episode('b3', 'Серія 3'),
+      _episode('b2', 'Серія 2'),
+      _episode('b1', 'Серія 1'),
+    ],
+  ),
+];
+
+const PlayableVideo _firstVideo = PlayableVideo(
+  streams: <PlayableStream>[
+    PlayableStream(url: 'https://cdn.test/1080.m3u8', quality: '1080p'),
+    PlayableStream(url: 'https://cdn.test/720.mp4', quality: '720p'),
+  ],
+  subtitles: <PlayableSubtitle>[
+    PlayableSubtitle(url: 'https://cdn.test/en.vtt', language: 'en'),
+  ],
+);
+
+PlayableVideo _videoFor(String uid) {
+  return PlayableVideo(
+    streams: <PlayableStream>[
+      PlayableStream(url: 'https://cdn.test/$uid/1080.m3u8', quality: '1080p'),
+      PlayableStream(url: 'https://cdn.test/$uid/720.mp4', quality: '720p'),
+    ],
+    subtitles: <PlayableSubtitle>[
+      PlayableSubtitle(url: 'https://cdn.test/$uid/en.vtt', language: 'en'),
+    ],
+  );
+}
+
 class _Harness {
   _Harness({
     EpisodeProgress? initialProgress,
     this.failingInitializations = 0,
     this.hasNextEpisode = false,
     this.maxSupportedSpeed = 8.0,
+    this.startUid = 'a1',
+    this.webOnlyUids = const <String>{},
     bool subtitleFails = false,
-  })  : store = _FakeProgressStore(initial: initialProgress),
+  })  : _initialProgress = initialProgress,
         subtitleLoader = _FakeSubtitleLoader(fail: subtitleFails);
 
-  final _FakeProgressStore store;
+  final EpisodeProgress? _initialProgress;
   final _FakeSubtitleLoader subtitleLoader;
   final List<_FakeEngine> engines = <_FakeEngine>[];
+  final Map<String, _FakeProgressStore> stores = <String, _FakeProgressStore>{};
+  final List<String> resolvedUids = <String>[];
   final bool hasNextEpisode;
   final double maxSupportedSpeed;
+  final String startUid;
+  final Set<String> webOnlyUids;
   int failingInitializations;
 
+  _FakeProgressStore get store => stores[startUid]!;
+
   NativePlayerCubit build() {
+    final int groupIndex = startUid.startsWith('a') ? 0 : 1;
+    final AnimeVideo start = _groups[groupIndex]
+        .elements
+        .firstWhere((AnimeVideo video) => video.uid == startUid);
     return NativePlayerCubit(
-      video: const PlayableVideo(
-        streams: <PlayableStream>[
-          PlayableStream(url: 'https://cdn.test/1080.m3u8', quality: '1080p'),
-          PlayableStream(url: 'https://cdn.test/720.mp4', quality: '720p'),
-        ],
-        subtitles: <PlayableSubtitle>[
-          PlayableSubtitle(url: 'https://cdn.test/en.vtt', language: 'en'),
-        ],
+      video: _firstVideo,
+      playlist: EpisodePlaylist(
+        groups: _groups,
+        groupIndex: groupIndex,
+        current: start,
       ),
       engineFactory: _createEngine,
-      progressStore: store,
+      progressStoreFor: _storeFor,
       subtitleLoader: subtitleLoader,
+      resolveEpisode: hasNextEpisode ? _resolve : null,
       preferences: PlayerPreferences(),
-      hasNextEpisode: hasNextEpisode,
       progressSaveInterval: const Duration(hours: 1),
       autoNextTick: const Duration(hours: 1),
     );
+  }
+
+  EpisodeProgressStore _storeFor(AnimeVideo episode) {
+    return stores.putIfAbsent(
+      episode.uid,
+      () => _FakeProgressStore(
+        initial: episode.uid == startUid ? _initialProgress : null,
+      ),
+    );
+  }
+
+  Future<EpisodePlaybackPlan> _resolve(EpisodePlaylist target) async {
+    final String uid = target.current.uid;
+    resolvedUids.add(uid);
+    if (webOnlyUids.contains(uid)) {
+      return const WebPlaybackPlan(WebPlaybackReason.failed);
+    }
+    return NativePlaybackPlan(_videoFor(uid));
   }
 
   NativePlayerEngine _createEngine(PlayableStream stream) {
@@ -399,8 +486,9 @@ void main() {
   test('a video without streams goes straight to the error state', () async {
     final NativePlayerCubit cubit = NativePlayerCubit(
       video: const PlayableVideo(streams: <PlayableStream>[]),
+      playlist: EpisodePlaylist.single(_episode('solo', 'Movie')),
       engineFactory: (PlayableStream stream) => _FakeEngine(stream),
-      progressStore: _FakeProgressStore(),
+      progressStoreFor: (AnimeVideo episode) => _FakeProgressStore(),
       subtitleLoader: _FakeSubtitleLoader(),
     );
 
@@ -619,7 +707,7 @@ void main() {
   });
 
   group('auto-play next episode', () {
-    test('counts down after the episode ends and then requests the next one',
+    test('counts down after the episode ends and then switches in place',
         () async {
       final _Harness harness = _Harness(hasNextEpisode: true);
       final NativePlayerCubit cubit = harness.build();
@@ -629,18 +717,21 @@ void main() {
 
       expect(cubit.state.autoNextSecondsLeft, kAutoNextCountdownSeconds);
       for (int tick = 1; tick < kAutoNextCountdownSeconds; tick++) {
-        cubit.tickAutoNext();
+        await cubit.tickAutoNext();
         expect(
           cubit.state.autoNextSecondsLeft,
           kAutoNextCountdownSeconds - tick,
         );
       }
-      expect(cubit.state.nextEpisodeRequested, isFalse);
+      expect(harness.resolvedUids, isEmpty);
 
-      cubit.tickAutoNext();
+      await cubit.tickAutoNext();
 
       expect(cubit.state.autoNextSecondsLeft, isNull);
-      expect(cubit.state.nextEpisodeRequested, isTrue);
+      expect(harness.resolvedUids, <String>['a2']);
+      expect(cubit.state.playlist.current.uid, 'a2');
+      expect(cubit.state.status, NativePlayerStatus.ready);
+      expect(harness.engines.last.stream.url, 'https://cdn.test/a2/1080.m3u8');
       await cubit.close();
     });
 
@@ -650,10 +741,10 @@ void main() {
       await cubit.init();
       harness.engines.single.complete();
 
-      cubit.playNextNow();
+      await cubit.playNextNow();
 
       expect(cubit.state.autoNextSecondsLeft, isNull);
-      expect(cubit.state.nextEpisodeRequested, isTrue);
+      expect(cubit.state.playlist.current.uid, 'a2');
       await cubit.close();
     });
 
@@ -664,10 +755,11 @@ void main() {
       harness.engines.single.complete();
 
       cubit.cancelAutoNext();
-      cubit.tickAutoNext();
+      await cubit.tickAutoNext();
 
       expect(cubit.state.autoNextSecondsLeft, isNull);
-      expect(cubit.state.nextEpisodeRequested, isFalse);
+      expect(harness.resolvedUids, isEmpty);
+      expect(cubit.state.playlist.current.uid, 'a1');
       await cubit.close();
     });
 
@@ -686,7 +778,8 @@ void main() {
       await cubit.close();
     });
 
-    test('stays put when disabled or on the last episode', () async {
+    test('stays put when disabled, on the last episode or without a playlist',
+        () async {
       SharedPreferences.setMockInitialValues(<String, Object>{
         PlayerPreferences.autoPlayNextKey: false,
       });
@@ -698,12 +791,179 @@ void main() {
       await disabledCubit.close();
 
       SharedPreferences.setMockInitialValues(<String, Object>{});
-      final _Harness lastEpisode = _Harness();
+      final _Harness lastEpisode =
+          _Harness(hasNextEpisode: true, startUid: 'a3');
       final NativePlayerCubit lastCubit = lastEpisode.build();
       await lastCubit.init();
       lastEpisode.engines.single.complete();
       expect(lastCubit.state.autoNextSecondsLeft, isNull);
       await lastCubit.close();
+
+      final _Harness noPlaylist = _Harness();
+      final NativePlayerCubit noPlaylistCubit = noPlaylist.build();
+      await noPlaylistCubit.init();
+      noPlaylist.engines.single.complete();
+      expect(noPlaylistCubit.state.autoNextSecondsLeft, isNull);
+      expect(noPlaylistCubit.hasNextEpisode, isFalse);
+      await noPlaylistCubit.close();
+    });
+  });
+
+  group('switching episodes in place', () {
+    test('saves progress for the old episode before loading the new one',
+        () async {
+      final _Harness harness = _Harness(hasNextEpisode: true);
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      final _FakeEngine firstEngine = harness.engines.single;
+      await cubit.seekTo(const Duration(minutes: 7));
+
+      await cubit.playNext();
+
+      expect(
+        harness.stores['a1']!.saved.last,
+        const EpisodeProgress(watchedSeconds: 420, totalSeconds: 1440),
+      );
+      expect(firstEngine.disposed, isTrue);
+      expect(harness.stores['a2']!.saved, isEmpty);
+      expect(cubit.state.playlist.current.uid, 'a2');
+      expect(
+        cubit.state.watchedEpisodeUids,
+        containsAll(<String>['a1', 'a2']),
+      );
+      await cubit.close();
+    });
+
+    test('shows the loading state while the next episode resolves', () async {
+      final _Harness harness = _Harness(hasNextEpisode: true);
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      final List<NativePlayerState> states = <NativePlayerState>[];
+      final StreamSubscription<NativePlayerState> subscription =
+          cubit.stream.listen(states.add);
+
+      await cubit.playNext();
+      await subscription.cancel();
+
+      final NativePlayerState loading = states.firstWhere(
+        (NativePlayerState state) =>
+            state.status == NativePlayerStatus.loading,
+      );
+      expect(loading.playlist.current.uid, 'a2');
+      expect(loading.engine, isNull);
+      await cubit.close();
+    });
+
+    test('reapplies the remembered speed, quality, subtitle and fit', () async {
+      final _Harness harness = _Harness(hasNextEpisode: true);
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      await cubit.setPlaybackSpeed(1.5);
+      await cubit.selectQuality(1);
+      await cubit.selectSubtitle(0);
+      await cubit.setFitMode(PlayerFitMode.fill);
+
+      await cubit.playNext();
+
+      final _FakeEngine engine = harness.engines.last;
+      expect(engine.stream.url, 'https://cdn.test/a2/720.mp4');
+      expect(engine.value.playbackSpeed, 1.5);
+      expect(engine.captionFile, isNotNull);
+      expect(cubit.state.streamIndex, 1);
+      expect(cubit.state.subtitleIndex, 0);
+      expect(cubit.state.fitMode, PlayerFitMode.fill);
+      expect(cubit.video.streams.first.url, 'https://cdn.test/a2/1080.m3u8');
+      await cubit.close();
+    });
+
+    test('resumes the new episode from its own saved progress', () async {
+      final _Harness harness = _Harness(hasNextEpisode: true);
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      harness.stores['a2'] = _FakeProgressStore(
+        initial: const EpisodeProgress(watchedSeconds: 300, totalSeconds: 1440),
+      );
+
+      await cubit.playNext();
+
+      expect(harness.engines.last.seeks, <Duration>[
+        const Duration(minutes: 5),
+      ]);
+      await cubit.close();
+    });
+
+    test('previous follows the episode numbers and stops at the first',
+        () async {
+      final _Harness harness = _Harness(hasNextEpisode: true, startUid: 'a2');
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      expect(cubit.hasPreviousEpisode, isTrue);
+      await cubit.playPrevious();
+      expect(cubit.state.playlist.current.uid, 'a1');
+      expect(cubit.hasPreviousEpisode, isFalse);
+      await cubit.close();
+    });
+
+    test('changing the dub keeps the episode number', () async {
+      final _Harness harness = _Harness(hasNextEpisode: true, startUid: 'a2');
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      await cubit.selectGroup(1);
+
+      expect(cubit.state.playlist.groupIndex, 1);
+      expect(cubit.state.playlist.current.uid, 'b2');
+      expect(harness.resolvedUids, <String>['b2']);
+      await cubit.close();
+    });
+
+    test('an episode the native player cannot play asks for the web player',
+        () async {
+      final _Harness harness = _Harness(
+        hasNextEpisode: true,
+        webOnlyUids: <String>{'a2'},
+      );
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+      await cubit.seekTo(const Duration(minutes: 3));
+
+      await cubit.playNext();
+
+      final OpenInWebPlayer? request = cubit.state.webPlayerRequest;
+      expect(request, isNotNull);
+      expect(request!.position.current.uid, 'a2');
+      expect(request.showFallbackNotice, isTrue);
+      expect(harness.stores['a1']!.saved.last.watchedSeconds, 180);
+      expect(harness.engines, hasLength(1));
+      await cubit.close();
+    });
+
+    test('a newer switch wins over a slower one', () async {
+      final _Harness harness = _Harness(hasNextEpisode: true);
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      final Future<void> first = cubit.playNext();
+      final Future<void> second = cubit.selectEpisode(_groups[0].elements[2]);
+      await Future.wait(<Future<void>>[first, second]);
+
+      expect(cubit.state.playlist.current.uid, 'a3');
+      expect(cubit.state.status, NativePlayerStatus.ready);
+      expect(harness.engines.last.stream.url, contains('/a3/'));
+      await cubit.close();
+    });
+
+    test('does nothing without a resolver', () async {
+      final _Harness harness = _Harness();
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      await cubit.playNext();
+
+      expect(cubit.state.playlist.current.uid, 'a1');
+      expect(harness.engines, hasLength(1));
+      await cubit.close();
     });
   });
 

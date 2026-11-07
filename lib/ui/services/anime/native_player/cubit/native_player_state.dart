@@ -4,6 +4,9 @@ enum NativePlayerStatus { loading, ready, error }
 
 class NativePlayerState extends Equatable {
   const NativePlayerState({
+    required this.playlist,
+    this.watchedEpisodeUids = const <String>{},
+    this.webPlayerRequest,
     this.status = NativePlayerStatus.loading,
     this.engine,
     this.engineGeneration = 0,
@@ -18,11 +21,13 @@ class NativePlayerState extends Equatable {
     this.fitMode = PlayerFitMode.fit,
     this.skipOpeningSeconds = kDefaultSkipOpeningSeconds,
     this.autoNextSecondsLeft,
-    this.nextEpisodeRequested = false,
     this.isPlaying = false,
     this.errorMessage,
   });
 
+  final EpisodePlaylist playlist;
+  final Set<String> watchedEpisodeUids;
+  final OpenInWebPlayer? webPlayerRequest;
   final NativePlayerStatus status;
   final NativePlayerEngine? engine;
   final int engineGeneration;
@@ -37,13 +42,15 @@ class NativePlayerState extends Equatable {
   final PlayerFitMode fitMode;
   final int skipOpeningSeconds;
   final int? autoNextSecondsLeft;
-  final bool nextEpisodeRequested;
   final bool isPlaying;
   final String? errorMessage;
 
   double get effectiveSpeed => holdActive ? holdSpeed : playbackSpeed;
 
   NativePlayerState copyWith({
+    EpisodePlaylist? playlist,
+    Set<String>? watchedEpisodeUids,
+    ValueGetter<OpenInWebPlayer?>? webPlayerRequest,
     NativePlayerStatus? status,
     ValueGetter<NativePlayerEngine?>? engine,
     int? engineGeneration,
@@ -58,11 +65,14 @@ class NativePlayerState extends Equatable {
     PlayerFitMode? fitMode,
     int? skipOpeningSeconds,
     ValueGetter<int?>? autoNextSecondsLeft,
-    bool? nextEpisodeRequested,
     bool? isPlaying,
     ValueGetter<String?>? errorMessage,
   }) {
     return NativePlayerState(
+      playlist: playlist ?? this.playlist,
+      watchedEpisodeUids: watchedEpisodeUids ?? this.watchedEpisodeUids,
+      webPlayerRequest:
+          webPlayerRequest != null ? webPlayerRequest() : this.webPlayerRequest,
       status: status ?? this.status,
       engine: engine != null ? engine() : this.engine,
       engineGeneration: engineGeneration ?? this.engineGeneration,
@@ -79,7 +89,6 @@ class NativePlayerState extends Equatable {
       autoNextSecondsLeft: autoNextSecondsLeft != null
           ? autoNextSecondsLeft()
           : this.autoNextSecondsLeft,
-      nextEpisodeRequested: nextEpisodeRequested ?? this.nextEpisodeRequested,
       isPlaying: isPlaying ?? this.isPlaying,
       errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
     );
@@ -87,6 +96,9 @@ class NativePlayerState extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
+        playlist,
+        watchedEpisodeUids,
+        webPlayerRequest,
         status,
         engine,
         engineGeneration,
@@ -101,7 +113,6 @@ class NativePlayerState extends Equatable {
         fitMode,
         skipOpeningSeconds,
         autoNextSecondsLeft,
-        nextEpisodeRequested,
         isPlaying,
         errorMessage,
       ];
