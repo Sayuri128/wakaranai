@@ -11,6 +11,7 @@ import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/blocs/novel_reader_preferences/novel_reader_preferences_cubit.dart';
 import 'package:wakaranai/blocs/reader_preferences/reader_preferences_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
@@ -26,6 +27,7 @@ import 'package:wakaranai/ui/services/novel/reader/novel_reader_settings_sheet.d
 import 'package:wakaranai/ui/services/novel/reader/novel_reader_theme.dart';
 import 'package:wakaranai/ui/widgets/source_error_view.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/source_error_description.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -73,6 +75,7 @@ class _NovelReaderState extends State<NovelReader> {
   bool _restoring = false;
   String? _shownChapterUid;
   bool? _wakelockEnabled;
+  Map<String, String> _imageHeaders = const <String, String>{};
 
   @override
   void initState() {
@@ -87,10 +90,44 @@ class _NovelReaderState extends State<NovelReader> {
       downloadRepository: context.read<DownloadRepository>(),
     );
     _listenToPreferences();
+    unawaited(_loadImageHeaders());
     unawaited(_cubit.open(
       widget.data.chapter,
       initialFraction: widget.data.initialFraction,
     ));
+  }
+
+  Future<void> _loadImageHeaders() async {
+    try {
+      final Map<String, String> headers =
+          await widget.data.apiClient.getImageHeaders(
+        uid: widget.data.chapter.uid,
+        data: widget.data.chapter.data,
+      );
+      if (mounted && headers.isNotEmpty) {
+        setState(() => _imageHeaders = headers);
+      }
+    } catch (error) {
+      logger.w('Could not read image headers for novel images: $error');
+    }
+  }
+
+  Widget? _buildInlineImage(String? tag, String? source) {
+    if (tag != 'img') {
+      return null;
+    }
+    if (source == null || source.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Image(
+        image: getImageProvider(source, headers: _imageHeaders),
+        fit: BoxFit.contain,
+        errorBuilder: (BuildContext context, Object error, StackTrace? stack) =>
+            const SizedBox.shrink(),
+      ),
+    );
   }
 
   void _listenToPreferences() {
@@ -345,7 +382,11 @@ class _NovelReaderState extends State<NovelReader> {
               state.html,
               textStyle: textStyle,
               buildAsync: false,
-              rebuildTriggers: <Object>[preferences.justify],
+              rebuildTriggers: <Object>[preferences.justify, _imageHeaders],
+              customWidgetBuilder: (element) => _buildInlineImage(
+                element.localName,
+                element.attributes['src'],
+              ),
               customStylesBuilder: (element) => novelReaderElementStyles(
                 element.localName ?? '',
                 justify: preferences.justify,

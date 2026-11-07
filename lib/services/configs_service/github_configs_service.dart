@@ -15,6 +15,7 @@ class GitHubConfigsService implements ConfigsService {
   static const String defaultBranch = 'main';
   static const String _mangaDirectory = 'manga';
   static const String _animeDirectory = 'anime';
+  static const String _novelDirectory = 'novel';
   static const String _indexPath = 'index.json';
   static const int _maxConcurrentFetches = 6;
 
@@ -149,6 +150,7 @@ class GitHubConfigsService implements ConfigsService {
       <Future<List<RemoteConfig>>>[
         _getDirectoryConfigs(_mangaDirectory, 'manga'),
         _getDirectoryConfigs(_animeDirectory, 'anime'),
+        _getDirectoryConfigs(_novelDirectory, 'novel'),
       ],
     );
     return categories.expand((List<RemoteConfig> e) => e).toList();
