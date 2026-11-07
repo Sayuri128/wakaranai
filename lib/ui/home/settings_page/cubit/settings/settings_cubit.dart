@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
@@ -508,6 +509,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       mangaActivityHistoryCubit.init();
     }
     if (sections.contains(ExportSection.settings)) {
+      await (await SharedPreferences.getInstance()).reload();
       await themeCubit.init();
       init();
     }
