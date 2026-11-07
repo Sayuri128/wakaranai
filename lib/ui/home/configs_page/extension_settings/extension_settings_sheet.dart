@@ -473,6 +473,7 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
                     : TextInputType.text,
                 autovalidateMode:
                     numeric ? AutovalidateMode.onUserInteraction : null,
+                obscureText: definition.secret,
                 validator: numeric ? _validateNumber : null,
                 onChanged: (String text) =>
                     _onTextChanged(definition, text, numeric: numeric),

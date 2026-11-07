@@ -448,6 +448,8 @@ reads with [`getPreference`](caypscript_modules.md#preferences). Each entry has:
 * `summary` (optional) — a line of help under the title.
 * `default` (optional) — the value used until the user changes it.
 * `options` — `[{"value": "…", "label": "…"}]` for `select` and `multiselect`.
+* `secret` (optional, `text` only) — `true` masks the field like a password, for API keys and
+  passwords. Older apps ignore it and show plain text.
 
 | `type`        | `getPreference` returns | Default when `default` is missing |
 |---------------|-------------------------|-----------------------------------|
