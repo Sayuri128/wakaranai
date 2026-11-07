@@ -12,7 +12,7 @@ class ShikimoriTracker extends TrackerService {
   })  : _dio = dio ?? createDio(headers: const <String, String>{'User-Agent': 'Wakaranai'}),
         _browserAuth = browserAuth ?? defaultTrackerBrowserAuth;
 
-  static const String _host = 'shikimori.one';
+  static const String _host = 'shikimori.io';
   static const String _base = 'https://$_host';
 
   final String clientId;
