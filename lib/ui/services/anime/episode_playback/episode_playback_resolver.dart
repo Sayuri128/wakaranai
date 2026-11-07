@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:capyscript/api_clients/anime_api_client.dart';
+import 'package:capyscript/api_clients/source_error.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video_source.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_view_type.dart';
@@ -10,6 +11,7 @@ import 'package:wakaranai/services/downloads/episode/downloaded_episode_lookup.d
 import 'package:wakaranai/services/downloads/storage/local_playback_fallback.dart';
 import 'package:wakaranai/services/settings_service/video_player_preference.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/video_sources_mapper.dart';
+import 'package:wakaranai/utils/source_error_description.dart';
 import 'package:wakaranai/utils/serial_call_queue.dart';
 
 const Duration kVideoSourcesTimeout = Duration(seconds: 20);
@@ -27,13 +29,35 @@ class NativePlaybackPlan extends EpisodePlaybackPlan {
 }
 
 class WebPlaybackPlan extends EpisodePlaybackPlan {
-  const WebPlaybackPlan(this.reason);
+  const WebPlaybackPlan(this.reason, {this.sourceError});
 
   final WebPlaybackReason reason;
+  final SourceError? sourceError;
 
   bool get shouldNotifyUser =>
+      sourceError != null ||
       reason == WebPlaybackReason.failed ||
       reason == WebPlaybackReason.timedOut;
+}
+
+class SourceErrorPlaybackPlan extends EpisodePlaybackPlan {
+  const SourceErrorPlaybackPlan(this.error);
+
+  final SourceError error;
+}
+
+EpisodePlaybackPlan playbackPlanForSourceError(
+  AnimeVideo episode,
+  SourceError error,
+) {
+  if (error.kind == SourceErrorKind.unsupported) {
+    return _directOrWeb(
+      episode,
+      WebPlaybackReason.failed,
+      sourceError: error,
+    );
+  }
+  return SourceErrorPlaybackPlan(error);
 }
 
 abstract class VideoSourceProvider {
@@ -105,6 +129,10 @@ Future<EpisodePlaybackPlan> resolveEpisodePlayback({
   } catch (error, stackTrace) {
     logger.e('getVideoSources failed for ${episode.uid}: $error');
     logger.e(stackTrace);
+    final SourceError? sourceError = findSourceError(error);
+    if (sourceError != null) {
+      return playbackPlanForSourceError(episode, sourceError);
+    }
     return _directOrWeb(episode, WebPlaybackReason.failed);
   }
 }
@@ -151,10 +179,14 @@ Future<bool> _supportsVideoSources(VideoSourceProvider provider) async {
   }
 }
 
-EpisodePlaybackPlan _directOrWeb(AnimeVideo episode, WebPlaybackReason reason) {
+EpisodePlaybackPlan _directOrWeb(
+  AnimeVideo episode,
+  WebPlaybackReason reason, {
+  SourceError? sourceError,
+}) {
   if (isDirectEpisode(episode)) {
     return NativePlaybackPlan(playableVideoFromDirectSource(episode.src));
   }
   logger.i('Playing ${episode.uid} in the web player: ${reason.name}');
-  return WebPlaybackPlan(reason);
+  return WebPlaybackPlan(reason, sourceError: sourceError);
 }

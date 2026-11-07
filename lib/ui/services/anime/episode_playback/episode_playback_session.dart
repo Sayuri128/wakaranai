@@ -1,3 +1,4 @@
+import 'package:capyscript/api_clients/source_error.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playback_resolver.dart';
@@ -16,7 +17,13 @@ typedef SessionNativePlayerOpener = Future<EpisodePlayerResult?> Function(
 typedef SessionWebPlayerOpener = Future<EpisodePlayerResult?> Function(
   EpisodePlaylist position, {
   required bool showFallbackNotice,
+  SourceError? sourceError,
 });
+
+typedef SessionSourceErrorHandler = Future<bool> Function(
+  EpisodePlaylist position,
+  SourceError error,
+);
 
 sealed class _SessionStep {
   const _SessionStep(this.position);
@@ -29,9 +36,14 @@ class _DecideStep extends _SessionStep {
 }
 
 class _WebStep extends _SessionStep {
-  const _WebStep(super.position, {required this.showFallbackNotice});
+  const _WebStep(
+    super.position, {
+    required this.showFallbackNotice,
+    this.sourceError,
+  });
 
   final bool showFallbackNotice;
+  final SourceError? sourceError;
 }
 
 class EpisodePlaybackSession {
@@ -41,6 +53,7 @@ class EpisodePlaybackSession {
     required this.openWebPlayer,
     required this.isActive,
     this.onEpisodeOpened,
+    this.onSourceError,
   });
 
   final SessionPlanResolver resolvePlan;
@@ -48,6 +61,7 @@ class EpisodePlaybackSession {
   final SessionWebPlayerOpener openWebPlayer;
   final bool Function() isActive;
   final void Function(AnimeVideo episode)? onEpisodeOpened;
+  final SessionSourceErrorHandler? onSourceError;
 
   EpisodePlaylist? _lastPosition;
 
@@ -76,6 +90,7 @@ class EpisodePlaybackSession {
         return _openWeb(
           step.position,
           showFallbackNotice: step.showFallbackNotice,
+          sourceError: step.sourceError,
         );
     }
   }
@@ -87,19 +102,42 @@ class EpisodePlaybackSession {
     }
     switch (plan) {
       case WebPlaybackPlan():
-        return _openWeb(position, showFallbackNotice: plan.shouldNotifyUser);
+        return _openWeb(
+          position,
+          showFallbackNotice: plan.shouldNotifyUser,
+          sourceError: plan.sourceError,
+        );
+      case SourceErrorPlaybackPlan():
+        return _reportSourceError(position, plan.error);
       case NativePlaybackPlan():
         return _nextStepFor(await openNativePlayer(position, plan.video));
     }
   }
 
+  Future<_SessionStep?> _reportSourceError(
+    EpisodePlaylist position,
+    SourceError error,
+  ) async {
+    final SessionSourceErrorHandler? handler = onSourceError;
+    if (handler == null) {
+      return null;
+    }
+    final bool retry = await handler(position, error);
+    if (!retry || !isActive()) {
+      return null;
+    }
+    return _DecideStep(position);
+  }
+
   Future<_SessionStep?> _openWeb(
     EpisodePlaylist position, {
     required bool showFallbackNotice,
+    SourceError? sourceError,
   }) async {
     final EpisodePlayerResult? result = await openWebPlayer(
       position,
       showFallbackNotice: showFallbackNotice,
+      sourceError: sourceError,
     );
     return _nextStepFor(result);
   }
@@ -112,6 +150,7 @@ class EpisodePlaybackSession {
         return _WebStep(
           result.position,
           showFallbackNotice: result.showFallbackNotice,
+          sourceError: result.sourceError,
         );
       case PlayEpisodeRequested():
         return _DecideStep(result.position);

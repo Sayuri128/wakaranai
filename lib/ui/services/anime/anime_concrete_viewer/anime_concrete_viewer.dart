@@ -234,6 +234,7 @@ class AnimeConcreteViewer extends ConcreteViewerPage<AnimeApiClient,
         context.read<LibraryUpdatesCubit>();
     final AnimeEpisodeLauncher launcher = AnimeEpisodeLauncher(
       client: state.apiClient,
+      configInfo: state.configInfo,
       anime: state.concreteView,
       groups: state.concreteView.groups,
       groupIndex: state.groupIndex,

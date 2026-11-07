@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:capyscript/api_clients/source_error.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -18,6 +19,7 @@ import 'package:wakaranai/ui/services/anime/native_player/player_quality.dart';
 import 'package:wakaranai/ui/services/anime/native_player/player_track_selection.dart';
 import 'package:wakaranai/ui/services/anime/native_player/skip_markers.dart';
 import 'package:wakaranai/ui/services/anime/native_player/subtitle_loader.dart';
+import 'package:wakaranai/utils/source_error_description.dart';
 
 part 'native_player_state.dart';
 
@@ -176,6 +178,14 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     if (_isStaleEpisode(generation)) {
       return;
     }
+    await _applyPlan(target, plan, generation);
+  }
+
+  Future<void> _applyPlan(
+    EpisodePlaylist target,
+    EpisodePlaybackPlan plan,
+    int generation,
+  ) async {
     switch (plan) {
       case WebPlaybackPlan():
         _finishSwitch();
@@ -184,11 +194,50 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
           webPlayerRequest: () => OpenInWebPlayer(
             target,
             showFallbackNotice: plan.shouldNotifyUser,
+            sourceError: plan.sourceError,
           ),
         ));
+      case SourceErrorPlaybackPlan():
+        _emitSourceError(plan.error);
       case NativePlaybackPlan():
         await _startEpisode(target, plan.video, generation);
     }
+  }
+
+  void _emitSourceError(SourceError error) {
+    if (isClosed) {
+      return;
+    }
+    _finishSwitch();
+    emit(state.copyWith(
+      status: NativePlayerStatus.error,
+      engine: () => null,
+      isPlaying: false,
+      errorMessage: () => null,
+      sourceError: () => error,
+      switchingEpisode: false,
+    ));
+  }
+
+  Future<void> _resolveCurrentEpisodeAgain() async {
+    final EpisodeResolver? resolve = _resolveEpisode;
+    if (resolve == null || isClosed) {
+      return;
+    }
+    final EpisodePlaylist target = state.playlist;
+    final int generation = ++_episodeGeneration;
+    _openGeneration++;
+    _subtitleGeneration++;
+    emit(state.copyWith(
+      status: NativePlayerStatus.loading,
+      sourceError: () => null,
+      errorMessage: () => null,
+    ));
+    final EpisodePlaybackPlan plan = await _resolveSafely(resolve, target);
+    if (_isStaleEpisode(generation)) {
+      return;
+    }
+    await _applyPlan(target, plan, generation);
   }
 
   Future<bool> cancelSwitch() async {
@@ -215,6 +264,10 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
   }
 
   Future<void> retry() async {
+    if (state.sourceError != null) {
+      await _resolveCurrentEpisodeAgain();
+      return;
+    }
     if (_video.streams.isEmpty) {
       return;
     }
@@ -507,6 +560,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       subtitleLoading: false,
       subtitleFailed: false,
       errorMessage: () => null,
+      sourceError: () => null,
       switchingEpisode: true,
       webPlayerRequest: () => null,
     ));
@@ -676,6 +730,10 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
     } catch (error, stackTrace) {
       logger.e('Failed to resolve ${target.current.uid}: $error');
       logger.e(stackTrace);
+      final SourceError? sourceError = findSourceError(error);
+      if (sourceError != null) {
+        return playbackPlanForSourceError(target.current, sourceError);
+      }
       return const WebPlaybackPlan(WebPlaybackReason.failed);
     }
   }
@@ -934,6 +992,7 @@ class NativePlayerCubit extends Cubit<NativePlayerState> {
       selectedRenditionId: () => null,
       isPlaying: false,
       errorMessage: () => null,
+      sourceError: () => null,
     ));
     final NativePlayerEngine? openedEngine = await _initializeEngine(
       index,

@@ -27,9 +27,16 @@ import 'package:wakaranai/ui/services/anime/native_player/subtitle_loader.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_overlay.dart';
 import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_pip_scope.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
+import 'package:wakaranai/ui/widgets/source_error_view.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/source_error_description.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+
+typedef SourceSignIn = Future<void> Function(
+  BuildContext context,
+  VoidCallback onSignedIn,
+);
 
 class NativePlayerData {
   const NativePlayerData({
@@ -39,6 +46,8 @@ class NativePlayerData {
     this.resolveEpisode,
     this.watchedEpisodeUids = const <String>{},
     this.canStream = true,
+    this.sourceName = '',
+    this.signIn,
   });
 
   final PlayableVideo video;
@@ -47,6 +56,8 @@ class NativePlayerData {
   final EpisodeResolver? resolveEpisode;
   final Set<String> watchedEpisodeUids;
   final bool canStream;
+  final String sourceName;
+  final SourceSignIn? signIn;
 
   AnimeVideo get episode => playlist.current;
 }
@@ -480,17 +491,53 @@ class _NativePlayerState extends State<NativePlayer> {
             return SingleChildScrollView(
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: ServiceViewerMessage(
-                  icon: Icons.error_outline_rounded,
-                  title: S.of(context).native_player_error_title,
-                  message: state.errorMessage,
-                  actions: _buildErrorActions(context, state),
-                ),
+                child: _buildErrorMessage(context, state),
               ),
             );
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildErrorMessage(BuildContext context, NativePlayerState state) {
+    final SourceErrorDescription? description = describeSourceError(
+      state.sourceError,
+      sourceName: widget.data.sourceName,
+      canSignIn: widget.data.signIn != null,
+    );
+    if (description != null) {
+      return _buildSourceError(context, description);
+    }
+    return ServiceViewerMessage(
+      icon: Icons.error_outline_rounded,
+      title: S.of(context).native_player_error_title,
+      message: state.errorMessage,
+      actions: _buildErrorActions(context, state),
+    );
+  }
+
+  Widget _buildSourceError(
+    BuildContext context,
+    SourceErrorDescription description,
+  ) {
+    final NativePlayerCubit cubit = context.read<NativePlayerCubit>();
+    final SourceSignIn? signIn = widget.data.signIn;
+    return SourceErrorView(
+      description: description,
+      onRetry: () => unawaited(cubit.retry()),
+      onSignIn: signIn == null
+          ? null
+          : () => unawaited(
+                signIn(context, () => unawaited(cubit.retry())),
+              ),
+      extraActions: <SourceErrorExtraAction>[
+        SourceErrorExtraAction(
+          icon: Icons.arrow_back_rounded,
+          label: S.of(context).common_go_back,
+          onPressed: _close,
+        ),
+      ],
     );
   }
 

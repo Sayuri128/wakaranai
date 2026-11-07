@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:capyscript/api_clients/source_error.dart';
 
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_view_type.dart';
@@ -283,6 +284,7 @@ class _Harness {
   final double maxSupportedSpeed;
   final String startUid;
   final Set<String> webOnlyUids;
+  final Map<String, Object> resolveFailures = <String, Object>{};
   final List<VideoTrack> Function(PlayableStream stream)? tracksFor;
   final PlayableVideo Function(String uid)? videoFor;
   final bool supportsVideoTracks;
@@ -331,6 +333,10 @@ class _Harness {
     }
     if (webOnlyUids.contains(uid)) {
       return const WebPlaybackPlan(WebPlaybackReason.failed);
+    }
+    final Object? failure = resolveFailures[uid];
+    if (failure != null) {
+      throw failure;
     }
     final PlayableVideo Function(String uid)? customVideo = videoFor;
     return NativePlaybackPlan(
@@ -1081,6 +1087,48 @@ void main() {
       expect(request.showFallbackNotice, isTrue);
       expect(harness.stores['a1']!.saved.last.watchedSeconds, 180);
       expect(harness.engines, hasLength(1));
+      await cubit.close();
+    });
+
+    test('a typed source error stops on the episode and retries it',
+        () async {
+      final _Harness harness = _Harness(hasNextEpisode: true);
+      harness.resolveFailures['a2'] =
+          const SourceError(SourceErrorKind.loginRequired, 'session expired');
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      await cubit.playNext();
+
+      expect(cubit.state.status, NativePlayerStatus.error);
+      expect(cubit.state.sourceError?.kind, SourceErrorKind.loginRequired);
+      expect(cubit.state.webPlayerRequest, isNull);
+      expect(cubit.state.switchingEpisode, isFalse);
+      expect(cubit.state.playlist.current.uid, 'a2');
+
+      harness.resolveFailures.remove('a2');
+      await cubit.retry();
+
+      expect(harness.resolvedUids, <String>['a2', 'a2']);
+      expect(cubit.state.status, NativePlayerStatus.ready);
+      expect(cubit.state.sourceError, isNull);
+      expect(harness.engines.last.stream.url, contains('/a2/'));
+      await cubit.close();
+    });
+
+    test('an unsupported source error hands the episode to the web player',
+        () async {
+      final _Harness harness = _Harness(hasNextEpisode: true);
+      harness.resolveFailures['a2'] =
+          const SourceError(SourceErrorKind.unsupported);
+      final NativePlayerCubit cubit = harness.build();
+      await cubit.init();
+
+      await cubit.playNext();
+
+      final OpenInWebPlayer? request = cubit.state.webPlayerRequest;
+      expect(request?.sourceError?.kind, SourceErrorKind.unsupported);
+      expect(request?.showFallbackNotice, isTrue);
       await cubit.close();
     });
 

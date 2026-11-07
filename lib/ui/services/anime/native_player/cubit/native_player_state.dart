@@ -29,6 +29,7 @@ class NativePlayerState extends Equatable {
     this.isPlaying = false,
     this.switchingEpisode = false,
     this.errorMessage,
+    this.sourceError,
   });
 
   final EpisodePlaylist playlist;
@@ -56,6 +57,7 @@ class NativePlayerState extends Equatable {
   final bool isPlaying;
   final bool switchingEpisode;
   final String? errorMessage;
+  final SourceError? sourceError;
 
   double get effectiveSpeed {
     if (!holdActive) {
@@ -92,6 +94,7 @@ class NativePlayerState extends Equatable {
     bool? isPlaying,
     bool? switchingEpisode,
     ValueGetter<String?>? errorMessage,
+    ValueGetter<SourceError?>? sourceError,
   }) {
     return NativePlayerState(
       playlist: playlist ?? this.playlist,
@@ -127,6 +130,7 @@ class NativePlayerState extends Equatable {
       isPlaying: isPlaying ?? this.isPlaying,
       switchingEpisode: switchingEpisode ?? this.switchingEpisode,
       errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
+      sourceError: sourceError != null ? sourceError() : this.sourceError,
     );
   }
 
@@ -157,5 +161,6 @@ class NativePlayerState extends Equatable {
         isPlaying,
         switchingEpisode,
         errorMessage,
+        sourceError,
       ];
 }

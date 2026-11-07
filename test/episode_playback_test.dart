@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:capyscript/api_clients/source_error.dart';
 
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video_source.dart';
@@ -289,6 +290,49 @@ void main() {
       final WebPlaybackPlan web = plan as WebPlaybackPlan;
       expect(web.reason, WebPlaybackReason.failed);
       expect(web.shouldNotifyUser, isTrue);
+    });
+
+    test('a typed source error is kept instead of the web fallback',
+        () async {
+      for (final SourceErrorKind kind in <SourceErrorKind>[
+        SourceErrorKind.loginRequired,
+        SourceErrorKind.rateLimited,
+        SourceErrorKind.sourceDown,
+        SourceErrorKind.notFound,
+        SourceErrorKind.regionBlocked,
+      ]) {
+        final EpisodePlaybackPlan plan = await _resolve(
+          _episode('1'),
+          _FakeProvider(failure: SourceError(kind, 'details')),
+        );
+
+        expect(plan, isA<SourceErrorPlaybackPlan>(), reason: kind.name);
+        expect((plan as SourceErrorPlaybackPlan).error.kind, kind);
+      }
+    });
+
+    test('an unsupported episode opens the web player with the typed notice',
+        () async {
+      final EpisodePlaybackPlan plan = await _resolve(
+        _episode('1'),
+        _FakeProvider(
+          failure: const SourceError(SourceErrorKind.unsupported, 'embed only'),
+        ),
+      );
+
+      final WebPlaybackPlan web = plan as WebPlaybackPlan;
+      expect(web.reason, WebPlaybackReason.failed);
+      expect(web.sourceError?.kind, SourceErrorKind.unsupported);
+      expect(web.shouldNotifyUser, isTrue);
+    });
+
+    test('an untyped failure keeps the plain web fallback', () async {
+      final EpisodePlaybackPlan plan = await _resolve(
+        _episode('1'),
+        _FakeProvider(failure: Exception('boom')),
+      );
+
+      expect((plan as WebPlaybackPlan).sourceError, isNull);
     });
 
     test('a slow script times out and falls back with a notice', () async {

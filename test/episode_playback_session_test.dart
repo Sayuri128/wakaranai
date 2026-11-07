@@ -1,3 +1,4 @@
+import 'package:capyscript/api_clients/source_error.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_view_type.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video_group/anime_video_group.dart';
@@ -59,7 +60,11 @@ class _Harness {
   final List<String> nativeOpened = <String>[];
   final List<String> webOpened = <String>[];
   final List<bool> webNotices = <bool>[];
+  final List<SourceError?> webSourceErrors = <SourceError?>[];
   final List<String> episodesOpened = <String>[];
+  final List<SourceErrorKind> reportedErrors = <SourceErrorKind>[];
+  final List<bool> sourceErrorAnswers = <bool>[];
+  void Function()? onSourceErrorReported;
   bool active = true;
   late final EpisodePlaybackSession session = EpisodePlaybackSession(
     isActive: () => active,
@@ -67,7 +72,20 @@ class _Harness {
     resolvePlan: _resolvePlan,
     openNativePlayer: _openNative,
     openWebPlayer: _openWeb,
+    onSourceError: _onSourceError,
   );
+
+  Future<bool> _onSourceError(
+    EpisodePlaylist position,
+    SourceError error,
+  ) async {
+    reportedErrors.add(error.kind);
+    onSourceErrorReported?.call();
+    if (sourceErrorAnswers.isEmpty) {
+      return false;
+    }
+    return sourceErrorAnswers.removeAt(0);
+  }
 
   Future<EpisodePlaybackPlan?> _resolvePlan(EpisodePlaylist position) async {
     final String uid = position.current.uid;
@@ -92,9 +110,11 @@ class _Harness {
   Future<EpisodePlayerResult?> _openWeb(
     EpisodePlaylist position, {
     required bool showFallbackNotice,
+    SourceError? sourceError,
   }) async {
     webOpened.add(position.current.uid);
     webNotices.add(showFallbackNotice);
+    webSourceErrors.add(sourceError);
     if (webResults.isEmpty) {
       return null;
     }
@@ -103,6 +123,51 @@ class _Harness {
 }
 
 void main() {
+  test('a typed source error is reported and ends the session', () async {
+    final _Harness harness = _Harness();
+    harness.plans['a1'] = const SourceErrorPlaybackPlan(
+      SourceError(SourceErrorKind.notFound),
+    );
+
+    await harness.session.run(_start);
+
+    expect(harness.reportedErrors, <SourceErrorKind>[SourceErrorKind.notFound]);
+    expect(harness.nativeOpened, isEmpty);
+    expect(harness.webOpened, isEmpty);
+  });
+
+  test('a source error the user retries resolves the episode again',
+      () async {
+    final _Harness harness = _Harness();
+    harness.plans['a1'] = const SourceErrorPlaybackPlan(
+      SourceError(SourceErrorKind.loginRequired),
+    );
+    harness.sourceErrorAnswers.add(true);
+    harness.onSourceErrorReported = () => harness.plans.remove('a1');
+
+    await harness.session.run(_start);
+
+    expect(harness.resolved, <String>['a1', 'a1']);
+    expect(harness.nativeOpened, <String>['a1']);
+  });
+
+  test('an unsupported source hands its error to the web player', () async {
+    final _Harness harness = _Harness();
+    harness.plans['a1'] = const WebPlaybackPlan(
+      WebPlaybackReason.failed,
+      sourceError: SourceError(SourceErrorKind.unsupported),
+    );
+
+    await harness.session.run(_start);
+
+    expect(harness.webOpened, <String>['a1']);
+    expect(harness.webNotices, <bool>[true]);
+    expect(
+      harness.webSourceErrors.single?.kind,
+      SourceErrorKind.unsupported,
+    );
+  });
+
   test('a native episode that is closed ends the session', () async {
     final _Harness harness = _Harness();
 

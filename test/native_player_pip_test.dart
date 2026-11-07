@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:capyscript/api_clients/source_error.dart';
+
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_status.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
@@ -252,6 +254,7 @@ class _Harness {
   _Harness({
     this.holdInitialize = false,
     this.webOnlyUids = const <String>{},
+    this.sourceErrors = const <String, SourceError>{},
     this.skipMarkers = const <PlayableSkipMarker>[],
     this.brokenLocalFile = false,
   });
@@ -259,6 +262,7 @@ class _Harness {
   final bool holdInitialize;
   final bool brokenLocalFile;
   final Set<String> webOnlyUids;
+  final Map<String, SourceError> sourceErrors;
   final List<PlayableSkipMarker> skipMarkers;
   final List<_FakeEngine> engines = <_FakeEngine>[];
   final List<String> resolvedUids = <String>[];
@@ -293,6 +297,10 @@ class _Harness {
 
   Future<EpisodePlaybackPlan> _resolve(EpisodePlaylist target) async {
     resolvedUids.add(target.current.uid);
+    final SourceError? sourceError = sourceErrors[target.current.uid];
+    if (sourceError != null) {
+      return SourceErrorPlaybackPlan(sourceError);
+    }
     if (webOnlyUids.contains(target.current.uid)) {
       return const WebPlaybackPlan(WebPlaybackReason.unsupported);
     }
@@ -341,6 +349,7 @@ Future<void> _pumpPlayer(
   WidgetTester tester, {
   required _Harness harness,
   required _FakePictureInPicture pictureInPicture,
+  SourceSignIn? signIn,
 }) async {
   tester.view.physicalSize = const Size(1600, 800);
   tester.view.devicePixelRatio = 1.0;
@@ -359,6 +368,8 @@ Future<void> _pumpPlayer(
           anime: _anime,
           playlist: harness.playlist,
           resolveEpisode: harness._resolve,
+          sourceName: 'AnimeSite',
+          signIn: signIn,
         ),
         pictureInPicture: pictureInPicture,
         deviceControls: _FakeDeviceControls(),
@@ -860,6 +871,44 @@ void main() {
       expect(outcome.finished, isTrue);
       expect(outcome.result, isA<PlayEpisodeRequested>());
       expect(LocalPlaybackFailures.shared.hasFailed('e1'), isTrue);
+
+      await _unmount(tester);
+    });
+
+    testWidgets('a sign-in source error offers sign-in and retries after it',
+        (WidgetTester tester) async {
+      _recordSystemUi();
+      final _Harness harness = _Harness(
+        sourceErrors: const <String, SourceError>{
+          'e2': SourceError(SourceErrorKind.loginRequired),
+        },
+      );
+      int signIns = 0;
+      await _pumpPlayer(
+        tester,
+        harness: harness,
+        pictureInPicture: _FakePictureInPicture(),
+        signIn: (BuildContext context, VoidCallback onSignedIn) async {
+          signIns++;
+          onSignedIn();
+        },
+      );
+
+      unawaited(harness.cubit!.playNext());
+      await _pumpFrames(tester, 4);
+
+      expect(
+        find.text(strings.source_error_login_required_title('AnimeSite')),
+        findsOneWidget,
+      );
+      expect(find.text(strings.source_error_sign_in_button), findsOneWidget);
+      expect(find.text(strings.common_go_back), findsOneWidget);
+
+      await tester.tap(find.text(strings.source_error_sign_in_button));
+      await _pumpFrames(tester, 4);
+
+      expect(signIns, 1);
+      expect(harness.resolvedUids, <String>['e2', 'e2']);
 
       await _unmount(tester);
     });
