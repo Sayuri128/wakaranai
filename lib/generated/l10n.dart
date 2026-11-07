@@ -2322,6 +2322,26 @@ class S {
     );
   }
 
+  /// `Newest first`
+  String get downloads_order_newest {
+    return Intl.message(
+      'Newest first',
+      name: 'downloads_order_newest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Oldest first`
+  String get downloads_order_oldest {
+    return Intl.message(
+      'Oldest first',
+      name: 'downloads_order_oldest',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `No downloads`
   String get downloads_empty_title {
     return Intl.message(

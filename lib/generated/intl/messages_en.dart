@@ -422,6 +422,12 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Download complete"),
     "downloads_notification_downloading_title":
         MessageLookupByLibrary.simpleMessage("Downloading"),
+    "downloads_order_newest": MessageLookupByLibrary.simpleMessage(
+      "Newest first",
+    ),
+    "downloads_order_oldest": MessageLookupByLibrary.simpleMessage(
+      "Oldest first",
+    ),
     "downloads_pages_progress": m16,
     "downloads_status_downloading": MessageLookupByLibrary.simpleMessage(
       "Downloading",

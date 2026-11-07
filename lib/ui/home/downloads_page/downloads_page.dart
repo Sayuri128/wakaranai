@@ -8,6 +8,7 @@ import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/repositories/shared_pref/downloads_order_preferences.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/downloads_page/download_reader_launcher.dart';
 import 'package:wakaranai/ui/home/downloads_page/download_translation.dart';
@@ -19,8 +20,35 @@ import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
-class DownloadsPage extends StatelessWidget {
+class DownloadsPage extends StatefulWidget {
   const DownloadsPage({super.key});
+
+  @override
+  State<DownloadsPage> createState() => _DownloadsPageState();
+}
+
+class _DownloadsPageState extends State<DownloadsPage> {
+  final DownloadsOrderPreferences _orderPreferences =
+      DownloadsOrderPreferences();
+  bool _newestFirst = true;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_restoreOrder());
+  }
+
+  Future<void> _restoreOrder() async {
+    final bool newestFirst = await _orderPreferences.isNewestFirst();
+    if (mounted && newestFirst != _newestFirst) {
+      setState(() => _newestFirst = newestFirst);
+    }
+  }
+
+  void _toggleOrder() {
+    setState(() => _newestFirst = !_newestFirst);
+    unawaited(_orderPreferences.setNewestFirst(_newestFirst));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +80,9 @@ class DownloadsPage extends StatelessWidget {
 
     final Map<String, List<DownloadDomain>> grouped =
         <String, List<DownloadDomain>>{};
-    for (final DownloadDomain d in state.downloads) {
+    final Iterable<DownloadDomain> ordered =
+        _newestFirst ? state.downloads.reversed : state.downloads;
+    for (final DownloadDomain d in ordered) {
       grouped.putIfAbsent(d.concreteUid, () => <DownloadDomain>[]).add(d);
     }
 
@@ -62,6 +92,7 @@ class DownloadsPage extends StatelessWidget {
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.only(bottom: 24 + bottomInset),
       children: <Widget>[
+        _OrderToggle(newestFirst: _newestFirst, onTap: _toggleOrder),
         TranslationQueueCard(margin: const EdgeInsets.fromLTRB(16, 8, 16, 0)),
         for (final List<DownloadDomain> titleDownloads in grouped.values) ...<Widget>[
           _GroupHeader(downloads: titleDownloads),
@@ -69,6 +100,56 @@ class DownloadsPage extends StatelessWidget {
             _DownloadTile(download: download),
         ],
       ],
+    );
+  }
+}
+
+class _OrderToggle extends StatelessWidget {
+  const _OrderToggle({required this.newestFirst, required this.onTap});
+
+  final bool newestFirst;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Material(
+          color: AppColors.overlay(0.06),
+          borderRadius: BorderRadius.circular(12),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  AnimatedRotation(
+                    turns: newestFirst ? 0 : 0.5,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOutCubic,
+                    child: Icon(
+                      Icons.arrow_downward_rounded,
+                      size: 18,
+                      color: AppColors.mainGrey,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    newestFirst
+                        ? S.current.downloads_order_newest
+                        : S.current.downloads_order_oldest,
+                    style: medium(size: 13),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
