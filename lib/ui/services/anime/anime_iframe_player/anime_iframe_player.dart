@@ -11,6 +11,9 @@ import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/services/anime/anime_iframe_player/anime_iframe_page.dart';
 import 'package:wakaranai/ui/services/anime/anime_iframe_player/cubit/anime_iframe_player_cubit.dart';
+import 'package:wakaranai/ui/services/anime/anime_iframe_player/iframe_playlist_pill.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
@@ -18,11 +21,15 @@ class AnimeIframePlayerData {
   final AnimeVideo video;
   final AnimeConcreteView anime;
   final String? notice;
+  final EpisodePlaylist? playlist;
+  final Set<String> watchedEpisodeUids;
 
   const AnimeIframePlayerData({
     required this.video,
     required this.anime,
     this.notice,
+    this.playlist,
+    this.watchedEpisodeUids = const <String>{},
   });
 }
 
@@ -40,6 +47,8 @@ class _AnimeIframePlayerState extends State<AnimeIframePlayer> {
     widget.data.video.src,
   );
   bool _landscapeLockedForFullscreen = false;
+  bool _fullscreen = false;
+  bool _leaving = false;
 
   @override
   void initState() {
@@ -76,6 +85,23 @@ class _AnimeIframePlayerState extends State<AnimeIframePlayer> {
         SnackBars.showErrorSnackBar(context: context, error: notice);
       }
     });
+  }
+
+  void _setFullscreen(bool fullscreen) {
+    if (!mounted || _fullscreen == fullscreen) {
+      return;
+    }
+    setState(() {
+      _fullscreen = fullscreen;
+    });
+  }
+
+  void _playFromPlaylist(EpisodePlaylist target) {
+    if (_leaving) {
+      return;
+    }
+    _leaving = true;
+    Navigator.of(context).pop(PlayEpisodeRequested(target));
   }
 
   void _lockLandscapeForFullscreen() {
@@ -133,7 +159,36 @@ class _AnimeIframePlayerState extends State<AnimeIframePlayer> {
     }
     return Scaffold(
       backgroundColor: Colors.black,
-      body: _buildWebView(page),
+      body: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          _buildWebView(page),
+          _buildPlaylistPill(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlaylistPill() {
+    final EpisodePlaylist? playlist = widget.data.playlist;
+    if (playlist == null || _fullscreen) {
+      return const SizedBox.shrink();
+    }
+    return Positioned(
+      top: 0,
+      right: 0,
+      child: SafeArea(
+        left: false,
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: IframePlaylistPill(
+            playlist: playlist,
+            watchedEpisodeUids: widget.data.watchedEpisodeUids,
+            onPlay: _playFromPlaylist,
+          ),
+        ),
+      ),
     );
   }
 
@@ -152,9 +207,11 @@ class _AnimeIframePlayerState extends State<AnimeIframePlayer> {
             return _decideNavigation(page, action);
           },
       onEnterFullscreen: (InAppWebViewController controller) {
+        _setFullscreen(true);
         _lockLandscapeForFullscreen();
       },
       onExitFullscreen: (InAppWebViewController controller) {
+        _setFullscreen(false);
         _releaseFullscreenOrientation();
       },
       initialSettings: InAppWebViewSettings(
