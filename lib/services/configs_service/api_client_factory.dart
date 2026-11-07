@@ -3,16 +3,33 @@ import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/api_clients/host/extension_host.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:wakaranai/repositories/database/extension_storage_repository.dart';
+import 'package:wakaranai/services/extension_preferences/extension_host_services.dart';
+import 'package:wakaranai/services/extension_preferences/extension_preferences_store.dart';
 
 class ExtensionHostFactory {
-  const ExtensionHostFactory();
+  const ExtensionHostFactory({this.preferenceStore, this.storageRepository});
+
+  final ExtensionPreferencesStore? preferenceStore;
+  final ExtensionStorageRepository? storageRepository;
 
   ExtensionPreferencesProvider preferencesFor(ConfigInfo config) {
-    return const NoopExtensionPreferencesProvider();
+    final ExtensionPreferencesStore? store = preferenceStore;
+    if (store == null) {
+      return const NoopExtensionPreferencesProvider();
+    }
+    return StoredExtensionPreferencesProvider(store: store, config: config);
   }
 
   ExtensionStorage storageFor(ConfigInfo config) {
-    return const NoopExtensionStorage();
+    final ExtensionStorageRepository? repository = storageRepository;
+    if (repository == null) {
+      return const NoopExtensionStorage();
+    }
+    return DatabaseExtensionStorage(
+      repository: repository,
+      extensionUid: config.uid,
+    );
   }
 
   ExtensionHost hostFor(ConfigInfo config) {

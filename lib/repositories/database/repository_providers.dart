@@ -12,12 +12,16 @@ import 'package:wakaranai/repositories/database/library_entry_repository.dart';
 import 'package:wakaranai/repositories/database/library_update_repository.dart';
 import 'package:wakaranai/repositories/database/page_translation_repository.dart';
 
-Widget repositoryProviders(BuildContext context, {required Widget child}) {
+Widget repositoryProviders(
+  BuildContext context, {
+  required Widget child,
+  WakaranaiDatabase? database,
+}) {
   return MultiRepositoryProvider(
     providers: [
       RepositoryProvider<WakaranaiDatabase>(
         create: (context) {
-          final db = WakaranaiDatabase();
+          final db = database ?? WakaranaiDatabase();
 
           // Use migrator here to modify tables
           // without changing the version

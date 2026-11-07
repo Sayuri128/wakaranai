@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart'
@@ -27,10 +28,12 @@ import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/env.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/repositories/database/extension_storage_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/services/configs_service/extension_resolver.dart';
 import 'package:wakaranai/repositories/database/repository_providers.dart';
 import 'package:wakaranai/services/background/background_tasks.dart';
+import 'package:wakaranai/services/extension_preferences/extension_host_services.dart';
 import 'package:wakaranai/services/import_export/import_export_service.dart';
 import 'package:wakaranai/ui/app_view.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
@@ -84,7 +87,19 @@ void main() async {
 
   await userAgentResolution;
 
-  runApp(const WakaranaiApp());
+  final WakaranaiDatabase database = WakaranaiDatabase();
+  configureExtensionHost(database);
+  unawaited(_pruneExpiredExtensionStorage(database));
+
+  runApp(WakaranaiApp(database: database));
+}
+
+Future<void> _pruneExpiredExtensionStorage(WakaranaiDatabase database) async {
+  try {
+    await ExtensionStorageRepository(database: database).pruneExpired();
+  } catch (e) {
+    logger.w('Failed to prune expired extension storage: $e');
+  }
 }
 
 Future<void> _resolveWebViewUserAgent() async {
@@ -99,7 +114,9 @@ Future<void> _resolveWebViewUserAgent() async {
 }
 
 class WakaranaiApp extends StatefulWidget {
-  const WakaranaiApp({super.key});
+  const WakaranaiApp({super.key, required this.database});
+
+  final WakaranaiDatabase database;
 
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
@@ -115,6 +132,7 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
   Widget build(BuildContext context) {
     return repositoryProviders(
       context,
+      database: widget.database,
       child: MultiBlocProvider(
         providers: [
           BlocProvider<ThemeCubit>(

@@ -1,3 +1,5 @@
+import 'package:wakaranai/database/wakaranai_database.dart';
+import 'package:wakaranai/services/extension_preferences/extension_host_services.dart';
 import 'package:wakaranai/services/import_export/import_export_task.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/services/library_updates/library_update_task.dart';
@@ -9,16 +11,26 @@ void backgroundCallbackDispatcher() {
   Workmanager().executeTask(
     (String taskName, Map<String, dynamic>? inputData) async {
       await _resolveWebViewUserAgent();
-      switch (taskName) {
-        case importTaskName:
-          return runImportTask(inputData);
-        case libraryUpdateTaskName:
-          return runLibraryUpdateTask(inputData);
-        default:
-          return true;
+      final WakaranaiDatabase hostDatabase = WakaranaiDatabase();
+      configureExtensionHost(hostDatabase);
+      try {
+        return await _runTask(taskName, inputData);
+      } finally {
+        await hostDatabase.close();
       }
     },
   );
+}
+
+Future<bool> _runTask(String taskName, Map<String, dynamic>? inputData) {
+  switch (taskName) {
+    case importTaskName:
+      return runImportTask(inputData);
+    case libraryUpdateTaskName:
+      return runLibraryUpdateTask(inputData);
+    default:
+      return Future<bool>.value(true);
+  }
 }
 
 Future<void> _resolveWebViewUserAgent() async {
