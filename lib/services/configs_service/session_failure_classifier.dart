@@ -32,15 +32,15 @@ class SessionFailureClassifier {
     if (config.protectorConfig == null) {
       return null;
     }
-    final SourceError? sourceError = sourceErrorIn(error);
-    if (sourceError != null) {
-      return _attentionForSourceError(sourceError, config);
-    }
     if (challengeObserved) {
       return SourceNeedsAttention(
         config: config,
         reason: SourceAttentionReason.challengeRequired,
       );
+    }
+    final SourceError? sourceError = sourceErrorIn(error);
+    if (sourceError != null) {
+      return _attentionForSourceError(sourceError, config);
     }
     if (indicatesExpiredSession(error)) {
       return SourceNeedsAttention(
@@ -55,13 +55,19 @@ class SessionFailureClassifier {
     SourceError sourceError,
     ConfigInfo config,
   ) {
-    if (sourceError.kind != SourceErrorKind.loginRequired) {
-      return null;
+    if (sourceError.kind == SourceErrorKind.loginRequired) {
+      return SourceNeedsAttention(
+        config: config,
+        reason: SourceAttentionReason.loginRequired,
+      );
     }
-    return SourceNeedsAttention(
-      config: config,
-      reason: SourceAttentionReason.loginRequired,
-    );
+    if (BrowserChallengeDetector.isChallenge(sourceError.message)) {
+      return SourceNeedsAttention(
+        config: config,
+        reason: SourceAttentionReason.sessionExpired,
+      );
+    }
+    return null;
   }
 
   static SourceError? sourceErrorIn(Object? error) {

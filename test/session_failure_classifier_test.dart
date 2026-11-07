@@ -184,11 +184,39 @@ void main() {
           continue;
         }
         expect(
-          _reasonFor(SourceError(kind, 'HTTP 403'), challengeObserved: true),
+          _reasonFor(SourceError(kind, 'HTTP 403')),
           isNull,
           reason: kind.name,
         );
       }
+    });
+
+    test('a challenge seen by the interceptor wins over the script error kind',
+        () {
+      for (final SourceErrorKind kind in SourceErrorKind.values) {
+        expect(
+          _reasonFor(
+            CapyScriptRuntimeError(SourceError(kind), <String>['getConcrete']),
+            challengeObserved: true,
+          ),
+          SourceAttentionReason.challengeRequired,
+          reason: kind.name,
+        );
+      }
+    });
+
+    test('a script error carrying a challenge page means the session expired',
+        () {
+      expect(
+        _reasonFor(
+            const SourceError(SourceErrorKind.notFound, _cloudflarePage)),
+        SourceAttentionReason.sessionExpired,
+      );
+      expect(
+        _reasonFor(
+            const SourceError(SourceErrorKind.sourceDown, _cloudflarePage)),
+        SourceAttentionReason.sessionExpired,
+      );
     });
 
     test('a script login error on an open source is not flagged', () {
