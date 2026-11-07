@@ -37,6 +37,23 @@ class AppVersion {
     );
   }
 
+  static final RegExp _lenientRegex = RegExp(r'^[vV]?(\d+)(?:\.(\d+))?(?:\.(\d+))?');
+
+  static AppVersion? tryParse(String? version) {
+    if (version == null) {
+      return null;
+    }
+    final RegExpMatch? match = _lenientRegex.firstMatch(version.trim());
+    if (match == null) {
+      return null;
+    }
+    return AppVersion(
+      major: int.parse(match.group(1)!),
+      minor: int.parse(match.group(2) ?? '0'),
+      patch: int.parse(match.group(3) ?? '0'),
+    );
+  }
+
   bool operator >(AppVersion other) =>
       major > other.major ||
       (major == other.major && minor > other.minor) ||
