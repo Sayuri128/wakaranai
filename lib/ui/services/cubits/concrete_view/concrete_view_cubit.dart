@@ -350,16 +350,9 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
             title: groupItem.title,
             data: jsonEncode(groupItem.data),
             createdAt: DateTime.now(),
-            watchedTime: null,
-            totalTime: null,
           );
 
-          await animeEpisodeActivityRepository
-              .createUpdateBy<$AnimeEpisodeActivityTableTable, String>(
-            activity,
-            by: (tbl) => tbl.uid,
-            where: (tbl) => tbl.uid,
-          );
+          await animeEpisodeActivityRepository.markCompleted(activity);
         }
       }
 

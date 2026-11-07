@@ -27,6 +27,31 @@ class AnimeEpisodeActivityRepository extends BaseRepository<
     }
   }
 
+  Future<AnimeEpisodeActivityDomain?> markCompleted(
+    AnimeEpisodeActivityDomain activity,
+  ) async {
+    final AnimeEpisodeActivityDomain? existing =
+        await getBy<$AnimeEpisodeActivityTableTable>(
+      activity.uid,
+      where: (tbl) => tbl.uid,
+    );
+    return createUpdateBy<$AnimeEpisodeActivityTableTable, String>(
+      AnimeEpisodeActivityDomain(
+        id: activity.id,
+        uid: activity.uid,
+        title: activity.title,
+        timestamp: activity.timestamp,
+        data: activity.data,
+        concreteId: activity.concreteId,
+        watchedTime: existing?.watchedTime ?? activity.watchedTime,
+        totalTime: existing?.totalTime ?? activity.totalTime,
+        createdAt: activity.createdAt,
+      ),
+      by: (AnimeEpisodeActivityDomain domain) => domain.uid,
+      where: (tbl) => tbl.uid,
+    );
+  }
+
   @override
   DeleteStatement deleteStatement() {
     return database.animeEpisodeActivityTable.delete();
