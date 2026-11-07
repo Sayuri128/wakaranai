@@ -400,7 +400,7 @@ to keep the kind.
 The Waka Models module is used to create Waka Models.
 It is used to create the models for the manga and anime views.
 
-anime and manga models are in different modules, and you can't use the manga models in the anime and vice versa.
+anime, manga and novel models are in different modules, and you can't use the manga models in the anime and vice versa.
 
 ---
 
@@ -582,6 +582,39 @@ Parameters:
 * `uid` is the unique id of the chapter. This will be used to identify the specific manga
   in the app.
 * `value` is a list of pages (image URLs) for the chapter.
+
+---
+
+## Novel Models
+
+`novel_models` is the module for novel extensions (`"type": 2`). It offers the same
+`buildGallery`, `buildConcrete`, `buildChapter`, `buildChapterGroups` and status constants
+(`statusAnnounce`, `statusCanceled`, `statusOngoing`, `statusPaused`, `statusReleased`,
+`statusUndefined`) as [`manga_models`](#manga-models), with the same arguments, plus
+`buildNovelChapter` for the chapter text.
+
+### `buildNovelChapter`
+
+```capyscript
+
+import "novel_models";
+
+function getChapterText(uid, data) {
+    return buildNovelChapter({
+      html: "<p>It was a dark and stormy night.</p>",
+      title: "Chapter 1"
+    });
+}
+
+```
+
+* `html` - the chapter body: HTML (`<p>`, `<br>`, `<em>`, `<strong>`, headings, lists, images)
+  or plain text.
+* `title` (optional) - the chapter title; the app shows the title from `buildChapter` when it is
+  left out.
+
+The result exposes `html` and `title` fields. `getChapterText` may also return a plain string,
+which the app treats as `html`.
 
 ---
 

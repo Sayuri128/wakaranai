@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Extensions are a way to add new sources for manga and anime to the app. Extensions are written in
+Extensions are a way to add new sources for manga, anime and light novels to the app. Extensions are written in
 Capyscript and are loaded dynamically at runtime.
 This means that you can add new sources/update existing ones without having to update the app
 itself.
@@ -17,7 +17,8 @@ First of all you need to create a new json file called `config.json` with the fo
 * `uid`: Unique identifier for the script.
 * `name`: Name of the source.
 * `logoUrl`: URL to the script's logo.
-* `type`: Type of script, either `0` for manga or `1` - anime.
+* `type`: Type of script: `0` for manga, `1` for anime, `2` for novels (see
+  [Creating novel extension](#creating-novel-extension)).
 * `nsfw`: Indicates whether the script contains NSFW content (true or false).
 * `language`: Source language.
 * `version`: Version number of the script.
@@ -248,6 +249,49 @@ fenixSources.push({
 Sources behind a Cloudflare-style challenge can use the headless browser through
 `protectorConfig` with `inAppBrowserInterceptor: true`, the same way gallery and concrete
 requests do.
+
+## Creating novel extension
+
+A light novel or web novel extension uses the same `config.json` with `"type": 2`. It lists and
+describes titles exactly like a manga extension: `getGallery`, `getConcrete` and the optional
+`getRelated` and `passProtector` all work the same way, and it builds its models with the
+[`novel_models`](caypscript_modules.md#novel-models) module, which offers `buildGallery`,
+`buildConcrete`, `buildChapter`, `buildChapterGroups` and the `status*` constants with the same
+arguments as `manga_models`. It has no `getPages`; `getImageHeaders` is only needed when covers
+need headers.
+
+Instead of page images, the app asks for the text of a chapter:
+
+* `getChapterText` - Returns the chapter body, built with `buildNovelChapter`. It receives the
+  `uid` and `data` of the chapter as passed to `buildChapter`.
+
+```capyscript
+import "http";
+import "html";
+import "novel_models";
+
+function getChapterText(uid, data) {
+    var page = httpGet(data["url"]);
+    var document = createHTMLParser(page.body);
+    var body = document.querySelector("div.chapter-content");
+    return buildNovelChapter({"title": data["title"], "html": body.outerHtml});
+}
+```
+
+`html` may be HTML (paragraphs, line breaks, emphasis, headings, lists and images are rendered;
+scripts and styles are ignored) or plain text. Strip ads, navigation links and comment widgets in
+the script: the app shows whatever it receives. Returning a plain string instead of
+`buildNovelChapter(...)` also works and is treated as `html`.
+
+The app keeps the reading position of each chapter, offers previous and next chapter in the reader
+(in the order of the chapter group) and saves chapters for offline reading by calling
+`getChapterText` once and storing the result.
+
+Novel support needs an app release that knows type `2`. Releases without it cannot read the
+config: recent ones leave the extension out of their listing, older ones may fail on it. Set
+`minAppVersion` to the first release with novel support, and keep novel extensions off the branch
+older releases read until that release has shipped (see [API versions](#api-versions)).
+`contentKinds` defaults to `["novel"]` for novel extensions.
 
 ## Filters
 
