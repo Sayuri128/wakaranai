@@ -43,9 +43,8 @@ String? latestActivityTitle(List<BaseActivityDomain>? activities) {
 DateTime _lastTouched(BaseActivityDomain activity) =>
     activity.updatedAt ?? activity.createdAt;
 
-class GalleryItemsView extends StatelessWidget {
+class GalleryItemsView {
   const GalleryItemsView({
-    super.key,
     required this.layout,
     required this.itemCount,
     required this.itemAt,
@@ -61,8 +60,7 @@ class GalleryItemsView extends StatelessWidget {
     parent: AlwaysScrollableScrollPhysics(),
   );
 
-  @override
-  Widget build(BuildContext context) {
+  ScrollView build(BuildContext context) {
     final EdgeInsets padding =
         kGalleryGridPadding +
         EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom);
@@ -72,7 +70,7 @@ class GalleryItemsView extends StatelessWidget {
     return _buildGrid(padding);
   }
 
-  Widget _buildGrid(EdgeInsets padding) {
+  ScrollView _buildGrid(EdgeInsets padding) {
     return GridView.builder(
       physics: _physics,
       padding: padding,
@@ -97,7 +95,7 @@ class GalleryItemsView extends StatelessWidget {
     );
   }
 
-  Widget _buildList(EdgeInsets padding) {
+  ScrollView _buildList(EdgeInsets padding) {
     return ListView.separated(
       physics: _physics,
       padding: padding,

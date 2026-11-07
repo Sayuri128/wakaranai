@@ -11,7 +11,6 @@ import 'package:wakaranai/blocs/gallery_layout/gallery_layout_cubit.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_grid_skeleton.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_items_view.dart';
-import 'package:wakaranai/ui/common/service_viewer/gallery_layout.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_loader.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/services/widgets/gallery_title_actions_sheet.dart';
@@ -136,19 +135,17 @@ class AnimeServiceViewerBody extends StatelessWidget {
     if (state is! ServiceViewInitialized<AnimeApiClient, AnimeGalleryView>) {
       return const SizedBox();
     }
-    return BlocBuilder<GalleryLayoutCubit, GalleryLayout>(
-      builder: (BuildContext context, GalleryLayout layout) => GalleryItemsView(
-        layout: layout,
-        itemCount: stateInitialized.galleryViews.length,
-        itemAt: (int index) =>
-            _galleryItem(context, stateInitialized.galleryViews[index]),
-        activityLoader: (String uid) async => latestActivityTitle(
-          await context
-              .read<AnimeEpisodeActivityRepository>()
-              .getAllActivitiesByConcreteId(uid),
-        ),
+    return GalleryItemsView(
+      layout: context.watch<GalleryLayoutCubit>().state,
+      itemCount: stateInitialized.galleryViews.length,
+      itemAt: (int index) =>
+          _galleryItem(context, stateInitialized.galleryViews[index]),
+      activityLoader: (String uid) async => latestActivityTitle(
+        await context
+            .read<AnimeEpisodeActivityRepository>()
+            .getAllActivitiesByConcreteId(uid),
       ),
-    );
+    ).build(context);
   }
 
   GalleryItem _galleryItem(BuildContext context, AnimeGalleryView galleryView) {
