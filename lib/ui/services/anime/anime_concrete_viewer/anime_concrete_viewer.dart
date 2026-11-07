@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
+import 'package:wakaranai/ui/services/anime/episode_playback/anime_episode_launcher.dart';
 import 'package:wakaranai/ui/services/anime/native_player/debug_stream_url_dialog.dart';
 import 'package:wakaranai/ui/services/anime/native_player/native_player.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
@@ -356,30 +357,37 @@ class AnimeConcreteViewer extends StatelessWidget
       },
       onTap: () {
         if (state.selection.isEmpty) {
-          unawaited(
-            context.read<LibraryUpdatesCubit>().markSeenIfNew(animeVideo.uid),
-          );
-          Navigator.of(context)
-              .pushNamed(
-            Routes.iframeAnimePlayer,
-            arguments: AnimeIframePlayerData(
-              anime: concreteView,
-              video: animeVideo,
-            ),
-          )
-              .then((_) {
-            context
-                .read<
-                    ConcreteViewCubit<AnimeApiClient, AnimeConcreteView,
-                        AnimeGalleryView>>()
-                .updateActivities();
-          });
+          unawaited(_playEpisode(context, state, animeVideo));
         } else {
           getConcreteViewCubit(context).changeSelection(animeVideo.uid);
         }
       },
     ),
     );
+  }
+
+  Future<void> _playEpisode(
+    BuildContext context,
+    ConcreteViewInitialized<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
+        state,
+    AnimeVideo episode,
+  ) async {
+    final ConcreteViewCubit<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
+        cubit = getConcreteViewCubit(context);
+    final LibraryUpdatesCubit libraryUpdatesCubit =
+        context.read<LibraryUpdatesCubit>();
+    final AnimeEpisodeLauncher launcher = AnimeEpisodeLauncher(
+      client: state.apiClient,
+      anime: state.concreteView,
+      episodes: state.concreteView.groups[state.groupIndex].elements,
+      onEpisodeOpened: (AnimeVideo openedEpisode) {
+        unawaited(libraryUpdatesCubit.markSeenIfNew(openedEpisode.uid));
+      },
+    );
+    await launcher.play(context, episode);
+    if (!cubit.isClosed) {
+      cubit.updateActivities();
+    }
   }
 
   @override

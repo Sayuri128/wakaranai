@@ -18,6 +18,7 @@ import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/utils/serial_call_queue.dart';
 
 part 'concrete_view_state.dart';
 
@@ -37,8 +38,11 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
   final AnimeEpisodeActivityRepository animeEpisodeActivityRepository;
 
   Future<C> _getConcrete(String uid, Map<String, dynamic> data) async {
-    return await (state.apiClient as dynamic) // TODO: avoid dynamic
-        .getConcrete(uid: uid, data: data);
+    final dynamic client = state.apiClient; // TODO: avoid dynamic
+    return await runSerializedOn<dynamic>(
+      state.apiClient,
+      () => client.getConcrete(uid: uid, data: data),
+    );
   }
 
   Future<void> getConcrete(String uid, Map<String, dynamic> galleryData,
@@ -52,8 +56,10 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
         galleryData: galleryData,
         extensionUid: state.configInfo.uid,
       );
-      final Map<String, String> imageHeaders =
-          await state.apiClient.getImageHeaders(uid: uid, data: galleryData);
+      final Map<String, String> imageHeaders = await runSerializedOn(
+        state.apiClient,
+        () => state.apiClient.getImageHeaders(uid: uid, data: galleryData),
+      );
 
       // Fetch chapter activities to show the user's progress
       final Map<String, ChapterActivityDomain> chapterActivities = {};

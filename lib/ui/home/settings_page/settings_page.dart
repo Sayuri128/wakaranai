@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +12,7 @@ import 'package:wakaranai/env.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/utils/app_palette.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
+import 'package:wakaranai/services/settings_service/video_player_preference.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
@@ -18,6 +21,7 @@ import 'package:wakaranai/ui/home/settings_page/import_export_sheet.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_widgets.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
+import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -367,6 +371,24 @@ class SettingsPage extends StatelessWidget {
           onTap: () => _showReaderModePicker(context, state.defaultMode),
         ),
         SettingsTile(
+          icon: Icons.smart_display_rounded,
+          title: S.current.settings_video_player_title,
+          subtitle: S.current.settings_video_player_subtitle,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                videoPlayerPreferenceLabel(state.videoPlayerPreference),
+                style: medium(size: 13, color: AppColors.mainGrey),
+              ),
+              const SizedBox(width: 4),
+              Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
+            ],
+          ),
+          onTap: () =>
+              _showVideoPlayerPicker(context, state.videoPlayerPreference),
+        ),
+        SettingsTile(
           icon: Icons.translate_rounded,
           title: S.current.settings_page_translation_title,
           subtitle: S.current.settings_page_translation_subtitle,
@@ -588,6 +610,32 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
+  void _showVideoPlayerPicker(
+    BuildContext context,
+    VideoPlayerPreference current,
+  ) {
+    final SettingsCubit cubit = context.read<SettingsCubit>();
+    unawaited(showActionSheet(
+      context,
+      title: S.current.settings_video_player_title,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          for (final VideoPlayerPreference preference
+              in VideoPlayerPreference.values)
+            ActionSheetRow(
+              label: videoPlayerPreferenceLabel(preference),
+              selected: preference == current,
+              onTap: () {
+                Navigator.of(context).pop();
+                unawaited(cubit.onChangedVideoPlayerPreference(preference));
+              },
+            ),
+        ],
+      ),
+    ));
+  }
+
   void _showReaderModePicker(BuildContext context, ChapterViewMode current) {
     showModalBottomSheet<void>(
       context: context,
@@ -767,6 +815,15 @@ class SettingsPage extends StatelessWidget {
         context.read<SettingsCubit>().deleteActivityHistory(context);
       }
     });
+  }
+}
+
+String videoPlayerPreferenceLabel(VideoPlayerPreference preference) {
+  switch (preference) {
+    case VideoPlayerPreference.auto:
+      return S.current.settings_video_player_auto;
+    case VideoPlayerPreference.webOnly:
+      return S.current.settings_video_player_web_only;
   }
 }
 

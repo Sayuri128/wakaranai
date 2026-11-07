@@ -22,6 +22,8 @@ class SettingsInitialized extends SettingsState {
 
   final bool useLocalExtensionServer;
 
+  final VideoPlayerPreference videoPlayerPreference;
+
   final bool loading;
 
   final ImportExportProgress? progress;
@@ -36,6 +38,7 @@ class SettingsInitialized extends SettingsState {
     required this.updateNotifications,
     required this.updateFrequencyHours,
     this.useLocalExtensionServer = false,
+    this.videoPlayerPreference = VideoPlayerPreference.auto,
     this.loading = false,
     this.progress,
     this.outcome,
@@ -49,6 +52,7 @@ class SettingsInitialized extends SettingsState {
     bool? updateNotifications,
     int? updateFrequencyHours,
     bool? useLocalExtensionServer,
+    VideoPlayerPreference? videoPlayerPreference,
     bool? loading,
     ImportExportProgress? progress,
     bool clearProgress = false,
@@ -64,6 +68,8 @@ class SettingsInitialized extends SettingsState {
       updateFrequencyHours: updateFrequencyHours ?? this.updateFrequencyHours,
       useLocalExtensionServer:
           useLocalExtensionServer ?? this.useLocalExtensionServer,
+      videoPlayerPreference:
+          videoPlayerPreference ?? this.videoPlayerPreference,
       loading: loading ?? this.loading,
       progress: clearProgress ? null : (progress ?? this.progress),
       outcome: clearOutcome ? null : (outcome ?? this.outcome),

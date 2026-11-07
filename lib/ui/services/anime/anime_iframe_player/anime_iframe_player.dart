@@ -11,13 +11,19 @@ import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/services/anime/anime_iframe_player/anime_iframe_page.dart';
 import 'package:wakaranai/ui/services/anime/anime_iframe_player/cubit/anime_iframe_player_cubit.dart';
+import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 
 class AnimeIframePlayerData {
   final AnimeVideo video;
   final AnimeConcreteView anime;
+  final String? notice;
 
-  const AnimeIframePlayerData({required this.video, required this.anime});
+  const AnimeIframePlayerData({
+    required this.video,
+    required this.anime,
+    this.notice,
+  });
 }
 
 class AnimeIframePlayer extends StatefulWidget {
@@ -39,6 +45,7 @@ class _AnimeIframePlayerState extends State<AnimeIframePlayer> {
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    _showNoticeIfAny();
     if (_page == null) {
       logger.w(
         'Anime iframe source is not a valid http(s) URL: '
@@ -57,6 +64,18 @@ class _AnimeIframePlayerState extends State<AnimeIframePlayer> {
       SystemUiMode.manual,
       overlays: <SystemUiOverlay>[SystemUiOverlay.top, SystemUiOverlay.bottom],
     );
+  }
+
+  void _showNoticeIfAny() {
+    final String? notice = widget.data.notice;
+    if (notice == null) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (mounted) {
+        SnackBars.showErrorSnackBar(context: context, error: notice);
+      }
+    });
   }
 
   void _lockLandscapeForFullscreen() {
@@ -112,7 +131,10 @@ class _AnimeIframePlayerState extends State<AnimeIframePlayer> {
     if (page == null) {
       return _buildInvalidSource(context);
     }
-    return _buildWebView(page);
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: _buildWebView(page),
+    );
   }
 
   Widget _buildWebView(AnimeIframePage page) {

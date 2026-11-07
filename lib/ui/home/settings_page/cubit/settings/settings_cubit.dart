@@ -25,6 +25,7 @@ import 'package:wakaranai/services/import_export/import_task_store.dart';
 import 'package:wakaranai/services/library_updates/library_update_notification_service.dart';
 import 'package:wakaranai/services/library_updates/library_update_task.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
+import 'package:wakaranai/services/settings_service/video_player_preference.dart';
 import 'package:wakaranai/services/import_export/export_section_labels.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
@@ -153,6 +154,8 @@ class SettingsCubit extends Cubit<SettingsState> {
         updateFrequencyHours: await _settingsService.getUpdateFrequencyHours(),
         useLocalExtensionServer:
             await _settingsService.getUseLocalExtensionServer(),
+        videoPlayerPreference:
+            await _settingsService.getVideoPlayerPreference(),
       ),
     );
 
@@ -184,6 +187,17 @@ class SettingsCubit extends Cubit<SettingsState> {
     if (state is! SettingsInitialized) return;
     await _settingsService.setUseLocalExtensionServer(value);
     emit(state.copyWith(useLocalExtensionServer: value));
+  }
+
+  Future<void> onChangedVideoPlayerPreference(
+    VideoPlayerPreference value,
+  ) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) {
+      return;
+    }
+    await _settingsService.setVideoPlayerPreference(value);
+    emit(state.copyWith(videoPlayerPreference: value));
   }
 
   void onChangedShowNsfw(bool value) async {

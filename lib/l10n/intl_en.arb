@@ -1057,5 +1057,11 @@
   "native_player_debug_url_title": "Play a stream URL",
   "native_player_debug_url_label": "Stream URL",
   "native_player_debug_url_hint": "https://example.com/video.m3u8",
-  "native_player_debug_play": "Play"
+  "native_player_debug_play": "Play",
+  "settings_video_player_title": "Video player",
+  "settings_video_player_subtitle": "Play anime in the built-in player when the source provides a direct stream",
+  "settings_video_player_auto": "Auto",
+  "settings_video_player_web_only": "Web player only",
+  "episode_playback_loading_sources": "Loading video…",
+  "episode_playback_fallback_notice": "Couldn't load the video stream, opened the web player instead"
 }

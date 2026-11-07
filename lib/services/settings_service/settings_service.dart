@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/services/page_translation/page_language.dart';
 import 'package:wakaranai/services/page_translation/page_translation_settings.dart';
 import 'package:wakaranai/services/page_translation/translation_overlay_style.dart';
+import 'package:wakaranai/services/settings_service/video_player_preference.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_palette.dart';
 
@@ -31,6 +32,7 @@ class SettingsService {
   static const String pageTranslationFontPrefsKey = 'PAGE_TRANSLATION_FONT';
   static const String pageTranslationLabelOpacityPrefsKey =
       'PAGE_TRANSLATION_LABEL_OPACITY';
+  static const String videoPlayerPreferencePrefsKey = 'VIDEO_PLAYER_PREFERENCE';
 
   static const int defaultUpdateFrequencyHours = 12;
 
@@ -208,5 +210,22 @@ class SettingsService {
     _prefs ??= await SharedPreferences.getInstance();
 
     await _prefs!.setString(defaultReaderModePrefsKey, mode.toString());
+  }
+
+  Future<VideoPlayerPreference> getVideoPlayerPreference() async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    final String? stored = _prefs!.getString(videoPlayerPreferencePrefsKey);
+
+    return VideoPlayerPreference.values.firstWhereOrNull(
+          (VideoPlayerPreference preference) => preference.name == stored,
+        ) ??
+        VideoPlayerPreference.auto;
+  }
+
+  Future<void> setVideoPlayerPreference(VideoPlayerPreference value) async {
+    _prefs ??= await SharedPreferences.getInstance();
+
+    await _prefs!.setString(videoPlayerPreferencePrefsKey, value.name);
   }
 }

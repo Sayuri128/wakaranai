@@ -531,6 +531,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "engine_tag_speed_e4b": MessageLookupByLibrary.simpleMessage(
       "≈20–45 s per page",
     ),
+    "episode_playback_fallback_notice": MessageLookupByLibrary.simpleMessage(
+      "Couldn\'t load the video stream, opened the web player instead",
+    ),
+    "episode_playback_loading_sources": MessageLookupByLibrary.simpleMessage(
+      "Loading video…",
+    ),
     "export_section_categories": MessageLookupByLibrary.simpleMessage(
       "Categories",
     ),
@@ -1272,6 +1278,16 @@ class MessageLookup extends MessageLookupByLibrary {
           "Show a notification when new items are found",
         ),
     "settings_updates_section": MessageLookupByLibrary.simpleMessage("Updates"),
+    "settings_video_player_auto": MessageLookupByLibrary.simpleMessage("Auto"),
+    "settings_video_player_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Play anime in the built-in player when the source provides a direct stream",
+    ),
+    "settings_video_player_title": MessageLookupByLibrary.simpleMessage(
+      "Video player",
+    ),
+    "settings_video_player_web_only": MessageLookupByLibrary.simpleMessage(
+      "Web player only",
+    ),
     "stats_activity_section_title": MessageLookupByLibrary.simpleMessage(
       "Activity",
     ),

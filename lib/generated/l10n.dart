@@ -5827,6 +5827,66 @@ class S {
       args: [],
     );
   }
+
+  /// `Video player`
+  String get settings_video_player_title {
+    return Intl.message(
+      'Video player',
+      name: 'settings_video_player_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Play anime in the built-in player when the source provides a direct stream`
+  String get settings_video_player_subtitle {
+    return Intl.message(
+      'Play anime in the built-in player when the source provides a direct stream',
+      name: 'settings_video_player_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto`
+  String get settings_video_player_auto {
+    return Intl.message(
+      'Auto',
+      name: 'settings_video_player_auto',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Web player only`
+  String get settings_video_player_web_only {
+    return Intl.message(
+      'Web player only',
+      name: 'settings_video_player_web_only',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Loading video…`
+  String get episode_playback_loading_sources {
+    return Intl.message(
+      'Loading video…',
+      name: 'episode_playback_loading_sources',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load the video stream, opened the web player instead`
+  String get episode_playback_fallback_notice {
+    return Intl.message(
+      'Couldn\'t load the video stream, opened the web player instead',
+      name: 'episode_playback_fallback_notice',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
