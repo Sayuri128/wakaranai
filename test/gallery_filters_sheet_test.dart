@@ -17,6 +17,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/services/filters/gallery_filter_selection.dart';
+import 'package:wakaranai/ui/services/filters/gallery_filters_button.dart';
 import 'package:wakaranai/ui/services/filters/gallery_filters_sheet.dart';
 
 final GalleryFilterMultipleOfMultiple _genres = GalleryFilterMultipleOfMultiple(
@@ -424,6 +425,48 @@ void main() {
 
       expect(find.text('No filters'), findsOneWidget);
       expect(find.text('Apply'), findsNothing);
+    });
+  });
+
+  group('GalleryFiltersButton', () {
+    testWidgets('shows the active count and applies the sheet result',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(1080, 4000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final List<Map<String, FilterData>> applied =
+          <Map<String, FilterData>>[];
+      await tester.pumpWidget(_app(Center(
+        child: GalleryFiltersButton(
+          filters: _filters(),
+          selected: <String, FilterData>{
+            'status': const FilterDataOneOfMultiple(
+              selected: 'ongoing',
+              filter: _status,
+            ),
+            'mode': FilterDataSwitcher(on: true, filter: _matchAll),
+          },
+          onApplied: applied.add,
+        ),
+      )));
+
+      expect(find.text('2'), findsOneWidget);
+      expect(find.bySemanticsLabel('Filters, 2 active'), findsOneWidget);
+
+      await tester.tap(find.byType(GalleryFiltersButton));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      expect(applied, isEmpty);
+
+      await tester.tap(find.byType(GalleryFiltersButton));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Match all'));
+      await tester.pump();
+      await _apply(tester);
+
+      expect(applied, hasLength(1));
+      expect(applied.single.keys, <String>['status']);
     });
   });
 }
