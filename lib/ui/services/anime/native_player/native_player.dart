@@ -13,6 +13,7 @@ import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/services/downloads/storage/watched_episode_cleanup.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
+import 'package:wakaranai/ui/home/downloads_page/episode_streaming_fallback.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
@@ -209,6 +210,12 @@ class _NativePlayerState extends State<NativePlayer> {
               current.webPlayerRequest != null,
           listener: _onWebPlayerRequested,
         ),
+        BlocListener<NativePlayerCubit, NativePlayerState>(
+          listenWhen: (NativePlayerState previous, NativePlayerState current) =>
+              previous.status != NativePlayerStatus.error &&
+              current.status == NativePlayerStatus.error,
+          listener: _onPlaybackFailed,
+        ),
       ],
       child: ValueListenableBuilder<bool>(
         valueListenable: _pictureInPicture.inPictureInPicture,
@@ -300,6 +307,20 @@ class _NativePlayerState extends State<NativePlayer> {
       return;
     }
     _leaveWith(state.webPlayerRequest);
+  }
+
+  void _onPlaybackFailed(BuildContext context, NativePlayerState state) {
+    if (_inPictureInPicture) {
+      return;
+    }
+    final bool streaming = streamInsteadOfFailedDownload(
+      context,
+      video: context.read<NativePlayerCubit>().video,
+      episodeUid: state.playlist.current.uid,
+    );
+    if (streaming) {
+      _leaveWith(PlayEpisodeRequested(state.playlist));
+    }
   }
 
   void _close() {

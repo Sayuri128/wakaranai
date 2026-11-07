@@ -567,7 +567,6 @@
   },
   "downloads_storage_playback_fallback": "The downloaded file couldn't be played, so it's streaming instead.",
   "downloads_storage_redownload": "Re-download",
-  "downloads_storage_redownload_started": "Downloading the episode again",
   "settings_export_data_button": "Export data",
   "settings_import_data_button": "Import data",
   "settings_export_sheet_title": "Export data",

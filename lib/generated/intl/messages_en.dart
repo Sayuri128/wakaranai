@@ -691,8 +691,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_storage_redownload": MessageLookupByLibrary.simpleMessage(
       "Re-download",
     ),
-    "downloads_storage_redownload_started":
-        MessageLookupByLibrary.simpleMessage("Downloading the episode again"),
     "downloads_storage_section_title": MessageLookupByLibrary.simpleMessage(
       "Downloads",
     ),

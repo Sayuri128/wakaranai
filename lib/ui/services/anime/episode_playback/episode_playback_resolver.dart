@@ -7,6 +7,7 @@ import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/services/downloads/episode/downloaded_episode_lookup.dart';
+import 'package:wakaranai/services/downloads/storage/local_playback_fallback.dart';
 import 'package:wakaranai/services/settings_service/video_player_preference.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/video_sources_mapper.dart';
 import 'package:wakaranai/utils/serial_call_queue.dart';
@@ -62,11 +63,16 @@ Future<EpisodePlaybackPlan> resolveEpisodePlayback({
   required VideoSourceProvider? provider,
   required VideoPlayerPreference preference,
   DownloadedEpisodeLookup? downloadedEpisodes,
+  LocalPlaybackFailures? localPlaybackFailures,
   Duration timeout = kVideoSourcesTimeout,
   void Function()? onFetchingSources,
 }) async {
-  final PlayableVideo? downloaded =
-      await _downloadedPlayable(downloadedEpisodes, episode);
+  final bool downloadFailedToPlay =
+      (localPlaybackFailures ?? LocalPlaybackFailures.shared)
+          .hasFailed(episode.uid);
+  final PlayableVideo? downloaded = downloadFailedToPlay
+      ? null
+      : await _downloadedPlayable(downloadedEpisodes, episode);
   if (downloaded != null) {
     logger.i('Playing ${episode.uid} from its download');
     return NativePlaybackPlan(downloaded);

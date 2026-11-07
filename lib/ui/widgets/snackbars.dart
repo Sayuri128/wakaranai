@@ -47,6 +47,22 @@ class SnackBars {
     );
   }
 
+  static void showActionSnackBar({
+    required BuildContext context,
+    required String message,
+    required IconData icon,
+    required SnackBarActionData action,
+  }) {
+    _show(
+      context,
+      message: message,
+      accent: AppColors.primary,
+      icon: icon,
+      duration: const Duration(seconds: 8),
+      action: action,
+    );
+  }
+
   static void _show(
     BuildContext context, {
     required String message,

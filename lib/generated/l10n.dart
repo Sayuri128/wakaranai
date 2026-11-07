@@ -3378,16 +3378,6 @@ class S {
     );
   }
 
-  /// `Downloading the episode again`
-  String get downloads_storage_redownload_started {
-    return Intl.message(
-      'Downloading the episode again',
-      name: 'downloads_storage_redownload_started',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Export data`
   String get settings_export_data_button {
     return Intl.message(
