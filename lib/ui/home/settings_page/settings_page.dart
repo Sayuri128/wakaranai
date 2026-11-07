@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/env.dart';
+import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/utils/app_palette.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
@@ -20,6 +21,7 @@ import 'package:wakaranai/ui/home/settings_page/import_export_progress_overlay.d
 import 'package:wakaranai/ui/home/settings_page/import_export_sheet.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_widgets.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
+import 'package:wakaranai/ui/services/anime/native_player/widgets/native_player_pickers.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
@@ -83,6 +85,7 @@ class SettingsPage extends StatelessWidget {
                     _UpdateBanner(),
                     _buildAppearanceSection(context),
                     _buildReaderSection(context, state),
+                    _buildPlayerSection(context, state),
                     _buildContentSection(context, state),
                     if (kDebugMode) _buildDeveloperSection(context, state),
                     _buildUpdatesSection(context, state),
@@ -371,24 +374,6 @@ class SettingsPage extends StatelessWidget {
           onTap: () => _showReaderModePicker(context, state.defaultMode),
         ),
         SettingsTile(
-          icon: Icons.smart_display_rounded,
-          title: S.current.settings_video_player_title,
-          subtitle: S.current.settings_video_player_subtitle,
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(
-                videoPlayerPreferenceLabel(state.videoPlayerPreference),
-                style: medium(size: 13, color: AppColors.mainGrey),
-              ),
-              const SizedBox(width: 4),
-              Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
-            ],
-          ),
-          onTap: () =>
-              _showVideoPlayerPicker(context, state.videoPlayerPreference),
-        ),
-        SettingsTile(
           icon: Icons.translate_rounded,
           title: S.current.settings_page_translation_title,
           subtitle: S.current.settings_page_translation_subtitle,
@@ -401,6 +386,120 @@ class SettingsPage extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildPlayerSection(BuildContext context, SettingsInitialized state) {
+    return SettingsSection(
+      title: S.current.settings_player_section_title,
+      tiles: <Widget>[
+        SettingsTile(
+          icon: Icons.smart_display_rounded,
+          title: S.current.settings_video_player_title,
+          subtitle: S.current.settings_video_player_subtitle,
+          trailing: _buildValueTrailing(
+            videoPlayerPreferenceLabel(state.videoPlayerPreference),
+          ),
+          onTap: () =>
+              _showVideoPlayerPicker(context, state.videoPlayerPreference),
+        ),
+        SettingsTile(
+          icon: Icons.fast_forward_rounded,
+          title: S.current.settings_player_hold_speed_title,
+          subtitle: S.current.settings_player_hold_speed_subtitle,
+          trailing: _buildValueTrailing(
+            speedMultiplierLabel(state.playerHoldSpeed),
+          ),
+          onTap: () => _showHoldSpeedPicker(context, state.playerHoldSpeed),
+        ),
+        SettingsTile(
+          icon: Icons.redo_rounded,
+          title: S.current.settings_player_skip_opening_title,
+          subtitle: S.current.settings_player_skip_opening_subtitle,
+          trailing: _buildValueTrailing(
+            S.current.settings_player_skip_opening_value(
+              state.playerSkipOpeningSeconds,
+            ),
+          ),
+          onTap: () => _showSkipOpeningPicker(
+            context,
+            state.playerSkipOpeningSeconds,
+          ),
+        ),
+        SettingsTile(
+          icon: Icons.playlist_play_rounded,
+          title: S.current.settings_player_auto_next_title,
+          subtitle: S.current.settings_player_auto_next_subtitle,
+          trailing: Switch(
+            value: state.playerAutoPlayNext,
+            activeThumbColor: AppColors.mainBlack,
+            activeTrackColor: AppColors.primary,
+            onChanged: (bool value) => unawaited(
+              context.read<SettingsCubit>().onChangedPlayerAutoPlayNext(value),
+            ),
+          ),
+          onTap: () => unawaited(
+            context
+                .read<SettingsCubit>()
+                .onChangedPlayerAutoPlayNext(!state.playerAutoPlayNext),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildValueTrailing(String value) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Text(value, style: medium(size: 13, color: AppColors.mainGrey)),
+        const SizedBox(width: 4),
+        Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey),
+      ],
+    );
+  }
+
+  void _showHoldSpeedPicker(BuildContext context, double current) {
+    final SettingsCubit cubit = context.read<SettingsCubit>();
+    unawaited(showActionSheet(
+      context,
+      title: S.current.settings_player_hold_speed_title,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          for (final double speed in kHoldSpeedOptions)
+            ActionSheetRow(
+              label: speedMultiplierLabel(speed),
+              selected: speed == current,
+              onTap: () {
+                Navigator.of(context).pop();
+                unawaited(cubit.onChangedPlayerHoldSpeed(speed));
+              },
+            ),
+        ],
+      ),
+    ));
+  }
+
+  void _showSkipOpeningPicker(BuildContext context, int current) {
+    final SettingsCubit cubit = context.read<SettingsCubit>();
+    unawaited(showActionSheet(
+      context,
+      title: S.current.settings_player_skip_opening_title,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          for (final int seconds in kSkipOpeningOptions)
+            ActionSheetRow(
+              label: S.current.settings_player_skip_opening_value(seconds),
+              selected: seconds == current,
+              onTap: () {
+                Navigator.of(context).pop();
+                unawaited(cubit.onChangedPlayerSkipOpeningSeconds(seconds));
+              },
+            ),
+        ],
+      ),
+    ));
   }
 
   Future<void> _startExport(BuildContext context) async {

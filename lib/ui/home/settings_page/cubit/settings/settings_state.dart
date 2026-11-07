@@ -24,6 +24,12 @@ class SettingsInitialized extends SettingsState {
 
   final VideoPlayerPreference videoPlayerPreference;
 
+  final double playerHoldSpeed;
+
+  final int playerSkipOpeningSeconds;
+
+  final bool playerAutoPlayNext;
+
   final bool loading;
 
   final ImportExportProgress? progress;
@@ -39,6 +45,9 @@ class SettingsInitialized extends SettingsState {
     required this.updateFrequencyHours,
     this.useLocalExtensionServer = false,
     this.videoPlayerPreference = VideoPlayerPreference.auto,
+    this.playerHoldSpeed = kDefaultHoldSpeed,
+    this.playerSkipOpeningSeconds = kDefaultSkipOpeningSeconds,
+    this.playerAutoPlayNext = kDefaultAutoPlayNext,
     this.loading = false,
     this.progress,
     this.outcome,
@@ -53,6 +62,9 @@ class SettingsInitialized extends SettingsState {
     int? updateFrequencyHours,
     bool? useLocalExtensionServer,
     VideoPlayerPreference? videoPlayerPreference,
+    double? playerHoldSpeed,
+    int? playerSkipOpeningSeconds,
+    bool? playerAutoPlayNext,
     bool? loading,
     ImportExportProgress? progress,
     bool clearProgress = false,
@@ -70,6 +82,10 @@ class SettingsInitialized extends SettingsState {
           useLocalExtensionServer ?? this.useLocalExtensionServer,
       videoPlayerPreference:
           videoPlayerPreference ?? this.videoPlayerPreference,
+      playerHoldSpeed: playerHoldSpeed ?? this.playerHoldSpeed,
+      playerSkipOpeningSeconds:
+          playerSkipOpeningSeconds ?? this.playerSkipOpeningSeconds,
+      playerAutoPlayNext: playerAutoPlayNext ?? this.playerAutoPlayNext,
       loading: loading ?? this.loading,
       progress: clearProgress ? null : (progress ?? this.progress),
       outcome: clearOutcome ? null : (outcome ?? this.outcome),

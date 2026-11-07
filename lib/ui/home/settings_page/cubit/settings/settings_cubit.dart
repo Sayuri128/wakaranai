@@ -18,6 +18,7 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
+import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/services/import_export/import_export_notification_service.dart';
 import 'package:wakaranai/services/import_export/import_export_service.dart';
 import 'package:wakaranai/services/import_export/import_export_task.dart';
@@ -102,6 +103,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   final RemoteConfigsCubit remoteConfigsCubit;
 
   final SettingsService _settingsService = SettingsService();
+  final PlayerPreferences _playerPreferences = PlayerPreferences();
   final ImportTaskStore importTaskStore = ImportTaskStore();
 
   Timer? _importWatcher;
@@ -156,6 +158,10 @@ class SettingsCubit extends Cubit<SettingsState> {
             await _settingsService.getUseLocalExtensionServer(),
         videoPlayerPreference:
             await _settingsService.getVideoPlayerPreference(),
+        playerHoldSpeed: await _playerPreferences.getHoldSpeed(),
+        playerSkipOpeningSeconds:
+            await _playerPreferences.getSkipOpeningSeconds(),
+        playerAutoPlayNext: await _playerPreferences.getAutoPlayNext(),
       ),
     );
 
@@ -198,6 +204,33 @@ class SettingsCubit extends Cubit<SettingsState> {
     }
     await _settingsService.setVideoPlayerPreference(value);
     emit(state.copyWith(videoPlayerPreference: value));
+  }
+
+  Future<void> onChangedPlayerHoldSpeed(double value) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) {
+      return;
+    }
+    await _playerPreferences.setHoldSpeed(value);
+    emit(state.copyWith(playerHoldSpeed: value));
+  }
+
+  Future<void> onChangedPlayerSkipOpeningSeconds(int value) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) {
+      return;
+    }
+    await _playerPreferences.setSkipOpeningSeconds(value);
+    emit(state.copyWith(playerSkipOpeningSeconds: value));
+  }
+
+  Future<void> onChangedPlayerAutoPlayNext(bool value) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) {
+      return;
+    }
+    await _playerPreferences.setAutoPlayNext(value);
+    emit(state.copyWith(playerAutoPlayNext: value));
   }
 
   void onChangedShowNsfw(bool value) async {
