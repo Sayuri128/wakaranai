@@ -312,6 +312,106 @@ void main() {
       );
     });
 
+    List<String> renderedTags(String text) {
+      final HlsLocalTrack track = HlsLocalTrack.build(
+        parseHlsMediaPlaylist(text, mediaUri),
+        folder: kLocalVideoFolder,
+        keyFiles: HlsKeyFiles(),
+      );
+      return track
+          .render()
+          .split('\n')
+          .where(
+            (String line) =>
+                line.startsWith('#EXT-X-KEY') ||
+                line.startsWith('#EXT-X-MAP') ||
+                line.startsWith('v/'),
+          )
+          .toList();
+    }
+
+    test('keeps a plaintext init section ahead of a later key', () {
+      const String text =
+          '#EXTM3U\n'
+          '#EXT-X-MAP:URI="init.mp4"\n'
+          '#EXT-X-KEY:METHOD=AES-128,URI="k1"\n'
+          '#EXTINF:4,\ns1.m4s\n'
+          '#EXTINF:4,\ns2.m4s\n';
+
+      expect(renderedTags(text), <String>[
+        '#EXT-X-MAP:URI="v/init0.mp4"',
+        '#EXT-X-KEY:METHOD=AES-128,URI="keys/0.key"',
+        'v/000001.m4s',
+        'v/000002.m4s',
+      ]);
+    });
+
+    test('keeps an init section declared under a key behind it', () {
+      const String text =
+          '#EXTM3U\n'
+          '#EXT-X-KEY:METHOD=AES-128,URI="k1"\n'
+          '#EXT-X-MAP:URI="init.mp4"\n'
+          '#EXTINF:4,\ns1.m4s\n';
+      final HlsMediaPlaylist media = parseHlsMediaPlaylist(text, mediaUri);
+
+      expect(media.segments.single.initSection!.key!.isAes128, isTrue);
+      expect(renderedTags(text), <String>[
+        '#EXT-X-KEY:METHOD=AES-128,URI="keys/0.key"',
+        '#EXT-X-MAP:URI="v/init0.mp4"',
+        'v/000001.m4s',
+      ]);
+    });
+
+    test('switches keys around a mid-playlist map change', () {
+      const String text =
+          '#EXTM3U\n'
+          '#EXT-X-MAP:URI="init-a.mp4"\n'
+          '#EXT-X-KEY:METHOD=AES-128,URI="k1"\n'
+          '#EXTINF:4,\ns1.m4s\n'
+          '#EXT-X-KEY:METHOD=AES-128,URI="k2"\n'
+          '#EXT-X-MAP:URI="init-b.mp4"\n'
+          '#EXTINF:4,\ns2.m4s\n'
+          '#EXT-X-KEY:METHOD=NONE\n'
+          '#EXT-X-MAP:URI="init-c.mp4"\n'
+          '#EXT-X-KEY:METHOD=AES-128,URI="k1"\n'
+          '#EXTINF:4,\ns3.m4s\n';
+
+      expect(renderedTags(text), <String>[
+        '#EXT-X-MAP:URI="v/init0.mp4"',
+        '#EXT-X-KEY:METHOD=AES-128,URI="keys/0.key"',
+        'v/000001.m4s',
+        '#EXT-X-KEY:METHOD=AES-128,URI="keys/1.key"',
+        '#EXT-X-MAP:URI="v/init1.mp4"',
+        'v/000002.m4s',
+        '#EXT-X-KEY:METHOD=NONE',
+        '#EXT-X-MAP:URI="v/init2.mp4"',
+        '#EXT-X-KEY:METHOD=AES-128,URI="keys/0.key"',
+        'v/000003.m4s',
+      ]);
+    });
+
+    test('downloads a key that only an init section uses', () {
+      const String text =
+          '#EXTM3U\n'
+          '#EXT-X-KEY:METHOD=AES-128,URI="k1"\n'
+          '#EXT-X-MAP:URI="init.mp4"\n'
+          '#EXT-X-KEY:METHOD=NONE\n'
+          '#EXTINF:4,\ns1.m4s\n';
+      final HlsLocalTrack track = HlsLocalTrack.build(
+        parseHlsMediaPlaylist(text, mediaUri),
+        folder: kLocalVideoFolder,
+        keyFiles: HlsKeyFiles(),
+      );
+
+      expect(track.keyFiles.values, <String>['keys/0.key']);
+      expect(renderedTags(text), <String>[
+        '#EXT-X-KEY:METHOD=AES-128,URI="keys/0.key"',
+        '#EXT-X-MAP:URI="v/init0.mp4"',
+        '#EXT-X-KEY:METHOD=NONE',
+        'v/000001.m4s',
+      ]);
+    });
+
     test('keeps segment extensions that make sense and falls back to ts', () {
       const String text = '#EXTM3U\n#EXTINF:2,\na.jpg?x=1\n#EXTINF:2,\nb.aac\n';
       final HlsLocalTrack track = HlsLocalTrack.build(

@@ -63,20 +63,22 @@ class HlsKey {
 }
 
 class HlsInitSection {
-  const HlsInitSection({required this.uri, this.byteRange});
+  const HlsInitSection({required this.uri, this.byteRange, this.key});
 
   final Uri uri;
   final HlsByteRange? byteRange;
+  final HlsKey? key;
 
   @override
   bool operator ==(Object other) {
     return other is HlsInitSection &&
         other.uri == uri &&
-        other.byteRange == byteRange;
+        other.byteRange == byteRange &&
+        other.key == key;
   }
 
   @override
-  int get hashCode => Object.hash(uri, byteRange);
+  int get hashCode => Object.hash(uri, byteRange, key);
 }
 
 class HlsSegment {
@@ -189,10 +191,10 @@ class HlsMediaPlaylist extends HlsPlaylist {
   final bool hasEndList;
 
   Iterable<HlsKey> get keys {
-    return segments
-        .map((HlsSegment segment) => segment.key)
-        .whereType<HlsKey>()
-        .toSet();
+    return <HlsKey?>[
+      for (final HlsSegment segment in segments) segment.key,
+      for (final HlsSegment segment in segments) segment.initSection?.key,
+    ].whereType<HlsKey>().toSet();
   }
 }
 
@@ -366,6 +368,7 @@ class _MediaPlaylistParser {
       byteRange: range == null
           ? null
           : _PendingByteRange.parse(range).resolve(previousEnd: 0),
+      key: _currentKey,
     );
   }
 

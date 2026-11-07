@@ -106,9 +106,11 @@ class HlsLocalTrack {
               '${_extensionOf(init.uri, fallback: 'mp4')}',
         );
       }
-      final Uri? keyUri = _downloadableKeyUri(segment.key);
-      if (keyUri != null) {
-        trackKeys.putIfAbsent(keyUri, () => keyFiles.pathFor(keyUri));
+      for (final HlsKey? key in <HlsKey?>[segment.key, init?.key]) {
+        final Uri? keyUri = _downloadableKeyUri(key);
+        if (keyUri != null) {
+          trackKeys.putIfAbsent(keyUri, () => keyFiles.pathFor(keyUri));
+        }
       }
       final String fallback = fragmented ? 'm4s' : 'ts';
       segmentFiles.add(
@@ -186,23 +188,21 @@ class HlsLocalTrack {
   }
 
   void _renderSegments(StringBuffer buffer) {
-    HlsKey? previousKey;
+    final _KeyTagWriter keyTags = _KeyTagWriter(buffer, _keyLine);
     HlsInitSection? previousInit;
     for (int index = 0; index < playlist.segments.length; index++) {
       final HlsSegment segment = playlist.segments[index];
       if (segment.discontinuity) {
         buffer.writeln('#EXT-X-DISCONTINUITY');
       }
-      if (segment.key != previousKey) {
-        buffer.writeln(_keyLine(segment.key));
-        previousKey = segment.key;
-      }
       final HlsInitSection? init = segment.initSection;
       final bool initChanged = init != previousInit || segment.discontinuity;
       if (init != null && initChanged) {
+        keyTags.switchTo(init.key);
         buffer.writeln('#EXT-X-MAP:URI="${initFiles[init]}"');
       }
       previousInit = init;
+      keyTags.switchTo(segment.key);
       buffer
         ..writeln(
           '#EXTINF:${_formatDuration(segment.duration)},'
@@ -233,6 +233,27 @@ class HlsLocalTrack {
     );
     return max(playlist.targetDuration ?? 0, longest.ceil());
   }
+}
+
+class _KeyTagWriter {
+  _KeyTagWriter(this._buffer, this._lineFor);
+
+  final StringBuffer _buffer;
+  final String Function(HlsKey? key) _lineFor;
+  HlsKey? _current;
+
+  void switchTo(HlsKey? key) {
+    if (_isUnencrypted(key) && _isUnencrypted(_current)) {
+      return;
+    }
+    if (key == _current) {
+      return;
+    }
+    _buffer.writeln(_lineFor(key));
+    _current = key;
+  }
+
+  bool _isUnencrypted(HlsKey? key) => key == null || key.isNone;
 }
 
 Uri? _downloadableKeyUri(HlsKey? key) {
