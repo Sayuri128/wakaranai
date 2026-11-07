@@ -6679,6 +6679,246 @@ class S {
     );
   }
 
+  /// `Trackers`
+  String get settings_trackers_title {
+    return Intl.message(
+      'Trackers',
+      name: 'settings_trackers_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not signed in. Tap to sign in`
+  String get settings_tracker_signed_out {
+    return Intl.message(
+      'Not signed in. Tap to sign in',
+      name: 'settings_tracker_signed_out',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Signed in as {name}`
+  String settings_tracker_signed_in(Object name) {
+    return Intl.message(
+      'Signed in as $name',
+      name: 'settings_tracker_signed_in',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Could not sign in to {name}`
+  String settings_tracker_login_failed(Object name) {
+    return Intl.message(
+      'Could not sign in to $name',
+      name: 'settings_tracker_login_failed',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Sign out of {name}?`
+  String settings_tracker_logout_title(Object name) {
+    return Intl.message(
+      'Sign out of $name?',
+      name: 'settings_tracker_logout_title',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Titles linked to this tracker stop syncing and their links are removed.`
+  String get settings_tracker_logout_message {
+    return Intl.message(
+      'Titles linked to this tracker stop syncing and their links are removed.',
+      name: 'settings_tracker_logout_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign out`
+  String get settings_tracker_logout {
+    return Intl.message(
+      'Sign out',
+      name: 'settings_tracker_logout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Track this title`
+  String get tracker_chip_untracked {
+    return Intl.message(
+      'Track this title',
+      name: 'tracker_chip_untracked',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tracking`
+  String get tracker_sheet_title {
+    return Intl.message(
+      'Tracking',
+      name: 'tracker_sheet_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link`
+  String get tracker_link_action {
+    return Intl.message(
+      'Link',
+      name: 'tracker_link_action',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unlink`
+  String get tracker_unlink_action {
+    return Intl.message(
+      'Unlink',
+      name: 'tracker_unlink_action',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Find on {name}`
+  String tracker_search_title(Object name) {
+    return Intl.message(
+      'Find on $name',
+      name: 'tracker_search_title',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Search by title`
+  String get tracker_search_hint {
+    return Intl.message(
+      'Search by title',
+      name: 'tracker_search_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nothing found. Try another title.`
+  String get tracker_search_empty {
+    return Intl.message(
+      'Nothing found. Try another title.',
+      name: 'tracker_search_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search failed. Check your connection and try again.`
+  String get tracker_search_failed {
+    return Intl.message(
+      'Search failed. Check your connection and try again.',
+      name: 'tracker_search_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not link the title. Try again.`
+  String get tracker_link_failed {
+    return Intl.message(
+      'Could not link the title. Try again.',
+      name: 'tracker_link_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Planning`
+  String get tracker_status_planning {
+    return Intl.message(
+      'Planning',
+      name: 'tracker_status_planning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reading`
+  String get tracker_status_reading {
+    return Intl.message(
+      'Reading',
+      name: 'tracker_status_reading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Watching`
+  String get tracker_status_watching {
+    return Intl.message(
+      'Watching',
+      name: 'tracker_status_watching',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Completed`
+  String get tracker_status_completed {
+    return Intl.message(
+      'Completed',
+      name: 'tracker_status_completed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paused`
+  String get tracker_status_paused {
+    return Intl.message(
+      'Paused',
+      name: 'tracker_status_paused',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dropped`
+  String get tracker_status_dropped {
+    return Intl.message(
+      'Dropped',
+      name: 'tracker_status_dropped',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rereading`
+  String get tracker_status_rereading {
+    return Intl.message(
+      'Rereading',
+      name: 'tracker_status_rereading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rewatching`
+  String get tracker_status_rewatching {
+    return Intl.message(
+      'Rewatching',
+      name: 'tracker_status_rewatching',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Page fit`
   String get reader_page_fit_title {
     return Intl.message(

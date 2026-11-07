@@ -8,8 +8,10 @@ import 'package:capyscript/modules/waka_models/models/common/elements_group_of_c
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video_group/anime_video_group.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
+import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/manga_concrete_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
@@ -20,6 +22,7 @@ import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/services/trackers/tracker_progress.dart';
 import 'package:wakaranai/utils/serial_call_queue.dart';
 import 'package:wakaranai/utils/source_error_description.dart';
 
@@ -34,8 +37,10 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView,
     required this.concreteDataRepository,
     required this.chapterActivityRepository,
     required this.animeEpisodeActivityRepository,
+    this.onTrackerProgress,
   });
 
+  final void Function(String concreteUid, int? progress)? onTrackerProgress;
   final ConcreteDataRepository concreteDataRepository;
   final ChapterActivityRepository chapterActivityRepository;
   final AnimeEpisodeActivityRepository animeEpisodeActivityRepository;
@@ -234,12 +239,32 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView,
       if (state.configInfo.type == ConfigInfoType.MANGA) {
         _fetchMangaChapterActivities(state.concreteView)
             .then((chapterActivities) {
+          if (isClosed) {
+            return;
+          }
           emit(state.copyWith(chapterActivities: chapterActivities));
+          onTrackerProgress?.call(
+            state.concreteView.uid,
+            finishedChapterProgress(
+              groups: state.concreteView.groups.cast<ChaptersGroup>(),
+              activities: chapterActivities,
+            ),
+          );
         });
       } else if (state.configInfo.type == ConfigInfoType.ANIME) {
         _fetchAnimeEpisodeActivities(state.concreteView)
             .then((animeEpisodeActivities) {
+          if (isClosed) {
+            return;
+          }
           emit(state.copyWith(animeEpisodeActivities: animeEpisodeActivities));
+          onTrackerProgress?.call(
+            state.concreteView.uid,
+            finishedEpisodeProgress(
+              groups: state.concreteView.groups.cast<AnimeVideoGroup>(),
+              activities: animeEpisodeActivities,
+            ),
+          );
         });
       }
     }

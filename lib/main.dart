@@ -20,6 +20,8 @@ import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
 import 'package:wakaranai/blocs/language_packs/language_packs_cubit.dart';
 import 'package:wakaranai/blocs/page_translation_settings/page_translation_settings_cubit.dart';
 import 'package:wakaranai/blocs/reader_preferences/reader_preferences_cubit.dart';
+import 'package:wakaranai/blocs/trackers/trackers_cubit.dart';
+import 'package:wakaranai/services/trackers/tracker_sync_service.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
@@ -207,6 +209,12 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
                 concreteDataRepository: RepositoryProvider.of(context),
                 animeEpisodeActivityRepository: RepositoryProvider.of(context))
               ..init(),
+            lazy: false,
+          ),
+          BlocProvider<TrackersCubit>(
+            create: (BuildContext context) => TrackersCubit(
+              sync: context.read<TrackerSyncService>(),
+            )..init(),
             lazy: false,
           ),
           BlocProvider<ReaderPreferencesCubit>(

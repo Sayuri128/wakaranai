@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
@@ -7,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/services/trackers/tracker_sync_service.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 
 class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
@@ -25,6 +28,20 @@ class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
   final Widget Function(BuildContext context, ConcreteViewState<T, C, G> state)
       builder;
 
+  void Function(String concreteUid, int? progress)? _trackerProgressHandler(
+    BuildContext context,
+  ) {
+    final TrackerSyncService sync;
+    try {
+      sync = context.read<TrackerSyncService>();
+    } on ProviderNotFoundException {
+      return null;
+    }
+    return (String concreteUid, int? progress) {
+      unawaited(sync.recordProgress(concreteUid, progress));
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final Animation<double>? routeAnimation = ModalRoute.of(context)?.animation;
@@ -38,6 +55,7 @@ class ConcreteViewCubitWrapper<T extends ApiClient, C extends ConcreteView,
           concreteDataRepository: context.read<ConcreteDataRepository>(),
           chapterActivityRepository: context.read<ChapterActivityRepository>(),
           animeEpisodeActivityRepository: context.read<AnimeEpisodeActivityRepository>(),
+          onTrackerProgress: _trackerProgressHandler(context),
         );
 
         final void Function(ConcreteViewCubit<T, C, G>)? start = init;

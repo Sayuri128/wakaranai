@@ -16,6 +16,7 @@ import 'package:wakaranai/data/entities/extension_table.dart';
 import 'package:wakaranai/data/entities/library_entry_table.dart';
 import 'package:wakaranai/data/entities/library_update_table.dart';
 import 'package:wakaranai/data/entities/page_translation_table.dart';
+import 'package:wakaranai/data/entities/tracker_link_table.dart';
 
 part 'wakaranai_database.g.dart';
 
@@ -31,6 +32,7 @@ part 'wakaranai_database.g.dart';
   LibraryUpdateTable,
   PageTranslationTable,
   ExtensionStorageTable,
+  TrackerLinkTable,
 ])
 class WakaranaiDatabase extends _$WakaranaiDatabase {
   WakaranaiDatabase() : super(_openConnection());
@@ -120,6 +122,10 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
                 m, downloadTable, downloadTable.queuePosition);
             await _backfillDownloadQueuePositions();
           }
+          if (from < 17) {
+            await _createTableIfMissing(m, trackerLinkTable);
+            await _createIndexIfMissing(m, trackerLinkConcrete);
+          }
         },
       );
 
@@ -203,7 +209,7 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
   }
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 }
 
 LazyDatabase _openConnection() {

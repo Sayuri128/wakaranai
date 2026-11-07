@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/ui/home/settings_page/sections/trackers_settings_section.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
@@ -78,6 +79,7 @@ class SettingsPage extends StatelessWidget {
                     ),
                     ReaderSettingsSection(state: state),
                     PlayerSettingsSection(state: state),
+                    const TrackersSettingsSection(),
                     DownloadStorageSettingsSection(),
                     ContentSettingsSection(state: state),
                     if (kDebugMode) DeveloperSettingsSection(state: state),

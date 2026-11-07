@@ -21,6 +21,9 @@ import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.d
 import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_related_rail.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
+import 'package:wakaranai/services/trackers/tracker_models.dart';
+import 'package:wakaranai/ui/services/widgets/tracking/tracker_search_sheet.dart';
+import 'package:wakaranai/ui/services/widgets/tracking/tracking_sheet.dart';
 import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
 import 'package:wakaranai/ui/widgets/selection_action_bar.dart';
 import 'package:wakaranai/ui/widgets/source_error_view.dart';
@@ -65,6 +68,10 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
   );
 
   AutoContinueRequest? get autoContinue => null;
+
+  TrackerMediaType get trackerMediaType;
+
+  int? trackerLocalProgress(ConcreteViewInitialized<T, C, G> state);
 
   ConcreteContinueAction? continueAction(
     BuildContext context,
@@ -250,6 +257,16 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
         const SizedBox(height: 12),
         ConcreteMetadataRow(view: concreteView),
       ],
+      if (!state.offline)
+        ConcreteTrackingChip(
+          request: TrackerLinkRequest(
+            concreteUid: concreteView.uid,
+            extensionUid: configInfo.uid,
+            title: concreteView.title,
+            type: trackerMediaType,
+            localProgress: trackerLocalProgress(state),
+          ),
+        ),
       if (concreteView.tags.isNotEmpty) ...<Widget>[
         const SizedBox(height: 16),
         _buildTags(concreteView),

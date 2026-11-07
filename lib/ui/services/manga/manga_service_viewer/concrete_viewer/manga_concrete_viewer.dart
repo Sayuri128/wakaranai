@@ -16,6 +16,8 @@ import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_gallery_kind.dart';
+import 'package:wakaranai/services/trackers/tracker_models.dart';
+import 'package:wakaranai/services/trackers/tracker_progress.dart';
 import 'package:wakaranai/ui/services/concrete_viewer_page.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
 import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
@@ -111,6 +113,21 @@ class MangaConcreteViewer extends ConcreteViewerPage<MangaApiClient,
 
   @override
   AutoContinueRequest? get autoContinue => data.autoContinue;
+
+  @override
+  TrackerMediaType get trackerMediaType => TrackerMediaType.manga;
+
+  @override
+  int? trackerLocalProgress(
+    ConcreteViewInitialized<MangaApiClient, MangaConcreteView,
+            MangaGalleryView>
+        state,
+  ) {
+    return finishedChapterProgress(
+      groups: state.concreteView.groups,
+      activities: state.chapterActivities,
+    );
+  }
 
   @override
   ConcreteContinueAction? continueAction(

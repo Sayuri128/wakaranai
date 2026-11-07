@@ -31,6 +31,8 @@ import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/anime_iframe_player/anime_iframe_player.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_gallery_kind.dart';
 import 'package:wakaranai/ui/services/anime/anime_service_viewer/anime_service_viewer.dart';
+import 'package:wakaranai/services/trackers/tracker_models.dart';
+import 'package:wakaranai/services/trackers/tracker_progress.dart';
 import 'package:wakaranai/ui/services/concrete_viewer_page.dart';
 import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
 import 'package:wakaranai/ui/services/continue_reading/continue_target.dart';
@@ -113,6 +115,21 @@ class AnimeConcreteViewer extends ConcreteViewerPage<AnimeApiClient,
 
   @override
   AutoContinueRequest? get autoContinue => data.autoContinue;
+
+  @override
+  TrackerMediaType get trackerMediaType => TrackerMediaType.anime;
+
+  @override
+  int? trackerLocalProgress(
+    ConcreteViewInitialized<AnimeApiClient, AnimeConcreteView,
+            AnimeGalleryView>
+        state,
+  ) {
+    return finishedEpisodeProgress(
+      groups: state.concreteView.groups,
+      activities: state.animeEpisodeActivities,
+    );
+  }
 
   @override
   ConcreteContinueAction? continueAction(

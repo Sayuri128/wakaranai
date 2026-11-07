@@ -37,4 +37,13 @@ class Env {
   static String get appRepoName => _read('OFFICIAL_GITHUB_REPO_NAME');
 
   static String get currentAppVersion => _read('CURRENT_APP_VERSION');
+
+  static String get anilistClientId => _read('ANILIST_CLIENT_ID').trim();
+
+  static String get shikimoriClientId => _read('SHIKIMORI_CLIENT_ID').trim();
+
+  static String get shikimoriClientSecret =>
+      _read('SHIKIMORI_CLIENT_SECRET').trim();
+
+  static String get malClientId => _read('MAL_CLIENT_ID').trim();
 }

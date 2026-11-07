@@ -11,6 +11,8 @@ import 'package:wakaranai/repositories/database/extension_source_repository.dart
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
 import 'package:wakaranai/repositories/database/library_update_repository.dart';
 import 'package:wakaranai/repositories/database/page_translation_repository.dart';
+import 'package:wakaranai/repositories/database/tracker_link_repository.dart';
+import 'package:wakaranai/services/trackers/tracker_sync_service.dart';
 
 Widget repositoryProviders(
   BuildContext context, {
@@ -82,6 +84,16 @@ Widget repositoryProviders(
       RepositoryProvider(
         create: (context) => PageTranslationRepository(
           database: context.read<WakaranaiDatabase>(),
+        ),
+      ),
+      RepositoryProvider(
+        create: (context) => TrackerLinkRepository(
+          database: context.read<WakaranaiDatabase>(),
+        ),
+      ),
+      RepositoryProvider(
+        create: (context) => TrackerSyncService.fromEnv(
+          links: context.read<TrackerLinkRepository>(),
         ),
       ),
     ],

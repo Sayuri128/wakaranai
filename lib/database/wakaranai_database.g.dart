@@ -7009,6 +7009,691 @@ class ExtensionStorageTableCompanion
   }
 }
 
+class $TrackerLinkTableTable extends TrackerLinkTable
+    with TableInfo<$TrackerLinkTableTable, TrackerLinkTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TrackerLinkTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _concreteUidMeta = const VerificationMeta(
+    'concreteUid',
+  );
+  @override
+  late final GeneratedColumn<String> concreteUid = GeneratedColumn<String>(
+    'concrete_uid',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _trackerIdMeta = const VerificationMeta(
+    'trackerId',
+  );
+  @override
+  late final GeneratedColumn<String> trackerId = GeneratedColumn<String>(
+    'tracker_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _extensionUidMeta = const VerificationMeta(
+    'extensionUid',
+  );
+  @override
+  late final GeneratedColumn<String> extensionUid = GeneratedColumn<String>(
+    'extension_uid',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _mediaTypeMeta = const VerificationMeta(
+    'mediaType',
+  );
+  @override
+  late final GeneratedColumn<String> mediaType = GeneratedColumn<String>(
+    'media_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _remoteIdMeta = const VerificationMeta(
+    'remoteId',
+  );
+  @override
+  late final GeneratedColumn<int> remoteId = GeneratedColumn<int>(
+    'remote_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _remoteTitleMeta = const VerificationMeta(
+    'remoteTitle',
+  );
+  @override
+  late final GeneratedColumn<String> remoteTitle = GeneratedColumn<String>(
+    'remote_title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _progressMeta = const VerificationMeta(
+    'progress',
+  );
+  @override
+  late final GeneratedColumn<int> progress = GeneratedColumn<int>(
+    'progress',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _totalCountMeta = const VerificationMeta(
+    'totalCount',
+  );
+  @override
+  late final GeneratedColumn<int> totalCount = GeneratedColumn<int>(
+    'total_count',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pendingProgressMeta = const VerificationMeta(
+    'pendingProgress',
+  );
+  @override
+  late final GeneratedColumn<int> pendingProgress = GeneratedColumn<int>(
+    'pending_progress',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncedAt = GeneratedColumn<int>(
+    'synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    concreteUid,
+    trackerId,
+    extensionUid,
+    mediaType,
+    remoteId,
+    remoteTitle,
+    status,
+    progress,
+    totalCount,
+    pendingProgress,
+    syncedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tracker_link_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TrackerLinkTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('concrete_uid')) {
+      context.handle(
+        _concreteUidMeta,
+        concreteUid.isAcceptableOrUnknown(
+          data['concrete_uid']!,
+          _concreteUidMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_concreteUidMeta);
+    }
+    if (data.containsKey('tracker_id')) {
+      context.handle(
+        _trackerIdMeta,
+        trackerId.isAcceptableOrUnknown(data['tracker_id']!, _trackerIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_trackerIdMeta);
+    }
+    if (data.containsKey('extension_uid')) {
+      context.handle(
+        _extensionUidMeta,
+        extensionUid.isAcceptableOrUnknown(
+          data['extension_uid']!,
+          _extensionUidMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_extensionUidMeta);
+    }
+    if (data.containsKey('media_type')) {
+      context.handle(
+        _mediaTypeMeta,
+        mediaType.isAcceptableOrUnknown(data['media_type']!, _mediaTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mediaTypeMeta);
+    }
+    if (data.containsKey('remote_id')) {
+      context.handle(
+        _remoteIdMeta,
+        remoteId.isAcceptableOrUnknown(data['remote_id']!, _remoteIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_remoteIdMeta);
+    }
+    if (data.containsKey('remote_title')) {
+      context.handle(
+        _remoteTitleMeta,
+        remoteTitle.isAcceptableOrUnknown(
+          data['remote_title']!,
+          _remoteTitleMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_remoteTitleMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('progress')) {
+      context.handle(
+        _progressMeta,
+        progress.isAcceptableOrUnknown(data['progress']!, _progressMeta),
+      );
+    }
+    if (data.containsKey('total_count')) {
+      context.handle(
+        _totalCountMeta,
+        totalCount.isAcceptableOrUnknown(data['total_count']!, _totalCountMeta),
+      );
+    }
+    if (data.containsKey('pending_progress')) {
+      context.handle(
+        _pendingProgressMeta,
+        pendingProgress.isAcceptableOrUnknown(
+          data['pending_progress']!,
+          _pendingProgressMeta,
+        ),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {concreteUid, trackerId};
+  @override
+  TrackerLinkTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TrackerLinkTableData(
+      concreteUid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}concrete_uid'],
+      )!,
+      trackerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tracker_id'],
+      )!,
+      extensionUid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}extension_uid'],
+      )!,
+      mediaType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}media_type'],
+      )!,
+      remoteId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}remote_id'],
+      )!,
+      remoteTitle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remote_title'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      progress: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}progress'],
+      )!,
+      totalCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_count'],
+      ),
+      pendingProgress: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}pending_progress'],
+      ),
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}synced_at'],
+      ),
+    );
+  }
+
+  @override
+  $TrackerLinkTableTable createAlias(String alias) {
+    return $TrackerLinkTableTable(attachedDatabase, alias);
+  }
+}
+
+class TrackerLinkTableData extends DataClass
+    implements Insertable<TrackerLinkTableData> {
+  final String concreteUid;
+  final String trackerId;
+  final String extensionUid;
+  final String mediaType;
+  final int remoteId;
+  final String remoteTitle;
+  final String status;
+  final int progress;
+  final int? totalCount;
+  final int? pendingProgress;
+  final int? syncedAt;
+  const TrackerLinkTableData({
+    required this.concreteUid,
+    required this.trackerId,
+    required this.extensionUid,
+    required this.mediaType,
+    required this.remoteId,
+    required this.remoteTitle,
+    required this.status,
+    required this.progress,
+    this.totalCount,
+    this.pendingProgress,
+    this.syncedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['concrete_uid'] = Variable<String>(concreteUid);
+    map['tracker_id'] = Variable<String>(trackerId);
+    map['extension_uid'] = Variable<String>(extensionUid);
+    map['media_type'] = Variable<String>(mediaType);
+    map['remote_id'] = Variable<int>(remoteId);
+    map['remote_title'] = Variable<String>(remoteTitle);
+    map['status'] = Variable<String>(status);
+    map['progress'] = Variable<int>(progress);
+    if (!nullToAbsent || totalCount != null) {
+      map['total_count'] = Variable<int>(totalCount);
+    }
+    if (!nullToAbsent || pendingProgress != null) {
+      map['pending_progress'] = Variable<int>(pendingProgress);
+    }
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<int>(syncedAt);
+    }
+    return map;
+  }
+
+  TrackerLinkTableCompanion toCompanion(bool nullToAbsent) {
+    return TrackerLinkTableCompanion(
+      concreteUid: Value(concreteUid),
+      trackerId: Value(trackerId),
+      extensionUid: Value(extensionUid),
+      mediaType: Value(mediaType),
+      remoteId: Value(remoteId),
+      remoteTitle: Value(remoteTitle),
+      status: Value(status),
+      progress: Value(progress),
+      totalCount: totalCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(totalCount),
+      pendingProgress: pendingProgress == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pendingProgress),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
+    );
+  }
+
+  factory TrackerLinkTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TrackerLinkTableData(
+      concreteUid: serializer.fromJson<String>(json['concreteUid']),
+      trackerId: serializer.fromJson<String>(json['trackerId']),
+      extensionUid: serializer.fromJson<String>(json['extensionUid']),
+      mediaType: serializer.fromJson<String>(json['mediaType']),
+      remoteId: serializer.fromJson<int>(json['remoteId']),
+      remoteTitle: serializer.fromJson<String>(json['remoteTitle']),
+      status: serializer.fromJson<String>(json['status']),
+      progress: serializer.fromJson<int>(json['progress']),
+      totalCount: serializer.fromJson<int?>(json['totalCount']),
+      pendingProgress: serializer.fromJson<int?>(json['pendingProgress']),
+      syncedAt: serializer.fromJson<int?>(json['syncedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'concreteUid': serializer.toJson<String>(concreteUid),
+      'trackerId': serializer.toJson<String>(trackerId),
+      'extensionUid': serializer.toJson<String>(extensionUid),
+      'mediaType': serializer.toJson<String>(mediaType),
+      'remoteId': serializer.toJson<int>(remoteId),
+      'remoteTitle': serializer.toJson<String>(remoteTitle),
+      'status': serializer.toJson<String>(status),
+      'progress': serializer.toJson<int>(progress),
+      'totalCount': serializer.toJson<int?>(totalCount),
+      'pendingProgress': serializer.toJson<int?>(pendingProgress),
+      'syncedAt': serializer.toJson<int?>(syncedAt),
+    };
+  }
+
+  TrackerLinkTableData copyWith({
+    String? concreteUid,
+    String? trackerId,
+    String? extensionUid,
+    String? mediaType,
+    int? remoteId,
+    String? remoteTitle,
+    String? status,
+    int? progress,
+    Value<int?> totalCount = const Value.absent(),
+    Value<int?> pendingProgress = const Value.absent(),
+    Value<int?> syncedAt = const Value.absent(),
+  }) => TrackerLinkTableData(
+    concreteUid: concreteUid ?? this.concreteUid,
+    trackerId: trackerId ?? this.trackerId,
+    extensionUid: extensionUid ?? this.extensionUid,
+    mediaType: mediaType ?? this.mediaType,
+    remoteId: remoteId ?? this.remoteId,
+    remoteTitle: remoteTitle ?? this.remoteTitle,
+    status: status ?? this.status,
+    progress: progress ?? this.progress,
+    totalCount: totalCount.present ? totalCount.value : this.totalCount,
+    pendingProgress: pendingProgress.present
+        ? pendingProgress.value
+        : this.pendingProgress,
+    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
+  );
+  TrackerLinkTableData copyWithCompanion(TrackerLinkTableCompanion data) {
+    return TrackerLinkTableData(
+      concreteUid: data.concreteUid.present
+          ? data.concreteUid.value
+          : this.concreteUid,
+      trackerId: data.trackerId.present ? data.trackerId.value : this.trackerId,
+      extensionUid: data.extensionUid.present
+          ? data.extensionUid.value
+          : this.extensionUid,
+      mediaType: data.mediaType.present ? data.mediaType.value : this.mediaType,
+      remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
+      remoteTitle: data.remoteTitle.present
+          ? data.remoteTitle.value
+          : this.remoteTitle,
+      status: data.status.present ? data.status.value : this.status,
+      progress: data.progress.present ? data.progress.value : this.progress,
+      totalCount: data.totalCount.present
+          ? data.totalCount.value
+          : this.totalCount,
+      pendingProgress: data.pendingProgress.present
+          ? data.pendingProgress.value
+          : this.pendingProgress,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrackerLinkTableData(')
+          ..write('concreteUid: $concreteUid, ')
+          ..write('trackerId: $trackerId, ')
+          ..write('extensionUid: $extensionUid, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('remoteId: $remoteId, ')
+          ..write('remoteTitle: $remoteTitle, ')
+          ..write('status: $status, ')
+          ..write('progress: $progress, ')
+          ..write('totalCount: $totalCount, ')
+          ..write('pendingProgress: $pendingProgress, ')
+          ..write('syncedAt: $syncedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    concreteUid,
+    trackerId,
+    extensionUid,
+    mediaType,
+    remoteId,
+    remoteTitle,
+    status,
+    progress,
+    totalCount,
+    pendingProgress,
+    syncedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TrackerLinkTableData &&
+          other.concreteUid == this.concreteUid &&
+          other.trackerId == this.trackerId &&
+          other.extensionUid == this.extensionUid &&
+          other.mediaType == this.mediaType &&
+          other.remoteId == this.remoteId &&
+          other.remoteTitle == this.remoteTitle &&
+          other.status == this.status &&
+          other.progress == this.progress &&
+          other.totalCount == this.totalCount &&
+          other.pendingProgress == this.pendingProgress &&
+          other.syncedAt == this.syncedAt);
+}
+
+class TrackerLinkTableCompanion extends UpdateCompanion<TrackerLinkTableData> {
+  final Value<String> concreteUid;
+  final Value<String> trackerId;
+  final Value<String> extensionUid;
+  final Value<String> mediaType;
+  final Value<int> remoteId;
+  final Value<String> remoteTitle;
+  final Value<String> status;
+  final Value<int> progress;
+  final Value<int?> totalCount;
+  final Value<int?> pendingProgress;
+  final Value<int?> syncedAt;
+  final Value<int> rowid;
+  const TrackerLinkTableCompanion({
+    this.concreteUid = const Value.absent(),
+    this.trackerId = const Value.absent(),
+    this.extensionUid = const Value.absent(),
+    this.mediaType = const Value.absent(),
+    this.remoteId = const Value.absent(),
+    this.remoteTitle = const Value.absent(),
+    this.status = const Value.absent(),
+    this.progress = const Value.absent(),
+    this.totalCount = const Value.absent(),
+    this.pendingProgress = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TrackerLinkTableCompanion.insert({
+    required String concreteUid,
+    required String trackerId,
+    required String extensionUid,
+    required String mediaType,
+    required int remoteId,
+    required String remoteTitle,
+    required String status,
+    this.progress = const Value.absent(),
+    this.totalCount = const Value.absent(),
+    this.pendingProgress = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : concreteUid = Value(concreteUid),
+       trackerId = Value(trackerId),
+       extensionUid = Value(extensionUid),
+       mediaType = Value(mediaType),
+       remoteId = Value(remoteId),
+       remoteTitle = Value(remoteTitle),
+       status = Value(status);
+  static Insertable<TrackerLinkTableData> custom({
+    Expression<String>? concreteUid,
+    Expression<String>? trackerId,
+    Expression<String>? extensionUid,
+    Expression<String>? mediaType,
+    Expression<int>? remoteId,
+    Expression<String>? remoteTitle,
+    Expression<String>? status,
+    Expression<int>? progress,
+    Expression<int>? totalCount,
+    Expression<int>? pendingProgress,
+    Expression<int>? syncedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (concreteUid != null) 'concrete_uid': concreteUid,
+      if (trackerId != null) 'tracker_id': trackerId,
+      if (extensionUid != null) 'extension_uid': extensionUid,
+      if (mediaType != null) 'media_type': mediaType,
+      if (remoteId != null) 'remote_id': remoteId,
+      if (remoteTitle != null) 'remote_title': remoteTitle,
+      if (status != null) 'status': status,
+      if (progress != null) 'progress': progress,
+      if (totalCount != null) 'total_count': totalCount,
+      if (pendingProgress != null) 'pending_progress': pendingProgress,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TrackerLinkTableCompanion copyWith({
+    Value<String>? concreteUid,
+    Value<String>? trackerId,
+    Value<String>? extensionUid,
+    Value<String>? mediaType,
+    Value<int>? remoteId,
+    Value<String>? remoteTitle,
+    Value<String>? status,
+    Value<int>? progress,
+    Value<int?>? totalCount,
+    Value<int?>? pendingProgress,
+    Value<int?>? syncedAt,
+    Value<int>? rowid,
+  }) {
+    return TrackerLinkTableCompanion(
+      concreteUid: concreteUid ?? this.concreteUid,
+      trackerId: trackerId ?? this.trackerId,
+      extensionUid: extensionUid ?? this.extensionUid,
+      mediaType: mediaType ?? this.mediaType,
+      remoteId: remoteId ?? this.remoteId,
+      remoteTitle: remoteTitle ?? this.remoteTitle,
+      status: status ?? this.status,
+      progress: progress ?? this.progress,
+      totalCount: totalCount ?? this.totalCount,
+      pendingProgress: pendingProgress ?? this.pendingProgress,
+      syncedAt: syncedAt ?? this.syncedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (concreteUid.present) {
+      map['concrete_uid'] = Variable<String>(concreteUid.value);
+    }
+    if (trackerId.present) {
+      map['tracker_id'] = Variable<String>(trackerId.value);
+    }
+    if (extensionUid.present) {
+      map['extension_uid'] = Variable<String>(extensionUid.value);
+    }
+    if (mediaType.present) {
+      map['media_type'] = Variable<String>(mediaType.value);
+    }
+    if (remoteId.present) {
+      map['remote_id'] = Variable<int>(remoteId.value);
+    }
+    if (remoteTitle.present) {
+      map['remote_title'] = Variable<String>(remoteTitle.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (progress.present) {
+      map['progress'] = Variable<int>(progress.value);
+    }
+    if (totalCount.present) {
+      map['total_count'] = Variable<int>(totalCount.value);
+    }
+    if (pendingProgress.present) {
+      map['pending_progress'] = Variable<int>(pendingProgress.value);
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<int>(syncedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrackerLinkTableCompanion(')
+          ..write('concreteUid: $concreteUid, ')
+          ..write('trackerId: $trackerId, ')
+          ..write('extensionUid: $extensionUid, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('remoteId: $remoteId, ')
+          ..write('remoteTitle: $remoteTitle, ')
+          ..write('status: $status, ')
+          ..write('progress: $progress, ')
+          ..write('totalCount: $totalCount, ')
+          ..write('pendingProgress: $pendingProgress, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$WakaranaiDatabase extends GeneratedDatabase {
   _$WakaranaiDatabase(QueryExecutor e) : super(e);
   $WakaranaiDatabaseManager get managers => $WakaranaiDatabaseManager(this);
@@ -7031,6 +7716,9 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
       $PageTranslationTableTable(this);
   late final $ExtensionStorageTableTable extensionStorageTable =
       $ExtensionStorageTableTable(this);
+  late final $TrackerLinkTableTable trackerLinkTable = $TrackerLinkTableTable(
+    this,
+  );
   late final Index concreteDataUid = Index(
     'concrete_data_uid',
     'CREATE UNIQUE INDEX concrete_data_uid ON concrete_data_table (uid)',
@@ -7063,6 +7751,10 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
     'extension_storage_expires_at',
     'CREATE INDEX extension_storage_expires_at ON extension_storage_table (expires_at)',
   );
+  late final Index trackerLinkConcrete = Index(
+    'tracker_link_concrete',
+    'CREATE INDEX tracker_link_concrete ON tracker_link_table (concrete_uid)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7079,6 +7771,7 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
     libraryUpdateTable,
     pageTranslationTable,
     extensionStorageTable,
+    trackerLinkTable,
     concreteDataUid,
     chapterActivityUid,
     animeEpisodeActivityUid,
@@ -7087,6 +7780,7 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
     libraryUpdateUid,
     pageTranslationUid,
     extensionStorageExpiresAt,
+    trackerLinkConcrete,
   ];
 }
 
@@ -10615,6 +11309,340 @@ typedef $$ExtensionStorageTableTableProcessedTableManager =
       ExtensionStorageTableData,
       PrefetchHooks Function()
     >;
+typedef $$TrackerLinkTableTableCreateCompanionBuilder =
+    TrackerLinkTableCompanion Function({
+      required String concreteUid,
+      required String trackerId,
+      required String extensionUid,
+      required String mediaType,
+      required int remoteId,
+      required String remoteTitle,
+      required String status,
+      Value<int> progress,
+      Value<int?> totalCount,
+      Value<int?> pendingProgress,
+      Value<int?> syncedAt,
+      Value<int> rowid,
+    });
+typedef $$TrackerLinkTableTableUpdateCompanionBuilder =
+    TrackerLinkTableCompanion Function({
+      Value<String> concreteUid,
+      Value<String> trackerId,
+      Value<String> extensionUid,
+      Value<String> mediaType,
+      Value<int> remoteId,
+      Value<String> remoteTitle,
+      Value<String> status,
+      Value<int> progress,
+      Value<int?> totalCount,
+      Value<int?> pendingProgress,
+      Value<int?> syncedAt,
+      Value<int> rowid,
+    });
+
+class $$TrackerLinkTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $TrackerLinkTableTable> {
+  $$TrackerLinkTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get concreteUid => $composableBuilder(
+    column: $table.concreteUid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get trackerId => $composableBuilder(
+    column: $table.trackerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mediaType => $composableBuilder(
+    column: $table.mediaType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get remoteId => $composableBuilder(
+    column: $table.remoteId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get remoteTitle => $composableBuilder(
+    column: $table.remoteTitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get progress => $composableBuilder(
+    column: $table.progress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalCount => $composableBuilder(
+    column: $table.totalCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pendingProgress => $composableBuilder(
+    column: $table.pendingProgress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TrackerLinkTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $TrackerLinkTableTable> {
+  $$TrackerLinkTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get concreteUid => $composableBuilder(
+    column: $table.concreteUid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get trackerId => $composableBuilder(
+    column: $table.trackerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mediaType => $composableBuilder(
+    column: $table.mediaType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get remoteId => $composableBuilder(
+    column: $table.remoteId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get remoteTitle => $composableBuilder(
+    column: $table.remoteTitle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get progress => $composableBuilder(
+    column: $table.progress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalCount => $composableBuilder(
+    column: $table.totalCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pendingProgress => $composableBuilder(
+    column: $table.pendingProgress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TrackerLinkTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $TrackerLinkTableTable> {
+  $$TrackerLinkTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get concreteUid => $composableBuilder(
+    column: $table.concreteUid,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get trackerId =>
+      $composableBuilder(column: $table.trackerId, builder: (column) => column);
+
+  GeneratedColumn<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get mediaType =>
+      $composableBuilder(column: $table.mediaType, builder: (column) => column);
+
+  GeneratedColumn<int> get remoteId =>
+      $composableBuilder(column: $table.remoteId, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteTitle => $composableBuilder(
+    column: $table.remoteTitle,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get progress =>
+      $composableBuilder(column: $table.progress, builder: (column) => column);
+
+  GeneratedColumn<int> get totalCount => $composableBuilder(
+    column: $table.totalCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get pendingProgress => $composableBuilder(
+    column: $table.pendingProgress,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+}
+
+class $$TrackerLinkTableTableTableManager
+    extends
+        RootTableManager<
+          _$WakaranaiDatabase,
+          $TrackerLinkTableTable,
+          TrackerLinkTableData,
+          $$TrackerLinkTableTableFilterComposer,
+          $$TrackerLinkTableTableOrderingComposer,
+          $$TrackerLinkTableTableAnnotationComposer,
+          $$TrackerLinkTableTableCreateCompanionBuilder,
+          $$TrackerLinkTableTableUpdateCompanionBuilder,
+          (
+            TrackerLinkTableData,
+            BaseReferences<
+              _$WakaranaiDatabase,
+              $TrackerLinkTableTable,
+              TrackerLinkTableData
+            >,
+          ),
+          TrackerLinkTableData,
+          PrefetchHooks Function()
+        > {
+  $$TrackerLinkTableTableTableManager(
+    _$WakaranaiDatabase db,
+    $TrackerLinkTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TrackerLinkTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TrackerLinkTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TrackerLinkTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> concreteUid = const Value.absent(),
+                Value<String> trackerId = const Value.absent(),
+                Value<String> extensionUid = const Value.absent(),
+                Value<String> mediaType = const Value.absent(),
+                Value<int> remoteId = const Value.absent(),
+                Value<String> remoteTitle = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<int> progress = const Value.absent(),
+                Value<int?> totalCount = const Value.absent(),
+                Value<int?> pendingProgress = const Value.absent(),
+                Value<int?> syncedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TrackerLinkTableCompanion(
+                concreteUid: concreteUid,
+                trackerId: trackerId,
+                extensionUid: extensionUid,
+                mediaType: mediaType,
+                remoteId: remoteId,
+                remoteTitle: remoteTitle,
+                status: status,
+                progress: progress,
+                totalCount: totalCount,
+                pendingProgress: pendingProgress,
+                syncedAt: syncedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String concreteUid,
+                required String trackerId,
+                required String extensionUid,
+                required String mediaType,
+                required int remoteId,
+                required String remoteTitle,
+                required String status,
+                Value<int> progress = const Value.absent(),
+                Value<int?> totalCount = const Value.absent(),
+                Value<int?> pendingProgress = const Value.absent(),
+                Value<int?> syncedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TrackerLinkTableCompanion.insert(
+                concreteUid: concreteUid,
+                trackerId: trackerId,
+                extensionUid: extensionUid,
+                mediaType: mediaType,
+                remoteId: remoteId,
+                remoteTitle: remoteTitle,
+                status: status,
+                progress: progress,
+                totalCount: totalCount,
+                pendingProgress: pendingProgress,
+                syncedAt: syncedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TrackerLinkTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$WakaranaiDatabase,
+      $TrackerLinkTableTable,
+      TrackerLinkTableData,
+      $$TrackerLinkTableTableFilterComposer,
+      $$TrackerLinkTableTableOrderingComposer,
+      $$TrackerLinkTableTableAnnotationComposer,
+      $$TrackerLinkTableTableCreateCompanionBuilder,
+      $$TrackerLinkTableTableUpdateCompanionBuilder,
+      (
+        TrackerLinkTableData,
+        BaseReferences<
+          _$WakaranaiDatabase,
+          $TrackerLinkTableTable,
+          TrackerLinkTableData
+        >,
+      ),
+      TrackerLinkTableData,
+      PrefetchHooks Function()
+    >;
 
 class $WakaranaiDatabaseManager {
   final _$WakaranaiDatabase _db;
@@ -10644,4 +11672,6 @@ class $WakaranaiDatabaseManager {
       $$PageTranslationTableTableTableManager(_db, _db.pageTranslationTable);
   $$ExtensionStorageTableTableTableManager get extensionStorageTable =>
       $$ExtensionStorageTableTableTableManager(_db, _db.extensionStorageTable);
+  $$TrackerLinkTableTableTableManager get trackerLinkTable =>
+      $$TrackerLinkTableTableTableManager(_db, _db.trackerLinkTable);
 }
