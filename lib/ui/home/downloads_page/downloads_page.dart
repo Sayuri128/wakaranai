@@ -12,6 +12,7 @@ import 'package:wakaranai/services/downloads/storage/download_sizes.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/downloads_page/cubit/download_sizes_cubit.dart';
 import 'package:wakaranai/ui/home/downloads_page/download_cover.dart';
+import 'package:wakaranai/ui/home/downloads_page/download_runtime_banner.dart';
 import 'package:wakaranai/ui/home/downloads_page/download_storage_actions.dart';
 import 'package:wakaranai/ui/home/downloads_page/download_tile.dart';
 import 'package:wakaranai/ui/home/downloads_page/free_up_space_sheet.dart';
@@ -130,6 +131,10 @@ class _DownloadsPageState extends State<DownloadsPage> {
       padding: const EdgeInsets.only(bottom: 16),
       children: <Widget>[
         _OrderToggle(newestFirst: _newestFirst, onTap: _toggleOrder),
+        DownloadRuntimeBanner(
+          state: state,
+          margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+        ),
         TranslationQueueCard(margin: const EdgeInsets.fromLTRB(16, 8, 16, 0)),
         for (final List<DownloadDomain> titleDownloads in grouped.values) ...<Widget>[
           _GroupHeader(
