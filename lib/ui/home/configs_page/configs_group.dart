@@ -1,4 +1,4 @@
-﻿import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,6 +21,8 @@ import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/configs_page/config_card.dart';
+import 'package:wakaranai/ui/home/configs_page/local_source_actions.dart';
+import 'package:wakaranai/services/local_source/local_source.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_compatibility_texts.dart';
 import 'package:wakaranai/ui/services/anime/anime_service_viewer/anime_service_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
@@ -108,6 +110,9 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
   ) {
     if (status == ExtensionListingStatus.updateNeedsNewerApp) {
       return () => _showCompatibilityInfo(context, extension, status);
+    }
+    if (LocalSource.isLocal(extension.config.uid)) {
+      return () => unawaited(showLocalSourceActions(context));
     }
     return () => unawaited(_showExtensionActions(
           context,

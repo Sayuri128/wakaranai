@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/images.dart';
 
 class ImageWidget extends StatefulWidget {
   const ImageWidget(
@@ -40,6 +41,9 @@ class _ImageWidgetState extends State<ImageWidget> {
           setState(() {});
         }
       });
+    } else if (isLocalFilePath(widget.url)) {
+      _file = File(widget.url);
+      _initialized = true;
     } else {
       _initialized = true;
     }

@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/ui/widgets/cover_image.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/data/domain/database/library_update_domain.dart';
@@ -12,7 +12,6 @@ import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/library_page/library_concrete_viewer.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
-import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class UpdatesPage extends StatelessWidget {
@@ -217,13 +216,10 @@ class _Cover extends StatelessWidget {
         height: 64,
         child: url == null
             ? _placeholder()
-            : CachedNetworkImage(
-                imageUrl: url!,
-                memCacheWidth: decodeWidthFor(context, 48),
-                fit: BoxFit.cover,
-                placeholder: (BuildContext context, String _) => _placeholder(),
-                errorWidget: (BuildContext context, String _, Object __) =>
-                    _placeholder(),
+            : CoverImage(
+                url: url!,
+                logicalWidth: 48,
+                placeholder: (BuildContext context) => _placeholder(),
               ),
       ),
     );

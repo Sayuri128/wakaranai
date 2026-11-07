@@ -6616,6 +6616,69 @@ class S {
     );
   }
 
+  /// `Local files`
+  String get local_source_name {
+    return Intl.message(
+      'Local files',
+      name: 'local_source_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import CBZ or ZIP files`
+  String get local_source_import {
+    return Intl.message(
+      'Import CBZ or ZIP files',
+      name: 'local_source_import',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Where to put files`
+  String get local_source_where {
+    return Intl.message(
+      'Where to put files',
+      name: 'local_source_where',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy folders of images, CBZ or ZIP files into\n{path}\n\nEach folder is a title and each archive or image folder inside it is a chapter. A cover.jpg and ComicInfo.xml are used when present. The folder is reachable over USB from a computer.`
+  String local_source_where_message(Object path) {
+    return Intl.message(
+      'Copy folders of images, CBZ or ZIP files into\n$path\n\nEach folder is a title and each archive or image folder inside it is a chapter. A cover.jpg and ComicInfo.xml are used when present. The folder is reachable over USB from a computer.',
+      name: 'local_source_where_message',
+      desc: '',
+      args: [path],
+    );
+  }
+
+  /// `{count, plural, =0{Nothing was imported} =1{Imported 1 file} other{Imported {count} files}}`
+  String local_source_imported(int count) {
+    return Intl.plural(
+      count,
+      zero: 'Nothing was imported',
+      one: 'Imported 1 file',
+      other: 'Imported $count files',
+      name: 'local_source_imported',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Imported`
+  String get local_source_imported_title {
+    return Intl.message(
+      'Imported',
+      name: 'local_source_imported_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Page fit`
   String get reader_page_fit_title {
     return Intl.message(

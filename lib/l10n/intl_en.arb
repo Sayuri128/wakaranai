@@ -1246,6 +1246,22 @@
   "content_kind_manhua": "Manhua",
   "content_kind_comic": "Comics",
   "content_kind_novel": "Novels",
+  "local_source_name": "Local files",
+  "local_source_import": "Import CBZ or ZIP files",
+  "local_source_where": "Where to put files",
+  "local_source_where_message": "Copy folders of images, CBZ or ZIP files into\n{path}\n\nEach folder is a title and each archive or image folder inside it is a chapter. A cover.jpg and ComicInfo.xml are used when present. The folder is reachable over USB from a computer.",
+  "@local_source_where_message": {
+    "placeholders": {
+      "path": {}
+    }
+  },
+  "local_source_imported": "{count, plural, =0{Nothing was imported} =1{Imported 1 file} other{Imported {count} files}}",
+  "@local_source_imported": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "local_source_imported_title": "Imported",
   "reader_page_fit_title": "Page fit",
   "reader_page_fit_screen": "Fit screen",
   "reader_page_fit_width": "Fit width",

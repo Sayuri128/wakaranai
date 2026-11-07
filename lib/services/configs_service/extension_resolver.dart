@@ -8,6 +8,7 @@ import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 import 'package:wakaranai/services/configs_service/github_configs_service.dart';
+import 'package:wakaranai/services/local_source/local_source.dart';
 import 'package:wakaranai/utils/github_url_parser.dart';
 
 class ExtensionResolver {
@@ -26,6 +27,9 @@ class ExtensionResolver {
   final Future<List<ConfigsService>> Function()? _candidateServicesOverride;
 
   Future<ExtensionDomain?> resolve(String uid) async {
+    if (LocalSource.isLocal(uid)) {
+      return LocalSource.extension(LocalSource.displayName);
+    }
     final ExtensionDomain? cached = await extensionRepository.getByUid(uid);
     if (cached != null) return cached;
     return _downloadAndCache(uid);

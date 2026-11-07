@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
+import 'package:wakaranai/services/local_source/local_source.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_filter.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_filter_bar.dart';
@@ -168,8 +169,10 @@ class _ConfigPageState extends State<ConfigPage> {
     final bool showNsfw =
         settingsState is SettingsInitialized && settingsState.showNsfw;
 
-    final List<BaseExtension> visibleManga =
-        _filterNsfw(state.mangaRemoteConfigs, showNsfw);
+    final List<BaseExtension> visibleManga = <BaseExtension>[
+      LocalSource.extension(S.current.local_source_name),
+      ..._filterNsfw(state.mangaRemoteConfigs, showNsfw),
+    ];
     final List<BaseExtension> visibleVideo =
         _filterNsfw(state.animeRemoteConfigs, showNsfw);
     final List<BaseExtension> visible = <BaseExtension>[

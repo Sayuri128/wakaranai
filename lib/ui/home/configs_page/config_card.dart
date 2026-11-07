@@ -1,7 +1,8 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:wakaranai/services/local_source/local_source.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/configs_service/extension_listing_status.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_compatibility_texts.dart';
@@ -126,6 +127,19 @@ class ConfigCard extends StatelessWidget {
   }
 
   Widget _buildLogo(BuildContext context) {
+    if (LocalSource.isLocal(configInfo.uid)) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: SizedBox(
+          width: 56,
+          height: 56,
+          child: ColoredBox(
+            color: AppColors.primary.withValues(alpha: 0.16),
+            child: Icon(Icons.folder_rounded, color: AppColors.primary),
+          ),
+        ),
+      );
+    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: SizedBox(

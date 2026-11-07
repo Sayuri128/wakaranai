@@ -1,7 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:wakaranai/ui/widgets/cover_image.dart';
 import 'package:wakaranai/utils/app_colors.dart';
-import 'package:wakaranai/utils/images.dart';
 
 class DownloadCover extends StatelessWidget {
   const DownloadCover({
@@ -27,13 +26,10 @@ class DownloadCover extends StatelessWidget {
         height: height,
         child: coverUrl == null
             ? _placeholder()
-            : CachedNetworkImage(
-                imageUrl: coverUrl,
-                memCacheWidth: decodeWidthFor(context, width),
-                fit: BoxFit.cover,
-                placeholder: (BuildContext context, String _) => _placeholder(),
-                errorWidget: (BuildContext context, String _, Object __) =>
-                    _placeholder(),
+            : CoverImage(
+                url: coverUrl,
+                logicalWidth: width,
+                placeholder: (BuildContext context) => _placeholder(),
               ),
       ),
     );

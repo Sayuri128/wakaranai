@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -14,10 +15,22 @@ ImageProvider getImageProvider(
   Map<String, String>? headers,
   int? decodeWidth,
 }) {
-  final ImageProvider provider = url.startsWith("data:")
-      ? _inlineImage(url)
-      : CachedNetworkImageProvider(url, headers: headers);
+  final ImageProvider provider = _providerFor(url, headers);
   return ResizeImage.resizeIfNeeded(decodeWidth, null, provider);
+}
+
+ImageProvider _providerFor(String url, Map<String, String>? headers) {
+  if (url.startsWith("data:")) {
+    return _inlineImage(url);
+  }
+  if (isLocalFilePath(url)) {
+    return FileImage(File(url));
+  }
+  return CachedNetworkImageProvider(url, headers: headers);
+}
+
+bool isLocalFilePath(String url) {
+  return url.startsWith('/') || RegExp(r'^[A-Za-z]:[\/]').hasMatch(url);
 }
 
 int decodeWidthFor(BuildContext context, double logicalWidth) {
