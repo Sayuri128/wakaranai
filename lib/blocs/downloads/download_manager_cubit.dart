@@ -728,6 +728,11 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
     await downloadRepository
         .update(row.copyWith(status: DownloadStatus.queued));
+    final bool queuedAgain =
+        _jobs.any((_DownloadJob queued) => queued.uid == job.uid);
+    if (_cancelled.contains(job.uid) || queuedAgain) {
+      return;
+    }
     _jobs.addFirst(job.restarted());
     if (_batchIndex > 0) {
       _batchIndex--;

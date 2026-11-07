@@ -71,6 +71,27 @@ class _SilentNotifications extends DownloadNotificationService {
   }
 }
 
+class _GatedRepository extends DownloadRepository {
+  _GatedRepository({required super.database});
+
+  Completer<void>? requeueGate;
+  Completer<void>? requeueReached;
+
+  @override
+  Future<DownloadDomain?> update(
+    DownloadDomain domain, {
+    bool update = true,
+  }) async {
+    final Completer<void>? gate = requeueGate;
+    if (gate != null && domain.status == DownloadStatus.queued) {
+      requeueGate = null;
+      requeueReached?.complete();
+      await gate.future;
+    }
+    return super.update(domain, update: update);
+  }
+}
+
 class _FakeRuntime implements DownloadRuntime {
   DownloadRuntimeStart startOutcome = DownloadRuntimeStart.started;
   final List<String> calls = <String>[];
@@ -279,7 +300,7 @@ void main() {
   group('DownloadManagerCubit runtime', () {
     late Directory tempDir;
     late WakaranaiDatabase db;
-    late DownloadRepository repository;
+    late _GatedRepository repository;
     late _SilentNotifications notifications;
     late _FakeRuntime runtime;
     late _FakeNetworkMonitor monitor;
@@ -321,7 +342,7 @@ void main() {
       tempDir = Directory.systemTemp.createTempSync('wakaranai_runtime');
       PathProviderPlatform.instance = _FakePathProvider(tempDir.path);
       db = WakaranaiDatabase.forTesting(NativeDatabase.memory());
-      repository = DownloadRepository(database: db);
+      repository = _GatedRepository(database: db);
       notifications = _SilentNotifications();
       runtime = _FakeRuntime();
       downloader = _ControlledDownloader();
@@ -586,6 +607,43 @@ void main() {
       monitor.change(NetworkConnection.wifi);
       await _awaitStatus(repository, 'e1', DownloadStatus.done);
       expect(downloader.calls, hasLength(1));
+    });
+
+    test('a delete that races the Wi-Fi requeue leaves no ghost job',
+        () async {
+      await cubit.close();
+      cubit = buildCubit(wifiOnly: true);
+      downloader.holdDownloads = true;
+
+      await enqueue('e1');
+      await _until(() => downloader.calls.isNotEmpty);
+      final DownloadDomain row = (await repository.getByUid('e1'))!;
+      final Completer<void> gate = Completer<void>();
+      final Completer<void> reached = Completer<void>();
+      repository
+        ..requeueGate = gate
+        ..requeueReached = reached;
+
+      monitor.change(NetworkConnection.cellular);
+      await reached.future;
+      final Future<void> deleting = cubit.deleteDownload(row);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      gate.complete();
+      await deleting;
+      await _until(() => !runtime.running);
+
+      expect(await repository.getByUid('e1'), isNull);
+      expect(cubit.state.waitingForWifi, isFalse);
+      expect(runtime.running, isFalse);
+
+      monitor.change(NetworkConnection.wifi);
+      await enqueue('e1');
+      await _until(() => downloader.calls.length == 2);
+      downloader.release('e1');
+      await _awaitStatus(repository, 'e1', DownloadStatus.done);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      expect(downloader.calls, hasLength(2));
     });
 
     test('deleting a job paused for Wi-Fi does not requeue it', () async {
