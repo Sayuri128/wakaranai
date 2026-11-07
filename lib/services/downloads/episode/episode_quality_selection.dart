@@ -90,14 +90,17 @@ List<int> downloadableStreamOrder(
   List<PlayableStream> streams,
   String? streamLabel,
 ) {
-  if (streams.isEmpty) {
-    return const <int>[];
-  }
-  final int preferred = preferredDownloadStreamIndex(streams, streamLabel);
-  final List<int> order = <int>[
-    preferred,
+  final List<int> preferredForDownload = <int>[
     for (int index = 0; index < streams.length; index++)
-      if (index != preferred) index,
+      if (streams[index].preferForDownload) index,
+  ];
+  final List<int> others = <int>[
+    for (int index = 0; index < streams.length; index++)
+      if (!streams[index].preferForDownload) index,
+  ];
+  final List<int> order = <int>[
+    ..._qualityOrderAmong(streams, preferredForDownload, streamLabel),
+    ..._qualityOrderAmong(streams, others, streamLabel),
   ];
   return order
       .where(
@@ -105,6 +108,26 @@ List<int> downloadableStreamOrder(
             resolveStreamFormat(streams[index]) != PlayableStreamFormat.dash,
       )
       .toList(growable: false);
+}
+
+List<int> _qualityOrderAmong(
+  List<PlayableStream> streams,
+  List<int> candidates,
+  String? streamLabel,
+) {
+  if (candidates.isEmpty) {
+    return const <int>[];
+  }
+  final List<PlayableStream> subset = <PlayableStream>[
+    for (final int index in candidates) streams[index],
+  ];
+  final int preferred =
+      candidates[preferredDownloadStreamIndex(subset, streamLabel)];
+  return <int>[
+    preferred,
+    for (final int index in candidates)
+      if (index != preferred) index,
+  ];
 }
 
 final RegExp _qualityTierPattern = RegExp(r'^\d{3,4}p$');

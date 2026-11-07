@@ -36,6 +36,73 @@ void main() {
     expect(Uri.parse(video.subtitles.single.url).scheme, 'file');
   });
 
+  test('skip markers and the audio label survive a round trip offline', () {
+    const List<PlayableSkipMarker> markers = <PlayableSkipMarker>[
+      PlayableSkipMarker(
+        type: PlayableSkipType.intro,
+        start: Duration(milliseconds: 1500),
+        end: Duration(seconds: 90),
+      ),
+      PlayableSkipMarker(
+        type: PlayableSkipType.outro,
+        start: Duration(minutes: 22),
+        end: Duration(minutes: 23),
+      ),
+    ];
+    const EpisodeDownloadManifest manifest = EpisodeDownloadManifest(
+      format: EpisodeMediaFormat.mp4,
+      file: 'video.mp4',
+      quality: '1080p',
+      skipMarkers: markers,
+      audioLabel: 'Studio Dub',
+    );
+
+    final EpisodeDownloadManifest decoded =
+        EpisodeDownloadManifest.decode(manifest.encode())!;
+    expect(decoded.toJson(), manifest.toJson());
+    expect(decoded.skipMarkers, markers);
+    expect(decoded.audioLabel, 'Studio Dub');
+
+    final String dir = p.join(p.separator, 'data', 'ep');
+    final PlayableStream stream = decoded.toPlayableVideo(dir).streams.single;
+    expect(stream.skipMarkers, markers);
+    expect(stream.audioLabel, 'Studio Dub');
+  });
+
+  test('manifests written before skip markers still decode', () {
+    const String legacy =
+        '{"format":"hls","file":"index.m3u8","quality":"720p","subtitles":[]}';
+
+    final EpisodeDownloadManifest? decoded =
+        EpisodeDownloadManifest.decode(legacy);
+
+    expect(decoded, isNotNull);
+    expect(decoded!.skipMarkers, isEmpty);
+    expect(decoded.audioLabel, isNull);
+    expect(decoded.toJson().containsKey('skip'), isFalse);
+    final String dir = p.join(p.separator, 'data', 'ep');
+    expect(decoded.toPlayableVideo(dir).streams.single.skipMarkers, isEmpty);
+  });
+
+  test('malformed skip entries are dropped without losing the manifest', () {
+    const String raw = '{"format":"mp4","file":"video.mp4","skip":['
+        '{"type":"intro","startMs":0,"endMs":90000},'
+        '{"type":"credits","startMs":0,"endMs":1000},'
+        '{"type":"outro","startMs":"x","endMs":1000},'
+        '{"type":"recap","startMs":5000,"endMs":1000},'
+        '"oops"]}';
+
+    final EpisodeDownloadManifest? decoded = EpisodeDownloadManifest.decode(raw);
+
+    expect(decoded!.skipMarkers, const <PlayableSkipMarker>[
+      PlayableSkipMarker(
+        type: PlayableSkipType.intro,
+        start: Duration.zero,
+        end: Duration(seconds: 90),
+      ),
+    ]);
+  });
+
   test('broken manifest json decodes to null', () {
     expect(EpisodeDownloadManifest.decode('{oops'), isNull);
     expect(EpisodeDownloadManifest.decode(null), isNull);

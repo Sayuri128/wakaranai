@@ -11,6 +11,7 @@ import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/services/downloads/episode/episode_download_manifest.dart';
 import 'package:wakaranai/services/downloads/episode/episode_download_plan.dart';
 import 'package:wakaranai/services/downloads/episode/episode_downloader.dart';
+import 'package:wakaranai/services/downloads/episode/episode_quality_selection.dart';
 
 class FakeRequest {
   const FakeRequest(this.url, this.headers);
@@ -977,5 +978,85 @@ main.mp4
     expect(caught, isA<DioException>());
     expect(CancelToken.isCancel(caught! as DioException), isTrue);
     expect(fileIn('index.m3u8').existsSync(), isFalse);
+  });
+
+  group('download source preference', () {
+    test('sources marked for download come first, then by quality', () {
+      const List<PlayableStream> streams = <PlayableStream>[
+        PlayableStream(url: 'https://a/1080.mp4', quality: '1080p'),
+        PlayableStream(
+          url: 'https://a/480.mp4',
+          quality: '480p',
+          preferForDownload: true,
+        ),
+        PlayableStream(
+          url: 'https://a/720.mp4',
+          quality: '720p',
+          preferForDownload: true,
+        ),
+      ];
+
+      expect(downloadableStreamOrder(streams, '1080p'), <int>[2, 1, 0]);
+      expect(downloadableStreamOrder(streams, '480p'), <int>[1, 2, 0]);
+    });
+
+    test('without marked sources the order is unchanged', () {
+      const List<PlayableStream> streams = <PlayableStream>[
+        PlayableStream(url: 'https://a/1080.mp4', quality: '1080p'),
+        PlayableStream(url: 'https://a/720.mp4', quality: '720p'),
+      ];
+
+      expect(downloadableStreamOrder(streams, '720p'), <int>[1, 0]);
+    });
+
+    test('falls back to the other sources when marked ones cannot download',
+        () {
+      const List<PlayableStream> streams = <PlayableStream>[
+        PlayableStream(
+          url: 'https://a/manifest.mpd',
+          quality: '1080p',
+          preferForDownload: true,
+        ),
+        PlayableStream(url: 'https://a/720.mp4', quality: '720p'),
+      ];
+
+      expect(downloadableStreamOrder(streams, '1080p'), <int>[1]);
+    });
+
+    test('downloads the marked source and keeps its markers and audio',
+        () async {
+      const String preferredUrl = 'https://host.example/dub.mp4';
+      const List<PlayableSkipMarker> markers = <PlayableSkipMarker>[
+        PlayableSkipMarker(
+          type: PlayableSkipType.intro,
+          start: Duration.zero,
+          end: Duration(seconds: 90),
+        ),
+      ];
+      final FakeEpisodeHttp http = FakeEpisodeHttp()
+        ..serveBytes(preferredUrl, mp4Bytes('dub', 50));
+
+      final EpisodeDownloadManifest manifest = await run(
+        http,
+        video: const PlayableVideo(
+          streams: <PlayableStream>[
+            PlayableStream(url: 'https://host.example/sub.mp4', quality: '1080p'),
+            PlayableStream(
+              url: preferredUrl,
+              quality: '720p',
+              audioLabel: 'Studio Dub',
+              preferForDownload: true,
+              skipMarkers: markers,
+            ),
+          ],
+        ),
+        quality: const QualityPreference(streamLabel: '1080p'),
+      );
+
+      expect(http.urls, isNot(contains('https://host.example/sub.mp4')));
+      expect(manifest.quality, '720p');
+      expect(manifest.audioLabel, 'Studio Dub');
+      expect(manifest.skipMarkers, markers);
+    });
   });
 }

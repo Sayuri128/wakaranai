@@ -172,6 +172,8 @@ class _EpisodeDownloadRun {
       file: kLocalMp4File,
       quality: stream.quality,
       subtitles: subtitles,
+      skipMarkers: stream.skipMarkers,
+      audioLabel: stream.audioLabel,
     );
   }
 
@@ -227,6 +229,8 @@ class _EpisodeDownloadRun {
       file: kLocalIndexPlaylist,
       quality: _hlsQualityLabel(selection, stream),
       subtitles: subtitles,
+      skipMarkers: stream.skipMarkers,
+      audioLabel: stream.audioLabel,
     );
   }
 

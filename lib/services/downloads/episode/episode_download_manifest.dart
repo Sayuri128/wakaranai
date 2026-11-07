@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:path/path.dart' as p;
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
+import 'package:wakaranai/ui/services/anime/native_player/skip_markers.dart';
 
 enum EpisodeMediaFormat { hls, mp4 }
 
@@ -43,12 +44,48 @@ class DownloadedSubtitle {
   }
 }
 
+Map<String, dynamic> skipMarkerToJson(PlayableSkipMarker marker) {
+  return <String, dynamic>{
+    'type': marker.type.name,
+    'startMs': marker.start.inMilliseconds,
+    'endMs': marker.end.inMilliseconds,
+  };
+}
+
+PlayableSkipMarker? skipMarkerFromJson(Object? json) {
+  if (json is! Map) {
+    return null;
+  }
+  final PlayableSkipType? type = PlayableSkipType.values.firstWhereOrNull(
+    (PlayableSkipType candidate) => candidate.name == json['type'],
+  );
+  final Object? startMs = json['startMs'];
+  final Object? endMs = json['endMs'];
+  if (type == null || startMs is! int || endMs is! int) {
+    return null;
+  }
+  return PlayableSkipMarker(
+    type: type,
+    start: Duration(milliseconds: startMs),
+    end: Duration(milliseconds: endMs),
+  );
+}
+
+List<PlayableSkipMarker> _skipMarkersFromJson(Object? json) {
+  if (json is! List) {
+    return const <PlayableSkipMarker>[];
+  }
+  return normalizeSkipMarkers(json.map(skipMarkerFromJson).nonNulls);
+}
+
 class EpisodeDownloadManifest {
   const EpisodeDownloadManifest({
     required this.format,
     required this.file,
     this.quality,
     this.subtitles = const <DownloadedSubtitle>[],
+    this.skipMarkers = const <PlayableSkipMarker>[],
+    this.audioLabel,
   });
 
   factory EpisodeDownloadManifest.fromJson(Map<String, dynamic> json) {
@@ -62,6 +99,8 @@ class EpisodeDownloadManifest {
           .map((dynamic item) =>
               DownloadedSubtitle.fromJson(item as Map<String, dynamic>))
           .toList(growable: false),
+      skipMarkers: _skipMarkersFromJson(json['skip']),
+      audioLabel: json['audioLabel'] as String?,
     );
   }
 
@@ -82,6 +121,8 @@ class EpisodeDownloadManifest {
   final String file;
   final String? quality;
   final List<DownloadedSubtitle> subtitles;
+  final List<PlayableSkipMarker> skipMarkers;
+  final String? audioLabel;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -91,6 +132,9 @@ class EpisodeDownloadManifest {
       'subtitles': subtitles
           .map((DownloadedSubtitle subtitle) => subtitle.toJson())
           .toList(growable: false),
+      if (skipMarkers.isNotEmpty)
+        'skip': skipMarkers.map(skipMarkerToJson).toList(growable: false),
+      if (audioLabel != null) 'audioLabel': audioLabel,
     };
   }
 
@@ -107,6 +151,8 @@ class EpisodeDownloadManifest {
           format: format == EpisodeMediaFormat.hls
               ? PlayableStreamFormat.hls
               : PlayableStreamFormat.mp4,
+          skipMarkers: skipMarkers,
+          audioLabel: audioLabel,
         ),
       ],
       subtitles: subtitles
