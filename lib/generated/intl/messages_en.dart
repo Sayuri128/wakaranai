@@ -895,6 +895,12 @@ class MessageLookup extends MessageLookupByLibrary {
         ),
     "extension_sources_page_wakaranai_github_repo_title":
         MessageLookupByLibrary.simpleMessage("Wakaranai Extensions"),
+    "external_player_action": MessageLookupByLibrary.simpleMessage(
+      "External player",
+    ),
+    "external_player_unavailable": MessageLookupByLibrary.simpleMessage(
+      "No external video player is installed. Playing in the built-in player instead.",
+    ),
     "feeds_row_label": MessageLookupByLibrary.simpleMessage("Feeds"),
     "filters_active_summary": m45,
     "filters_add_value": MessageLookupByLibrary.simpleMessage("Add"),
@@ -1700,6 +1706,9 @@ class MessageLookup extends MessageLookupByLibrary {
         ),
     "settings_updates_section": MessageLookupByLibrary.simpleMessage("Updates"),
     "settings_video_player_auto": MessageLookupByLibrary.simpleMessage("Auto"),
+    "settings_video_player_external": MessageLookupByLibrary.simpleMessage(
+      "External player",
+    ),
     "settings_video_player_subtitle": MessageLookupByLibrary.simpleMessage(
       "Play anime in the built-in player when the source provides a direct stream",
     ),

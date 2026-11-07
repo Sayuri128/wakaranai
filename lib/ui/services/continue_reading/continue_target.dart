@@ -5,8 +5,8 @@ import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
-import 'package:wakaranai/services/downloads/storage/watched_episode_downloads.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
+import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store.dart';
 
 enum ContinueKind { start, resume, next }
 
@@ -166,8 +166,5 @@ ContinueTarget<AnimeVideo>? resolveEpisodeContinue({
 }
 
 bool isEpisodeFinished(AnimeEpisodeActivityDomain activity) {
-  if (activity.watchedTime == null) {
-    return true;
-  }
-  return isEpisodeWatchedForCleanup(activity);
+  return isEpisodeActivityFinished(activity);
 }

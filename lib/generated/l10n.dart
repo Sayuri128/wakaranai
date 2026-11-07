@@ -6636,6 +6636,36 @@ class S {
     );
   }
 
+  /// `External player`
+  String get settings_video_player_external {
+    return Intl.message(
+      'External player',
+      name: 'settings_video_player_external',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `External player`
+  String get external_player_action {
+    return Intl.message(
+      'External player',
+      name: 'external_player_action',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No external video player is installed. Playing in the built-in player instead.`
+  String get external_player_unavailable {
+    return Intl.message(
+      'No external video player is installed. Playing in the built-in player instead.',
+      name: 'external_player_unavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Translate every page in the background`
   String get page_translation_translate_chapter_hint {
     return Intl.message(

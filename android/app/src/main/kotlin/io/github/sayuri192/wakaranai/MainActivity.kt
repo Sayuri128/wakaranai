@@ -3,6 +3,7 @@ package io.github.sayuri128.wakaranai
 import android.app.ActivityManager
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -22,6 +23,7 @@ class MainActivity: FlutterActivity() {
     private val downloadRuntime by lazy { DownloadRuntimeChannel(applicationContext) }
     private val networkState by lazy { NetworkStateChannel(applicationContext) }
     private val volumeKeys = VolumeKeyChannel()
+    private val externalPlayer = ExternalPlayerChannel(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +33,14 @@ class MainActivity: FlutterActivity() {
     override fun onDestroy() {
         pictureInPicture.unregisterReceiver()
         super.onDestroy()
+    }
+
+    @Deprecated("Activity result API is not available to FlutterActivity channels")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (externalPlayer.onActivityResult(requestCode, data)) {
+            return
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -59,6 +69,7 @@ class MainActivity: FlutterActivity() {
         downloadRuntime.attach(flutterEngine.dartExecutor.binaryMessenger)
         networkState.attach(flutterEngine.dartExecutor.binaryMessenger)
         volumeKeys.attach(flutterEngine.dartExecutor.binaryMessenger)
+        externalPlayer.attach(flutterEngine.dartExecutor.binaryMessenger)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "wakaranai/device")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -102,6 +113,7 @@ class MainActivity: FlutterActivity() {
         downloadRuntime.detach()
         networkState.detach()
         volumeKeys.detach()
+        externalPlayer.detach()
         super.cleanUpFlutterEngine(flutterEngine)
     }
 

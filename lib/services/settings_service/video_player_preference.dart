@@ -1,1 +1,1 @@
-enum VideoPlayerPreference { auto, webOnly }
+enum VideoPlayerPreference { auto, webOnly, external }

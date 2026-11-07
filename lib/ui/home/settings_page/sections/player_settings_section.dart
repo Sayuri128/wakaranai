@@ -173,5 +173,7 @@ String videoPlayerPreferenceLabel(VideoPlayerPreference preference) {
       return S.current.settings_video_player_auto;
     case VideoPlayerPreference.webOnly:
       return S.current.settings_video_player_web_only;
+    case VideoPlayerPreference.external:
+      return S.current.settings_video_player_external;
   }
 }

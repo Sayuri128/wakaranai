@@ -5,9 +5,13 @@ import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video_group/anime_video_group.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
+import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
+import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/services/device/external_player.dart';
 import 'package:wakaranai/services/downloads/episode/downloaded_episode_lookup.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
 import 'package:wakaranai/services/settings_service/video_player_preference.dart';
@@ -18,8 +22,10 @@ import 'package:wakaranai/ui/services/anime/episode_playback/episode_playback_se
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/video_sources_loading_dialog.dart';
+import 'package:wakaranai/ui/services/anime/native_player/episode_progress_store.dart';
 import 'package:wakaranai/ui/services/anime/native_player/native_player.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
+import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/ui/widgets/source_error_view.dart';
 import 'package:wakaranai/utils/source_error_description.dart';
 
@@ -33,6 +39,7 @@ class AnimeEpisodeLauncher {
     this.onEpisodeOpened,
     this.downloadedEpisodes,
     this.configInfo,
+    this.preferenceOverride,
     SettingsService? settingsService,
   })  : groups = List<AnimeVideoGroup>.unmodifiable(groups),
         _watchedEpisodeUids = <String>{...watchedEpisodeUids},
@@ -43,6 +50,7 @@ class AnimeEpisodeLauncher {
   final AnimeApiClient? client;
   final DownloadedEpisodeLookup? downloadedEpisodes;
   final ConfigInfo? configInfo;
+  final VideoPlayerPreference? preferenceOverride;
   final AnimeConcreteView anime;
   final List<AnimeVideoGroup> groups;
   final int groupIndex;
@@ -68,7 +76,7 @@ class AnimeEpisodeLauncher {
     AnimeVideo episode,
   ) async {
     final VideoPlayerPreference preference =
-        await _settingsService.getVideoPlayerPreference();
+        preferenceOverride ?? await _settingsService.getVideoPlayerPreference();
     late final EpisodePlaybackSession session;
     session = EpisodePlaybackSession(
       isActive: () => context.mounted,
@@ -77,16 +85,27 @@ class AnimeEpisodeLauncher {
           _handleSourceError(context, position, error),
       resolvePlan: (EpisodePlaylist position) =>
           _resolveWithDialog(context, position.current, preference),
-      openNativePlayer: (EpisodePlaylist position, PlayableVideo video) =>
-          _openNativePlayer(
-        context,
-        position,
-        video,
-        resolveInPlayer: (EpisodePlaylist target) {
+      openNativePlayer: (EpisodePlaylist position, PlayableVideo video) {
+        Future<EpisodePlaybackPlan> resolveInPlayer(EpisodePlaylist target) {
           session.enterEpisode(target);
           return resolve(target.current, preference);
-        },
-      ),
+        }
+
+        if (_playsExternally(preference, video)) {
+          return _openExternalPlayer(
+            context,
+            position,
+            video,
+            resolveInPlayer: resolveInPlayer,
+          );
+        }
+        return _openNativePlayer(
+          context,
+          position,
+          video,
+          resolveInPlayer: resolveInPlayer,
+        );
+      },
       openWebPlayer: (
         EpisodePlaylist position, {
         required bool showFallbackNotice,
@@ -265,6 +284,73 @@ class AnimeEpisodeLauncher {
         signIn: _sourceSignIn,
       ),
     );
+  }
+
+  bool _playsExternally(VideoPlayerPreference preference, PlayableVideo video) {
+    if (preference != VideoPlayerPreference.external ||
+        !ExternalPlayer.isSupported) {
+      return false;
+    }
+    return video.streams.any(
+      (PlayableStream stream) => stream.url.startsWith('http'),
+    );
+  }
+
+  Future<EpisodePlayerResult?> _openExternalPlayer(
+    BuildContext context,
+    EpisodePlaylist position,
+    PlayableVideo video, {
+    required EpisodeResolver resolveInPlayer,
+  }) async {
+    final PlayableStream? stream = pickExternalStream(
+      video.streams
+          .where((PlayableStream stream) => stream.url.startsWith('http'))
+          .toList(growable: false),
+    );
+    if (stream == null) {
+      return _openNativePlayer(
+        context,
+        position,
+        video,
+        resolveInPlayer: resolveInPlayer,
+      );
+    }
+    final EpisodeProgressStore progress = ActivityEpisodeProgressStore(
+      concreteDataRepository: context.read<ConcreteDataRepository>(),
+      animeEpisodeActivityRepository:
+          context.read<AnimeEpisodeActivityRepository>(),
+      anime: anime,
+      episode: position.current,
+    );
+    final EpisodeProgress? resumeFrom = await progress.start();
+    final ExternalPlaybackResult result = await ExternalPlayer.open(
+      stream: stream,
+      title: '${anime.title} · ${position.current.title}',
+      startAt: resolveResumePosition(saved: resumeFrom, duration: Duration.zero),
+    );
+    if (!result.launched) {
+      if (context.mounted) {
+        SnackBars.showErrorSnackBar(
+          context: context,
+          error: S.current.external_player_unavailable,
+        );
+        return _openNativePlayer(
+          context,
+          position,
+          video,
+          resolveInPlayer: resolveInPlayer,
+        );
+      }
+      return null;
+    }
+    final Duration? watched = result.position;
+    if (watched != null) {
+      await progress.save(EpisodeProgress(
+        watchedSeconds: watched.inSeconds,
+        totalSeconds: result.duration?.inSeconds,
+      ));
+    }
+    return null;
   }
 
   Future<EpisodePlayerResult?> _openWebPlayer(

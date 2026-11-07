@@ -16,6 +16,8 @@ import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
+import 'package:wakaranai/services/device/external_player.dart';
+import 'package:wakaranai/services/settings_service/video_player_preference.dart';
 import 'package:wakaranai/services/downloads/episode/downloaded_episode_lookup.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/anime_episode_launcher.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
@@ -271,6 +273,7 @@ class AnimeConcreteViewer extends ConcreteViewerPage<AnimeApiClient,
         state,
     AnimeVideo episode, {
     int? groupIndex,
+    VideoPlayerPreference? preferenceOverride,
   }) async {
     final ConcreteViewCubit<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
         cubit = getConcreteViewCubit(context);
@@ -282,6 +285,7 @@ class AnimeConcreteViewer extends ConcreteViewerPage<AnimeApiClient,
       anime: state.concreteView,
       groups: state.concreteView.groups,
       groupIndex: groupIndex ?? state.groupIndex,
+      preferenceOverride: preferenceOverride,
       watchedEpisodeUids: state.animeEpisodeActivities.keys.toSet(),
       downloadedEpisodes: RepositoryDownloadedEpisodeLookup(
         context.read<DownloadRepository>(),
@@ -324,16 +328,44 @@ class AnimeConcreteViewer extends ConcreteViewerPage<AnimeApiClient,
     ConcreteViewInitialized<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
         state,
   ) {
-    if (!kDebugMode || state.selection.length != 1) {
+    if (state.selection.length != 1) {
       return const <SelectionAction>[];
     }
     return <SelectionAction>[
-      SelectionAction(
-        icon: Icons.play_circle_outline_rounded,
-        label: S.of(context).native_player_debug_action,
-        onTap: () => unawaited(_playSelectedInNativePlayer(context, state)),
-      ),
+      if (ExternalPlayer.isSupported)
+        SelectionAction(
+          icon: Icons.open_in_new_rounded,
+          label: S.of(context).external_player_action,
+          onTap: () => unawaited(_playSelectedExternally(context, state)),
+        ),
+      if (kDebugMode)
+        SelectionAction(
+          icon: Icons.play_circle_outline_rounded,
+          label: S.of(context).native_player_debug_action,
+          onTap: () => unawaited(_playSelectedInNativePlayer(context, state)),
+        ),
     ];
+  }
+
+  Future<void> _playSelectedExternally(
+    BuildContext context,
+    ConcreteViewInitialized<AnimeApiClient, AnimeConcreteView, AnimeGalleryView>
+        state,
+  ) async {
+    final String selectedUid = state.selection.first;
+    final AnimeVideo? episode = state
+        .concreteView.groups[state.groupIndex].elements
+        .firstWhereOrNull((AnimeVideo video) => video.uid == selectedUid);
+    if (episode == null) {
+      return;
+    }
+    getConcreteViewCubit(context).clearSelection();
+    await _playEpisode(
+      context,
+      state,
+      episode,
+      preferenceOverride: VideoPlayerPreference.external,
+    );
   }
 
   Future<void> _playSelectedInNativePlayer(
