@@ -11,6 +11,7 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
+import 'package:wakaranai/services/downloads/storage/watched_episode_cleanup.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
@@ -88,6 +89,7 @@ class _NativePlayerState extends State<NativePlayer> {
   late final bool _ownsPictureInPicture;
   ModalRoute<Object?>? _route;
   NativePlayerCubit? _cubit;
+  WatchedEpisodeCleanup? _watchedEpisodeCleanup;
   bool _pictureInPictureSupported = false;
   bool _leaving = false;
 
@@ -159,7 +161,17 @@ class _NativePlayerState extends State<NativePlayer> {
       SystemUiMode.manual,
       overlays: <SystemUiOverlay>[SystemUiOverlay.top, SystemUiOverlay.bottom],
     );
+    _deleteWatchedDownloadsOnceClosed();
     super.dispose();
+  }
+
+  void _deleteWatchedDownloadsOnceClosed() {
+    final WatchedEpisodeCleanup? cleanup = _watchedEpisodeCleanup;
+    final NativePlayerCubit? cubit = _cubit;
+    if (cleanup == null || cubit == null) {
+      return;
+    }
+    unawaited(cleanup.deleteFinishedAfter(cubit.stream.drain<void>()));
   }
 
   @override
@@ -237,15 +249,20 @@ class _NativePlayerState extends State<NativePlayer> {
         context.read<ConcreteDataRepository>();
     final AnimeEpisodeActivityRepository animeEpisodeActivityRepository =
         context.read<AnimeEpisodeActivityRepository>();
+    final WatchedEpisodeCleanup cleanup = WatchedEpisodeCleanup.of(context);
+    _watchedEpisodeCleanup = cleanup;
     return NativePlayerCubit(
       video: widget.data.video,
       playlist: widget.data.playlist,
       engineFactory: VideoPlayerEngine.new,
-      progressStoreFor: (AnimeVideo episode) => ActivityEpisodeProgressStore(
-        concreteDataRepository: concreteDataRepository,
-        animeEpisodeActivityRepository: animeEpisodeActivityRepository,
-        anime: widget.data.anime,
-        episode: episode,
+      progressStoreFor: (AnimeVideo episode) => cleanup.track(
+        ActivityEpisodeProgressStore(
+          concreteDataRepository: concreteDataRepository,
+          animeEpisodeActivityRepository: animeEpisodeActivityRepository,
+          anime: widget.data.anime,
+          episode: episode,
+        ),
+        episode,
       ),
       subtitleLoader: DioSubtitleLoader(),
       resolveEpisode: widget.data.resolveEpisode,
