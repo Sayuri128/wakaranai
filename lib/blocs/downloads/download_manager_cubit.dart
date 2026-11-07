@@ -32,6 +32,7 @@ import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
+import 'package:wakaranai/utils/serial_call_queue.dart';
 
 part 'download_manager_state.dart';
 
@@ -221,6 +222,10 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   Timer? _libraryClientsIdle;
   final Queue<_DownloadJob> _jobs = Queue<_DownloadJob>();
   final Set<String> _cancelled = <String>{};
+  final Set<String> _pauseRequested = <String>{};
+  final Set<_DownloadJob> _stoppedByUser = Set<_DownloadJob>.identity();
+  final Map<String, _DownloadJob> _pausedJobs = <String, _DownloadJob>{};
+  final Object _queueControl = Object();
   _DownloadJob? _activeJob;
   _DownloadJob? _pausedJob;
   _DownloadJob? _previousJobInBatch;
@@ -255,8 +260,8 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   }
 
   Future<void> _recoverInterrupted() async {
-    final List<DownloadDomain> rows = await downloadRepository.getAll();
-    rows.sort((DownloadDomain a, DownloadDomain b) => a.id.compareTo(b.id));
+    final List<DownloadDomain> rows =
+        await downloadRepository.getPendingInQueueOrder();
 
     bool resumedAny = false;
     for (final DownloadDomain row in rows) {
@@ -273,6 +278,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       }
     }
     if (resumedAny) {
+      await _sortJobsByStoredOrder();
       startQueue();
     }
   }
@@ -442,6 +448,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       by: (DownloadDomain d) => d.uid,
       where: (tbl) => tbl.uid,
     );
+    await downloadRepository.moveToQueueEnd(chapterUid);
 
     _addJob(_ChapterJob(
       client: client,
@@ -500,6 +507,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       by: (DownloadDomain d) => d.uid,
       where: (tbl) => tbl.uid,
     );
+    await downloadRepository.moveToQueueEnd(episode.uid);
 
     _addJob(_EpisodeJob(
       extensionUid: extensionUid,
@@ -623,7 +631,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         _activeJob = job;
         try {
           await _runActiveJob(job);
-          await _requeueIfPaused(job);
+          await _settleStoppedJob(job);
         } finally {
           _activeJob = null;
           job.markUnwound();
@@ -710,25 +718,59 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     job.cancel('paused');
   }
 
-  Future<void> _requeueIfPaused(_DownloadJob job) async {
-    if (!identical(_pausedJob, job)) {
+  Future<void> _settleStoppedJob(_DownloadJob job) async {
+    final bool heldForWifi = identical(_pausedJob, job);
+    final bool stoppedByUser = _stoppedByUser.remove(job);
+    if (heldForWifi) {
+      _pausedJob = null;
+    }
+    if (!heldForWifi && !stoppedByUser) {
       return;
     }
-    _pausedJob = null;
-    if (_cancelled.contains(job.uid)) {
+    final DownloadDomain? row = await _unfinishedRowOf(job.uid);
+    if (row == null) {
+      _pauseRequested.remove(job.uid);
       return;
     }
-    final DownloadDomain? row = await downloadRepository.getByUid(job.uid);
+    if (_pauseRequested.remove(job.uid)) {
+      await _parkPausedJob(row, job);
+      return;
+    }
+    await _requeueStoppedJob(row, job);
+  }
+
+  Future<DownloadDomain?> _unfinishedRowOf(String uid) async {
+    if (_cancelled.contains(uid)) {
+      return null;
+    }
+    final DownloadDomain? row = await downloadRepository.getByUid(uid);
     if (row == null ||
         row.status == DownloadStatus.done ||
-        _cancelled.contains(job.uid)) {
-      return;
+        _cancelled.contains(uid)) {
+      return null;
     }
+    return row;
+  }
+
+  Future<void> _parkPausedJob(DownloadDomain row, _DownloadJob job) async {
+    await downloadRepository
+        .update(row.copyWith(status: DownloadStatus.paused));
+    _pausedJobs[job.uid] = job.restarted();
+    if (_batchIndex > 0) {
+      _batchIndex--;
+    }
+  }
+
+  Future<void> _requeueStoppedJob(DownloadDomain row, _DownloadJob job) async {
     await downloadRepository
         .update(row.copyWith(status: DownloadStatus.queued));
     final bool queuedAgain =
         _jobs.any((_DownloadJob queued) => queued.uid == job.uid);
     if (_cancelled.contains(job.uid) || queuedAgain) {
+      return;
+    }
+    if (_pauseRequested.remove(job.uid)) {
+      await _parkPausedJob(row, job);
       return;
     }
     _jobs.addFirst(job.restarted());
@@ -934,10 +976,12 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
 
       final Directory dir = Directory(row.dirPath);
       await dir.create(recursive: true);
+      final int keptPages =
+          await _keptChapterPages(row, dir, pages.value.length);
 
       row = row.copyWith(
         totalPages: pages.value.length,
-        downloadedPages: 0,
+        downloadedPages: keptPages,
         headers: headersJson,
         status: DownloadStatus.downloading,
       );
@@ -945,7 +989,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
 
       DateTime lastPublish = DateTime.fromMillisecondsSinceEpoch(0);
 
-      for (int i = 0; i < pages.value.length; i++) {
+      for (int i = keptPages; i < pages.value.length; i++) {
         if (_cancelled.contains(job.chapterUid)) {
           _cancelled.remove(job.chapterUid);
           return false;
@@ -957,7 +1001,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
         final String url = pages.value[i];
         final File file = File(p.join(dir.path, _pageFileName(i)));
 
-        if (i > 0) {
+        if (i > keptPages) {
           await _wait(_throttle.pageDelay(job.extensionUid));
         }
         await _writePage(
@@ -997,6 +1041,31 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       logger.e('Download failed for ${job.chapterUid}: $e');
       logger.e(s);
       await _markFailed(job.chapterUid);
+      return false;
+    }
+  }
+
+  Future<int> _keptChapterPages(
+    DownloadDomain row,
+    Directory dir,
+    int pageCount,
+  ) async {
+    if (row.totalPages != pageCount) {
+      return 0;
+    }
+    final int recorded = row.downloadedPages.clamp(0, pageCount);
+    for (int i = 0; i < recorded; i++) {
+      if (!await _hasPageFile(File(p.join(dir.path, _pageFileName(i))))) {
+        return i;
+      }
+    }
+    return recorded;
+  }
+
+  static Future<bool> _hasPageFile(File file) async {
+    try {
+      return await file.exists() && await file.length() > 0;
+    } on FileSystemException {
       return false;
     }
   }
@@ -1241,9 +1310,237 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     );
   }
 
+  Future<void> pauseDownload(String uid) => pauseDownloads(<String>[uid]);
+
+  Future<void> resumeDownload(String uid) => resumeDownloads(<String>[uid]);
+
+  Future<void> pauseAll() async {
+    await pauseDownloads(await _pendingUidsWhere(_isPausable));
+  }
+
+  Future<void> resumeAll() async {
+    await resumeDownloads(await _pendingUidsWhere(_isPaused));
+  }
+
+  Future<void> pauseTitle(String concreteUid) async {
+    await pauseDownloads(await _pendingUidsWhere((DownloadDomain row) =>
+        row.concreteUid == concreteUid && _isPausable(row)));
+  }
+
+  Future<void> resumeTitle(String concreteUid) async {
+    await resumeDownloads(await _pendingUidsWhere((DownloadDomain row) =>
+        row.concreteUid == concreteUid && _isPaused(row)));
+  }
+
+  Future<void> pauseDownloads(Iterable<String> uids) {
+    final List<String> targets = uids.toList();
+    return runSerializedOn<void>(_queueControl, () => _pauseAll(targets));
+  }
+
+  Future<void> resumeDownloads(Iterable<String> uids) {
+    final List<String> targets = uids.toList();
+    return runSerializedOn<void>(_queueControl, () => _resumeAll(targets));
+  }
+
+  Future<void> reorderQueue(List<String> orderedUids) {
+    return runSerializedOn<void>(
+      _queueControl,
+      () => _applyQueueOrder((List<String> pending) => orderedUids),
+    );
+  }
+
+  Future<void> downloadNext(String uid) {
+    return runSerializedOn<void>(_queueControl, () async {
+      await _applyQueueOrder((List<String> pending) => <String>[uid]);
+      await _resumeAll(<String>[uid]);
+    });
+  }
+
+  Future<void> moveTitleToTop(String concreteUid) {
+    return runSerializedOn<void>(_queueControl, () async {
+      final Set<String> titleUids = (await downloadRepository
+              .getByConcreteUid(concreteUid))
+          .map((DownloadDomain row) => row.uid)
+          .toSet();
+      await _applyQueueOrder((List<String> pending) =>
+          pending.where(titleUids.contains).toList());
+    });
+  }
+
+  static bool _isPausable(DownloadDomain row) =>
+      row.status == DownloadStatus.queued ||
+      row.status == DownloadStatus.downloading;
+
+  static bool _isPaused(DownloadDomain row) =>
+      row.status == DownloadStatus.paused;
+
+  Future<List<String>> _pendingUidsWhere(
+      bool Function(DownloadDomain row) test) async {
+    final List<DownloadDomain> pending =
+        await downloadRepository.getPendingInQueueOrder();
+    return pending.where(test).map((DownloadDomain row) => row.uid).toList();
+  }
+
+  Future<void> _pauseAll(List<String> uids) async {
+    _detachWaitingJobs(uids);
+    final String? activeUid = _activeJob?.uid;
+    for (final String uid in uids) {
+      if (uid != activeUid) {
+        await _pauseWaiting(uid);
+      }
+    }
+    if (activeUid != null && uids.contains(activeUid)) {
+      _pauseActive(activeUid);
+    }
+    await _settleEmptiedQueue();
+  }
+
+  void _detachWaitingJobs(List<String> uids) {
+    final Set<String> targets = uids.toSet();
+    for (final _DownloadJob job in _jobs.toList()) {
+      if (targets.contains(job.uid)) {
+        _jobs.remove(job);
+        _pausedJobs[job.uid] = job;
+      }
+    }
+  }
+
+  void _pauseActive(String uid) {
+    final _DownloadJob? job = _activeJob;
+    if (job == null || job.uid != uid) {
+      return;
+    }
+    _pauseRequested.add(uid);
+    _stoppedByUser.add(job);
+    job.cancel('paused');
+  }
+
+  Future<void> _pauseWaiting(String uid) async {
+    if (_activeJob?.uid == uid) {
+      _pauseActive(uid);
+      return;
+    }
+    final DownloadDomain? row = await downloadRepository.getByUid(uid);
+    if (row == null || !_isPausable(row) || _cancelled.contains(uid)) {
+      return;
+    }
+    await downloadRepository
+        .update(row.copyWith(status: DownloadStatus.paused));
+  }
+
+  Future<void> _resumeAll(List<String> uids) async {
+    bool resumedAny = false;
+    for (final String uid in uids) {
+      if (await _resumeOne(uid)) {
+        resumedAny = true;
+      }
+    }
+    if (!resumedAny) {
+      return;
+    }
+    await _sortJobsByStoredOrder();
+    startQueue();
+  }
+
+  Future<bool> _resumeOne(String uid) async {
+    if (_pauseRequested.remove(uid)) {
+      return false;
+    }
+    final DownloadDomain? row = await downloadRepository.getByUid(uid);
+    if (row == null || !_isPaused(row) || _hasJobInMemory(uid)) {
+      return false;
+    }
+    final _DownloadJob? job = await _resumableJob(row);
+    final DownloadDomain? current = await downloadRepository.getByUid(uid);
+    if (current == null ||
+        !_isPaused(current) ||
+        _cancelled.contains(uid) ||
+        _hasJobInMemory(uid)) {
+      return false;
+    }
+    if (job == null) {
+      logger.w('Cannot resume $uid, marking it failed');
+      _pausedJobs.remove(uid);
+      await downloadRepository
+          .update(current.copyWith(status: DownloadStatus.failed));
+      return false;
+    }
+    await downloadRepository
+        .update(current.copyWith(status: DownloadStatus.queued));
+    if (_cancelled.contains(uid) || _hasJobInMemory(uid)) {
+      return false;
+    }
+    _pausedJobs.remove(uid);
+    _jobs.add(job);
+    return true;
+  }
+
+  Future<_DownloadJob?> _resumableJob(DownloadDomain row) async {
+    final _DownloadJob? rebuilt = await _rebuildJob(row);
+    if (rebuilt != null) {
+      return rebuilt;
+    }
+    return _pausedJobs[row.uid]?.restarted();
+  }
+
+  Future<void> _applyQueueOrder(
+    List<String> Function(List<String> pending) pickFirst,
+  ) async {
+    final List<String> pending = (await downloadRepository
+            .getPendingInQueueOrder())
+        .map((DownloadDomain row) => row.uid)
+        .toList();
+    final List<String> order = _queueOrder(pending, pickFirst(pending));
+    await downloadRepository.writeQueueOrder(order);
+    _sortJobs(order);
+  }
+
+  List<String> _queueOrder(List<String> pending, List<String> first) {
+    final Set<String> pendingUids = pending.toSet();
+    final String? activeUid = _activeJob?.uid;
+    final List<String> order = <String>[];
+    void place(String uid) {
+      if (pendingUids.contains(uid) && !order.contains(uid)) {
+        order.add(uid);
+      }
+    }
+
+    if (activeUid != null) {
+      place(activeUid);
+    }
+    first.forEach(place);
+    pending.forEach(place);
+    return order;
+  }
+
+  Future<void> _sortJobsByStoredOrder() async {
+    final List<DownloadDomain> pending =
+        await downloadRepository.getPendingInQueueOrder();
+    _sortJobs(pending.map((DownloadDomain row) => row.uid).toList());
+  }
+
+  void _sortJobs(List<String> order) {
+    final Map<String, int> rank = <String, int>{
+      for (int index = 0; index < order.length; index++) order[index]: index,
+    };
+    final List<_DownloadJob> waiting = _jobs.toList();
+    final Map<_DownloadJob, int> arrival = Map<_DownloadJob, int>.identity();
+    for (int index = 0; index < waiting.length; index++) {
+      arrival[waiting[index]] = index;
+    }
+    int rankOf(_DownloadJob job) =>
+        rank[job.uid] ?? order.length + arrival[job]!;
+    waiting.sort(
+        (_DownloadJob a, _DownloadJob b) => rankOf(a).compareTo(rankOf(b)));
+    _jobs
+      ..clear()
+      ..addAll(waiting);
+  }
+
   Future<void> deleteDownload(DownloadDomain download) async {
     final String uid = download.uid;
     _cancelled.add(uid);
+    _pausedJobs.remove(uid);
     _jobs.removeWhere((_DownloadJob j) => j.uid == uid);
     final _DownloadJob? activeJob = _activeJob?.uid == uid ? _activeJob : null;
     activeJob?.cancel();
