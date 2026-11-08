@@ -9,6 +9,7 @@ import 'package:wakaranai/repositories/shared_pref/downloads_order_preferences.d
 import 'package:wakaranai/repositories/shared_pref/gallery_layout_preferences.dart';
 import 'package:wakaranai/repositories/shared_pref/novel_reader_preferences.dart';
 import 'package:wakaranai/services/extension_preferences/extension_preferences_store.dart';
+import 'package:wakaranai/services/global_search/global_search_preferences.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
 
 class ExportedPreferences {
@@ -31,6 +32,7 @@ class ExportedPreferences {
     ConfigsViewOptionsCubit.layoutKey,
     ConfigsViewOptionsCubit.sortKey,
     ConfigsViewOptionsCubit.pinnedKey,
+    GlobalSearchPreferences.scopeKey,
     GalleryLayoutPreferences.libraryKey,
     DownloadsOrderPreferences.newestFirstKey,
     DownloadStoragePreferences.qualityKey,

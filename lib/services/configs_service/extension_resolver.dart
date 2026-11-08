@@ -14,6 +14,8 @@ import 'package:wakaranai/services/local_source/local_source.dart';
 import 'package:wakaranai/utils/github_url_parser.dart';
 import 'package:wakaranai/generated/l10n.dart';
 
+typedef RemoteListingEntry = ({RemoteConfig remote, ConfigsService service});
+
 class ExtensionResolver {
   ExtensionResolver({
     required this.extensionRepository,
@@ -36,6 +38,25 @@ class ExtensionResolver {
     final ExtensionDomain? cached = await extensionRepository.getByUid(uid);
     if (cached != null) return cached;
     return _downloadAndCache(uid);
+  }
+
+  Future<List<RemoteListingEntry>> listRemote() async {
+    final List<List<RemoteListingEntry>> perService =
+        await Future.wait((await _candidateServices()).map(_listingOf));
+    return perService
+        .expand((List<RemoteListingEntry> entries) => entries)
+        .toList(growable: false);
+  }
+
+  Future<List<RemoteListingEntry>> _listingOf(ConfigsService service) async {
+    try {
+      return (await _remoteConfigs(service))
+          .map((RemoteConfig remote) => (remote: remote, service: service))
+          .toList(growable: false);
+    } catch (e) {
+      logger.w('Skipping an extension source while listing: $e');
+      return const <RemoteListingEntry>[];
+    }
   }
 
   Future<int> refreshOutdated() async {

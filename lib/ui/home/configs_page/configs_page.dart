@@ -18,6 +18,7 @@ import 'package:wakaranai/ui/home/configs_page/configs_group.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_list_skeleton.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/extension_sources_page_result.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
+import 'package:wakaranai/ui/global_search/global_search_arguments.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -176,6 +177,14 @@ class _ConfigPageState extends State<ConfigPage> {
         overflow: TextOverflow.ellipsis,
       ),
       actions: <Widget>[
+        IconButton(
+          tooltip: S.current.global_search_open_tooltip,
+          icon: Icon(Icons.search_rounded, color: AppColors.mainWhite),
+          onPressed: () => Navigator.of(context).pushNamed(
+            Routes.globalSearch,
+            arguments: const GlobalSearchArguments(),
+          ),
+        ),
         IconButton(
           tooltip: S.current.configs_view_options,
           icon: Icon(Icons.tune_rounded, color: AppColors.mainWhite),

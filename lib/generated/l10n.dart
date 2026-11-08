@@ -8898,6 +8898,321 @@ class S {
       args: [],
     );
   }
+
+  /// `Search sources`
+  String get global_search_title {
+    return Intl.message(
+      'Search sources',
+      name: 'global_search_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search all sources`
+  String get global_search_open_tooltip {
+    return Intl.message(
+      'Search all sources',
+      name: 'global_search_open_tooltip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search titles in your sources`
+  String get global_search_hint {
+    return Intl.message(
+      'Search titles in your sources',
+      name: 'global_search_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{No sources selected} =1{Searching 1 source} other{Searching {count} sources}}`
+  String global_search_scope_summary(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No sources selected',
+      one: 'Searching 1 source',
+      other: 'Searching $count sources',
+      name: 'global_search_scope_summary',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Edit`
+  String get global_search_scope_edit {
+    return Intl.message(
+      'Edit',
+      name: 'global_search_scope_edit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sources to search`
+  String get global_search_scope_title {
+    return Intl.message(
+      'Sources to search',
+      name: 'global_search_scope_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `By default: pinned sources and sources you have used`
+  String get global_search_scope_default_hint {
+    return Intl.message(
+      'By default: pinned sources and sources you have used',
+      name: 'global_search_scope_default_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your own selection`
+  String get global_search_scope_custom_hint {
+    return Intl.message(
+      'Your own selection',
+      name: 'global_search_scope_custom_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use default`
+  String get global_search_scope_reset {
+    return Intl.message(
+      'Use default',
+      name: 'global_search_scope_reset',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select all`
+  String get global_search_scope_select_all {
+    return Intl.message(
+      'Select all',
+      name: 'global_search_scope_select_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear`
+  String get global_search_scope_select_none {
+    return Intl.message(
+      'Clear',
+      name: 'global_search_scope_select_none',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Looking for more sources…`
+  String get global_search_scope_loading {
+    return Intl.message(
+      'Looking for more sources…',
+      name: 'global_search_scope_loading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No sources with search are available`
+  String get global_search_scope_empty {
+    return Intl.message(
+      'No sources with search are available',
+      name: 'global_search_scope_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recent searches`
+  String get global_search_recent_title {
+    return Intl.message(
+      'Recent searches',
+      name: 'global_search_recent_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear`
+  String get global_search_recent_clear {
+    return Intl.message(
+      'Clear',
+      name: 'global_search_recent_clear',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search across your sources`
+  String get global_search_idle_title {
+    return Intl.message(
+      'Search across your sources',
+      name: 'global_search_idle_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Each source shows its results as soon as it answers.`
+  String get global_search_idle_message {
+    return Intl.message(
+      'Each source shows its results as soon as it answers.',
+      name: 'global_search_idle_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No sources to search`
+  String get global_search_no_scope_title {
+    return Intl.message(
+      'No sources to search',
+      name: 'global_search_no_scope_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pick at least one source to search in.`
+  String get global_search_no_scope_message {
+    return Intl.message(
+      'Pick at least one source to search in.',
+      name: 'global_search_no_scope_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nothing found`
+  String get global_search_no_results_title {
+    return Intl.message(
+      'Nothing found',
+      name: 'global_search_no_results_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `None of the selected sources has "{query}".`
+  String global_search_no_results_message(Object query) {
+    return Intl.message(
+      'None of the selected sources has "$query".',
+      name: 'global_search_no_results_message',
+      desc: '',
+      args: [query],
+    );
+  }
+
+  /// `No results in {sources}`
+  String global_search_empty_sources(Object sources) {
+    return Intl.message(
+      'No results in $sources',
+      name: 'global_search_empty_sources',
+      desc: '',
+      args: [sources],
+    );
+  }
+
+  /// `{count, plural, =1{1 result} other{{count} results}}`
+  String global_search_results_count(int count) {
+    return Intl.plural(
+      count,
+      one: '1 result',
+      other: '$count results',
+      name: 'global_search_results_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Couldn't search this source`
+  String get global_search_rail_failed {
+    return Intl.message(
+      'Couldn\'t search this source',
+      name: 'global_search_rail_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The source took too long to answer`
+  String get global_search_rail_timeout {
+    return Intl.message(
+      'The source took too long to answer',
+      name: 'global_search_rail_timeout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This source couldn't be loaded`
+  String get global_search_rail_unavailable {
+    return Intl.message(
+      'This source couldn\'t be loaded',
+      name: 'global_search_rail_unavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get global_search_rail_retry {
+    return Intl.message(
+      'Retry',
+      name: 'global_search_rail_retry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign-in needed`
+  String get global_search_rail_sign_in {
+    return Intl.message(
+      'Sign-in needed',
+      name: 'global_search_rail_sign_in',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verification needed`
+  String get global_search_rail_verify {
+    return Intl.message(
+      'Verification needed',
+      name: 'global_search_rail_verify',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open`
+  String get global_search_rail_open {
+    return Intl.message(
+      'Open',
+      name: 'global_search_rail_open',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search as`
+  String get global_search_try_titles {
+    return Intl.message(
+      'Search as',
+      name: 'global_search_try_titles',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

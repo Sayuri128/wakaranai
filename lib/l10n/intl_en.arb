@@ -1584,5 +1584,60 @@
   "page_language_polish": "Polish",
   "page_language_turkish": "Turkish",
   "page_language_thai": "Thai",
-  "page_language_arabic": "Arabic"
+  "page_language_arabic": "Arabic",
+  "global_search_title": "Search sources",
+  "global_search_open_tooltip": "Search all sources",
+  "global_search_hint": "Search titles in your sources",
+  "global_search_scope_summary": "{count, plural, =0{No sources selected} =1{Searching 1 source} other{Searching {count} sources}}",
+  "@global_search_scope_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "global_search_scope_edit": "Edit",
+  "global_search_scope_title": "Sources to search",
+  "global_search_scope_default_hint": "By default: pinned sources and sources you have used",
+  "global_search_scope_custom_hint": "Your own selection",
+  "global_search_scope_reset": "Use default",
+  "global_search_scope_select_all": "Select all",
+  "global_search_scope_select_none": "Clear",
+  "global_search_scope_loading": "Looking for more sources…",
+  "global_search_scope_empty": "No sources with search are available",
+  "global_search_recent_title": "Recent searches",
+  "global_search_recent_clear": "Clear",
+  "global_search_idle_title": "Search across your sources",
+  "global_search_idle_message": "Each source shows its results as soon as it answers.",
+  "global_search_no_scope_title": "No sources to search",
+  "global_search_no_scope_message": "Pick at least one source to search in.",
+  "global_search_no_results_title": "Nothing found",
+  "global_search_no_results_message": "None of the selected sources has \"{query}\".",
+  "@global_search_no_results_message": {
+    "placeholders": {
+      "query": {}
+    }
+  },
+  "global_search_empty_sources": "No results in {sources}",
+  "@global_search_empty_sources": {
+    "placeholders": {
+      "sources": {}
+    }
+  },
+  "global_search_results_count": "{count, plural, =1{1 result} other{{count} results}}",
+  "@global_search_results_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "global_search_rail_failed": "Couldn't search this source",
+  "global_search_rail_timeout": "The source took too long to answer",
+  "global_search_rail_unavailable": "This source couldn't be loaded",
+  "global_search_rail_retry": "Retry",
+  "global_search_rail_sign_in": "Sign-in needed",
+  "global_search_rail_verify": "Verification needed",
+  "global_search_rail_open": "Open",
+  "global_search_try_titles": "Search as"
 }

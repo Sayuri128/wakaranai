@@ -101,6 +101,11 @@ class ConfigsViewOptionsCubit extends Cubit<ConfigsViewOptions> {
     ));
   }
 
+  static Future<List<String>> readPinned() async {
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    return _decodePinned(preferences.getString(pinnedKey));
+  }
+
   Future<void> setLayout(ConfigsLayout layout) async {
     emit(state.copyWith(layout: layout));
     final SharedPreferences preferences = await SharedPreferences.getInstance();

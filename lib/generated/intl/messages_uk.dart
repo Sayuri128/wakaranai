@@ -147,210 +147,210 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m56(layout) => "Вигляд: ${layout}";
 
-  static String m57(name) =>
+  static String m61(name) =>
       "Помилка під час ініціалізації джерела конфігурацій ${name}";
 
-  static String m58(count) => "Завантажено: ${count}";
+  static String m62(count) => "Завантажено: ${count}";
 
-  static String m59(current, total) => "Завантаження ${current} з ${total}";
+  static String m63(current, total) => "Завантаження ${current} з ${total}";
 
-  static String m60(position) => "У черзі · №${position}";
+  static String m64(position) => "У черзі · №${position}";
 
-  static String m61(count) =>
+  static String m65(count) =>
       "${Intl.plural(count, one: 'Не вдалося завантажити ${count} тайтл', few: 'Не вдалося завантажити ${count} тайтли', many: 'Не вдалося завантажити ${count} тайтлів', other: 'Не вдалося завантажити ${count} тайтлу')}";
 
-  static String m62(count) =>
+  static String m66(count) =>
       "${Intl.plural(count, one: 'Шукаємо розділи для ${count} тайтлу…', few: 'Шукаємо розділи для ${count} тайтлів…', many: 'Шукаємо розділи для ${count} тайтлів…', other: 'Шукаємо розділи для ${count} тайтлу…')}";
 
-  static String m63(count) => "Нових: ${count}";
+  static String m67(count) => "Нових: ${count}";
 
-  static String m64(query) => "У бібліотеці немає нічого за запитом «${query}»";
+  static String m68(query) => "У бібліотеці немає нічого за запитом «${query}»";
 
-  static String m65(count) => "Вибрано: ${count}";
+  static String m69(count) => "Вибрано: ${count}";
 
-  static String m66(count) =>
+  static String m70(count) =>
       "${Intl.plural(count, zero: 'Нічого не імпортовано', one: 'Імпортовано ${count} файл', few: 'Імпортовано ${count} файли', many: 'Імпортовано ${count} файлів', other: 'Імпортовано ${count} файлу')}";
 
-  static String m67(path) =>
+  static String m71(path) =>
       "Скопіюйте папки із зображеннями, файли CBZ або ZIP до\n${path}\n\nКожна папка — це тайтл, а кожен архів чи папка із зображеннями всередині неї — розділ. Якщо є cover.jpg і ComicInfo.xml, їх буде використано. Папка доступна з комп’ютера через USB.";
 
-  static String m68(seconds) => "Наступна серія через ${seconds} с";
+  static String m72(seconds) => "Наступна серія через ${seconds} с";
 
-  static String m69(index) => "Джерело ${index}";
+  static String m73(index) => "Джерело ${index}";
 
-  static String m70(seconds) => "−${seconds} с";
+  static String m74(seconds) => "−${seconds} с";
 
-  static String m71(seconds) => "+${seconds} с";
+  static String m75(seconds) => "+${seconds} с";
 
-  static String m72(seconds) => "+${seconds} с";
+  static String m76(seconds) => "+${seconds} с";
 
-  static String m73(index) => "Субтитри ${index}";
+  static String m77(index) => "Субтитри ${index}";
 
-  static String m74(percent) => "${percent}%";
+  static String m78(percent) => "${percent}%";
 
-  static String m75(title) => "Далі: ${title}";
+  static String m79(title) => "Далі: ${title}";
 
-  static String m76(progress) => "Завантаження ШІ-моделі ${progress}%";
+  static String m80(progress) => "Завантаження ШІ-моделі ${progress}%";
 
-  static String m77(model, size) =>
+  static String m81(model, size) =>
       "${model} потрібно один раз завантажити (${size} ГБ). Скористайтеся Wi-Fi: модель зберігається на телефоні, і далі переклад працює повністю офлайн.";
 
-  static String m78(count) =>
+  static String m82(count) =>
       "${Intl.plural(count, one: '${count} запис', few: '${count} записи', many: '${count} записів', other: '${count} запису')}";
 
-  static String m79(current, total) =>
+  static String m83(current, total) =>
       "Завантаження мовних пакетів ${current}/${total}…";
 
-  static String m80(source, target) =>
+  static String m84(source, target) =>
       "Для перекладу (${source} → ${target}) потрібні мовні пакети на пристрої, близько 30 МБ кожен. Їх завантажують один раз, після чого сторінки перекладаються повністю на вашому пристрої.";
 
-  static String m81(count) => "Збережено сторінок: ${count}";
+  static String m85(count) => "Збережено сторінок: ${count}";
 
-  static String m82(count) =>
+  static String m86(count) =>
       "${Intl.plural(count, one: '${count} сторінка зі старішої версії', few: '${count} сторінки зі старішої версії', many: '${count} сторінок зі старішої версії', other: '${count} сторінки зі старішої версії')}";
 
-  static String m83(done, total) => "Переклад розділу ${done}/${total}";
+  static String m87(done, total) => "Переклад розділу ${done}/${total}";
 
-  static String m84(size) => "До ${size} пкс";
+  static String m88(size) => "До ${size} пкс";
 
-  static String m85(query) => "За запитом «${query}» нічого не знайдено";
+  static String m89(query) => "За запитом «${query}» нічого не знайдено";
 
-  static String m86(query) => "Результати за запитом «${query}»";
+  static String m90(query) => "Результати за запитом «${query}»";
 
-  static String m87(time) => "Щодня в Download/Wakaranai · остання ${time}";
+  static String m91(time) => "Щодня в Download/Wakaranai · остання ${time}";
 
-  static String m88(version) => "Доступна нова версія ${version}";
+  static String m92(version) => "Доступна нова версія ${version}";
 
-  static String m89(count) => "пропущено: ${count}";
+  static String m93(count) => "пропущено: ${count}";
 
-  static String m90(imported, total) => "Імпортовано ${imported} з ${total}";
+  static String m94(imported, total) => "Імпортовано ${imported} з ${total}";
 
-  static String m91(url) => "Завантажувати розширення з ${url}";
+  static String m95(url) => "Завантажувати розширення з ${url}";
 
-  static String m92(seconds) => "${seconds} с";
+  static String m96(seconds) => "${seconds} с";
 
-  static String m93(name) => "Не вдалося увійти в ${name}";
+  static String m97(name) => "Не вдалося увійти в ${name}";
 
-  static String m94(name) => "Вийти з ${name}?";
+  static String m98(name) => "Вийти з ${name}?";
 
-  static String m95(name) => "Ви ввійшли як ${name}";
+  static String m99(name) => "Ви ввійшли як ${name}";
 
-  static String m96(hours) => "Кожні ${hours} год";
+  static String m100(hours) => "Кожні ${hours} год";
 
-  static String m97(source) => "Увійдіть у ${source}";
-
-  static String m98(count) =>
-      "${Intl.plural(count, one: '${count} тайтл видалено з джерела', few: '${count} тайтли видалено з джерел', many: '${count} тайтлів видалено з джерел', other: '${count} тайтлу видалено з джерел')}";
-
-  static String m99(count) =>
-      "${Intl.plural(count, one: '${count} дія', few: '${count} дії', many: '${count} дій', other: '${count} дії')}";
-
-  static String m100(current, longest) =>
-      "Зараз ${current} · Рекорд ${longest}";
-
-  static String m101(count) =>
-      "${Intl.plural(count, one: '${count} розділ', few: '${count} розділи', many: '${count} розділів', other: '${count} розділу')}";
+  static String m101(source) => "Увійдіть у ${source}";
 
   static String m102(count) =>
-      "${Intl.plural(count, one: '${count} серія', few: '${count} серії', many: '${count} серій', other: '${count} серії')}";
+      "${Intl.plural(count, one: '${count} тайтл видалено з джерела', few: '${count} тайтли видалено з джерел', many: '${count} тайтлів видалено з джерел', other: '${count} тайтлу видалено з джерел')}";
 
   static String m103(count) =>
-      "${Intl.plural(count, one: 'Шукаємо серії для ${count} тайтлу…', few: 'Шукаємо серії для ${count} тайтлів…', many: 'Шукаємо серії для ${count} тайтлів…', other: 'Шукаємо серії для ${count} тайтлу…')}";
+      "${Intl.plural(count, one: '${count} дія', few: '${count} дії', many: '${count} дій', other: '${count} дії')}";
 
-  static String m104(count) =>
-      "${Intl.plural(count, one: 'Шукаємо ${count} тайтл…', few: 'Шукаємо ${count} тайтли…', many: 'Шукаємо ${count} тайтлів…', other: 'Шукаємо ${count} тайтлу…')}";
+  static String m104(current, longest) =>
+      "Зараз ${current} · Рекорд ${longest}";
 
-  static String m105(count) => "Наступні розділи або серії: ${count}";
+  static String m105(count) =>
+      "${Intl.plural(count, one: '${count} розділ', few: '${count} розділи', many: '${count} розділів', other: '${count} розділу')}";
 
   static String m106(count) =>
-      "${Intl.plural(count, one: '${count} завантаження в черзі', few: '${count} завантаження в черзі', many: '${count} завантажень у черзі', other: '${count} завантаження в черзі')}";
+      "${Intl.plural(count, one: '${count} серія', few: '${count} серії', many: '${count} серій', other: '${count} серії')}";
 
   static String m107(count) =>
-      "${Intl.plural(count, one: 'Наступна ${count} серія', few: 'Наступні ${count} серії', many: 'Наступні ${count} серій', other: 'Наступні ${count} серії')}";
+      "${Intl.plural(count, one: 'Шукаємо серії для ${count} тайтлу…', few: 'Шукаємо серії для ${count} тайтлів…', many: 'Шукаємо серії для ${count} тайтлів…', other: 'Шукаємо серії для ${count} тайтлу…')}";
 
   static String m108(count) =>
-      "${Intl.plural(count, one: '${count} серія в черзі', few: '${count} серії в черзі', many: '${count} серій у черзі', other: '${count} серії в черзі')}";
+      "${Intl.plural(count, one: 'Шукаємо ${count} тайтл…', few: 'Шукаємо ${count} тайтли…', many: 'Шукаємо ${count} тайтлів…', other: 'Шукаємо ${count} тайтлу…')}";
 
-  static String m109(count) =>
-      "${Intl.plural(count, one: 'Наступний ${count} розділ', few: 'Наступні ${count} розділи', many: 'Наступні ${count} розділів', other: 'Наступні ${count} розділу')}";
+  static String m109(count) => "Наступні розділи або серії: ${count}";
 
   static String m110(count) =>
+      "${Intl.plural(count, one: '${count} завантаження в черзі', few: '${count} завантаження в черзі', many: '${count} завантажень у черзі', other: '${count} завантаження в черзі')}";
+
+  static String m111(count) =>
+      "${Intl.plural(count, one: 'Наступна ${count} серія', few: 'Наступні ${count} серії', many: 'Наступні ${count} серій', other: 'Наступні ${count} серії')}";
+
+  static String m112(count) =>
+      "${Intl.plural(count, one: '${count} серія в черзі', few: '${count} серії в черзі', many: '${count} серій у черзі', other: '${count} серії в черзі')}";
+
+  static String m113(count) =>
+      "${Intl.plural(count, one: 'Наступний ${count} розділ', few: 'Наступні ${count} розділи', many: 'Наступні ${count} розділів', other: 'Наступні ${count} розділу')}";
+
+  static String m114(count) =>
       "${Intl.plural(count, one: '${count} розділ у черзі', few: '${count} розділи в черзі', many: '${count} розділів у черзі', other: '${count} розділу в черзі')}";
 
-  static String m111(number) => "Група ${number}";
+  static String m115(number) => "Група ${number}";
 
-  static String m112(name) => "Пошук на ${name}";
+  static String m116(name) => "Пошук на ${name}";
 
-  static String m113(size) =>
+  static String m117(size) =>
       "Буде звільнено ${size} ГБ. Ви зможете завантажити її знову будь-коли.";
 
-  static String m114(model, size) => "${model} · ${size} ГБ · готова";
+  static String m118(model, size) => "${model} · ${size} ГБ · готова";
 
-  static String m115(size) => "Не завантажено · ${size} ГБ";
+  static String m119(size) => "Не завантажено · ${size} ГБ";
 
-  static String m116(need, ram) =>
+  static String m120(need, ram) =>
       "Потрібно ${need} ГБ ОЗП (у цього телефона ${ram} ГБ)";
 
-  static String m117(model, ram) => "Цей телефон: ${model} · ${ram} ГБ ОЗП";
+  static String m121(model, ram) => "Цей телефон: ${model} · ${ram} ГБ ОЗП";
 
-  static String m118(ram) => "${ram} ГБ ОЗП або більше";
+  static String m122(ram) => "${ram} ГБ ОЗП або більше";
 
-  static String m119(size) => "Близько ${size} ГБ вільного місця";
+  static String m123(size) => "Близько ${size} ГБ вільного місця";
 
-  static String m120(size) => "Завантажено · ${size} ГБ";
-
-  static String m121(count) =>
-      "${Intl.plural(count, zero: 'Мовних пакетів ще немає', one: 'Завантажено ${count} мовний пакет', few: 'Завантажено ${count} мовні пакети', many: 'Завантажено ${count} мовних пакетів', other: 'Завантажено ${count} мовного пакета')}";
-
-  static String m122(size) =>
-      "Не завантажено · ${size} ГБ · виберіть її рушієм, щоб завантажити";
-
-  static String m123(count, size) =>
-      "${Intl.plural(count, zero: 'Немає завантажених ШІ-моделей', one: '${count} ШІ-модель · ${size} ГБ', few: '${count} ШІ-моделі · ${size} ГБ', many: '${count} ШІ-моделей · ${size} ГБ', other: '${count} ШІ-моделі · ${size} ГБ')}";
-
-  static String m124(source) =>
-      "${source}: потрібна швидка перевірка в браузері";
+  static String m124(size) => "Завантажено · ${size} ГБ";
 
   static String m125(count) =>
-      "${Intl.plural(count, one: '${count} джерело потребує уваги', few: '${count} джерела потребують уваги', many: '${count} джерел потребують уваги', other: '${count} джерела потребують уваги')}";
+      "${Intl.plural(count, zero: 'Мовних пакетів ще немає', one: 'Завантажено ${count} мовний пакет', few: 'Завантажено ${count} мовні пакети', many: 'Завантажено ${count} мовних пакетів', other: 'Завантажено ${count} мовного пакета')}";
 
-  static String m126(sources) => "Потрібна перевірка в браузері: ${sources}";
+  static String m126(size) =>
+      "Не завантажено · ${size} ГБ · виберіть її рушієм, щоб завантажити";
 
-  static String m127(sources) => "Потрібно увійти: ${sources}";
+  static String m127(count, size) =>
+      "${Intl.plural(count, zero: 'Немає завантажених ШІ-моделей', one: '${count} ШІ-модель · ${size} ГБ', few: '${count} ШІ-моделі · ${size} ГБ', many: '${count} ШІ-моделей · ${size} ГБ', other: '${count} ШІ-моделі · ${size} ГБ')}";
 
   static String m128(source) =>
+      "${source}: потрібна швидка перевірка в браузері";
+
+  static String m129(count) =>
+      "${Intl.plural(count, one: '${count} джерело потребує уваги', few: '${count} джерела потребують уваги', many: '${count} джерел потребують уваги', other: '${count} джерела потребують уваги')}";
+
+  static String m130(sources) => "Потрібна перевірка в браузері: ${sources}";
+
+  static String m131(sources) => "Потрібно увійти: ${sources}";
+
+  static String m132(source) =>
       "Сесію для ${source} збережено. Потягніть униз, щоб перевірити знову";
 
-  static String m129(source) => "${source}: потрібно увійти";
+  static String m133(source) => "${source}: потрібно увійти";
 
-  static String m130(source) => "${source}: потрібно увійти знову";
+  static String m134(source) => "${source}: потрібно увійти знову";
 
-  static String m131(source) => "${source} не підтримує вхід через браузер";
-
-  static String m132(count) =>
-      "${Intl.plural(count, one: 'Не вдалося перевірити ${count} джерело', few: 'Не вдалося перевірити ${count} джерела', many: 'Не вдалося перевірити ${count} джерел', other: 'Не вдалося перевірити ${count} джерела')}";
-
-  static String m133(count) =>
-      "${Intl.plural(count, one: 'Знайдено ${count} новинку', few: 'Знайдено ${count} новинки', many: 'Знайдено ${count} новинок', other: 'Знайдено ${count} новинки')}";
-
-  static String m134(title, count) => "${title} · нових: ${count}";
-
-  static String m135(count) =>
-      "${Intl.plural(count, one: 'і ще ${count} тайтл', few: 'і ще ${count} тайтли', many: 'і ще ${count} тайтлів', other: 'і ще ${count} тайтлу')}";
+  static String m135(source) => "${source} не підтримує вхід через браузер";
 
   static String m136(count) =>
-      "${Intl.plural(count, one: 'У ${count} тайтлі', few: 'У ${count} тайтлах', many: 'У ${count} тайтлах', other: 'У ${count} тайтлах')}";
+      "${Intl.plural(count, one: 'Не вдалося перевірити ${count} джерело', few: 'Не вдалося перевірити ${count} джерела', many: 'Не вдалося перевірити ${count} джерел', other: 'Не вдалося перевірити ${count} джерела')}";
 
   static String m137(count) =>
+      "${Intl.plural(count, one: 'Знайдено ${count} новинку', few: 'Знайдено ${count} новинки', many: 'Знайдено ${count} новинок', other: 'Знайдено ${count} новинки')}";
+
+  static String m138(title, count) => "${title} · нових: ${count}";
+
+  static String m139(count) =>
+      "${Intl.plural(count, one: 'і ще ${count} тайтл', few: 'і ще ${count} тайтли', many: 'і ще ${count} тайтлів', other: 'і ще ${count} тайтлу')}";
+
+  static String m140(count) =>
+      "${Intl.plural(count, one: 'У ${count} тайтлі', few: 'У ${count} тайтлах', many: 'У ${count} тайтлах', other: 'У ${count} тайтлах')}";
+
+  static String m141(count) =>
       "${Intl.plural(count, one: '${count} новинка', few: '${count} новинки', many: '${count} новинок', other: '${count} новинки')}";
 
-  static String m138(count) => "${count} дн. тому";
+  static String m142(count) => "${count} дн. тому";
 
-  static String m139(count) => "${count} год тому";
+  static String m143(count) => "${count} год тому";
 
-  static String m140(count) => "${count} хв тому";
+  static String m144(count) => "${count} хв тому";
 
-  static String m141(host) => "Cookie для ${host} очищено";
+  static String m145(host) => "Cookie для ${host} очищено";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1098,7 +1098,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "gallery_layout_list": MessageLookupByLibrary.simpleMessage("Список"),
     "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Відео"),
-    "home_configs_source_initializing_error": m57,
+    "home_configs_source_initializing_error": m61,
     "home_extensions_error_message": MessageLookupByLibrary.simpleMessage(
       "Помилка джерела розширень :c",
     ),
@@ -1135,7 +1135,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Доступні",
     ),
     "language_packs_cancel": MessageLookupByLibrary.simpleMessage("Скасувати"),
-    "language_packs_downloaded_count": m58,
+    "language_packs_downloaded_count": m62,
     "language_packs_downloaded_section": MessageLookupByLibrary.simpleMessage(
       "Завантажені",
     ),
@@ -1148,8 +1148,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "language_packs_hint_wifi": MessageLookupByLibrary.simpleMessage(
       "Кожен пакет займає близько 30 МБ. Потрібні лише мови, з яких і на які ви перекладаєте. Завантаження чекатимуть на Wi-Fi.",
     ),
-    "language_packs_queue_progress": m59,
-    "language_packs_queued": m60,
+    "language_packs_queue_progress": m63,
+    "language_packs_queued": m64,
     "language_packs_retry": MessageLookupByLibrary.simpleMessage("Повторити"),
     "language_packs_title": MessageLookupByLibrary.simpleMessage(
       "Мовні пакети",
@@ -1176,8 +1176,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "library_download_first_group_hint": MessageLookupByLibrary.simpleMessage(
       "Для кожного тайтлу завантажується перша група розділів",
     ),
-    "library_download_many_failed": m61,
-    "library_download_many_loading": m62,
+    "library_download_many_failed": m65,
+    "library_download_many_loading": m66,
     "library_empty_message": MessageLookupByLibrary.simpleMessage(
       "Торкніться сердечка на сторінці тайтлу, щоб додати його сюди",
     ),
@@ -1194,7 +1194,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "library_mute_notifications": MessageLookupByLibrary.simpleMessage(
       "Вимкнути сповіщення",
     ),
-    "library_new_chapters": m63,
+    "library_new_chapters": m67,
     "library_no_category": MessageLookupByLibrary.simpleMessage(
       "Без категорії",
     ),
@@ -1210,12 +1210,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "library_search_hint": MessageLookupByLibrary.simpleMessage(
       "Пошук у бібліотеці",
     ),
-    "library_search_no_results_message": m64,
+    "library_search_no_results_message": m68,
     "library_search_no_results_title": MessageLookupByLibrary.simpleMessage(
       "Нічого не знайдено",
     ),
     "library_select_all": MessageLookupByLibrary.simpleMessage("Вибрати все"),
-    "library_selected_count": m65,
+    "library_selected_count": m69,
     "library_sort_added_newest": MessageLookupByLibrary.simpleMessage(
       "Нещодавно додані",
     ),
@@ -1246,7 +1246,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "local_source_import": MessageLookupByLibrary.simpleMessage(
       "Імпортувати файли CBZ або ZIP",
     ),
-    "local_source_imported": m66,
+    "local_source_imported": m70,
     "local_source_imported_title": MessageLookupByLibrary.simpleMessage(
       "Імпортовані",
     ),
@@ -1254,11 +1254,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "local_source_where": MessageLookupByLibrary.simpleMessage(
       "Куди класти файли",
     ),
-    "local_source_where_message": m67,
+    "local_source_where_message": m71,
     "native_player_auto_next_cancel": MessageLookupByLibrary.simpleMessage(
       "Скасувати",
     ),
-    "native_player_auto_next_countdown": m68,
+    "native_player_auto_next_countdown": m72,
     "native_player_auto_next_play_now": MessageLookupByLibrary.simpleMessage(
       "Відтворити зараз",
     ),
@@ -1317,11 +1317,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "native_player_play": MessageLookupByLibrary.simpleMessage("Відтворити"),
     "native_player_quality": MessageLookupByLibrary.simpleMessage("Якість"),
     "native_player_quality_auto": MessageLookupByLibrary.simpleMessage("Авто"),
-    "native_player_quality_fallback": m69,
+    "native_player_quality_fallback": m73,
     "native_player_retry": MessageLookupByLibrary.simpleMessage("Повторити"),
-    "native_player_seek_backward": m70,
-    "native_player_seek_forward": m71,
-    "native_player_skip_opening": m72,
+    "native_player_seek_backward": m74,
+    "native_player_seek_forward": m75,
+    "native_player_skip_opening": m76,
     "native_player_speed": MessageLookupByLibrary.simpleMessage(
       "Швидкість відтворення",
     ),
@@ -1334,7 +1334,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "native_player_subtitle_failed": MessageLookupByLibrary.simpleMessage(
       "Не вдалося завантажити ці субтитри",
     ),
-    "native_player_subtitle_fallback": m73,
+    "native_player_subtitle_fallback": m77,
     "native_player_subtitles": MessageLookupByLibrary.simpleMessage("Субтитри"),
     "native_player_subtitles_off": MessageLookupByLibrary.simpleMessage(
       "Вимкнено",
@@ -1342,7 +1342,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "native_player_unlock": MessageLookupByLibrary.simpleMessage(
       "Розблокувати керування",
     ),
-    "novel_progress_percent": m74,
+    "novel_progress_percent": m78,
     "novel_reader_background_sepia": MessageLookupByLibrary.simpleMessage(
       "Сепія",
     ),
@@ -1370,7 +1370,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "novel_reader_next_chapter": MessageLookupByLibrary.simpleMessage(
       "Наступний розділ",
     ),
-    "novel_reader_next_chapter_named": m75,
+    "novel_reader_next_chapter_named": m79,
     "novel_reader_previous_chapter": MessageLookupByLibrary.simpleMessage(
       "Попередній розділ",
     ),
@@ -1402,8 +1402,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_language_vietnamese": MessageLookupByLibrary.simpleMessage(
       "В’єтнамська",
     ),
-    "page_translation_ai_model_downloading": m76,
-    "page_translation_ai_model_message": m77,
+    "page_translation_ai_model_downloading": m80,
+    "page_translation_ai_model_message": m81,
     "page_translation_ai_model_title": MessageLookupByLibrary.simpleMessage(
       "Завантажте ШІ-модель",
     ),
@@ -1431,7 +1431,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_glossary_add": MessageLookupByLibrary.simpleMessage(
       "Додати ім’я",
     ),
-    "page_translation_glossary_count": m78,
+    "page_translation_glossary_count": m82,
     "page_translation_glossary_empty": MessageLookupByLibrary.simpleMessage(
       "Поки нічого",
     ),
@@ -1483,11 +1483,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_models_downloading": MessageLookupByLibrary.simpleMessage(
       "Завантаження мовних пакетів…",
     ),
-    "page_translation_models_downloading_progress": m79,
+    "page_translation_models_downloading_progress": m83,
     "page_translation_models_failed": MessageLookupByLibrary.simpleMessage(
       "Не вдалося завантажити мовні пакети",
     ),
-    "page_translation_models_message": m80,
+    "page_translation_models_message": m84,
     "page_translation_models_title": MessageLookupByLibrary.simpleMessage(
       "Завантаження мовних пакетів",
     ),
@@ -1528,7 +1528,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Очистити"),
     "page_translation_settings_clear_cache_confirm_title":
         MessageLookupByLibrary.simpleMessage("Очистити перекладені сторінки?"),
-    "page_translation_settings_clear_cache_subtitle": m81,
+    "page_translation_settings_clear_cache_subtitle": m85,
     "page_translation_settings_delete_pack":
         MessageLookupByLibrary.simpleMessage("Видалити"),
     "page_translation_settings_download_pack":
@@ -1558,7 +1558,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Мовні пакети"),
     "page_translation_settings_remove_outdated":
         MessageLookupByLibrary.simpleMessage("Видалити старі переклади"),
-    "page_translation_settings_remove_outdated_subtitle": m82,
+    "page_translation_settings_remove_outdated_subtitle": m86,
     "page_translation_settings_storage_section":
         MessageLookupByLibrary.simpleMessage("Сховище"),
     "page_translation_settings_target": MessageLookupByLibrary.simpleMessage(
@@ -1580,7 +1580,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_show_translation": MessageLookupByLibrary.simpleMessage(
       "Показати переклад",
     ),
-    "page_translation_status_chapter": m83,
+    "page_translation_status_chapter": m87,
     "page_translation_status_failed": MessageLookupByLibrary.simpleMessage(
       "Не вдалося перекласти · торкніться, щоб повторити",
     ),
@@ -1603,7 +1603,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_text_size_auto": MessageLookupByLibrary.simpleMessage(
       "Авто",
     ),
-    "page_translation_text_size_pixels": m84,
+    "page_translation_text_size_pixels": m88,
     "page_translation_text_size_subtitle": MessageLookupByLibrary.simpleMessage(
       "Найбільший розмір перекладеного тексту на екрані",
     ),
@@ -1709,7 +1709,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_error_title": MessageLookupByLibrary.simpleMessage(
       "Щось пішло не так",
     ),
-    "service_view_no_results_message": m85,
+    "service_view_no_results_message": m89,
     "service_view_no_results_title": MessageLookupByLibrary.simpleMessage(
       "Нічого не знайдено",
     ),
@@ -1718,7 +1718,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_retry_button_title": MessageLookupByLibrary.simpleMessage(
       "Повторити",
     ),
-    "service_view_search_results_for": m86,
+    "service_view_search_results_for": m90,
     "service_viewer_search_field_hint_text":
         MessageLookupByLibrary.simpleMessage("Пошук"),
     "settings_about_section_title": MessageLookupByLibrary.simpleMessage(
@@ -1730,7 +1730,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_auto_backup_failed": MessageLookupByLibrary.simpleMessage(
       "Остання копія не вдалася · торкніться «Створити копію», щоб повторити",
     ),
-    "settings_auto_backup_last": m87,
+    "settings_auto_backup_last": m91,
     "settings_auto_backup_never": MessageLookupByLibrary.simpleMessage(
       "Щодня в Download/Wakaranai · копій ще немає",
     ),
@@ -1801,7 +1801,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_developer_section": MessageLookupByLibrary.simpleMessage(
       "Для розробників",
     ),
-    "settings_download_latest_release": m88,
+    "settings_download_latest_release": m92,
     "settings_export_data_button": MessageLookupByLibrary.simpleMessage(
       "Експортувати дані",
     ),
@@ -1864,8 +1864,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_import_sheet_title": MessageLookupByLibrary.simpleMessage(
       "Імпорт даних",
     ),
-    "settings_import_skipped": m89,
-    "settings_import_success": m90,
+    "settings_import_skipped": m93,
+    "settings_import_success": m94,
     "settings_incognito_subtitle": MessageLookupByLibrary.simpleMessage(
       "Не зберігати прогрес читання чи перегляду, історію та статистику",
     ),
@@ -1888,7 +1888,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Щоб увімкнути, задайте LOCAL_REPOSITORY_URL у .env",
         ),
-    "settings_local_extension_server_subtitle": m91,
+    "settings_local_extension_server_subtitle": m95,
     "settings_local_extension_server_title":
         MessageLookupByLibrary.simpleMessage("Локальний сервер розширень"),
     "settings_page_translation_subtitle": MessageLookupByLibrary.simpleMessage(
@@ -1919,7 +1919,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_player_skip_opening_title": MessageLookupByLibrary.simpleMessage(
       "Пропуск опенінгу",
     ),
-    "settings_player_skip_opening_value": m92,
+    "settings_player_skip_opening_value": m96,
     "settings_progress_preparing": MessageLookupByLibrary.simpleMessage(
       "Підготовка…",
     ),
@@ -1957,13 +1957,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_theme_sepia": MessageLookupByLibrary.simpleMessage("Сепія"),
     "settings_theme_sky": MessageLookupByLibrary.simpleMessage("Небо"),
     "settings_theme_title": MessageLookupByLibrary.simpleMessage("Тема"),
-    "settings_tracker_login_failed": m93,
+    "settings_tracker_login_failed": m97,
     "settings_tracker_logout": MessageLookupByLibrary.simpleMessage("Вийти"),
     "settings_tracker_logout_message": MessageLookupByLibrary.simpleMessage(
       "Тайтли, пов’язані з цим трекером, перестануть синхронізуватися, а зв’язки буде видалено.",
     ),
-    "settings_tracker_logout_title": m94,
-    "settings_tracker_signed_in": m95,
+    "settings_tracker_logout_title": m98,
+    "settings_tracker_signed_in": m99,
     "settings_tracker_signed_out": MessageLookupByLibrary.simpleMessage(
       "Вхід не виконано. Торкніться, щоб увійти",
     ),
@@ -1973,7 +1973,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_update_frequency": MessageLookupByLibrary.simpleMessage(
       "Частота перевірки",
     ),
-    "settings_update_frequency_value": m96,
+    "settings_update_frequency_value": m100,
     "settings_update_notifications": MessageLookupByLibrary.simpleMessage(
       "Сповіщення про оновлення",
     ),
@@ -1997,7 +1997,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_video_player_web_only": MessageLookupByLibrary.simpleMessage(
       "Лише вебплеєр",
     ),
-    "source_error_login_required_title": m97,
+    "source_error_login_required_title": m101,
     "source_error_not_found_title": MessageLookupByLibrary.simpleMessage(
       "Видалено з джерела",
     ),
@@ -2012,7 +2012,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "source_error_remove_from_library_button":
         MessageLookupByLibrary.simpleMessage("Прибрати з бібліотеки"),
-    "source_error_removed_titles_found": m98,
+    "source_error_removed_titles_found": m102,
     "source_error_retry_button": MessageLookupByLibrary.simpleMessage(
       "Повторити",
     ),
@@ -2049,7 +2049,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "stats_heatmap_less": MessageLookupByLibrary.simpleMessage("Менше"),
     "stats_heatmap_more": MessageLookupByLibrary.simpleMessage("Більше"),
-    "stats_heatmap_week_count": m99,
+    "stats_heatmap_week_count": m103,
     "stats_kpi_active_days": MessageLookupByLibrary.simpleMessage(
       "Активних днів",
     ),
@@ -2074,15 +2074,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "stats_sources_section_title": MessageLookupByLibrary.simpleMessage(
       "Популярні джерела",
     ),
-    "stats_streak_summary": m100,
+    "stats_streak_summary": m104,
     "stats_title": MessageLookupByLibrary.simpleMessage("Статистика"),
     "title_download": MessageLookupByLibrary.simpleMessage("Завантажити"),
     "title_download_all": MessageLookupByLibrary.simpleMessage("Усі розділи"),
-    "title_download_chapter_count": m101,
+    "title_download_chapter_count": m105,
     "title_download_episode_all": MessageLookupByLibrary.simpleMessage(
       "Усі серії",
     ),
-    "title_download_episode_count": m102,
+    "title_download_episode_count": m106,
     "title_download_episode_failed": MessageLookupByLibrary.simpleMessage(
       "Не вдалося завантажити список серій",
     ),
@@ -2099,21 +2099,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "title_download_episode_loading": MessageLookupByLibrary.simpleMessage(
       "Шукаємо серії…",
     ),
-    "title_download_episode_many_loading": m103,
+    "title_download_episode_many_loading": m107,
     "title_download_episode_mixed_all": MessageLookupByLibrary.simpleMessage(
       "Усі розділи й серії",
     ),
     "title_download_episode_mixed_hint": MessageLookupByLibrary.simpleMessage(
       "Для кожного тайтлу завантажується перша група",
     ),
-    "title_download_episode_mixed_loading": m104,
+    "title_download_episode_mixed_loading": m108,
     "title_download_episode_mixed_next": MessageLookupByLibrary.simpleMessage(
       "Наступний розділ або серія",
     ),
-    "title_download_episode_mixed_next_count": m105,
+    "title_download_episode_mixed_next_count": m109,
     "title_download_episode_mixed_nothing":
         MessageLookupByLibrary.simpleMessage("Нічого нового для завантаження"),
-    "title_download_episode_mixed_queued": m106,
+    "title_download_episode_mixed_queued": m110,
     "title_download_episode_mixed_title": MessageLookupByLibrary.simpleMessage(
       "Завантаження розділів і серій",
     ),
@@ -2123,14 +2123,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "title_download_episode_next": MessageLookupByLibrary.simpleMessage(
       "Наступна серія",
     ),
-    "title_download_episode_next_count": m107,
+    "title_download_episode_next_count": m111,
     "title_download_episode_none": MessageLookupByLibrary.simpleMessage(
       "У цього тайтлу ще немає серій",
     ),
     "title_download_episode_nothing": MessageLookupByLibrary.simpleMessage(
       "Немає нових серій для завантаження",
     ),
-    "title_download_episode_queued": m108,
+    "title_download_episode_queued": m112,
     "title_download_episode_title": MessageLookupByLibrary.simpleMessage(
       "Завантаження серій",
     ),
@@ -2152,21 +2152,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "title_download_next": MessageLookupByLibrary.simpleMessage(
       "Наступний розділ",
     ),
-    "title_download_next_count": m109,
+    "title_download_next_count": m113,
     "title_download_no_chapters": MessageLookupByLibrary.simpleMessage(
       "У цього тайтлу ще немає розділів",
     ),
     "title_download_nothing": MessageLookupByLibrary.simpleMessage(
       "Немає нових розділів для завантаження",
     ),
-    "title_download_queued": m110,
+    "title_download_queued": m114,
     "title_download_title": MessageLookupByLibrary.simpleMessage(
       "Завантаження розділів",
     ),
     "title_download_unread": MessageLookupByLibrary.simpleMessage(
       "Непрочитані розділи",
     ),
-    "title_download_untitled_group": m111,
+    "title_download_untitled_group": m115,
     "title_status_announce": MessageLookupByLibrary.simpleMessage("Анонсовано"),
     "title_status_canceled": MessageLookupByLibrary.simpleMessage("Скасовано"),
     "title_status_ongoing": MessageLookupByLibrary.simpleMessage("Виходить"),
@@ -2188,7 +2188,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tracker_search_hint": MessageLookupByLibrary.simpleMessage(
       "Пошук за назвою",
     ),
-    "tracker_search_title": m112,
+    "tracker_search_title": m116,
     "tracker_sheet_title": MessageLookupByLibrary.simpleMessage("Відстеження"),
     "tracker_status_completed": MessageLookupByLibrary.simpleMessage(
       "Завершено",
@@ -2205,15 +2205,15 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tracker_status_watching": MessageLookupByLibrary.simpleMessage("Дивлюся"),
     "tracker_unlink_action": MessageLookupByLibrary.simpleMessage("Від’єднати"),
-    "translation_ai_model_delete_message": m113,
+    "translation_ai_model_delete_message": m117,
     "translation_ai_model_delete_title": MessageLookupByLibrary.simpleMessage(
       "Видалити ШІ-модель?",
     ),
     "translation_ai_model_failed": MessageLookupByLibrary.simpleMessage(
       "Не вдалося завантажити · спробуйте ще раз через Wi-Fi",
     ),
-    "translation_ai_model_installed": m114,
-    "translation_ai_model_missing": m115,
+    "translation_ai_model_installed": m118,
+    "translation_ai_model_missing": m119,
     "translation_ai_model_title": MessageLookupByLibrary.simpleMessage(
       "ШІ-модель",
     ),
@@ -2244,7 +2244,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Потрібен Android 11 або новіший"),
     "translation_engine_gemma_unavailable_platform":
         MessageLookupByLibrary.simpleMessage("Недоступно на цьому пристрої"),
-    "translation_engine_gemma_unavailable_ram": m116,
+    "translation_engine_gemma_unavailable_ram": m120,
     "translation_engine_info_examples": MessageLookupByLibrary.simpleMessage(
       "Швидкість залежно від телефона (оцінка)",
     ),
@@ -2256,7 +2256,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "translation_engine_info_requirements":
         MessageLookupByLibrary.simpleMessage("Вимоги"),
-    "translation_engine_info_this_phone": m117,
+    "translation_engine_info_this_phone": m121,
     "translation_engine_mlkit": MessageLookupByLibrary.simpleMessage("ML Kit"),
     "translation_engine_mlkit_subtitle": MessageLookupByLibrary.simpleMessage(
       "Швидкий і легкий · працює на будь-якому телефоні · дослівний переклад",
@@ -2267,8 +2267,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "translation_engine_req_android": MessageLookupByLibrary.simpleMessage(
       "Android 11 або новіший",
     ),
-    "translation_engine_req_ram_model": m118,
-    "translation_engine_req_storage_model": m119,
+    "translation_engine_req_ram_model": m122,
+    "translation_engine_req_storage_model": m123,
     "translation_engine_section": MessageLookupByLibrary.simpleMessage(
       "Рушій перекладу",
     ),
@@ -2298,13 +2298,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "translation_models_ai_section": MessageLookupByLibrary.simpleMessage(
       "ШІ на пристрої",
     ),
-    "translation_models_downloaded": m120,
-    "translation_models_packs_count": m121,
+    "translation_models_downloaded": m124,
+    "translation_models_packs_count": m125,
     "translation_models_packs_section": MessageLookupByLibrary.simpleMessage(
       "ML Kit",
     ),
-    "translation_models_pick_first": m122,
-    "translation_models_summary": m123,
+    "translation_models_pick_first": m126,
+    "translation_models_summary": m127,
     "translation_models_title": MessageLookupByLibrary.simpleMessage(
       "Завантажені моделі",
     ),
@@ -2317,22 +2317,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "updates_attention_action_review": MessageLookupByLibrary.simpleMessage(
       "Переглянути",
     ),
-    "updates_attention_browser_check": m124,
-    "updates_attention_many": m125,
+    "updates_attention_browser_check": m128,
+    "updates_attention_many": m129,
     "updates_attention_notification_body": MessageLookupByLibrary.simpleMessage(
       "Перевірку оновлень для цих джерел призупинено. Оновіть бібліотеку жестом униз, щоб це виправити.",
     ),
-    "updates_attention_notification_browser_title": m126,
-    "updates_attention_notification_sign_in_title": m127,
-    "updates_attention_session_saved": m128,
+    "updates_attention_notification_browser_title": m130,
+    "updates_attention_notification_sign_in_title": m131,
+    "updates_attention_session_saved": m132,
     "updates_attention_sheet_title": MessageLookupByLibrary.simpleMessage(
       "Джерела потребують уваги",
     ),
-    "updates_attention_sign_in": m129,
-    "updates_attention_sign_in_again": m130,
-    "updates_attention_unavailable": m131,
-    "updates_check_failed": m132,
-    "updates_check_found": m133,
+    "updates_attention_sign_in": m133,
+    "updates_attention_sign_in_again": m134,
+    "updates_attention_unavailable": m135,
+    "updates_check_failed": m136,
+    "updates_check_found": m137,
     "updates_check_none": MessageLookupByLibrary.simpleMessage(
       "Нових оновлень не знайдено",
     ),
@@ -2352,20 +2352,20 @@ class MessageLookup extends MessageLookupByLibrary {
     "updates_notification_channel_name": MessageLookupByLibrary.simpleMessage(
       "Оновлення бібліотеки",
     ),
-    "updates_notification_line": m134,
-    "updates_notification_more": m135,
-    "updates_notification_summary": m136,
-    "updates_notification_title": m137,
-    "updates_time_days": m138,
-    "updates_time_hours": m139,
-    "updates_time_minutes": m140,
+    "updates_notification_line": m138,
+    "updates_notification_more": m139,
+    "updates_notification_summary": m140,
+    "updates_notification_title": m141,
+    "updates_time_days": m142,
+    "updates_time_hours": m143,
+    "updates_time_minutes": m144,
     "updates_time_now": MessageLookupByLibrary.simpleMessage("Щойно"),
     "updates_title": MessageLookupByLibrary.simpleMessage("Оновлення"),
     "web_browser_back": MessageLookupByLibrary.simpleMessage("Назад"),
     "web_browser_clear_cookies": MessageLookupByLibrary.simpleMessage(
       "Очистити cookie цього сайту",
     ),
-    "web_browser_cookies_cleared": m141,
+    "web_browser_cookies_cleared": m145,
     "web_browser_copy_link": MessageLookupByLibrary.simpleMessage(
       "Копіювати посилання",
     ),
