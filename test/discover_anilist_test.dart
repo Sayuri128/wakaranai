@@ -125,7 +125,7 @@ void main() {
   });
 
   group('DiscoverMedia titles', () {
-    test('prefers native, then romaji, then english without duplicates', () {
+    test('prefers romaji, then english, then native without duplicates', () {
       const DiscoverMedia media = DiscoverMedia(
         id: 1,
         nativeTitle: '薬屋のひとりごと',
@@ -133,10 +133,10 @@ void main() {
         englishTitle: 'kusuriya no hitorigoto',
       );
       expect(media.searchTitles, <String>[
-        '薬屋のひとりごと',
         'Kusuriya no Hitorigoto',
+        '薬屋のひとりごと',
       ]);
-      expect(media.bestSearchTitle, '薬屋のひとりごと');
+      expect(media.bestSearchTitle, 'Kusuriya no Hitorigoto');
       expect(media.displayTitle, 'kusuriya no hitorigoto');
     });
 

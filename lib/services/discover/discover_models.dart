@@ -81,9 +81,9 @@ class DiscoverMedia {
     final List<String> titles = <String>[];
     final Set<String> seen = <String>{};
     for (final String? title in <String?>[
-      nativeTitle,
       romajiTitle,
       englishTitle,
+      nativeTitle,
     ]) {
       if (title == null) {
         continue;
