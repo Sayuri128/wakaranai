@@ -9512,6 +9512,255 @@ class S {
       args: [],
     );
   }
+
+  /// `Auto-download new chapters`
+  String get auto_download_title {
+    return Intl.message(
+      'Auto-download new chapters',
+      name: 'auto_download_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Queue new chapters and episodes found by library update checks. Follows the Wi-Fi only setting`
+  String get auto_download_subtitle {
+    return Intl.message(
+      'Queue new chapters and episodes found by library update checks. Follows the Wi-Fi only setting',
+      name: 'auto_download_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto-download for`
+  String get auto_download_scope_title {
+    return Intl.message(
+      'Auto-download for',
+      name: 'auto_download_scope_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All library titles`
+  String get auto_download_scope_all {
+    return Intl.message(
+      'All library titles',
+      name: 'auto_download_scope_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Selected categories`
+  String get auto_download_scope_categories {
+    return Intl.message(
+      'Selected categories',
+      name: 'auto_download_scope_categories',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{No categories selected} =1{1 category} other{{count} categories}}`
+  String auto_download_scope_categories_count(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No categories selected',
+      one: '1 category',
+      other: '$count categories',
+      name: 'auto_download_scope_categories_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Categories to auto-download`
+  String get auto_download_categories_title {
+    return Intl.message(
+      'Categories to auto-download',
+      name: 'auto_download_categories_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create a category in the library first`
+  String get auto_download_categories_empty {
+    return Intl.message(
+      'Create a category in the library first',
+      name: 'auto_download_categories_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get auto_download_categories_done {
+    return Intl.message(
+      'Done',
+      name: 'auto_download_categories_done',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New items per title`
+  String get auto_download_limit_title {
+    return Intl.message(
+      'New items per title',
+      name: 'auto_download_limit_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The most to download for one title on each check`
+  String get auto_download_limit_subtitle {
+    return Intl.message(
+      'The most to download for one title on each check',
+      name: 'auto_download_limit_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Up to {count}`
+  String auto_download_limit_value(Object count) {
+    return Intl.message(
+      'Up to $count',
+      name: 'auto_download_limit_value',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `No limit`
+  String get auto_download_limit_unlimited {
+    return Intl.message(
+      'No limit',
+      name: 'auto_download_limit_unlimited',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto-download`
+  String get auto_download_override_title {
+    return Intl.message(
+      'Auto-download',
+      name: 'auto_download_override_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use settings`
+  String get auto_download_override_default {
+    return Intl.message(
+      'Use settings',
+      name: 'auto_download_override_default',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Always`
+  String get auto_download_override_always {
+    return Intl.message(
+      'Always',
+      name: 'auto_download_override_always',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Never`
+  String get auto_download_override_never {
+    return Intl.message(
+      'Never',
+      name: 'auto_download_override_never',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mixed`
+  String get auto_download_override_mixed {
+    return Intl.message(
+      'Mixed',
+      name: 'auto_download_override_mixed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto-download: {mode}`
+  String auto_download_override_row(Object mode) {
+    return Intl.message(
+      'Auto-download: $mode',
+      name: 'auto_download_override_row',
+      desc: '',
+      args: [mode],
+    );
+  }
+
+  /// `Auto-download on`
+  String get auto_download_chip_on {
+    return Intl.message(
+      'Auto-download on',
+      name: 'auto_download_chip_on',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto-download off`
+  String get auto_download_chip_off {
+    return Intl.message(
+      'Auto-download off',
+      name: 'auto_download_chip_off',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{title} · {count} new, {queued} to download`
+  String auto_download_notification_line(
+    Object title,
+    Object count,
+    Object queued,
+  ) {
+    return Intl.message(
+      '$title · $count new, $queued to download',
+      name: 'auto_download_notification_line',
+      desc: '',
+      args: [title, count, queued],
+    );
+  }
+
+  /// `{count, plural, =1{1 download starts when you open the app} other{{count} downloads start when you open the app}}`
+  String auto_download_notification_pending(int count) {
+    return Intl.plural(
+      count,
+      one: '1 download starts when you open the app',
+      other: '$count downloads start when you open the app',
+      name: 'auto_download_notification_pending',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count} new items found, {queued} queued for download`
+  String auto_download_check_found(Object count, Object queued) {
+    return Intl.message(
+      '$count new items found, $queued queued for download',
+      name: 'auto_download_check_found',
+      desc: '',
+      args: [count, queued],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

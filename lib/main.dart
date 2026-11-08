@@ -197,6 +197,7 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
               libraryUpdateRepository: RepositoryProvider.of(context),
               concreteDataRepository: RepositoryProvider.of(context),
               extensionRepository: RepositoryProvider.of(context),
+              downloadRepository: RepositoryProvider.of(context),
             )..init(),
           ),
           BlocProvider<DownloadManagerCubit>(

@@ -4,9 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/database/library_update_domain.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
 import 'package:wakaranai/repositories/database/library_update_repository.dart';
+import 'package:wakaranai/repositories/shared_pref/auto_download_preferences.dart';
+import 'package:wakaranai/services/downloads/auto_download/auto_download_queuer.dart';
 import 'package:wakaranai/services/library_updates/library_update_service.dart';
 
 part 'library_updates_state.dart';
@@ -17,12 +20,18 @@ class LibraryUpdatesCubit extends Cubit<LibraryUpdatesState> {
     required this.libraryUpdateRepository,
     required this.concreteDataRepository,
     required this.extensionRepository,
-  }) : super(const LibraryUpdatesState());
+    this.downloadRepository,
+    AutoDownloadPreferences? autoDownloadPreferences,
+  })  : _autoDownloadPreferences =
+            autoDownloadPreferences ?? AutoDownloadPreferences(),
+        super(const LibraryUpdatesState());
 
   final LibraryEntryRepository libraryEntryRepository;
   final LibraryUpdateRepository libraryUpdateRepository;
   final ConcreteDataRepository concreteDataRepository;
   final ExtensionRepository extensionRepository;
+  final DownloadRepository? downloadRepository;
+  final AutoDownloadPreferences _autoDownloadPreferences;
 
   StreamSubscription<List<LibraryUpdateDomain>>? _updatesSub;
   StreamSubscription<int>? _unseenSub;
@@ -49,14 +58,15 @@ class LibraryUpdatesCubit extends Cubit<LibraryUpdatesState> {
 
     emit(state.copyWith(checking: true, clearLastResult: true));
 
-    final LibraryUpdateService service = LibraryUpdateService(
-      libraryEntryRepository: libraryEntryRepository,
-      libraryUpdateRepository: libraryUpdateRepository,
-      concreteDataRepository: concreteDataRepository,
-      extensionRepository: extensionRepository,
-    );
-
     try {
+      final LibraryUpdateService service = LibraryUpdateService(
+        libraryEntryRepository: libraryEntryRepository,
+        libraryUpdateRepository: libraryUpdateRepository,
+        concreteDataRepository: concreteDataRepository,
+        extensionRepository: extensionRepository,
+        autoDownloads: await _autoDownloadQueuer(),
+      );
+
       final LibraryUpdateCheckResult result = await service.check();
       emit(state.copyWith(checking: false, lastResult: result));
       return result;
@@ -66,6 +76,17 @@ class LibraryUpdatesCubit extends Cubit<LibraryUpdatesState> {
       emit(state.copyWith(checking: false));
       return null;
     }
+  }
+
+  Future<AutoDownloadQueuer?> _autoDownloadQueuer() async {
+    final DownloadRepository? downloads = downloadRepository;
+    if (downloads == null) {
+      return null;
+    }
+    return loadAutoDownloadQueuer(
+      downloadRepository: downloads,
+      preferences: _autoDownloadPreferences,
+    );
   }
 
   Future<void> markSeen(String uid) async {

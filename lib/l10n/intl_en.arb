@@ -1720,5 +1720,66 @@
   "discover_format_music": "Music",
   "discover_format_manga": "Manga",
   "discover_format_novel": "Light novel",
-  "discover_format_one_shot": "One-shot"
+  "discover_format_one_shot": "One-shot",
+  "auto_download_title": "Auto-download new chapters",
+  "auto_download_subtitle": "Queue new chapters and episodes found by library update checks. Follows the Wi-Fi only setting",
+  "auto_download_scope_title": "Auto-download for",
+  "auto_download_scope_all": "All library titles",
+  "auto_download_scope_categories": "Selected categories",
+  "auto_download_scope_categories_count": "{count, plural, =0{No categories selected} =1{1 category} other{{count} categories}}",
+  "@auto_download_scope_categories_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "auto_download_categories_title": "Categories to auto-download",
+  "auto_download_categories_empty": "Create a category in the library first",
+  "auto_download_categories_done": "Done",
+  "auto_download_limit_title": "New items per title",
+  "auto_download_limit_subtitle": "The most to download for one title on each check",
+  "auto_download_limit_value": "Up to {count}",
+  "@auto_download_limit_value": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "auto_download_limit_unlimited": "No limit",
+  "auto_download_override_title": "Auto-download",
+  "auto_download_override_default": "Use settings",
+  "auto_download_override_always": "Always",
+  "auto_download_override_never": "Never",
+  "auto_download_override_mixed": "Mixed",
+  "auto_download_override_row": "Auto-download: {mode}",
+  "@auto_download_override_row": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
+  "auto_download_chip_on": "Auto-download on",
+  "auto_download_chip_off": "Auto-download off",
+  "auto_download_notification_line": "{title} · {count} new, {queued} to download",
+  "@auto_download_notification_line": {
+    "placeholders": {
+      "title": {},
+      "count": {},
+      "queued": {}
+    }
+  },
+  "auto_download_notification_pending": "{count, plural, =1{1 download starts when you open the app} other{{count} downloads start when you open the app}}",
+  "@auto_download_notification_pending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "auto_download_check_found": "{count} new items found, {queued} queued for download",
+  "@auto_download_check_found": {
+    "placeholders": {
+      "count": {},
+      "queued": {}
+    }
+  }
 }

@@ -79,22 +79,20 @@ class LibraryUpdateNotificationService {
     }
   }
 
-  Future<void> showUpdates(List<LibraryUpdateDomain> updates) async {
+  Future<void> showUpdates(
+    List<LibraryUpdateDomain> updates, {
+    Map<String, int> autoQueuedByEntry = const <String, int>{},
+  }) async {
     if (updates.isEmpty) return;
 
     try {
       await _ensureInitialized();
 
-      final Map<String, int> perTitle = <String, int>{};
-      for (final LibraryUpdateDomain update in updates) {
-        perTitle.update(update.concreteTitle, (int value) => value + 1,
-            ifAbsent: () => 1);
-      }
-
-      final List<String> lines = perTitle.entries
+      final List<_TitleUpdates> perTitle = _groupByTitle(updates);
+      final List<String> lines = perTitle
           .take(_maxLines)
-          .map((MapEntry<String, int> e) =>
-              S.current.updates_notification_line(e.key, e.value))
+          .map((_TitleUpdates title) =>
+              title.line(autoQueuedByEntry[title.entryUid] ?? 0))
           .toList();
 
       if (perTitle.length > _maxLines) {
@@ -102,9 +100,17 @@ class LibraryUpdateNotificationService {
             perTitle.length - _maxLines));
       }
 
+      final int autoQueued = _queuedFor(perTitle, autoQueuedByEntry);
+      if (autoQueued > 0) {
+        lines.add(S.current.auto_download_notification_pending(autoQueued));
+      }
+
       final String title = S.current.updates_notification_title(updates.length);
       final String summary =
           S.current.updates_notification_summary(perTitle.length);
+      final String body = autoQueued > 0
+          ? S.current.auto_download_notification_pending(autoQueued)
+          : summary;
 
       final AndroidNotificationDetails android = AndroidNotificationDetails(
         _channelId,
@@ -122,12 +128,54 @@ class LibraryUpdateNotificationService {
       await _plugin.show(
         _updatesId,
         title,
-        summary,
+        body,
         NotificationDetails(android: android),
       );
     } catch (e, s) {
       logger.w('Failed to show library update notification: $e');
       logger.w(s);
     }
+  }
+
+  static List<_TitleUpdates> _groupByTitle(List<LibraryUpdateDomain> updates) {
+    final Map<String, _TitleUpdates> byEntry = <String, _TitleUpdates>{};
+    for (final LibraryUpdateDomain update in updates) {
+      byEntry
+          .putIfAbsent(
+            update.libraryEntryUid,
+            () => _TitleUpdates(
+              entryUid: update.libraryEntryUid,
+              title: update.concreteTitle,
+            ),
+          )
+          .count++;
+    }
+    return byEntry.values.toList();
+  }
+
+  static int _queuedFor(
+    List<_TitleUpdates> titles,
+    Map<String, int> autoQueuedByEntry,
+  ) {
+    int total = 0;
+    for (final _TitleUpdates title in titles) {
+      total += autoQueuedByEntry[title.entryUid] ?? 0;
+    }
+    return total;
+  }
+}
+
+class _TitleUpdates {
+  _TitleUpdates({required this.entryUid, required this.title});
+
+  final String entryUid;
+  final String title;
+  int count = 0;
+
+  String line(int queued) {
+    if (queued > 0) {
+      return S.current.auto_download_notification_line(title, count, queued);
+    }
+    return S.current.updates_notification_line(title, count);
   }
 }

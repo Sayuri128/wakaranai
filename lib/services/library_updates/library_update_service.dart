@@ -21,6 +21,7 @@ import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
 import 'package:wakaranai/repositories/database/library_update_repository.dart';
+import 'package:wakaranai/services/downloads/auto_download/auto_download_queuer.dart';
 import 'package:wakaranai/services/protector_storage/protector_storage_service.dart';
 
 class LibraryUpdateProgress {
@@ -40,6 +41,7 @@ class LibraryUpdateCheckResult {
   final List<LibraryUpdateDomain> notifiable;
   final List<SourceNeedsAttention> needsAttention;
   final List<LibraryEntryDomain> removedFromSource;
+  final Map<String, int> autoQueuedByEntry;
   final int checked;
   final int failed;
   final int skipped;
@@ -49,10 +51,25 @@ class LibraryUpdateCheckResult {
     this.notifiable = const <LibraryUpdateDomain>[],
     this.needsAttention = const <SourceNeedsAttention>[],
     this.removedFromSource = const <LibraryEntryDomain>[],
+    this.autoQueuedByEntry = const <String, int>{},
     this.checked = 0,
     this.failed = 0,
     this.skipped = 0,
   });
+
+  int get autoQueued => autoQueuedByEntry.values.fold<int>(
+        0,
+        (int total, int count) => total + count,
+      );
+}
+
+class _EntryCheck {
+  const _EntryCheck(this.found, {this.autoQueued = 0});
+
+  static const _EntryCheck nothing = _EntryCheck(<LibraryUpdateDomain>[]);
+
+  final List<LibraryUpdateDomain> found;
+  final int autoQueued;
 }
 
 enum UpdateFailureKind { transient, removedFromSource, unavailable, failed }
@@ -92,6 +109,7 @@ class LibraryUpdateService {
     required this.concreteDataRepository,
     required this.extensionRepository,
     this.fetcher,
+    this.autoDownloads,
   });
 
   final LibraryEntryRepository libraryEntryRepository;
@@ -99,6 +117,7 @@ class LibraryUpdateService {
   final ConcreteDataRepository concreteDataRepository;
   final ExtensionRepository extensionRepository;
   final ConcreteViewFetcher? fetcher;
+  final AutoDownloadQueuer? autoDownloads;
 
   static const Duration _entryTimeout = Duration(seconds: 90);
   static const int _maxConcurrentExtensions = 3;
@@ -118,6 +137,7 @@ class LibraryUpdateService {
     final Map<String, SourceNeedsAttention> attentionBySession =
         <String, SourceNeedsAttention>{};
     final List<LibraryEntryDomain> removedFromSource = <LibraryEntryDomain>[];
+    final Map<String, int> autoQueuedByEntry = <String, int>{};
     int checked = 0;
     int failed = 0;
     int skipped = 0;
@@ -160,11 +180,13 @@ class LibraryUpdateService {
         }
 
         try {
-          final List<LibraryUpdateDomain> found =
-              await _checkEntry(entry, extension);
-          updates.addAll(found);
+          final _EntryCheck result = await _checkEntry(entry, extension);
+          updates.addAll(result.found);
           if (entry.notifyUpdates) {
-            notifiable.addAll(found);
+            notifiable.addAll(result.found);
+          }
+          if (result.autoQueued > 0) {
+            autoQueuedByEntry[entry.uid] = result.autoQueued;
           }
           checked++;
         } on SourceNeedsAttention catch (attention) {
@@ -213,6 +235,7 @@ class LibraryUpdateService {
       notifiable: notifiable,
       needsAttention: attentionBySession.values.toList(),
       removedFromSource: removedFromSource,
+      autoQueuedByEntry: autoQueuedByEntry,
       checked: checked,
       failed: failed,
       skipped: skipped,
@@ -226,7 +249,7 @@ class LibraryUpdateService {
     return ProtectorStorageService.sessionKey(extension.config);
   }
 
-  Future<List<LibraryUpdateDomain>> _checkEntry(
+  Future<_EntryCheck> _checkEntry(
     LibraryEntryDomain entry,
     ExtensionDomain? extension,
   ) async {
@@ -244,14 +267,14 @@ class LibraryUpdateService {
 
     if (cached?.concreteJson == null) {
       await _saveSnapshot(entry, concreteView, config);
-      return const <LibraryUpdateDomain>[];
+      return _EntryCheck.nothing;
     }
 
     final Set<String>? knownUids = _elementUidsFromJson(cached!.concreteJson!);
 
     if (knownUids == null) {
       await _saveSnapshot(entry, concreteView, config);
-      return const <LibraryUpdateDomain>[];
+      return _EntryCheck.nothing;
     }
 
     final Set<String> recordedUids =
@@ -290,17 +313,53 @@ class LibraryUpdateService {
       }
     }
 
-    await _saveSnapshot(entry, concreteView, config);
+    final ConcreteDataDomain? saved =
+        await _saveSnapshot(entry, concreteView, config);
 
-    return found;
+    final int autoQueued = await _queueAutoDownloads(
+      entry: entry,
+      config: config,
+      concreteView: concreteView,
+      saved: saved,
+      found: found,
+    );
+
+    return _EntryCheck(found, autoQueued: autoQueued);
   }
 
-  Future<void> _saveSnapshot(
+  Future<int> _queueAutoDownloads({
+    required LibraryEntryDomain entry,
+    required ConfigInfo config,
+    required ConcreteView concreteView,
+    required ConcreteDataDomain? saved,
+    required List<LibraryUpdateDomain> found,
+  }) async {
+    final AutoDownloadQueuer? queuer = autoDownloads;
+    if (queuer == null || saved == null || found.isEmpty) {
+      return 0;
+    }
+    try {
+      return await queuer.queueNewItems(AutoDownloadRequest(
+        entry: entry,
+        config: config,
+        concreteView: concreteView,
+        concreteId: saved.id,
+        newUids: found.map((LibraryUpdateDomain update) => update.uid).toSet(),
+      ));
+    } catch (e, s) {
+      logger.w('Could not queue automatic downloads for ${entry.title}: $e');
+      logger.w(s);
+      return 0;
+    }
+  }
+
+  Future<ConcreteDataDomain?> _saveSnapshot(
     LibraryEntryDomain entry,
     ConcreteView concreteView,
     ConfigInfo config,
-  ) async {
-    await concreteDataRepository.createUpdateBy<$ConcreteDataTableTable, String>(
+  ) {
+    return concreteDataRepository
+        .createUpdateBy<$ConcreteDataTableTable, String>(
       concreteView.toConcreteDataDomain(
         data: entry.dataJson,
         extensionUid: config.uid,

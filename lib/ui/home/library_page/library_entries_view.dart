@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/gallery_layout/gallery_layout_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
@@ -188,12 +191,16 @@ Future<void> checkLibraryUpdatesNow(BuildContext context) async {
     return;
   }
 
+  if (result.autoQueued > 0) {
+    unawaited(context.read<DownloadManagerCubit>().adoptQueuedDownloads());
+  }
+
   if (result.needsAttention.isNotEmpty) {
     SourceAttentionPrompt.show(context, result.needsAttention);
   } else if (result.updates.isNotEmpty) {
     SnackBars.showSnackBar(
       context: context,
-      message: S.current.updates_check_found(result.updates.length),
+      message: _foundUpdatesMessage(result),
     );
   } else {
     final String? problems = libraryCheckProblemsMessage(result);
@@ -206,6 +213,16 @@ Future<void> checkLibraryUpdatesNow(BuildContext context) async {
       );
     }
   }
+}
+
+String _foundUpdatesMessage(LibraryUpdateCheckResult result) {
+  if (result.autoQueued > 0) {
+    return S.current.auto_download_check_found(
+      result.updates.length,
+      result.autoQueued,
+    );
+  }
+  return S.current.updates_check_found(result.updates.length);
 }
 
 String? libraryCheckProblemsMessage(LibraryUpdateCheckResult result) {

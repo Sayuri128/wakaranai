@@ -4,6 +4,7 @@ import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/env.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
@@ -12,6 +13,7 @@ import 'package:wakaranai/repositories/shared_pref/source_attention_preferences.
 import 'package:wakaranai/services/app_language/background_strings.dart';
 import 'package:wakaranai/services/configs_service/extension_resolver.dart';
 import 'package:wakaranai/services/configs_service/source_needs_attention.dart';
+import 'package:wakaranai/services/downloads/auto_download/auto_download_queuer.dart';
 import 'package:wakaranai/services/library_updates/library_update_notification_service.dart';
 import 'package:wakaranai/services/library_updates/library_update_service.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
@@ -82,6 +84,7 @@ Future<bool> runLibraryUpdateTask(
       libraryUpdateRepository: LibraryUpdateRepository(database: taskDatabase),
       concreteDataRepository: ConcreteDataRepository(database: taskDatabase),
       extensionRepository: ExtensionRepository(database: taskDatabase),
+      autoDownloads: await _autoDownloadQueuer(taskDatabase),
     );
 
     final LibraryUpdateCheckResult result = await service.check();
@@ -92,7 +95,10 @@ Future<bool> runLibraryUpdateTask(
         LibraryUpdateNotificationService();
 
     if (result.notifiable.isNotEmpty && notificationsEnabled) {
-      await notifications.showUpdates(result.notifiable);
+      await notifications.showUpdates(
+        result.notifiable,
+        autoQueuedByEntry: result.autoQueuedByEntry,
+      );
     }
 
     if (result.needsAttention.isNotEmpty && notificationsEnabled) {
@@ -104,6 +110,7 @@ Future<bool> runLibraryUpdateTask(
       '${result.checked} checked, ${result.failed} failed, '
       '${result.skipped} skipped, '
       '${result.removedFromSource.length} removed from their source, '
+      '${result.autoQueued} queued for download, '
       '${result.needsAttention.length} sources need attention',
     );
 
@@ -114,6 +121,20 @@ Future<bool> runLibraryUpdateTask(
     return false;
   } finally {
     await ownedDatabase?.close();
+  }
+}
+
+Future<AutoDownloadQueuer?> _autoDownloadQueuer(
+  WakaranaiDatabase database,
+) async {
+  try {
+    return await loadAutoDownloadQueuer(
+      downloadRepository: DownloadRepository(database: database),
+      reload: true,
+    );
+  } catch (e) {
+    logger.w('Could not read the auto-download settings: $e');
+    return null;
   }
 }
 
