@@ -5,6 +5,7 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/filters/data/filters/filter_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/utils/image_headers.dart';
 import 'package:wakaranai/blocs/service_view/gallery_feed_memory.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/utils/serial_call_queue.dart';
@@ -76,7 +77,7 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
       imagesHeaders[galleryView.uid] = await runSerializedOn(
           state.client,
           () => state.client
-              .getImageHeaders(uid: galleryView.uid, data: galleryView.data));
+              .imageHeadersOrEmpty(uid: galleryView.uid, data: galleryView.data));
     }
 
     if (galleryViews != null && generation == _generation) {
@@ -390,7 +391,7 @@ class ServiceViewCubit<T extends ApiClient, G extends GalleryView>
       imagesHeaders[galleryView.uid] = await runSerializedOn(
           state.client,
           () => state.client
-              .getImageHeaders(uid: galleryView.uid, data: galleryView.data));
+              .imageHeadersOrEmpty(uid: galleryView.uid, data: galleryView.data));
       await Future<void>.delayed(Duration.zero);
     }
     return imagesHeaders;

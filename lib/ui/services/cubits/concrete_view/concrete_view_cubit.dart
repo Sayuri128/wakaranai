@@ -14,6 +14,7 @@ import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/manga_concrete_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/utils/image_headers.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
@@ -68,7 +69,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView,
       );
       final Map<String, String> imageHeaders = await runSerializedOn(
         state.apiClient,
-        () => state.apiClient.getImageHeaders(uid: uid, data: galleryData),
+        () => state.apiClient.imageHeadersOrEmpty(uid: uid, data: galleryData),
       );
 
       // Fetch chapter activities to show the user's progress

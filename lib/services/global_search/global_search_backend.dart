@@ -1,6 +1,7 @@
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:wakaranai/utils/image_headers.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/models/protector/protector_storage_item.dart';
@@ -127,7 +128,7 @@ class PooledGlobalSearchBackend implements GlobalSearchBackend {
       try {
         headers[item.uid] = await runSerializedOn(
           client,
-          () => client.getImageHeaders(uid: item.uid, data: item.data),
+          () => client.imageHeadersOrEmpty(uid: item.uid, data: item.data),
         );
       } catch (e) {
         logger.w('Cover headers are unavailable for a search result: $e');

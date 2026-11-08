@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:path/path.dart' as p;
+import 'package:wakaranai/utils/image_headers.dart';
 import 'package:wakaranai/blocs/downloads/download_throttle.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
@@ -50,7 +51,7 @@ class ChapterJobRunner extends DownloadJobRunner<ChapterDownloadJob> {
       final pages =
           await job.client.getPages(uid: job.chapterUid, data: job.data);
       final Map<String, String> headers = await job.client
-          .getImageHeaders(uid: pages.chapterUid, data: <String, dynamic>{});
+          .imageHeadersOrEmpty(uid: pages.chapterUid, data: <String, dynamic>{});
       final String headersJson = jsonEncode(headers);
 
       final Directory dir = Directory(row.dirPath);

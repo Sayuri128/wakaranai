@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/utils/image_headers.dart';
 import 'package:wakaranai/services/configs_service/api_client_factory.dart';
 import 'package:wakaranai/data/domain/database/category_domain.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
@@ -103,7 +104,7 @@ class LibraryCubit extends Cubit<LibraryState> {
     final ApiClient client = ApiClientFactory.instance
         .create(config: extension.config, code: extension.sourceCode);
 
-    return client.getImageHeaders(uid: entry.uid, data: entry.dataJson);
+    return client.imageHeadersOrEmpty(uid: entry.uid, data: entry.dataJson);
   }
 
   bool isFavorite(String uid) {

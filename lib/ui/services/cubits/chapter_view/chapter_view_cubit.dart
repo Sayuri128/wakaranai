@@ -8,6 +8,7 @@ import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:wakaranai/utils/image_headers.dart';
 import 'package:wakaranai/services/incognito/incognito_mode.dart';
 import 'package:wakaranai/services/downloads/storage/download_files.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
@@ -111,7 +112,7 @@ class ChapterViewCubit extends Cubit<ChapterViewState> {
       uid: chapter.uid,
       data: chapter.data,
     );
-    final Map<String, String> headers = await apiClient.getImageHeaders(
+    final Map<String, String> headers = await apiClient.imageHeadersOrEmpty(
       uid: pages.chapterUid,
       data: <String, dynamic>{},
     );

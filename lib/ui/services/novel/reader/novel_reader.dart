@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:wakaranai/utils/image_headers.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/blocs/novel_reader_preferences/novel_reader_preferences_cubit.dart';
 import 'package:wakaranai/blocs/reader_preferences/reader_preferences_cubit.dart';
@@ -100,7 +101,7 @@ class _NovelReaderState extends State<NovelReader> {
   Future<void> _loadImageHeaders() async {
     try {
       final Map<String, String> headers =
-          await widget.data.apiClient.getImageHeaders(
+          await widget.data.apiClient.imageHeadersOrEmpty(
         uid: widget.data.chapter.uid,
         data: widget.data.chapter.data,
       );

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:wakaranai/utils/image_headers.dart';
 import 'package:wakaranai/services/configs_service/api_client_factory.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
@@ -122,7 +123,7 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
     final apiClient = ApiClientFactory.instance
         .manga(config: extension.config, code: extension.sourceCode);
 
-    final coverHeaders = await apiClient.getImageHeaders(
+    final coverHeaders = await apiClient.imageHeadersOrEmpty(
       uid: concrete.uid,
       data: concrete.dataJson,
     );
@@ -155,7 +156,7 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
     final apiClient = ApiClientFactory.instance
         .novel(config: extension.config, code: extension.sourceCode);
 
-    final Map<String, String> coverHeaders = await apiClient.getImageHeaders(
+    final Map<String, String> coverHeaders = await apiClient.imageHeadersOrEmpty(
       uid: concrete.uid,
       data: concrete.dataJson,
     );
