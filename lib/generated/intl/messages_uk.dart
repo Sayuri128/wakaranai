@@ -838,9 +838,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "configs_filter_all_languages": MessageLookupByLibrary.simpleMessage(
       "Усі мови",
     ),
+    "configs_filter_all_prices": MessageLookupByLibrary.simpleMessage(
+      "Будь-яка ціна",
+    ),
     "configs_filter_language_title": MessageLookupByLibrary.simpleMessage(
       "Мова",
     ),
+    "configs_filter_price_title": MessageLookupByLibrary.simpleMessage("Ціна"),
     "configs_layout_cards": MessageLookupByLibrary.simpleMessage("Картки"),
     "configs_layout_compact": MessageLookupByLibrary.simpleMessage(
       "Щільний список",
@@ -2548,6 +2552,11 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "source_error_unsupported_title": MessageLookupByLibrary.simpleMessage(
       "Це джерело не підтримує цю дію",
+    ),
+    "source_pricing_free": MessageLookupByLibrary.simpleMessage("Безкоштовно"),
+    "source_pricing_paid": MessageLookupByLibrary.simpleMessage("Платно"),
+    "source_pricing_partial": MessageLookupByLibrary.simpleMessage(
+      "Частково безкоштовно",
     ),
     "stats_activity_section_title": MessageLookupByLibrary.simpleMessage(
       "Активність",

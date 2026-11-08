@@ -1,5 +1,6 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/content_kinds/content_kinds.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/source_pricing/source_pricing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/generated/l10n.dart';
@@ -21,12 +22,13 @@ List<String> effectiveContentKinds(ConfigInfo config) {
 }
 
 class ConfigsFilter {
-  const ConfigsFilter({this.kind, this.language});
+  const ConfigsFilter({this.kind, this.language, this.pricing});
 
   final String? kind;
   final String? language;
+  final String? pricing;
 
-  bool get isEmpty => kind == null && language == null;
+  bool get isEmpty => kind == null && language == null && pricing == null;
 
   bool matches(BaseExtension extension) {
     final ConfigInfo config = extension.config;
@@ -39,15 +41,23 @@ class ConfigsFilter {
     if (selectedLanguage != null && config.language.trim() != selectedLanguage) {
       return false;
     }
+    final String? selectedPricing = pricing;
+    if (selectedPricing != null && config.pricing != selectedPricing) {
+      return false;
+    }
     return true;
   }
 
   ConfigsFilter withKind(String? value) {
-    return ConfigsFilter(kind: value, language: language);
+    return ConfigsFilter(kind: value, language: language, pricing: pricing);
   }
 
   ConfigsFilter withLanguage(String? value) {
-    return ConfigsFilter(kind: kind, language: value);
+    return ConfigsFilter(kind: kind, language: value, pricing: pricing);
+  }
+
+  ConfigsFilter withPricing(String? value) {
+    return ConfigsFilter(kind: kind, language: language, pricing: value);
   }
 }
 
@@ -76,6 +86,26 @@ List<String> availableLanguages(Iterable<BaseExtension> extensions) {
     }
   }
   return languages.toList()..sort();
+}
+
+List<String> availablePricings(Iterable<BaseExtension> extensions) {
+  final Set<String> pricings = <String>{
+    for (final BaseExtension extension in extensions) extension.config.pricing,
+  };
+  return <String>[
+    for (final String known in SourcePricing.known)
+      if (pricings.contains(known)) known,
+  ];
+}
+
+String pricingLabel(String pricing) {
+  switch (pricing) {
+    case SourcePricing.partial:
+      return S.current.source_pricing_partial;
+    case SourcePricing.paid:
+      return S.current.source_pricing_paid;
+  }
+  return S.current.source_pricing_free;
 }
 
 String contentKindLabel(String kind) {
@@ -114,12 +144,14 @@ String contentKindLabel(String kind) {
 class ConfigsFilterPreferences {
   static const String kindKey = 'CONFIGS_FILTER_KIND';
   static const String languageKey = 'CONFIGS_FILTER_LANGUAGE';
+  static const String pricingKey = 'CONFIGS_FILTER_PRICING';
 
   Future<ConfigsFilter> read() async {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
     return ConfigsFilter(
       kind: preferences.getString(kindKey),
       language: preferences.getString(languageKey),
+      pricing: preferences.getString(pricingKey),
     );
   }
 
@@ -127,6 +159,7 @@ class ConfigsFilterPreferences {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
     await _writeOptional(preferences, kindKey, filter.kind);
     await _writeOptional(preferences, languageKey, filter.language);
+    await _writeOptional(preferences, pricingKey, filter.pricing);
   }
 
   Future<void> _writeOptional(

@@ -816,9 +816,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "configs_filter_all_languages": MessageLookupByLibrary.simpleMessage(
       "All languages",
     ),
+    "configs_filter_all_prices": MessageLookupByLibrary.simpleMessage(
+      "Any price",
+    ),
     "configs_filter_language_title": MessageLookupByLibrary.simpleMessage(
       "Language",
     ),
+    "configs_filter_price_title": MessageLookupByLibrary.simpleMessage("Price"),
     "configs_layout_cards": MessageLookupByLibrary.simpleMessage("Cards"),
     "configs_layout_compact": MessageLookupByLibrary.simpleMessage(
       "Compact list",
@@ -2469,6 +2473,11 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "source_error_unsupported_title": MessageLookupByLibrary.simpleMessage(
       "Not supported by this source",
+    ),
+    "source_pricing_free": MessageLookupByLibrary.simpleMessage("Free"),
+    "source_pricing_paid": MessageLookupByLibrary.simpleMessage("Paid"),
+    "source_pricing_partial": MessageLookupByLibrary.simpleMessage(
+      "Partly free",
     ),
     "stats_activity_section_title": MessageLookupByLibrary.simpleMessage(
       "Activity",

@@ -9,6 +9,7 @@ ExtensionDomain _extension(
   int type = 0,
   String language = 'English',
   List<String>? kinds,
+  String? pricing,
 }) {
   return ExtensionDomain(
     id: 0,
@@ -23,6 +24,7 @@ ExtensionDomain _extension(
       'filters': <dynamic>[],
       'searchAvailable': true,
       if (kinds != null) 'contentKinds': kinds,
+      if (pricing != null) 'pricing': pricing,
     }),
     sourceCode: '',
     revision: 'r',
@@ -63,5 +65,28 @@ void main() {
       extensions.where(ukrainianAnime.matches).map((BaseExtension e) => e.config.uid),
       <String>['flix', 'tube'],
     );
+  });
+
+  test('lists only the pricings present, in free, partial, paid order', () {
+    expect(availablePricings(extensions), <String>['free']);
+    final List<BaseExtension> mixed = <BaseExtension>[
+      _extension('vod', pricing: 'paid'),
+      ...extensions,
+      _extension('remanga', pricing: 'partial'),
+    ];
+    expect(availablePricings(mixed), <String>['free', 'partial', 'paid']);
+  });
+
+  test('filters by pricing, treating a missing pricing as free', () {
+    final List<BaseExtension> mixed = <BaseExtension>[
+      _extension('vod', pricing: 'paid'),
+      _extension('remanga', pricing: 'partial'),
+      _extension('dex'),
+    ];
+    const ConfigsFilter free = ConfigsFilter(pricing: 'free');
+    expect(mixed.where(free.matches).map((BaseExtension e) => e.config.uid), <String>['dex']);
+    final ConfigsFilter paid = const ConfigsFilter(language: 'English').withPricing('paid');
+    expect(paid.language, 'English');
+    expect(mixed.where(paid.matches).map((BaseExtension e) => e.config.uid), <String>['vod']);
   });
 }

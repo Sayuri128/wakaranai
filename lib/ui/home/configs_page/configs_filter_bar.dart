@@ -12,16 +12,19 @@ class ConfigsFilterBar extends StatelessWidget {
     super.key,
     required this.kinds,
     required this.languages,
+    required this.pricings,
     required this.filter,
     required this.onChanged,
   });
 
   final List<String> kinds;
   final List<String> languages;
+  final List<String> pricings;
   final ConfigsFilter filter;
   final ValueChanged<ConfigsFilter> onChanged;
 
-  bool get isUseful => kinds.length > 1 || languages.length > 1;
+  bool get isUseful =>
+      kinds.length > 1 || languages.length > 1 || pricings.length > 1;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +41,16 @@ class ConfigsFilterBar extends StatelessWidget {
               selected: filter.language != null,
               trailingIcon: Icons.arrow_drop_down_rounded,
               onTap: () => _pickLanguage(context),
+            ),
+            const SizedBox(width: 8),
+          ],
+          if (pricings.length > 1) ...<Widget>[
+            _Pill(
+              icon: Icons.payments_outlined,
+              label: _pricingPillLabel(context),
+              selected: filter.pricing != null,
+              trailingIcon: Icons.arrow_drop_down_rounded,
+              onTap: () => _pickPricing(context),
             ),
             const SizedBox(width: 8),
           ],
@@ -61,6 +74,45 @@ class ConfigsFilterBar extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _pricingPillLabel(BuildContext context) {
+    final String? selected = filter.pricing;
+    if (selected == null) {
+      return S.of(context).configs_filter_all_prices;
+    }
+    return pricingLabel(selected);
+  }
+
+  void _pickPricing(BuildContext context) {
+    unawaited(showActionSheet(
+      context,
+      title: S.of(context).configs_filter_price_title,
+      child: Builder(
+        builder: (BuildContext sheetContext) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ActionSheetRow(
+              label: S.of(context).configs_filter_all_prices,
+              selected: filter.pricing == null,
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                onChanged(filter.withPricing(null));
+              },
+            ),
+            for (final String pricing in pricings)
+              ActionSheetRow(
+                label: pricingLabel(pricing),
+                selected: filter.pricing == pricing,
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  onChanged(filter.withPricing(pricing));
+                },
+              ),
+          ],
+        ),
+      ),
+    ));
   }
 
   void _pickLanguage(BuildContext context) {

@@ -271,7 +271,8 @@ class _ConfigPageState extends State<ConfigPage> {
     ];
     final List<String> kinds = availableContentKinds(visible);
     final List<String> languages = availableLanguages(visible);
-    final ConfigsFilter filter = _applicableFilter(kinds, languages);
+    final List<String> pricings = availablePricings(visible);
+    final ConfigsFilter filter = _applicableFilter(kinds, languages, pricings);
     final ConfigsViewOptions options = _viewOptions.state;
     final bool searchable =
         visible.length > kConfigsSearchThreshold || _query.isNotEmpty;
@@ -295,6 +296,7 @@ class _ConfigPageState extends State<ConfigPage> {
     final ConfigsFilterBar filterBar = ConfigsFilterBar(
       kinds: kinds,
       languages: languages,
+      pricings: pricings,
       filter: filter,
       onChanged: _changeFilter,
     );
@@ -458,6 +460,7 @@ class _ConfigPageState extends State<ConfigPage> {
   ConfigsFilter _applicableFilter(
     List<String> kinds,
     List<String> languages,
+    List<String> pricings,
   ) {
     ConfigsFilter filter = _filter;
     if (filter.kind != null && !kinds.contains(filter.kind)) {
@@ -465,6 +468,9 @@ class _ConfigPageState extends State<ConfigPage> {
     }
     if (filter.language != null && !languages.contains(filter.language)) {
       filter = filter.withLanguage(null);
+    }
+    if (filter.pricing != null && !pricings.contains(filter.pricing)) {
+      filter = filter.withPricing(null);
     }
     return filter;
   }

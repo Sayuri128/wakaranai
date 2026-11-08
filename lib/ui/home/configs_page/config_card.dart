@@ -1,7 +1,9 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/source_pricing/source_pricing.dart';
 import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/configs_service/extension_listing_status.dart';
+import 'package:wakaranai/ui/home/configs_page/configs_filter.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_compatibility_texts.dart';
 import 'package:wakaranai/ui/widgets/extension_logo.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -69,6 +71,10 @@ class ConfigCard extends StatelessWidget {
             ),
             if (configInfo.nsfw) ...<Widget>[
               _buildChip(S.current.home_nsfw_suffix, color: AppColors.red),
+              const SizedBox(width: 6),
+            ],
+            if (_showsPricing) ...<Widget>[
+              _buildPricingChip(),
               const SizedBox(width: 6),
             ],
             if (language.isNotEmpty)
@@ -144,14 +150,21 @@ class ConfigCard extends StatelessWidget {
   }
 
   String _tileCaption() {
-    final String language = configInfo.language.trim();
-    if (configInfo.nsfw && language.isNotEmpty) {
-      return '$language · ${S.current.home_nsfw_suffix}';
+    final List<String> parts = <String>[
+      if (configInfo.language.trim().isNotEmpty) configInfo.language.trim(),
+      if (configInfo.nsfw) S.current.home_nsfw_suffix,
+      if (_showsPricing) pricingLabel(configInfo.pricing),
+    ];
+    return parts.join(' · ');
+  }
+
+  bool get _showsPricing => configInfo.pricing != SourcePricing.free;
+
+  Widget _buildPricingChip() {
+    if (configInfo.pricing == SourcePricing.paid) {
+      return _buildChip(pricingLabel(configInfo.pricing), color: AppColors.primary);
     }
-    if (configInfo.nsfw) {
-      return S.current.home_nsfw_suffix;
-    }
-    return language;
+    return _buildChip(pricingLabel(configInfo.pricing));
   }
 
   Widget _buildCard(BuildContext context) {
@@ -199,6 +212,7 @@ class ConfigCard extends StatelessWidget {
                           if (configInfo.nsfw)
                             _buildChip(S.current.home_nsfw_suffix,
                                 color: AppColors.red),
+                          if (_showsPricing) _buildPricingChip(),
                           if (pinned)
                             Icon(
                               Icons.push_pin_rounded,

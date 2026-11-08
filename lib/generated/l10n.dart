@@ -6516,6 +6516,56 @@ class S {
     );
   }
 
+  /// `Any price`
+  String get configs_filter_all_prices {
+    return Intl.message(
+      'Any price',
+      name: 'configs_filter_all_prices',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Price`
+  String get configs_filter_price_title {
+    return Intl.message(
+      'Price',
+      name: 'configs_filter_price_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Free`
+  String get source_pricing_free {
+    return Intl.message(
+      'Free',
+      name: 'source_pricing_free',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Partly free`
+  String get source_pricing_partial {
+    return Intl.message(
+      'Partly free',
+      name: 'source_pricing_partial',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paid`
+  String get source_pricing_paid {
+    return Intl.message(
+      'Paid',
+      name: 'source_pricing_paid',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `View options`
   String get configs_view_options {
     return Intl.message(
