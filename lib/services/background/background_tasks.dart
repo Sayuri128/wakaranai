@@ -3,6 +3,7 @@ import 'package:wakaranai/services/extension_preferences/extension_host_services
 import 'package:wakaranai/services/import_export/import_export_task.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/services/library_updates/library_update_task.dart';
+import 'package:wakaranai/utils/installed_app_version.dart';
 import 'package:wakaranai/utils/webview_user_agent.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -11,6 +12,7 @@ void backgroundCallbackDispatcher() {
   Workmanager().executeTask(
     (String taskName, Map<String, dynamic>? inputData) async {
       await _resolveWebViewUserAgent();
+      await InstalledAppVersion.load();
       return runBackgroundTask(taskName, inputData);
     },
   );

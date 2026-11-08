@@ -41,6 +41,7 @@ import 'package:wakaranai/repositories/shared_pref/app_language_preferences.dart
 import 'package:wakaranai/services/app_language/app_language.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/env.dart';
+import 'package:wakaranai/utils/installed_app_version.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_storage_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
@@ -88,6 +89,7 @@ void main() async {
 
   await dotenv.load(fileName: '.env');
   Env.validate();
+  await InstalledAppVersion.load();
 
   LicenseRegistry.addLicense(_bundledFontLicenses);
 

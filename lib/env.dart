@@ -6,7 +6,6 @@ class Env {
     'OFFICIAL_GITHUB_CONFIGS_SOURCE_REPOSITORY',
     'OFFICIAL_GITHUB_REPO_ORG',
     'OFFICIAL_GITHUB_REPO_NAME',
-    'CURRENT_APP_VERSION',
   ];
 
   static void validate() {

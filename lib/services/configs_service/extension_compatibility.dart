@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:capyscript/capyscript_api_version.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:wakaranai/data/domain/app_version.dart';
-import 'package:wakaranai/env.dart';
+import 'package:wakaranai/utils/installed_app_version.dart';
 
 enum ExtensionIncompatibility { apiVersion, minAppVersion }
 
@@ -68,7 +68,8 @@ class ExtensionCompatibility {
     int supportedApiVersion = capyscriptApiVersion,
     String? appVersion,
   }) {
-    final String? currentAppVersion = appVersion ?? _envAppVersion();
+    final String? currentAppVersion =
+        appVersion ?? InstalledAppVersion.current;
     final ExtensionIncompatibility? incompatibility = _findIncompatibility(
       apiVersion: apiVersion,
       minAppVersion: minAppVersion,
@@ -108,13 +109,6 @@ class ExtensionCompatibility {
     return current < required;
   }
 
-  static String? _envAppVersion() {
-    try {
-      return _nonBlank(Env.currentAppVersion);
-    } catch (_) {
-      return null;
-    }
-  }
 
   static String? _nonBlank(String? value) {
     if (value == null) {
