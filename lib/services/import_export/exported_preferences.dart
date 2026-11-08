@@ -34,6 +34,7 @@ class ExportedPreferences {
     ConfigsViewOptionsCubit.sortKey,
     ConfigsViewOptionsCubit.pinnedKey,
     GlobalSearchPreferences.scopeKey,
+    GlobalSearchPreferences.migrationScopeKey,
     GalleryLayoutPreferences.libraryKey,
     DownloadsOrderPreferences.newestFirstKey,
     DownloadStoragePreferences.qualityKey,

@@ -6,13 +6,19 @@ class GlobalSearchScopeRules {
   const GlobalSearchScopeRules({
     this.showNsfw = false,
     this.hideNsfwTitles = false,
+    this.type,
   });
 
   final bool showNsfw;
   final bool hideNsfwTitles;
+  final ConfigInfoType? type;
 
   bool allows(ConfigInfo config) {
     if (!config.searchAvailable) {
+      return false;
+    }
+    final ConfigInfoType? requiredType = type;
+    if (requiredType != null && config.type != requiredType) {
       return false;
     }
     if (!config.nsfw) {

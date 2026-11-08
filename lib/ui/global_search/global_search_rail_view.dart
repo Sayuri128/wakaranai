@@ -20,6 +20,8 @@ class GlobalSearchRailView extends StatelessWidget {
     required this.onOpenItem,
     required this.onRetry,
     required this.onOpenSource,
+    this.isSelected,
+    this.badgeOf,
   });
 
   static const double cardWidth = 112;
@@ -30,6 +32,8 @@ class GlobalSearchRailView extends StatelessWidget {
   final ValueChanged<GalleryView> onOpenItem;
   final VoidCallback onRetry;
   final VoidCallback onOpenSource;
+  final bool Function(GalleryView item)? isSelected;
+  final String? Function(GalleryView item)? badgeOf;
 
   @override
   Widget build(BuildContext context) {
@@ -141,15 +145,66 @@ class GlobalSearchRailView extends StatelessWidget {
   }
 
   Widget _buildCard(int index, GalleryView item) {
+    final Widget card = GalleryViewCard(
+      uid: 'global_search:${rail.source.uid}:$index:${item.uid}',
+      headers: rail.coverHeaders[item.uid] ?? const <String, String>{},
+      cover: globalSearchCoverOf(item),
+      title: globalSearchTitleOf(item),
+      compact: true,
+      onTap: () => onOpenItem(item),
+    );
+    final bool selected = isSelected?.call(item) ?? false;
+    final String? badge = badgeOf?.call(item);
+    if (!selected && badge == null) {
+      return SizedBox(width: cardWidth, child: card);
+    }
     return SizedBox(
       width: cardWidth,
-      child: GalleryViewCard(
-        uid: 'global_search:${rail.source.uid}:$index:${item.uid}',
-        headers: rail.coverHeaders[item.uid] ?? const <String, String>{},
-        cover: globalSearchCoverOf(item),
-        title: globalSearchTitleOf(item),
-        compact: true,
-        onTap: () => onOpenItem(item),
+      child: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          card,
+          if (selected) _buildSelectionRing(),
+          if (badge != null)
+            Positioned(
+              top: 6,
+              left: 6,
+              right: 6,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: _buildCardBadge(badge),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSelectionRing() {
+    return IgnorePointer(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(Heroes.galleryCardRadius),
+          border: Border.all(color: AppColors.primary, width: 3),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardBadge(String label) {
+    return IgnorePointer(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          label,
+          style: medium(size: 11, color: AppColors.mainBlack),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
     );
   }

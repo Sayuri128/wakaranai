@@ -12,12 +12,13 @@ ConfigInfo _config(
   String? name,
   bool nsfw = false,
   bool searchAvailable = true,
+  int type = 0,
 }) {
   return ConfigInfo.fromJson(<String, dynamic>{
     'name': name ?? uid,
     'uid': uid,
     'logoUrl': '',
-    'type': 0,
+    'type': type,
     'nsfw': nsfw,
     'language': 'en',
     'version': 1,
@@ -81,6 +82,13 @@ void main() {
             .allows(adult),
         isFalse,
       );
+    });
+
+    test('keeps only sources of the required type', () {
+      const GlobalSearchScopeRules rules =
+          GlobalSearchScopeRules(type: ConfigInfoType.ANIME);
+      expect(rules.allows(_config('manga')), isFalse);
+      expect(rules.allows(_config('anime', type: 1)), isTrue);
     });
   });
 
@@ -180,6 +188,19 @@ void main() {
       expect(await preferences.readScope(), <String>['a', 'b']);
       await preferences.writeScope(null);
       expect(await preferences.readScope(), isNull);
+    });
+
+    test('a migration scope is stored apart and keeps no history', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      const GlobalSearchPreferences migration = GlobalSearchPreferences(
+        scopeStorageKey: GlobalSearchPreferences.migrationScopeKey,
+        keepsHistory: false,
+      );
+      await migration.writeScope(<String>['m']);
+      await migration.writeHistory(<String>['naruto']);
+      expect(await const GlobalSearchPreferences().readScope(), isNull);
+      expect(await migration.readScope(), <String>['m']);
+      expect(await migration.readHistory(), isEmpty);
     });
   });
 }
