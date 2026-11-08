@@ -63,8 +63,6 @@ class AutoDownloadQueuer {
   final AutoDownloadPolicy _policy;
   final QueuedDownloadRows _rows;
 
-  bool appliesTo(LibraryEntryDomain entry) => _policy.appliesTo(entry);
-
   Future<int> queueNewItems(AutoDownloadRequest request) {
     if (request.newUids.isEmpty || !_policy.appliesTo(request.entry)) {
       return Future<int>.value(0);
