@@ -161,10 +161,12 @@ class ConfigCard extends StatelessWidget {
   bool get _showsPricing => configInfo.pricing != SourcePricing.free;
 
   Widget _buildPricingChip() {
+    final String label = pricingLabel(configInfo.pricing);
+    final IconData icon = pricingIcon(configInfo.pricing);
     if (configInfo.pricing == SourcePricing.paid) {
-      return _buildChip(pricingLabel(configInfo.pricing), color: AppColors.primary);
+      return _buildChip(label, color: AppColors.primary, icon: icon);
     }
-    return _buildChip(pricingLabel(configInfo.pricing));
+    return _buildChip(label, icon: icon);
   }
 
   Widget _buildCard(BuildContext context) {
@@ -272,17 +274,24 @@ class ConfigCard extends StatelessWidget {
     return ExtensionLogo(configInfo: configInfo, size: size);
   }
 
-  Widget _buildChip(String label, {Color? color}) {
+  Widget _buildChip(String label, {Color? color, IconData? icon}) {
     final Color tint = color ?? AppColors.mainGrey;
+    final Color foreground = color ?? AppColors.mainWhite;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: tint.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Text(
-        label,
-        style: medium(size: 11, color: color ?? AppColors.mainWhite),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          if (icon != null) ...<Widget>[
+            Icon(icon, size: 12, color: foreground),
+            const SizedBox(width: 4),
+          ],
+          Text(label, style: medium(size: 11, color: foreground)),
+        ],
       ),
     );
   }

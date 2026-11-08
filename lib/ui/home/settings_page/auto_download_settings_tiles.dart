@@ -139,6 +139,7 @@ class _AutoDownloadCategoriesList extends StatelessWidget {
           ),
         for (final CategoryDomain category in categories)
           ActionSheetRow(
+            icon: Icons.label_rounded,
             label: category.name,
             selected: selected.contains(category.id),
             onTap: () => context

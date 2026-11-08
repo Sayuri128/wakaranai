@@ -344,6 +344,7 @@ class _TrackerRow extends StatelessWidget {
           children: <Widget>[
             for (final TrackerStatus status in TrackerStatus.values)
               ActionSheetRow(
+                icon: trackerStatusIcon(status, current.mediaType),
                 label: trackerStatusLabel(status, current.mediaType),
                 selected: status == current.status,
                 onTap: () {

@@ -67,6 +67,7 @@ void showLibrarySortSheet(BuildContext context, LibraryState state) {
       children: <Widget>[
         for (final MapEntry<LibrarySort, String> e in labels.entries)
           ActionSheetRow(
+            icon: _librarySortIcon(e.key),
             label: e.value,
             selected: state.sort == e.key,
             onTap: () {
@@ -77,4 +78,17 @@ void showLibrarySortSheet(BuildContext context, LibraryState state) {
       ],
     ),
   );
+}
+
+IconData _librarySortIcon(LibrarySort sort) {
+  switch (sort) {
+    case LibrarySort.addedNewest:
+      return Icons.arrow_downward_rounded;
+    case LibrarySort.addedOldest:
+      return Icons.arrow_upward_rounded;
+    case LibrarySort.title:
+      return Icons.sort_by_alpha_rounded;
+    case LibrarySort.lastRead:
+      return Icons.history_rounded;
+  }
 }

@@ -13,6 +13,21 @@ import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
+IconData downloadQualityIcon(DownloadQuality quality) {
+  switch (quality) {
+    case DownloadQuality.sameAsPlayer:
+      return Icons.link_rounded;
+    case DownloadQuality.highest:
+      return Icons.high_quality_rounded;
+    case DownloadQuality.p1080:
+      return Icons.hd_rounded;
+    case DownloadQuality.p720:
+      return Icons.hd_rounded;
+    case DownloadQuality.p480:
+      return Icons.sd_rounded;
+  }
+}
+
 String downloadQualityLabel(DownloadQuality quality) {
   switch (quality) {
     case DownloadQuality.sameAsPlayer:
@@ -135,6 +150,7 @@ class _DownloadStorageSettingsSectionState
         children: <Widget>[
           for (final DownloadQuality quality in DownloadQuality.values)
             ActionSheetRow(
+              icon: downloadQualityIcon(quality),
               label: downloadQualityLabel(quality),
               selected: quality == _quality,
               onTap: () {

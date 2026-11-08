@@ -1,6 +1,7 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/content_kinds/content_kinds.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/source_pricing/source_pricing.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/generated/l10n.dart';
@@ -106,6 +107,51 @@ String pricingLabel(String pricing) {
       return S.current.source_pricing_paid;
   }
   return S.current.source_pricing_free;
+}
+
+IconData pricingIcon(String pricing) {
+  switch (pricing) {
+    case SourcePricing.partial:
+      return Icons.toll_rounded;
+    case SourcePricing.paid:
+      return Icons.paid_rounded;
+  }
+  return Icons.money_off_rounded;
+}
+
+const Map<String, String> _languageCodes = <String, String>{
+  'english': 'EN',
+  'русский': 'RU',
+  'українська': 'UK',
+  '日本語': 'JA',
+  '中文': 'ZH',
+  '한국어': 'KO',
+  'español': 'ES',
+  'português': 'PT',
+  'français': 'FR',
+  'deutsch': 'DE',
+  'italiano': 'IT',
+  'polski': 'PL',
+  'türkçe': 'TR',
+  'tiếng việt': 'VI',
+  'bahasa indonesia': 'ID',
+};
+
+bool isMultiLanguage(String language) {
+  return language.trim().toLowerCase() == 'multi';
+}
+
+String languageCode(String language) {
+  final String normalized = language.trim().toLowerCase();
+  final String? known = _languageCodes[normalized];
+  if (known != null) {
+    return known;
+  }
+  final String trimmed = language.trim();
+  if (trimmed.length <= 2) {
+    return trimmed.toUpperCase();
+  }
+  return trimmed.substring(0, 2).toUpperCase();
 }
 
 String contentKindLabel(String kind) {

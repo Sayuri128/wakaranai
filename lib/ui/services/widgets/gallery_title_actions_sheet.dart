@@ -148,12 +148,14 @@ void _showCategoryPicker(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           ActionSheetRow(
+            icon: Icons.label_off_rounded,
             label: S.current.library_no_category,
             selected: saved != null && saved.categoryId == null,
             onTap: () => choose(sheetContext, null),
           ),
           for (final CategoryDomain category in library.state.categories)
             ActionSheetRow(
+              icon: Icons.label_rounded,
               label: category.name,
               selected: saved?.categoryId == category.id,
               onTap: () => choose(sheetContext, category.id),

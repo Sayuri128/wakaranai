@@ -93,6 +93,7 @@ class ConfigsFilterBar extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ActionSheetRow(
+              icon: Icons.all_inclusive_rounded,
               label: S.of(context).configs_filter_all_prices,
               selected: filter.pricing == null,
               onTap: () {
@@ -102,6 +103,7 @@ class ConfigsFilterBar extends StatelessWidget {
             ),
             for (final String pricing in pricings)
               ActionSheetRow(
+                icon: pricingIcon(pricing),
                 label: pricingLabel(pricing),
                 selected: filter.pricing == pricing,
                 onTap: () {
@@ -124,6 +126,10 @@ class ConfigsFilterBar extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ActionSheetRow(
+              leading: _LanguageMark(
+                selected: filter.language == null,
+                icon: Icons.language_rounded,
+              ),
               label: S.of(context).configs_filter_all_languages,
               selected: filter.language == null,
               onTap: () {
@@ -133,6 +139,7 @@ class ConfigsFilterBar extends StatelessWidget {
             ),
             for (final String language in languages)
               ActionSheetRow(
+                leading: _languageMarkFor(language, filter.language == language),
                 label: language,
                 selected: filter.language == language,
                 onTap: () {
@@ -144,6 +151,56 @@ class ConfigsFilterBar extends StatelessWidget {
         ),
       ),
     ));
+  }
+}
+
+Widget _languageMarkFor(String language, bool selected) {
+  if (isMultiLanguage(language)) {
+    return _LanguageMark(
+      selected: selected,
+      icon: Icons.public_rounded,
+      language: language,
+    );
+  }
+  return _LanguageMark(selected: selected, language: language);
+}
+
+class _LanguageMark extends StatelessWidget {
+  const _LanguageMark({
+    required this.selected,
+    this.icon,
+    this.language,
+  });
+
+  final bool selected;
+  final IconData? icon;
+  final String? language;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 30,
+      child: Center(child: _buildMark()),
+    );
+  }
+
+  Widget _buildMark() {
+    final Color color = selected ? AppColors.primary : AppColors.mainWhite;
+    final IconData? markIcon = icon;
+    if (markIcon != null) {
+      return Icon(markIcon, size: 20, color: color);
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.overlay(0.08),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        languageCode(language ?? ''),
+        style: semibold(size: 11, color: color),
+      ),
+    );
   }
 }
 

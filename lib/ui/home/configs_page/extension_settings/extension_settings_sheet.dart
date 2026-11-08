@@ -283,6 +283,7 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
     return _PreferenceCard(
       children: <Widget>[
         _PreferenceHeader(
+          icon: Icons.dns_rounded,
           title: S.current.ext_prefs_mirror_title,
           summary: S.current.ext_prefs_mirror_summary,
         ),
@@ -306,6 +307,7 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
     return _PreferenceCard(
       children: <Widget>[
         _PreferenceHeader(
+          icon: Icons.view_agenda_rounded,
           title: S.current.ext_prefs_page_size_title,
           summary: S.current.ext_prefs_page_size_summary,
           trailing: _buildResetButtonForKey(ExtensionPreference.pageSizeKey),
@@ -350,6 +352,7 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
           onTap: () => _write(definition.key, !enabled),
           splashColor: AppColors.mediumLight.withValues(alpha: 0.2),
           child: _PreferenceHeader(
+            icon: Icons.toggle_on_rounded,
             title: definition.title,
             summary: definition.summary,
             bottomPadding: 14,
@@ -370,6 +373,7 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
     return _PreferenceCard(
       children: <Widget>[
         _PreferenceHeader(
+          icon: Icons.tune_rounded,
           title: definition.title,
           summary: definition.summary,
           trailing: _buildResetButton(definition),
@@ -391,6 +395,7 @@ class _ExtensionSettingsSheetState extends State<ExtensionSettingsSheet> {
     return _PreferenceCard(
       children: <Widget>[
         _PreferenceHeader(
+          icon: Icons.checklist_rounded,
           title: definition.title,
           summary: definition.summary,
           trailing: _buildResetButton(definition),
@@ -573,12 +578,14 @@ class _PreferenceCard extends StatelessWidget {
 
 class _PreferenceHeader extends StatelessWidget {
   const _PreferenceHeader({
+    this.icon,
     required this.title,
     this.summary,
     this.trailing,
     this.bottomPadding = 6,
   });
 
+  final IconData? icon;
   final String title;
   final String? summary;
   final Widget? trailing;
@@ -591,6 +598,10 @@ class _PreferenceHeader extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(16, 14, 12, bottomPadding),
       child: Row(
         children: <Widget>[
+          if (icon != null) ...<Widget>[
+            Icon(icon, size: 20, color: AppColors.mainGrey),
+            const SizedBox(width: 12),
+          ],
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

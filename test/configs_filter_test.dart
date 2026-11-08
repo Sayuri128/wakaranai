@@ -1,4 +1,5 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
@@ -88,5 +89,21 @@ void main() {
     final ConfigsFilter paid = const ConfigsFilter(language: 'English').withPricing('paid');
     expect(paid.language, 'English');
     expect(mixed.where(paid.matches).map((BaseExtension e) => e.config.uid), <String>['vod']);
+  });
+
+  test('maps languages to short codes and recognises the multi-language label', () {
+    expect(languageCode('Русский'), 'RU');
+    expect(languageCode(' Українська '), 'UK');
+    expect(languageCode('English'), 'EN');
+    expect(languageCode('Esperanto'), 'ES');
+    expect(languageCode('vi'), 'VI');
+    expect(isMultiLanguage('Multi'), isTrue);
+    expect(isMultiLanguage('English'), isFalse);
+  });
+
+  test('gives each pricing its own icon', () {
+    expect(pricingIcon('free'), Icons.money_off_rounded);
+    expect(pricingIcon('partial'), Icons.toll_rounded);
+    expect(pricingIcon('paid'), Icons.paid_rounded);
   });
 }

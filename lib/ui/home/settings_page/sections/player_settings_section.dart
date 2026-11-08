@@ -154,6 +154,7 @@ class PlayerSettingsSection extends StatelessWidget {
           for (final VideoPlayerPreference preference
               in VideoPlayerPreference.values)
             ActionSheetRow(
+              icon: videoPlayerPreferenceIcon(preference),
               label: videoPlayerPreferenceLabel(preference),
               selected: preference == current,
               onTap: () {
@@ -164,6 +165,17 @@ class PlayerSettingsSection extends StatelessWidget {
         ],
       ),
     ));
+  }
+}
+
+IconData videoPlayerPreferenceIcon(VideoPlayerPreference preference) {
+  switch (preference) {
+    case VideoPlayerPreference.auto:
+      return Icons.smart_display_rounded;
+    case VideoPlayerPreference.webOnly:
+      return Icons.public_rounded;
+    case VideoPlayerPreference.external:
+      return Icons.open_in_new_rounded;
   }
 }
 

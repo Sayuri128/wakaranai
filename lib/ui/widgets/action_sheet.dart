@@ -54,6 +54,7 @@ class ActionSheetRow extends StatelessWidget {
     super.key,
     required this.label,
     this.icon,
+    this.leading,
     this.selected = false,
     this.destructive = false,
     required this.onTap,
@@ -61,6 +62,7 @@ class ActionSheetRow extends StatelessWidget {
 
   final String label;
   final IconData? icon;
+  final Widget? leading;
   final bool selected;
   final bool destructive;
   final VoidCallback onTap;
@@ -76,7 +78,10 @@ class ActionSheetRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         child: Row(
           children: <Widget>[
-            if (icon != null) ...<Widget>[
+            if (leading != null) ...<Widget>[
+              leading!,
+              const SizedBox(width: 14),
+            ] else if (icon != null) ...<Widget>[
               Icon(icon, size: 20, color: color),
               const SizedBox(width: 14),
             ],

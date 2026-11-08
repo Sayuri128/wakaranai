@@ -116,6 +116,7 @@ class ReaderDisplayTiles extends StatelessWidget {
         children: <Widget>[
           for (final ReaderPageFit fit in ReaderPageFit.values)
             ActionSheetRow(
+              icon: readerPageFitIcon(fit),
               label: readerPageFitLabel(fit),
               selected: fit == current,
               onTap: () {
@@ -141,6 +142,7 @@ class ReaderDisplayTiles extends StatelessWidget {
         children: <Widget>[
           for (final ReaderBackground background in ReaderBackground.values)
             ActionSheetRow(
+              icon: readerBackgroundIcon(background),
               label: readerBackgroundLabel(background),
               selected: background == current,
               onTap: () {

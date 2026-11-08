@@ -34,12 +34,14 @@ void showLibraryMoveToCategorySheet(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           ActionSheetRow(
+            icon: Icons.label_off_rounded,
             label: S.current.library_no_category,
             selected: allIn(null),
             onTap: () => move(sheetContext, null),
           ),
           for (final CategoryDomain c in state.categories)
             ActionSheetRow(
+              icon: Icons.label_rounded,
               label: c.name,
               selected: allIn(c.id),
               onTap: () => move(sheetContext, c.id),
