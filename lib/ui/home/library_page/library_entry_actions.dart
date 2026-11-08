@@ -1,6 +1,7 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/auto_download/auto_download_settings_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
@@ -9,6 +10,7 @@ import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/ui/home/library_page/library_category_sheets.dart';
 import 'package:wakaranai/ui/home/library_page/library_download_actions.dart';
 import 'package:wakaranai/ui/widgets/action_sheet.dart';
+import 'package:wakaranai/ui/widgets/auto_download_override_sheet.dart';
 
 Future<void> showLibraryEntryActions(
   BuildContext context,
@@ -39,6 +41,8 @@ Future<void> showLibraryEntryActions(
     (LibraryEntryDomain e) => e.notifyUpdates,
   );
   final LibraryCubit library = context.read<LibraryCubit>();
+  final bool autoDownloadEnabled =
+      context.read<AutoDownloadSettingsCubit>().state.enabled;
 
   void finish(BuildContext sheetContext) {
     Navigator.of(sheetContext).pop();
@@ -88,6 +92,19 @@ Future<void> showLibraryEntryActions(
                   downloadable,
                   extensionTypes,
                   clearSelection: clearSelection,
+                );
+              },
+            ),
+          if (autoDownloadEnabled)
+            ActionSheetRow(
+              icon: Icons.downloading_rounded,
+              label: autoDownloadOverrideRowLabel(entries),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                showAutoDownloadOverrideSheet(
+                  context,
+                  entries,
+                  onChanged: clearSelection,
                 );
               },
             ),

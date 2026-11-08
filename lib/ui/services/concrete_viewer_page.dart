@@ -19,6 +19,7 @@ import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/widgets/browser_interceptor_scope.dart';
+import 'package:wakaranai/ui/services/widgets/concrete_auto_download_chip.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_related_rail.dart';
 import 'package:wakaranai/ui/services/widgets/concrete_viewer_widgets.dart';
 import 'package:wakaranai/services/trackers/tracker_models.dart';
@@ -267,6 +268,7 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
             localProgress: trackerLocalProgress(state),
           ),
         ),
+      ConcreteAutoDownloadChip(concreteUid: concreteView.uid),
       if (concreteView.tags.isNotEmpty) ...<Widget>[
         const SizedBox(height: 16),
         _buildTags(concreteView),
