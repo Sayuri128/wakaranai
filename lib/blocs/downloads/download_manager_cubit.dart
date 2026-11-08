@@ -135,12 +135,16 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       emit(state.copyWith(downloads: rows));
     });
 
-    if (!_recovered) {
+    if (_recovered) {
+      unawaited(adoptQueuedDownloads());
+    } else {
       _recovered = true;
       unawaited(_control.recoverInterrupted());
     }
     unawaited(_networkPolicy.start());
   }
+
+  Future<void> adoptQueuedDownloads() => _control.adoptQueued();
 
   void setWifiOnly(bool value) {
     _networkPolicy.setWifiOnly(value);

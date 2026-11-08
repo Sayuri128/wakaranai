@@ -1,18 +1,14 @@
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:capyscript/api_clients/api_client.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
-import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
-import 'package:wakaranai/services/downloads/episode/episode_download_manifest.dart';
 import 'package:wakaranai/services/downloads/jobs/download_job.dart';
 import 'package:wakaranai/services/downloads/queue/download_job_queue.dart';
 import 'package:wakaranai/services/downloads/queue/download_job_rebuilder.dart';
-import 'package:wakaranai/services/downloads/storage/download_files.dart';
+import 'package:wakaranai/services/downloads/queue/queued_download_rows.dart';
 import 'package:wakaranai/utils/serial_call_queue.dart';
 
 class DownloadQueueControl {
@@ -22,13 +18,17 @@ class DownloadQueueControl {
     required DownloadJobRebuilder rebuilder,
     required void Function() startQueue,
     required Future<void> Function() settleEmptiedQueue,
+    QueuedDownloadRows? rows,
   })  : _downloads = downloadRepository,
+        _rows = rows ??
+            QueuedDownloadRows(downloadRepository: downloadRepository),
         _queue = queue,
         _rebuilder = rebuilder,
         _startQueue = startQueue,
         _settleEmptiedQueue = settleEmptiedQueue;
 
   final DownloadRepository _downloads;
+  final QueuedDownloadRows _rows;
   final DownloadJobQueue _queue;
   final DownloadJobRebuilder _rebuilder;
   final void Function() _startQueue;
@@ -60,33 +60,28 @@ class DownloadQueueControl {
     required String title,
     required Map<String, dynamic>? data,
   }) async {
-    final DownloadDomain? existing = await _downloads.getByUid(chapterUid);
-    if (_isPendingOrDone(existing)) {
+    final DownloadDomain? existing = await _rows.existing(chapterUid);
+    if (QueuedDownloadRows.isPendingOrDone(existing)) {
       return false;
     }
 
-    final Directory dir =
-        await DownloadFiles.chapterDir(extensionUid, concreteUid, chapterUid);
+    final DownloadDomain row = await _rows.chapterRow(
+      title: QueuedTitle(
+        extensionUid: extensionUid,
+        concreteUid: concreteUid,
+        concreteId: concreteId,
+        concreteTitle: concreteTitle,
+        concreteCover: concreteCover,
+      ),
+      chapterUid: chapterUid,
+      chapterTitle: title,
+      data: data,
+      kind: chapterDownloadKindFor(client),
+    );
 
     _queue.deletedUids.remove(chapterUid);
 
-    await _saveQueuedRow(DownloadDomain(
-      id: 0,
-      uid: chapterUid,
-      extensionUid: extensionUid,
-      concreteUid: concreteUid,
-      concreteId: concreteId,
-      concreteTitle: concreteTitle,
-      concreteCover: concreteCover,
-      title: title,
-      status: DownloadStatus.queued,
-      downloadedPages: 0,
-      totalPages: 0,
-      dirPath: dir.path,
-      data: data != null ? jsonEncode(data) : null,
-      kind: chapterDownloadKindFor(client),
-      createdAt: DateTime.now(),
-    ));
+    await _rows.save(row);
 
     _queue.replace(chapterDownloadJobFor(
       client: client,
@@ -107,35 +102,26 @@ class DownloadQueueControl {
     required String? concreteCover,
     required AnimeVideo episode,
   }) async {
-    final DownloadDomain? existing = await _downloads.getByUid(episode.uid);
-    if (_isPendingOrDone(existing)) {
+    final DownloadDomain? existing = await _rows.existing(episode.uid);
+    if (QueuedDownloadRows.isPendingOrDone(existing)) {
       return false;
     }
 
-    final String dirPath =
-        await _episodeDirPath(existing, extensionUid, concreteUid, episode);
+    final DownloadDomain row = await _rows.episodeRow(
+      title: QueuedTitle(
+        extensionUid: extensionUid,
+        concreteUid: concreteUid,
+        concreteId: concreteId,
+        concreteTitle: concreteTitle,
+        concreteCover: concreteCover,
+      ),
+      episode: episode,
+      existing: existing,
+    );
 
     _queue.deletedUids.remove(episode.uid);
 
-    await _saveQueuedRow(DownloadDomain(
-      id: 0,
-      uid: episode.uid,
-      extensionUid: extensionUid,
-      concreteUid: concreteUid,
-      concreteId: concreteId,
-      concreteTitle: concreteTitle,
-      concreteCover: concreteCover,
-      title: episode.title,
-      status: DownloadStatus.queued,
-      downloadedPages: existing?.downloadedPages ?? 0,
-      totalPages: existing?.totalPages ?? 0,
-      downloadedBytes: existing?.downloadedBytes ?? 0,
-      totalBytes: existing?.totalBytes ?? 0,
-      dirPath: dirPath,
-      data: encodeDownloadedEpisode(episode),
-      kind: DownloadKind.episode,
-      createdAt: DateTime.now(),
-    ));
+    await _rows.save(row);
 
     _queue.replace(EpisodeDownloadJob(
       extensionUid: extensionUid,
@@ -180,15 +166,31 @@ class DownloadQueueControl {
     });
   }
 
-  Future<void> recoverInterrupted() async {
+  Future<void> recoverInterrupted() {
+    return runSerializedOn<void>(_serialKey, () async {
+      await _failInterruptedRows();
+      await _adoptQueuedRows();
+    });
+  }
+
+  Future<void> _failInterruptedRows() async {
+    final List<DownloadDomain> rows = await _downloads.getPendingInQueueOrder();
+    for (final DownloadDomain row in rows) {
+      if (row.status == DownloadStatus.downloading) {
+        await _downloads.update(row.copyWith(status: DownloadStatus.failed));
+      }
+    }
+  }
+
+  Future<void> adoptQueued() {
+    return runSerializedOn<void>(_serialKey, _adoptQueuedRows);
+  }
+
+  Future<void> _adoptQueuedRows() async {
     final List<DownloadDomain> rows = await _downloads.getPendingInQueueOrder();
 
     bool resumedAny = false;
     for (final DownloadDomain row in rows) {
-      if (row.status == DownloadStatus.downloading) {
-        await _downloads.update(row.copyWith(status: DownloadStatus.failed));
-        continue;
-      }
       if (row.status != DownloadStatus.queued) {
         continue;
       }
@@ -221,37 +223,6 @@ class DownloadQueueControl {
       return;
     }
     await _requeueStoppedJob(row, job);
-  }
-
-  static bool _isPendingOrDone(DownloadDomain? existing) {
-    if (existing == null) {
-      return false;
-    }
-    return existing.status == DownloadStatus.done || existing.isPending;
-  }
-
-  Future<String> _episodeDirPath(
-    DownloadDomain? existing,
-    String extensionUid,
-    String concreteUid,
-    AnimeVideo episode,
-  ) async {
-    final String? previousDir = existing?.dirPath;
-    if (previousDir != null && previousDir.isNotEmpty) {
-      return previousDir;
-    }
-    final Directory dir =
-        await DownloadFiles.chapterDir(extensionUid, concreteUid, episode.uid);
-    return dir.path;
-  }
-
-  Future<void> _saveQueuedRow(DownloadDomain row) async {
-    await _downloads.createUpdateBy<$DownloadTableTable, String>(
-      row,
-      by: (DownloadDomain d) => d.uid,
-      where: (tbl) => tbl.uid,
-    );
-    await _downloads.moveToQueueEnd(row.uid);
   }
 
   Future<bool> _resumeQueuedRow(DownloadDomain row) async {
