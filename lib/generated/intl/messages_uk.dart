@@ -56,6 +56,22 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m14(count) => "Залишилося ${count}";
 
+  static String m15(count) =>
+      "${Intl.plural(count, one: '${count} розділ', few: '${count} розділи', many: '${count} розділів', other: '${count} розділу')}";
+
+  static String m16(count) =>
+      "${Intl.plural(count, one: '${count} серія', few: '${count} серії', many: '${count} серій', other: '${count} серії')}";
+
+  static String m17(score) => "${score}%";
+
+  static String m18(year) => "Осінь ${year}";
+
+  static String m19(year) => "Весна ${year}";
+
+  static String m20(year) => "Літо ${year}";
+
+  static String m21(year) => "Зима ${year}";
+
   static String m22(speed) => "${speed} МБ/с";
 
   static String m23(time) => "Залишилося ${time}";
@@ -146,6 +162,16 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m62(title) => "Востаннє відкрито: ${title}";
 
   static String m63(layout) => "Вигляд: ${layout}";
+
+  static String m64(sources) => "Немає результатів у: ${sources}";
+
+  static String m65(query) => "У вибраних джерелах немає «${query}».";
+
+  static String m66(count) =>
+      "${Intl.plural(count, one: '${count} результат', few: '${count} результати', many: '${count} результатів', other: '${count} результату')}";
+
+  static String m67(count) =>
+      "${Intl.plural(count, zero: 'Джерела не вибрано', one: 'Пошук в ${count} джерелі', few: 'Пошук у ${count} джерелах', many: 'Пошук у ${count} джерелах', other: 'Пошук у ${count} джерелах')}";
 
   static String m68(name) =>
       "Помилка під час ініціалізації джерела конфігурацій ${name}";
@@ -679,6 +705,60 @@ class MessageLookup extends MessageLookupByLibrary {
     "deepl_usage_used": MessageLookupByLibrary.simpleMessage(
       "використано цього місяця",
     ),
+    "discover_attribution": MessageLookupByLibrary.simpleMessage(
+      "Дані з AniList",
+    ),
+    "discover_chapters": m15,
+    "discover_empty_title": MessageLookupByLibrary.simpleMessage(
+      "Тут поки порожньо",
+    ),
+    "discover_episodes": m16,
+    "discover_error_message": MessageLookupByLibrary.simpleMessage(
+      "Перевірте з’єднання і спробуйте ще раз.",
+    ),
+    "discover_error_title": MessageLookupByLibrary.simpleMessage(
+      "Не вдалося завантажити AniList",
+    ),
+    "discover_find_on_sources": MessageLookupByLibrary.simpleMessage(
+      "Знайти в моїх джерелах",
+    ),
+    "discover_format_manga": MessageLookupByLibrary.simpleMessage("Манга"),
+    "discover_format_movie": MessageLookupByLibrary.simpleMessage("Фільм"),
+    "discover_format_music": MessageLookupByLibrary.simpleMessage("Кліп"),
+    "discover_format_novel": MessageLookupByLibrary.simpleMessage("Новела"),
+    "discover_format_ona": MessageLookupByLibrary.simpleMessage("ONA"),
+    "discover_format_one_shot": MessageLookupByLibrary.simpleMessage("Ваншот"),
+    "discover_format_ova": MessageLookupByLibrary.simpleMessage("OVA"),
+    "discover_format_special": MessageLookupByLibrary.simpleMessage("Спешл"),
+    "discover_format_tv": MessageLookupByLibrary.simpleMessage("ТБ"),
+    "discover_format_tv_short": MessageLookupByLibrary.simpleMessage(
+      "Коротке ТБ",
+    ),
+    "discover_load_more_failed": MessageLookupByLibrary.simpleMessage(
+      "Не вдалося завантажити більше",
+    ),
+    "discover_no_synopsis": MessageLookupByLibrary.simpleMessage(
+      "Опису поки немає.",
+    ),
+    "discover_open_tooltip": MessageLookupByLibrary.simpleMessage(
+      "Огляд з AniList",
+    ),
+    "discover_retry": MessageLookupByLibrary.simpleMessage("Повторити"),
+    "discover_score": m17,
+    "discover_search_as": MessageLookupByLibrary.simpleMessage("Шукати як"),
+    "discover_season_fall": m18,
+    "discover_season_spring": m19,
+    "discover_season_summer": m20,
+    "discover_season_winter": m21,
+    "discover_tab_novels": MessageLookupByLibrary.simpleMessage("Новели"),
+    "discover_tab_season": MessageLookupByLibrary.simpleMessage("Цей сезон"),
+    "discover_tab_trending_anime": MessageLookupByLibrary.simpleMessage(
+      "Популярне аніме",
+    ),
+    "discover_tab_trending_manga": MessageLookupByLibrary.simpleMessage(
+      "Популярна манга",
+    ),
+    "discover_title": MessageLookupByLibrary.simpleMessage("Огляд"),
     "download_speed_megabytes": m22,
     "download_time_left": m23,
     "downloads_chapters_summary": m24,
@@ -1097,6 +1177,87 @@ class MessageLookup extends MessageLookupByLibrary {
       "Щільна сітка",
     ),
     "gallery_layout_list": MessageLookupByLibrary.simpleMessage("Список"),
+    "global_search_empty_sources": m64,
+    "global_search_hint": MessageLookupByLibrary.simpleMessage(
+      "Шукати тайтли у ваших джерелах",
+    ),
+    "global_search_idle_message": MessageLookupByLibrary.simpleMessage(
+      "Кожне джерело показує результати, щойно відповість.",
+    ),
+    "global_search_idle_title": MessageLookupByLibrary.simpleMessage(
+      "Шукайте в усіх своїх джерелах",
+    ),
+    "global_search_no_results_message": m65,
+    "global_search_no_results_title": MessageLookupByLibrary.simpleMessage(
+      "Нічого не знайдено",
+    ),
+    "global_search_no_scope_message": MessageLookupByLibrary.simpleMessage(
+      "Виберіть хоча б одне джерело.",
+    ),
+    "global_search_no_scope_title": MessageLookupByLibrary.simpleMessage(
+      "Немає джерел для пошуку",
+    ),
+    "global_search_open_tooltip": MessageLookupByLibrary.simpleMessage(
+      "Шукати в усіх джерелах",
+    ),
+    "global_search_rail_failed": MessageLookupByLibrary.simpleMessage(
+      "Не вдалося виконати пошук у цьому джерелі",
+    ),
+    "global_search_rail_open": MessageLookupByLibrary.simpleMessage("Відкрити"),
+    "global_search_rail_retry": MessageLookupByLibrary.simpleMessage(
+      "Повторити",
+    ),
+    "global_search_rail_sign_in": MessageLookupByLibrary.simpleMessage(
+      "Потрібен вхід",
+    ),
+    "global_search_rail_timeout": MessageLookupByLibrary.simpleMessage(
+      "Джерело відповідало надто довго",
+    ),
+    "global_search_rail_unavailable": MessageLookupByLibrary.simpleMessage(
+      "Не вдалося завантажити це джерело",
+    ),
+    "global_search_rail_verify": MessageLookupByLibrary.simpleMessage(
+      "Потрібна перевірка",
+    ),
+    "global_search_recent_clear": MessageLookupByLibrary.simpleMessage(
+      "Очистити",
+    ),
+    "global_search_recent_title": MessageLookupByLibrary.simpleMessage(
+      "Нещодавні запити",
+    ),
+    "global_search_results_count": m66,
+    "global_search_scope_custom_hint": MessageLookupByLibrary.simpleMessage(
+      "Ваш власний вибір",
+    ),
+    "global_search_scope_default_hint": MessageLookupByLibrary.simpleMessage(
+      "Типово: закріплені джерела та ті, якими ви користувалися",
+    ),
+    "global_search_scope_edit": MessageLookupByLibrary.simpleMessage("Змінити"),
+    "global_search_scope_empty": MessageLookupByLibrary.simpleMessage(
+      "Немає джерел із пошуком",
+    ),
+    "global_search_scope_loading": MessageLookupByLibrary.simpleMessage(
+      "Шукаємо інші джерела…",
+    ),
+    "global_search_scope_reset": MessageLookupByLibrary.simpleMessage(
+      "Як типово",
+    ),
+    "global_search_scope_select_all": MessageLookupByLibrary.simpleMessage(
+      "Вибрати всі",
+    ),
+    "global_search_scope_select_none": MessageLookupByLibrary.simpleMessage(
+      "Очистити",
+    ),
+    "global_search_scope_summary": m67,
+    "global_search_scope_title": MessageLookupByLibrary.simpleMessage(
+      "Де шукати",
+    ),
+    "global_search_title": MessageLookupByLibrary.simpleMessage(
+      "Пошук у джерелах",
+    ),
+    "global_search_try_titles": MessageLookupByLibrary.simpleMessage(
+      "Шукати як",
+    ),
     "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Відео"),
     "home_configs_source_initializing_error": m68,
     "home_extensions_error_message": MessageLookupByLibrary.simpleMessage(

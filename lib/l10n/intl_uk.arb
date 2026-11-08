@@ -895,5 +895,141 @@
   "page_language_polish": "Польська",
   "page_language_turkish": "Турецька",
   "page_language_thai": "Тайська",
-  "page_language_arabic": "Арабська"
+  "page_language_arabic": "Арабська",
+  "global_search_title": "Пошук у джерелах",
+  "global_search_open_tooltip": "Шукати в усіх джерелах",
+  "global_search_hint": "Шукати тайтли у ваших джерелах",
+  "global_search_scope_summary": "{count, plural, =0{Джерела не вибрано} one{Пошук в {count} джерелі} few{Пошук у {count} джерелах} many{Пошук у {count} джерелах} other{Пошук у {count} джерелах}}",
+  "@global_search_scope_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "global_search_scope_edit": "Змінити",
+  "global_search_scope_title": "Де шукати",
+  "global_search_scope_default_hint": "Типово: закріплені джерела та ті, якими ви користувалися",
+  "global_search_scope_custom_hint": "Ваш власний вибір",
+  "global_search_scope_reset": "Як типово",
+  "global_search_scope_select_all": "Вибрати всі",
+  "global_search_scope_select_none": "Очистити",
+  "global_search_scope_loading": "Шукаємо інші джерела…",
+  "global_search_scope_empty": "Немає джерел із пошуком",
+  "global_search_recent_title": "Нещодавні запити",
+  "global_search_recent_clear": "Очистити",
+  "global_search_idle_title": "Шукайте в усіх своїх джерелах",
+  "global_search_idle_message": "Кожне джерело показує результати, щойно відповість.",
+  "global_search_no_scope_title": "Немає джерел для пошуку",
+  "global_search_no_scope_message": "Виберіть хоча б одне джерело.",
+  "global_search_no_results_title": "Нічого не знайдено",
+  "global_search_no_results_message": "У вибраних джерелах немає «{query}».",
+  "@global_search_no_results_message": {
+    "placeholders": {
+      "query": {}
+    }
+  },
+  "global_search_empty_sources": "Немає результатів у: {sources}",
+  "@global_search_empty_sources": {
+    "placeholders": {
+      "sources": {}
+    }
+  },
+  "global_search_results_count": "{count, plural, one{{count} результат} few{{count} результати} many{{count} результатів} other{{count} результату}}",
+  "@global_search_results_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "global_search_rail_failed": "Не вдалося виконати пошук у цьому джерелі",
+  "global_search_rail_timeout": "Джерело відповідало надто довго",
+  "global_search_rail_unavailable": "Не вдалося завантажити це джерело",
+  "global_search_rail_retry": "Повторити",
+  "global_search_rail_sign_in": "Потрібен вхід",
+  "global_search_rail_verify": "Потрібна перевірка",
+  "global_search_rail_open": "Відкрити",
+  "global_search_try_titles": "Шукати як",
+  "discover_title": "Огляд",
+  "discover_open_tooltip": "Огляд з AniList",
+  "discover_attribution": "Дані з AniList",
+  "discover_tab_season": "Цей сезон",
+  "discover_tab_trending_anime": "Популярне аніме",
+  "discover_tab_trending_manga": "Популярна манга",
+  "discover_tab_novels": "Новели",
+  "discover_season_winter": "Зима {year}",
+  "@discover_season_winter": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_season_spring": "Весна {year}",
+  "@discover_season_spring": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_season_summer": "Літо {year}",
+  "@discover_season_summer": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_season_fall": "Осінь {year}",
+  "@discover_season_fall": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_error_title": "Не вдалося завантажити AniList",
+  "discover_error_message": "Перевірте з’єднання і спробуйте ще раз.",
+  "discover_retry": "Повторити",
+  "discover_empty_title": "Тут поки порожньо",
+  "discover_load_more_failed": "Не вдалося завантажити більше",
+  "discover_find_on_sources": "Знайти в моїх джерелах",
+  "discover_search_as": "Шукати як",
+  "discover_no_synopsis": "Опису поки немає.",
+  "discover_episodes": "{count, plural, one{{count} серія} few{{count} серії} many{{count} серій} other{{count} серії}}",
+  "@discover_episodes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_chapters": "{count, plural, one{{count} розділ} few{{count} розділи} many{{count} розділів} other{{count} розділу}}",
+  "@discover_chapters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_score": "{score}%",
+  "@discover_score": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_format_tv": "ТБ",
+  "discover_format_tv_short": "Коротке ТБ",
+  "discover_format_movie": "Фільм",
+  "discover_format_special": "Спешл",
+  "discover_format_ova": "OVA",
+  "discover_format_ona": "ONA",
+  "discover_format_music": "Кліп",
+  "discover_format_manga": "Манга",
+  "discover_format_novel": "Новела",
+  "discover_format_one_shot": "Ваншот"
 }
