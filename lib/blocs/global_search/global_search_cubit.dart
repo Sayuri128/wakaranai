@@ -56,7 +56,7 @@ class GlobalSearchCubit extends Cubit<GlobalSearchState> {
   Future<void> init({String? initialQuery}) async {
     final List<String> history = await preferences.readHistory();
     _storedScope = await preferences.readScope();
-    final GlobalSearchCatalogSnapshot snapshot = await catalog.loadKnown();
+    final GlobalSearchCatalogSnapshot snapshot = await _loadKnown();
     if (isClosed) {
       return;
     }
@@ -70,6 +70,19 @@ class GlobalSearchCubit extends Cubit<GlobalSearchState> {
       search(query);
     }
     unawaited(_loadRepositories());
+  }
+
+  Future<GlobalSearchCatalogSnapshot> _loadKnown() async {
+    try {
+      return await catalog.loadKnown();
+    } catch (e) {
+      logger.w('Failed to read the sources for global search: $e');
+      return const GlobalSearchCatalogSnapshot(
+        sources: <GlobalSearchSource>[],
+        pinned: <String>[],
+        used: <String>{},
+      );
+    }
   }
 
   Future<void> _loadRepositories() async {

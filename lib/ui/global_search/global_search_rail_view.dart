@@ -135,16 +135,16 @@ class GlobalSearchRailView extends StatelessWidget {
         separatorBuilder: (BuildContext context, int index) =>
             const SizedBox(width: 10),
         itemBuilder: (BuildContext context, int index) =>
-            _buildCard(rail.items[index]),
+            _buildCard(index, rail.items[index]),
       ),
     );
   }
 
-  Widget _buildCard(GalleryView item) {
+  Widget _buildCard(int index, GalleryView item) {
     return SizedBox(
       width: cardWidth,
       child: GalleryViewCard(
-        uid: 'global_search:${rail.source.uid}:${item.uid}',
+        uid: 'global_search:${rail.source.uid}:$index:${item.uid}',
         headers: rail.coverHeaders[item.uid] ?? const <String, String>{},
         cover: globalSearchCoverOf(item),
         title: globalSearchTitleOf(item),

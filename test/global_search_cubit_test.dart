@@ -64,6 +64,18 @@ class _FakeCatalog implements GlobalSearchCatalog {
   }
 }
 
+class _BrokenCatalog implements GlobalSearchCatalog {
+  @override
+  Future<GlobalSearchCatalogSnapshot> loadKnown() async {
+    throw StateError('database closed');
+  }
+
+  @override
+  Future<List<GlobalSearchSource>> loadAllRepositories() async {
+    throw StateError('offline');
+  }
+}
+
 class _Call {
   _Call(this.source, this.query);
 
@@ -308,5 +320,21 @@ void main() {
     expect(cubit.state.history, <String>['one piece']);
     await cubit.close();
     expect(backend.disposed, isTrue);
+  });
+
+  test('an unreadable catalog leaves an empty, ready scope', () async {
+    final GlobalSearchCubit cubit = GlobalSearchCubit(
+      backend: backend,
+      catalog: _BrokenCatalog(),
+      rules: const GlobalSearchScopeRules(),
+    );
+    addTearDown(cubit.close);
+    await cubit.init(initialQuery: 'q');
+    await _settle();
+
+    expect(cubit.state.scopeReady, isTrue);
+    expect(cubit.state.scope, isEmpty);
+    expect(cubit.state.loadingRepositories, isFalse);
+    expect(backend.calls, isEmpty);
   });
 }
