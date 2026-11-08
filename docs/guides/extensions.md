@@ -304,7 +304,7 @@ The app keeps the reading position of each chapter, offers previous and next cha
 
 Novel support needs an app release that knows type `2`. Releases without it cannot read the
 config: recent ones leave the extension out of their listing, older ones may fail on it. Set
-`minAppVersion` to the first release with novel support, and keep novel extensions off the branch
+`minAppVersion` to the first release with novel support (1.0.0), and keep novel extensions off the branch
 older releases read until that release has shipped (see [API versions](#api-versions)).
 `contentKinds` defaults to `["novel"]` for novel extensions.
 
@@ -361,7 +361,7 @@ cannot be downloaded yet.
 
 Audio support needs an app release that knows type `3`. Releases without it cannot read the
 config: recent ones leave the extension out of their listing, older ones may fail on it. Set
-`minAppVersion` to the first release with audio support (0.4.0), and keep audio extensions off the
+`minAppVersion` to the first release with audio support (1.0.0), and keep audio extensions off the
 branch older releases read until that release has shipped (see [API versions](#api-versions)).
 `contentKinds` defaults to `["audiobook"]` for audio extensions.
 
