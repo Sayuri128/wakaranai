@@ -15,14 +15,6 @@ class LatestReleaseLoaded extends LatestReleaseState {
   const LatestReleaseLoaded({
     required this.releaseData,
   });
-
-  LatestReleaseLoaded copyWith({
-    LatestReleaseData? releaseData,
-  }) {
-    return LatestReleaseLoaded(
-      releaseData: releaseData ?? this.releaseData,
-    );
-  }
 }
 
 class LatestReleaseError extends LatestReleaseState {

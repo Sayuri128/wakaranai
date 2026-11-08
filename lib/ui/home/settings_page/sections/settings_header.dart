@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,8 +21,19 @@ class SettingsHeader extends StatelessWidget {
   }
 }
 
-class SettingsUpdateBanner extends StatelessWidget {
+class SettingsUpdateBanner extends StatefulWidget {
   const SettingsUpdateBanner({super.key});
+
+  @override
+  State<SettingsUpdateBanner> createState() => _SettingsUpdateBannerState();
+}
+
+class _SettingsUpdateBannerState extends State<SettingsUpdateBanner> {
+  @override
+  void initState() {
+    super.initState();
+    unawaited(context.read<LatestReleaseCubit>().check());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +50,10 @@ class SettingsUpdateBanner extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             child: InkWell(
               borderRadius: BorderRadius.circular(16),
-              onTap: () => launchUrl(Uri.parse(state.releaseData.url)),
+              onTap: () => launchUrl(
+                Uri.parse(state.releaseData.url),
+                mode: LaunchMode.externalApplication,
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
