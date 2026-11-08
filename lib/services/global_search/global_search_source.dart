@@ -2,7 +2,7 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
-import 'package:wakaranai/services/local_source/local_source.dart';
+import 'package:wakaranai/services/local_source/local_sources.dart';
 
 class GlobalSearchSource {
   const GlobalSearchSource({required this.extension, this.configsService});
@@ -16,7 +16,7 @@ class GlobalSearchSource {
 
   String get name => config.name.trim();
 
-  bool get isLocal => LocalSource.isLocal(uid);
+  bool get isLocal => LocalSources.isBuiltIn(uid);
 
   bool get isInstalled => extension is ExtensionDomain;
 

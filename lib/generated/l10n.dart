@@ -6789,6 +6789,69 @@ class S {
     );
   }
 
+  /// `Local books`
+  String get local_books_name {
+    return Intl.message(
+      'Local books',
+      name: 'local_books_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import EPUB files`
+  String get local_books_import {
+    return Intl.message(
+      'Import EPUB files',
+      name: 'local_books_import',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Where to put books`
+  String get local_books_where {
+    return Intl.message(
+      'Where to put books',
+      name: 'local_books_where',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy EPUB files into\n{path}\n\nEach file is a book, and subfolders are fine. Chapters follow the book's table of contents. The folder is reachable over USB from a computer.`
+  String local_books_where_message(Object path) {
+    return Intl.message(
+      'Copy EPUB files into\n$path\n\nEach file is a book, and subfolders are fine. Chapters follow the book\'s table of contents. The folder is reachable over USB from a computer.',
+      name: 'local_books_where_message',
+      desc: '',
+      args: [path],
+    );
+  }
+
+  /// `{count, plural, =0{Nothing was imported} =1{Imported 1 book} other{Imported {count} books}}`
+  String local_books_imported(int count) {
+    return Intl.plural(
+      count,
+      zero: 'Nothing was imported',
+      one: 'Imported 1 book',
+      other: 'Imported $count books',
+      name: 'local_books_imported',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Part {number}`
+  String local_books_untitled_chapter(int number) {
+    return Intl.message(
+      'Part $number',
+      name: 'local_books_untitled_chapter',
+      desc: '',
+      args: [number],
+    );
+  }
+
   /// `Trackers`
   String get settings_trackers_title {
     return Intl.message(

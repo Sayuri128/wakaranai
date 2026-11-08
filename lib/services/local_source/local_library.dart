@@ -139,10 +139,15 @@ class LocalTitle {
 }
 
 class LocalLibrary {
-  LocalLibrary({required this.root, required this.cache});
+  LocalLibrary({
+    required this.root,
+    required this.cache,
+    this.reservedFolders = const <String>{},
+  });
 
   final Directory root;
   final Directory cache;
+  final Set<String> reservedFolders;
 
   String relativeId(String path) {
     return p.relative(path, from: root.path).replaceAll('\\', '/');
@@ -162,6 +167,10 @@ class LocalLibrary {
     }
     final List<LocalTitle> titles = <LocalTitle>[];
     await for (final FileSystemEntity entity in root.list(followLinks: false)) {
+      if (entity is Directory &&
+          reservedFolders.contains(p.basename(entity.path))) {
+        continue;
+      }
       final LocalTitle? title = await titleAt(entity.path);
       if (title != null) {
         titles.add(title);

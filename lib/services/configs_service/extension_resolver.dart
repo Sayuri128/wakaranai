@@ -10,9 +10,8 @@ import 'package:wakaranai/services/configs_service/configs_service.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:wakaranai/services/configs_service/extension_instances.dart';
 import 'package:wakaranai/services/configs_service/github_configs_service.dart';
-import 'package:wakaranai/services/local_source/local_source.dart';
+import 'package:wakaranai/services/local_source/local_sources.dart';
 import 'package:wakaranai/utils/github_url_parser.dart';
-import 'package:wakaranai/generated/l10n.dart';
 
 typedef RemoteListingEntry = ({RemoteConfig remote, ConfigsService service});
 
@@ -32,8 +31,9 @@ class ExtensionResolver {
   final Future<List<ConfigsService>> Function()? _candidateServicesOverride;
 
   Future<ExtensionDomain?> resolve(String uid) async {
-    if (LocalSource.isLocal(uid)) {
-      return LocalSource.extension(S.current.local_source_name);
+    final ExtensionDomain? builtIn = LocalSources.extensionFor(uid);
+    if (builtIn != null) {
+      return builtIn;
     }
     final ExtensionDomain? cached = await extensionRepository.getByUid(uid);
     if (cached != null) return cached;
@@ -66,7 +66,7 @@ class ExtensionResolver {
     final Map<String, List<ExtensionDomain>> pending =
         <String, List<ExtensionDomain>>{};
     for (final ExtensionDomain extension in installed) {
-      if (LocalSource.isLocal(extension.config.uid)) {
+      if (LocalSources.isBuiltIn(extension.config.uid)) {
         continue;
       }
       final String key = extension.baseUid ?? extension.config.uid;

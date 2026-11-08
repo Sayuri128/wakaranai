@@ -34,7 +34,10 @@ void main() {
         'OEBPS/Text/chapter1.xhtml',
         'OEBPS/Text/chapter1_split.xhtml',
       ]);
-      expect(book.chapters.last.documents, <String>['OEBPS/Text/chapter2.xhtml']);
+      expect(
+        book.chapters.last.documents,
+        <String>['OEBPS/Text/chapter2.xhtml'],
+      );
     });
 
     test('skips the cover-only page, the nav and non-linear items', () {

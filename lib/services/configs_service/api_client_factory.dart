@@ -7,7 +7,9 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:wakaranai/repositories/database/extension_storage_repository.dart';
 import 'package:wakaranai/services/extension_preferences/extension_host_services.dart';
 import 'package:wakaranai/services/extension_preferences/extension_preferences_store.dart';
+import 'package:wakaranai/services/local_source/local_books_source.dart';
 import 'package:wakaranai/services/local_source/local_manga_api_client.dart';
+import 'package:wakaranai/services/local_source/local_novel_api_client.dart';
 import 'package:wakaranai/services/local_source/local_source.dart';
 
 class ExtensionHostFactory {
@@ -80,6 +82,12 @@ class ApiClientFactory {
   }
 
   NovelApiClient novel({required ConfigInfo config, required String code}) {
+    if (LocalBooksSource.isLocal(config.uid)) {
+      return LocalNovelApiClient(
+        library: LocalBooksSource.library,
+        host: hostFactory.hostFor(config),
+      );
+    }
     return NovelApiClient(code: code, host: hostFactory.hostFor(config));
   }
 }

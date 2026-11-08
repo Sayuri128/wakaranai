@@ -13,6 +13,7 @@ class LocalSource {
   static const String uid = '4d0c7a51-6f3b-4b8e-9c2a-5e1d0f7a3b21';
   static const String revision = 'local';
   static const String folderName = 'Local';
+  static const String booksFolderName = 'Books';
 
   static bool isLocal(String extensionUid) => extensionUid == uid;
 
@@ -53,6 +54,10 @@ class LocalSource {
     final Directory cache = Directory(
       p.join((await getApplicationCacheDirectory()).path, 'local_source'),
     );
-    return LocalLibrary(root: root, cache: cache);
+    return LocalLibrary(
+      root: root,
+      cache: cache,
+      reservedFolders: const <String>{booksFolderName},
+    );
   }
 }

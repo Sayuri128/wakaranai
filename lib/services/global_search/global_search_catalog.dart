@@ -1,14 +1,13 @@
 import 'package:wakaranai/data/domain/database/base_extension.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
-import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
 import 'package:wakaranai/services/configs_service/extension_resolver.dart';
 import 'package:wakaranai/services/global_search/global_search_source.dart';
-import 'package:wakaranai/services/local_source/local_source.dart';
+import 'package:wakaranai/services/local_source/local_sources.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_view_options.dart';
 
@@ -52,11 +51,10 @@ class RepositoryGlobalSearchCatalog implements GlobalSearchCatalog {
     };
     return GlobalSearchCatalogSnapshot(
       sources: <GlobalSearchSource>[
-        GlobalSearchSource(
-          extension: LocalSource.extension(S.current.local_source_name),
-        ),
+        for (final ExtensionDomain extension in LocalSources.all())
+          GlobalSearchSource(extension: extension),
         for (final ExtensionDomain extension in installed)
-          if (!LocalSource.isLocal(extension.config.uid))
+          if (!LocalSources.isBuiltIn(extension.config.uid))
             GlobalSearchSource(extension: extension),
         ..._currentListing(),
       ],

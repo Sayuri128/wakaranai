@@ -1277,6 +1277,31 @@
     }
   },
   "local_source_imported_title": "Imported",
+  "local_books_name": "Local books",
+  "local_books_import": "Import EPUB files",
+  "local_books_where": "Where to put books",
+  "local_books_where_message": "Copy EPUB files into\n{path}\n\nEach file is a book, and subfolders are fine. Chapters follow the book's table of contents. The folder is reachable over USB from a computer.",
+  "@local_books_where_message": {
+    "placeholders": {
+      "path": {}
+    }
+  },
+  "local_books_imported": "{count, plural, =0{Nothing was imported} =1{Imported 1 book} other{Imported {count} books}}",
+  "@local_books_imported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "local_books_untitled_chapter": "Part {number}",
+  "@local_books_untitled_chapter": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "settings_trackers_title": "Trackers",
   "settings_tracker_signed_out": "Not signed in. Tap to sign in",
   "settings_tracker_signed_in": "Signed in as {name}",

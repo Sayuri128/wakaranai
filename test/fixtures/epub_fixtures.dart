@@ -29,7 +29,8 @@ class EpubFixture {
 
   Archive archive() {
     final Archive archive = Archive();
-    archive.addFile(ArchiveFile('mimetype', 20, utf8.encode('application/epub+zip')));
+    final List<int> mimetype = utf8.encode('application/epub+zip');
+    archive.addFile(ArchiveFile('mimetype', mimetype.length, mimetype));
     _files.forEach((String path, List<int> content) {
       archive.addFile(ArchiveFile(path, content.length, content));
     });
@@ -192,7 +193,10 @@ EpubFixture epub2Fixture() {
     '<html><body><p>First part &nbsp; text.<br>Line two.</p>'
         '<img src="images/front.png"></body></html>',
   );
-  fixture.text('c2.html', '<html><body><div/><p>Second part.</p></body></html>');
+  fixture.text(
+    'c2.html',
+    '<html><body><div/><p>Second part.</p></body></html>',
+  );
   fixture.bytes('images/front.png', fixtureImageBytes);
   return fixture;
 }
