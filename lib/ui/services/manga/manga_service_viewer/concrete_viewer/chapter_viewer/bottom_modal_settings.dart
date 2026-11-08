@@ -10,6 +10,7 @@ import 'package:wakaranai/ui/services/cubits/chapter_view/chapter_view_state.dar
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
+import 'package:wakaranai/services/page_translation/page_language_names.dart';
 
 class BottomModalSettings extends StatefulWidget {
   const BottomModalSettings({
@@ -199,7 +200,8 @@ class _BottomModalSettingsState extends State<BottomModalSettings> {
       const SizedBox(height: 10),
       _ValueRow(
         label: S.current.page_translation_languages_title,
-        value: '${languages.source.name} → ${languages.target.name}',
+        value:
+            '${pageLanguageName(languages.source)} → ${pageLanguageName(languages.target)}',
         onTap: () => closeThen(editLanguages),
       ),
       if (editGlossary != null) ...<Widget>[

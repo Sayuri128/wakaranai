@@ -30,8 +30,8 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
   final PageController _pageController = PageController();
   final _pageBucket = PageStorageBucket();
 
-  final DateFormat _dateFormat = DateFormat('dd MMM yyyy');
-  final DateFormat _dayTimeFormat = DateFormat('HH:mm');
+  DateFormat get _dateFormat => DateFormat('dd MMM yyyy');
+  DateFormat get _dayTimeFormat => DateFormat('HH:mm');
 
   int _currentPage = 0;
 

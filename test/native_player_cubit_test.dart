@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
+import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playback_resolver.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_player_result.dart';
@@ -363,6 +364,8 @@ class _Harness {
 }
 
 void main() {
+  setUpAll(() => S.load(const Locale('en')));
+
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
   });

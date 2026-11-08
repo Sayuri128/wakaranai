@@ -117,7 +117,7 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
     } catch (err, s) {
       logger.e(err);
       logger.e(s);
-      emit(RemoteConfigsError(message: "Configs source error :c"));
+      emit(RemoteConfigsError(message: S.current.home_extensions_error_message));
     }
   }
 

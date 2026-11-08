@@ -4,6 +4,7 @@ import 'package:wakaranai/services/page_translation/engines/on_device_model.dart
 import 'package:wakaranai/services/page_translation/title_languages.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
+import 'package:wakaranai/services/page_translation/page_language_names.dart';
 
 Future<bool> showTranslationModelsSheet(
   BuildContext context, {
@@ -22,8 +23,8 @@ Future<bool> showTranslationModelsSheet(
   } else {
     title = S.current.page_translation_models_title;
     message = S.current.page_translation_models_message(
-      languages.source.name,
-      languages.target.name,
+      pageLanguageName(languages.source),
+      pageLanguageName(languages.target),
     );
   }
   final bool showWifiNote = wifiOnly && gemma == null;

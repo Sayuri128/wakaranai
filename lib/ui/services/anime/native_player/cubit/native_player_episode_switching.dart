@@ -330,7 +330,7 @@ mixin _EpisodeSwitching on _NativePlayerCore {
       },
     ));
     if (_video.streams.isEmpty) {
-      _emitError('No playable streams');
+      _emitError(S.current.native_player_no_streams);
       return;
     }
     await _playCurrentVideo(generation);

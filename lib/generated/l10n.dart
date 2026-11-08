@@ -8703,6 +8703,201 @@ class S {
       args: [],
     );
   }
+
+  /// `Configs source error :c`
+  String get home_extensions_error_message {
+    return Intl.message(
+      'Configs source error :c',
+      name: 'home_extensions_error_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No extension was selected`
+  String get api_client_no_extension_selected {
+    return Intl.message(
+      'No extension was selected',
+      name: 'api_client_no_extension_selected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No playable streams`
+  String get native_player_no_streams {
+    return Intl.message(
+      'No playable streams',
+      name: 'native_player_no_streams',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Japanese`
+  String get page_language_japanese {
+    return Intl.message(
+      'Japanese',
+      name: 'page_language_japanese',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Korean`
+  String get page_language_korean {
+    return Intl.message(
+      'Korean',
+      name: 'page_language_korean',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chinese`
+  String get page_language_chinese {
+    return Intl.message(
+      'Chinese',
+      name: 'page_language_chinese',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `English`
+  String get page_language_english {
+    return Intl.message(
+      'English',
+      name: 'page_language_english',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Spanish`
+  String get page_language_spanish {
+    return Intl.message(
+      'Spanish',
+      name: 'page_language_spanish',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `French`
+  String get page_language_french {
+    return Intl.message(
+      'French',
+      name: 'page_language_french',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `German`
+  String get page_language_german {
+    return Intl.message(
+      'German',
+      name: 'page_language_german',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Italian`
+  String get page_language_italian {
+    return Intl.message(
+      'Italian',
+      name: 'page_language_italian',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Portuguese`
+  String get page_language_portuguese {
+    return Intl.message(
+      'Portuguese',
+      name: 'page_language_portuguese',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Indonesian`
+  String get page_language_indonesian {
+    return Intl.message(
+      'Indonesian',
+      name: 'page_language_indonesian',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Vietnamese`
+  String get page_language_vietnamese {
+    return Intl.message(
+      'Vietnamese',
+      name: 'page_language_vietnamese',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Russian`
+  String get page_language_russian {
+    return Intl.message(
+      'Russian',
+      name: 'page_language_russian',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ukrainian`
+  String get page_language_ukrainian {
+    return Intl.message(
+      'Ukrainian',
+      name: 'page_language_ukrainian',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Polish`
+  String get page_language_polish {
+    return Intl.message(
+      'Polish',
+      name: 'page_language_polish',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Turkish`
+  String get page_language_turkish {
+    return Intl.message(
+      'Turkish',
+      name: 'page_language_turkish',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Thai`
+  String get page_language_thai {
+    return Intl.message('Thai', name: 'page_language_thai', desc: '', args: []);
+  }
+
+  /// `Arabic`
+  String get page_language_arabic {
+    return Intl.message(
+      'Arabic',
+      name: 'page_language_arabic',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

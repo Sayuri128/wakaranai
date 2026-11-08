@@ -4,6 +4,7 @@ import 'package:wakaranai/services/page_translation/page_language.dart';
 import 'package:wakaranai/services/page_translation/title_languages.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
+import 'package:wakaranai/services/page_translation/page_language_names.dart';
 
 Widget _dragHandle() {
   return Center(
@@ -159,13 +160,13 @@ class _TranslationLanguagesSheetState
             const SizedBox(height: 16),
             _LanguageRow(
               label: S.current.page_translation_languages_from,
-              value: _source.name,
+              value: pageLanguageName(_source),
               onTap: _pickSource,
             ),
             const SizedBox(height: 8),
             _LanguageRow(
               label: S.current.page_translation_languages_to,
-              value: _target.name,
+              value: pageLanguageName(_target),
               onTap: _pickTarget,
             ),
             const SizedBox(height: 20),
@@ -252,7 +253,7 @@ class _LanguageOption extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: Text(
-                language.name,
+                pageLanguageName(language),
                 style: medium(
                   size: 15,
                   color: selected ? AppColors.primary : AppColors.mainWhite,

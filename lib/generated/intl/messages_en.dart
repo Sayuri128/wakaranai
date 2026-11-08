@@ -409,6 +409,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "api_client_error_title": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t load this extension",
     ),
+    "api_client_no_extension_selected": MessageLookupByLibrary.simpleMessage(
+      "No extension was selected",
+    ),
     "app_name": MessageLookupByLibrary.simpleMessage("Wakaranai"),
     "browser_check_dismiss": MessageLookupByLibrary.simpleMessage("Dismiss"),
     "browser_check_open_button": MessageLookupByLibrary.simpleMessage(
@@ -1059,6 +1062,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "gallery_layout_list": MessageLookupByLibrary.simpleMessage("List"),
     "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Video"),
     "home_configs_source_initializing_error": m57,
+    "home_extensions_error_message": MessageLookupByLibrary.simpleMessage(
+      "Configs source error :c",
+    ),
     "home_extensions_error_title": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t load extensions",
     ),
@@ -1243,6 +1249,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "native_player_next_episode": MessageLookupByLibrary.simpleMessage(
       "Next episode",
     ),
+    "native_player_no_streams": MessageLookupByLibrary.simpleMessage(
+      "No playable streams",
+    ),
     "native_player_open_web_player": MessageLookupByLibrary.simpleMessage(
       "Open in web player",
     ),
@@ -1310,6 +1319,31 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "novel_reader_settings_title": MessageLookupByLibrary.simpleMessage(
       "Reading settings",
+    ),
+    "page_language_arabic": MessageLookupByLibrary.simpleMessage("Arabic"),
+    "page_language_chinese": MessageLookupByLibrary.simpleMessage("Chinese"),
+    "page_language_english": MessageLookupByLibrary.simpleMessage("English"),
+    "page_language_french": MessageLookupByLibrary.simpleMessage("French"),
+    "page_language_german": MessageLookupByLibrary.simpleMessage("German"),
+    "page_language_indonesian": MessageLookupByLibrary.simpleMessage(
+      "Indonesian",
+    ),
+    "page_language_italian": MessageLookupByLibrary.simpleMessage("Italian"),
+    "page_language_japanese": MessageLookupByLibrary.simpleMessage("Japanese"),
+    "page_language_korean": MessageLookupByLibrary.simpleMessage("Korean"),
+    "page_language_polish": MessageLookupByLibrary.simpleMessage("Polish"),
+    "page_language_portuguese": MessageLookupByLibrary.simpleMessage(
+      "Portuguese",
+    ),
+    "page_language_russian": MessageLookupByLibrary.simpleMessage("Russian"),
+    "page_language_spanish": MessageLookupByLibrary.simpleMessage("Spanish"),
+    "page_language_thai": MessageLookupByLibrary.simpleMessage("Thai"),
+    "page_language_turkish": MessageLookupByLibrary.simpleMessage("Turkish"),
+    "page_language_ukrainian": MessageLookupByLibrary.simpleMessage(
+      "Ukrainian",
+    ),
+    "page_language_vietnamese": MessageLookupByLibrary.simpleMessage(
+      "Vietnamese",
     ),
     "page_translation_ai_model_downloading": m76,
     "page_translation_ai_model_message": m77,

@@ -7,6 +7,7 @@ import 'package:wakaranai/services/page_translation/page_language.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_widgets.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
+import 'package:wakaranai/services/page_translation/page_language_names.dart';
 
 class LanguagePacksPage extends StatefulWidget {
   const LanguagePacksPage({super.key});
@@ -161,7 +162,7 @@ class _PackTile extends StatelessWidget {
           icon: status == LanguagePackStatus.downloaded
               ? Icons.check_circle_rounded
               : Icons.language_rounded,
-          title: language.name,
+          title: pageLanguageName(language),
           subtitle: subtitle,
           destructive: status == LanguagePackStatus.failed,
           trailing: _buildAction(context, status),

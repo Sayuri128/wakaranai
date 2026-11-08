@@ -21,6 +21,7 @@ import 'package:wakaranai/ui/services/anime/native_player/player_track_selection
 import 'package:wakaranai/ui/services/anime/native_player/skip_markers.dart';
 import 'package:wakaranai/ui/services/anime/native_player/subtitle_loader.dart';
 import 'package:wakaranai/utils/source_error_description.dart';
+import 'package:wakaranai/generated/l10n.dart';
 
 part 'native_player_auto_next.dart';
 part 'native_player_core.dart';
@@ -74,7 +75,7 @@ class NativePlayerCubit extends _NativePlayerCore
 
   Future<void> init() async {
     if (_video.streams.isEmpty) {
-      _emitError('No playable streams');
+      _emitError(S.current.native_player_no_streams);
       return;
     }
     await _loadPreferences();

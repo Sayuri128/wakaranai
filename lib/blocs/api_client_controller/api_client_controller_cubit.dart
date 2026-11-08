@@ -34,7 +34,8 @@ class ApiClientControllerCubit<T extends ApiClient, C>
     final BaseExtension? extension = remoteConfig;
 
     if (extension == null) {
-      emit(ApiClientControllerError(message: 'No extension was selected'));
+      emit(ApiClientControllerError(
+          message: S.current.api_client_no_extension_selected));
       return;
     }
 

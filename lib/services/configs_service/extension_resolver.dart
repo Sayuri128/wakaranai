@@ -12,6 +12,7 @@ import 'package:wakaranai/services/configs_service/extension_instances.dart';
 import 'package:wakaranai/services/configs_service/github_configs_service.dart';
 import 'package:wakaranai/services/local_source/local_source.dart';
 import 'package:wakaranai/utils/github_url_parser.dart';
+import 'package:wakaranai/generated/l10n.dart';
 
 class ExtensionResolver {
   ExtensionResolver({
@@ -30,7 +31,7 @@ class ExtensionResolver {
 
   Future<ExtensionDomain?> resolve(String uid) async {
     if (LocalSource.isLocal(uid)) {
-      return LocalSource.extension(LocalSource.displayName);
+      return LocalSource.extension(S.current.local_source_name);
     }
     final ExtensionDomain? cached = await extensionRepository.getByUid(uid);
     if (cached != null) return cached;

@@ -17,6 +17,7 @@ import 'package:wakaranai/ui/services/widgets/page_translation/translation_langu
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
+import 'package:wakaranai/services/page_translation/page_language_names.dart';
 
 class PageTranslationSettingsPage extends StatefulWidget {
   const PageTranslationSettingsPage({super.key});
@@ -171,7 +172,7 @@ class _PageTranslationSettingsPageState
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Text(
-                settings.target.name,
+                pageLanguageName(settings.target),
                 style: medium(size: 13, color: AppColors.mainGrey),
               ),
               const SizedBox(width: 4),

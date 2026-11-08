@@ -202,7 +202,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Завантаження мовних пакетів ${current}/${total}…";
 
   static String m80(source, target) =>
-      "Для перекладу з мови «${source}» на мову «${target}» потрібні мовні пакети на пристрої, близько 30 МБ кожен. Їх завантажують один раз, після чого сторінки перекладаються повністю на вашому пристрої.";
+      "Для перекладу (${source} → ${target}) потрібні мовні пакети на пристрої, близько 30 МБ кожен. Їх завантажують один раз, після чого сторінки перекладаються повністю на вашому пристрої.";
 
   static String m81(count) => "Збережено сторінок: ${count}";
 
@@ -428,6 +428,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "anime_concrete_viewer_watched_at_title": m0,
     "api_client_error_title": MessageLookupByLibrary.simpleMessage(
       "Не вдалося завантажити це розширення",
+    ),
+    "api_client_no_extension_selected": MessageLookupByLibrary.simpleMessage(
+      "Розширення не вибрано",
     ),
     "app_name": MessageLookupByLibrary.simpleMessage("Wakaranai"),
     "browser_check_dismiss": MessageLookupByLibrary.simpleMessage("Закрити"),
@@ -1096,6 +1099,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "gallery_layout_list": MessageLookupByLibrary.simpleMessage("Список"),
     "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Відео"),
     "home_configs_source_initializing_error": m57,
+    "home_extensions_error_message": MessageLookupByLibrary.simpleMessage(
+      "Помилка джерела розширень :c",
+    ),
     "home_extensions_error_title": MessageLookupByLibrary.simpleMessage(
       "Не вдалося завантажити розширення",
     ),
@@ -1298,6 +1304,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "native_player_next_episode": MessageLookupByLibrary.simpleMessage(
       "Наступна серія",
     ),
+    "native_player_no_streams": MessageLookupByLibrary.simpleMessage(
+      "Немає потоків, які можна відтворити",
+    ),
     "native_player_open_web_player": MessageLookupByLibrary.simpleMessage(
       "Відкрити у вебплеєрі",
     ),
@@ -1367,6 +1376,31 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "novel_reader_settings_title": MessageLookupByLibrary.simpleMessage(
       "Налаштування читання",
+    ),
+    "page_language_arabic": MessageLookupByLibrary.simpleMessage("Арабська"),
+    "page_language_chinese": MessageLookupByLibrary.simpleMessage("Китайська"),
+    "page_language_english": MessageLookupByLibrary.simpleMessage("Англійська"),
+    "page_language_french": MessageLookupByLibrary.simpleMessage("Французька"),
+    "page_language_german": MessageLookupByLibrary.simpleMessage("Німецька"),
+    "page_language_indonesian": MessageLookupByLibrary.simpleMessage(
+      "Індонезійська",
+    ),
+    "page_language_italian": MessageLookupByLibrary.simpleMessage("Італійська"),
+    "page_language_japanese": MessageLookupByLibrary.simpleMessage("Японська"),
+    "page_language_korean": MessageLookupByLibrary.simpleMessage("Корейська"),
+    "page_language_polish": MessageLookupByLibrary.simpleMessage("Польська"),
+    "page_language_portuguese": MessageLookupByLibrary.simpleMessage(
+      "Португальська",
+    ),
+    "page_language_russian": MessageLookupByLibrary.simpleMessage("Російська"),
+    "page_language_spanish": MessageLookupByLibrary.simpleMessage("Іспанська"),
+    "page_language_thai": MessageLookupByLibrary.simpleMessage("Тайська"),
+    "page_language_turkish": MessageLookupByLibrary.simpleMessage("Турецька"),
+    "page_language_ukrainian": MessageLookupByLibrary.simpleMessage(
+      "Українська",
+    ),
+    "page_language_vietnamese": MessageLookupByLibrary.simpleMessage(
+      "В’єтнамська",
     ),
     "page_translation_ai_model_downloading": m76,
     "page_translation_ai_model_message": m77,

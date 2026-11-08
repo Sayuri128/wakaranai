@@ -4,6 +4,7 @@ import 'package:wakaranai/services/page_translation/glossary.dart';
 import 'package:wakaranai/services/page_translation/title_languages.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
+import 'package:wakaranai/services/page_translation/page_language_names.dart';
 
 class GlossaryEdit {
   const GlossaryEdit({required this.glossary, required this.retranslate});
@@ -193,7 +194,7 @@ class _GlossarySheetState extends State<_GlossarySheet> {
             Expanded(
               child: _GlossaryField(
                 controller: entry.source,
-                hint: widget.languages.source.name,
+                hint: pageLanguageName(widget.languages.source),
               ),
             ),
             Padding(
@@ -207,7 +208,7 @@ class _GlossarySheetState extends State<_GlossarySheet> {
             Expanded(
               child: _GlossaryField(
                 controller: entry.target,
-                hint: widget.languages.target.name,
+                hint: pageLanguageName(widget.languages.target),
               ),
             ),
             IconButton(
