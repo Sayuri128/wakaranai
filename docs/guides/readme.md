@@ -7,5 +7,6 @@
 * [External extension sources](../inapp_docs/external_extension_sources.md) — hosting your own
   extension repository and pointing the app at it.
 
-Templates for a new manga extension live in
-[extension_templates/manga](extension_templates/manga).
+Templates for new extensions live in [extension_templates](extension_templates), one folder each for
+manga, anime, novels and audiobooks. They declare the api 2 fields (`feeds`, `pagination`,
+`preferences`, `protectorConfig`) as examples; remove whichever your extension doesn't use.

@@ -5,7 +5,8 @@ own repository instead of (or alongside) the official one.
 
 ## Adding a repository
 
-Open **Explore → Sources**, tap the **+** button, and fill in:
+On the **Explore** tab, tap the repository name at the top of the screen to open **Repositories**,
+then tap the **+** button and fill in:
 
 * **URL** — the GitHub repository, e.g. `https://github.com/Sayuri128/wakaranai_configs`
 * **Name** — how the repository is labelled in the app
@@ -20,7 +21,7 @@ always listed first and cannot be removed.
 <table>
   <tr>
       <td>
-        <img width="320px" src="1.jpg" alt="Extensions list with the Sources button"/>
+        <img width="320px" src="1.jpg" alt="The Explore tab with the repository name at the top"/>
       </td>
       <td>
          <img width="320px" src="2.jpg" alt="Repositories list"/>
@@ -33,8 +34,8 @@ always listed first and cannot be removed.
 
 ## Repository structure
 
-The repository needs `manga` and/or `anime` directories, with one directory per extension
-containing a `config.json` and a `main.capyscript`:
+The repository needs at least one of the `manga`, `anime`, `novel` and `audio` directories, with one
+directory per extension containing a `config.json` and a `main.capyscript`:
 
 ```
 ├── manga
@@ -48,7 +49,18 @@ containing a `config.json` and a `main.capyscript`:
 │   ├── extension1
 │   │   ├── config.json
 │   │   └── main.capyscript
+├── novel
+│   ├── extension1
+│   │   ├── config.json
+│   │   └── main.capyscript
+├── audio
+│   ├── extension1
+│   │   ├── config.json
+│   │   └── main.capyscript
 ```
+
+Ready-made starting points for each type are in the
+[extension templates](../guides/extension_templates).
 
 ## Optional: index.json
 
@@ -63,13 +75,25 @@ so it loads faster and is much less likely to hit GitHub's rate limit for unauth
     {
       "category": "manga",
       "path": "manga/extension1",
+      "revision": "7cd0cbcd61367c08",
+      "apiVersion": 2,
+      "minAppVersion": "1.0.0",
       "config": { "...contents of config.json..." }
     }
   ]
 }
 ```
 
-If `index.json` is missing, the app falls back to scanning the `manga` and `anime` directories, so
-it is entirely optional — just keep it in sync with the configs when you add or update an extension.
+* `revision` is any string that changes whenever the extension changes. Installed extensions update
+  when it differs. Without it, the app compares `version` from `config.json` instead.
+* `apiVersion` and `minAppVersion` are copied from `config.json`, so the app can mark an extension
+  that needs a newer app without downloading its script.
+
+The easiest way to produce this file is
+[`tool/build_index.dart`](https://github.com/Sayuri128/wakaranai_configs/blob/main/tool/build_index.dart)
+from the official repository; run it again whenever you add or update an extension.
+
+If `index.json` is missing, the app falls back to scanning the `manga`, `anime`, `novel` and `audio`
+directories, so it is entirely optional.
 
 See the guide for creating extensions [here](../guides/extensions.md).
