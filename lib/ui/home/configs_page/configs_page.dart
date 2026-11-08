@@ -166,16 +166,9 @@ class _ConfigPageState extends State<ConfigPage> {
       floating: true,
       snap: true,
       centerTitle: false,
-      titleSpacing: 16,
+      titleSpacing: 8,
       automaticallyImplyLeading: false,
-      title: Text(
-        state is RemoteConfigsLoaded
-            ? state.sourceName
-            : S.current.home_remote_configs_page_appbar_title,
-        style: semibold(size: 22),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
+      title: _buildSourceSwitcher(context, state),
       actions: <Widget>[
         IconButton(
           tooltip: S.current.discover_open_tooltip,
@@ -190,48 +183,66 @@ class _ConfigPageState extends State<ConfigPage> {
             arguments: const GlobalSearchArguments(),
           ),
         ),
-        IconButton(
-          tooltip: S.current.configs_view_options,
-          icon: Icon(Icons.tune_rounded, color: AppColors.mainWhite),
-          onPressed: () => _showViewOptions(context),
-        ),
         Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: _buildSourcesButton(context),
+          padding: const EdgeInsets.only(right: 4),
+          child: IconButton(
+            tooltip: S.current.configs_view_options,
+            icon: Icon(Icons.tune_rounded, color: AppColors.mainWhite),
+            onPressed: () => _showViewOptions(context),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildSourcesButton(BuildContext context) {
-    return Material(
-      color: AppColors.overlay(0.08),
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () {
-          Navigator.of(context)
-              .pushNamed(Routes.myExtensionSources)
-              .then((Object? value) {
-            if (value is ExtensionSourcesPageResult) {
-              context.read<RemoteConfigsCubit>().changeSource(value);
-            }
-          });
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(Icons.swap_horiz_rounded,
-                  size: 18, color: AppColors.mainWhite),
-              const SizedBox(width: 6),
-              Text(S.current.home_sources_button, style: medium(size: 14)),
-            ],
+  Widget _buildSourceSwitcher(BuildContext context, RemoteConfigsState state) {
+    final String title = state is RemoteConfigsLoaded
+        ? state.sourceName
+        : S.current.home_remote_configs_page_appbar_title;
+    return Semantics(
+      button: true,
+      label: S.current.home_sources_button,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => _openSources(context),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Flexible(
+                  child: Text(
+                    title,
+                    style: semibold(size: 22),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 2),
+                Icon(
+                  Icons.expand_more_rounded,
+                  size: 24,
+                  color: AppColors.mainGrey,
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  void _openSources(BuildContext context) {
+    Navigator.of(context)
+        .pushNamed(Routes.myExtensionSources)
+        .then((Object? value) {
+      if (value is ExtensionSourcesPageResult && context.mounted) {
+        context.read<RemoteConfigsCubit>().changeSource(value);
+      }
+    });
   }
 
   List<Widget> _buildLoaded(BuildContext context, RemoteConfigsLoaded state) {
