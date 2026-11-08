@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,8 +9,11 @@ import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/services/migration/migration_models.dart';
 import 'package:wakaranai/ui/home/library_page/library_category_sheets.dart';
 import 'package:wakaranai/ui/home/library_page/library_download_actions.dart';
+import 'package:wakaranai/ui/migration/migration_bulk_sheet.dart';
+import 'package:wakaranai/ui/migration/migration_launcher.dart';
 import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/ui/widgets/auto_download_override_sheet.dart';
 
@@ -81,6 +86,18 @@ Future<void> showLibraryEntryActions(
               );
             },
           ),
+          ActionSheetRow(
+            icon: Icons.swap_horiz_rounded,
+            label: S.current.migration_action_move,
+            onTap: () {
+              Navigator.of(sheetContext).pop();
+              unawaited(_migrate(
+                context,
+                entries,
+                clearSelection: clearSelection,
+              ));
+            },
+          ),
           if (downloadable.isNotEmpty)
             ActionSheetRow(
               icon: Icons.download_rounded,
@@ -144,6 +161,26 @@ Future<void> showLibraryEntryActions(
       ),
     ),
   );
+}
+
+Future<void> _migrate(
+  BuildContext context,
+  List<LibraryEntryDomain> entries, {
+  VoidCallback? clearSelection,
+}) async {
+  final List<MigrationSubject> subjects = await migrationSubjectsForEntries(
+    context.read<ExtensionRepository>(),
+    entries,
+  );
+  if (!context.mounted) {
+    return;
+  }
+  clearSelection?.call();
+  if (subjects.length == 1) {
+    await startMigration(context, subjects.single);
+    return;
+  }
+  await showMigrationBulkSheet(context, subjects);
 }
 
 Future<Map<String, ConfigInfoType>> _extensionTypes(

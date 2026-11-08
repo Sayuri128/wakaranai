@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/api_clients/novel_api_client.dart';
@@ -10,8 +12,10 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/services/configs_service/extension_resolver.dart';
+import 'package:wakaranai/services/migration/migration_models.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
+import 'package:wakaranai/ui/migration/migration_launcher.dart';
 import 'package:wakaranai/ui/services/anime/anime_concrete_viewer/anime_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
@@ -73,6 +77,28 @@ class _LibraryConcreteViewerState extends State<LibraryConcreteViewer> {
               icon: Icons.extension_off_rounded,
               title: S.current.library_source_unavailable_title,
               message: S.current.library_source_unavailable_message,
+              actions: <Widget>[
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.mainBlack,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  onPressed: () => unawaited(startMigration(
+                    context,
+                    MigrationSubject.fromLibraryEntry(widget.data.entry),
+                    replaceCurrentRoute: true,
+                  )),
+                  icon: const Icon(Icons.travel_explore_rounded),
+                  label: Text(S.current.migration_action_find_elsewhere),
+                ),
+              ],
             ),
           );
         }

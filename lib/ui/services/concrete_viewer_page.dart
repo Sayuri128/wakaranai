@@ -15,6 +15,8 @@ import 'package:wakaranai/ui/common/service_viewer/service_gallery_kind.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/concrete_view_cubit_wrapper.dart';
 import 'package:wakaranai/ui/home/web_browser_wrapper.dart';
+import 'package:wakaranai/ui/migration/migration_launcher.dart';
+import 'package:wakaranai/services/migration/migration_models.dart';
 import 'package:wakaranai/ui/services/concrete_viewer_mixin.dart';
 import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
@@ -258,16 +260,7 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
         const SizedBox(height: 12),
         ConcreteMetadataRow(view: concreteView),
       ],
-      if (!state.offline)
-        ConcreteTrackingChip(
-          request: TrackerLinkRequest(
-            concreteUid: concreteView.uid,
-            extensionUid: configInfo.uid,
-            title: concreteView.title,
-            type: trackerMediaType,
-            localProgress: trackerLocalProgress(state),
-          ),
-        ),
+      _buildActionChips(context, state),
       ConcreteAutoDownloadChip(concreteUid: concreteView.uid),
       if (concreteView.tags.isNotEmpty) ...<Widget>[
         const SizedBox(height: 16),
@@ -304,6 +297,90 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
         count: groupSize,
       ),
     ];
+  }
+
+  Widget _buildActionChips(
+    BuildContext context,
+    ConcreteViewInitialized<T, C, G> state,
+  ) {
+    final C concreteView = state.concreteView;
+    final Widget? tracking = state.offline
+        ? null
+        : ConcreteTrackingChip(
+            embedded: true,
+            request: TrackerLinkRequest(
+              concreteUid: concreteView.uid,
+              extensionUid: configInfo.uid,
+              title: concreteView.title,
+              type: trackerMediaType,
+              localProgress: trackerLocalProgress(state),
+            ),
+          );
+    return BlocBuilder<LibraryCubit, LibraryState>(
+      buildWhen: (LibraryState previous, LibraryState next) =>
+          !identical(previous.entries, next.entries),
+      builder: (BuildContext context, LibraryState libraryState) {
+        final bool inLibrary = libraryState.entries
+            .any((LibraryEntryDomain entry) => entry.uid == concreteView.uid);
+        if (!inLibrary && tracking == null) {
+          return const SizedBox.shrink();
+        }
+        if (!inLibrary) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Align(alignment: Alignment.centerLeft, child: tracking),
+          );
+        }
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: <Widget>[
+              if (tracking != null) tracking,
+              ConcreteMigrateChip(
+                onTap: () => unawaited(startMigration(
+                  context,
+                  _migrationSubject(concreteView),
+                  replaceCurrentRoute: true,
+                )),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  MigrationSubject _migrationSubject(C concreteView) {
+    return MigrationSubject(
+      uid: concreteView.uid,
+      extensionUid: configInfo.uid,
+      title: concreteView.title,
+      cover: galleryCover ?? concreteView.cover,
+      data: jsonEncode(galleryData),
+      type: configInfo.type,
+      sourceName: configInfo.name.trim(),
+      alternativeTitles: concreteView.alternativeTitles,
+    );
+  }
+
+  MigrationSubject _missingTitleSubject(LibraryState libraryState) {
+    LibraryEntryDomain? entry;
+    for (final LibraryEntryDomain candidate in libraryState.entries) {
+      if (candidate.uid == concreteUid) {
+        entry = candidate;
+      }
+    }
+    return MigrationSubject(
+      uid: concreteUid,
+      extensionUid: configInfo.uid,
+      title: entry?.title ?? '',
+      cover: galleryCover ?? entry?.cover,
+      data: jsonEncode(galleryData),
+      type: configInfo.type,
+      sourceName: configInfo.name.trim(),
+    );
   }
 
   Widget _buildFavoriteButton(BuildContext context, C concreteView) {
@@ -368,6 +445,16 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
                   label: S.current.source_error_open_saved_button,
                   onPressed: () =>
                       unawaited(cubit.openOffline(concreteUid, galleryData)),
+                ),
+              if (description.isNotFound)
+                SourceErrorExtraAction(
+                  icon: Icons.travel_explore_rounded,
+                  label: S.current.migration_action_find_elsewhere,
+                  onPressed: () => unawaited(startMigration(
+                    context,
+                    _missingTitleSubject(libraryState),
+                    replaceCurrentRoute: true,
+                  )),
                 ),
               if (description.isNotFound && inLibrary)
                 SourceErrorExtraAction(

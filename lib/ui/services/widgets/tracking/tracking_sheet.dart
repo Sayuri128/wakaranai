@@ -14,9 +14,14 @@ import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class ConcreteTrackingChip extends StatelessWidget {
-  const ConcreteTrackingChip({super.key, required this.request});
+  const ConcreteTrackingChip({
+    super.key,
+    required this.request,
+    this.embedded = false,
+  });
 
   final TrackerLinkRequest request;
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
@@ -31,55 +36,56 @@ class ConcreteTrackingChip extends StatelessWidget {
               .watchLinksFor(request.concreteUid),
           builder: (BuildContext context, AsyncSnapshot<List<TrackerLink>> snapshot) {
             final List<TrackerLink> links = snapshot.data ?? <TrackerLink>[];
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Material(
-                  color: links.isEmpty
-                      ? AppColors.overlay(0.06)
-                      : AppColors.primary.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(12),
-                  clipBehavior: Clip.antiAlias,
-                  child: InkWell(
-                    onTap: () => unawaited(showTrackingSheet(context, request)),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+            final Widget chip = Material(
+              color: links.isEmpty
+                  ? AppColors.overlay(0.06)
+                  : AppColors.primary.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(12),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: () => unawaited(showTrackingSheet(context, request)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Icon(
+                        links.isEmpty
+                            ? Icons.sync_disabled_rounded
+                            : Icons.sync_rounded,
+                        size: 18,
+                        color: links.isEmpty
+                            ? AppColors.mainGrey
+                            : AppColors.primary,
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Icon(
-                            links.isEmpty
-                                ? Icons.sync_disabled_rounded
-                                : Icons.sync_rounded,
-                            size: 18,
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          _label(context, links),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: medium(
+                            size: 13,
                             color: links.isEmpty
-                                ? AppColors.mainGrey
+                                ? AppColors.mainWhite
                                 : AppColors.primary,
                           ),
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: Text(
-                              _label(context, links),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: medium(
-                                size: 13,
-                                color: links.isEmpty
-                                    ? AppColors.mainWhite
-                                    : AppColors.primary,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
+            );
+            if (embedded) {
+              return chip;
+            }
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Align(alignment: Alignment.centerLeft, child: chip),
             );
           },
         );

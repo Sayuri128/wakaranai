@@ -74,6 +74,46 @@ class ConcreteFavoriteButton extends StatelessWidget {
   }
 }
 
+class ConcreteMigrateChip extends StatelessWidget {
+  const ConcreteMigrateChip({super.key, required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.overlay(0.06),
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(
+                Icons.swap_horiz_rounded,
+                size: 18,
+                color: AppColors.mainGrey,
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  S.current.migration_chip,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: medium(size: 13, color: AppColors.mainWhite),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Floating circular back button placed over the cover, always accessible.
 class ConcreteBackButton extends StatelessWidget {
   const ConcreteBackButton({super.key});
