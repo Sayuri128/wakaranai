@@ -15,6 +15,7 @@ import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/
 import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/filters/gallery_filter.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
@@ -22,10 +23,13 @@ import 'package:wakaranai/blocs/downloads/download_notification_service.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
+import 'package:wakaranai/data/domain/database/library_update_domain.dart';
 import 'package:wakaranai/data/domain/playable_video.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/data/entities/library_entry_table.dart';
+import 'package:wakaranai/data/entities/library_update_table.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
+import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
@@ -41,6 +45,7 @@ import 'package:wakaranai/services/downloads/episode/episode_source_resolver.dar
 import 'package:wakaranai/services/downloads/runtime/download_network_policy.dart';
 import 'package:wakaranai/services/downloads/runtime/download_runtime.dart';
 import 'package:wakaranai/services/downloads/runtime/network_monitor.dart';
+import 'package:wakaranai/services/library_updates/library_update_notification_service.dart';
 import 'package:wakaranai/services/library_updates/library_update_service.dart';
 
 const String _mangaExtensionUid = 'manga.ext';
@@ -688,6 +693,52 @@ void main() {
         (await harness.downloads.getByUid('ep2'))!.status,
         DownloadStatus.queued,
       );
+    });
+  });
+
+  group('the library update notification', () {
+    setUpAll(() => S.load(const Locale('en')));
+
+    LibraryUpdateDomain update(String uid, String entryUid) {
+      return LibraryUpdateDomain(
+        id: 0,
+        uid: uid,
+        libraryEntryUid: entryUid,
+        extensionUid: _mangaExtensionUid,
+        title: 'Chapter $uid',
+        concreteTitle: 'Title $entryUid',
+        mediaType: UpdateMediaType.manga,
+        createdAt: DateTime.now(),
+      );
+    }
+
+    test('says how many new items are waiting to download', () {
+      final UpdatesNotificationText text = UpdatesNotificationText(
+        <LibraryUpdateDomain>[
+          update('c1', 'm1'),
+          update('c2', 'm1'),
+          update('c3', 'm1'),
+          update('x1', 'm2'),
+        ],
+        autoQueuedByEntry: <String, int>{'m1': 3},
+      );
+
+      expect(text.lines, <String>[
+        'Title m1 · 3 new, 3 to download',
+        'Title m2 · 1 new',
+        '3 downloads start when you open the app',
+      ]);
+      expect(text.body, '3 downloads start when you open the app');
+      expect(text.autoQueued, 3);
+    });
+
+    test('keeps the plain summary when nothing was queued', () {
+      final UpdatesNotificationText text = UpdatesNotificationText(
+        <LibraryUpdateDomain>[update('c1', 'm1')],
+      );
+
+      expect(text.lines, <String>['Title m1 · 1 new']);
+      expect(text.body, text.summary);
     });
   });
 }

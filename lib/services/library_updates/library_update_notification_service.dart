@@ -88,29 +88,11 @@ class LibraryUpdateNotificationService {
     try {
       await _ensureInitialized();
 
-      final List<_TitleUpdates> perTitle = _groupByTitle(updates);
-      final List<String> lines = perTitle
-          .take(_maxLines)
-          .map((_TitleUpdates title) =>
-              title.line(autoQueuedByEntry[title.entryUid] ?? 0))
-          .toList();
-
-      if (perTitle.length > _maxLines) {
-        lines.add(S.current.updates_notification_more(
-            perTitle.length - _maxLines));
-      }
-
-      final int autoQueued = _queuedFor(perTitle, autoQueuedByEntry);
-      if (autoQueued > 0) {
-        lines.add(S.current.auto_download_notification_pending(autoQueued));
-      }
-
-      final String title = S.current.updates_notification_title(updates.length);
-      final String summary =
-          S.current.updates_notification_summary(perTitle.length);
-      final String body = autoQueued > 0
-          ? S.current.auto_download_notification_pending(autoQueued)
-          : summary;
+      final UpdatesNotificationText text = UpdatesNotificationText(
+        updates,
+        autoQueuedByEntry: autoQueuedByEntry,
+        maxTitleLines: _maxLines,
+      );
 
       final AndroidNotificationDetails android = AndroidNotificationDetails(
         _channelId,
@@ -119,16 +101,16 @@ class LibraryUpdateNotificationService {
         priority: Priority.defaultPriority,
         autoCancel: true,
         styleInformation: InboxStyleInformation(
-          lines,
-          contentTitle: title,
-          summaryText: summary,
+          text.lines,
+          contentTitle: text.title,
+          summaryText: text.summary,
         ),
       );
 
       await _plugin.show(
         _updatesId,
-        title,
-        body,
+        text.title,
+        text.body,
         NotificationDetails(android: android),
       );
     } catch (e, s) {
@@ -136,6 +118,54 @@ class LibraryUpdateNotificationService {
       logger.w(s);
     }
   }
+}
+
+class UpdatesNotificationText {
+  factory UpdatesNotificationText(
+    List<LibraryUpdateDomain> updates, {
+    Map<String, int> autoQueuedByEntry = const <String, int>{},
+    int maxTitleLines = 5,
+  }) {
+    final List<_TitleUpdates> perTitle = _groupByTitle(updates);
+    final List<String> lines = perTitle
+        .take(maxTitleLines)
+        .map((_TitleUpdates title) =>
+            title.line(autoQueuedByEntry[title.entryUid] ?? 0))
+        .toList();
+    if (perTitle.length > maxTitleLines) {
+      lines.add(
+          S.current.updates_notification_more(perTitle.length - maxTitleLines));
+    }
+    final int autoQueued = _queuedFor(perTitle, autoQueuedByEntry);
+    final String summary =
+        S.current.updates_notification_summary(perTitle.length);
+    String body = summary;
+    if (autoQueued > 0) {
+      body = S.current.auto_download_notification_pending(autoQueued);
+      lines.add(body);
+    }
+    return UpdatesNotificationText._(
+      title: S.current.updates_notification_title(updates.length),
+      summary: summary,
+      body: body,
+      lines: lines,
+      autoQueued: autoQueued,
+    );
+  }
+
+  const UpdatesNotificationText._({
+    required this.title,
+    required this.summary,
+    required this.body,
+    required this.lines,
+    required this.autoQueued,
+  });
+
+  final String title;
+  final String summary;
+  final String body;
+  final List<String> lines;
+  final int autoQueued;
 
   static List<_TitleUpdates> _groupByTitle(List<LibraryUpdateDomain> updates) {
     final Map<String, _TitleUpdates> byEntry = <String, _TitleUpdates>{};
