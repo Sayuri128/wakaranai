@@ -42,6 +42,9 @@ import 'package:wakaranai/ui/services/novel/novel_concrete_viewer.dart';
 import 'package:wakaranai/ui/discover/discover_screen.dart';
 import 'package:wakaranai/ui/global_search/global_search_arguments.dart';
 import 'package:wakaranai/ui/global_search/global_search_page.dart';
+import 'package:wakaranai/ui/migration/migration_arguments.dart';
+import 'package:wakaranai/ui/migration/migration_preview_page.dart';
+import 'package:wakaranai/ui/migration/migration_search_page.dart';
 import 'package:wakaranai/ui/services/novel/novel_service_viewer.dart';
 import 'package:wakaranai/ui/services/novel/reader/novel_reader.dart';
 import 'package:wakaranai/ui/splashscreen/splashscreen_view.dart';
@@ -206,6 +209,11 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
           Routes.globalSearch: (BuildContext context) => GlobalSearchPage(
               arguments: settings.arguments as GlobalSearchArguments),
           Routes.discover: (BuildContext context) => const DiscoverScreen(),
+          Routes.migration: (BuildContext context) => MigrationSearchPage(
+              arguments: settings.arguments as MigrationSearchArguments),
+          Routes.migrationPreview: (BuildContext context) =>
+              MigrationPreviewPage(
+                  arguments: settings.arguments as MigrationPreviewArguments),
         };
 
         return CupertinoPageRoute(builder: routes[settings.name]!);

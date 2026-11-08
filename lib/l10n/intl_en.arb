@@ -1271,18 +1271,32 @@
   "local_source_imported": "{count, plural, =0{Nothing was imported} =1{Imported 1 file} other{Imported {count} files}}",
   "@local_source_imported": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "local_source_imported_title": "Imported",
   "settings_trackers_title": "Trackers",
   "settings_tracker_signed_out": "Not signed in. Tap to sign in",
   "settings_tracker_signed_in": "Signed in as {name}",
-  "@settings_tracker_signed_in": {"placeholders": {"name": {}}},
+  "@settings_tracker_signed_in": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "settings_tracker_login_failed": "Could not sign in to {name}",
-  "@settings_tracker_login_failed": {"placeholders": {"name": {}}},
+  "@settings_tracker_login_failed": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "settings_tracker_logout_title": "Sign out of {name}?",
-  "@settings_tracker_logout_title": {"placeholders": {"name": {}}},
+  "@settings_tracker_logout_title": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "settings_tracker_logout_message": "Titles linked to this tracker stop syncing and their links are removed.",
   "settings_tracker_logout": "Sign out",
   "tracker_chip_untracked": "Track this title",
@@ -1290,7 +1304,11 @@
   "tracker_link_action": "Link",
   "tracker_unlink_action": "Unlink",
   "tracker_search_title": "Find on {name}",
-  "@tracker_search_title": {"placeholders": {"name": {}}},
+  "@tracker_search_title": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "tracker_search_hint": "Search by title",
   "tracker_search_empty": "Nothing found. Try another title.",
   "tracker_search_failed": "Search failed. Check your connection and try again.",
@@ -1306,7 +1324,11 @@
   "extension_instance_add": "Add another server",
   "extension_instance_add_confirm": "Add",
   "extension_instance_added": "Added {name}",
-  "@extension_instance_added": {"placeholders": {"name": {}}},
+  "@extension_instance_added": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "extension_instance_add_failed": "Could not add the server. Check your connection and try again.",
   "extension_instance_rename": "Rename",
   "extension_instance_rename_confirm": "Save",
@@ -1556,7 +1578,9 @@
   "novel_progress_percent": "{percent}%",
   "@novel_progress_percent": {
     "placeholders": {
-      "percent": {"type": "int"}
+      "percent": {
+        "type": "int"
+      }
     }
   },
   "downloads_novel_chapter_done": "Saved for offline reading",
@@ -1780,6 +1804,205 @@
     "placeholders": {
       "count": {},
       "queued": {}
+    }
+  },
+  "migration_action_move": "Move to another source",
+  "migration_action_find_elsewhere": "Find it on another source",
+  "migration_chip": "Move source",
+  "migration_search_title": "Move to another source",
+  "migration_search_from": "Now on {source}",
+  "@migration_search_from": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_search_unknown_source": "a source that is no longer available",
+  "migration_search_hint": "Search on the target sources",
+  "migration_search_idle_title": "Search for the title",
+  "migration_search_idle_message": "Type its name below to look for it on the target sources.",
+  "migration_no_scope_title": "Pick where to look",
+  "migration_no_scope_message": "Choose the sources the title should move to.",
+  "migration_choose_sources": "Choose sources",
+  "migration_targets_summary": "{count, plural, =0{No target sources} =1{1 target source} other{{count} target sources}}",
+  "@migration_targets_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_no_candidates_title": "No matches",
+  "migration_no_candidates_message": "Try another title or add more target sources.",
+  "migration_best_match": "Best match",
+  "migration_exact_match": "Exact match",
+  "migration_selected": "Selected",
+  "migration_pick_hint": "Tap a title to pick it",
+  "migration_continue": "Continue",
+  "migration_use_this": "Use this",
+  "migration_preview_title": "Review the move",
+  "migration_preview_old": "Now",
+  "migration_preview_new": "New",
+  "migration_options_title": "What moves along",
+  "migration_option_remove_old": "Remove the old entry",
+  "migration_option_remove_old_hint": "The new title takes its place in the library",
+  "migration_option_keep_old_hint": "Both titles stay in the library",
+  "migration_option_category": "Category",
+  "migration_option_category_hint": "Put the new title into “{name}”",
+  "@migration_option_category_hint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_option_read_progress": "Reading progress",
+  "migration_option_watch_progress": "Watch progress",
+  "migration_option_chapters_hint": "{count, plural, =0{No chapters match} =1{1 chapter matches} other{{count} chapters match}}",
+  "@migration_option_chapters_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_option_episodes_hint": "{count, plural, =0{No episodes match} =1{1 episode matches} other{{count} episodes match}}",
+  "@migration_option_episodes_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_option_trackers": "Tracker links",
+  "migration_option_trackers_hint": "{count, plural, =1{1 link moves to the new title} other{{count} links move to the new title}}",
+  "@migration_option_trackers_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_downloads_note": "{count, plural, =1{1 download stays with the old title, files are not moved} other{{count} downloads stay with the old title, files are not moved}}",
+  "@migration_downloads_note": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_mapping_title": "Progress",
+  "migration_mapping_empty": "There is no progress to move",
+  "migration_mapping_unmatched_title": "Not found on the new source",
+  "migration_mapping_more": "{count, plural, =1{and 1 more} other{and {count} more}}",
+  "@migration_mapping_more": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_mapping_read": "Read",
+  "migration_mapping_watched": "Watched",
+  "migration_mapping_partial": "{percent}%",
+  "@migration_mapping_partial": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_apply": "Move",
+  "migration_apply_failed": "The title could not be moved. Nothing was changed.",
+  "migration_load_failed_title": "The new title could not be opened",
+  "migration_retry": "Try again",
+  "migration_done": "Moved to {source}",
+  "@migration_done": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_open": "Open",
+  "migration_bulk_title": "{count, plural, =1{Move 1 title} other{Move {count} titles}}",
+  "@migration_bulk_title": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_bulk_running_title": "Moving titles",
+  "migration_bulk_targets": "Target sources",
+  "migration_bulk_auto_pick": "Auto-pick exact matches",
+  "migration_bulk_auto_pick_hint": "A title with one exact match moves without asking",
+  "migration_bulk_downloads_note": "Downloads stay with the old titles, files are not moved",
+  "migration_bulk_start": "Start",
+  "migration_bulk_stop": "Stop",
+  "migration_bulk_done": "Done",
+  "migration_bulk_progress": "{done} of {total}",
+  "@migration_bulk_progress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_bulk_status_waiting": "Waiting",
+  "migration_bulk_status_searching": "Searching…",
+  "migration_bulk_status_pick": "{count, plural, =0{No matches, search yourself} =1{1 match, confirm it} other{{count} matches, pick one}}",
+  "@migration_bulk_status_pick": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_bulk_status_migrating": "Moving to {source}…",
+  "@migration_bulk_status_migrating": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_bulk_status_done": "Moved to {source}",
+  "@migration_bulk_status_done": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_bulk_status_auto": "Exact match on {source}",
+  "@migration_bulk_status_auto": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_bulk_status_skipped": "Skipped",
+  "migration_bulk_status_failed": "Could not be moved",
+  "migration_bulk_choose": "Choose",
+  "migration_bulk_skip": "Skip",
+  "migration_bulk_summary": "{moved} moved, {skipped} skipped, {failed} failed",
+  "@migration_bulk_summary": {
+    "placeholders": {
+      "moved": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
     }
   }
 }

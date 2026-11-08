@@ -1055,5 +1055,204 @@
   "auto_download_chip_off": "Автозавантаження вимкнено",
   "auto_download_notification_line": "{title} · нових: {count}, до завантаження: {queued}",
   "auto_download_notification_pending": "{count, plural, one{{count} завантаження почнеться, щойно ви відкриєте застосунок} few{{count} завантаження почнуться, щойно ви відкриєте застосунок} many{{count} завантажень почнуться, щойно ви відкриєте застосунок} other{{count} завантаження почнуться, щойно ви відкриєте застосунок}}",
-  "auto_download_check_found": "Знайдено новинок: {count}, у черзі на завантаження: {queued}"
+  "auto_download_check_found": "Знайдено новинок: {count}, у черзі на завантаження: {queued}",
+  "migration_action_move": "Перенести на інше джерело",
+  "migration_action_find_elsewhere": "Знайти на іншому джерелі",
+  "migration_chip": "Змінити джерело",
+  "migration_search_title": "Перенесення на інше джерело",
+  "migration_search_from": "Зараз на {source}",
+  "@migration_search_from": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_search_unknown_source": "джерелі, якого вже немає",
+  "migration_search_hint": "Пошук на цільових джерелах",
+  "migration_search_idle_title": "Знайдіть тайтл",
+  "migration_search_idle_message": "Введіть назву нижче, щоб пошукати його на цільових джерелах.",
+  "migration_no_scope_title": "Оберіть, де шукати",
+  "migration_no_scope_message": "Оберіть джерела, на які слід перенести тайтл.",
+  "migration_choose_sources": "Обрати джерела",
+  "migration_targets_summary": "{count, plural, one{{count} цільове джерело} few{{count} цільові джерела} many{{count} цільових джерел} other{{count} цільового джерела}}",
+  "@migration_targets_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_no_candidates_title": "Нічого не знайдено",
+  "migration_no_candidates_message": "Спробуйте іншу назву або додайте більше цільових джерел.",
+  "migration_best_match": "Найкращий збіг",
+  "migration_exact_match": "Точний збіг",
+  "migration_selected": "Вибрано",
+  "migration_pick_hint": "Торкніться тайтлу, щоб вибрати його",
+  "migration_continue": "Далі",
+  "migration_use_this": "Вибрати",
+  "migration_preview_title": "Перевірте перенесення",
+  "migration_preview_old": "Зараз",
+  "migration_preview_new": "Нове",
+  "migration_options_title": "Що перенести",
+  "migration_option_remove_old": "Прибрати старий запис",
+  "migration_option_remove_old_hint": "Новий тайтл займе його місце в бібліотеці",
+  "migration_option_keep_old_hint": "Обидва тайтли залишаться в бібліотеці",
+  "migration_option_category": "Категорія",
+  "migration_option_category_hint": "Додати новий тайтл до «{name}»",
+  "@migration_option_category_hint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_option_read_progress": "Прогрес читання",
+  "migration_option_watch_progress": "Прогрес перегляду",
+  "migration_option_chapters_hint": "{count, plural, one{Збігається {count} розділ} few{Збігаються {count} розділи} many{Збігається {count} розділів} other{Збігається {count} розділу}}",
+  "@migration_option_chapters_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_option_episodes_hint": "{count, plural, one{Збігається {count} серія} few{Збігаються {count} серії} many{Збігається {count} серій} other{Збігається {count} серії}}",
+  "@migration_option_episodes_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_option_trackers": "Прив'язки до трекерів",
+  "migration_option_trackers_hint": "{count, plural, one{{count} прив'язка перейде до нового тайтлу} few{{count} прив'язки перейдуть до нового тайтлу} many{{count} прив'язок перейдуть до нового тайтлу} other{{count} прив'язки перейдуть до нового тайтлу}}",
+  "@migration_option_trackers_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_downloads_note": "{count, plural, one{{count} завантаження залишиться зі старим тайтлом, файли не переносяться} few{{count} завантаження залишаться зі старим тайтлом, файли не переносяться} many{{count} завантажень залишаться зі старим тайтлом, файли не переносяться} other{{count} завантаження залишаться зі старим тайтлом, файли не переносяться}}",
+  "@migration_downloads_note": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_mapping_title": "Прогрес",
+  "migration_mapping_empty": "Немає прогресу для перенесення",
+  "migration_mapping_unmatched_title": "Не знайдено на новому джерелі",
+  "migration_mapping_more": "{count, plural, one{і ще {count}} few{і ще {count}} many{і ще {count}} other{і ще {count}}}",
+  "@migration_mapping_more": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_mapping_read": "Прочитано",
+  "migration_mapping_watched": "Переглянуто",
+  "migration_mapping_partial": "{percent}%",
+  "@migration_mapping_partial": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_apply": "Перенести",
+  "migration_apply_failed": "Не вдалося перенести тайтл. Нічого не змінено.",
+  "migration_load_failed_title": "Не вдалося відкрити новий тайтл",
+  "migration_retry": "Спробувати ще раз",
+  "migration_done": "Перенесено на {source}",
+  "@migration_done": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_open": "Відкрити",
+  "migration_bulk_title": "{count, plural, one{Перенести {count} тайтл} few{Перенести {count} тайтли} many{Перенести {count} тайтлів} other{Перенести {count} тайтлу}}",
+  "@migration_bulk_title": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_bulk_running_title": "Перенесення тайтлів",
+  "migration_bulk_targets": "Цільові джерела",
+  "migration_bulk_auto_pick": "Автовибір точних збігів",
+  "migration_bulk_auto_pick_hint": "Тайтл з одним точним збігом переноситься без запитання",
+  "migration_bulk_downloads_note": "Завантаження залишаються зі старими тайтлами, файли не переносяться",
+  "migration_bulk_start": "Почати",
+  "migration_bulk_stop": "Зупинити",
+  "migration_bulk_done": "Готово",
+  "migration_bulk_progress": "{done} з {total}",
+  "@migration_bulk_progress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_bulk_status_waiting": "Очікує",
+  "migration_bulk_status_searching": "Пошук…",
+  "migration_bulk_status_pick": "{count, plural, =0{Збігів немає, пошукайте самі} one{{count} збіг, підтвердьте} few{{count} збіги, виберіть} many{{count} збігів, виберіть} other{{count} збігу, виберіть}}",
+  "@migration_bulk_status_pick": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_bulk_status_migrating": "Перенесення на {source}…",
+  "@migration_bulk_status_migrating": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_bulk_status_done": "Перенесено на {source}",
+  "@migration_bulk_status_done": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_bulk_status_auto": "Точний збіг на {source}",
+  "@migration_bulk_status_auto": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_bulk_status_skipped": "Пропущено",
+  "migration_bulk_status_failed": "Не вдалося перенести",
+  "migration_bulk_choose": "Вибрати",
+  "migration_bulk_skip": "Пропустити",
+  "migration_bulk_summary": "Перенесено: {moved}, пропущено: {skipped}, помилок: {failed}",
+  "@migration_bulk_summary": {
+    "placeholders": {
+      "moved": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  }
 }

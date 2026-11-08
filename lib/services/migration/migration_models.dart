@@ -61,6 +61,8 @@ class MigrationSubject {
   }
 
   MigrationSubject copyWith({
+    String? title,
+    String? cover,
     ConfigInfoType? type,
     String? sourceName,
     List<String>? alternativeTitles,
@@ -68,8 +70,8 @@ class MigrationSubject {
     return MigrationSubject(
       uid: uid,
       extensionUid: extensionUid,
-      title: title,
-      cover: cover,
+      title: title ?? this.title,
+      cover: cover ?? this.cover,
       data: data,
       type: type ?? this.type,
       sourceName: sourceName ?? this.sourceName,
@@ -146,9 +148,11 @@ class MigrationResult {
     required this.progressWritten,
     required this.trackersMoved,
     required this.removedOld,
+    required this.sourceName,
   });
 
   final LibraryEntryDomain entry;
+  final String sourceName;
   final int progressWritten;
   final int trackersMoved;
   final bool removedOld;

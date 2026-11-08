@@ -23,4 +23,6 @@ class Routes {
   static const String translationModels = '/translationModels';
   static const String globalSearch = '/globalSearch';
   static const String discover = '/discover';
+  static const String migration = '/migration';
+  static const String migrationPreview = '/migrationPreview';
 }

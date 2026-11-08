@@ -9761,6 +9761,726 @@ class S {
       args: [count, queued],
     );
   }
+
+  /// `Move to another source`
+  String get migration_action_move {
+    return Intl.message(
+      'Move to another source',
+      name: 'migration_action_move',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Find it on another source`
+  String get migration_action_find_elsewhere {
+    return Intl.message(
+      'Find it on another source',
+      name: 'migration_action_find_elsewhere',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Move source`
+  String get migration_chip {
+    return Intl.message(
+      'Move source',
+      name: 'migration_chip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Move to another source`
+  String get migration_search_title {
+    return Intl.message(
+      'Move to another source',
+      name: 'migration_search_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Now on {source}`
+  String migration_search_from(String source) {
+    return Intl.message(
+      'Now on $source',
+      name: 'migration_search_from',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `a source that is no longer available`
+  String get migration_search_unknown_source {
+    return Intl.message(
+      'a source that is no longer available',
+      name: 'migration_search_unknown_source',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search on the target sources`
+  String get migration_search_hint {
+    return Intl.message(
+      'Search on the target sources',
+      name: 'migration_search_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search for the title`
+  String get migration_search_idle_title {
+    return Intl.message(
+      'Search for the title',
+      name: 'migration_search_idle_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Type its name below to look for it on the target sources.`
+  String get migration_search_idle_message {
+    return Intl.message(
+      'Type its name below to look for it on the target sources.',
+      name: 'migration_search_idle_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pick where to look`
+  String get migration_no_scope_title {
+    return Intl.message(
+      'Pick where to look',
+      name: 'migration_no_scope_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose the sources the title should move to.`
+  String get migration_no_scope_message {
+    return Intl.message(
+      'Choose the sources the title should move to.',
+      name: 'migration_no_scope_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose sources`
+  String get migration_choose_sources {
+    return Intl.message(
+      'Choose sources',
+      name: 'migration_choose_sources',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{No target sources} =1{1 target source} other{{count} target sources}}`
+  String migration_targets_summary(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No target sources',
+      one: '1 target source',
+      other: '$count target sources',
+      name: 'migration_targets_summary',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `No matches`
+  String get migration_no_candidates_title {
+    return Intl.message(
+      'No matches',
+      name: 'migration_no_candidates_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Try another title or add more target sources.`
+  String get migration_no_candidates_message {
+    return Intl.message(
+      'Try another title or add more target sources.',
+      name: 'migration_no_candidates_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Best match`
+  String get migration_best_match {
+    return Intl.message(
+      'Best match',
+      name: 'migration_best_match',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Exact match`
+  String get migration_exact_match {
+    return Intl.message(
+      'Exact match',
+      name: 'migration_exact_match',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Selected`
+  String get migration_selected {
+    return Intl.message(
+      'Selected',
+      name: 'migration_selected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tap a title to pick it`
+  String get migration_pick_hint {
+    return Intl.message(
+      'Tap a title to pick it',
+      name: 'migration_pick_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Continue`
+  String get migration_continue {
+    return Intl.message(
+      'Continue',
+      name: 'migration_continue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use this`
+  String get migration_use_this {
+    return Intl.message(
+      'Use this',
+      name: 'migration_use_this',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Review the move`
+  String get migration_preview_title {
+    return Intl.message(
+      'Review the move',
+      name: 'migration_preview_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Now`
+  String get migration_preview_old {
+    return Intl.message(
+      'Now',
+      name: 'migration_preview_old',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New`
+  String get migration_preview_new {
+    return Intl.message(
+      'New',
+      name: 'migration_preview_new',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `What moves along`
+  String get migration_options_title {
+    return Intl.message(
+      'What moves along',
+      name: 'migration_options_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove the old entry`
+  String get migration_option_remove_old {
+    return Intl.message(
+      'Remove the old entry',
+      name: 'migration_option_remove_old',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The new title takes its place in the library`
+  String get migration_option_remove_old_hint {
+    return Intl.message(
+      'The new title takes its place in the library',
+      name: 'migration_option_remove_old_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Both titles stay in the library`
+  String get migration_option_keep_old_hint {
+    return Intl.message(
+      'Both titles stay in the library',
+      name: 'migration_option_keep_old_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Category`
+  String get migration_option_category {
+    return Intl.message(
+      'Category',
+      name: 'migration_option_category',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Put the new title into “{name}”`
+  String migration_option_category_hint(String name) {
+    return Intl.message(
+      'Put the new title into “$name”',
+      name: 'migration_option_category_hint',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Reading progress`
+  String get migration_option_read_progress {
+    return Intl.message(
+      'Reading progress',
+      name: 'migration_option_read_progress',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Watch progress`
+  String get migration_option_watch_progress {
+    return Intl.message(
+      'Watch progress',
+      name: 'migration_option_watch_progress',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{No chapters match} =1{1 chapter matches} other{{count} chapters match}}`
+  String migration_option_chapters_hint(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No chapters match',
+      one: '1 chapter matches',
+      other: '$count chapters match',
+      name: 'migration_option_chapters_hint',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count, plural, =0{No episodes match} =1{1 episode matches} other{{count} episodes match}}`
+  String migration_option_episodes_hint(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No episodes match',
+      one: '1 episode matches',
+      other: '$count episodes match',
+      name: 'migration_option_episodes_hint',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Tracker links`
+  String get migration_option_trackers {
+    return Intl.message(
+      'Tracker links',
+      name: 'migration_option_trackers',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 link moves to the new title} other{{count} links move to the new title}}`
+  String migration_option_trackers_hint(int count) {
+    return Intl.plural(
+      count,
+      one: '1 link moves to the new title',
+      other: '$count links move to the new title',
+      name: 'migration_option_trackers_hint',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count, plural, =1{1 download stays with the old title, files are not moved} other{{count} downloads stay with the old title, files are not moved}}`
+  String migration_downloads_note(int count) {
+    return Intl.plural(
+      count,
+      one: '1 download stays with the old title, files are not moved',
+      other: '$count downloads stay with the old title, files are not moved',
+      name: 'migration_downloads_note',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Progress`
+  String get migration_mapping_title {
+    return Intl.message(
+      'Progress',
+      name: 'migration_mapping_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `There is no progress to move`
+  String get migration_mapping_empty {
+    return Intl.message(
+      'There is no progress to move',
+      name: 'migration_mapping_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not found on the new source`
+  String get migration_mapping_unmatched_title {
+    return Intl.message(
+      'Not found on the new source',
+      name: 'migration_mapping_unmatched_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{and 1 more} other{and {count} more}}`
+  String migration_mapping_more(int count) {
+    return Intl.plural(
+      count,
+      one: 'and 1 more',
+      other: 'and $count more',
+      name: 'migration_mapping_more',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Read`
+  String get migration_mapping_read {
+    return Intl.message(
+      'Read',
+      name: 'migration_mapping_read',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Watched`
+  String get migration_mapping_watched {
+    return Intl.message(
+      'Watched',
+      name: 'migration_mapping_watched',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{percent}%`
+  String migration_mapping_partial(int percent) {
+    return Intl.message(
+      '$percent%',
+      name: 'migration_mapping_partial',
+      desc: '',
+      args: [percent],
+    );
+  }
+
+  /// `Move`
+  String get migration_apply {
+    return Intl.message('Move', name: 'migration_apply', desc: '', args: []);
+  }
+
+  /// `The title could not be moved. Nothing was changed.`
+  String get migration_apply_failed {
+    return Intl.message(
+      'The title could not be moved. Nothing was changed.',
+      name: 'migration_apply_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The new title could not be opened`
+  String get migration_load_failed_title {
+    return Intl.message(
+      'The new title could not be opened',
+      name: 'migration_load_failed_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Try again`
+  String get migration_retry {
+    return Intl.message(
+      'Try again',
+      name: 'migration_retry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Moved to {source}`
+  String migration_done(String source) {
+    return Intl.message(
+      'Moved to $source',
+      name: 'migration_done',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Open`
+  String get migration_open {
+    return Intl.message('Open', name: 'migration_open', desc: '', args: []);
+  }
+
+  /// `{count, plural, =1{Move 1 title} other{Move {count} titles}}`
+  String migration_bulk_title(int count) {
+    return Intl.plural(
+      count,
+      one: 'Move 1 title',
+      other: 'Move $count titles',
+      name: 'migration_bulk_title',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Moving titles`
+  String get migration_bulk_running_title {
+    return Intl.message(
+      'Moving titles',
+      name: 'migration_bulk_running_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Target sources`
+  String get migration_bulk_targets {
+    return Intl.message(
+      'Target sources',
+      name: 'migration_bulk_targets',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto-pick exact matches`
+  String get migration_bulk_auto_pick {
+    return Intl.message(
+      'Auto-pick exact matches',
+      name: 'migration_bulk_auto_pick',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A title with one exact match moves without asking`
+  String get migration_bulk_auto_pick_hint {
+    return Intl.message(
+      'A title with one exact match moves without asking',
+      name: 'migration_bulk_auto_pick_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloads stay with the old titles, files are not moved`
+  String get migration_bulk_downloads_note {
+    return Intl.message(
+      'Downloads stay with the old titles, files are not moved',
+      name: 'migration_bulk_downloads_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start`
+  String get migration_bulk_start {
+    return Intl.message(
+      'Start',
+      name: 'migration_bulk_start',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stop`
+  String get migration_bulk_stop {
+    return Intl.message(
+      'Stop',
+      name: 'migration_bulk_stop',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get migration_bulk_done {
+    return Intl.message(
+      'Done',
+      name: 'migration_bulk_done',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{done} of {total}`
+  String migration_bulk_progress(int done, int total) {
+    return Intl.message(
+      '$done of $total',
+      name: 'migration_bulk_progress',
+      desc: '',
+      args: [done, total],
+    );
+  }
+
+  /// `Waiting`
+  String get migration_bulk_status_waiting {
+    return Intl.message(
+      'Waiting',
+      name: 'migration_bulk_status_waiting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Searching…`
+  String get migration_bulk_status_searching {
+    return Intl.message(
+      'Searching…',
+      name: 'migration_bulk_status_searching',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{No matches, search yourself} =1{1 match, confirm it} other{{count} matches, pick one}}`
+  String migration_bulk_status_pick(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No matches, search yourself',
+      one: '1 match, confirm it',
+      other: '$count matches, pick one',
+      name: 'migration_bulk_status_pick',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Moving to {source}…`
+  String migration_bulk_status_migrating(String source) {
+    return Intl.message(
+      'Moving to $source…',
+      name: 'migration_bulk_status_migrating',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Moved to {source}`
+  String migration_bulk_status_done(String source) {
+    return Intl.message(
+      'Moved to $source',
+      name: 'migration_bulk_status_done',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Exact match on {source}`
+  String migration_bulk_status_auto(String source) {
+    return Intl.message(
+      'Exact match on $source',
+      name: 'migration_bulk_status_auto',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Skipped`
+  String get migration_bulk_status_skipped {
+    return Intl.message(
+      'Skipped',
+      name: 'migration_bulk_status_skipped',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not be moved`
+  String get migration_bulk_status_failed {
+    return Intl.message(
+      'Could not be moved',
+      name: 'migration_bulk_status_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose`
+  String get migration_bulk_choose {
+    return Intl.message(
+      'Choose',
+      name: 'migration_bulk_choose',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skip`
+  String get migration_bulk_skip {
+    return Intl.message(
+      'Skip',
+      name: 'migration_bulk_skip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{moved} moved, {skipped} skipped, {failed} failed`
+  String migration_bulk_summary(int moved, int skipped, int failed) {
+    return Intl.message(
+      '$moved moved, $skipped skipped, $failed failed',
+      name: 'migration_bulk_summary',
+      desc: '',
+      args: [moved, skipped, failed],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

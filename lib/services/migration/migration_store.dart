@@ -42,6 +42,10 @@ class MigrationStore {
         .getSingleOrNull();
   }
 
+  Future<ConcreteDataTableData?> savedConcrete(String uid) {
+    return _concreteByUid(uid);
+  }
+
   Future<List<String>> loadAlternativeTitles(String uid) async {
     final ConcreteDataTableData? concrete = await _concreteByUid(uid);
     final Map<String, dynamic>? json = _decodeConcrete(concrete);
@@ -214,6 +218,7 @@ class MigrationStore {
         progressWritten: progressWritten,
         trackersMoved: trackersMoved,
         removedOld: removedOld,
+        sourceName: request.target.config.name.trim(),
       );
     });
   }
