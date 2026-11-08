@@ -194,8 +194,7 @@ class _MigrationPreviewContent extends StatelessWidget {
               cover: subject.cover,
               headers: oldHeaders,
               title: subject.title,
-              source: subject.sourceName ??
-                  S.current.migration_search_unknown_source,
+              source: subject.sourceName ?? '—',
             ),
           ),
           Padding(
