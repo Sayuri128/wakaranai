@@ -52,299 +52,315 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m14(count) => "${count} left";
 
-  static String m15(speed) => "${speed} MB/s";
-
-  static String m16(time) => "${time} left";
-
-  static String m17(done, total) => "${done}/${total} chapters downloaded";
-
-  static String m18(downloaded) => "${downloaded} downloaded";
-
-  static String m19(percent, downloaded, total) =>
-      "${percent}% · ${downloaded} of ${total}";
-
-  static String m20(size) => "Ready to watch offline · ${size}";
-
-  static String m21(done, total) => "Segment ${done}/${total}";
-
-  static String m22(size) => "${size} GB";
-
-  static String m23(size) => "${size} MB";
-
-  static String m24(done, total) => "${done}/${total} episodes downloaded";
-
-  static String m25(count) => "${count} chapters downloaded";
-
-  static String m26(done, total) => "${done}/${total} pages";
-
-  static String m27(count) => "Queue (${count})";
-
-  static String m28(progress) => "Paused · ${progress}";
-
-  static String m29(title, size) =>
-      "Every download of ${title} (${size}) will be removed from this device.";
-
-  static String m30(count, title, size) =>
-      "${count} watched episodes of ${title} (${size}) will be removed from this device.";
-
-  static String m31(count) => "Deleted ${count} watched episodes";
-
-  static String m32(size) => "Up to ${size} can be freed";
-
-  static String m33(summary, size) => "${summary} · ${size}";
-
-  static String m34(count, size) => "${count} downloads · ${size}";
-
-  static String m35(count, size) => "${count} watched · ${size}";
-
-  static String m36(hours, minutes) => "${hours} h ${minutes} min";
-
-  static String m37(minutes) => "${minutes} min";
-
-  static String m38(seconds) => "${seconds} s";
-
-  static String m39(size) => "${size} GB";
-
-  static String m40(source) => "Stored data for ${source} cleared";
-
-  static String m41(value) => "Default: ${value}";
-
-  static String m42(count) => "${count} per page (default)";
-
-  static String m43(count) => "${count} per page";
-
-  static String m44(source) => "Saved session for ${source} cleared";
-
-  static String m45(name) => "Added ${name}";
-
-  static String m46(name) => "${name} was uninstalled";
-
-  static String m47(name) => "Uninstall ${name}?";
-
-  static String m48(count) =>
-      "${Intl.plural(count, one: '1 filter active', other: '${count} filters active')}";
-
-  static String m49(count) =>
-      "${Intl.plural(count, zero: 'Filters', one: 'Filters, 1 active', other: 'Filters, ${count} active')}";
-
-  static String m50(value) => "Remove ${value}";
-
-  static String m51(name) => "Search ${name}";
-
-  static String m52(count) => "Show all ${count}";
-
-  static String m53(count) => "Apply (${count})";
-
-  static String m54(count) => "+${count} more — refine your search";
-
-  static String m55(title) => "Last opened: ${title}";
-
-  static String m56(layout) => "Layout: ${layout}";
-
-  static String m57(sources) => "No results in ${sources}";
-
-  static String m58(query) => "None of the selected sources has \"${query}\".";
-
-  static String m59(count) =>
-      "${Intl.plural(count, one: '1 result', other: '${count} results')}";
-
-  static String m60(count) =>
-      "${Intl.plural(count, zero: 'No sources selected', one: 'Searching 1 source', other: 'Searching ${count} sources')}";
-
-  static String m61(name) =>
-      "Error occurred during initializing configs ${name} source";
-
-  static String m62(count) => "${count} downloaded";
-
-  static String m63(current, total) => "Downloading ${current} of ${total}";
-
-  static String m64(position) => "Queued · #${position}";
-
-  static String m65(count) =>
-      "${Intl.plural(count, one: '1 title couldn\'t be loaded', other: '${count} titles couldn\'t be loaded')}";
-
-  static String m66(count) =>
-      "${Intl.plural(count, one: 'Looking up chapters for 1 title…', other: 'Looking up chapters for ${count} titles…')}";
-
-  static String m67(count) => "${count} new";
-
-  static String m68(query) => "Nothing in your library matches “${query}”";
-
-  static String m69(count) => "${count} selected";
-
-  static String m70(count) =>
-      "${Intl.plural(count, zero: 'Nothing was imported', one: 'Imported 1 file', other: 'Imported ${count} files')}";
-
-  static String m71(path) =>
-      "Copy folders of images, CBZ or ZIP files into\n${path}\n\nEach folder is a title and each archive or image folder inside it is a chapter. A cover.jpg and ComicInfo.xml are used when present. The folder is reachable over USB from a computer.";
-
-  static String m72(seconds) => "Next episode in ${seconds}s";
-
-  static String m73(index) => "Source ${index}";
-
-  static String m74(seconds) => "−${seconds}s";
-
-  static String m75(seconds) => "+${seconds}s";
-
-  static String m76(seconds) => "+${seconds}s";
-
-  static String m77(index) => "Subtitle ${index}";
-
-  static String m78(percent) => "${percent}%";
-
-  static String m79(title) => "Next: ${title}";
-
-  static String m80(progress) => "Downloading AI model ${progress}%";
-
-  static String m81(model, size) =>
-      "${model} needs a one-time ${size} GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.";
-
-  static String m82(count) =>
-      "${Intl.plural(count, one: '1 name', other: '${count} names')}";
-
-  static String m83(current, total) =>
-      "Downloading language packs ${current}/${total}…";
-
-  static String m84(source, target) =>
-      "Translating ${source} to ${target} needs on-device language packs, about 30 MB each. They are downloaded once, and pages are then translated entirely on your device.";
-
-  static String m85(count) => "${count} pages saved";
-
-  static String m86(count) => "${count} pages from an older version";
-
-  static String m87(done, total) => "Translating chapter ${done}/${total}";
-
-  static String m88(size) => "Up to ${size} px";
-
-  static String m89(query) => "We couldn\'t find anything for “${query}”";
-
-  static String m90(query) => "Results for “${query}”";
-
-  static String m91(time) => "Daily to Download/Wakaranai · last ${time}";
-
-  static String m92(version) => "New version ${version} available";
-
-  static String m93(count) => "${count} skipped";
-
-  static String m94(imported, total) =>
-      "Imported ${imported} of ${total} items";
-
-  static String m95(url) => "Load extensions from ${url}";
-
-  static String m96(seconds) => "${seconds}s";
-
-  static String m97(name) => "Could not sign in to ${name}";
-
-  static String m98(name) => "Sign out of ${name}?";
-
-  static String m99(name) => "Signed in as ${name}";
-
-  static String m100(hours) => "Every ${hours} hours";
-
-  static String m101(source) => "Sign in to ${source}";
-
-  static String m102(count) =>
-      "${Intl.plural(count, one: '1 title was removed from its source', other: '${count} titles were removed from their sources')}";
-
-  static String m103(count) => "${count} activities";
-
-  static String m104(current, longest) =>
-      "Current ${current} · Longest ${longest}";
-
-  static String m105(count) =>
+  static String m15(count) =>
       "${Intl.plural(count, one: '1 chapter', other: '${count} chapters')}";
 
-  static String m106(count) =>
+  static String m16(count) =>
       "${Intl.plural(count, one: '1 episode', other: '${count} episodes')}";
 
-  static String m107(count) =>
-      "${Intl.plural(count, one: 'Looking up episodes for 1 title…', other: 'Looking up episodes for ${count} titles…')}";
+  static String m17(score) => "${score}%";
 
-  static String m108(count) =>
-      "${Intl.plural(count, one: 'Looking up 1 title…', other: 'Looking up ${count} titles…')}";
+  static String m18(year) => "Fall ${year}";
 
-  static String m109(count) => "Next ${count} chapters or episodes";
+  static String m19(year) => "Spring ${year}";
 
-  static String m110(count) =>
-      "${Intl.plural(count, one: '1 download queued', other: '${count} downloads queued')}";
+  static String m20(year) => "Summer ${year}";
 
-  static String m111(count) => "Next ${count} episodes";
+  static String m21(year) => "Winter ${year}";
+
+  static String m22(speed) => "${speed} MB/s";
+
+  static String m23(time) => "${time} left";
+
+  static String m24(done, total) => "${done}/${total} chapters downloaded";
+
+  static String m25(downloaded) => "${downloaded} downloaded";
+
+  static String m26(percent, downloaded, total) =>
+      "${percent}% · ${downloaded} of ${total}";
+
+  static String m27(size) => "Ready to watch offline · ${size}";
+
+  static String m28(done, total) => "Segment ${done}/${total}";
+
+  static String m29(size) => "${size} GB";
+
+  static String m30(size) => "${size} MB";
+
+  static String m31(done, total) => "${done}/${total} episodes downloaded";
+
+  static String m32(count) => "${count} chapters downloaded";
+
+  static String m33(done, total) => "${done}/${total} pages";
+
+  static String m34(count) => "Queue (${count})";
+
+  static String m35(progress) => "Paused · ${progress}";
+
+  static String m36(title, size) =>
+      "Every download of ${title} (${size}) will be removed from this device.";
+
+  static String m37(count, title, size) =>
+      "${count} watched episodes of ${title} (${size}) will be removed from this device.";
+
+  static String m38(count) => "Deleted ${count} watched episodes";
+
+  static String m39(size) => "Up to ${size} can be freed";
+
+  static String m40(summary, size) => "${summary} · ${size}";
+
+  static String m41(count, size) => "${count} downloads · ${size}";
+
+  static String m42(count, size) => "${count} watched · ${size}";
+
+  static String m43(hours, minutes) => "${hours} h ${minutes} min";
+
+  static String m44(minutes) => "${minutes} min";
+
+  static String m45(seconds) => "${seconds} s";
+
+  static String m46(size) => "${size} GB";
+
+  static String m47(source) => "Stored data for ${source} cleared";
+
+  static String m48(value) => "Default: ${value}";
+
+  static String m49(count) => "${count} per page (default)";
+
+  static String m50(count) => "${count} per page";
+
+  static String m51(source) => "Saved session for ${source} cleared";
+
+  static String m52(name) => "Added ${name}";
+
+  static String m53(name) => "${name} was uninstalled";
+
+  static String m54(name) => "Uninstall ${name}?";
+
+  static String m55(count) =>
+      "${Intl.plural(count, one: '1 filter active', other: '${count} filters active')}";
+
+  static String m56(count) =>
+      "${Intl.plural(count, zero: 'Filters', one: 'Filters, 1 active', other: 'Filters, ${count} active')}";
+
+  static String m57(value) => "Remove ${value}";
+
+  static String m58(name) => "Search ${name}";
+
+  static String m59(count) => "Show all ${count}";
+
+  static String m60(count) => "Apply (${count})";
+
+  static String m61(count) => "+${count} more — refine your search";
+
+  static String m62(title) => "Last opened: ${title}";
+
+  static String m63(layout) => "Layout: ${layout}";
+
+  static String m64(sources) => "No results in ${sources}";
+
+  static String m65(query) => "None of the selected sources has \"${query}\".";
+
+  static String m66(count) =>
+      "${Intl.plural(count, one: '1 result', other: '${count} results')}";
+
+  static String m67(count) =>
+      "${Intl.plural(count, zero: 'No sources selected', one: 'Searching 1 source', other: 'Searching ${count} sources')}";
+
+  static String m68(name) =>
+      "Error occurred during initializing configs ${name} source";
+
+  static String m69(count) => "${count} downloaded";
+
+  static String m70(current, total) => "Downloading ${current} of ${total}";
+
+  static String m71(position) => "Queued · #${position}";
+
+  static String m72(count) =>
+      "${Intl.plural(count, one: '1 title couldn\'t be loaded', other: '${count} titles couldn\'t be loaded')}";
+
+  static String m73(count) =>
+      "${Intl.plural(count, one: 'Looking up chapters for 1 title…', other: 'Looking up chapters for ${count} titles…')}";
+
+  static String m74(count) => "${count} new";
+
+  static String m75(query) => "Nothing in your library matches “${query}”";
+
+  static String m76(count) => "${count} selected";
+
+  static String m77(count) =>
+      "${Intl.plural(count, zero: 'Nothing was imported', one: 'Imported 1 file', other: 'Imported ${count} files')}";
+
+  static String m78(path) =>
+      "Copy folders of images, CBZ or ZIP files into\n${path}\n\nEach folder is a title and each archive or image folder inside it is a chapter. A cover.jpg and ComicInfo.xml are used when present. The folder is reachable over USB from a computer.";
+
+  static String m79(seconds) => "Next episode in ${seconds}s";
+
+  static String m80(index) => "Source ${index}";
+
+  static String m81(seconds) => "−${seconds}s";
+
+  static String m82(seconds) => "+${seconds}s";
+
+  static String m83(seconds) => "+${seconds}s";
+
+  static String m84(index) => "Subtitle ${index}";
+
+  static String m85(percent) => "${percent}%";
+
+  static String m86(title) => "Next: ${title}";
+
+  static String m87(progress) => "Downloading AI model ${progress}%";
+
+  static String m88(model, size) =>
+      "${model} needs a one-time ${size} GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.";
+
+  static String m89(count) =>
+      "${Intl.plural(count, one: '1 name', other: '${count} names')}";
+
+  static String m90(current, total) =>
+      "Downloading language packs ${current}/${total}…";
+
+  static String m91(source, target) =>
+      "Translating ${source} to ${target} needs on-device language packs, about 30 MB each. They are downloaded once, and pages are then translated entirely on your device.";
+
+  static String m92(count) => "${count} pages saved";
+
+  static String m93(count) => "${count} pages from an older version";
+
+  static String m94(done, total) => "Translating chapter ${done}/${total}";
+
+  static String m95(size) => "Up to ${size} px";
+
+  static String m96(query) => "We couldn\'t find anything for “${query}”";
+
+  static String m97(query) => "Results for “${query}”";
+
+  static String m98(time) => "Daily to Download/Wakaranai · last ${time}";
+
+  static String m99(version) => "New version ${version} available";
+
+  static String m100(count) => "${count} skipped";
+
+  static String m101(imported, total) =>
+      "Imported ${imported} of ${total} items";
+
+  static String m102(url) => "Load extensions from ${url}";
+
+  static String m103(seconds) => "${seconds}s";
+
+  static String m104(name) => "Could not sign in to ${name}";
+
+  static String m105(name) => "Sign out of ${name}?";
+
+  static String m106(name) => "Signed in as ${name}";
+
+  static String m107(hours) => "Every ${hours} hours";
+
+  static String m108(source) => "Sign in to ${source}";
+
+  static String m109(count) =>
+      "${Intl.plural(count, one: '1 title was removed from its source', other: '${count} titles were removed from their sources')}";
+
+  static String m110(count) => "${count} activities";
+
+  static String m111(current, longest) =>
+      "Current ${current} · Longest ${longest}";
 
   static String m112(count) =>
-      "${Intl.plural(count, one: '1 episode queued', other: '${count} episodes queued')}";
+      "${Intl.plural(count, one: '1 chapter', other: '${count} chapters')}";
 
-  static String m113(count) => "Next ${count} chapters";
+  static String m113(count) =>
+      "${Intl.plural(count, one: '1 episode', other: '${count} episodes')}";
 
   static String m114(count) =>
+      "${Intl.plural(count, one: 'Looking up episodes for 1 title…', other: 'Looking up episodes for ${count} titles…')}";
+
+  static String m115(count) =>
+      "${Intl.plural(count, one: 'Looking up 1 title…', other: 'Looking up ${count} titles…')}";
+
+  static String m116(count) => "Next ${count} chapters or episodes";
+
+  static String m117(count) =>
+      "${Intl.plural(count, one: '1 download queued', other: '${count} downloads queued')}";
+
+  static String m118(count) => "Next ${count} episodes";
+
+  static String m119(count) =>
+      "${Intl.plural(count, one: '1 episode queued', other: '${count} episodes queued')}";
+
+  static String m120(count) => "Next ${count} chapters";
+
+  static String m121(count) =>
       "${Intl.plural(count, one: '1 chapter queued', other: '${count} chapters queued')}";
 
-  static String m115(number) => "Group ${number}";
+  static String m122(number) => "Group ${number}";
 
-  static String m116(name) => "Find on ${name}";
+  static String m123(name) => "Find on ${name}";
 
-  static String m117(size) =>
+  static String m124(size) =>
       "This frees ${size} GB. You can download it again at any time.";
 
-  static String m118(model, size) => "${model} · ${size} GB · ready";
+  static String m125(model, size) => "${model} · ${size} GB · ready";
 
-  static String m119(size) => "Not downloaded · ${size} GB";
+  static String m126(size) => "Not downloaded · ${size} GB";
 
-  static String m120(need, ram) =>
+  static String m127(need, ram) =>
       "Needs ${need} GB of RAM (this phone has ${ram} GB)";
 
-  static String m121(model, ram) => "This phone: ${model} · ${ram} GB RAM";
+  static String m128(model, ram) => "This phone: ${model} · ${ram} GB RAM";
 
-  static String m122(ram) => "${ram} GB of RAM or more";
+  static String m129(ram) => "${ram} GB of RAM or more";
 
-  static String m123(size) => "About ${size} GB of free storage";
+  static String m130(size) => "About ${size} GB of free storage";
 
-  static String m124(size) => "Downloaded · ${size} GB";
+  static String m131(size) => "Downloaded · ${size} GB";
 
-  static String m125(count) =>
+  static String m132(count) =>
       "${Intl.plural(count, zero: 'No language packs yet', one: '1 language pack downloaded', other: '${count} language packs downloaded')}";
 
-  static String m126(size) =>
+  static String m133(size) =>
       "Not downloaded · ${size} GB · choose it as the engine to download";
 
-  static String m127(count, size) =>
+  static String m134(count, size) =>
       "${Intl.plural(count, zero: 'No AI models downloaded', one: '1 AI model · ${size} GB', other: '${count} AI models · ${size} GB')}";
 
-  static String m128(source) => "${source} needs a quick check in the browser";
+  static String m135(source) => "${source} needs a quick check in the browser";
 
-  static String m129(count) => "${count} sources need your attention";
+  static String m136(count) => "${count} sources need your attention";
 
-  static String m130(sources) => "Browser check needed: ${sources}";
+  static String m137(sources) => "Browser check needed: ${sources}";
 
-  static String m131(sources) => "Sign in needed: ${sources}";
+  static String m138(sources) => "Sign in needed: ${sources}";
 
-  static String m132(source) =>
+  static String m139(source) =>
       "Session saved for ${source}. Pull to refresh to check again";
 
-  static String m133(source) => "${source} needs you to sign in";
+  static String m140(source) => "${source} needs you to sign in";
 
-  static String m134(source) => "${source} needs you to sign in again";
+  static String m141(source) => "${source} needs you to sign in again";
 
-  static String m135(source) => "${source} has no browser sign-in";
+  static String m142(source) => "${source} has no browser sign-in";
 
-  static String m136(count) => "${count} sources could not be checked";
+  static String m143(count) => "${count} sources could not be checked";
 
-  static String m137(count) => "${count} new items found";
+  static String m144(count) => "${count} new items found";
 
-  static String m138(title, count) => "${title} · ${count} new";
+  static String m145(title, count) => "${title} · ${count} new";
 
-  static String m139(count) => "and ${count} more titles";
+  static String m146(count) => "and ${count} more titles";
 
-  static String m140(count) => "Across ${count} titles";
+  static String m147(count) => "Across ${count} titles";
 
-  static String m141(count) => "${count} new items";
+  static String m148(count) => "${count} new items";
 
-  static String m142(count) => "${count}d ago";
+  static String m149(count) => "${count}d ago";
 
-  static String m143(count) => "${count}h ago";
+  static String m150(count) => "${count}h ago";
 
-  static String m144(count) => "${count}m ago";
+  static String m151(count) => "${count}m ago";
 
-  static String m145(host) => "Cookies cleared for ${host}";
+  static String m152(host) => "Cookies cleared for ${host}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -665,9 +681,67 @@ class MessageLookup extends MessageLookupByLibrary {
       "Usage is unavailable right now",
     ),
     "deepl_usage_used": MessageLookupByLibrary.simpleMessage("used this month"),
-    "download_speed_megabytes": m15,
-    "download_time_left": m16,
-    "downloads_chapters_summary": m17,
+    "discover_attribution": MessageLookupByLibrary.simpleMessage(
+      "Data from AniList",
+    ),
+    "discover_chapters": m15,
+    "discover_empty_title": MessageLookupByLibrary.simpleMessage(
+      "Nothing here yet",
+    ),
+    "discover_episodes": m16,
+    "discover_error_message": MessageLookupByLibrary.simpleMessage(
+      "Check your connection and try again.",
+    ),
+    "discover_error_title": MessageLookupByLibrary.simpleMessage(
+      "Couldn\'t load AniList",
+    ),
+    "discover_find_on_sources": MessageLookupByLibrary.simpleMessage(
+      "Find on my sources",
+    ),
+    "discover_format_manga": MessageLookupByLibrary.simpleMessage("Manga"),
+    "discover_format_movie": MessageLookupByLibrary.simpleMessage("Movie"),
+    "discover_format_music": MessageLookupByLibrary.simpleMessage("Music"),
+    "discover_format_novel": MessageLookupByLibrary.simpleMessage(
+      "Light novel",
+    ),
+    "discover_format_ona": MessageLookupByLibrary.simpleMessage("ONA"),
+    "discover_format_one_shot": MessageLookupByLibrary.simpleMessage(
+      "One-shot",
+    ),
+    "discover_format_ova": MessageLookupByLibrary.simpleMessage("OVA"),
+    "discover_format_special": MessageLookupByLibrary.simpleMessage("Special"),
+    "discover_format_tv": MessageLookupByLibrary.simpleMessage("TV"),
+    "discover_format_tv_short": MessageLookupByLibrary.simpleMessage(
+      "TV short",
+    ),
+    "discover_load_more_failed": MessageLookupByLibrary.simpleMessage(
+      "Couldn\'t load more",
+    ),
+    "discover_no_synopsis": MessageLookupByLibrary.simpleMessage(
+      "No synopsis yet.",
+    ),
+    "discover_open_tooltip": MessageLookupByLibrary.simpleMessage(
+      "Discover on AniList",
+    ),
+    "discover_retry": MessageLookupByLibrary.simpleMessage("Retry"),
+    "discover_score": m17,
+    "discover_search_as": MessageLookupByLibrary.simpleMessage("Search as"),
+    "discover_season_fall": m18,
+    "discover_season_spring": m19,
+    "discover_season_summer": m20,
+    "discover_season_winter": m21,
+    "discover_tab_novels": MessageLookupByLibrary.simpleMessage("Light novels"),
+    "discover_tab_season": MessageLookupByLibrary.simpleMessage("This season"),
+    "discover_tab_trending_anime": MessageLookupByLibrary.simpleMessage(
+      "Trending anime",
+    ),
+    "discover_tab_trending_manga": MessageLookupByLibrary.simpleMessage(
+      "Trending manga",
+    ),
+    "discover_title": MessageLookupByLibrary.simpleMessage("Discover"),
+    "download_speed_megabytes": m22,
+    "download_time_left": m23,
+    "downloads_chapters_summary": m24,
     "downloads_confirm_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
     "downloads_confirm_delete": MessageLookupByLibrary.simpleMessage("Delete"),
     "downloads_delete_all": MessageLookupByLibrary.simpleMessage("Delete all"),
@@ -690,8 +764,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_empty_title": MessageLookupByLibrary.simpleMessage(
       "No downloads",
     ),
-    "downloads_episode_bytes_downloaded": m18,
-    "downloads_episode_bytes_progress": m19,
+    "downloads_episode_bytes_downloaded": m25,
+    "downloads_episode_bytes_progress": m26,
     "downloads_episode_delete_confirmation_message":
         MessageLookupByLibrary.simpleMessage(
           "This episode will be removed from this device.",
@@ -699,7 +773,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_episode_done": MessageLookupByLibrary.simpleMessage(
       "Ready to watch offline",
     ),
-    "downloads_episode_done_size": m20,
+    "downloads_episode_done_size": m27,
     "downloads_episode_files_missing": MessageLookupByLibrary.simpleMessage(
       "This episode\'s downloaded files are missing. Download it again to watch offline.",
     ),
@@ -709,14 +783,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_episode_retry": MessageLookupByLibrary.simpleMessage(
       "Retry download",
     ),
-    "downloads_episode_segments_progress": m21,
-    "downloads_episode_size_gb": m22,
-    "downloads_episode_size_mb": m23,
-    "downloads_episode_summary": m24,
+    "downloads_episode_segments_progress": m28,
+    "downloads_episode_size_gb": m29,
+    "downloads_episode_size_mb": m30,
+    "downloads_episode_summary": m31,
     "downloads_notification_channel_name": MessageLookupByLibrary.simpleMessage(
       "Downloads",
     ),
-    "downloads_notification_complete_body": m25,
+    "downloads_notification_complete_body": m32,
     "downloads_notification_complete_title":
         MessageLookupByLibrary.simpleMessage("Download complete"),
     "downloads_notification_downloading_title":
@@ -733,7 +807,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_order_oldest": MessageLookupByLibrary.simpleMessage(
       "Oldest first",
     ),
-    "downloads_pages_progress": m26,
+    "downloads_pages_progress": m33,
     "downloads_quality_1080": MessageLookupByLibrary.simpleMessage("1080p"),
     "downloads_quality_480": MessageLookupByLibrary.simpleMessage("480p"),
     "downloads_quality_720": MessageLookupByLibrary.simpleMessage("720p"),
@@ -746,7 +820,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_quality_title": MessageLookupByLibrary.simpleMessage(
       "Download quality",
     ),
-    "downloads_queue_button": m27,
+    "downloads_queue_button": m34,
     "downloads_queue_download_next": MessageLookupByLibrary.simpleMessage(
       "Download next",
     ),
@@ -766,7 +840,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_queue_pause_title": MessageLookupByLibrary.simpleMessage(
       "Pause downloads of this title",
     ),
-    "downloads_queue_paused_progress": m28,
+    "downloads_queue_paused_progress": m35,
     "downloads_queue_remove": MessageLookupByLibrary.simpleMessage(
       "Remove from queue",
     ),
@@ -818,7 +892,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_storage_delete_all_short": MessageLookupByLibrary.simpleMessage(
       "Delete all",
     ),
-    "downloads_storage_delete_title_confirm_message": m29,
+    "downloads_storage_delete_title_confirm_message": m36,
     "downloads_storage_delete_title_confirm_title":
         MessageLookupByLibrary.simpleMessage("Delete these downloads?"),
     "downloads_storage_delete_title_downloads":
@@ -828,19 +902,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_storage_delete_watched": MessageLookupByLibrary.simpleMessage(
       "Delete watched",
     ),
-    "downloads_storage_delete_watched_confirm_message": m30,
+    "downloads_storage_delete_watched_confirm_message": m37,
     "downloads_storage_delete_watched_confirm_title":
         MessageLookupByLibrary.simpleMessage("Delete watched episodes?"),
     "downloads_storage_delete_watched_episodes":
         MessageLookupByLibrary.simpleMessage("Delete watched episodes"),
-    "downloads_storage_deleted_watched": m31,
+    "downloads_storage_deleted_watched": m38,
     "downloads_storage_free_up": MessageLookupByLibrary.simpleMessage(
       "Free up space",
     ),
     "downloads_storage_free_up_empty": MessageLookupByLibrary.simpleMessage(
       "Nothing to free up",
     ),
-    "downloads_storage_free_up_reclaimable": m32,
+    "downloads_storage_free_up_reclaimable": m39,
     "downloads_storage_no_watched": MessageLookupByLibrary.simpleMessage(
       "No watched episodes to delete",
     ),
@@ -853,23 +927,23 @@ class MessageLookup extends MessageLookupByLibrary {
     "downloads_storage_section_title": MessageLookupByLibrary.simpleMessage(
       "Downloads",
     ),
-    "downloads_storage_summary_with_size": m33,
-    "downloads_storage_title_size": m34,
+    "downloads_storage_summary_with_size": m40,
+    "downloads_storage_title_size": m41,
     "downloads_storage_used": MessageLookupByLibrary.simpleMessage(
       "Storage used",
     ),
-    "downloads_storage_watched_size": m35,
+    "downloads_storage_watched_size": m42,
     "downloads_title": MessageLookupByLibrary.simpleMessage("Downloads"),
-    "duration_hours_minutes": m36,
-    "duration_minutes": m37,
-    "duration_seconds": m38,
+    "duration_hours_minutes": m43,
+    "duration_minutes": m44,
+    "duration_seconds": m45,
     "engine_tag_best": MessageLookupByLibrary.simpleMessage("Best quality"),
     "engine_tag_fast": MessageLookupByLibrary.simpleMessage("Fast"),
     "engine_tag_literal": MessageLookupByLibrary.simpleMessage("Literal"),
     "engine_tag_natural": MessageLookupByLibrary.simpleMessage("Natural"),
     "engine_tag_offline": MessageLookupByLibrary.simpleMessage("Offline"),
     "engine_tag_online": MessageLookupByLibrary.simpleMessage("Online"),
-    "engine_tag_size": m39,
+    "engine_tag_size": m46,
     "engine_tag_speed_e2b": MessageLookupByLibrary.simpleMessage(
       "≈4–10 s per page",
     ),
@@ -918,8 +992,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "ext_prefs_clear_data": MessageLookupByLibrary.simpleMessage(
       "Clear stored data",
     ),
-    "ext_prefs_clear_data_done": m40,
-    "ext_prefs_default_hint": m41,
+    "ext_prefs_clear_data_done": m47,
+    "ext_prefs_default_hint": m48,
     "ext_prefs_done": MessageLookupByLibrary.simpleMessage("Done"),
     "ext_prefs_mirror_automatic": MessageLookupByLibrary.simpleMessage(
       "Automatic",
@@ -931,8 +1005,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "ext_prefs_number_invalid": MessageLookupByLibrary.simpleMessage(
       "Enter a number",
     ),
-    "ext_prefs_page_size_default_option": m42,
-    "ext_prefs_page_size_option": m43,
+    "ext_prefs_page_size_default_option": m49,
+    "ext_prefs_page_size_option": m50,
     "ext_prefs_page_size_summary": MessageLookupByLibrary.simpleMessage(
       "How many titles each gallery page loads.",
     ),
@@ -951,7 +1025,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "extension_clear_session": MessageLookupByLibrary.simpleMessage(
       "Clear saved session",
     ),
-    "extension_clear_session_done": m44,
+    "extension_clear_session_done": m51,
     "extension_instance_add": MessageLookupByLibrary.simpleMessage(
       "Add another server",
     ),
@@ -961,7 +1035,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "extension_instance_add_failed": MessageLookupByLibrary.simpleMessage(
       "Could not add the server. Check your connection and try again.",
     ),
-    "extension_instance_added": m45,
+    "extension_instance_added": m52,
     "extension_instance_rename": MessageLookupByLibrary.simpleMessage("Rename"),
     "extension_instance_rename_confirm": MessageLookupByLibrary.simpleMessage(
       "Save",
@@ -1000,11 +1074,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "extension_sources_page_wakaranai_github_repo_title":
         MessageLookupByLibrary.simpleMessage("Wakaranai Extensions"),
     "extension_uninstall": MessageLookupByLibrary.simpleMessage("Uninstall"),
-    "extension_uninstall_done": m46,
+    "extension_uninstall_done": m53,
     "extension_uninstall_message": MessageLookupByLibrary.simpleMessage(
       "Removes the downloaded script, its settings, stored data and sign-in. Library titles and downloads stay; opening one of them installs the extension again.",
     ),
-    "extension_uninstall_title": m47,
+    "extension_uninstall_title": m54,
     "external_player_action": MessageLookupByLibrary.simpleMessage(
       "External player",
     ),
@@ -1012,10 +1086,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "No external video player is installed. Playing in the built-in player instead.",
     ),
     "feeds_row_label": MessageLookupByLibrary.simpleMessage("Feeds"),
-    "filters_active_summary": m48,
+    "filters_active_summary": m55,
     "filters_add_value": MessageLookupByLibrary.simpleMessage("Add"),
     "filters_any_option": MessageLookupByLibrary.simpleMessage("Any"),
-    "filters_button_semantics": m49,
+    "filters_button_semantics": m56,
     "filters_clear_search": MessageLookupByLibrary.simpleMessage(
       "Clear search",
     ),
@@ -1028,18 +1102,18 @@ class MessageLookup extends MessageLookupByLibrary {
       "Showing everything",
     ),
     "filters_range_any": MessageLookupByLibrary.simpleMessage("Any"),
-    "filters_remove_value": m50,
-    "filters_search_hint": m51,
-    "filters_show_all": m52,
+    "filters_remove_value": m57,
+    "filters_search_hint": m58,
+    "filters_show_all": m59,
     "filters_show_less": MessageLookupByLibrary.simpleMessage("Show less"),
     "gallery_filters_apply_button": MessageLookupByLibrary.simpleMessage(
       "Apply",
     ),
-    "gallery_filters_apply_button_count": m53,
+    "gallery_filters_apply_button_count": m60,
     "gallery_filters_button_label": MessageLookupByLibrary.simpleMessage(
       "Filters",
     ),
-    "gallery_filters_more_options": m54,
+    "gallery_filters_more_options": m61,
     "gallery_filters_multiple_of_any_hint":
         MessageLookupByLibrary.simpleMessage("Type and add"),
     "gallery_filters_no_matches": MessageLookupByLibrary.simpleMessage(
@@ -1061,8 +1135,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "gallery_filters_sheet_title": MessageLookupByLibrary.simpleMessage(
       "Filters",
     ),
-    "gallery_last_opened": m55,
-    "gallery_layout_button_tooltip": m56,
+    "gallery_last_opened": m62,
+    "gallery_layout_button_tooltip": m63,
     "gallery_layout_comfortable": MessageLookupByLibrary.simpleMessage(
       "Comfortable grid",
     ),
@@ -1070,7 +1144,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Compact grid",
     ),
     "gallery_layout_list": MessageLookupByLibrary.simpleMessage("List"),
-    "global_search_empty_sources": m57,
+    "global_search_empty_sources": m64,
     "global_search_hint": MessageLookupByLibrary.simpleMessage(
       "Search titles in your sources",
     ),
@@ -1080,7 +1154,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "global_search_idle_title": MessageLookupByLibrary.simpleMessage(
       "Search across your sources",
     ),
-    "global_search_no_results_message": m58,
+    "global_search_no_results_message": m65,
     "global_search_no_results_title": MessageLookupByLibrary.simpleMessage(
       "Nothing found",
     ),
@@ -1114,7 +1188,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "global_search_recent_title": MessageLookupByLibrary.simpleMessage(
       "Recent searches",
     ),
-    "global_search_results_count": m59,
+    "global_search_results_count": m66,
     "global_search_scope_custom_hint": MessageLookupByLibrary.simpleMessage(
       "Your own selection",
     ),
@@ -1137,7 +1211,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "global_search_scope_select_none": MessageLookupByLibrary.simpleMessage(
       "Clear",
     ),
-    "global_search_scope_summary": m60,
+    "global_search_scope_summary": m67,
     "global_search_scope_title": MessageLookupByLibrary.simpleMessage(
       "Sources to search",
     ),
@@ -1148,7 +1222,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Search as",
     ),
     "home_anime_group_title": MessageLookupByLibrary.simpleMessage("Video"),
-    "home_configs_source_initializing_error": m61,
+    "home_configs_source_initializing_error": m68,
     "home_extensions_error_message": MessageLookupByLibrary.simpleMessage(
       "Configs source error :c",
     ),
@@ -1185,7 +1259,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Available",
     ),
     "language_packs_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
-    "language_packs_downloaded_count": m62,
+    "language_packs_downloaded_count": m69,
     "language_packs_downloaded_section": MessageLookupByLibrary.simpleMessage(
       "Downloaded",
     ),
@@ -1198,8 +1272,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "language_packs_hint_wifi": MessageLookupByLibrary.simpleMessage(
       "Each pack is about 30 MB. You only need the languages you translate from and to. Downloads wait for Wi-Fi.",
     ),
-    "language_packs_queue_progress": m63,
-    "language_packs_queued": m64,
+    "language_packs_queue_progress": m70,
+    "language_packs_queued": m71,
     "language_packs_retry": MessageLookupByLibrary.simpleMessage("Retry"),
     "language_packs_title": MessageLookupByLibrary.simpleMessage(
       "Language packs",
@@ -1226,8 +1300,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "library_download_first_group_hint": MessageLookupByLibrary.simpleMessage(
       "Each title downloads from its first chapter group",
     ),
-    "library_download_many_failed": m65,
-    "library_download_many_loading": m66,
+    "library_download_many_failed": m72,
+    "library_download_many_loading": m73,
     "library_empty_message": MessageLookupByLibrary.simpleMessage(
       "Tap the heart on a title to add it here",
     ),
@@ -1244,7 +1318,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "library_mute_notifications": MessageLookupByLibrary.simpleMessage(
       "Mute notifications",
     ),
-    "library_new_chapters": m67,
+    "library_new_chapters": m74,
     "library_no_category": MessageLookupByLibrary.simpleMessage("No category"),
     "library_remove": MessageLookupByLibrary.simpleMessage(
       "Remove from library",
@@ -1256,12 +1330,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "library_search_hint": MessageLookupByLibrary.simpleMessage(
       "Search library",
     ),
-    "library_search_no_results_message": m68,
+    "library_search_no_results_message": m75,
     "library_search_no_results_title": MessageLookupByLibrary.simpleMessage(
       "No matches",
     ),
     "library_select_all": MessageLookupByLibrary.simpleMessage("Select all"),
-    "library_selected_count": m69,
+    "library_selected_count": m76,
     "library_sort_added_newest": MessageLookupByLibrary.simpleMessage(
       "Recently added",
     ),
@@ -1290,7 +1364,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "local_source_import": MessageLookupByLibrary.simpleMessage(
       "Import CBZ or ZIP files",
     ),
-    "local_source_imported": m70,
+    "local_source_imported": m77,
     "local_source_imported_title": MessageLookupByLibrary.simpleMessage(
       "Imported",
     ),
@@ -1298,11 +1372,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "local_source_where": MessageLookupByLibrary.simpleMessage(
       "Where to put files",
     ),
-    "local_source_where_message": m71,
+    "local_source_where_message": m78,
     "native_player_auto_next_cancel": MessageLookupByLibrary.simpleMessage(
       "Cancel",
     ),
-    "native_player_auto_next_countdown": m72,
+    "native_player_auto_next_countdown": m79,
     "native_player_auto_next_play_now": MessageLookupByLibrary.simpleMessage(
       "Play now",
     ),
@@ -1349,11 +1423,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "native_player_play": MessageLookupByLibrary.simpleMessage("Play"),
     "native_player_quality": MessageLookupByLibrary.simpleMessage("Quality"),
     "native_player_quality_auto": MessageLookupByLibrary.simpleMessage("Auto"),
-    "native_player_quality_fallback": m73,
+    "native_player_quality_fallback": m80,
     "native_player_retry": MessageLookupByLibrary.simpleMessage("Retry"),
-    "native_player_seek_backward": m74,
-    "native_player_seek_forward": m75,
-    "native_player_skip_opening": m76,
+    "native_player_seek_backward": m81,
+    "native_player_seek_forward": m82,
+    "native_player_skip_opening": m83,
     "native_player_speed": MessageLookupByLibrary.simpleMessage(
       "Playback speed",
     ),
@@ -1366,7 +1440,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "native_player_subtitle_failed": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t load these subtitles",
     ),
-    "native_player_subtitle_fallback": m77,
+    "native_player_subtitle_fallback": m84,
     "native_player_subtitles": MessageLookupByLibrary.simpleMessage(
       "Subtitles",
     ),
@@ -1374,7 +1448,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "native_player_unlock": MessageLookupByLibrary.simpleMessage(
       "Unlock controls",
     ),
-    "novel_progress_percent": m78,
+    "novel_progress_percent": m85,
     "novel_reader_background_sepia": MessageLookupByLibrary.simpleMessage(
       "Sepia",
     ),
@@ -1400,7 +1474,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "novel_reader_next_chapter": MessageLookupByLibrary.simpleMessage(
       "Next chapter",
     ),
-    "novel_reader_next_chapter_named": m79,
+    "novel_reader_next_chapter_named": m86,
     "novel_reader_previous_chapter": MessageLookupByLibrary.simpleMessage(
       "Previous chapter",
     ),
@@ -1432,8 +1506,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_language_vietnamese": MessageLookupByLibrary.simpleMessage(
       "Vietnamese",
     ),
-    "page_translation_ai_model_downloading": m80,
-    "page_translation_ai_model_message": m81,
+    "page_translation_ai_model_downloading": m87,
+    "page_translation_ai_model_message": m88,
     "page_translation_ai_model_title": MessageLookupByLibrary.simpleMessage(
       "Download the AI model",
     ),
@@ -1459,7 +1533,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_glossary_add": MessageLookupByLibrary.simpleMessage(
       "Add name",
     ),
-    "page_translation_glossary_count": m82,
+    "page_translation_glossary_count": m89,
     "page_translation_glossary_empty": MessageLookupByLibrary.simpleMessage(
       "None yet",
     ),
@@ -1509,11 +1583,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_models_downloading": MessageLookupByLibrary.simpleMessage(
       "Downloading language packs…",
     ),
-    "page_translation_models_downloading_progress": m83,
+    "page_translation_models_downloading_progress": m90,
     "page_translation_models_failed": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t download language packs",
     ),
-    "page_translation_models_message": m84,
+    "page_translation_models_message": m91,
     "page_translation_models_title": MessageLookupByLibrary.simpleMessage(
       "Download language packs",
     ),
@@ -1554,7 +1628,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Clear"),
     "page_translation_settings_clear_cache_confirm_title":
         MessageLookupByLibrary.simpleMessage("Clear translated pages?"),
-    "page_translation_settings_clear_cache_subtitle": m85,
+    "page_translation_settings_clear_cache_subtitle": m92,
     "page_translation_settings_delete_pack":
         MessageLookupByLibrary.simpleMessage("Delete"),
     "page_translation_settings_download_pack":
@@ -1584,7 +1658,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Language packs"),
     "page_translation_settings_remove_outdated":
         MessageLookupByLibrary.simpleMessage("Remove older translations"),
-    "page_translation_settings_remove_outdated_subtitle": m86,
+    "page_translation_settings_remove_outdated_subtitle": m93,
     "page_translation_settings_storage_section":
         MessageLookupByLibrary.simpleMessage("Storage"),
     "page_translation_settings_target": MessageLookupByLibrary.simpleMessage(
@@ -1606,7 +1680,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_show_translation": MessageLookupByLibrary.simpleMessage(
       "Show translation",
     ),
-    "page_translation_status_chapter": m87,
+    "page_translation_status_chapter": m94,
     "page_translation_status_failed": MessageLookupByLibrary.simpleMessage(
       "Translation failed · tap to retry",
     ),
@@ -1629,7 +1703,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "page_translation_text_size_auto": MessageLookupByLibrary.simpleMessage(
       "Auto",
     ),
-    "page_translation_text_size_pixels": m88,
+    "page_translation_text_size_pixels": m95,
     "page_translation_text_size_subtitle": MessageLookupByLibrary.simpleMessage(
       "Largest size translated text may use on screen",
     ),
@@ -1717,7 +1791,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_error_title": MessageLookupByLibrary.simpleMessage(
       "Something went wrong",
     ),
-    "service_view_no_results_message": m89,
+    "service_view_no_results_message": m96,
     "service_view_no_results_title": MessageLookupByLibrary.simpleMessage(
       "No results",
     ),
@@ -1726,7 +1800,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "service_view_retry_button_title": MessageLookupByLibrary.simpleMessage(
       "Retry",
     ),
-    "service_view_search_results_for": m90,
+    "service_view_search_results_for": m97,
     "service_viewer_search_field_hint_text":
         MessageLookupByLibrary.simpleMessage("Search"),
     "settings_about_section_title": MessageLookupByLibrary.simpleMessage(
@@ -1738,7 +1812,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_auto_backup_failed": MessageLookupByLibrary.simpleMessage(
       "The last backup failed · tap Back up now to retry",
     ),
-    "settings_auto_backup_last": m91,
+    "settings_auto_backup_last": m98,
     "settings_auto_backup_never": MessageLookupByLibrary.simpleMessage(
       "Daily to Download/Wakaranai · no backup yet",
     ),
@@ -1817,7 +1891,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_developer_section": MessageLookupByLibrary.simpleMessage(
       "Developer",
     ),
-    "settings_download_latest_release": m92,
+    "settings_download_latest_release": m99,
     "settings_export_data_button": MessageLookupByLibrary.simpleMessage(
       "Export data",
     ),
@@ -1880,8 +1954,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_import_sheet_title": MessageLookupByLibrary.simpleMessage(
       "Import data",
     ),
-    "settings_import_skipped": m93,
-    "settings_import_success": m94,
+    "settings_import_skipped": m100,
+    "settings_import_success": m101,
     "settings_incognito_subtitle": MessageLookupByLibrary.simpleMessage(
       "Don\'t save reading or watching progress, history or statistics",
     ),
@@ -1902,7 +1976,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Set LOCAL_REPOSITORY_URL in .env to enable",
         ),
-    "settings_local_extension_server_subtitle": m95,
+    "settings_local_extension_server_subtitle": m102,
     "settings_local_extension_server_title":
         MessageLookupByLibrary.simpleMessage("Local extension server"),
     "settings_page_translation_subtitle": MessageLookupByLibrary.simpleMessage(
@@ -1933,7 +2007,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_player_skip_opening_title": MessageLookupByLibrary.simpleMessage(
       "Skip opening",
     ),
-    "settings_player_skip_opening_value": m96,
+    "settings_player_skip_opening_value": m103,
     "settings_progress_preparing": MessageLookupByLibrary.simpleMessage(
       "Preparing…",
     ),
@@ -1971,13 +2045,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_theme_sepia": MessageLookupByLibrary.simpleMessage("Sepia"),
     "settings_theme_sky": MessageLookupByLibrary.simpleMessage("Sky"),
     "settings_theme_title": MessageLookupByLibrary.simpleMessage("Theme"),
-    "settings_tracker_login_failed": m97,
+    "settings_tracker_login_failed": m104,
     "settings_tracker_logout": MessageLookupByLibrary.simpleMessage("Sign out"),
     "settings_tracker_logout_message": MessageLookupByLibrary.simpleMessage(
       "Titles linked to this tracker stop syncing and their links are removed.",
     ),
-    "settings_tracker_logout_title": m98,
-    "settings_tracker_signed_in": m99,
+    "settings_tracker_logout_title": m105,
+    "settings_tracker_signed_in": m106,
     "settings_tracker_signed_out": MessageLookupByLibrary.simpleMessage(
       "Not signed in. Tap to sign in",
     ),
@@ -1987,7 +2061,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_update_frequency": MessageLookupByLibrary.simpleMessage(
       "Check frequency",
     ),
-    "settings_update_frequency_value": m100,
+    "settings_update_frequency_value": m107,
     "settings_update_notifications": MessageLookupByLibrary.simpleMessage(
       "Update notifications",
     ),
@@ -2009,7 +2083,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_video_player_web_only": MessageLookupByLibrary.simpleMessage(
       "Web player only",
     ),
-    "source_error_login_required_title": m101,
+    "source_error_login_required_title": m108,
     "source_error_not_found_title": MessageLookupByLibrary.simpleMessage(
       "Removed from the source",
     ),
@@ -2024,7 +2098,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "source_error_remove_from_library_button":
         MessageLookupByLibrary.simpleMessage("Remove from library"),
-    "source_error_removed_titles_found": m102,
+    "source_error_removed_titles_found": m109,
     "source_error_retry_button": MessageLookupByLibrary.simpleMessage("Retry"),
     "source_error_sign_in_button": MessageLookupByLibrary.simpleMessage(
       "Sign in",
@@ -2059,7 +2133,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "stats_heatmap_less": MessageLookupByLibrary.simpleMessage("Less"),
     "stats_heatmap_more": MessageLookupByLibrary.simpleMessage("More"),
-    "stats_heatmap_week_count": m103,
+    "stats_heatmap_week_count": m110,
     "stats_kpi_active_days": MessageLookupByLibrary.simpleMessage(
       "Active days",
     ),
@@ -2080,15 +2154,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "stats_sources_section_title": MessageLookupByLibrary.simpleMessage(
       "Top sources",
     ),
-    "stats_streak_summary": m104,
+    "stats_streak_summary": m111,
     "stats_title": MessageLookupByLibrary.simpleMessage("Statistics"),
     "title_download": MessageLookupByLibrary.simpleMessage("Download"),
     "title_download_all": MessageLookupByLibrary.simpleMessage("All chapters"),
-    "title_download_chapter_count": m105,
+    "title_download_chapter_count": m112,
     "title_download_episode_all": MessageLookupByLibrary.simpleMessage(
       "All episodes",
     ),
-    "title_download_episode_count": m106,
+    "title_download_episode_count": m113,
     "title_download_episode_failed": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t load the episode list",
     ),
@@ -2105,21 +2179,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "title_download_episode_loading": MessageLookupByLibrary.simpleMessage(
       "Looking up episodes…",
     ),
-    "title_download_episode_many_loading": m107,
+    "title_download_episode_many_loading": m114,
     "title_download_episode_mixed_all": MessageLookupByLibrary.simpleMessage(
       "All chapters and episodes",
     ),
     "title_download_episode_mixed_hint": MessageLookupByLibrary.simpleMessage(
       "Each title downloads from its first group",
     ),
-    "title_download_episode_mixed_loading": m108,
+    "title_download_episode_mixed_loading": m115,
     "title_download_episode_mixed_next": MessageLookupByLibrary.simpleMessage(
       "Next chapter or episode",
     ),
-    "title_download_episode_mixed_next_count": m109,
+    "title_download_episode_mixed_next_count": m116,
     "title_download_episode_mixed_nothing":
         MessageLookupByLibrary.simpleMessage("Nothing new to download"),
-    "title_download_episode_mixed_queued": m110,
+    "title_download_episode_mixed_queued": m117,
     "title_download_episode_mixed_title": MessageLookupByLibrary.simpleMessage(
       "Download chapters and episodes",
     ),
@@ -2129,14 +2203,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "title_download_episode_next": MessageLookupByLibrary.simpleMessage(
       "Next episode",
     ),
-    "title_download_episode_next_count": m111,
+    "title_download_episode_next_count": m118,
     "title_download_episode_none": MessageLookupByLibrary.simpleMessage(
       "This title has no episodes yet",
     ),
     "title_download_episode_nothing": MessageLookupByLibrary.simpleMessage(
       "No new episodes to download",
     ),
-    "title_download_episode_queued": m112,
+    "title_download_episode_queued": m119,
     "title_download_episode_title": MessageLookupByLibrary.simpleMessage(
       "Download episodes",
     ),
@@ -2156,21 +2230,21 @@ class MessageLookup extends MessageLookupByLibrary {
       "Looking up chapters…",
     ),
     "title_download_next": MessageLookupByLibrary.simpleMessage("Next chapter"),
-    "title_download_next_count": m113,
+    "title_download_next_count": m120,
     "title_download_no_chapters": MessageLookupByLibrary.simpleMessage(
       "This title has no chapters yet",
     ),
     "title_download_nothing": MessageLookupByLibrary.simpleMessage(
       "No new chapters to download",
     ),
-    "title_download_queued": m114,
+    "title_download_queued": m121,
     "title_download_title": MessageLookupByLibrary.simpleMessage(
       "Download chapters",
     ),
     "title_download_unread": MessageLookupByLibrary.simpleMessage(
       "Unread chapters",
     ),
-    "title_download_untitled_group": m115,
+    "title_download_untitled_group": m122,
     "title_status_announce": MessageLookupByLibrary.simpleMessage("Announced"),
     "title_status_canceled": MessageLookupByLibrary.simpleMessage("Cancelled"),
     "title_status_ongoing": MessageLookupByLibrary.simpleMessage("Ongoing"),
@@ -2192,7 +2266,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tracker_search_hint": MessageLookupByLibrary.simpleMessage(
       "Search by title",
     ),
-    "tracker_search_title": m116,
+    "tracker_search_title": m123,
     "tracker_sheet_title": MessageLookupByLibrary.simpleMessage("Tracking"),
     "tracker_status_completed": MessageLookupByLibrary.simpleMessage(
       "Completed",
@@ -2209,15 +2283,15 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tracker_status_watching": MessageLookupByLibrary.simpleMessage("Watching"),
     "tracker_unlink_action": MessageLookupByLibrary.simpleMessage("Unlink"),
-    "translation_ai_model_delete_message": m117,
+    "translation_ai_model_delete_message": m124,
     "translation_ai_model_delete_title": MessageLookupByLibrary.simpleMessage(
       "Delete the AI model?",
     ),
     "translation_ai_model_failed": MessageLookupByLibrary.simpleMessage(
       "Download failed · try again on Wi-Fi",
     ),
-    "translation_ai_model_installed": m118,
-    "translation_ai_model_missing": m119,
+    "translation_ai_model_installed": m125,
+    "translation_ai_model_missing": m126,
     "translation_ai_model_title": MessageLookupByLibrary.simpleMessage(
       "AI model",
     ),
@@ -2247,7 +2321,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage("Needs Android 11 or newer"),
     "translation_engine_gemma_unavailable_platform":
         MessageLookupByLibrary.simpleMessage("Not available on this device"),
-    "translation_engine_gemma_unavailable_ram": m120,
+    "translation_engine_gemma_unavailable_ram": m127,
     "translation_engine_info_examples": MessageLookupByLibrary.simpleMessage(
       "Speed by phone (estimated)",
     ),
@@ -2259,7 +2333,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "translation_engine_info_requirements":
         MessageLookupByLibrary.simpleMessage("Requirements"),
-    "translation_engine_info_this_phone": m121,
+    "translation_engine_info_this_phone": m128,
     "translation_engine_mlkit": MessageLookupByLibrary.simpleMessage("ML Kit"),
     "translation_engine_mlkit_subtitle": MessageLookupByLibrary.simpleMessage(
       "Fast and light · works on every phone · literal translations",
@@ -2270,8 +2344,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "translation_engine_req_android": MessageLookupByLibrary.simpleMessage(
       "Android 11 or newer",
     ),
-    "translation_engine_req_ram_model": m122,
-    "translation_engine_req_storage_model": m123,
+    "translation_engine_req_ram_model": m129,
+    "translation_engine_req_storage_model": m130,
     "translation_engine_section": MessageLookupByLibrary.simpleMessage(
       "Translation engine",
     ),
@@ -2301,13 +2375,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "translation_models_ai_section": MessageLookupByLibrary.simpleMessage(
       "On-device AI",
     ),
-    "translation_models_downloaded": m124,
-    "translation_models_packs_count": m125,
+    "translation_models_downloaded": m131,
+    "translation_models_packs_count": m132,
     "translation_models_packs_section": MessageLookupByLibrary.simpleMessage(
       "ML Kit",
     ),
-    "translation_models_pick_first": m126,
-    "translation_models_summary": m127,
+    "translation_models_pick_first": m133,
+    "translation_models_summary": m134,
     "translation_models_title": MessageLookupByLibrary.simpleMessage(
       "Downloaded models",
     ),
@@ -2320,22 +2394,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "updates_attention_action_review": MessageLookupByLibrary.simpleMessage(
       "Review",
     ),
-    "updates_attention_browser_check": m128,
-    "updates_attention_many": m129,
+    "updates_attention_browser_check": m135,
+    "updates_attention_many": m136,
     "updates_attention_notification_body": MessageLookupByLibrary.simpleMessage(
       "Update checks are paused for these sources. Pull to refresh your library to fix it.",
     ),
-    "updates_attention_notification_browser_title": m130,
-    "updates_attention_notification_sign_in_title": m131,
-    "updates_attention_session_saved": m132,
+    "updates_attention_notification_browser_title": m137,
+    "updates_attention_notification_sign_in_title": m138,
+    "updates_attention_session_saved": m139,
     "updates_attention_sheet_title": MessageLookupByLibrary.simpleMessage(
       "Sources need attention",
     ),
-    "updates_attention_sign_in": m133,
-    "updates_attention_sign_in_again": m134,
-    "updates_attention_unavailable": m135,
-    "updates_check_failed": m136,
-    "updates_check_found": m137,
+    "updates_attention_sign_in": m140,
+    "updates_attention_sign_in_again": m141,
+    "updates_attention_unavailable": m142,
+    "updates_check_failed": m143,
+    "updates_check_found": m144,
     "updates_check_none": MessageLookupByLibrary.simpleMessage(
       "No new updates found",
     ),
@@ -2355,20 +2429,20 @@ class MessageLookup extends MessageLookupByLibrary {
     "updates_notification_channel_name": MessageLookupByLibrary.simpleMessage(
       "Library updates",
     ),
-    "updates_notification_line": m138,
-    "updates_notification_more": m139,
-    "updates_notification_summary": m140,
-    "updates_notification_title": m141,
-    "updates_time_days": m142,
-    "updates_time_hours": m143,
-    "updates_time_minutes": m144,
+    "updates_notification_line": m145,
+    "updates_notification_more": m146,
+    "updates_notification_summary": m147,
+    "updates_notification_title": m148,
+    "updates_time_days": m149,
+    "updates_time_hours": m150,
+    "updates_time_minutes": m151,
     "updates_time_now": MessageLookupByLibrary.simpleMessage("Just now"),
     "updates_title": MessageLookupByLibrary.simpleMessage("Updates"),
     "web_browser_back": MessageLookupByLibrary.simpleMessage("Back"),
     "web_browser_clear_cookies": MessageLookupByLibrary.simpleMessage(
       "Clear cookies for this site",
     ),
-    "web_browser_cookies_cleared": m145,
+    "web_browser_cookies_cleared": m152,
     "web_browser_copy_link": MessageLookupByLibrary.simpleMessage("Copy link"),
     "web_browser_error_title": MessageLookupByLibrary.simpleMessage(
       "Couldn\'t load this page",

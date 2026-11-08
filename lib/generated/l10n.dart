@@ -9213,6 +9213,305 @@ class S {
       args: [],
     );
   }
+
+  /// `Discover`
+  String get discover_title {
+    return Intl.message('Discover', name: 'discover_title', desc: '', args: []);
+  }
+
+  /// `Discover on AniList`
+  String get discover_open_tooltip {
+    return Intl.message(
+      'Discover on AniList',
+      name: 'discover_open_tooltip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Data from AniList`
+  String get discover_attribution {
+    return Intl.message(
+      'Data from AniList',
+      name: 'discover_attribution',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This season`
+  String get discover_tab_season {
+    return Intl.message(
+      'This season',
+      name: 'discover_tab_season',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Trending anime`
+  String get discover_tab_trending_anime {
+    return Intl.message(
+      'Trending anime',
+      name: 'discover_tab_trending_anime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Trending manga`
+  String get discover_tab_trending_manga {
+    return Intl.message(
+      'Trending manga',
+      name: 'discover_tab_trending_manga',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Light novels`
+  String get discover_tab_novels {
+    return Intl.message(
+      'Light novels',
+      name: 'discover_tab_novels',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Winter {year}`
+  String discover_season_winter(int year) {
+    return Intl.message(
+      'Winter $year',
+      name: 'discover_season_winter',
+      desc: '',
+      args: [year],
+    );
+  }
+
+  /// `Spring {year}`
+  String discover_season_spring(int year) {
+    return Intl.message(
+      'Spring $year',
+      name: 'discover_season_spring',
+      desc: '',
+      args: [year],
+    );
+  }
+
+  /// `Summer {year}`
+  String discover_season_summer(int year) {
+    return Intl.message(
+      'Summer $year',
+      name: 'discover_season_summer',
+      desc: '',
+      args: [year],
+    );
+  }
+
+  /// `Fall {year}`
+  String discover_season_fall(int year) {
+    return Intl.message(
+      'Fall $year',
+      name: 'discover_season_fall',
+      desc: '',
+      args: [year],
+    );
+  }
+
+  /// `Couldn't load AniList`
+  String get discover_error_title {
+    return Intl.message(
+      'Couldn\'t load AniList',
+      name: 'discover_error_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check your connection and try again.`
+  String get discover_error_message {
+    return Intl.message(
+      'Check your connection and try again.',
+      name: 'discover_error_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get discover_retry {
+    return Intl.message('Retry', name: 'discover_retry', desc: '', args: []);
+  }
+
+  /// `Nothing here yet`
+  String get discover_empty_title {
+    return Intl.message(
+      'Nothing here yet',
+      name: 'discover_empty_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load more`
+  String get discover_load_more_failed {
+    return Intl.message(
+      'Couldn\'t load more',
+      name: 'discover_load_more_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Find on my sources`
+  String get discover_find_on_sources {
+    return Intl.message(
+      'Find on my sources',
+      name: 'discover_find_on_sources',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search as`
+  String get discover_search_as {
+    return Intl.message(
+      'Search as',
+      name: 'discover_search_as',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No synopsis yet.`
+  String get discover_no_synopsis {
+    return Intl.message(
+      'No synopsis yet.',
+      name: 'discover_no_synopsis',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 episode} other{{count} episodes}}`
+  String discover_episodes(int count) {
+    return Intl.plural(
+      count,
+      one: '1 episode',
+      other: '$count episodes',
+      name: 'discover_episodes',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count, plural, =1{1 chapter} other{{count} chapters}}`
+  String discover_chapters(int count) {
+    return Intl.plural(
+      count,
+      one: '1 chapter',
+      other: '$count chapters',
+      name: 'discover_chapters',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{score}%`
+  String discover_score(int score) {
+    return Intl.message(
+      '$score%',
+      name: 'discover_score',
+      desc: '',
+      args: [score],
+    );
+  }
+
+  /// `TV`
+  String get discover_format_tv {
+    return Intl.message('TV', name: 'discover_format_tv', desc: '', args: []);
+  }
+
+  /// `TV short`
+  String get discover_format_tv_short {
+    return Intl.message(
+      'TV short',
+      name: 'discover_format_tv_short',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Movie`
+  String get discover_format_movie {
+    return Intl.message(
+      'Movie',
+      name: 'discover_format_movie',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Special`
+  String get discover_format_special {
+    return Intl.message(
+      'Special',
+      name: 'discover_format_special',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `OVA`
+  String get discover_format_ova {
+    return Intl.message('OVA', name: 'discover_format_ova', desc: '', args: []);
+  }
+
+  /// `ONA`
+  String get discover_format_ona {
+    return Intl.message('ONA', name: 'discover_format_ona', desc: '', args: []);
+  }
+
+  /// `Music`
+  String get discover_format_music {
+    return Intl.message(
+      'Music',
+      name: 'discover_format_music',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manga`
+  String get discover_format_manga {
+    return Intl.message(
+      'Manga',
+      name: 'discover_format_manga',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Light novel`
+  String get discover_format_novel {
+    return Intl.message(
+      'Light novel',
+      name: 'discover_format_novel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `One-shot`
+  String get discover_format_one_shot {
+    return Intl.message(
+      'One-shot',
+      name: 'discover_format_one_shot',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

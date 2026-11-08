@@ -36,6 +36,7 @@ import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
 import 'package:wakaranai/ui/services/novel/novel_concrete_viewer.dart';
+import 'package:wakaranai/ui/discover/discover_screen.dart';
 import 'package:wakaranai/ui/global_search/global_search_arguments.dart';
 import 'package:wakaranai/ui/global_search/global_search_page.dart';
 import 'package:wakaranai/ui/services/novel/novel_service_viewer.dart';
@@ -200,6 +201,7 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
               arguments: settings.arguments as AddExtensionPageArguments),
           Routes.globalSearch: (BuildContext context) => GlobalSearchPage(
               arguments: settings.arguments as GlobalSearchArguments),
+          Routes.discover: (BuildContext context) => const DiscoverScreen(),
         };
 
         return CupertinoPageRoute(builder: routes[settings.name]!);

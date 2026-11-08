@@ -178,6 +178,11 @@ class _ConfigPageState extends State<ConfigPage> {
       ),
       actions: <Widget>[
         IconButton(
+          tooltip: S.current.discover_open_tooltip,
+          icon: Icon(Icons.explore_outlined, color: AppColors.mainWhite),
+          onPressed: () => Navigator.of(context).pushNamed(Routes.discover),
+        ),
+        IconButton(
           tooltip: S.current.global_search_open_tooltip,
           icon: Icon(Icons.search_rounded, color: AppColors.mainWhite),
           onPressed: () => Navigator.of(context).pushNamed(

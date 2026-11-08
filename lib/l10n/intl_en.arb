@@ -1639,5 +1639,86 @@
   "global_search_rail_sign_in": "Sign-in needed",
   "global_search_rail_verify": "Verification needed",
   "global_search_rail_open": "Open",
-  "global_search_try_titles": "Search as"
+  "global_search_try_titles": "Search as",
+  "discover_title": "Discover",
+  "discover_open_tooltip": "Discover on AniList",
+  "discover_attribution": "Data from AniList",
+  "discover_tab_season": "This season",
+  "discover_tab_trending_anime": "Trending anime",
+  "discover_tab_trending_manga": "Trending manga",
+  "discover_tab_novels": "Light novels",
+  "discover_season_winter": "Winter {year}",
+  "@discover_season_winter": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_season_spring": "Spring {year}",
+  "@discover_season_spring": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_season_summer": "Summer {year}",
+  "@discover_season_summer": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_season_fall": "Fall {year}",
+  "@discover_season_fall": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_error_title": "Couldn't load AniList",
+  "discover_error_message": "Check your connection and try again.",
+  "discover_retry": "Retry",
+  "discover_empty_title": "Nothing here yet",
+  "discover_load_more_failed": "Couldn't load more",
+  "discover_find_on_sources": "Find on my sources",
+  "discover_search_as": "Search as",
+  "discover_no_synopsis": "No synopsis yet.",
+  "discover_episodes": "{count, plural, =1{1 episode} other{{count} episodes}}",
+  "@discover_episodes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_chapters": "{count, plural, =1{1 chapter} other{{count} chapters}}",
+  "@discover_chapters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_score": "{score}%",
+  "@discover_score": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_format_tv": "TV",
+  "discover_format_tv_short": "TV short",
+  "discover_format_movie": "Movie",
+  "discover_format_special": "Special",
+  "discover_format_ova": "OVA",
+  "discover_format_ona": "ONA",
+  "discover_format_music": "Music",
+  "discover_format_manga": "Manga",
+  "discover_format_novel": "Light novel",
+  "discover_format_one_shot": "One-shot"
 }
