@@ -86,6 +86,12 @@ class GalleryViewCard extends StatelessWidget {
     final int? decodeWidth = constraints.hasBoundedWidth
         ? decodeWidthFor(context, constraints.maxWidth)
         : null;
+    if (cover.trim().isEmpty) {
+      return Material(
+        type: MaterialType.transparency,
+        child: _buildCoverContent(),
+      );
+    }
     return Ink.image(
       fit: BoxFit.cover,
       image: getImageProvider(
@@ -93,54 +99,58 @@ class GalleryViewCard extends StatelessWidget {
         headers: headers,
         decodeWidth: decodeWidth,
       ),
-      child: InkWell(
-        splashColor: AppColors.mediumLight.withValues(alpha: 0.3),
-        onTap: onTap,
-        onLongPress: onLongPress,
-        child: Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: FractionallySizedBox(
-                heightFactor: 0.55,
-                widthFactor: 1,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: <Color>[
-                        Colors.black.withValues(alpha: 0.0),
-                        Colors.black.withValues(alpha: 0.85),
-                      ],
-                    ),
+      child: _buildCoverContent(),
+    );
+  }
+
+  Widget _buildCoverContent() {
+    return InkWell(
+      splashColor: AppColors.mediumLight.withValues(alpha: 0.3),
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: FractionallySizedBox(
+              heightFactor: 0.55,
+              widthFactor: 1,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: <Color>[
+                      Colors.black.withValues(alpha: 0.0),
+                      Colors.black.withValues(alpha: 0.85),
+                    ],
                   ),
                 ),
               ),
             ),
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Padding(
-                padding: EdgeInsets.all(compact ? 6 : 8),
-                child: Text(
-                  title,
-                  maxLines: compact ? 2 : 3,
-                  style:
-                      medium(
-                        size: compact ? 12 : 14,
-                        color: AppColors.onMedia,
-                      ).copyWith(
-                        shadows: const <Shadow>[
-                          Shadow(color: Colors.black, blurRadius: 4),
-                        ],
-                      ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+          ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: EdgeInsets.all(compact ? 6 : 8),
+              child: Text(
+                title,
+                maxLines: compact ? 2 : 3,
+                style:
+                    medium(
+                      size: compact ? 12 : 14,
+                      color: AppColors.onMedia,
+                    ).copyWith(
+                      shadows: const <Shadow>[
+                        Shadow(color: Colors.black, blurRadius: 4),
+                      ],
+                    ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

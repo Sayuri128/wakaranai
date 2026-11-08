@@ -53,6 +53,14 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
 
   String? get galleryCover;
 
+  String? get _headerGalleryCover {
+    final String? cover = galleryCover;
+    if (cover == null || cover.trim().isEmpty) {
+      return null;
+    }
+    return cover;
+  }
+
   bool get fromLibrary;
 
   Map<String, String> get coverHeaders;
@@ -202,14 +210,15 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
       slivers: <Widget>[
         SliverList(
           delegate: SliverChildListDelegate(<Widget>[
-            if (galleryCover != null) _buildCover(galleryCover!, context),
+            if (_headerGalleryCover != null)
+              _buildCover(_headerGalleryCover!, context),
             if (initialized != null)
               ..._buildHeaderSection(context, initialized, groupSize)
             else if (state is ConcreteViewError<T, C, G>) ...<Widget>[
               _buildErrorMessage(context, state),
             ] else ...<Widget>[
               ConcreteContentSkeleton(
-                showCover: galleryCover == null,
+                showCover: _headerGalleryCover == null,
               ),
             ],
           ]),
@@ -250,7 +259,7 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
       ConcreteViewInitialized<T, C, G> state, int groupSize) {
     final C concreteView = state.concreteView;
     return <Widget>[
-      if (galleryCover == null) _buildCover(concreteView.cover, context),
+      if (_headerGalleryCover == null) _buildCover(concreteView.cover, context),
       const SizedBox(height: 16),
       _buildTitle(concreteView),
       if (state.offline) ...<Widget>[
@@ -360,7 +369,7 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
       uid: concreteView.uid,
       extensionUid: configInfo.uid,
       title: concreteView.title,
-      cover: galleryCover ?? concreteView.cover,
+      cover: _headerGalleryCover ?? concreteView.cover,
       data: jsonEncode(galleryData),
       type: configInfo.type,
       sourceName: configInfo.name.trim(),
@@ -379,7 +388,7 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
       uid: concreteUid,
       extensionUid: configInfo.uid,
       title: entry?.title ?? '',
-      cover: galleryCover ?? entry?.cover,
+      cover: _headerGalleryCover ?? entry?.cover,
       data: jsonEncode(galleryData),
       type: configInfo.type,
       sourceName: configInfo.name.trim(),
