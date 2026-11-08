@@ -5,6 +5,7 @@ abstract class ConfigsService {
   Future<List<BaseExtension>> getMangaConfigs();
   Future<List<BaseExtension>> getAnimeConfigs();
   Future<List<BaseExtension>> getNovelConfigs();
+  Future<List<BaseExtension>> getAudioConfigs();
 
   Future<RemoteScript> getRemoteScript(String path);
 

@@ -16,6 +16,7 @@ import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/blocs/chapter_translation/chapter_translation_cubit.dart';
 import 'package:wakaranai/services/import_export/backup_files.dart';
 import 'package:wakaranai/blocs/chapter_translation/translation_notification_service.dart';
+import 'package:wakaranai/blocs/audiobook_player/audiobook_player_cubit.dart';
 import 'package:wakaranai/blocs/auto_download/auto_download_settings_cubit.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/services/downloads/storage/download_files.dart';
@@ -26,6 +27,9 @@ import 'package:wakaranai/blocs/novel_reader_preferences/novel_reader_preference
 import 'package:wakaranai/blocs/reader_preferences/reader_preferences_cubit.dart';
 import 'package:wakaranai/blocs/trackers/trackers_cubit.dart';
 import 'package:wakaranai/services/trackers/tracker_sync_service.dart';
+import 'package:wakaranai/services/audiobooks/audio_service_media_session.dart';
+import 'package:wakaranai/services/audiobooks/audiobook_progress_store.dart';
+import 'package:wakaranai/services/audiobooks/just_audio_engine.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
@@ -266,6 +270,16 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
             create: (BuildContext context) =>
                 NovelReaderPreferencesCubit()..init(),
             lazy: false,
+          ),
+          BlocProvider<AudiobookPlayerCubit>(
+            create: (BuildContext context) => AudiobookPlayerCubit(
+              progressStore: AudiobookProgressStore(
+                chapterActivityRepository: RepositoryProvider.of(context),
+                concreteDataRepository: RepositoryProvider.of(context),
+              ),
+              engineFactory: JustAudioEngine.new,
+              mediaSession: AudioServiceMediaSession(),
+            ),
           ),
           BlocProvider<PageTranslationSettingsCubit>(
             create: (BuildContext context) =>

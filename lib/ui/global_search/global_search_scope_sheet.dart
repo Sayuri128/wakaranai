@@ -207,6 +207,8 @@ class GlobalSearchScopeSheet extends StatelessWidget {
         return S.current.home_anime_group_title;
       case ConfigInfoType.NOVEL:
         return S.current.home_novel_group_title;
+      case ConfigInfoType.AUDIO:
+        return S.current.home_audio_group_title;
     }
   }
 

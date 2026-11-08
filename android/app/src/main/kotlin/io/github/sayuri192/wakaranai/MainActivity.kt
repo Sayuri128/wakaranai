@@ -14,6 +14,7 @@ import android.provider.MediaStore
 import android.view.KeyEvent
 import java.io.File
 import java.io.IOException
+import com.ryanheise.audioservice.AudioServicePlugin
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -24,6 +25,10 @@ class MainActivity: FlutterActivity() {
     private val networkState by lazy { NetworkStateChannel(applicationContext) }
     private val volumeKeys = VolumeKeyChannel()
     private val externalPlayer = ExternalPlayerChannel(this)
+
+    override fun provideFlutterEngine(context: Context): FlutterEngine? {
+        return AudioServicePlugin.getFlutterEngine(context)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

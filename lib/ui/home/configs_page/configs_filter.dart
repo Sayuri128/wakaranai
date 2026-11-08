@@ -14,6 +14,9 @@ List<String> effectiveContentKinds(ConfigInfo config) {
   if (config.type == ConfigInfoType.NOVEL) {
     return const <String>[ContentKinds.novel];
   }
+  if (config.type == ConfigInfoType.AUDIO) {
+    return const <String>[ContentKinds.audiobook];
+  }
   return const <String>[ContentKinds.anime];
 }
 
@@ -99,6 +102,8 @@ String contentKindLabel(String kind) {
       return S.current.content_kind_comic;
     case ContentKinds.novel:
       return S.current.content_kind_novel;
+    case ContentKinds.audiobook:
+      return S.current.content_kind_audiobook;
   }
   if (kind.isEmpty) {
     return kind;

@@ -10,6 +10,9 @@ class Routes {
   static const String novelServiceViewer = '/novelServiceViewer';
   static const String novelConcreteViewer = '/novelConcreteViewer';
   static const String novelReader = '/novelReader';
+  static const String audioServiceViewer = '/audioServiceViewer';
+  static const String audioConcreteViewer = '/audioConcreteViewer';
+  static const String audioPlayer = '/audioPlayer';
   static const String chapterViewer = '/chapterViewer';
   static const String webBrowser = '/webBrowser';
   static const String iframeAnimePlayer = '/iframeAnimePlayer';

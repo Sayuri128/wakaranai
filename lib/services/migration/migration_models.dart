@@ -159,7 +159,7 @@ class MigrationResult {
 }
 
 MigrationMediaKind migrationKindOf(ConfigInfoType type) {
-  if (type.readsChapters) {
+  if (type.usesChapterActivities) {
     return MigrationMediaKind.chapters;
   }
   return MigrationMediaKind.episodes;

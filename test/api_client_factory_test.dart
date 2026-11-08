@@ -1,4 +1,5 @@
 import 'package:capyscript/api_clients/anime_api_client.dart';
+import 'package:capyscript/api_clients/audio_api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/api_clients/novel_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
@@ -32,6 +33,7 @@ void main() {
     expect(factory.create(config: _config(0), code: ''), isA<MangaApiClient>());
     expect(factory.create(config: _config(1), code: ''), isA<AnimeApiClient>());
     expect(factory.create(config: _config(2), code: ''), isA<NovelApiClient>());
+    expect(factory.create(config: _config(3), code: ''), isA<AudioApiClient>());
   });
 
   test('hands the extension identity, preferences and policy to the host', () {

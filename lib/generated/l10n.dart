@@ -10544,6 +10544,326 @@ class S {
       args: [moved, skipped, failed],
     );
   }
+
+  /// `Audiobooks`
+  String get home_audio_group_title {
+    return Intl.message(
+      'Audiobooks',
+      name: 'home_audio_group_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Audiobooks`
+  String get content_kind_audiobook {
+    return Intl.message(
+      'Audiobooks',
+      name: 'content_kind_audiobook',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mark as listened`
+  String get audio_selection_mark_listened {
+    return Intl.message(
+      'Mark as listened',
+      name: 'audio_selection_mark_listened',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mark as not listened`
+  String get audio_selection_mark_not_listened {
+    return Intl.message(
+      'Mark as not listened',
+      name: 'audio_selection_mark_not_listened',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tracks`
+  String get audio_tracks_section_title {
+    return Intl.message(
+      'Tracks',
+      name: 'audio_tracks_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Audiobook playback`
+  String get audio_notification_channel_name {
+    return Intl.message(
+      'Audiobook playback',
+      name: 'audio_notification_channel_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nothing is playing`
+  String get audio_player_idle_title {
+    return Intl.message(
+      'Nothing is playing',
+      name: 'audio_player_idle_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open an audiobook and pick a track to start listening`
+  String get audio_player_idle_message {
+    return Intl.message(
+      'Open an audiobook and pick a track to start listening',
+      name: 'audio_player_idle_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Close`
+  String get audio_player_close {
+    return Intl.message(
+      'Close',
+      name: 'audio_player_close',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This track has no playable audio`
+  String get audio_player_no_sources {
+    return Intl.message(
+      'This track has no playable audio',
+      name: 'audio_player_no_sources',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't play this track`
+  String get audio_player_error {
+    return Intl.message(
+      'Couldn\'t play this track',
+      name: 'audio_player_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get audio_player_retry {
+    return Intl.message(
+      'Retry',
+      name: 'audio_player_retry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Previous track`
+  String get audio_player_previous_track {
+    return Intl.message(
+      'Previous track',
+      name: 'audio_player_previous_track',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next track`
+  String get audio_player_next_track {
+    return Intl.message(
+      'Next track',
+      name: 'audio_player_next_track',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back {seconds} s`
+  String audio_player_rewind(int seconds) {
+    return Intl.message(
+      'Back $seconds s',
+      name: 'audio_player_rewind',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `Forward {seconds} s`
+  String audio_player_forward(int seconds) {
+    return Intl.message(
+      'Forward $seconds s',
+      name: 'audio_player_forward',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `Play`
+  String get audio_player_play {
+    return Intl.message('Play', name: 'audio_player_play', desc: '', args: []);
+  }
+
+  /// `Pause`
+  String get audio_player_pause {
+    return Intl.message(
+      'Pause',
+      name: 'audio_player_pause',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tracks`
+  String get audio_player_tracks {
+    return Intl.message(
+      'Tracks',
+      name: 'audio_player_tracks',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `More`
+  String get audio_player_more {
+    return Intl.message('More', name: 'audio_player_more', desc: '', args: []);
+  }
+
+  /// `Playback speed`
+  String get audio_player_speed {
+    return Intl.message(
+      'Playback speed',
+      name: 'audio_player_speed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chapters`
+  String get audio_player_chapters {
+    return Intl.message(
+      'Chapters',
+      name: 'audio_player_chapters',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chapter {number}`
+  String audio_player_chapter_number(int number) {
+    return Intl.message(
+      'Chapter $number',
+      name: 'audio_player_chapter_number',
+      desc: '',
+      args: [number],
+    );
+  }
+
+  /// `Audio quality`
+  String get audio_player_source {
+    return Intl.message(
+      'Audio quality',
+      name: 'audio_player_source',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Source {number}`
+  String audio_player_source_number(int number) {
+    return Intl.message(
+      'Source $number',
+      name: 'audio_player_source_number',
+      desc: '',
+      args: [number],
+    );
+  }
+
+  /// `Stop playback`
+  String get audio_player_stop {
+    return Intl.message(
+      'Stop playback',
+      name: 'audio_player_stop',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Listened`
+  String get audio_track_finished {
+    return Intl.message(
+      'Listened',
+      name: 'audio_track_finished',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sleep timer`
+  String get audio_sleep_timer {
+    return Intl.message(
+      'Sleep timer',
+      name: 'audio_sleep_timer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Turn off the timer`
+  String get audio_sleep_off {
+    return Intl.message(
+      'Turn off the timer',
+      name: 'audio_sleep_off',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{minutes} min`
+  String audio_sleep_minutes(int minutes) {
+    return Intl.message(
+      '$minutes min',
+      name: 'audio_sleep_minutes',
+      desc: '',
+      args: [minutes],
+    );
+  }
+
+  /// `{minutes}m`
+  String audio_sleep_minutes_short(int minutes) {
+    return Intl.message(
+      '${minutes}m',
+      name: 'audio_sleep_minutes_short',
+      desc: '',
+      args: [minutes],
+    );
+  }
+
+  /// `End of track`
+  String get audio_sleep_end_of_track {
+    return Intl.message(
+      'End of track',
+      name: 'audio_sleep_end_of_track',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Track`
+  String get audio_sleep_end_of_track_short {
+    return Intl.message(
+      'Track',
+      name: 'audio_sleep_end_of_track_short',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

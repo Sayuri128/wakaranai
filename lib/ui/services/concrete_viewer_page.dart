@@ -31,6 +31,7 @@ import 'package:wakaranai/ui/widgets/save_image_sheet.dart';
 import 'package:wakaranai/ui/widgets/selection_action_bar.dart';
 import 'package:wakaranai/ui/widgets/source_error_view.dart';
 import 'package:wakaranai/utils/app_colors.dart';
+import 'package:wakaranai/utils/config_info_type_kinds.dart';
 import 'package:wakaranai/utils/heroes.dart';
 import 'package:wakaranai/utils/source_error_description.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -261,7 +262,8 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
         ConcreteMetadataRow(view: concreteView),
       ],
       _buildActionChips(context, state),
-      ConcreteAutoDownloadChip(concreteUid: concreteView.uid),
+      if (configInfo.type.supportsDownloads)
+        ConcreteAutoDownloadChip(concreteUid: concreteView.uid),
       if (concreteView.tags.isNotEmpty) ...<Widget>[
         const SizedBox(height: 16),
         _buildTags(concreteView),
@@ -304,9 +306,9 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
     ConcreteViewInitialized<T, C, G> state,
   ) {
     final C concreteView = state.concreteView;
-    final Widget? tracking = state.offline
-        ? null
-        : ConcreteTrackingChip(
+    final bool tracks = !state.offline && configInfo.type.supportsTracking;
+    final Widget? tracking = tracks
+        ? ConcreteTrackingChip(
             embedded: true,
             request: TrackerLinkRequest(
               concreteUid: concreteView.uid,
@@ -315,7 +317,8 @@ abstract class ConcreteViewerPage<T extends ApiClient, C extends ConcreteView,
               type: trackerMediaType,
               localProgress: trackerLocalProgress(state),
             ),
-          );
+          )
+        : null;
     return BlocBuilder<LibraryCubit, LibraryState>(
       buildWhen: (LibraryState previous, LibraryState next) =>
           !identical(previous.entries, next.entries),

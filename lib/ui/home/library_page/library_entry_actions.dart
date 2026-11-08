@@ -17,6 +17,7 @@ import 'package:wakaranai/ui/migration/migration_bulk_sheet.dart';
 import 'package:wakaranai/ui/migration/migration_launcher.dart';
 import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/ui/widgets/auto_download_override_sheet.dart';
+import 'package:wakaranai/utils/config_info_type_kinds.dart';
 
 Future<void> showLibraryEntryActions(
   BuildContext context,
@@ -38,7 +39,7 @@ Future<void> showLibraryEntryActions(
   final List<LibraryEntryDomain> downloadable = entries
       .where(
         (LibraryEntryDomain e) =>
-            extensionTypes.containsKey(e.extensionUid) &&
+            (extensionTypes[e.extensionUid]?.supportsDownloads ?? false) &&
             LocalSources.supportsDownloads(e.extensionUid),
       )
       .toList();

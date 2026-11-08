@@ -50,6 +50,9 @@ class _FakeConfigs implements ConfigsService {
   Future<List<RemoteConfig>> getNovelConfigs() async => <RemoteConfig>[];
 
   @override
+  Future<List<RemoteConfig>> getAudioConfigs() async => <RemoteConfig>[];
+
+  @override
   Future<RemoteScript> getRemoteScript(String path) async {
     return RemoteScript(path: path, script: script);
   }

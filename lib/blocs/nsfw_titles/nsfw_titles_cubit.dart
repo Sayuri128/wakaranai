@@ -76,6 +76,7 @@ class NsfwTitlesCubit extends Cubit<NsfwTitlesState> {
         ...listing.mangaRemoteConfigs,
         ...listing.animeRemoteConfigs,
         ...listing.novelRemoteConfigs,
+        ...listing.audioRemoteConfigs,
       ];
       for (final BaseExtension extension in listed) {
         if (extension.config.nsfw) {

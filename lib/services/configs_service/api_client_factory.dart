@@ -1,5 +1,6 @@
 import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/api_clients/audio_api_client.dart';
 import 'package:capyscript/api_clients/host/extension_host.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/api_clients/novel_api_client.dart';
@@ -64,6 +65,8 @@ class ApiClientFactory {
         return manga(config: config, code: code);
       case ConfigInfoType.NOVEL:
         return novel(config: config, code: code);
+      case ConfigInfoType.AUDIO:
+        return audio(config: config, code: code);
     }
   }
 
@@ -89,5 +92,9 @@ class ApiClientFactory {
       );
     }
     return NovelApiClient(code: code, host: hostFactory.hostFor(config));
+  }
+
+  AudioApiClient audio({required ConfigInfo config, required String code}) {
+    return AudioApiClient(code: code, host: hostFactory.hostFor(config));
   }
 }

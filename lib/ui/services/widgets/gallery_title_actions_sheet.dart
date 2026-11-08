@@ -12,6 +12,7 @@ import 'package:wakaranai/ui/services/widgets/title_download_sheet.dart';
 import 'package:wakaranai/services/local_source/local_sources.dart';
 import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
+import 'package:wakaranai/utils/config_info_type_kinds.dart';
 
 class GalleryTitle {
   const GalleryTitle({
@@ -80,6 +81,7 @@ Future<void> showGalleryTitleActions(
               },
             ),
           if (downloadClient != null &&
+              downloadTypeOf(downloadClient).supportsDownloads &&
               LocalSources.supportsDownloads(title.extensionUid))
             ActionSheetRow(
               icon: Icons.download_rounded,

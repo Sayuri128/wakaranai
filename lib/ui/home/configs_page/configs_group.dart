@@ -32,6 +32,7 @@ import 'package:wakaranai/services/local_source/local_books_source.dart';
 import 'package:wakaranai/services/local_source/local_source.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_compatibility_texts.dart';
 import 'package:wakaranai/ui/services/anime/anime_service_viewer/anime_service_viewer.dart';
+import 'package:wakaranai/ui/services/audio/audio_service_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
 import 'package:wakaranai/ui/services/novel/novel_service_viewer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -675,6 +676,14 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
           .pushNamed(
               Routes.novelServiceViewer,
               arguments: NovelServiceViewData(remoteConfig: remoteConfig))
+          .then((_) {
+        context.read<MangaActivityHistoryCubit>().init();
+      }));
+    } else if (remoteConfig.config.type == ConfigInfoType.AUDIO) {
+      unawaited(Navigator.of(context)
+          .pushNamed(
+              Routes.audioServiceViewer,
+              arguments: AudioServiceViewData(remoteConfig: remoteConfig))
           .then((_) {
         context.read<MangaActivityHistoryCubit>().init();
       }));

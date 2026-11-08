@@ -96,6 +96,8 @@ void showLibraryDownloadSheet(
         ),
       );
       break;
+    case ConfigInfoType.AUDIO:
+      break;
   }
 }
 
@@ -180,6 +182,8 @@ class _BulkDownloader {
         return _downloadChapters(entry, extension, amount);
       case ConfigInfoType.ANIME:
         return _downloadEpisodes(entry, extension, amount);
+      case ConfigInfoType.AUDIO:
+        return 0;
     }
   }
 

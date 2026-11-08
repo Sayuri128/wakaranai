@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:capyscript/api_clients/anime_api_client.dart';
+import 'package:capyscript/api_clients/audio_api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/api_clients/novel_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
@@ -17,6 +18,7 @@ import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/api_controller_wrapper.dart';
 import 'package:wakaranai/ui/migration/migration_launcher.dart';
 import 'package:wakaranai/ui/services/anime/anime_concrete_viewer/anime_concrete_viewer.dart';
+import 'package:wakaranai/ui/services/audio/audio_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/novel/novel_concrete_viewer.dart';
@@ -109,6 +111,25 @@ class _LibraryConcreteViewerState extends State<LibraryConcreteViewer> {
             builder: (MangaApiClient client, ConfigInfo configInfo) =>
                 MangaConcreteViewer(
               data: MangaConcreteViewerData(
+                uid: widget.data.entry.uid,
+                coverHeaders: const <String, String>{},
+                galleryCover: widget.data.entry.cover,
+                galleryData: widget.data.entry.dataJson,
+                client: client,
+                configInfo: configInfo,
+                fromLibrary: true,
+                autoContinue: _autoContinue,
+              ),
+            ),
+          );
+        }
+
+        if (extension.config.type == ConfigInfoType.AUDIO) {
+          return ApiControllerWrapper<AudioApiClient>(
+            remoteConfig: extension,
+            builder: (AudioApiClient client, ConfigInfo configInfo) =>
+                AudioConcreteViewer(
+              data: AudioConcreteViewerData(
                 uid: widget.data.entry.uid,
                 coverHeaders: const <String, String>{},
                 galleryCover: widget.data.entry.cover,

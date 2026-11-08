@@ -115,4 +115,24 @@ void main() {
     expect(configs.single.config.type, ConfigInfoType.NOVEL);
     expect(configs.single.config.uid, 'future');
   });
+
+  test('an audio entry parses as an audio config', () {
+    final List<RemoteConfig> configs = parser.parseAll(<dynamic>[
+      _entry('audio', type: 3),
+    ]);
+
+    expect(configs.single.config.type, ConfigInfoType.AUDIO);
+  });
+
+  test('an incompatible audio entry keeps its type from the category', () {
+    final List<RemoteConfig> configs = parser.parseAll(<dynamic>[
+      <String, dynamic>{
+        ..._entry('future', type: 9, minAppVersion: '9.0.0'),
+        'category': 'audio',
+      },
+    ]);
+
+    expect(configs.single.config.type, ConfigInfoType.AUDIO);
+    expect(configs.single.config.uid, 'future');
+  });
 }

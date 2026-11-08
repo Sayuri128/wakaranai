@@ -1,5 +1,6 @@
 import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/api_clients/audio_api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/api_clients/novel_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
@@ -64,6 +65,10 @@ class ApiClientControllerCubit<T extends ApiClient, C>
         case ConfigInfoType.NOVEL:
           emit(ApiClientControllerInitialized<NovelApiClient>(
               apiClient: client as NovelApiClient, configInfo: config));
+          break;
+        case ConfigInfoType.AUDIO:
+          emit(ApiClientControllerInitialized<AudioApiClient>(
+              apiClient: client as AudioApiClient, configInfo: config));
           break;
       }
     } on ExtensionRequiresNewerAppException catch (e) {

@@ -1,5 +1,6 @@
 import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/api_clients/audio_api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/api_clients/novel_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
@@ -65,6 +66,9 @@ ConfigInfoType downloadTypeOf(ApiClient client) {
   if (client is NovelApiClient) {
     return ConfigInfoType.NOVEL;
   }
+  if (client is AudioApiClient) {
+    return ConfigInfoType.AUDIO;
+  }
   return ConfigInfoType.MANGA;
 }
 
@@ -101,6 +105,8 @@ Widget _buildPanel(
       return _buildChapterPanel(context, request, labels);
     case ConfigInfoType.ANIME:
       return _buildEpisodePanel(context, request, labels);
+    case ConfigInfoType.AUDIO:
+      return const SizedBox.shrink();
   }
 }
 

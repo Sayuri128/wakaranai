@@ -90,6 +90,7 @@ class RepositoryGlobalSearchCatalog implements GlobalSearchCatalog {
       ...state.mangaRemoteConfigs,
       ...state.animeRemoteConfigs,
       ...state.novelRemoteConfigs,
+      ...state.audioRemoteConfigs,
     ]
         .map((BaseExtension extension) => GlobalSearchSource(
               extension: extension,

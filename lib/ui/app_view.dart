@@ -38,6 +38,9 @@ import 'package:wakaranai/ui/services/anime/native_player/native_player.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
+import 'package:wakaranai/ui/services/audio/audio_concrete_viewer.dart';
+import 'package:wakaranai/ui/services/audio/audio_service_viewer.dart';
+import 'package:wakaranai/ui/services/audio/player/audio_player_page.dart';
 import 'package:wakaranai/ui/services/novel/novel_concrete_viewer.dart';
 import 'package:wakaranai/ui/discover/discover_screen.dart';
 import 'package:wakaranai/ui/global_search/global_search_arguments.dart';
@@ -168,6 +171,14 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                   data: settings.arguments as NovelConcreteViewerData),
           Routes.novelReader: (BuildContext context) =>
               NovelReader(data: settings.arguments as NovelReaderData),
+          Routes.audioServiceViewer: (BuildContext context) =>
+              AudioServiceView(
+                  data: settings.arguments as AudioServiceViewData),
+          Routes.audioConcreteViewer: (BuildContext context) =>
+              AudioConcreteViewer(
+                  data: settings.arguments as AudioConcreteViewerData),
+          Routes.audioPlayer: (BuildContext context) =>
+              AudioPlayerPage(data: settings.arguments as AudioPlayerData),
           Routes.webBrowser: (BuildContext context) =>
               WebBrowserPage(data: settings.arguments as WebBrowserData),
           Routes.iframeAnimePlayer: (BuildContext context) => AnimeIframePlayer(

@@ -44,6 +44,10 @@ void main() {
       effectiveContentKinds(_extension('ranobe', type: 2).config),
       <String>['novel'],
     );
+    expect(
+      effectiveContentKinds(_extension('librivox', type: 3).config),
+      <String>['audiobook'],
+    );
   });
 
   test('lists kinds in a stable order and languages alphabetically', () {

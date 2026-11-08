@@ -8,6 +8,7 @@ import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/data/domain/ui/activity_list_item.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/services/audiobooks/audio_progress.dart';
 import 'package:wakaranai/services/novels/novel_progress.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
@@ -314,6 +315,9 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
         context.read<MangaActivityHistoryCubit>().state;
     if (state is ActivityHistoryLoaded && state.isNovel(concrete)) {
       return S.current.novel_progress_percent(NovelProgress.percentOf(activity));
+    }
+    if (state is ActivityHistoryLoaded && state.isAudio(concrete)) {
+      return AudioProgress.progressLabel(activity);
     }
     return '${activity.readPages}/${activity.totalPages}';
   }

@@ -175,6 +175,7 @@ class ExtensionResolver {
       service.getMangaConfigs(),
       service.getAnimeConfigs(),
       service.getNovelConfigs(),
+      service.getAudioConfigs(),
     ]);
     return results
         .expand((List<BaseExtension> e) => e)

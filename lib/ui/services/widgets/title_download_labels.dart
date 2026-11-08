@@ -28,6 +28,7 @@ class TitleDownloadLabels {
     switch (type) {
       case ConfigInfoType.MANGA:
       case ConfigInfoType.NOVEL:
+      case ConfigInfoType.AUDIO:
         return TitleDownloadKind.chapters;
       case ConfigInfoType.ANIME:
         return TitleDownloadKind.episodes;

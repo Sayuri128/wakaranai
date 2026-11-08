@@ -1,5 +1,6 @@
 import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/api_clients/audio_api_client.dart';
 import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/api_clients/novel_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_gallery_view/anime_gallery_view.dart';
@@ -14,6 +15,7 @@ import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_his
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/anime/anime_service_viewer/anime_service_viewer.dart';
+import 'package:wakaranai/ui/services/audio/audio_service_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
 import 'package:wakaranai/ui/services/novel/novel_service_viewer.dart';
 
@@ -73,6 +75,9 @@ String? _concreteRoute(ApiClient client) {
   if (client is NovelApiClient) {
     return const NovelGalleryKind().concreteRoute;
   }
+  if (client is AudioApiClient) {
+    return const AudioGalleryKind().concreteRoute;
+  }
   return null;
 }
 
@@ -106,6 +111,14 @@ Object? _concreteArguments({
       coverHeaders: coverHeaders,
     );
   }
+  if (client is AudioApiClient && item is MangaGalleryView) {
+    return const AudioGalleryKind().concreteArguments(
+      client: client,
+      configInfo: config,
+      galleryView: item,
+      coverHeaders: coverHeaders,
+    );
+  }
   return null;
 }
 
@@ -129,6 +142,11 @@ Future<void> openGlobalSearchSource(
       await Navigator.of(context).pushNamed(
         Routes.novelServiceViewer,
         arguments: NovelServiceViewData(remoteConfig: extension),
+      );
+    case ConfigInfoType.AUDIO:
+      await Navigator.of(context).pushNamed(
+        Routes.audioServiceViewer,
+        arguments: AudioServiceViewData(remoteConfig: extension),
       );
   }
   if (context.mounted) {

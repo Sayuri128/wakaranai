@@ -11,6 +11,7 @@ import 'package:wakaranai/repositories/shared_pref/auto_download_preferences.dar
 import 'package:wakaranai/services/downloads/auto_download/auto_download_policy.dart';
 import 'package:wakaranai/services/downloads/queue/queued_download_rows.dart';
 import 'package:wakaranai/ui/services/anime/episode_playback/episode_playlist.dart';
+import 'package:wakaranai/utils/config_info_type_kinds.dart';
 import 'package:wakaranai/utils/serial_call_queue.dart';
 
 Future<AutoDownloadQueuer?> loadAutoDownloadQueuer({
@@ -116,6 +117,9 @@ class AutoDownloadQueuer {
     ConfigInfoType type,
     DownloadDomain? existing,
   ) async {
+    if (!type.supportsDownloads) {
+      return null;
+    }
     if (type == ConfigInfoType.ANIME) {
       if (item is! AnimeVideo) {
         return null;

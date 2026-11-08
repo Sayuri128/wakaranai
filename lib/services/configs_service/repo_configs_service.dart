@@ -43,6 +43,15 @@ class RepoConfigsService implements ConfigsService {
   }
 
   @override
+  Future<List<RemoteConfig>> getAudioConfigs() async {
+    return (await _localRepository.getConfigs("audio"))
+        .configs
+        .where((RemoteConfig element) =>
+            element.config.type == ConfigInfoType.AUDIO)
+        .toList();
+  }
+
+  @override
   void invalidate() {}
 
   @override

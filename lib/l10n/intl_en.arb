@@ -2029,5 +2029,80 @@
         "type": "int"
       }
     }
-  }
+  },
+  "home_audio_group_title": "Audiobooks",
+  "content_kind_audiobook": "Audiobooks",
+  "audio_selection_mark_listened": "Mark as listened",
+  "audio_selection_mark_not_listened": "Mark as not listened",
+  "audio_tracks_section_title": "Tracks",
+  "audio_notification_channel_name": "Audiobook playback",
+  "audio_player_idle_title": "Nothing is playing",
+  "audio_player_idle_message": "Open an audiobook and pick a track to start listening",
+  "audio_player_close": "Close",
+  "audio_player_no_sources": "This track has no playable audio",
+  "audio_player_error": "Couldn't play this track",
+  "audio_player_retry": "Retry",
+  "audio_player_previous_track": "Previous track",
+  "audio_player_next_track": "Next track",
+  "audio_player_rewind": "Back {seconds} s",
+  "@audio_player_rewind": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "audio_player_forward": "Forward {seconds} s",
+  "@audio_player_forward": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "audio_player_play": "Play",
+  "audio_player_pause": "Pause",
+  "audio_player_tracks": "Tracks",
+  "audio_player_more": "More",
+  "audio_player_speed": "Playback speed",
+  "audio_player_chapters": "Chapters",
+  "audio_player_chapter_number": "Chapter {number}",
+  "@audio_player_chapter_number": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "audio_player_source": "Audio quality",
+  "audio_player_source_number": "Source {number}",
+  "@audio_player_source_number": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "audio_player_stop": "Stop playback",
+  "audio_track_finished": "Listened",
+  "audio_sleep_timer": "Sleep timer",
+  "audio_sleep_off": "Turn off the timer",
+  "audio_sleep_minutes": "{minutes} min",
+  "@audio_sleep_minutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "audio_sleep_minutes_short": "{minutes}m",
+  "@audio_sleep_minutes_short": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "audio_sleep_end_of_track": "End of track",
+  "audio_sleep_end_of_track_short": "Track"
 }

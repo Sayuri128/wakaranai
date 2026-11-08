@@ -71,7 +71,7 @@ class StatsCubit extends Cubit<StatsState> {
       if (c.isCompleted) chaptersRead++;
       final ExtensionDomain? extension =
           extensions[concreteToExtensionUid[c.concreteId]];
-      if (extension?.config.type != ConfigInfoType.NOVEL) {
+      if (_countsPages(extension?.config.type)) {
         pagesRead += c.readPages;
       }
     }
@@ -122,6 +122,10 @@ class StatsCubit extends Cubit<StatsState> {
       firstActivity: first,
       lastActivity: last,
     );
+  }
+
+  static bool _countsPages(ConfigInfoType? type) {
+    return type != ConfigInfoType.NOVEL && type != ConfigInfoType.AUDIO;
   }
 
   Future<Map<int, String>> _concreteExtensionUids(

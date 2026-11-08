@@ -261,10 +261,13 @@ class _ConfigPageState extends State<ConfigPage> {
       LocalBooksSource.extension(S.current.local_books_name),
       ..._withInstances(_filterNsfw(state.novelRemoteConfigs, showNsfw)),
     ];
+    final List<BaseExtension> visibleAudio =
+        _withInstances(_filterNsfw(state.audioRemoteConfigs, showNsfw));
     final List<BaseExtension> visible = <BaseExtension>[
       ...visibleManga,
       ...visibleVideo,
       ...visibleNovels,
+      ...visibleAudio,
     ];
     final List<String> kinds = availableContentKinds(visible);
     final List<String> languages = availableLanguages(visible);
@@ -285,6 +288,8 @@ class _ConfigPageState extends State<ConfigPage> {
         options.unpinned(visibleVideo.where(shown).toList());
     final List<BaseExtension> novelConfigs =
         options.unpinned(visibleNovels.where(shown).toList());
+    final List<BaseExtension> audioConfigs =
+        options.unpinned(visibleAudio.where(shown).toList());
     final Widget? searchField =
         searchable ? _buildSearchField(context) : null;
     final ConfigsFilterBar filterBar = ConfigsFilterBar(
@@ -297,7 +302,8 @@ class _ConfigPageState extends State<ConfigPage> {
     if (pinnedConfigs.isEmpty &&
         mangaConfigs.isEmpty &&
         animeConfigs.isEmpty &&
-        novelConfigs.isEmpty) {
+        novelConfigs.isEmpty &&
+        audioConfigs.isEmpty) {
       return <Widget>[
         if (searchField != null) SliverToBoxAdapter(child: searchField),
         if (filterBar.isUseful) SliverToBoxAdapter(child: filterBar),
@@ -344,6 +350,14 @@ class _ConfigPageState extends State<ConfigPage> {
           key: const ValueKey<String>('novel'),
           title: S.current.home_novel_group_title,
           remoteConfigs: novelConfigs,
+          listingStatusOf: state.listingStatusOf,
+          onInstancesChanged: _reloadInstances,
+        ),
+      if (audioConfigs.isNotEmpty)
+        ConfigsGroup(
+          key: const ValueKey<String>('audio'),
+          title: S.current.home_audio_group_title,
+          remoteConfigs: audioConfigs,
           listingStatusOf: state.listingStatusOf,
           onInstancesChanged: _reloadInstances,
         ),

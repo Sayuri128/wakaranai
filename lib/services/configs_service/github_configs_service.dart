@@ -16,6 +16,7 @@ class GitHubConfigsService implements ConfigsService {
   static const String _mangaDirectory = 'manga';
   static const String _animeDirectory = 'anime';
   static const String _novelDirectory = 'novel';
+  static const String _audioDirectory = 'audio';
   static const String _indexPath = 'index.json';
   static const int _maxConcurrentFetches = 6;
 
@@ -88,6 +89,14 @@ class GitHubConfigsService implements ConfigsService {
   }
 
   @override
+  Future<List<RemoteConfig>> getAudioConfigs() async {
+    final List<RemoteConfig> configs = await _loadConfigs();
+    return configs
+        .where((RemoteConfig e) => e.config.type == ConfigInfoType.AUDIO)
+        .toList();
+  }
+
+  @override
   void invalidate() {
     _configsFuture = null;
   }
@@ -151,6 +160,7 @@ class GitHubConfigsService implements ConfigsService {
         _getDirectoryConfigs(_mangaDirectory, 'manga'),
         _getDirectoryConfigs(_animeDirectory, 'anime'),
         _getDirectoryConfigs(_novelDirectory, 'novel'),
+        _getDirectoryConfigs(_audioDirectory, 'audio'),
       ],
     );
     return categories.expand((List<RemoteConfig> e) => e).toList();

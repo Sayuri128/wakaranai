@@ -142,6 +142,9 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView,
     if (state.configInfo.type == ConfigInfoType.ANIME) {
       return S.of(context).concrete_selection_mark_watched;
     }
+    if (state.configInfo.type == ConfigInfoType.AUDIO) {
+      return S.of(context).audio_selection_mark_listened;
+    }
     return S.of(context).concrete_selection_mark_read;
   }
 
@@ -151,6 +154,9 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView,
   ) {
     if (state.configInfo.type == ConfigInfoType.ANIME) {
       return S.of(context).concrete_selection_mark_unwatched;
+    }
+    if (state.configInfo.type == ConfigInfoType.AUDIO) {
+      return S.of(context).audio_selection_mark_not_listened;
     }
     return S.of(context).concrete_selection_mark_unread;
   }
@@ -169,6 +175,7 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView,
     final bool canTranslate = state.configInfo.type == ConfigInfoType.MANGA &&
         context.read<PageTranslationSettingsCubit>().state.enabled;
     final bool selecting = state.selection.isNotEmpty;
+    final bool canDownload = state.configInfo.type.supportsDownloads;
 
     return Stack(
       fit: StackFit.expand,
@@ -217,7 +224,8 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView,
                   state.selection.length,
                 ),
             actions: <SelectionAction>[
-              if (LocalSources.supportsDownloads(state.configInfo.uid))
+              if (canDownload &&
+                  LocalSources.supportsDownloads(state.configInfo.uid))
                 SelectionAction(
                   icon: Icons.download_outlined,
                   label: S.of(context).concrete_selection_download,
