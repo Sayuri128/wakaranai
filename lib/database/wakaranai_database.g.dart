@@ -3663,6 +3663,19 @@ class $LibraryEntryTableTable extends LibraryEntryTable
     defaultValue: const Constant(true),
   );
   @override
+  late final GeneratedColumnWithTypeConverter<AutoDownloadOverride, int>
+  autoDownload =
+      GeneratedColumn<int>(
+        'auto_download',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      ).withConverter<AutoDownloadOverride>(
+        $LibraryEntryTableTable.$converterautoDownload,
+      );
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     createdAt,
@@ -3676,6 +3689,7 @@ class $LibraryEntryTableTable extends LibraryEntryTable
     lastReadAt,
     trackUpdates,
     notifyUpdates,
+    autoDownload,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3833,6 +3847,12 @@ class $LibraryEntryTableTable extends LibraryEntryTable
         DriftSqlType.bool,
         data['${effectivePrefix}notify_updates'],
       )!,
+      autoDownload: $LibraryEntryTableTable.$converterautoDownload.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}auto_download'],
+        )!,
+      ),
     );
   }
 
@@ -3840,6 +3860,11 @@ class $LibraryEntryTableTable extends LibraryEntryTable
   $LibraryEntryTableTable createAlias(String alias) {
     return $LibraryEntryTableTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<AutoDownloadOverride, int, int>
+  $converterautoDownload = const EnumIndexConverter<AutoDownloadOverride>(
+    AutoDownloadOverride.values,
+  );
 }
 
 class LibraryEntryTableData extends DataClass
@@ -3856,6 +3881,7 @@ class LibraryEntryTableData extends DataClass
   final DateTime? lastReadAt;
   final bool trackUpdates;
   final bool notifyUpdates;
+  final AutoDownloadOverride autoDownload;
   const LibraryEntryTableData({
     required this.id,
     required this.createdAt,
@@ -3869,6 +3895,7 @@ class LibraryEntryTableData extends DataClass
     this.lastReadAt,
     required this.trackUpdates,
     required this.notifyUpdates,
+    required this.autoDownload,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3895,6 +3922,11 @@ class LibraryEntryTableData extends DataClass
     }
     map['track_updates'] = Variable<bool>(trackUpdates);
     map['notify_updates'] = Variable<bool>(notifyUpdates);
+    {
+      map['auto_download'] = Variable<int>(
+        $LibraryEntryTableTable.$converterautoDownload.toSql(autoDownload),
+      );
+    }
     return map;
   }
 
@@ -3920,6 +3952,7 @@ class LibraryEntryTableData extends DataClass
           : Value(lastReadAt),
       trackUpdates: Value(trackUpdates),
       notifyUpdates: Value(notifyUpdates),
+      autoDownload: Value(autoDownload),
     );
   }
 
@@ -3941,6 +3974,9 @@ class LibraryEntryTableData extends DataClass
       lastReadAt: serializer.fromJson<DateTime?>(json['lastReadAt']),
       trackUpdates: serializer.fromJson<bool>(json['trackUpdates']),
       notifyUpdates: serializer.fromJson<bool>(json['notifyUpdates']),
+      autoDownload: $LibraryEntryTableTable.$converterautoDownload.fromJson(
+        serializer.fromJson<int>(json['autoDownload']),
+      ),
     );
   }
   @override
@@ -3959,6 +3995,9 @@ class LibraryEntryTableData extends DataClass
       'lastReadAt': serializer.toJson<DateTime?>(lastReadAt),
       'trackUpdates': serializer.toJson<bool>(trackUpdates),
       'notifyUpdates': serializer.toJson<bool>(notifyUpdates),
+      'autoDownload': serializer.toJson<int>(
+        $LibraryEntryTableTable.$converterautoDownload.toJson(autoDownload),
+      ),
     };
   }
 
@@ -3975,6 +4014,7 @@ class LibraryEntryTableData extends DataClass
     Value<DateTime?> lastReadAt = const Value.absent(),
     bool? trackUpdates,
     bool? notifyUpdates,
+    AutoDownloadOverride? autoDownload,
   }) => LibraryEntryTableData(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -3988,6 +4028,7 @@ class LibraryEntryTableData extends DataClass
     lastReadAt: lastReadAt.present ? lastReadAt.value : this.lastReadAt,
     trackUpdates: trackUpdates ?? this.trackUpdates,
     notifyUpdates: notifyUpdates ?? this.notifyUpdates,
+    autoDownload: autoDownload ?? this.autoDownload,
   );
   LibraryEntryTableData copyWithCompanion(LibraryEntryTableCompanion data) {
     return LibraryEntryTableData(
@@ -4013,6 +4054,9 @@ class LibraryEntryTableData extends DataClass
       notifyUpdates: data.notifyUpdates.present
           ? data.notifyUpdates.value
           : this.notifyUpdates,
+      autoDownload: data.autoDownload.present
+          ? data.autoDownload.value
+          : this.autoDownload,
     );
   }
 
@@ -4030,7 +4074,8 @@ class LibraryEntryTableData extends DataClass
           ..write('categoryId: $categoryId, ')
           ..write('lastReadAt: $lastReadAt, ')
           ..write('trackUpdates: $trackUpdates, ')
-          ..write('notifyUpdates: $notifyUpdates')
+          ..write('notifyUpdates: $notifyUpdates, ')
+          ..write('autoDownload: $autoDownload')
           ..write(')'))
         .toString();
   }
@@ -4049,6 +4094,7 @@ class LibraryEntryTableData extends DataClass
     lastReadAt,
     trackUpdates,
     notifyUpdates,
+    autoDownload,
   );
   @override
   bool operator ==(Object other) =>
@@ -4065,7 +4111,8 @@ class LibraryEntryTableData extends DataClass
           other.categoryId == this.categoryId &&
           other.lastReadAt == this.lastReadAt &&
           other.trackUpdates == this.trackUpdates &&
-          other.notifyUpdates == this.notifyUpdates);
+          other.notifyUpdates == this.notifyUpdates &&
+          other.autoDownload == this.autoDownload);
 }
 
 class LibraryEntryTableCompanion
@@ -4082,6 +4129,7 @@ class LibraryEntryTableCompanion
   final Value<DateTime?> lastReadAt;
   final Value<bool> trackUpdates;
   final Value<bool> notifyUpdates;
+  final Value<AutoDownloadOverride> autoDownload;
   const LibraryEntryTableCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -4095,6 +4143,7 @@ class LibraryEntryTableCompanion
     this.lastReadAt = const Value.absent(),
     this.trackUpdates = const Value.absent(),
     this.notifyUpdates = const Value.absent(),
+    this.autoDownload = const Value.absent(),
   });
   LibraryEntryTableCompanion.insert({
     this.id = const Value.absent(),
@@ -4109,6 +4158,7 @@ class LibraryEntryTableCompanion
     this.lastReadAt = const Value.absent(),
     this.trackUpdates = const Value.absent(),
     this.notifyUpdates = const Value.absent(),
+    this.autoDownload = const Value.absent(),
   }) : uid = Value(uid),
        extensionUid = Value(extensionUid),
        title = Value(title);
@@ -4125,6 +4175,7 @@ class LibraryEntryTableCompanion
     Expression<DateTime>? lastReadAt,
     Expression<bool>? trackUpdates,
     Expression<bool>? notifyUpdates,
+    Expression<int>? autoDownload,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -4139,6 +4190,7 @@ class LibraryEntryTableCompanion
       if (lastReadAt != null) 'last_read_at': lastReadAt,
       if (trackUpdates != null) 'track_updates': trackUpdates,
       if (notifyUpdates != null) 'notify_updates': notifyUpdates,
+      if (autoDownload != null) 'auto_download': autoDownload,
     });
   }
 
@@ -4155,6 +4207,7 @@ class LibraryEntryTableCompanion
     Value<DateTime?>? lastReadAt,
     Value<bool>? trackUpdates,
     Value<bool>? notifyUpdates,
+    Value<AutoDownloadOverride>? autoDownload,
   }) {
     return LibraryEntryTableCompanion(
       id: id ?? this.id,
@@ -4169,6 +4222,7 @@ class LibraryEntryTableCompanion
       lastReadAt: lastReadAt ?? this.lastReadAt,
       trackUpdates: trackUpdates ?? this.trackUpdates,
       notifyUpdates: notifyUpdates ?? this.notifyUpdates,
+      autoDownload: autoDownload ?? this.autoDownload,
     );
   }
 
@@ -4211,6 +4265,13 @@ class LibraryEntryTableCompanion
     if (notifyUpdates.present) {
       map['notify_updates'] = Variable<bool>(notifyUpdates.value);
     }
+    if (autoDownload.present) {
+      map['auto_download'] = Variable<int>(
+        $LibraryEntryTableTable.$converterautoDownload.toSql(
+          autoDownload.value,
+        ),
+      );
+    }
     return map;
   }
 
@@ -4228,7 +4289,8 @@ class LibraryEntryTableCompanion
           ..write('categoryId: $categoryId, ')
           ..write('lastReadAt: $lastReadAt, ')
           ..write('trackUpdates: $trackUpdates, ')
-          ..write('notifyUpdates: $notifyUpdates')
+          ..write('notifyUpdates: $notifyUpdates, ')
+          ..write('autoDownload: $autoDownload')
           ..write(')'))
         .toString();
   }
@@ -9649,6 +9711,7 @@ typedef $$LibraryEntryTableTableCreateCompanionBuilder =
       Value<DateTime?> lastReadAt,
       Value<bool> trackUpdates,
       Value<bool> notifyUpdates,
+      Value<AutoDownloadOverride> autoDownload,
     });
 typedef $$LibraryEntryTableTableUpdateCompanionBuilder =
     LibraryEntryTableCompanion Function({
@@ -9664,6 +9727,7 @@ typedef $$LibraryEntryTableTableUpdateCompanionBuilder =
       Value<DateTime?> lastReadAt,
       Value<bool> trackUpdates,
       Value<bool> notifyUpdates,
+      Value<AutoDownloadOverride> autoDownload,
     });
 
 class $$LibraryEntryTableTableFilterComposer
@@ -9733,6 +9797,16 @@ class $$LibraryEntryTableTableFilterComposer
   ColumnFilters<bool> get notifyUpdates => $composableBuilder(
     column: $table.notifyUpdates,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<
+    AutoDownloadOverride,
+    AutoDownloadOverride,
+    int
+  >
+  get autoDownload => $composableBuilder(
+    column: $table.autoDownload,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 }
 
@@ -9804,6 +9878,11 @@ class $$LibraryEntryTableTableOrderingComposer
     column: $table.notifyUpdates,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get autoDownload => $composableBuilder(
+    column: $table.autoDownload,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$LibraryEntryTableTableAnnotationComposer
@@ -9860,6 +9939,12 @@ class $$LibraryEntryTableTableAnnotationComposer
     column: $table.notifyUpdates,
     builder: (column) => column,
   );
+
+  GeneratedColumnWithTypeConverter<AutoDownloadOverride, int>
+  get autoDownload => $composableBuilder(
+    column: $table.autoDownload,
+    builder: (column) => column,
+  );
 }
 
 class $$LibraryEntryTableTableTableManager
@@ -9914,6 +9999,7 @@ class $$LibraryEntryTableTableTableManager
                 Value<DateTime?> lastReadAt = const Value.absent(),
                 Value<bool> trackUpdates = const Value.absent(),
                 Value<bool> notifyUpdates = const Value.absent(),
+                Value<AutoDownloadOverride> autoDownload = const Value.absent(),
               }) => LibraryEntryTableCompanion(
                 id: id,
                 createdAt: createdAt,
@@ -9927,6 +10013,7 @@ class $$LibraryEntryTableTableTableManager
                 lastReadAt: lastReadAt,
                 trackUpdates: trackUpdates,
                 notifyUpdates: notifyUpdates,
+                autoDownload: autoDownload,
               ),
           createCompanionCallback:
               ({
@@ -9942,6 +10029,7 @@ class $$LibraryEntryTableTableTableManager
                 Value<DateTime?> lastReadAt = const Value.absent(),
                 Value<bool> trackUpdates = const Value.absent(),
                 Value<bool> notifyUpdates = const Value.absent(),
+                Value<AutoDownloadOverride> autoDownload = const Value.absent(),
               }) => LibraryEntryTableCompanion.insert(
                 id: id,
                 createdAt: createdAt,
@@ -9955,6 +10043,7 @@ class $$LibraryEntryTableTableTableManager
                 lastReadAt: lastReadAt,
                 trackUpdates: trackUpdates,
                 notifyUpdates: notifyUpdates,
+                autoDownload: autoDownload,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

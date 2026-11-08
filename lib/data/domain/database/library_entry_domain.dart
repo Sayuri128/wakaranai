@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/base_domain.dart';
+import 'package:wakaranai/data/entities/library_entry_table.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 
 class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
@@ -14,6 +15,7 @@ class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
   final DateTime? lastReadAt;
   final bool trackUpdates;
   final bool notifyUpdates;
+  final AutoDownloadOverride autoDownload;
 
   Map<String, dynamic> get dataJson =>
       data != null ? jsonDecode(data!) as Map<String, dynamic> : {};
@@ -29,6 +31,7 @@ class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
     this.lastReadAt,
     this.trackUpdates = true,
     this.notifyUpdates = true,
+    this.autoDownload = AutoDownloadOverride.followSettings,
     required super.createdAt,
     super.updatedAt,
   });
@@ -45,6 +48,7 @@ class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
         lastReadAt: data.lastReadAt,
         trackUpdates: data.trackUpdates,
         notifyUpdates: data.notifyUpdates,
+        autoDownload: data.autoDownload,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
       );
@@ -64,6 +68,7 @@ class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
         lastReadAt: Value(lastReadAt),
         trackUpdates: Value(trackUpdates),
         notifyUpdates: Value(notifyUpdates),
+        autoDownload: Value(autoDownload),
         createdAt: Value(createdAt),
       );
     }
@@ -79,6 +84,7 @@ class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
       lastReadAt: Value(lastReadAt),
       trackUpdates: Value(trackUpdates),
       notifyUpdates: Value(notifyUpdates),
+      autoDownload: Value(autoDownload),
       createdAt: Value(createdAt),
       updatedAt: Value(update ? DateTime.now() : updatedAt),
     );
@@ -90,6 +96,7 @@ class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
     DateTime? lastReadAt,
     bool? trackUpdates,
     bool? notifyUpdates,
+    AutoDownloadOverride? autoDownload,
   }) =>
       LibraryEntryDomain(
         id: id,
@@ -102,6 +109,7 @@ class LibraryEntryDomain extends BaseDomain<LibraryEntryTableCompanion> {
         lastReadAt: lastReadAt ?? this.lastReadAt,
         trackUpdates: trackUpdates ?? this.trackUpdates,
         notifyUpdates: notifyUpdates ?? this.notifyUpdates,
+        autoDownload: autoDownload ?? this.autoDownload,
         createdAt: createdAt,
         updatedAt: updatedAt,
       );

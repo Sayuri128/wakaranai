@@ -2,6 +2,8 @@ import 'package:drift/drift.dart';
 import 'package:wakaranai/data/entities/base_table.dart';
 import 'package:wakaranai/data/entities/category_table.dart';
 
+enum AutoDownloadOverride { followSettings, always, never }
+
 @TableIndex(name: 'library_entry_uid', columns: <Symbol>{#uid}, unique: true)
 class LibraryEntryTable extends BaseTable {
   TextColumn get uid => text()();
@@ -22,4 +24,7 @@ class LibraryEntryTable extends BaseTable {
   BoolColumn get trackUpdates => boolean().withDefault(const Constant(true))();
 
   BoolColumn get notifyUpdates => boolean().withDefault(const Constant(true))();
+
+  IntColumn get autoDownload => intEnum<AutoDownloadOverride>()
+      .withDefault(const Constant(0))();
 }

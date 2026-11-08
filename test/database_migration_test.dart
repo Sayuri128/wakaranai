@@ -481,4 +481,33 @@ void main() {
     expect(await _userVersion(replayed), replayed.schemaVersion);
     await replayed.close();
   });
+
+  test('upgrade from v18 adds the library entry auto-download column',
+      () async {
+    final Database raw = sqlite3.openInMemory();
+    addTearDown(raw.dispose);
+
+    final WakaranaiDatabase first = await _open(raw);
+    await first.close();
+
+    raw.execute('ALTER TABLE library_entry_table DROP COLUMN auto_download;');
+    raw.execute(
+      'INSERT INTO library_entry_table (uid, extension_uid, title, created_at) '
+      "VALUES ('entry', 'ext', 'Title', 0);",
+    );
+    raw.execute('PRAGMA user_version = 18;');
+
+    final WakaranaiDatabase second = await _open(raw);
+    expect(await _userVersion(second), second.schemaVersion);
+    final List<QueryRow> rows = await second
+        .customSelect('SELECT auto_download FROM library_entry_table;')
+        .get();
+    expect(rows.single.data['auto_download'], 0);
+    await second.close();
+
+    raw.execute('PRAGMA user_version = 18;');
+    final WakaranaiDatabase replayed = await _open(raw);
+    expect(await _userVersion(replayed), replayed.schemaVersion);
+    await replayed.close();
+  });
 }

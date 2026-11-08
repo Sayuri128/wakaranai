@@ -130,6 +130,10 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
             await _addColumnIfMissing(
                 m, extensionTable, extensionTable.baseUid);
           }
+          if (from < 19) {
+            await _addColumnIfMissing(
+                m, libraryEntryTable, libraryEntryTable.autoDownload);
+          }
         },
       );
 
@@ -213,7 +217,7 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
   }
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 }
 
 LazyDatabase _openConnection() {

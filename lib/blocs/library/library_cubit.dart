@@ -6,6 +6,7 @@ import 'package:wakaranai/services/configs_service/api_client_factory.dart';
 import 'package:wakaranai/data/domain/database/category_domain.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
+import 'package:wakaranai/data/entities/library_entry_table.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/category_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
@@ -139,6 +140,18 @@ class LibraryCubit extends Cubit<LibraryState> {
 
   Future<void> setNotifyUpdates(LibraryEntryDomain entry, bool value) async {
     await libraryEntryRepository.update(entry.copyWith(notifyUpdates: value));
+  }
+
+  Future<void> setAutoDownloadMany(
+    Iterable<LibraryEntryDomain> entries,
+    AutoDownloadOverride value,
+  ) async {
+    for (final LibraryEntryDomain entry in entries) {
+      if (entry.autoDownload != value) {
+        await libraryEntryRepository
+            .update(entry.copyWith(autoDownload: value));
+      }
+    }
   }
 
   Future<void> setTrackUpdatesMany(
