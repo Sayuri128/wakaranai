@@ -1,6 +1,7 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/content_kinds/content_kinds.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/source_pricing/source_pricing.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/source_type/source_type.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
@@ -23,13 +24,15 @@ List<String> effectiveContentKinds(ConfigInfo config) {
 }
 
 class ConfigsFilter {
-  const ConfigsFilter({this.kind, this.language, this.pricing});
+  const ConfigsFilter({this.kind, this.language, this.pricing, this.sourceType});
 
   final String? kind;
   final String? language;
   final String? pricing;
+  final String? sourceType;
 
-  bool get isEmpty => kind == null && language == null && pricing == null;
+  bool get isEmpty =>
+      kind == null && language == null && pricing == null && sourceType == null;
 
   bool matches(BaseExtension extension) {
     final ConfigInfo config = extension.config;
@@ -46,19 +49,47 @@ class ConfigsFilter {
     if (selectedPricing != null && config.pricing != selectedPricing) {
       return false;
     }
+    final String? selectedSourceType = sourceType;
+    if (selectedSourceType != null && config.sourceType != selectedSourceType) {
+      return false;
+    }
     return true;
   }
 
   ConfigsFilter withKind(String? value) {
-    return ConfigsFilter(kind: value, language: language, pricing: pricing);
+    return ConfigsFilter(
+      kind: value,
+      language: language,
+      pricing: pricing,
+      sourceType: sourceType,
+    );
   }
 
   ConfigsFilter withLanguage(String? value) {
-    return ConfigsFilter(kind: kind, language: value, pricing: pricing);
+    return ConfigsFilter(
+      kind: kind,
+      language: value,
+      pricing: pricing,
+      sourceType: sourceType,
+    );
   }
 
   ConfigsFilter withPricing(String? value) {
-    return ConfigsFilter(kind: kind, language: language, pricing: value);
+    return ConfigsFilter(
+      kind: kind,
+      language: language,
+      pricing: value,
+      sourceType: sourceType,
+    );
+  }
+
+  ConfigsFilter withSourceType(String? value) {
+    return ConfigsFilter(
+      kind: kind,
+      language: language,
+      pricing: pricing,
+      sourceType: value,
+    );
   }
 }
 
@@ -107,6 +138,40 @@ String pricingLabel(String pricing) {
       return S.current.source_pricing_paid;
   }
   return S.current.source_pricing_free;
+}
+
+List<String> availableSourceTypes(Iterable<BaseExtension> extensions) {
+  final Set<String> types = <String>{
+    for (final BaseExtension extension in extensions) extension.config.sourceType,
+  };
+  return <String>[
+    for (final String known in SourceType.known)
+      if (types.contains(known)) known,
+  ];
+}
+
+String sourceTypeLabel(String sourceType) {
+  switch (sourceType) {
+    case SourceType.selfHosted:
+      return S.current.source_type_self_hosted;
+    case SourceType.official:
+      return S.current.source_type_official;
+    case SourceType.local:
+      return S.current.source_type_local;
+  }
+  return S.current.source_type_website;
+}
+
+IconData sourceTypeIcon(String sourceType) {
+  switch (sourceType) {
+    case SourceType.selfHosted:
+      return Icons.dns_rounded;
+    case SourceType.official:
+      return Icons.verified_rounded;
+    case SourceType.local:
+      return Icons.smartphone_rounded;
+  }
+  return Icons.public_rounded;
 }
 
 IconData pricingIcon(String pricing) {
@@ -191,6 +256,7 @@ class ConfigsFilterPreferences {
   static const String kindKey = 'CONFIGS_FILTER_KIND';
   static const String languageKey = 'CONFIGS_FILTER_LANGUAGE';
   static const String pricingKey = 'CONFIGS_FILTER_PRICING';
+  static const String sourceTypeKey = 'CONFIGS_FILTER_SOURCE_TYPE';
 
   Future<ConfigsFilter> read() async {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -198,6 +264,7 @@ class ConfigsFilterPreferences {
       kind: preferences.getString(kindKey),
       language: preferences.getString(languageKey),
       pricing: preferences.getString(pricingKey),
+      sourceType: preferences.getString(sourceTypeKey),
     );
   }
 
@@ -206,6 +273,7 @@ class ConfigsFilterPreferences {
     await _writeOptional(preferences, kindKey, filter.kind);
     await _writeOptional(preferences, languageKey, filter.language);
     await _writeOptional(preferences, pricingKey, filter.pricing);
+    await _writeOptional(preferences, sourceTypeKey, filter.sourceType);
   }
 
   Future<void> _writeOptional(

@@ -841,10 +841,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "configs_filter_all_prices": MessageLookupByLibrary.simpleMessage(
       "Будь-яка ціна",
     ),
+    "configs_filter_all_types": MessageLookupByLibrary.simpleMessage(
+      "Будь-який тип",
+    ),
     "configs_filter_language_title": MessageLookupByLibrary.simpleMessage(
       "Мова",
     ),
     "configs_filter_price_title": MessageLookupByLibrary.simpleMessage("Ціна"),
+    "configs_filter_type_title": MessageLookupByLibrary.simpleMessage(
+      "Тип джерела",
+    ),
     "configs_layout_cards": MessageLookupByLibrary.simpleMessage("Картки"),
     "configs_layout_compact": MessageLookupByLibrary.simpleMessage(
       "Щільний список",
@@ -2558,6 +2564,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "source_pricing_partial": MessageLookupByLibrary.simpleMessage(
       "Частково безкоштовно",
     ),
+    "source_type_local": MessageLookupByLibrary.simpleMessage("На пристрої"),
+    "source_type_official": MessageLookupByLibrary.simpleMessage("Офіційне"),
+    "source_type_self_hosted": MessageLookupByLibrary.simpleMessage(
+      "Власний сервер",
+    ),
+    "source_type_website": MessageLookupByLibrary.simpleMessage("Сайт"),
     "stats_activity_section_title": MessageLookupByLibrary.simpleMessage(
       "Активність",
     ),

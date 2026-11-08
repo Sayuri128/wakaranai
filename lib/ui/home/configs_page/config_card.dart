@@ -1,5 +1,6 @@
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/source_pricing/source_pricing.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/source_type/source_type.dart';
 import 'package:flutter/material.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/configs_service/extension_listing_status.dart';
@@ -71,6 +72,10 @@ class ConfigCard extends StatelessWidget {
             ),
             if (configInfo.nsfw) ...<Widget>[
               _buildChip(S.current.home_nsfw_suffix, color: AppColors.red),
+              const SizedBox(width: 6),
+            ],
+            if (_showsSourceType) ...<Widget>[
+              _buildSourceTypeChip(),
               const SizedBox(width: 6),
             ],
             if (_showsPricing) ...<Widget>[
@@ -153,12 +158,24 @@ class ConfigCard extends StatelessWidget {
     final List<String> parts = <String>[
       if (configInfo.language.trim().isNotEmpty) configInfo.language.trim(),
       if (configInfo.nsfw) S.current.home_nsfw_suffix,
+      if (_showsSourceType) sourceTypeLabel(configInfo.sourceType),
       if (_showsPricing) pricingLabel(configInfo.pricing),
     ];
     return parts.join(' · ');
   }
 
   bool get _showsPricing => configInfo.pricing != SourcePricing.free;
+
+  bool get _showsSourceType => configInfo.sourceType != SourceType.website;
+
+  Widget _buildSourceTypeChip() {
+    final String label = sourceTypeLabel(configInfo.sourceType);
+    final IconData icon = sourceTypeIcon(configInfo.sourceType);
+    if (configInfo.sourceType == SourceType.official) {
+      return _buildChip(label, color: AppColors.primary, icon: icon);
+    }
+    return _buildChip(label, icon: icon);
+  }
 
   Widget _buildPricingChip() {
     final String label = pricingLabel(configInfo.pricing);
@@ -214,6 +231,7 @@ class ConfigCard extends StatelessWidget {
                           if (configInfo.nsfw)
                             _buildChip(S.current.home_nsfw_suffix,
                                 color: AppColors.red),
+                          if (_showsSourceType) _buildSourceTypeChip(),
                           if (_showsPricing) _buildPricingChip(),
                           if (pinned)
                             Icon(

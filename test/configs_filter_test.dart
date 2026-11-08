@@ -11,6 +11,7 @@ ExtensionDomain _extension(
   String language = 'English',
   List<String>? kinds,
   String? pricing,
+  String? sourceType,
 }) {
   return ExtensionDomain(
     id: 0,
@@ -26,6 +27,7 @@ ExtensionDomain _extension(
       'searchAvailable': true,
       if (kinds != null) 'contentKinds': kinds,
       if (pricing != null) 'pricing': pricing,
+      if (sourceType != null) 'sourceType': sourceType,
     }),
     sourceCode: '',
     revision: 'r',
@@ -105,5 +107,18 @@ void main() {
     expect(pricingIcon('free'), Icons.money_off_rounded);
     expect(pricingIcon('partial'), Icons.toll_rounded);
     expect(pricingIcon('paid'), Icons.paid_rounded);
+  });
+
+  test('filters by source type and lists only the types present', () {
+    final List<BaseExtension> mixed = <BaseExtension>[
+      _extension('komga', sourceType: 'self-hosted'),
+      _extension('dex'),
+      _extension('plus', sourceType: 'official'),
+    ];
+    expect(availableSourceTypes(mixed), <String>['website', 'self-hosted', 'official']);
+    final ConfigsFilter selfHosted = const ConfigsFilter(pricing: 'free').withSourceType('self-hosted');
+    expect(selfHosted.pricing, 'free');
+    expect(mixed.where(selfHosted.matches).map((BaseExtension e) => e.config.uid), <String>['komga']);
+    expect(sourceTypeIcon('self-hosted'), Icons.dns_rounded);
   });
 }

@@ -13,6 +13,7 @@ class ConfigsFilterBar extends StatelessWidget {
     required this.kinds,
     required this.languages,
     required this.pricings,
+    required this.sourceTypes,
     required this.filter,
     required this.onChanged,
   });
@@ -20,11 +21,15 @@ class ConfigsFilterBar extends StatelessWidget {
   final List<String> kinds;
   final List<String> languages;
   final List<String> pricings;
+  final List<String> sourceTypes;
   final ConfigsFilter filter;
   final ValueChanged<ConfigsFilter> onChanged;
 
   bool get isUseful =>
-      kinds.length > 1 || languages.length > 1 || pricings.length > 1;
+      kinds.length > 1 ||
+      languages.length > 1 ||
+      pricings.length > 1 ||
+      sourceTypes.length > 1;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +46,16 @@ class ConfigsFilterBar extends StatelessWidget {
               selected: filter.language != null,
               trailingIcon: Icons.arrow_drop_down_rounded,
               onTap: () => _pickLanguage(context),
+            ),
+            const SizedBox(width: 8),
+          ],
+          if (sourceTypes.length > 1) ...<Widget>[
+            _Pill(
+              icon: Icons.category_rounded,
+              label: _sourceTypePillLabel(context),
+              selected: filter.sourceType != null,
+              trailingIcon: Icons.arrow_drop_down_rounded,
+              onTap: () => _pickSourceType(context),
             ),
             const SizedBox(width: 8),
           ],
@@ -74,6 +89,47 @@ class ConfigsFilterBar extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _sourceTypePillLabel(BuildContext context) {
+    final String? selected = filter.sourceType;
+    if (selected == null) {
+      return S.of(context).configs_filter_all_types;
+    }
+    return sourceTypeLabel(selected);
+  }
+
+  void _pickSourceType(BuildContext context) {
+    unawaited(showActionSheet(
+      context,
+      title: S.of(context).configs_filter_type_title,
+      child: Builder(
+        builder: (BuildContext sheetContext) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ActionSheetRow(
+              icon: Icons.all_inclusive_rounded,
+              label: S.of(context).configs_filter_all_types,
+              selected: filter.sourceType == null,
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                onChanged(filter.withSourceType(null));
+              },
+            ),
+            for (final String sourceType in sourceTypes)
+              ActionSheetRow(
+                icon: sourceTypeIcon(sourceType),
+                label: sourceTypeLabel(sourceType),
+                selected: filter.sourceType == sourceType,
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  onChanged(filter.withSourceType(sourceType));
+                },
+              ),
+          ],
+        ),
+      ),
+    ));
   }
 
   String _pricingPillLabel(BuildContext context) {

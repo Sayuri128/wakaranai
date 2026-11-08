@@ -819,10 +819,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "configs_filter_all_prices": MessageLookupByLibrary.simpleMessage(
       "Any price",
     ),
+    "configs_filter_all_types": MessageLookupByLibrary.simpleMessage(
+      "Any type",
+    ),
     "configs_filter_language_title": MessageLookupByLibrary.simpleMessage(
       "Language",
     ),
     "configs_filter_price_title": MessageLookupByLibrary.simpleMessage("Price"),
+    "configs_filter_type_title": MessageLookupByLibrary.simpleMessage(
+      "Source type",
+    ),
     "configs_layout_cards": MessageLookupByLibrary.simpleMessage("Cards"),
     "configs_layout_compact": MessageLookupByLibrary.simpleMessage(
       "Compact list",
@@ -2479,6 +2485,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "source_pricing_partial": MessageLookupByLibrary.simpleMessage(
       "Partly free",
     ),
+    "source_type_local": MessageLookupByLibrary.simpleMessage("On device"),
+    "source_type_official": MessageLookupByLibrary.simpleMessage("Official"),
+    "source_type_self_hosted": MessageLookupByLibrary.simpleMessage(
+      "Self-hosted",
+    ),
+    "source_type_website": MessageLookupByLibrary.simpleMessage("Website"),
     "stats_activity_section_title": MessageLookupByLibrary.simpleMessage(
       "Activity",
     ),

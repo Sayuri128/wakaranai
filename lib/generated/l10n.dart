@@ -6566,6 +6566,66 @@ class S {
     );
   }
 
+  /// `Any type`
+  String get configs_filter_all_types {
+    return Intl.message(
+      'Any type',
+      name: 'configs_filter_all_types',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Source type`
+  String get configs_filter_type_title {
+    return Intl.message(
+      'Source type',
+      name: 'configs_filter_type_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Website`
+  String get source_type_website {
+    return Intl.message(
+      'Website',
+      name: 'source_type_website',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Self-hosted`
+  String get source_type_self_hosted {
+    return Intl.message(
+      'Self-hosted',
+      name: 'source_type_self_hosted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Official`
+  String get source_type_official {
+    return Intl.message(
+      'Official',
+      name: 'source_type_official',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On device`
+  String get source_type_local {
+    return Intl.message(
+      'On device',
+      name: 'source_type_local',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `View options`
   String get configs_view_options {
     return Intl.message(

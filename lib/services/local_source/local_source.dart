@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/content_kinds/content_kinds.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/source_type/source_type.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
@@ -29,6 +30,7 @@ class LocalSource {
       type: ConfigInfoType.MANGA,
       searchAvailable: true,
       contentKinds: const <String>[ContentKinds.manga],
+      sourceType: SourceType.local,
     );
   }
 
