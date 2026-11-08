@@ -6,6 +6,9 @@ import 'package:wakaranai/blocs/auto_backup/auto_backup_cubit.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wakaranai/blocs/auth/authentication_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
+import 'package:wakaranai/blocs/app_language/app_language_cubit.dart';
+import 'package:wakaranai/services/app_language/app_language.dart';
+import 'package:wakaranai/ui/widgets/locale_rebuild_scope.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
@@ -104,14 +107,19 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
           systemNavigationBarContrastEnforced: false,
         ));
 
-        return _buildApp(themeState);
+        return BlocBuilder<AppLanguageCubit, AppLanguage>(
+          builder: (BuildContext context, AppLanguage language) {
+            return _buildApp(themeState, language);
+          },
+        );
       },
     );
   }
 
-  Widget _buildApp(ThemeState themeState) {
+  Widget _buildApp(ThemeState themeState, AppLanguage language) {
     return MaterialApp(
       theme: themeState.palette.toThemeData(),
+      locale: language.locale,
       debugShowCheckedModeBanner: false,
       navigatorKey: WakaranaiApp.navigatorKey,
       localizationsDelegates: const <LocalizationsDelegate>[
@@ -196,16 +204,18 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
         data: MediaQuery.of(context).copyWith(
           textScaler: const TextScaler.linear(1.0),
         ),
-        child: BlocListener<AuthenticationCubit, AuthenticationState>(
-            listener: (BuildContext context, AuthenticationState state) {
-              Future.delayed(const Duration(seconds: 0), () {
-                if (state is AuthenticationAuthenticated) {
-                  WakaranaiApp.navigator?.pushNamedAndRemoveUntil(
-                      Routes.home, (Route route) => false);
-                }
-              });
-            },
-            child: child!),
+        child: LocaleRebuildScope(
+          child: BlocListener<AuthenticationCubit, AuthenticationState>(
+              listener: (BuildContext context, AuthenticationState state) {
+                Future.delayed(const Duration(seconds: 0), () {
+                  if (state is AuthenticationAuthenticated) {
+                    WakaranaiApp.navigator?.pushNamedAndRemoveUntil(
+                        Routes.home, (Route route) => false);
+                  }
+                });
+              },
+              child: child!),
+        ),
       ),
     );
   }

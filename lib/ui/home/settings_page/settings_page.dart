@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/ui/home/settings_page/sections/trackers_settings_section.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
+import 'package:wakaranai/blocs/app_language/app_language_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
 import 'package:wakaranai/ui/home/settings_page/download_storage_settings_section.dart';
@@ -76,6 +77,7 @@ class SettingsPage extends StatelessWidget {
                     SettingsUpdateBanner(),
                     AppearanceSettingsSection(
                       currentTheme: context.watch<ThemeCubit>().state.id,
+                      currentLanguage: context.watch<AppLanguageCubit>().state,
                     ),
                     ReaderSettingsSection(state: state),
                     PlayerSettingsSection(state: state),

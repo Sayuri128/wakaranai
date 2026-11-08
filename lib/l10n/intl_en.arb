@@ -1560,5 +1560,9 @@
     }
   },
   "downloads_novel_chapter_done": "Saved for offline reading",
-  "downloads_novel_chapter_downloading": "Saving text…"
+  "downloads_novel_chapter_downloading": "Saving text…",
+  "settings_language_title": "App language",
+  "settings_language_system": "System",
+  "settings_language_english": "English",
+  "settings_language_ukrainian": "Українська"
 }

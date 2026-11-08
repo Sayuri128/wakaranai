@@ -871,5 +871,9 @@
   "novel_reader_empty_chapter": "У цьому розділі немає тексту",
   "novel_progress_percent": "{percent}%",
   "downloads_novel_chapter_done": "Збережено для читання офлайн",
-  "downloads_novel_chapter_downloading": "Зберігаємо текст…"
+  "downloads_novel_chapter_downloading": "Зберігаємо текст…",
+  "settings_language_title": "Мова застосунку",
+  "settings_language_system": "Як у системі",
+  "settings_language_english": "English",
+  "settings_language_ukrainian": "Українська"
 }

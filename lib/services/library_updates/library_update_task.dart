@@ -1,9 +1,7 @@
 import 'dart:ui' show DartPluginRegistrant;
 
-import 'package:flutter/widgets.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/env.dart';
-import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
@@ -11,6 +9,7 @@ import 'package:wakaranai/repositories/database/extension_source_repository.dart
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
 import 'package:wakaranai/repositories/database/library_update_repository.dart';
 import 'package:wakaranai/repositories/shared_pref/source_attention_preferences.dart';
+import 'package:wakaranai/services/app_language/background_strings.dart';
 import 'package:wakaranai/services/configs_service/extension_resolver.dart';
 import 'package:wakaranai/services/configs_service/source_needs_attention.dart';
 import 'package:wakaranai/services/library_updates/library_update_notification_service.dart';
@@ -53,10 +52,9 @@ Future<bool> runLibraryUpdateTask(
 }) async {
   DartPluginRegistrant.ensureInitialized();
 
-  final String localeName =
-      inputData?[libraryUpdateTaskLocaleKey] as String? ?? 'en';
-
-  await S.load(Locale(localeName));
+  await loadBackgroundStrings(
+    fallbackLocaleName: inputData?[libraryUpdateTaskLocaleKey] as String?,
+  );
 
   WakaranaiDatabase? ownedDatabase;
 

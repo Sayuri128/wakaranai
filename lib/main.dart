@@ -31,6 +31,9 @@ import 'package:wakaranai/blocs/latest_release_cubit/latest_release_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
+import 'package:wakaranai/blocs/app_language/app_language_cubit.dart';
+import 'package:wakaranai/repositories/shared_pref/app_language_preferences.dart';
+import 'package:wakaranai/services/app_language/app_language.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/env.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
@@ -97,7 +100,18 @@ void main() async {
   configureExtensionHost(database);
   unawaited(_pruneExpiredExtensionStorage(database));
 
-  runApp(WakaranaiApp(database: database));
+  final AppLanguage initialLanguage = await _readAppLanguage();
+
+  runApp(WakaranaiApp(database: database, initialLanguage: initialLanguage));
+}
+
+Future<AppLanguage> _readAppLanguage() async {
+  try {
+    return await AppLanguagePreferences().read();
+  } catch (e) {
+    logger.w('Failed to read the app language: $e');
+    return AppLanguage.system;
+  }
 }
 
 Future<void> _pruneExpiredExtensionStorage(WakaranaiDatabase database) async {
@@ -120,9 +134,14 @@ Future<void> _resolveWebViewUserAgent() async {
 }
 
 class WakaranaiApp extends StatefulWidget {
-  const WakaranaiApp({super.key, required this.database});
+  const WakaranaiApp({
+    super.key,
+    required this.database,
+    this.initialLanguage = AppLanguage.system,
+  });
 
   final WakaranaiDatabase database;
+  final AppLanguage initialLanguage;
 
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
@@ -144,6 +163,11 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
           BlocProvider<ThemeCubit>(
             lazy: false,
             create: (BuildContext context) => ThemeCubit()..init(),
+          ),
+          BlocProvider<AppLanguageCubit>(
+            lazy: false,
+            create: (BuildContext context) =>
+                AppLanguageCubit(initialLanguage: widget.initialLanguage),
           ),
           BlocProvider<GalleryLayoutCubit>(
             lazy: false,
@@ -285,6 +309,7 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
                 mangaActivityHistoryCubit:
                     context.read<MangaActivityHistoryCubit>(),
                 themeCubit: context.read<ThemeCubit>(),
+                appLanguageCubit: context.read<AppLanguageCubit>(),
                 libraryCubit: context.read<LibraryCubit>(),
                 importExportService: ImportExportService(
                   concreteDataRepository: RepositoryProvider.of(context),

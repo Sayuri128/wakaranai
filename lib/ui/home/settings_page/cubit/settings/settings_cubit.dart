@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
+import 'package:wakaranai/blocs/app_language/app_language_cubit.dart';
 import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/data/domain/import_export/import_export_model.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
@@ -73,6 +74,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       required this.animeActivityHistoryCubit,
       required this.importExportService,
       required this.themeCubit,
+      this.appLanguageCubit,
       required this.libraryCubit,
       required this.database,
       ImportExportNotificationService? notificationService})
@@ -84,6 +86,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   final ImportExportService importExportService;
   final ImportExportNotificationService notificationService;
   final ThemeCubit themeCubit;
+  final AppLanguageCubit? appLanguageCubit;
   final LibraryCubit libraryCubit;
   final MangaActivityHistoryCubit mangaActivityHistoryCubit;
   final AnimeActivityHistoryCubit animeActivityHistoryCubit;
@@ -531,6 +534,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     if (sections.contains(ExportSection.settings)) {
       await (await SharedPreferences.getInstance()).reload();
       await themeCubit.init();
+      await appLanguageCubit?.init();
       await _syncUpdateTaskWithSettings();
       init();
     }
@@ -591,6 +595,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       if (sections.contains(ExportSection.settings)) {
         settingsImported = true;
         await themeCubit.init();
+        await appLanguageCubit?.init();
         await _syncUpdateTaskWithSettings();
       }
 

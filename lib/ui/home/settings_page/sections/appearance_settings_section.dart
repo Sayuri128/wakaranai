@@ -1,17 +1,24 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/app_language/app_language_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/services/app_language/app_language.dart';
 import 'package:wakaranai/utils/app_palette.dart';
 import 'package:wakaranai/ui/home/settings_page/settings_widgets.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 class AppearanceSettingsSection extends StatelessWidget {
-  const AppearanceSettingsSection({super.key, required this.currentTheme});
+  const AppearanceSettingsSection({
+    super.key,
+    required this.currentTheme,
+    required this.currentLanguage,
+  });
 
   final AppThemeId currentTheme;
+  final AppLanguage currentLanguage;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +32,14 @@ class AppearanceSettingsSection extends StatelessWidget {
             value: _themeName(currentTheme),
           ),
           onTap: () => _showThemePicker(context, currentTheme),
+        ),
+        SettingsTile(
+          icon: Icons.translate_rounded,
+          title: S.current.settings_language_title,
+          trailing: SettingsValueTrailing(
+            value: appLanguageName(currentLanguage),
+          ),
+          onTap: () => _showLanguagePicker(context, currentLanguage),
         ),
       ],
     );
@@ -54,89 +69,152 @@ class AppearanceSettingsSection extends StatelessWidget {
   }
 
   void _showThemePicker(BuildContext context, AppThemeId current) {
-    showModalBottomSheet<void>(
+    _showOptionSheet<AppThemeId>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.backgroundColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext sheetContext) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(top: 12, bottom: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.overlay(0.18),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+      title: S.current.settings_theme_title,
+      options: AppThemeId.values,
+      current: current,
+      labelOf: _themeName,
+      leadingOf: (AppThemeId id) =>
+          _ThemeSwatch(palette: AppPalette.fromId(id)),
+      onSelected: (AppThemeId id) => context.read<ThemeCubit>().changeTheme(id),
+    );
+  }
+
+  void _showLanguagePicker(BuildContext context, AppLanguage current) {
+    _showOptionSheet<AppLanguage>(
+      context: context,
+      title: S.current.settings_language_title,
+      options: AppLanguage.values,
+      current: current,
+      labelOf: appLanguageName,
+      onSelected: (AppLanguage language) =>
+          context.read<AppLanguageCubit>().changeLanguage(language),
+    );
+  }
+}
+
+String appLanguageName(AppLanguage language) {
+  switch (language) {
+    case AppLanguage.system:
+      return S.current.settings_language_system;
+    case AppLanguage.english:
+      return S.current.settings_language_english;
+    case AppLanguage.ukrainian:
+      return S.current.settings_language_ukrainian;
+  }
+}
+
+void _showOptionSheet<T>({
+  required BuildContext context,
+  required String title,
+  required List<T> options,
+  required T current,
+  required String Function(T option) labelOf,
+  required void Function(T option) onSelected,
+  Widget Function(T option)? leadingOf,
+}) {
+  showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: AppColors.backgroundColor,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (BuildContext sheetContext) {
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.overlay(0.18),
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-                child: Text(
-                  S.current.settings_theme_title,
-                  style: semibold(size: 18),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+              child: Text(title, style: semibold(size: 18)),
+            ),
+            Flexible(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    for (final T option in options)
+                      _OptionRow(
+                        label: labelOf(option),
+                        selected: option == current,
+                        leading: leadingOf?.call(option),
+                        onTap: () {
+                          onSelected(option);
+                          Navigator.of(sheetContext).pop();
+                        },
+                      ),
+                  ],
                 ),
               ),
-              Flexible(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      for (final AppThemeId id in AppThemeId.values)
-                        InkWell(
-                          onTap: () {
-                            context.read<ThemeCubit>().changeTheme(id);
-                            Navigator.of(sheetContext).pop();
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 14,
-                            ),
-                            child: Row(
-                              children: <Widget>[
-                                _ThemeSwatch(palette: AppPalette.fromId(id)),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Text(
-                                    _themeName(id),
-                                    style: medium(
-                                      size: 15,
-                                      color: id == current
-                                          ? AppColors.primary
-                                          : AppColors.mainWhite,
-                                    ),
-                                  ),
-                                ),
-                                if (id == current)
-                                  Icon(
-                                    Icons.check_rounded,
-                                    color: AppColors.primary,
-                                    size: 20,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+class _OptionRow extends StatelessWidget {
+  const _OptionRow({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.leading,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final Widget? leading;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget? leadingWidget = leading;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        child: Row(
+          children: <Widget>[
+            if (leadingWidget != null) ...<Widget>[
+              leadingWidget,
+              const SizedBox(width: 14),
             ],
-          ),
-        );
-      },
+            Expanded(
+              child: Text(
+                label,
+                style: medium(
+                  size: 15,
+                  color: selected ? AppColors.primary : AppColors.mainWhite,
+                ),
+              ),
+            ),
+            if (selected)
+              Icon(
+                Icons.check_rounded,
+                color: AppColors.primary,
+                size: 20,
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_view_options.dart';
 import 'package:wakaranai/blocs/nsfw_titles/nsfw_titles_cubit.dart';
 import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
+import 'package:wakaranai/repositories/shared_pref/app_language_preferences.dart';
 import 'package:wakaranai/repositories/shared_pref/auto_backup_preferences.dart';
 import 'package:wakaranai/repositories/shared_pref/download_storage_preferences.dart';
 import 'package:wakaranai/repositories/shared_pref/downloads_order_preferences.dart';
@@ -35,6 +36,7 @@ class ExportedPreferences {
     DownloadStoragePreferences.qualityKey,
     DownloadStoragePreferences.deleteAfterWatchingKey,
     AutoBackupPreferences.enabledKey,
+    AppLanguagePreferences.languageKey,
   };
 
   static bool isExportable(String key) {

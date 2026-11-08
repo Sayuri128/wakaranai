@@ -8663,6 +8663,46 @@ class S {
       args: [],
     );
   }
+
+  /// `App language`
+  String get settings_language_title {
+    return Intl.message(
+      'App language',
+      name: 'settings_language_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `System`
+  String get settings_language_system {
+    return Intl.message(
+      'System',
+      name: 'settings_language_system',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `English`
+  String get settings_language_english {
+    return Intl.message(
+      'English',
+      name: 'settings_language_english',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Українська`
+  String get settings_language_ukrainian {
+    return Intl.message(
+      'Українська',
+      name: 'settings_language_ukrainian',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

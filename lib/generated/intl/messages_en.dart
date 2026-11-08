@@ -1767,6 +1767,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_incognito_title": MessageLookupByLibrary.simpleMessage(
       "Incognito mode",
     ),
+    "settings_language_english": MessageLookupByLibrary.simpleMessage(
+      "English",
+    ),
+    "settings_language_system": MessageLookupByLibrary.simpleMessage("System"),
+    "settings_language_title": MessageLookupByLibrary.simpleMessage(
+      "App language",
+    ),
+    "settings_language_ukrainian": MessageLookupByLibrary.simpleMessage(
+      "Українська",
+    ),
     "settings_local_extension_server_missing":
         MessageLookupByLibrary.simpleMessage(
           "Set LOCAL_REPOSITORY_URL in .env to enable",
