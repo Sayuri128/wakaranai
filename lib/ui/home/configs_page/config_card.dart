@@ -1,13 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:wakaranai/services/local_source/local_source.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/configs_service/extension_listing_status.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_compatibility_texts.dart';
+import 'package:wakaranai/ui/widgets/extension_logo.dart';
 import 'package:wakaranai/utils/app_colors.dart';
-import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
 enum ConfigCardStyle { card, compact, tile }
@@ -31,11 +28,6 @@ class ConfigCard extends StatelessWidget {
   final bool pinned;
 
   static const double _disabledOpacity = 0.5;
-
-  static const Map<String, String> _logoHeaders = <String, String>{
-    "user-agent":
-        "Mozilla/5.0 (Linux; Android 9; SM-G960N Build/PQ3B.190801.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/91.0.4472.114 Safari/537.36"
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -263,55 +255,7 @@ class ConfigCard extends StatelessWidget {
   }
 
   Widget _buildLogo(BuildContext context, {double size = 56}) {
-    final double radius = size >= 48 ? 12 : 10;
-    if (LocalSource.isLocal(configInfo.uid)) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: SizedBox(
-          width: size,
-          height: size,
-          child: ColoredBox(
-            color: AppColors.primary.withValues(alpha: 0.16),
-            child: Icon(Icons.folder_rounded, color: AppColors.primary),
-          ),
-        ),
-      );
-    }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: configInfo.logoUrl.contains('.svg')
-            ? SvgPicture.network(
-                configInfo.logoUrl,
-                fit: BoxFit.cover,
-                placeholderBuilder: (BuildContext context) =>
-                    _buildLogoPlaceholder(),
-                headers: _logoHeaders,
-              )
-            : CachedNetworkImage(
-                imageUrl: configInfo.logoUrl,
-                memCacheWidth: decodeWidthFor(context, size),
-                fit: BoxFit.cover,
-                placeholder: (BuildContext context, String url) =>
-                    _buildLogoPlaceholder(),
-                errorWidget:
-                    (BuildContext context, String url, Object error) =>
-                        _buildLogoPlaceholder(),
-                httpHeaders: _logoHeaders,
-              ),
-      ),
-    );
-  }
-
-  Widget _buildLogoPlaceholder() {
-    return ColoredBox(
-      color: AppColors.shimmerBase,
-      child: const Center(
-        child: Icon(Icons.extension_rounded, color: Colors.white24, size: 24),
-      ),
-    );
+    return ExtensionLogo(configInfo: configInfo, size: size);
   }
 
   Widget _buildChip(String label, {Color? color}) {
