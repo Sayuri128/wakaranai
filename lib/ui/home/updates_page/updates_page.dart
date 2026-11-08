@@ -1,6 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/nsfw_titles/nsfw_titles_cubit.dart';
+import 'package:wakaranai/ui/widgets/cover_image.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/data/domain/database/library_update_domain.dart';
@@ -63,7 +65,13 @@ class UpdatesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, LibraryUpdatesState state) {
+  Widget _buildBody(BuildContext context, LibraryUpdatesState fullState) {
+    final NsfwTitlesState nsfw = context.watch<NsfwTitlesCubit>().state;
+    final LibraryUpdatesState state = fullState.copyWith(
+      updates: fullState.updates
+          .where((LibraryUpdateDomain update) => !nsfw.hides(update.extensionUid))
+          .toList(growable: false),
+    );
     if (state.updates.isEmpty) {
       return ServiceViewerMessage(
         icon: Icons.notifications_none_rounded,
@@ -120,10 +128,10 @@ class UpdatesPage extends StatelessWidget {
 
     if (entry == null || !context.mounted) return;
 
-    Navigator.of(context).pushNamed(
+    unawaited(Navigator.of(context).pushNamed(
       Routes.libraryConcreteViewer,
       arguments: LibraryConcreteViewerData(entry: entry),
-    );
+    ));
   }
 }
 
@@ -215,12 +223,10 @@ class _Cover extends StatelessWidget {
         height: 64,
         child: url == null
             ? _placeholder()
-            : CachedNetworkImage(
-                imageUrl: url!,
-                fit: BoxFit.cover,
-                placeholder: (BuildContext context, String _) => _placeholder(),
-                errorWidget: (BuildContext context, String _, Object __) =>
-                    _placeholder(),
+            : CoverImage(
+                url: url!,
+                logicalWidth: 48,
+                placeholder: (BuildContext context) => _placeholder(),
               ),
       ),
     );

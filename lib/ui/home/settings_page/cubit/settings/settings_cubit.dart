@@ -9,8 +9,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
+import 'package:wakaranai/blocs/app_language/app_language_cubit.dart';
 import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/data/domain/import_export/import_export_model.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
@@ -18,6 +20,7 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
+import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
 import 'package:wakaranai/services/import_export/import_export_notification_service.dart';
 import 'package:wakaranai/services/import_export/import_export_service.dart';
 import 'package:wakaranai/services/import_export/import_export_task.dart';
@@ -25,6 +28,7 @@ import 'package:wakaranai/services/import_export/import_task_store.dart';
 import 'package:wakaranai/services/library_updates/library_update_notification_service.dart';
 import 'package:wakaranai/services/library_updates/library_update_task.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
+import 'package:wakaranai/services/settings_service/video_player_preference.dart';
 import 'package:wakaranai/services/import_export/export_section_labels.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
@@ -70,6 +74,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       required this.animeActivityHistoryCubit,
       required this.importExportService,
       required this.themeCubit,
+      this.appLanguageCubit,
       required this.libraryCubit,
       required this.database,
       ImportExportNotificationService? notificationService})
@@ -81,6 +86,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   final ImportExportService importExportService;
   final ImportExportNotificationService notificationService;
   final ThemeCubit themeCubit;
+  final AppLanguageCubit? appLanguageCubit;
   final LibraryCubit libraryCubit;
   final MangaActivityHistoryCubit mangaActivityHistoryCubit;
   final AnimeActivityHistoryCubit animeActivityHistoryCubit;
@@ -101,11 +107,13 @@ class SettingsCubit extends Cubit<SettingsState> {
   final RemoteConfigsCubit remoteConfigsCubit;
 
   final SettingsService _settingsService = SettingsService();
+  final PlayerPreferences _playerPreferences = PlayerPreferences();
   final ImportTaskStore importTaskStore = ImportTaskStore();
 
   Timer? _importWatcher;
   Set<ExportSection> _importedSections = <ExportSection>{};
   bool _resumeChecked = false;
+  bool _updateTaskSynced = false;
 
   DateTime _lastProgressEmit = DateTime.fromMillisecondsSinceEpoch(0);
 
@@ -150,6 +158,16 @@ class SettingsCubit extends Cubit<SettingsState> {
         checkUpdates: await _settingsService.getCheckUpdates(),
         updateNotifications: await _settingsService.getUpdateNotifications(),
         updateFrequencyHours: await _settingsService.getUpdateFrequencyHours(),
+        useLocalExtensionServer:
+            await _settingsService.getUseLocalExtensionServer(),
+        videoPlayerPreference:
+            await _settingsService.getVideoPlayerPreference(),
+        playerHoldSpeed: await _playerPreferences.getHoldSpeed(),
+        playerSkipOpeningSeconds:
+            await _playerPreferences.getSkipOpeningSeconds(),
+        playerAutoPlayNext: await _playerPreferences.getAutoPlayNext(),
+        playerAutoSkipMarkers: await _playerPreferences.getAutoSkipMarkers(),
+        downloadWifiOnly: await _settingsService.getDownloadWifiOnly(),
       ),
     );
 
@@ -157,6 +175,86 @@ class SettingsCubit extends Cubit<SettingsState> {
       _resumeChecked = true;
       await resumeImportWatcherIfNeeded();
     }
+
+    final current = state;
+    if (!_updateTaskSynced &&
+        backgroundUpdatesSupported &&
+        current is SettingsInitialized &&
+        current.checkUpdates) {
+      _updateTaskSynced = true;
+      try {
+        await registerLibraryUpdateTask(
+          frequencyHours: current.updateFrequencyHours,
+          localeName: Intl.getCurrentLocale(),
+        );
+      } catch (e, s) {
+        logger.e(e);
+        logger.e(s);
+      }
+    }
+  }
+
+  Future<void> onChangedUseLocalExtensionServer(bool value) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) return;
+    await _settingsService.setUseLocalExtensionServer(value);
+    emit(state.copyWith(useLocalExtensionServer: value));
+  }
+
+  Future<void> onChangedVideoPlayerPreference(
+    VideoPlayerPreference value,
+  ) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) {
+      return;
+    }
+    await _settingsService.setVideoPlayerPreference(value);
+    emit(state.copyWith(videoPlayerPreference: value));
+  }
+
+  Future<void> onChangedPlayerHoldSpeed(double value) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) {
+      return;
+    }
+    await _playerPreferences.setHoldSpeed(value);
+    emit(state.copyWith(playerHoldSpeed: value));
+  }
+
+  Future<void> onChangedPlayerSkipOpeningSeconds(int value) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) {
+      return;
+    }
+    await _playerPreferences.setSkipOpeningSeconds(value);
+    emit(state.copyWith(playerSkipOpeningSeconds: value));
+  }
+
+  Future<void> onChangedPlayerAutoPlayNext(bool value) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) {
+      return;
+    }
+    await _playerPreferences.setAutoPlayNext(value);
+    emit(state.copyWith(playerAutoPlayNext: value));
+  }
+
+  Future<void> onChangedPlayerAutoSkipMarkers(bool value) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) {
+      return;
+    }
+    await _playerPreferences.setAutoSkipMarkers(value);
+    emit(state.copyWith(playerAutoSkipMarkers: value));
+  }
+
+  Future<void> onChangedDownloadWifiOnly(bool value) async {
+    final state = this.state;
+    if (state is! SettingsInitialized) {
+      return;
+    }
+    await _settingsService.setDownloadWifiOnly(value);
+    emit(state.copyWith(downloadWifiOnly: value));
   }
 
   void onChangedShowNsfw(bool value) async {
@@ -423,7 +521,7 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   Future<void> _refreshAfterImport(Set<ExportSection> sections) async {
     if (sections.contains(ExportSection.sources)) {
-      remoteConfigsCubit.init();
+      await remoteConfigsCubit.init();
     }
     if (sections.contains(ExportSection.library) ||
         sections.contains(ExportSection.categories)) {
@@ -434,9 +532,19 @@ class SettingsCubit extends Cubit<SettingsState> {
       mangaActivityHistoryCubit.init();
     }
     if (sections.contains(ExportSection.settings)) {
+      await (await SharedPreferences.getInstance()).reload();
       await themeCubit.init();
+      await appLanguageCubit?.init();
+      await _syncUpdateTaskWithSettings();
       init();
     }
+  }
+
+  Future<void> _syncUpdateTaskWithSettings() async {
+    await _rescheduleUpdateTask(
+      enabled: await _settingsService.getCheckUpdates(),
+      frequencyHours: await _settingsService.getUpdateFrequencyHours(),
+    );
   }
 
   void clearOutcome() {
@@ -478,7 +586,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       );
 
       if (sections.contains(ExportSection.sources)) {
-        remoteConfigsCubit.init();
+        await remoteConfigsCubit.init();
       }
       if (sections.contains(ExportSection.history)) {
         animeActivityHistoryCubit.init();
@@ -487,6 +595,8 @@ class SettingsCubit extends Cubit<SettingsState> {
       if (sections.contains(ExportSection.settings)) {
         settingsImported = true;
         await themeCubit.init();
+        await appLanguageCubit?.init();
+        await _syncUpdateTaskWithSettings();
       }
 
       final String message = S.current.settings_import_success(

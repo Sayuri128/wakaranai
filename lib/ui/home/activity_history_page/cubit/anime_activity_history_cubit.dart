@@ -1,6 +1,7 @@
-import 'package:bloc/bloc.dart';
-import 'package:capyscript/api_clients/anime_api_client.dart';
+import 'dart:async';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:wakaranai/services/configs_service/api_client_factory.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
@@ -30,8 +31,10 @@ class AnimeActivityHistoryCubit extends Cubit<AnimeActivityHistoryState>
   final ConcreteDataRepository concreteDataRepository;
   final AnimeEpisodeActivityRepository animeEpisodeActivityRepository;
 
-  void init() async {
-    emit(AnimeActivityHistoryLoading());
+  void init({bool silent = false}) async {
+    if (!silent) {
+      emit(AnimeActivityHistoryLoading());
+    }
 
     try {
       final data = await animeEpisodeActivityRepository.getAll(
@@ -73,14 +76,10 @@ class AnimeActivityHistoryCubit extends Cubit<AnimeActivityHistoryState>
       return;
     }
 
-    final apiClient = AnimeApiClient(code: extension.sourceCode);
+    final apiClient = ApiClientFactory.instance
+        .anime(config: extension.config, code: extension.sourceCode);
 
-    final coverHeaders = await apiClient.getImageHeaders(
-      uid: concrete.uid,
-      data: concrete.dataJson,
-    );
-
-    Navigator.of(context)
+    unawaited(Navigator.of(context)
         .pushNamed(
       Routes.animeServiceViewer,
       arguments: AnimeServiceViewerData(
@@ -96,7 +95,7 @@ class AnimeActivityHistoryCubit extends Cubit<AnimeActivityHistoryState>
     )
         .then((_) {
       init();
-    });
+    }));
   }
 
   Future<void> onDelete(

@@ -1,67 +1,131 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/download_config/download_config.dart';
 import 'package:collection/collection.dart';
-import 'package:dio/dio.dart';
+import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
+import 'package:wakaranai/services/downloads/episode/episode_download_manifest.dart';
+import 'package:wakaranai/services/downloads/episode/episode_downloader.dart';
+import 'package:wakaranai/services/downloads/episode/episode_source_resolver.dart';
+import 'package:wakaranai/services/downloads/jobs/chapter_job_runner.dart';
+import 'package:wakaranai/services/downloads/jobs/chapter_page_writer.dart';
+import 'package:wakaranai/services/downloads/jobs/download_job.dart';
+import 'package:wakaranai/services/downloads/jobs/episode_job_runner.dart';
+import 'package:wakaranai/services/downloads/jobs/novel_chapter_job_runner.dart';
+import 'package:wakaranai/services/downloads/queue/download_job_queue.dart';
+import 'package:wakaranai/services/downloads/queue/download_job_rebuilder.dart';
+import 'package:wakaranai/services/downloads/queue/download_queue_control.dart';
+import 'package:wakaranai/services/downloads/runtime/download_network_policy.dart';
+import 'package:wakaranai/services/downloads/runtime/download_runtime.dart';
+import 'package:wakaranai/services/downloads/runtime/download_runtime_coordinator.dart';
+import 'package:wakaranai/services/downloads/storage/download_files.dart';
+import 'package:wakaranai/services/downloads/storage/download_quality_reader.dart';
+import 'package:wakaranai/utils/http_client.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 import 'package:wakaranai/blocs/downloads/download_notification_service.dart';
+import 'package:wakaranai/blocs/downloads/download_throttle.dart';
+import 'package:wakaranai/data/domain/database/extension_domain.dart';
+import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
+import 'package:wakaranai/services/downloads/download_client_pool.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
-import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/download_repository.dart';
 
+export 'package:wakaranai/services/downloads/runtime/download_runtime_coordinator.dart'
+    show DownloadRuntimeStatus;
+
 part 'download_manager_state.dart';
-
-class _DownloadJob {
-  final MangaApiClient client;
-  final String extensionUid;
-  final String concreteUid;
-  final int concreteId;
-  final String concreteTitle;
-  final String? concreteCover;
-  final String chapterUid;
-  final String title;
-  final Map<String, dynamic>? data;
-
-  const _DownloadJob({
-    required this.client,
-    required this.extensionUid,
-    required this.concreteUid,
-    required this.concreteId,
-    required this.concreteTitle,
-    required this.concreteCover,
-    required this.chapterUid,
-    required this.title,
-    required this.data,
-  });
-}
 
 class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   DownloadManagerCubit({
     required this.downloadRepository,
+    this.extensionRepository,
     DownloadNotificationService? notificationService,
+    EpisodeSourceResolver? episodeSourceResolver,
+    EpisodeDownloader? episodeDownloader,
+    QualityPreferenceReader? readQualityPreference,
+    DownloadRuntime? downloadRuntime,
+    DownloadNetworkPolicy? networkPolicy,
+    DownloadThrottle? throttle,
+    DownloadWait? wait,
   })  : notificationService =
             notificationService ?? DownloadNotificationService(),
-        super(const DownloadManagerState());
+        _throttle = throttle ?? DownloadThrottle(),
+        _delay = wait ?? Future<void>.delayed,
+        _injectedSourceResolver = episodeSourceResolver,
+        _injectedEpisodeDownloader = episodeDownloader,
+        _readQualityPreference = readQualityPreference ??
+            PlayerPreferences().getQualityPreference,
+        _networkPolicy = networkPolicy ?? DownloadNetworkPolicy.platform(),
+        _clients =
+            DownloadClientPool(extensionRepository: extensionRepository),
+        super(const DownloadManagerState()) {
+    _runtime = DownloadRuntimeCoordinator(
+      runtime: downloadRuntime ?? createDownloadRuntime(),
+      isOwnerClosed: () => isClosed,
+      readStatus: () => state.runtimeStatus,
+      publishStatus: _setRuntimeStatus,
+    );
+    _networkPolicyChanges =
+        _networkPolicy.changes.listen(_onNetworkPolicyChanged);
+  }
 
   final DownloadRepository downloadRepository;
+  final ExtensionRepository? extensionRepository;
   final DownloadNotificationService notificationService;
+  final EpisodeSourceResolver? _injectedSourceResolver;
+  final EpisodeDownloader? _injectedEpisodeDownloader;
+  final QualityPreferenceReader _readQualityPreference;
+  late final DownloadRuntimeCoordinator _runtime;
+  final DownloadNetworkPolicy _networkPolicy;
+  final DownloadClientPool _clients;
+  late final StreamSubscription<bool> _networkPolicyChanges;
 
-  final Dio _dio = Dio();
-  final Queue<_DownloadJob> _jobs = Queue<_DownloadJob>();
-  final Set<String> _cancelled = <String>{};
+  static const Duration _jobUnwindTimeout = Duration(seconds: 10);
+
+  final DownloadThrottle _throttle;
+  final DownloadWait _delay;
+  final DownloadJobQueue _queue = DownloadJobQueue();
+  late final DownloadQueueControl _control = DownloadQueueControl(
+    downloadRepository: downloadRepository,
+    queue: _queue,
+    rebuilder: DownloadJobRebuilder(clients: _clients),
+    startQueue: startQueue,
+    settleEmptiedQueue: _settleEmptiedQueue,
+  );
+  late final ChapterJobRunner _chapterRunner = ChapterJobRunner(
+    downloadRepository: downloadRepository,
+    reportProgress: _showJobProgress,
+    consumeDeletion: _queue.deletedUids.remove,
+    pageWriter: ChapterPageWriter(
+      dio: createDio(),
+      throttle: _throttle,
+      wait: _delay,
+    ),
+    throttle: _throttle,
+    wait: _delay,
+  );
+  late final NovelChapterJobRunner _novelChapterRunner = NovelChapterJobRunner(
+    downloadRepository: downloadRepository,
+    reportProgress: _showJobProgress,
+    consumeDeletion: _queue.deletedUids.remove,
+  );
+  late final EpisodeJobRunner _episodeRunner = EpisodeJobRunner(
+    downloadRepository: downloadRepository,
+    reportProgress: _showJobProgress,
+    readQualityPreference: _readQualityPreference,
+    sources: _injectedSourceResolver ??
+        PooledClientEpisodeSourceResolver(
+            loadClient: _clients.animeClientForUid),
+    downloader:
+        _injectedEpisodeDownloader ?? EpisodeDownloader(throttle: _throttle),
+  );
   bool _processing = false;
-  int _completedInBatch = 0;
-  int _batchIndex = 0;
   bool _permissionRequested = false;
-
-  int get _batchTotal => _batchIndex + _jobs.length;
+  bool _recovered = false;
 
   StreamSubscription<List<DownloadDomain>>? _sub;
 
@@ -70,6 +134,30 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     _sub = downloadRepository.watchAll().listen((List<DownloadDomain> rows) {
       emit(state.copyWith(downloads: rows));
     });
+
+    if (_recovered) {
+      unawaited(adoptQueuedDownloads());
+    } else {
+      _recovered = true;
+      unawaited(_control.recoverInterrupted());
+    }
+    unawaited(_networkPolicy.start());
+  }
+
+  Future<void> adoptQueuedDownloads() => _control.adoptQueued();
+
+  void setWifiOnly(bool value) {
+    _networkPolicy.setWifiOnly(value);
+  }
+
+  Future<ApiClient> chapterClientForExtension(ExtensionDomain extension) {
+    return _clients.chapterClientFor(extension);
+  }
+
+  void _scheduleClientsRelease() {
+    _clients.scheduleIdleRelease(
+      stillIdle: () => !_processing && _queue.waiting.isEmpty,
+    );
   }
 
   bool isDownloaded(String chapterUid) {
@@ -78,7 +166,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
   }
 
   Future<void> enqueueChapter({
-    required MangaApiClient client,
+    required ApiClient client,
     required String extensionUid,
     required String concreteUid,
     required int concreteId,
@@ -89,42 +177,7 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     required Map<String, dynamic>? data,
     bool autoStart = true,
   }) async {
-    final DownloadDomain? existing =
-        await downloadRepository.getByUid(chapterUid);
-    if (existing != null &&
-        (existing.status == DownloadStatus.done ||
-            existing.status == DownloadStatus.downloading ||
-            existing.status == DownloadStatus.queued)) {
-      return;
-    }
-
-    final Directory dir =
-        await _chapterDir(extensionUid, concreteUid, chapterUid);
-
-    _cancelled.remove(chapterUid);
-
-    await downloadRepository.createUpdateBy<$DownloadTableTable, String>(
-      DownloadDomain(
-        id: 0,
-        uid: chapterUid,
-        extensionUid: extensionUid,
-        concreteUid: concreteUid,
-        concreteId: concreteId,
-        concreteTitle: concreteTitle,
-        concreteCover: concreteCover,
-        title: title,
-        status: DownloadStatus.queued,
-        downloadedPages: 0,
-        totalPages: 0,
-        dirPath: dir.path,
-        data: data != null ? jsonEncode(data) : null,
-        createdAt: DateTime.now(),
-      ),
-      by: (DownloadDomain d) => d.uid,
-      where: (tbl) => tbl.uid,
-    );
-
-    _jobs.add(_DownloadJob(
+    final bool added = await _control.addChapter(
       client: client,
       extensionUid: extensionUid,
       concreteUid: concreteUid,
@@ -134,142 +187,80 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
       chapterUid: chapterUid,
       title: title,
       data: data,
-    ));
-
-    if (autoStart) {
+    );
+    if (added && autoStart) {
       startQueue();
     }
   }
 
-  void startQueue() {
-    unawaited(_process());
-  }
-
-  Future<void> _ensurePermission() async {
-    if (_permissionRequested) return;
-    _permissionRequested = true;
-    try {
-      await notificationService.requestPermission();
-    } catch (e, s) {
-      logger.w('Failed to request download notification permission: $e');
-      logger.w(s);
+  Future<void> enqueueEpisode({
+    required String extensionUid,
+    required String concreteUid,
+    required int concreteId,
+    required String concreteTitle,
+    required String? concreteCover,
+    required AnimeVideo episode,
+    bool autoStart = true,
+  }) async {
+    final bool added = await _control.addEpisode(
+      extensionUid: extensionUid,
+      concreteUid: concreteUid,
+      concreteId: concreteId,
+      concreteTitle: concreteTitle,
+      concreteCover: concreteCover,
+      episode: episode,
+    );
+    if (added && autoStart) {
+      startQueue();
     }
   }
 
-  Future<void> _process() async {
-    if (_processing) return;
-    _processing = true;
-    _completedInBatch = 0;
-    _batchIndex = 0;
-    try {
-      await _ensurePermission();
-      while (_jobs.isNotEmpty) {
-        final _DownloadJob job = _jobs.removeFirst();
-        if (_cancelled.contains(job.chapterUid)) {
-          _cancelled.remove(job.chapterUid);
-          continue;
-        }
-        _batchIndex++;
-        final bool completed = await _runJob(job);
-        if (completed) _completedInBatch++;
-      }
-    } finally {
-      _processing = false;
-      _batchIndex = 0;
-      await notificationService.showComplete(_completedInBatch);
-      _completedInBatch = 0;
+  Future<void> retryDownload(DownloadDomain download) async {
+    if (download.isEpisode) {
+      await _retryEpisode(download);
+      return;
     }
+    await _retryChapter(download);
   }
 
+  Future<void> _retryEpisode(DownloadDomain download) async {
+    final AnimeVideo? episode = downloadedEpisodeOf(download);
+    if (episode == null) {
+      logger.w('Cannot retry ${download.uid}: the episode payload is missing');
+      return;
+    }
+    await enqueueEpisode(
+      extensionUid: download.extensionUid,
+      concreteUid: download.concreteUid,
+      concreteId: download.concreteId,
+      concreteTitle: download.concreteTitle,
+      concreteCover: download.concreteCover,
+      episode: episode,
+    );
+  }
 
-  Future<bool> _runJob(_DownloadJob job) async {
-    DownloadDomain? row = await downloadRepository.getByUid(job.chapterUid);
-    if (row == null) return false;
-
+  Future<void> _retryChapter(DownloadDomain download) async {
+    final ExtensionDomain? extension =
+        await _clients.installedExtension(download.extensionUid);
+    if (extension == null) {
+      logger.w('Cannot retry ${download.uid}: extension '
+          '${download.extensionUid} is not installed');
+      return;
+    }
     try {
-      await downloadRepository
-          .update(row.copyWith(status: DownloadStatus.downloading));
-      await notificationService.showProgress(
-        title: job.concreteTitle,
-        chapterTitle: job.title,
-        progress: 0,
-        max: 0,
-        queueIndex: _batchIndex,
-        queueTotal: _batchTotal,
-      );
-
-      final pages =
-          await job.client.getPages(uid: job.chapterUid, data: job.data);
-      final Map<String, String> headers = await job.client
-          .getImageHeaders(uid: pages.chapterUid, data: <String, dynamic>{});
-      final String headersJson = jsonEncode(headers);
-
-      final Directory dir = Directory(row.dirPath);
-      await dir.create(recursive: true);
-
-      row = row.copyWith(
-        totalPages: pages.value.length,
-        downloadedPages: 0,
-        headers: headersJson,
-        status: DownloadStatus.downloading,
-      );
-      await downloadRepository.update(row);
-
-      for (int i = 0; i < pages.value.length; i++) {
-        if (_cancelled.contains(job.chapterUid)) {
-          _cancelled.remove(job.chapterUid);
-          return false;
-        }
-
-        final String url = pages.value[i];
-        final File file = File(p.join(dir.path, _pageFileName(i)));
-
-        if (url.startsWith('data:')) {
-          await file.writeAsBytes(base64Decode(url.split(',').last));
-        } else {
-          final Response<List<int>> response = await _dio.get<List<int>>(
-            url,
-            options: Options(
-              responseType: ResponseType.bytes,
-              headers: headers,
-            ),
-          );
-          await file.writeAsBytes(response.data ?? <int>[]);
-        }
-
-        row = row!.copyWith(downloadedPages: i + 1);
-        await downloadRepository.update(row);
-        await notificationService.showProgress(
-          title: job.concreteTitle,
-          chapterTitle: job.title,
-          progress: i + 1,
-          max: pages.value.length,
-          queueIndex: _batchIndex,
-          queueTotal: _batchTotal,
-        );
-      }
-
-      await downloadRepository.update(row!.copyWith(
-        status: DownloadStatus.done,
-        downloadedPages: pages.value.length,
-        totalPages: pages.value.length,
-      ));
-      return true;
+      final ApiClient client = await chapterClientForExtension(extension);
+      await retry(client: client, download: download);
     } catch (e, s) {
-      logger.e(e);
+      logger.e('Cannot retry ${download.uid}: $e');
       logger.e(s);
-      final DownloadDomain? current =
-          await downloadRepository.getByUid(job.chapterUid);
-      if (current != null) {
-        await downloadRepository
-            .update(current.copyWith(status: DownloadStatus.failed));
+      if (!_processing) {
+        _scheduleClientsRelease();
       }
-      return false;
     }
   }
 
   Future<void> retry({
-    required MangaApiClient client,
+    required ApiClient client,
     required DownloadDomain download,
     Map<String, dynamic>? data,
   }) {
@@ -289,11 +280,299 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     );
   }
 
+  void startQueue() {
+    unawaited(_process());
+  }
+
+  Future<void> _ensurePermission() async {
+    if (_permissionRequested) {
+      return;
+    }
+    _permissionRequested = true;
+    try {
+      await notificationService.requestPermission();
+    } catch (e, s) {
+      logger.w('Failed to request download notification permission: $e');
+      logger.w(s);
+    }
+  }
+
+  Future<void> _process() async {
+    if (_processing) {
+      return;
+    }
+    _processing = true;
+    _clients.cancelIdleRelease();
+    _queue.startBatch();
+    try {
+      await _ensurePermission();
+      await _networkPolicy.start();
+      while (_queue.waiting.isNotEmpty) {
+        if (!_networkPolicy.allowsDownloads) {
+          _setHold(DownloadQueueHold.waitingForWifi);
+          break;
+        }
+        _setHold(DownloadQueueHold.none);
+        final DownloadJob job = _queue.waiting.removeFirst();
+        if (_queue.deletedUids.remove(job.uid)) {
+          continue;
+        }
+        unawaited(_runtime.setWanted(true));
+        _queue.active = job;
+        try {
+          await _runActiveJob(job);
+          await _control.settleStoppedJob(job);
+        } finally {
+          _queue.active = null;
+          job.markUnwound();
+        }
+      }
+    } finally {
+      _processing = false;
+      _queue.batchIndex = 0;
+      final int completed = _queue.completedInBatch;
+      _queue.completedInBatch = 0;
+      if (_isHeldWithQueuedJobs) {
+        await _holdQueueForWifi(completed);
+      } else {
+        await _finishBatch(completed);
+      }
+      _scheduleClientsRelease();
+    }
+  }
+
+  bool get _isHeldWithQueuedJobs =>
+      _queue.waiting.isNotEmpty && !_networkPolicy.allowsDownloads;
+
+  Future<void> _holdQueueForWifi(int completed) async {
+    _setHold(DownloadQueueHold.waitingForWifi);
+    if (completed > 0) {
+      await notificationService.showComplete(completed);
+    }
+    await _runtime.setWanted(true);
+    if (_processing || !_isHeldWithQueuedJobs) {
+      return;
+    }
+    await notificationService.showWaitingForWifi();
+  }
+
+  Future<void> _finishBatch(int completed) async {
+    if (completed > 0) {
+      await notificationService.showComplete(completed);
+    } else {
+      await notificationService.cancelProgress();
+    }
+    _releaseHoldIfIdle();
+    await _stopRuntimeIfIdle();
+  }
+
+  Future<void> _settleEmptiedQueue() async {
+    if (_processing || !_queue.isIdle) {
+      return;
+    }
+    final bool wasHeld = state.waitingForWifi;
+    _releaseHoldIfIdle();
+    if (!wasHeld) {
+      return;
+    }
+    await _stopRuntimeIfIdle();
+    if (_processing) {
+      return;
+    }
+    await notificationService.cancelProgress();
+  }
+
+  void _onNetworkPolicyChanged(bool allowsDownloads) {
+    if (isClosed) {
+      return;
+    }
+    if (allowsDownloads) {
+      _setHold(DownloadQueueHold.none);
+      if (_queue.waiting.isNotEmpty) {
+        startQueue();
+      }
+      return;
+    }
+    _holdActiveJobForWifi();
+    if (!_queue.isIdle) {
+      _setHold(DownloadQueueHold.waitingForWifi);
+    }
+  }
+
+  void _holdActiveJobForWifi() {
+    final DownloadJob? job = _queue.active;
+    if (job == null || identical(_queue.heldForWifi, job)) {
+      return;
+    }
+    _queue.heldForWifi = job;
+    job.cancel('paused');
+  }
+
+  void _setHold(DownloadQueueHold hold) {
+    if (isClosed || state.hold == hold) {
+      return;
+    }
+    emit(state.copyWith(hold: hold));
+  }
+
+  void _releaseHoldIfIdle() {
+    if (_queue.isIdle) {
+      _setHold(DownloadQueueHold.none);
+    }
+  }
+
+  Future<void> _stopRuntimeIfIdle() async {
+    if (_processing) {
+      return;
+    }
+    await _runtime.setWanted(false);
+  }
+
+  void _setRuntimeStatus(DownloadRuntimeStatus status) {
+    if (isClosed || state.runtimeStatus == status) {
+      return;
+    }
+    emit(state.copyWith(runtimeStatus: status));
+  }
+
+  Future<void> _runActiveJob(DownloadJob job) async {
+    _queue.batchIndex++;
+    await _applyConfiguredPacing(job.extensionUid);
+    if (_queue.batchIndex > 1) {
+      await waitIfPositive(_delay, _pauseBefore(job));
+    }
+    _queue.previousInBatch = job;
+    final bool completed = await _runJob(job);
+    if (completed) {
+      _queue.completedInBatch++;
+    }
+  }
+
+  Duration _pauseBefore(DownloadJob job) {
+    final DownloadJob? previous = _queue.previousInBatch;
+    final bool followsEpisodeOfSameExtension = job is EpisodeDownloadJob &&
+        previous is EpisodeDownloadJob &&
+        previous.extensionUid == job.extensionUid;
+    if (followsEpisodeOfSameExtension) {
+      return _throttle.episodeDelay(job.extensionUid);
+    }
+    return _throttle.chapterDelay(job.extensionUid);
+  }
+
+  Future<void> _applyConfiguredPacing(String extensionUid) async {
+    final ExtensionRepository? extensions = extensionRepository;
+    if (extensions == null) {
+      return;
+    }
+    try {
+      final ExtensionDomain? extension = await extensions.getByUid(extensionUid);
+      final DownloadConfig? pacing = extension?.config.downloadConfig;
+      _throttle.configure(
+        extensionUid,
+        pageDelay: Duration(milliseconds: pacing?.pageDelayMs ?? 0),
+        chapterDelay: Duration(milliseconds: pacing?.chapterDelayMs ?? 0),
+        episodeDelay: Duration(milliseconds: pacing?.episodeDelayMs ?? 0),
+        segmentConcurrency: pacing?.segmentConcurrency,
+      );
+    } catch (e) {
+      logger.w('Could not read download pacing for $extensionUid: $e');
+    }
+  }
+
+  Future<bool> _runJob(DownloadJob job) {
+    switch (job) {
+      case ChapterDownloadJob():
+        return _chapterRunner.run(job);
+      case NovelChapterDownloadJob():
+        return _novelChapterRunner.run(job);
+      case EpisodeDownloadJob():
+        return _episodeRunner.run(job);
+    }
+  }
+
+  Future<void> _showJobProgress(
+    DownloadJob job, {
+    required int progress,
+    required int max,
+  }) {
+    return notificationService.showProgress(
+      title: job.concreteTitle,
+      chapterTitle: job.title,
+      progress: progress,
+      max: max,
+      queueIndex: _queue.batchIndex,
+      queueTotal: _queue.batchTotal,
+    );
+  }
+
+  Future<void> pauseDownload(String uid) => pauseDownloads(<String>[uid]);
+
+  Future<void> resumeDownload(String uid) => resumeDownloads(<String>[uid]);
+
+  Future<void> pauseAll() async {
+    await pauseDownloads(
+        await _control.pendingUidsWhere(DownloadQueueControl.isPausable));
+  }
+
+  Future<void> resumeAll() async {
+    await resumeDownloads(
+        await _control.pendingUidsWhere(DownloadQueueControl.isPaused));
+  }
+
+  Future<void> pauseTitle(String concreteUid) async {
+    await pauseDownloads(await _control.pendingUidsWhere(
+        (DownloadDomain row) =>
+            row.concreteUid == concreteUid &&
+            DownloadQueueControl.isPausable(row)));
+  }
+
+  Future<void> resumeTitle(String concreteUid) async {
+    await resumeDownloads(await _control.pendingUidsWhere(
+        (DownloadDomain row) =>
+            row.concreteUid == concreteUid &&
+            DownloadQueueControl.isPaused(row)));
+  }
+
+  Future<void> pauseDownloads(Iterable<String> uids) => _control.pause(uids);
+
+  Future<void> resumeDownloads(Iterable<String> uids) => _control.resume(uids);
+
+  Future<void> reorderQueue(List<String> orderedUids) =>
+      _control.reorder(orderedUids);
+
+  Future<void> downloadNext(String uid) => _control.downloadNext(uid);
+
+  Future<void> moveTitleToTop(String concreteUid) =>
+      _control.moveTitleToTop(concreteUid);
+
   Future<void> deleteDownload(DownloadDomain download) async {
-    _cancelled.add(download.uid);
-    _jobs.removeWhere((_DownloadJob j) => j.chapterUid == download.uid);
-    await downloadRepository.deleteByUid(download.uid);
-    await _deleteDir(download.dirPath);
+    final String uid = download.uid;
+    _queue.deletedUids.add(uid);
+    _queue.parkedJobs.remove(uid);
+    _queue.waiting.removeWhere((DownloadJob j) => j.uid == uid);
+    final DownloadJob? activeJob =
+        _queue.active?.uid == uid ? _queue.active : null;
+    activeJob?.cancel();
+    await _settleEmptiedQueue();
+    await downloadRepository.deleteByUid(uid);
+    final bool unwound = await _waitForUnwind(activeJob);
+    await DownloadFiles.deleteDir(download.dirPath);
+    if (unwound) {
+      _queue.deletedUids.remove(uid);
+    }
+  }
+
+  Future<bool> _waitForUnwind(DownloadJob? job) async {
+    if (job == null) {
+      return true;
+    }
+    try {
+      await job.unwound.timeout(_jobUnwindTimeout);
+      return true;
+    } on TimeoutException {
+      logger.w('Download ${job.uid} did not stop before its files were deleted');
+      return false;
+    }
   }
 
   Future<void> deleteForConcrete(String concreteUid) async {
@@ -312,45 +591,15 @@ class DownloadManagerCubit extends Cubit<DownloadManagerState> {
     }
   }
 
-  Future<void> _deleteDir(String dirPath) async {
-    try {
-      final Directory dir = Directory(dirPath);
-      if (await dir.exists()) {
-        await dir.delete(recursive: true);
-      }
-    } catch (e) {
-      logger.w('Failed to delete download dir $dirPath: $e');
-    }
-  }
-
-  Future<Directory> _chapterDir(
-      String extensionUid, String concreteUid, String chapterUid) async {
-    final Directory docs = await getApplicationDocumentsDirectory();
-    return Directory(p.join(
-      docs.path,
-      'downloads',
-      _sanitize(extensionUid),
-      _sanitize(concreteUid),
-      _sanitize(chapterUid),
-    ));
-  }
-
-  static String _sanitize(String value) {
-    final String cleaned = value.replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_');
-    if (cleaned.length <= 80) return cleaned;
-    return '${cleaned.substring(0, 80)}_${value.hashCode.toUnsigned(32)}';
-  }
-
-  static String _pageFileName(int index) =>
-      '${index.toString().padLeft(4, '0')}.img';
-
-  static List<String> localPagePaths(DownloadDomain download) =>
-      List<String>.generate(download.totalPages,
-          (int i) => p.join(download.dirPath, _pageFileName(i)));
-
   @override
-  Future<void> close() {
-    _sub?.cancel();
+  Future<void> close() async {
+    await _sub?.cancel();
+    await _networkPolicyChanges.cancel();
+    await _runtime.stopListening();
+    await _runtime.setWanted(false);
+    await _networkPolicy.dispose();
+    await _runtime.dispose();
+    await _clients.dispose();
     return super.close();
   }
 }

@@ -1,4 +1,6 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/widgets/shimmer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
@@ -65,6 +67,46 @@ class ConcreteFavoriteButton extends StatelessWidget {
                 size: 22,
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ConcreteMigrateChip extends StatelessWidget {
+  const ConcreteMigrateChip({super.key, required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.overlay(0.06),
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(
+                Icons.swap_horiz_rounded,
+                size: 18,
+                color: AppColors.mainGrey,
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  S.current.migration_chip,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: medium(size: 13, color: AppColors.mainWhite),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -310,10 +352,12 @@ class ConcreteListTile extends StatelessWidget {
     this.progress,
     this.selected = false,
     this.dim = false,
+    this.isNew = false,
     this.trailing,
   });
 
   final String title;
+  final bool isNew;
   final Widget? subtitle;
   final double? progress;
   final bool selected;
@@ -350,7 +394,7 @@ class ConcreteListTile extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(title.trim(), style: medium(size: 15)),
+                        _buildTitle(),
                         if (subtitle != null) ...<Widget>[
                           const SizedBox(height: 6),
                           subtitle!,
@@ -394,6 +438,30 @@ class ConcreteListTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTitle() {
+    final Widget text = Text(title.trim(), style: medium(size: 15));
+    if (!isNew) {
+      return text;
+    }
+    return Row(
+      children: <Widget>[
+        Flexible(child: text),
+        const SizedBox(width: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            S.current.concrete_new_badge,
+            style: semibold(size: 10, color: AppColors.mainBlack),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -463,6 +531,85 @@ class ConcreteContentSkeleton extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+class ConcreteMetadataRow extends StatelessWidget {
+  const ConcreteMetadataRow({super.key, required this.view});
+
+  final ConcreteView view;
+
+  static bool hasContent(ConcreteView view) =>
+      view.authors.isNotEmpty ||
+      view.artists.isNotEmpty ||
+      view.year != null ||
+      view.rating != null ||
+      view.url != null;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<String> artists = view.artists
+        .where((String a) => !view.authors.contains(a))
+        .toList();
+    final num? rating = view.rating;
+    final String? url = view.url;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Wrap(
+        spacing: 16,
+        runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: <Widget>[
+          if (view.authors.isNotEmpty)
+            _item(Icons.person_outline_rounded,
+                S.current.concrete_viewer_by_authors(view.authors.join(', '))),
+          if (artists.isNotEmpty)
+            _item(Icons.brush_rounded,
+                S.current.concrete_viewer_art_by(artists.join(', '))),
+          if (view.year != null)
+            _item(Icons.calendar_today_rounded, view.year.toString()),
+          if (rating != null)
+            _item(Icons.star_rounded, _formatRating(rating),
+                iconColor: AppColors.primary),
+          if (url != null)
+            InkWell(
+              borderRadius: BorderRadius.circular(8),
+              splashColor: AppColors.mediumLight.withValues(alpha: 0.2),
+              onTap: () => launchUrl(Uri.parse(url),
+                  mode: LaunchMode.externalApplication),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: _item(Icons.open_in_new_rounded,
+                    S.current.concrete_viewer_open_website,
+                    iconColor: AppColors.primary,
+                    textColor: AppColors.primary),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  static String _formatRating(num rating) => rating == rating.roundToDouble()
+      ? rating.toInt().toString()
+      : rating.toStringAsFixed(1);
+
+  Widget _item(IconData icon, String text,
+      {Color? iconColor, Color? textColor}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Icon(icon, size: 16, color: iconColor ?? AppColors.mainGrey),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            text,
+            style: regular(size: 13, color: textColor ?? AppColors.mainGrey),
+          ),
+        ),
+      ],
     );
   }
 }

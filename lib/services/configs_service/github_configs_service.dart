@@ -2,29 +2,33 @@ import 'dart:convert';
 
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:dio/dio.dart';
+import 'package:wakaranai/utils/http_client.dart';
 import 'package:wakaranai/data/models/github/payload/tree/item/github_tree_item_model.dart';
 import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 import 'package:wakaranai/services/configs_service/capyscript_import_bundler.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
+import 'package:wakaranai/services/configs_service/remote_config_parser.dart';
+import 'package:wakaranai/main.dart';
 
 class GitHubConfigsService implements ConfigsService {
   static const String defaultBranch = 'main';
   static const String _mangaDirectory = 'manga';
   static const String _animeDirectory = 'anime';
+  static const String _novelDirectory = 'novel';
+  static const String _audioDirectory = 'audio';
   static const String _indexPath = 'index.json';
+  static const int _maxConcurrentFetches = 6;
 
   final String org;
   final String repository;
   final String branch;
 
-  static final Dio _sharedDio = Dio(
-    BaseOptions(
-      validateStatus: (_) => true,
-      headers: <String, String>{
-        'accept': 'application/vnd.github+json',
-      },
-    ),
+  static final Dio _sharedDio = createDio(
+    acceptAllStatuses: true,
+    headers: <String, String>{
+      'accept': 'application/vnd.github+json',
+    },
   );
 
   Dio get _dio => _sharedDio;
@@ -44,7 +48,7 @@ class GitHubConfigsService implements ConfigsService {
       );
 
       if (response.statusCode != 200 || response.data == null) {
-        throw Exception('Failed to load branches from $org/$repository');
+        _throwForResponse(response, 'branches from $org/$repository');
       }
 
       final List<String> pageBranches = response.data!
@@ -76,6 +80,41 @@ class GitHubConfigsService implements ConfigsService {
         .toList();
   }
 
+  @override
+  Future<List<RemoteConfig>> getNovelConfigs() async {
+    final List<RemoteConfig> configs = await _loadConfigs();
+    return configs
+        .where((RemoteConfig e) => e.config.type == ConfigInfoType.NOVEL)
+        .toList();
+  }
+
+  @override
+  Future<List<RemoteConfig>> getAudioConfigs() async {
+    final List<RemoteConfig> configs = await _loadConfigs();
+    return configs
+        .where((RemoteConfig e) => e.config.type == ConfigInfoType.AUDIO)
+        .toList();
+  }
+
+  @override
+  void invalidate() {
+    _configsFuture = null;
+  }
+
+  static Never _throwForResponse(Response<dynamic> response, String what) {
+    if (response.statusCode == 403 || response.statusCode == 429) {
+      final String? remaining =
+          response.headers.value('x-ratelimit-remaining');
+      if (remaining == '0' || response.statusCode == 429) {
+        throw Exception(
+          'GitHub rate limit reached while loading $what. '
+          'Try again later.',
+        );
+      }
+    }
+    throw Exception('Failed to load $what (HTTP ${response.statusCode})');
+  }
+
   Future<List<RemoteConfig>> _loadConfigs() {
     final Future<List<RemoteConfig>>? existing = _configsFuture;
     if (existing != null) {
@@ -102,18 +141,17 @@ class GitHubConfigsService implements ConfigsService {
     }
 
     if (response.statusCode != 200 || response.data == null) {
-      throw Exception(
-        'Failed to load $_indexPath from $org/$repository',
-      );
+      _throwForResponse(response, '$_indexPath from $org/$repository');
     }
 
     final Map<String, dynamic> decoded =
         jsonDecode(response.data!) as Map<String, dynamic>;
 
-    return (decoded['configs'] as List<dynamic>)
-        .whereType<Map<String, dynamic>>()
-        .map(RemoteConfig.fromJson)
-        .toList();
+    final dynamic entries = decoded['configs'];
+    if (entries is! List) {
+      throw Exception('$_indexPath from $org/$repository has no configs list');
+    }
+    return const RemoteConfigParser().parseAll(entries);
   }
 
   Future<List<RemoteConfig>> _fetchConfigsFromDirectories() async {
@@ -121,6 +159,8 @@ class GitHubConfigsService implements ConfigsService {
       <Future<List<RemoteConfig>>>[
         _getDirectoryConfigs(_mangaDirectory, 'manga'),
         _getDirectoryConfigs(_animeDirectory, 'anime'),
+        _getDirectoryConfigs(_novelDirectory, 'novel'),
+        _getDirectoryConfigs(_audioDirectory, 'audio'),
       ],
     );
     return categories.expand((List<RemoteConfig> e) => e).toList();
@@ -133,31 +173,45 @@ class GitHubConfigsService implements ConfigsService {
     final List<GithubTreeItemModel> directories =
         await _getDirectories(directory);
 
-    return Future.wait(
-      directories.map((GithubTreeItemModel e) async {
-        return await _getConfig(
-          treeItem: e,
-          directory: directory,
-          category: category,
-        );
-      }),
-    );
+    final List<RemoteConfig> configs = <RemoteConfig>[];
+
+    for (int i = 0; i < directories.length; i += _maxConcurrentFetches) {
+      final int end =
+          (i + _maxConcurrentFetches).clamp(0, directories.length);
+      final List<RemoteConfig?> batch = await Future.wait(
+        directories.sublist(i, end).map((GithubTreeItemModel e) => _getConfig(
+              treeItem: e,
+              directory: directory,
+              category: category,
+            )),
+      );
+      configs.addAll(batch.whereType<RemoteConfig>());
+    }
+
+    return configs;
   }
 
-  Future<RemoteConfig> _getConfig({
+  Future<RemoteConfig?> _getConfig({
     required GithubTreeItemModel treeItem,
     required String directory,
     required String category,
   }) async {
-    final String config = await _getRawContent(
-      '$directory/${treeItem.name}/config.json',
-    );
+    final String path = '$directory/${treeItem.name}';
+    final String config = await _getRawContent('$path/config.json');
 
-    return RemoteConfig.fromJson(
+    final dynamic decodedConfig;
+    try {
+      decodedConfig = jsonDecode(config);
+    } on FormatException catch (error) {
+      logger.w('Skipping $path: config.json is not valid JSON ($error)');
+      return null;
+    }
+
+    return const RemoteConfigParser().parseEntry(
       <String, dynamic>{
         "category": category,
-        "path": '$directory/${treeItem.name}',
-        "config": jsonDecode(config),
+        "path": path,
+        "config": decodedConfig,
       },
     );
   }
@@ -171,9 +225,8 @@ class GitHubConfigsService implements ConfigsService {
     );
 
     if (response.statusCode != 200 || response.data == null) {
-      throw Exception(
-        'Failed to load GitHub directory $directory from $org/$repository',
-      );
+      _throwForResponse(
+          response, 'GitHub directory $directory from $org/$repository');
     }
 
     return response.data!
@@ -206,9 +259,7 @@ class GitHubConfigsService implements ConfigsService {
     );
 
     if (response.statusCode != 200 || response.data == null) {
-      throw Exception(
-        'Failed to load GitHub file $path from $org/$repository',
-      );
+      _throwForResponse(response, 'GitHub file $path from $org/$repository');
     }
 
     return response.data!;

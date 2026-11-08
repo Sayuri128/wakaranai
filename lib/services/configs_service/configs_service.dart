@@ -4,6 +4,10 @@ import 'package:wakaranai/data/models/remote_script/remote_script.dart';
 abstract class ConfigsService {
   Future<List<BaseExtension>> getMangaConfigs();
   Future<List<BaseExtension>> getAnimeConfigs();
+  Future<List<BaseExtension>> getNovelConfigs();
+  Future<List<BaseExtension>> getAudioConfigs();
 
   Future<RemoteScript> getRemoteScript(String path);
+
+  void invalidate();
 }

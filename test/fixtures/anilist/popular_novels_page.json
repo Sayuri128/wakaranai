@@ -1,0 +1,127 @@
+{
+  "data": {
+    "Page": {
+      "pageInfo": {
+        "currentPage": 1,
+        "hasNextPage": true
+      },
+      "media": [
+        {
+          "id": 94970,
+          "type": "MANGA",
+          "format": "NOVEL",
+          "status": "FINISHED",
+          "title": {
+            "romaji": "Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e",
+            "english": "Classroom of the Elite",
+            "native": "ようこそ実力至上主義の教室へ"
+          },
+          "synonyms": [
+            "Youjitsu",
+            "You-Zitsu",
+            "ขอต้อนรับสู่ห้องเรียนนิยม (เฉพาะ) ยอดคน",
+            "Chào mừng đến lớp học đề cao thực lực",
+            "فصل النخبة"
+          ],
+          "coverImage": {
+            "large": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/bx94970-q77X5sfRIKvU.jpg",
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx94970-q77X5sfRIKvU.jpg",
+            "color": "#e450a1"
+          },
+          "description": "Students of the prestigious Tokyo Metropolitan Advanced Nurturing High School are given remarkable freedom—if they can win, barter, or save enough points to work their way up the ranks! Ayanokoji Kiyotaka has landed at the bottom in the scorned Class D, where he meets Horikita Suzune, who’s determined to rise up the ladder to Class A. Can they beat the system in a school where cutthroat competition is the name of the game?\n<br><br>\n(Source: Seven Seas Entertainment)\n<br><br>\n<b>Includes Volumes:</b> 4.5, 7.5, 11.5<br>\n<b>Included Chapters:</b> 14 Prologues, 13 Epilogues, 1 Extra",
+          "genres": [
+            "Drama",
+            "Psychological",
+            "Slice of Life",
+            "Thriller"
+          ],
+          "averageScore": 85,
+          "episodes": null,
+          "chapters": 110,
+          "seasonYear": null,
+          "startDate": {
+            "year": 2015
+          }
+        },
+        {
+          "id": 85470,
+          "type": "MANGA",
+          "format": "NOVEL",
+          "status": "FINISHED",
+          "title": {
+            "romaji": "Mushoku Tensei: Isekai Ittara Honki Dasu",
+            "english": "Mushoku Tensei: Jobless Reincarnation",
+            "native": "無職転生 ～異世界行ったら本気だす～"
+          },
+          "synonyms": [
+            "เกิดชาตินี้พี่ต้องเทพ",
+            "Mushoku Tensei: In dieser Welt mach ich alles anders"
+          ],
+          "coverImage": {
+            "large": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/nx85470-jt6BF9tDWB2X.jpg",
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/nx85470-jt6BF9tDWB2X.jpg",
+            "color": "#f1bb1a"
+          },
+          "description": "Kicked out by his family and wandering the streets, an unemployed 34-year-old shut-in thinks he’s hit rock-bottom—just as he’s hit and killed by a speeding truck! Awakening to find himself reborn as an infant in a world of swords and sorcery, but with the memories of his first life intact, Rudeus Greyrat is determined not to repeat his past mistakes. He’s going to make the most of this reincarnation as he sets off on the adventure of a second lifetime!\n<br><br>\n(Source: Seven Seas Entertainment)",
+          "genres": [
+            "Adventure",
+            "Drama",
+            "Ecchi",
+            "Fantasy"
+          ],
+          "averageScore": 86,
+          "episodes": null,
+          "chapters": 334,
+          "seasonYear": null,
+          "startDate": {
+            "year": 2014
+          }
+        },
+        {
+          "id": 98361,
+          "type": "MANGA",
+          "format": "NOVEL",
+          "status": "FINISHED",
+          "title": {
+            "romaji": "Mikkakan no Koufuku",
+            "english": "Three Days of Happiness",
+            "native": "三日間の幸福"
+          },
+          "synonyms": [
+            "Ba ngày hạnh phúc",
+            "三日間的幸福",
+            "Ich habe mein Leben für 10.000 Yen pro Jahr verkauft",
+            "Tres días de felicidad",
+            "Pour trois jours de bonheur, j'ai vendu le reste de ma vie",
+            "Три дня счастья",
+            "สุข สาม วัน",
+            "Три дні щастя",
+            "Três dias de Felicidade",
+            "Trzy dni szczęścia",
+            "Trei zile de fericire"
+          ],
+          "coverImage": {
+            "large": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/bx98361-Zn6ICdUCq7pf.jpg",
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx98361-Zn6ICdUCq7pf.jpg",
+            "color": "#1a93d6"
+          },
+          "description": "HOW MUCH IS LIFE TRULY WORTH?<br>\nKusunoki used to believe he was destined for great things. Ostracized as a child, he held on to a belief that a good life was waiting for him in the years ahead. Now approaching the age of twenty, he's a completely mediocre college student with no motivation, no dreams, and no money. After learning he can sell his remaining years-and just how little they're worth-he chooses to divest himself of all but his last three months. Has Kusunoki truly destroyed his last chance to find happiness...or has he somehow found it?<br>\n<br>(Source: Yen Press)\n",
+          "genres": [
+            "Drama",
+            "Psychological",
+            "Romance",
+            "Slice of Life",
+            "Supernatural"
+          ],
+          "averageScore": 88,
+          "episodes": null,
+          "chapters": 15,
+          "seasonYear": null,
+          "startDate": {
+            "year": 2013
+          }
+        }
+      ]
+    }
+  }
+}

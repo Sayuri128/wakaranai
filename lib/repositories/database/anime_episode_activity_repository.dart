@@ -1,4 +1,4 @@
-import 'package:drift/src/runtime/query_builder/query_builder.dart';
+import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/base_repository.dart';
@@ -27,6 +27,32 @@ class AnimeEpisodeActivityRepository extends BaseRepository<
     }
   }
 
+  Future<AnimeEpisodeActivityDomain?> markCompleted(
+    AnimeEpisodeActivityDomain activity,
+  ) async {
+    final AnimeEpisodeActivityDomain? existing =
+        await getBy<$AnimeEpisodeActivityTableTable>(
+      activity.uid,
+      where: (tbl) => tbl.uid,
+    );
+    return createUpdateBy<$AnimeEpisodeActivityTableTable, String>(
+      AnimeEpisodeActivityDomain(
+        id: activity.id,
+        uid: activity.uid,
+        title: activity.title,
+        timestamp: activity.timestamp,
+        data: activity.data,
+        concreteId: activity.concreteId,
+        watchedTime: existing?.watchedTime ?? activity.watchedTime,
+        totalTime: existing?.totalTime ?? activity.totalTime,
+        markedWatched: true,
+        createdAt: activity.createdAt,
+      ),
+      by: (AnimeEpisodeActivityDomain domain) => domain.uid,
+      where: (tbl) => tbl.uid,
+    );
+  }
+
   @override
   DeleteStatement deleteStatement() {
     return database.animeEpisodeActivityTable.delete();
@@ -43,6 +69,7 @@ class AnimeEpisodeActivityRepository extends BaseRepository<
       concreteId: data.concreteId,
       watchedTime: data.watchedTime,
       totalTime: data.totalTime,
+      markedWatched: data.markedWatched,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     );

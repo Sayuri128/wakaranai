@@ -11,14 +11,15 @@ class GithubReleasesRepository {
   Future<GithubReleaseResponseModel> getLatestRelease({
     required String org,
     required String repo,
-    int maxAge = 300,
-    String accept = 'application/json',
   }) async {
     final Response<Map<String, dynamic>> response =
         await _dio.get<Map<String, dynamic>>(
       '${_baseUrl}repos/$org/$repo/releases/latest',
       options: Options(
-        headers: <String, dynamic>{'max-age': maxAge, 'accept': accept},
+        headers: <String, dynamic>{
+          'accept': 'application/vnd.github+json',
+          'x-github-api-version': '2022-11-28',
+        },
         responseType: ResponseType.json,
       ),
     );

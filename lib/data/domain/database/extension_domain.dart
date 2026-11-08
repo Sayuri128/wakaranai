@@ -13,11 +13,15 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
   @override
   final ConfigInfo config;
   final String sourceCode;
+  final String? revision;
+  final String? baseUid;
+
+  bool get isInstance => baseUid != null;
 
   factory ExtensionDomain.fromDrift(ExtensionTableData data) {
     return ExtensionDomain(
       id: data.id,
-      config: ConfigInfo(
+      config: _storedConfig(data) ?? ConfigInfo(
         name: data.name,
         language: data.language,
         logoUrl: data.logoUrl,
@@ -32,9 +36,21 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
             : null,
       ),
       sourceCode: data.sourceCode,
+      revision: data.revision,
+      baseUid: data.baseUid,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     );
+  }
+
+  static ConfigInfo? _storedConfig(ExtensionTableData data) {
+    final String? json = data.configJson;
+    if (json == null) return null;
+    try {
+      return ConfigInfo.fromJson(jsonDecode(json) as Map<String, dynamic>);
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
@@ -72,6 +88,9 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
             ? null
             : jsonEncode(config.protectorConfig),
       ),
+      configJson: Value(jsonEncode(config.toJson())),
+      revision: Value(revision),
+      baseUid: Value(baseUid),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -82,12 +101,15 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
     required this.config,
     required this.sourceCode,
     required super.createdAt,
+    this.revision,
+    this.baseUid,
     super.updatedAt,
   });
 
   ExtensionDomain copyWith({
     ConfigInfo? config,
     String? sourceCode,
+    String? revision,
     DateTime? updatedAt,
     DateTime? createdAt,
     int? id,
@@ -95,6 +117,8 @@ class ExtensionDomain extends BaseDomain<ExtensionTableCompanion>
     return ExtensionDomain(
       config: config ?? this.config,
       sourceCode: sourceCode ?? this.sourceCode,
+      revision: revision ?? this.revision,
+      baseUid: baseUid,
       updatedAt: updatedAt ?? this.updatedAt,
       createdAt: createdAt ?? this.createdAt,
       id: id ?? this.id,

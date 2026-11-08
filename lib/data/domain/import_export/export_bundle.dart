@@ -3,7 +3,14 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'export_bundle.g.dart';
 
-enum ExportSection { history, library, categories, sources, settings }
+enum ExportSection {
+  history,
+  library,
+  categories,
+  sources,
+  settings,
+  translations,
+}
 
 String encodeExportSections(Set<ExportSection> sections) =>
     sections.map((ExportSection s) => s.name).join(',');
@@ -27,6 +34,7 @@ class ExportBundle {
   final List<ExportLibraryEntry>? libraryEntries;
   final List<ExportExtensionSource>? extensionSources;
   final ExportSettings? settings;
+  final List<ExportPageTranslation>? pageTranslations;
 
   const ExportBundle({
     required this.version,
@@ -38,6 +46,7 @@ class ExportBundle {
     this.libraryEntries,
     this.extensionSources,
     this.settings,
+    this.pageTranslations,
   });
 
   factory ExportBundle.fromJson(Map<String, dynamic> json) =>
@@ -58,6 +67,8 @@ class ExportBundle {
         return extensionSources?.isNotEmpty ?? false;
       case ExportSection.settings:
         return settings != null;
+      case ExportSection.translations:
+        return pageTranslations?.isNotEmpty ?? false;
     }
   }
 
@@ -129,6 +140,7 @@ class ExportAnimeEpisodeActivity {
   final String? data;
   final int? watchedTime;
   final int? totalTime;
+  final bool markedWatched;
   final DateTime createdAt;
 
   const ExportAnimeEpisodeActivity({
@@ -139,6 +151,7 @@ class ExportAnimeEpisodeActivity {
     this.data,
     this.watchedTime,
     this.totalTime,
+    this.markedWatched = false,
     required this.createdAt,
   });
 
@@ -222,16 +235,68 @@ class ExportSettings {
   final String? defaultReaderMode;
   final bool? showNsfw;
   final bool? collectStatistics;
+  final List<ExportPreference>? preferences;
 
   const ExportSettings({
     this.themeId,
     this.defaultReaderMode,
     this.showNsfw,
     this.collectStatistics,
+    this.preferences,
   });
 
   factory ExportSettings.fromJson(Map<String, dynamic> json) =>
       _$ExportSettingsFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExportSettingsToJson(this);
+}
+
+@JsonSerializable()
+class ExportPreference {
+  static const String boolType = 'bool';
+  static const String intType = 'int';
+  static const String doubleType = 'double';
+  static const String stringType = 'string';
+  static const String stringListType = 'stringList';
+
+  final String key;
+  final String type;
+  final Object? value;
+
+  const ExportPreference({
+    required this.key,
+    required this.type,
+    required this.value,
+  });
+
+  factory ExportPreference.fromJson(Map<String, dynamic> json) =>
+      _$ExportPreferenceFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ExportPreferenceToJson(this);
+}
+
+@JsonSerializable()
+class ExportPageTranslation {
+  final String uid;
+  final String pagePath;
+  final String engine;
+  final String sourceLanguage;
+  final String targetLanguage;
+  final String resultJson;
+  final DateTime createdAt;
+
+  const ExportPageTranslation({
+    required this.uid,
+    required this.pagePath,
+    required this.engine,
+    required this.sourceLanguage,
+    required this.targetLanguage,
+    required this.resultJson,
+    required this.createdAt,
+  });
+
+  factory ExportPageTranslation.fromJson(Map<String, dynamic> json) =>
+      _$ExportPageTranslationFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ExportPageTranslationToJson(this);
 }

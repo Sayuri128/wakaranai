@@ -4,3 +4,4 @@
 -dontwarn com.google.errorprone.annotations.RestrictedApi
 -dontwarn javax.annotation.Nullable
 -dontwarn javax.annotation.concurrent.GuardedBy
+-dontwarn com.google.mlkit.vision.text.devanagari.**

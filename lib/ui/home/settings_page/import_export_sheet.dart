@@ -38,6 +38,8 @@ IconData _sectionIcon(ExportSection section) {
       return Icons.extension_rounded;
     case ExportSection.settings:
       return Icons.settings_rounded;
+    case ExportSection.translations:
+      return Icons.translate_rounded;
   }
 }
 

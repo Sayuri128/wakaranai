@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
@@ -13,6 +14,7 @@ import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/category_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/services/background/background_tasks.dart';
 import 'package:wakaranai/services/import_export/import_export_service.dart';
 import 'package:wakaranai/services/import_export/import_export_task.dart';
 import 'package:wakaranai/services/import_export/import_task_store.dart';
@@ -24,6 +26,18 @@ class _FakePathProvider extends PathProviderPlatform {
 
   @override
   Future<String?> getApplicationDocumentsPath() async => docs;
+}
+
+class _TrackingDatabase extends WakaranaiDatabase {
+  _TrackingDatabase(super.executor) : super.forTesting();
+
+  int closeCount = 0;
+
+  @override
+  Future<void> close() {
+    closeCount++;
+    return super.close();
+  }
 }
 
 ExportBundle _bundle() => ExportBundle(
@@ -116,6 +130,43 @@ void main() {
     expect(categories.single.name, 'Reading');
 
     await db.close();
+  });
+
+  test('a background run shares one database with the task and closes it once',
+      () async {
+    final File file = await writeBundle(_bundle());
+    final File databaseFile = File(p.join(tempDir.path, 'shared.sqlite'));
+    final List<_TrackingDatabase> opened = <_TrackingDatabase>[];
+
+    final bool ok = await runBackgroundTask(
+      importTaskName,
+      <String, dynamic>{
+        importTaskPathKey: file.path,
+        importTaskSectionsKey: encodeExportSections(<ExportSection>{
+          ExportSection.history,
+          ExportSection.categories,
+        }),
+        importTaskLocaleKey: 'en',
+      },
+      openDatabase: () {
+        final _TrackingDatabase database =
+            _TrackingDatabase(NativeDatabase(databaseFile));
+        opened.add(database);
+        return database;
+      },
+    );
+
+    expect(ok, isTrue);
+    expect(opened, hasLength(1));
+    expect(opened.single.closeCount, 1);
+    expect(File(p.join(tempDir.path, 'smt.sqlite')).existsSync(), isFalse);
+
+    final WakaranaiDatabase reopened =
+        WakaranaiDatabase.forTesting(NativeDatabase(databaseFile));
+    addTearDown(reopened.close);
+    final List<CategoryDomain> categories =
+        await CategoryRepository(database: reopened).getAll();
+    expect(categories.single.name, 'Reading');
   });
 
   test('a late progress write cannot flip a finished task back to running',

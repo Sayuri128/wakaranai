@@ -598,6 +598,39 @@ class $ExtensionTableTable extends ExtensionTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _configJsonMeta = const VerificationMeta(
+    'configJson',
+  );
+  @override
+  late final GeneratedColumn<String> configJson = GeneratedColumn<String>(
+    'config_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<String> revision = GeneratedColumn<String>(
+    'revision',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _baseUidMeta = const VerificationMeta(
+    'baseUid',
+  );
+  @override
+  late final GeneratedColumn<String> baseUid = GeneratedColumn<String>(
+    'base_uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -613,6 +646,9 @@ class $ExtensionTableTable extends ExtensionTable
     sourceCode,
     searchAvailable,
     protectorConfig,
+    configJson,
+    revision,
+    baseUid,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -725,6 +761,24 @@ class $ExtensionTableTable extends ExtensionTable
         ),
       );
     }
+    if (data.containsKey('config_json')) {
+      context.handle(
+        _configJsonMeta,
+        configJson.isAcceptableOrUnknown(data['config_json']!, _configJsonMeta),
+      );
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    }
+    if (data.containsKey('base_uid')) {
+      context.handle(
+        _baseUidMeta,
+        baseUid.isAcceptableOrUnknown(data['base_uid']!, _baseUidMeta),
+      );
+    }
     return context;
   }
 
@@ -786,6 +840,18 @@ class $ExtensionTableTable extends ExtensionTable
         DriftSqlType.string,
         data['${effectivePrefix}protector_config'],
       ),
+      configJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}config_json'],
+      ),
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}revision'],
+      ),
+      baseUid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}base_uid'],
+      ),
     );
   }
 
@@ -810,6 +876,9 @@ class ExtensionTableData extends DataClass
   final String sourceCode;
   final bool searchAvailable;
   final String? protectorConfig;
+  final String? configJson;
+  final String? revision;
+  final String? baseUid;
   const ExtensionTableData({
     required this.id,
     required this.createdAt,
@@ -824,6 +893,9 @@ class ExtensionTableData extends DataClass
     required this.sourceCode,
     required this.searchAvailable,
     this.protectorConfig,
+    this.configJson,
+    this.revision,
+    this.baseUid,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -844,6 +916,15 @@ class ExtensionTableData extends DataClass
     map['search_available'] = Variable<bool>(searchAvailable);
     if (!nullToAbsent || protectorConfig != null) {
       map['protector_config'] = Variable<String>(protectorConfig);
+    }
+    if (!nullToAbsent || configJson != null) {
+      map['config_json'] = Variable<String>(configJson);
+    }
+    if (!nullToAbsent || revision != null) {
+      map['revision'] = Variable<String>(revision);
+    }
+    if (!nullToAbsent || baseUid != null) {
+      map['base_uid'] = Variable<String>(baseUid);
     }
     return map;
   }
@@ -867,6 +948,15 @@ class ExtensionTableData extends DataClass
       protectorConfig: protectorConfig == null && nullToAbsent
           ? const Value.absent()
           : Value(protectorConfig),
+      configJson: configJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(configJson),
+      revision: revision == null && nullToAbsent
+          ? const Value.absent()
+          : Value(revision),
+      baseUid: baseUid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(baseUid),
     );
   }
 
@@ -889,6 +979,9 @@ class ExtensionTableData extends DataClass
       sourceCode: serializer.fromJson<String>(json['sourceCode']),
       searchAvailable: serializer.fromJson<bool>(json['searchAvailable']),
       protectorConfig: serializer.fromJson<String?>(json['protectorConfig']),
+      configJson: serializer.fromJson<String?>(json['configJson']),
+      revision: serializer.fromJson<String?>(json['revision']),
+      baseUid: serializer.fromJson<String?>(json['baseUid']),
     );
   }
   @override
@@ -908,6 +1001,9 @@ class ExtensionTableData extends DataClass
       'sourceCode': serializer.toJson<String>(sourceCode),
       'searchAvailable': serializer.toJson<bool>(searchAvailable),
       'protectorConfig': serializer.toJson<String?>(protectorConfig),
+      'configJson': serializer.toJson<String?>(configJson),
+      'revision': serializer.toJson<String?>(revision),
+      'baseUid': serializer.toJson<String?>(baseUid),
     };
   }
 
@@ -925,6 +1021,9 @@ class ExtensionTableData extends DataClass
     String? sourceCode,
     bool? searchAvailable,
     Value<String?> protectorConfig = const Value.absent(),
+    Value<String?> configJson = const Value.absent(),
+    Value<String?> revision = const Value.absent(),
+    Value<String?> baseUid = const Value.absent(),
   }) => ExtensionTableData(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -941,6 +1040,9 @@ class ExtensionTableData extends DataClass
     protectorConfig: protectorConfig.present
         ? protectorConfig.value
         : this.protectorConfig,
+    configJson: configJson.present ? configJson.value : this.configJson,
+    revision: revision.present ? revision.value : this.revision,
+    baseUid: baseUid.present ? baseUid.value : this.baseUid,
   );
   ExtensionTableData copyWithCompanion(ExtensionTableCompanion data) {
     return ExtensionTableData(
@@ -963,6 +1065,11 @@ class ExtensionTableData extends DataClass
       protectorConfig: data.protectorConfig.present
           ? data.protectorConfig.value
           : this.protectorConfig,
+      configJson: data.configJson.present
+          ? data.configJson.value
+          : this.configJson,
+      revision: data.revision.present ? data.revision.value : this.revision,
+      baseUid: data.baseUid.present ? data.baseUid.value : this.baseUid,
     );
   }
 
@@ -981,7 +1088,10 @@ class ExtensionTableData extends DataClass
           ..write('nsfw: $nsfw, ')
           ..write('sourceCode: $sourceCode, ')
           ..write('searchAvailable: $searchAvailable, ')
-          ..write('protectorConfig: $protectorConfig')
+          ..write('protectorConfig: $protectorConfig, ')
+          ..write('configJson: $configJson, ')
+          ..write('revision: $revision, ')
+          ..write('baseUid: $baseUid')
           ..write(')'))
         .toString();
   }
@@ -1001,6 +1111,9 @@ class ExtensionTableData extends DataClass
     sourceCode,
     searchAvailable,
     protectorConfig,
+    configJson,
+    revision,
+    baseUid,
   );
   @override
   bool operator ==(Object other) =>
@@ -1018,7 +1131,10 @@ class ExtensionTableData extends DataClass
           other.nsfw == this.nsfw &&
           other.sourceCode == this.sourceCode &&
           other.searchAvailable == this.searchAvailable &&
-          other.protectorConfig == this.protectorConfig);
+          other.protectorConfig == this.protectorConfig &&
+          other.configJson == this.configJson &&
+          other.revision == this.revision &&
+          other.baseUid == this.baseUid);
 }
 
 class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
@@ -1035,6 +1151,9 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
   final Value<String> sourceCode;
   final Value<bool> searchAvailable;
   final Value<String?> protectorConfig;
+  final Value<String?> configJson;
+  final Value<String?> revision;
+  final Value<String?> baseUid;
   const ExtensionTableCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1049,6 +1168,9 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     this.sourceCode = const Value.absent(),
     this.searchAvailable = const Value.absent(),
     this.protectorConfig = const Value.absent(),
+    this.configJson = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.baseUid = const Value.absent(),
   });
   ExtensionTableCompanion.insert({
     this.id = const Value.absent(),
@@ -1064,6 +1186,9 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     required String sourceCode,
     required bool searchAvailable,
     this.protectorConfig = const Value.absent(),
+    this.configJson = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.baseUid = const Value.absent(),
   }) : uid = Value(uid),
        name = Value(name),
        type = Value(type),
@@ -1087,6 +1212,9 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     Expression<String>? sourceCode,
     Expression<bool>? searchAvailable,
     Expression<String>? protectorConfig,
+    Expression<String>? configJson,
+    Expression<String>? revision,
+    Expression<String>? baseUid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1102,6 +1230,9 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
       if (sourceCode != null) 'source_code': sourceCode,
       if (searchAvailable != null) 'search_available': searchAvailable,
       if (protectorConfig != null) 'protector_config': protectorConfig,
+      if (configJson != null) 'config_json': configJson,
+      if (revision != null) 'revision': revision,
+      if (baseUid != null) 'base_uid': baseUid,
     });
   }
 
@@ -1119,6 +1250,9 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     Value<String>? sourceCode,
     Value<bool>? searchAvailable,
     Value<String?>? protectorConfig,
+    Value<String?>? configJson,
+    Value<String?>? revision,
+    Value<String?>? baseUid,
   }) {
     return ExtensionTableCompanion(
       id: id ?? this.id,
@@ -1134,6 +1268,9 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
       sourceCode: sourceCode ?? this.sourceCode,
       searchAvailable: searchAvailable ?? this.searchAvailable,
       protectorConfig: protectorConfig ?? this.protectorConfig,
+      configJson: configJson ?? this.configJson,
+      revision: revision ?? this.revision,
+      baseUid: baseUid ?? this.baseUid,
     );
   }
 
@@ -1179,6 +1316,15 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
     if (protectorConfig.present) {
       map['protector_config'] = Variable<String>(protectorConfig.value);
     }
+    if (configJson.present) {
+      map['config_json'] = Variable<String>(configJson.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<String>(revision.value);
+    }
+    if (baseUid.present) {
+      map['base_uid'] = Variable<String>(baseUid.value);
+    }
     return map;
   }
 
@@ -1197,7 +1343,10 @@ class ExtensionTableCompanion extends UpdateCompanion<ExtensionTableData> {
           ..write('nsfw: $nsfw, ')
           ..write('sourceCode: $sourceCode, ')
           ..write('searchAvailable: $searchAvailable, ')
-          ..write('protectorConfig: $protectorConfig')
+          ..write('protectorConfig: $protectorConfig, ')
+          ..write('configJson: $configJson, ')
+          ..write('revision: $revision, ')
+          ..write('baseUid: $baseUid')
           ..write(')'))
         .toString();
   }
@@ -2476,6 +2625,21 @@ class $AnimeEpisodeActivityTableTable extends AnimeEpisodeActivityTable
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _markedWatchedMeta = const VerificationMeta(
+    'markedWatched',
+  );
+  @override
+  late final GeneratedColumn<bool> markedWatched = GeneratedColumn<bool>(
+    'marked_watched',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("marked_watched" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2488,6 +2652,7 @@ class $AnimeEpisodeActivityTableTable extends AnimeEpisodeActivityTable
     concreteId,
     watchedTime,
     totalTime,
+    markedWatched,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2567,6 +2732,15 @@ class $AnimeEpisodeActivityTableTable extends AnimeEpisodeActivityTable
         totalTime.isAcceptableOrUnknown(data['total_time']!, _totalTimeMeta),
       );
     }
+    if (data.containsKey('marked_watched')) {
+      context.handle(
+        _markedWatchedMeta,
+        markedWatched.isAcceptableOrUnknown(
+          data['marked_watched']!,
+          _markedWatchedMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2619,6 +2793,10 @@ class $AnimeEpisodeActivityTableTable extends AnimeEpisodeActivityTable
         DriftSqlType.int,
         data['${effectivePrefix}total_time'],
       ),
+      markedWatched: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}marked_watched'],
+      )!,
     );
   }
 
@@ -2640,6 +2818,7 @@ class AnimeEpisodeActivityTableData extends DataClass
   final int concreteId;
   final int? watchedTime;
   final int? totalTime;
+  final bool markedWatched;
   const AnimeEpisodeActivityTableData({
     required this.id,
     required this.createdAt,
@@ -2651,6 +2830,7 @@ class AnimeEpisodeActivityTableData extends DataClass
     required this.concreteId,
     this.watchedTime,
     this.totalTime,
+    required this.markedWatched,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2675,6 +2855,7 @@ class AnimeEpisodeActivityTableData extends DataClass
     if (!nullToAbsent || totalTime != null) {
       map['total_time'] = Variable<int>(totalTime);
     }
+    map['marked_watched'] = Variable<bool>(markedWatched);
     return map;
   }
 
@@ -2698,6 +2879,7 @@ class AnimeEpisodeActivityTableData extends DataClass
       totalTime: totalTime == null && nullToAbsent
           ? const Value.absent()
           : Value(totalTime),
+      markedWatched: Value(markedWatched),
     );
   }
 
@@ -2717,6 +2899,7 @@ class AnimeEpisodeActivityTableData extends DataClass
       concreteId: serializer.fromJson<int>(json['concreteId']),
       watchedTime: serializer.fromJson<int?>(json['watchedTime']),
       totalTime: serializer.fromJson<int?>(json['totalTime']),
+      markedWatched: serializer.fromJson<bool>(json['markedWatched']),
     );
   }
   @override
@@ -2733,6 +2916,7 @@ class AnimeEpisodeActivityTableData extends DataClass
       'concreteId': serializer.toJson<int>(concreteId),
       'watchedTime': serializer.toJson<int?>(watchedTime),
       'totalTime': serializer.toJson<int?>(totalTime),
+      'markedWatched': serializer.toJson<bool>(markedWatched),
     };
   }
 
@@ -2747,6 +2931,7 @@ class AnimeEpisodeActivityTableData extends DataClass
     int? concreteId,
     Value<int?> watchedTime = const Value.absent(),
     Value<int?> totalTime = const Value.absent(),
+    bool? markedWatched,
   }) => AnimeEpisodeActivityTableData(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -2758,6 +2943,7 @@ class AnimeEpisodeActivityTableData extends DataClass
     concreteId: concreteId ?? this.concreteId,
     watchedTime: watchedTime.present ? watchedTime.value : this.watchedTime,
     totalTime: totalTime.present ? totalTime.value : this.totalTime,
+    markedWatched: markedWatched ?? this.markedWatched,
   );
   AnimeEpisodeActivityTableData copyWithCompanion(
     AnimeEpisodeActivityTableCompanion data,
@@ -2777,6 +2963,9 @@ class AnimeEpisodeActivityTableData extends DataClass
           ? data.watchedTime.value
           : this.watchedTime,
       totalTime: data.totalTime.present ? data.totalTime.value : this.totalTime,
+      markedWatched: data.markedWatched.present
+          ? data.markedWatched.value
+          : this.markedWatched,
     );
   }
 
@@ -2792,7 +2981,8 @@ class AnimeEpisodeActivityTableData extends DataClass
           ..write('data: $data, ')
           ..write('concreteId: $concreteId, ')
           ..write('watchedTime: $watchedTime, ')
-          ..write('totalTime: $totalTime')
+          ..write('totalTime: $totalTime, ')
+          ..write('markedWatched: $markedWatched')
           ..write(')'))
         .toString();
   }
@@ -2809,6 +2999,7 @@ class AnimeEpisodeActivityTableData extends DataClass
     concreteId,
     watchedTime,
     totalTime,
+    markedWatched,
   );
   @override
   bool operator ==(Object other) =>
@@ -2823,7 +3014,8 @@ class AnimeEpisodeActivityTableData extends DataClass
           other.data == this.data &&
           other.concreteId == this.concreteId &&
           other.watchedTime == this.watchedTime &&
-          other.totalTime == this.totalTime);
+          other.totalTime == this.totalTime &&
+          other.markedWatched == this.markedWatched);
 }
 
 class AnimeEpisodeActivityTableCompanion
@@ -2838,6 +3030,7 @@ class AnimeEpisodeActivityTableCompanion
   final Value<int> concreteId;
   final Value<int?> watchedTime;
   final Value<int?> totalTime;
+  final Value<bool> markedWatched;
   const AnimeEpisodeActivityTableCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -2849,6 +3042,7 @@ class AnimeEpisodeActivityTableCompanion
     this.concreteId = const Value.absent(),
     this.watchedTime = const Value.absent(),
     this.totalTime = const Value.absent(),
+    this.markedWatched = const Value.absent(),
   });
   AnimeEpisodeActivityTableCompanion.insert({
     this.id = const Value.absent(),
@@ -2861,6 +3055,7 @@ class AnimeEpisodeActivityTableCompanion
     required int concreteId,
     this.watchedTime = const Value.absent(),
     this.totalTime = const Value.absent(),
+    this.markedWatched = const Value.absent(),
   }) : uid = Value(uid),
        title = Value(title),
        concreteId = Value(concreteId);
@@ -2875,6 +3070,7 @@ class AnimeEpisodeActivityTableCompanion
     Expression<int>? concreteId,
     Expression<int>? watchedTime,
     Expression<int>? totalTime,
+    Expression<bool>? markedWatched,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2887,6 +3083,7 @@ class AnimeEpisodeActivityTableCompanion
       if (concreteId != null) 'concrete_id': concreteId,
       if (watchedTime != null) 'watched_time': watchedTime,
       if (totalTime != null) 'total_time': totalTime,
+      if (markedWatched != null) 'marked_watched': markedWatched,
     });
   }
 
@@ -2901,6 +3098,7 @@ class AnimeEpisodeActivityTableCompanion
     Value<int>? concreteId,
     Value<int?>? watchedTime,
     Value<int?>? totalTime,
+    Value<bool>? markedWatched,
   }) {
     return AnimeEpisodeActivityTableCompanion(
       id: id ?? this.id,
@@ -2913,6 +3111,7 @@ class AnimeEpisodeActivityTableCompanion
       concreteId: concreteId ?? this.concreteId,
       watchedTime: watchedTime ?? this.watchedTime,
       totalTime: totalTime ?? this.totalTime,
+      markedWatched: markedWatched ?? this.markedWatched,
     );
   }
 
@@ -2949,6 +3148,9 @@ class AnimeEpisodeActivityTableCompanion
     if (totalTime.present) {
       map['total_time'] = Variable<int>(totalTime.value);
     }
+    if (markedWatched.present) {
+      map['marked_watched'] = Variable<bool>(markedWatched.value);
+    }
     return map;
   }
 
@@ -2964,7 +3166,8 @@ class AnimeEpisodeActivityTableCompanion
           ..write('data: $data, ')
           ..write('concreteId: $concreteId, ')
           ..write('watchedTime: $watchedTime, ')
-          ..write('totalTime: $totalTime')
+          ..write('totalTime: $totalTime, ')
+          ..write('markedWatched: $markedWatched')
           ..write(')'))
         .toString();
   }
@@ -3460,6 +3663,19 @@ class $LibraryEntryTableTable extends LibraryEntryTable
     defaultValue: const Constant(true),
   );
   @override
+  late final GeneratedColumnWithTypeConverter<AutoDownloadOverride, int>
+  autoDownload =
+      GeneratedColumn<int>(
+        'auto_download',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      ).withConverter<AutoDownloadOverride>(
+        $LibraryEntryTableTable.$converterautoDownload,
+      );
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     createdAt,
@@ -3473,6 +3689,7 @@ class $LibraryEntryTableTable extends LibraryEntryTable
     lastReadAt,
     trackUpdates,
     notifyUpdates,
+    autoDownload,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3630,6 +3847,12 @@ class $LibraryEntryTableTable extends LibraryEntryTable
         DriftSqlType.bool,
         data['${effectivePrefix}notify_updates'],
       )!,
+      autoDownload: $LibraryEntryTableTable.$converterautoDownload.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}auto_download'],
+        )!,
+      ),
     );
   }
 
@@ -3637,6 +3860,11 @@ class $LibraryEntryTableTable extends LibraryEntryTable
   $LibraryEntryTableTable createAlias(String alias) {
     return $LibraryEntryTableTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<AutoDownloadOverride, int, int>
+  $converterautoDownload = const EnumIndexConverter<AutoDownloadOverride>(
+    AutoDownloadOverride.values,
+  );
 }
 
 class LibraryEntryTableData extends DataClass
@@ -3653,6 +3881,7 @@ class LibraryEntryTableData extends DataClass
   final DateTime? lastReadAt;
   final bool trackUpdates;
   final bool notifyUpdates;
+  final AutoDownloadOverride autoDownload;
   const LibraryEntryTableData({
     required this.id,
     required this.createdAt,
@@ -3666,6 +3895,7 @@ class LibraryEntryTableData extends DataClass
     this.lastReadAt,
     required this.trackUpdates,
     required this.notifyUpdates,
+    required this.autoDownload,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3692,6 +3922,11 @@ class LibraryEntryTableData extends DataClass
     }
     map['track_updates'] = Variable<bool>(trackUpdates);
     map['notify_updates'] = Variable<bool>(notifyUpdates);
+    {
+      map['auto_download'] = Variable<int>(
+        $LibraryEntryTableTable.$converterautoDownload.toSql(autoDownload),
+      );
+    }
     return map;
   }
 
@@ -3717,6 +3952,7 @@ class LibraryEntryTableData extends DataClass
           : Value(lastReadAt),
       trackUpdates: Value(trackUpdates),
       notifyUpdates: Value(notifyUpdates),
+      autoDownload: Value(autoDownload),
     );
   }
 
@@ -3738,6 +3974,9 @@ class LibraryEntryTableData extends DataClass
       lastReadAt: serializer.fromJson<DateTime?>(json['lastReadAt']),
       trackUpdates: serializer.fromJson<bool>(json['trackUpdates']),
       notifyUpdates: serializer.fromJson<bool>(json['notifyUpdates']),
+      autoDownload: $LibraryEntryTableTable.$converterautoDownload.fromJson(
+        serializer.fromJson<int>(json['autoDownload']),
+      ),
     );
   }
   @override
@@ -3756,6 +3995,9 @@ class LibraryEntryTableData extends DataClass
       'lastReadAt': serializer.toJson<DateTime?>(lastReadAt),
       'trackUpdates': serializer.toJson<bool>(trackUpdates),
       'notifyUpdates': serializer.toJson<bool>(notifyUpdates),
+      'autoDownload': serializer.toJson<int>(
+        $LibraryEntryTableTable.$converterautoDownload.toJson(autoDownload),
+      ),
     };
   }
 
@@ -3772,6 +4014,7 @@ class LibraryEntryTableData extends DataClass
     Value<DateTime?> lastReadAt = const Value.absent(),
     bool? trackUpdates,
     bool? notifyUpdates,
+    AutoDownloadOverride? autoDownload,
   }) => LibraryEntryTableData(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -3785,6 +4028,7 @@ class LibraryEntryTableData extends DataClass
     lastReadAt: lastReadAt.present ? lastReadAt.value : this.lastReadAt,
     trackUpdates: trackUpdates ?? this.trackUpdates,
     notifyUpdates: notifyUpdates ?? this.notifyUpdates,
+    autoDownload: autoDownload ?? this.autoDownload,
   );
   LibraryEntryTableData copyWithCompanion(LibraryEntryTableCompanion data) {
     return LibraryEntryTableData(
@@ -3810,6 +4054,9 @@ class LibraryEntryTableData extends DataClass
       notifyUpdates: data.notifyUpdates.present
           ? data.notifyUpdates.value
           : this.notifyUpdates,
+      autoDownload: data.autoDownload.present
+          ? data.autoDownload.value
+          : this.autoDownload,
     );
   }
 
@@ -3827,7 +4074,8 @@ class LibraryEntryTableData extends DataClass
           ..write('categoryId: $categoryId, ')
           ..write('lastReadAt: $lastReadAt, ')
           ..write('trackUpdates: $trackUpdates, ')
-          ..write('notifyUpdates: $notifyUpdates')
+          ..write('notifyUpdates: $notifyUpdates, ')
+          ..write('autoDownload: $autoDownload')
           ..write(')'))
         .toString();
   }
@@ -3846,6 +4094,7 @@ class LibraryEntryTableData extends DataClass
     lastReadAt,
     trackUpdates,
     notifyUpdates,
+    autoDownload,
   );
   @override
   bool operator ==(Object other) =>
@@ -3862,7 +4111,8 @@ class LibraryEntryTableData extends DataClass
           other.categoryId == this.categoryId &&
           other.lastReadAt == this.lastReadAt &&
           other.trackUpdates == this.trackUpdates &&
-          other.notifyUpdates == this.notifyUpdates);
+          other.notifyUpdates == this.notifyUpdates &&
+          other.autoDownload == this.autoDownload);
 }
 
 class LibraryEntryTableCompanion
@@ -3879,6 +4129,7 @@ class LibraryEntryTableCompanion
   final Value<DateTime?> lastReadAt;
   final Value<bool> trackUpdates;
   final Value<bool> notifyUpdates;
+  final Value<AutoDownloadOverride> autoDownload;
   const LibraryEntryTableCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -3892,6 +4143,7 @@ class LibraryEntryTableCompanion
     this.lastReadAt = const Value.absent(),
     this.trackUpdates = const Value.absent(),
     this.notifyUpdates = const Value.absent(),
+    this.autoDownload = const Value.absent(),
   });
   LibraryEntryTableCompanion.insert({
     this.id = const Value.absent(),
@@ -3906,6 +4158,7 @@ class LibraryEntryTableCompanion
     this.lastReadAt = const Value.absent(),
     this.trackUpdates = const Value.absent(),
     this.notifyUpdates = const Value.absent(),
+    this.autoDownload = const Value.absent(),
   }) : uid = Value(uid),
        extensionUid = Value(extensionUid),
        title = Value(title);
@@ -3922,6 +4175,7 @@ class LibraryEntryTableCompanion
     Expression<DateTime>? lastReadAt,
     Expression<bool>? trackUpdates,
     Expression<bool>? notifyUpdates,
+    Expression<int>? autoDownload,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3936,6 +4190,7 @@ class LibraryEntryTableCompanion
       if (lastReadAt != null) 'last_read_at': lastReadAt,
       if (trackUpdates != null) 'track_updates': trackUpdates,
       if (notifyUpdates != null) 'notify_updates': notifyUpdates,
+      if (autoDownload != null) 'auto_download': autoDownload,
     });
   }
 
@@ -3952,6 +4207,7 @@ class LibraryEntryTableCompanion
     Value<DateTime?>? lastReadAt,
     Value<bool>? trackUpdates,
     Value<bool>? notifyUpdates,
+    Value<AutoDownloadOverride>? autoDownload,
   }) {
     return LibraryEntryTableCompanion(
       id: id ?? this.id,
@@ -3966,6 +4222,7 @@ class LibraryEntryTableCompanion
       lastReadAt: lastReadAt ?? this.lastReadAt,
       trackUpdates: trackUpdates ?? this.trackUpdates,
       notifyUpdates: notifyUpdates ?? this.notifyUpdates,
+      autoDownload: autoDownload ?? this.autoDownload,
     );
   }
 
@@ -4008,6 +4265,13 @@ class LibraryEntryTableCompanion
     if (notifyUpdates.present) {
       map['notify_updates'] = Variable<bool>(notifyUpdates.value);
     }
+    if (autoDownload.present) {
+      map['auto_download'] = Variable<int>(
+        $LibraryEntryTableTable.$converterautoDownload.toSql(
+          autoDownload.value,
+        ),
+      );
+    }
     return map;
   }
 
@@ -4025,7 +4289,8 @@ class LibraryEntryTableCompanion
           ..write('categoryId: $categoryId, ')
           ..write('lastReadAt: $lastReadAt, ')
           ..write('trackUpdates: $trackUpdates, ')
-          ..write('notifyUpdates: $notifyUpdates')
+          ..write('notifyUpdates: $notifyUpdates, ')
+          ..write('autoDownload: $autoDownload')
           ..write(')'))
         .toString();
   }
@@ -4211,6 +4476,63 @@ class $DownloadTableTable extends DownloadTable
     requiredDuringInsert: false,
   );
   @override
+  late final GeneratedColumnWithTypeConverter<DownloadKind, int> kind =
+      GeneratedColumn<int>(
+        'kind',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      ).withConverter<DownloadKind>($DownloadTableTable.$converterkind);
+  static const VerificationMeta _downloadedBytesMeta = const VerificationMeta(
+    'downloadedBytes',
+  );
+  @override
+  late final GeneratedColumn<int> downloadedBytes = GeneratedColumn<int>(
+    'downloaded_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _totalBytesMeta = const VerificationMeta(
+    'totalBytes',
+  );
+  @override
+  late final GeneratedColumn<int> totalBytes = GeneratedColumn<int>(
+    'total_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _playbackMeta = const VerificationMeta(
+    'playback',
+  );
+  @override
+  late final GeneratedColumn<String> playback = GeneratedColumn<String>(
+    'playback',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _queuePositionMeta = const VerificationMeta(
+    'queuePosition',
+  );
+  @override
+  late final GeneratedColumn<int> queuePosition = GeneratedColumn<int>(
+    'queue_position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     createdAt,
@@ -4228,6 +4550,11 @@ class $DownloadTableTable extends DownloadTable
     dirPath,
     headers,
     data,
+    kind,
+    downloadedBytes,
+    totalBytes,
+    playback,
+    queuePosition,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4357,6 +4684,36 @@ class $DownloadTableTable extends DownloadTable
         this.data.isAcceptableOrUnknown(data['data']!, _dataMeta),
       );
     }
+    if (data.containsKey('downloaded_bytes')) {
+      context.handle(
+        _downloadedBytesMeta,
+        downloadedBytes.isAcceptableOrUnknown(
+          data['downloaded_bytes']!,
+          _downloadedBytesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('total_bytes')) {
+      context.handle(
+        _totalBytesMeta,
+        totalBytes.isAcceptableOrUnknown(data['total_bytes']!, _totalBytesMeta),
+      );
+    }
+    if (data.containsKey('playback')) {
+      context.handle(
+        _playbackMeta,
+        playback.isAcceptableOrUnknown(data['playback']!, _playbackMeta),
+      );
+    }
+    if (data.containsKey('queue_position')) {
+      context.handle(
+        _queuePositionMeta,
+        queuePosition.isAcceptableOrUnknown(
+          data['queue_position']!,
+          _queuePositionMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -4432,6 +4789,28 @@ class $DownloadTableTable extends DownloadTable
         DriftSqlType.string,
         data['${effectivePrefix}data'],
       ),
+      kind: $DownloadTableTable.$converterkind.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}kind'],
+        )!,
+      ),
+      downloadedBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}downloaded_bytes'],
+      )!,
+      totalBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_bytes'],
+      )!,
+      playback: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}playback'],
+      ),
+      queuePosition: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}queue_position'],
+      )!,
     );
   }
 
@@ -4442,6 +4821,8 @@ class $DownloadTableTable extends DownloadTable
 
   static JsonTypeConverter2<DownloadStatus, int, int> $converterstatus =
       const EnumIndexConverter<DownloadStatus>(DownloadStatus.values);
+  static JsonTypeConverter2<DownloadKind, int, int> $converterkind =
+      const EnumIndexConverter<DownloadKind>(DownloadKind.values);
 }
 
 class DownloadTableData extends DataClass
@@ -4462,6 +4843,11 @@ class DownloadTableData extends DataClass
   final String dirPath;
   final String? headers;
   final String? data;
+  final DownloadKind kind;
+  final int downloadedBytes;
+  final int totalBytes;
+  final String? playback;
+  final int queuePosition;
   const DownloadTableData({
     required this.id,
     required this.createdAt,
@@ -4479,6 +4865,11 @@ class DownloadTableData extends DataClass
     required this.dirPath,
     this.headers,
     this.data,
+    required this.kind,
+    required this.downloadedBytes,
+    required this.totalBytes,
+    this.playback,
+    required this.queuePosition,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4511,6 +4902,17 @@ class DownloadTableData extends DataClass
     if (!nullToAbsent || data != null) {
       map['data'] = Variable<String>(data);
     }
+    {
+      map['kind'] = Variable<int>(
+        $DownloadTableTable.$converterkind.toSql(kind),
+      );
+    }
+    map['downloaded_bytes'] = Variable<int>(downloadedBytes);
+    map['total_bytes'] = Variable<int>(totalBytes);
+    if (!nullToAbsent || playback != null) {
+      map['playback'] = Variable<String>(playback);
+    }
+    map['queue_position'] = Variable<int>(queuePosition);
     return map;
   }
 
@@ -4538,6 +4940,13 @@ class DownloadTableData extends DataClass
           ? const Value.absent()
           : Value(headers),
       data: data == null && nullToAbsent ? const Value.absent() : Value(data),
+      kind: Value(kind),
+      downloadedBytes: Value(downloadedBytes),
+      totalBytes: Value(totalBytes),
+      playback: playback == null && nullToAbsent
+          ? const Value.absent()
+          : Value(playback),
+      queuePosition: Value(queuePosition),
     );
   }
 
@@ -4565,6 +4974,13 @@ class DownloadTableData extends DataClass
       dirPath: serializer.fromJson<String>(json['dirPath']),
       headers: serializer.fromJson<String?>(json['headers']),
       data: serializer.fromJson<String?>(json['data']),
+      kind: $DownloadTableTable.$converterkind.fromJson(
+        serializer.fromJson<int>(json['kind']),
+      ),
+      downloadedBytes: serializer.fromJson<int>(json['downloadedBytes']),
+      totalBytes: serializer.fromJson<int>(json['totalBytes']),
+      playback: serializer.fromJson<String?>(json['playback']),
+      queuePosition: serializer.fromJson<int>(json['queuePosition']),
     );
   }
   @override
@@ -4589,6 +5005,13 @@ class DownloadTableData extends DataClass
       'dirPath': serializer.toJson<String>(dirPath),
       'headers': serializer.toJson<String?>(headers),
       'data': serializer.toJson<String?>(data),
+      'kind': serializer.toJson<int>(
+        $DownloadTableTable.$converterkind.toJson(kind),
+      ),
+      'downloadedBytes': serializer.toJson<int>(downloadedBytes),
+      'totalBytes': serializer.toJson<int>(totalBytes),
+      'playback': serializer.toJson<String?>(playback),
+      'queuePosition': serializer.toJson<int>(queuePosition),
     };
   }
 
@@ -4609,6 +5032,11 @@ class DownloadTableData extends DataClass
     String? dirPath,
     Value<String?> headers = const Value.absent(),
     Value<String?> data = const Value.absent(),
+    DownloadKind? kind,
+    int? downloadedBytes,
+    int? totalBytes,
+    Value<String?> playback = const Value.absent(),
+    int? queuePosition,
   }) => DownloadTableData(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -4628,6 +5056,11 @@ class DownloadTableData extends DataClass
     dirPath: dirPath ?? this.dirPath,
     headers: headers.present ? headers.value : this.headers,
     data: data.present ? data.value : this.data,
+    kind: kind ?? this.kind,
+    downloadedBytes: downloadedBytes ?? this.downloadedBytes,
+    totalBytes: totalBytes ?? this.totalBytes,
+    playback: playback.present ? playback.value : this.playback,
+    queuePosition: queuePosition ?? this.queuePosition,
   );
   DownloadTableData copyWithCompanion(DownloadTableCompanion data) {
     return DownloadTableData(
@@ -4661,6 +5094,17 @@ class DownloadTableData extends DataClass
       dirPath: data.dirPath.present ? data.dirPath.value : this.dirPath,
       headers: data.headers.present ? data.headers.value : this.headers,
       data: data.data.present ? data.data.value : this.data,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      downloadedBytes: data.downloadedBytes.present
+          ? data.downloadedBytes.value
+          : this.downloadedBytes,
+      totalBytes: data.totalBytes.present
+          ? data.totalBytes.value
+          : this.totalBytes,
+      playback: data.playback.present ? data.playback.value : this.playback,
+      queuePosition: data.queuePosition.present
+          ? data.queuePosition.value
+          : this.queuePosition,
     );
   }
 
@@ -4682,13 +5126,18 @@ class DownloadTableData extends DataClass
           ..write('totalPages: $totalPages, ')
           ..write('dirPath: $dirPath, ')
           ..write('headers: $headers, ')
-          ..write('data: $data')
+          ..write('data: $data, ')
+          ..write('kind: $kind, ')
+          ..write('downloadedBytes: $downloadedBytes, ')
+          ..write('totalBytes: $totalBytes, ')
+          ..write('playback: $playback, ')
+          ..write('queuePosition: $queuePosition')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     createdAt,
     updatedAt,
@@ -4705,7 +5154,12 @@ class DownloadTableData extends DataClass
     dirPath,
     headers,
     data,
-  );
+    kind,
+    downloadedBytes,
+    totalBytes,
+    playback,
+    queuePosition,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4725,7 +5179,12 @@ class DownloadTableData extends DataClass
           other.totalPages == this.totalPages &&
           other.dirPath == this.dirPath &&
           other.headers == this.headers &&
-          other.data == this.data);
+          other.data == this.data &&
+          other.kind == this.kind &&
+          other.downloadedBytes == this.downloadedBytes &&
+          other.totalBytes == this.totalBytes &&
+          other.playback == this.playback &&
+          other.queuePosition == this.queuePosition);
 }
 
 class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
@@ -4745,6 +5204,11 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
   final Value<String> dirPath;
   final Value<String?> headers;
   final Value<String?> data;
+  final Value<DownloadKind> kind;
+  final Value<int> downloadedBytes;
+  final Value<int> totalBytes;
+  final Value<String?> playback;
+  final Value<int> queuePosition;
   const DownloadTableCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -4762,6 +5226,11 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     this.dirPath = const Value.absent(),
     this.headers = const Value.absent(),
     this.data = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.downloadedBytes = const Value.absent(),
+    this.totalBytes = const Value.absent(),
+    this.playback = const Value.absent(),
+    this.queuePosition = const Value.absent(),
   });
   DownloadTableCompanion.insert({
     this.id = const Value.absent(),
@@ -4780,6 +5249,11 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     required String dirPath,
     this.headers = const Value.absent(),
     this.data = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.downloadedBytes = const Value.absent(),
+    this.totalBytes = const Value.absent(),
+    this.playback = const Value.absent(),
+    this.queuePosition = const Value.absent(),
   }) : uid = Value(uid),
        extensionUid = Value(extensionUid),
        concreteUid = Value(concreteUid),
@@ -4805,6 +5279,11 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     Expression<String>? dirPath,
     Expression<String>? headers,
     Expression<String>? data,
+    Expression<int>? kind,
+    Expression<int>? downloadedBytes,
+    Expression<int>? totalBytes,
+    Expression<String>? playback,
+    Expression<int>? queuePosition,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -4823,6 +5302,11 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
       if (dirPath != null) 'dir_path': dirPath,
       if (headers != null) 'headers': headers,
       if (data != null) 'data': data,
+      if (kind != null) 'kind': kind,
+      if (downloadedBytes != null) 'downloaded_bytes': downloadedBytes,
+      if (totalBytes != null) 'total_bytes': totalBytes,
+      if (playback != null) 'playback': playback,
+      if (queuePosition != null) 'queue_position': queuePosition,
     });
   }
 
@@ -4843,6 +5327,11 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     Value<String>? dirPath,
     Value<String?>? headers,
     Value<String?>? data,
+    Value<DownloadKind>? kind,
+    Value<int>? downloadedBytes,
+    Value<int>? totalBytes,
+    Value<String?>? playback,
+    Value<int>? queuePosition,
   }) {
     return DownloadTableCompanion(
       id: id ?? this.id,
@@ -4861,6 +5350,11 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
       dirPath: dirPath ?? this.dirPath,
       headers: headers ?? this.headers,
       data: data ?? this.data,
+      kind: kind ?? this.kind,
+      downloadedBytes: downloadedBytes ?? this.downloadedBytes,
+      totalBytes: totalBytes ?? this.totalBytes,
+      playback: playback ?? this.playback,
+      queuePosition: queuePosition ?? this.queuePosition,
     );
   }
 
@@ -4917,6 +5411,23 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
     if (data.present) {
       map['data'] = Variable<String>(data.value);
     }
+    if (kind.present) {
+      map['kind'] = Variable<int>(
+        $DownloadTableTable.$converterkind.toSql(kind.value),
+      );
+    }
+    if (downloadedBytes.present) {
+      map['downloaded_bytes'] = Variable<int>(downloadedBytes.value);
+    }
+    if (totalBytes.present) {
+      map['total_bytes'] = Variable<int>(totalBytes.value);
+    }
+    if (playback.present) {
+      map['playback'] = Variable<String>(playback.value);
+    }
+    if (queuePosition.present) {
+      map['queue_position'] = Variable<int>(queuePosition.value);
+    }
     return map;
   }
 
@@ -4938,7 +5449,12 @@ class DownloadTableCompanion extends UpdateCompanion<DownloadTableData> {
           ..write('totalPages: $totalPages, ')
           ..write('dirPath: $dirPath, ')
           ..write('headers: $headers, ')
-          ..write('data: $data')
+          ..write('data: $data, ')
+          ..write('kind: $kind, ')
+          ..write('downloadedBytes: $downloadedBytes, ')
+          ..write('totalBytes: $totalBytes, ')
+          ..write('playback: $playback, ')
+          ..write('queuePosition: $queuePosition')
           ..write(')'))
         .toString();
   }
@@ -5661,6 +6177,1634 @@ class LibraryUpdateTableCompanion
   }
 }
 
+class $PageTranslationTableTable extends PageTranslationTable
+    with TableInfo<$PageTranslationTableTable, PageTranslationTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PageTranslationTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: () => DateTime.now(),
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pagePathMeta = const VerificationMeta(
+    'pagePath',
+  );
+  @override
+  late final GeneratedColumn<String> pagePath = GeneratedColumn<String>(
+    'page_path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _engineMeta = const VerificationMeta('engine');
+  @override
+  late final GeneratedColumn<String> engine = GeneratedColumn<String>(
+    'engine',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceLanguageMeta = const VerificationMeta(
+    'sourceLanguage',
+  );
+  @override
+  late final GeneratedColumn<String> sourceLanguage = GeneratedColumn<String>(
+    'source_language',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetLanguageMeta = const VerificationMeta(
+    'targetLanguage',
+  );
+  @override
+  late final GeneratedColumn<String> targetLanguage = GeneratedColumn<String>(
+    'target_language',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _resultJsonMeta = const VerificationMeta(
+    'resultJson',
+  );
+  @override
+  late final GeneratedColumn<String> resultJson = GeneratedColumn<String>(
+    'result_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    uid,
+    pagePath,
+    engine,
+    sourceLanguage,
+    targetLanguage,
+    resultJson,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'page_translation_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PageTranslationTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('page_path')) {
+      context.handle(
+        _pagePathMeta,
+        pagePath.isAcceptableOrUnknown(data['page_path']!, _pagePathMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pagePathMeta);
+    }
+    if (data.containsKey('engine')) {
+      context.handle(
+        _engineMeta,
+        engine.isAcceptableOrUnknown(data['engine']!, _engineMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_engineMeta);
+    }
+    if (data.containsKey('source_language')) {
+      context.handle(
+        _sourceLanguageMeta,
+        sourceLanguage.isAcceptableOrUnknown(
+          data['source_language']!,
+          _sourceLanguageMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceLanguageMeta);
+    }
+    if (data.containsKey('target_language')) {
+      context.handle(
+        _targetLanguageMeta,
+        targetLanguage.isAcceptableOrUnknown(
+          data['target_language']!,
+          _targetLanguageMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_targetLanguageMeta);
+    }
+    if (data.containsKey('result_json')) {
+      context.handle(
+        _resultJsonMeta,
+        resultJson.isAcceptableOrUnknown(data['result_json']!, _resultJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_resultJsonMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PageTranslationTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PageTranslationTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      )!,
+      pagePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}page_path'],
+      )!,
+      engine: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}engine'],
+      )!,
+      sourceLanguage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_language'],
+      )!,
+      targetLanguage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}target_language'],
+      )!,
+      resultJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}result_json'],
+      )!,
+    );
+  }
+
+  @override
+  $PageTranslationTableTable createAlias(String alias) {
+    return $PageTranslationTableTable(attachedDatabase, alias);
+  }
+}
+
+class PageTranslationTableData extends DataClass
+    implements Insertable<PageTranslationTableData> {
+  final int id;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final String uid;
+  final String pagePath;
+  final String engine;
+  final String sourceLanguage;
+  final String targetLanguage;
+  final String resultJson;
+  const PageTranslationTableData({
+    required this.id,
+    required this.createdAt,
+    this.updatedAt,
+    required this.uid,
+    required this.pagePath,
+    required this.engine,
+    required this.sourceLanguage,
+    required this.targetLanguage,
+    required this.resultJson,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['uid'] = Variable<String>(uid);
+    map['page_path'] = Variable<String>(pagePath);
+    map['engine'] = Variable<String>(engine);
+    map['source_language'] = Variable<String>(sourceLanguage);
+    map['target_language'] = Variable<String>(targetLanguage);
+    map['result_json'] = Variable<String>(resultJson);
+    return map;
+  }
+
+  PageTranslationTableCompanion toCompanion(bool nullToAbsent) {
+    return PageTranslationTableCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      uid: Value(uid),
+      pagePath: Value(pagePath),
+      engine: Value(engine),
+      sourceLanguage: Value(sourceLanguage),
+      targetLanguage: Value(targetLanguage),
+      resultJson: Value(resultJson),
+    );
+  }
+
+  factory PageTranslationTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PageTranslationTableData(
+      id: serializer.fromJson<int>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      uid: serializer.fromJson<String>(json['uid']),
+      pagePath: serializer.fromJson<String>(json['pagePath']),
+      engine: serializer.fromJson<String>(json['engine']),
+      sourceLanguage: serializer.fromJson<String>(json['sourceLanguage']),
+      targetLanguage: serializer.fromJson<String>(json['targetLanguage']),
+      resultJson: serializer.fromJson<String>(json['resultJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'uid': serializer.toJson<String>(uid),
+      'pagePath': serializer.toJson<String>(pagePath),
+      'engine': serializer.toJson<String>(engine),
+      'sourceLanguage': serializer.toJson<String>(sourceLanguage),
+      'targetLanguage': serializer.toJson<String>(targetLanguage),
+      'resultJson': serializer.toJson<String>(resultJson),
+    };
+  }
+
+  PageTranslationTableData copyWith({
+    int? id,
+    DateTime? createdAt,
+    Value<DateTime?> updatedAt = const Value.absent(),
+    String? uid,
+    String? pagePath,
+    String? engine,
+    String? sourceLanguage,
+    String? targetLanguage,
+    String? resultJson,
+  }) => PageTranslationTableData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    uid: uid ?? this.uid,
+    pagePath: pagePath ?? this.pagePath,
+    engine: engine ?? this.engine,
+    sourceLanguage: sourceLanguage ?? this.sourceLanguage,
+    targetLanguage: targetLanguage ?? this.targetLanguage,
+    resultJson: resultJson ?? this.resultJson,
+  );
+  PageTranslationTableData copyWithCompanion(
+    PageTranslationTableCompanion data,
+  ) {
+    return PageTranslationTableData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      uid: data.uid.present ? data.uid.value : this.uid,
+      pagePath: data.pagePath.present ? data.pagePath.value : this.pagePath,
+      engine: data.engine.present ? data.engine.value : this.engine,
+      sourceLanguage: data.sourceLanguage.present
+          ? data.sourceLanguage.value
+          : this.sourceLanguage,
+      targetLanguage: data.targetLanguage.present
+          ? data.targetLanguage.value
+          : this.targetLanguage,
+      resultJson: data.resultJson.present
+          ? data.resultJson.value
+          : this.resultJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PageTranslationTableData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('pagePath: $pagePath, ')
+          ..write('engine: $engine, ')
+          ..write('sourceLanguage: $sourceLanguage, ')
+          ..write('targetLanguage: $targetLanguage, ')
+          ..write('resultJson: $resultJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    uid,
+    pagePath,
+    engine,
+    sourceLanguage,
+    targetLanguage,
+    resultJson,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PageTranslationTableData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.uid == this.uid &&
+          other.pagePath == this.pagePath &&
+          other.engine == this.engine &&
+          other.sourceLanguage == this.sourceLanguage &&
+          other.targetLanguage == this.targetLanguage &&
+          other.resultJson == this.resultJson);
+}
+
+class PageTranslationTableCompanion
+    extends UpdateCompanion<PageTranslationTableData> {
+  final Value<int> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<String> uid;
+  final Value<String> pagePath;
+  final Value<String> engine;
+  final Value<String> sourceLanguage;
+  final Value<String> targetLanguage;
+  final Value<String> resultJson;
+  const PageTranslationTableCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.uid = const Value.absent(),
+    this.pagePath = const Value.absent(),
+    this.engine = const Value.absent(),
+    this.sourceLanguage = const Value.absent(),
+    this.targetLanguage = const Value.absent(),
+    this.resultJson = const Value.absent(),
+  });
+  PageTranslationTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    required String uid,
+    required String pagePath,
+    required String engine,
+    required String sourceLanguage,
+    required String targetLanguage,
+    required String resultJson,
+  }) : uid = Value(uid),
+       pagePath = Value(pagePath),
+       engine = Value(engine),
+       sourceLanguage = Value(sourceLanguage),
+       targetLanguage = Value(targetLanguage),
+       resultJson = Value(resultJson);
+  static Insertable<PageTranslationTableData> custom({
+    Expression<int>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? uid,
+    Expression<String>? pagePath,
+    Expression<String>? engine,
+    Expression<String>? sourceLanguage,
+    Expression<String>? targetLanguage,
+    Expression<String>? resultJson,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (uid != null) 'uid': uid,
+      if (pagePath != null) 'page_path': pagePath,
+      if (engine != null) 'engine': engine,
+      if (sourceLanguage != null) 'source_language': sourceLanguage,
+      if (targetLanguage != null) 'target_language': targetLanguage,
+      if (resultJson != null) 'result_json': resultJson,
+    });
+  }
+
+  PageTranslationTableCompanion copyWith({
+    Value<int>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime?>? updatedAt,
+    Value<String>? uid,
+    Value<String>? pagePath,
+    Value<String>? engine,
+    Value<String>? sourceLanguage,
+    Value<String>? targetLanguage,
+    Value<String>? resultJson,
+  }) {
+    return PageTranslationTableCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      uid: uid ?? this.uid,
+      pagePath: pagePath ?? this.pagePath,
+      engine: engine ?? this.engine,
+      sourceLanguage: sourceLanguage ?? this.sourceLanguage,
+      targetLanguage: targetLanguage ?? this.targetLanguage,
+      resultJson: resultJson ?? this.resultJson,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (pagePath.present) {
+      map['page_path'] = Variable<String>(pagePath.value);
+    }
+    if (engine.present) {
+      map['engine'] = Variable<String>(engine.value);
+    }
+    if (sourceLanguage.present) {
+      map['source_language'] = Variable<String>(sourceLanguage.value);
+    }
+    if (targetLanguage.present) {
+      map['target_language'] = Variable<String>(targetLanguage.value);
+    }
+    if (resultJson.present) {
+      map['result_json'] = Variable<String>(resultJson.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PageTranslationTableCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('uid: $uid, ')
+          ..write('pagePath: $pagePath, ')
+          ..write('engine: $engine, ')
+          ..write('sourceLanguage: $sourceLanguage, ')
+          ..write('targetLanguage: $targetLanguage, ')
+          ..write('resultJson: $resultJson')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ExtensionStorageTableTable extends ExtensionStorageTable
+    with TableInfo<$ExtensionStorageTableTable, ExtensionStorageTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExtensionStorageTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _extensionUidMeta = const VerificationMeta(
+    'extensionUid',
+  );
+  @override
+  late final GeneratedColumn<String> extensionUid = GeneratedColumn<String>(
+    'extension_uid',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entryKeyMeta = const VerificationMeta(
+    'entryKey',
+  );
+  @override
+  late final GeneratedColumn<String> entryKey = GeneratedColumn<String>(
+    'entry_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+    'value',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _expiresAtMeta = const VerificationMeta(
+    'expiresAt',
+  );
+  @override
+  late final GeneratedColumn<int> expiresAt = GeneratedColumn<int>(
+    'expires_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    extensionUid,
+    entryKey,
+    value,
+    expiresAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'extension_storage_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ExtensionStorageTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('extension_uid')) {
+      context.handle(
+        _extensionUidMeta,
+        extensionUid.isAcceptableOrUnknown(
+          data['extension_uid']!,
+          _extensionUidMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_extensionUidMeta);
+    }
+    if (data.containsKey('entry_key')) {
+      context.handle(
+        _entryKeyMeta,
+        entryKey.isAcceptableOrUnknown(data['entry_key']!, _entryKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entryKeyMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    if (data.containsKey('expires_at')) {
+      context.handle(
+        _expiresAtMeta,
+        expiresAt.isAcceptableOrUnknown(data['expires_at']!, _expiresAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {extensionUid, entryKey};
+  @override
+  ExtensionStorageTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExtensionStorageTableData(
+      extensionUid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}extension_uid'],
+      )!,
+      entryKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entry_key'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value'],
+      )!,
+      expiresAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}expires_at'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ExtensionStorageTableTable createAlias(String alias) {
+    return $ExtensionStorageTableTable(attachedDatabase, alias);
+  }
+}
+
+class ExtensionStorageTableData extends DataClass
+    implements Insertable<ExtensionStorageTableData> {
+  final String extensionUid;
+  final String entryKey;
+  final String value;
+  final int? expiresAt;
+  final int updatedAt;
+  const ExtensionStorageTableData({
+    required this.extensionUid,
+    required this.entryKey,
+    required this.value,
+    this.expiresAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['extension_uid'] = Variable<String>(extensionUid);
+    map['entry_key'] = Variable<String>(entryKey);
+    map['value'] = Variable<String>(value);
+    if (!nullToAbsent || expiresAt != null) {
+      map['expires_at'] = Variable<int>(expiresAt);
+    }
+    map['updated_at'] = Variable<int>(updatedAt);
+    return map;
+  }
+
+  ExtensionStorageTableCompanion toCompanion(bool nullToAbsent) {
+    return ExtensionStorageTableCompanion(
+      extensionUid: Value(extensionUid),
+      entryKey: Value(entryKey),
+      value: Value(value),
+      expiresAt: expiresAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(expiresAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory ExtensionStorageTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExtensionStorageTableData(
+      extensionUid: serializer.fromJson<String>(json['extensionUid']),
+      entryKey: serializer.fromJson<String>(json['entryKey']),
+      value: serializer.fromJson<String>(json['value']),
+      expiresAt: serializer.fromJson<int?>(json['expiresAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'extensionUid': serializer.toJson<String>(extensionUid),
+      'entryKey': serializer.toJson<String>(entryKey),
+      'value': serializer.toJson<String>(value),
+      'expiresAt': serializer.toJson<int?>(expiresAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+    };
+  }
+
+  ExtensionStorageTableData copyWith({
+    String? extensionUid,
+    String? entryKey,
+    String? value,
+    Value<int?> expiresAt = const Value.absent(),
+    int? updatedAt,
+  }) => ExtensionStorageTableData(
+    extensionUid: extensionUid ?? this.extensionUid,
+    entryKey: entryKey ?? this.entryKey,
+    value: value ?? this.value,
+    expiresAt: expiresAt.present ? expiresAt.value : this.expiresAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  ExtensionStorageTableData copyWithCompanion(
+    ExtensionStorageTableCompanion data,
+  ) {
+    return ExtensionStorageTableData(
+      extensionUid: data.extensionUid.present
+          ? data.extensionUid.value
+          : this.extensionUid,
+      entryKey: data.entryKey.present ? data.entryKey.value : this.entryKey,
+      value: data.value.present ? data.value.value : this.value,
+      expiresAt: data.expiresAt.present ? data.expiresAt.value : this.expiresAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExtensionStorageTableData(')
+          ..write('extensionUid: $extensionUid, ')
+          ..write('entryKey: $entryKey, ')
+          ..write('value: $value, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(extensionUid, entryKey, value, expiresAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExtensionStorageTableData &&
+          other.extensionUid == this.extensionUid &&
+          other.entryKey == this.entryKey &&
+          other.value == this.value &&
+          other.expiresAt == this.expiresAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ExtensionStorageTableCompanion
+    extends UpdateCompanion<ExtensionStorageTableData> {
+  final Value<String> extensionUid;
+  final Value<String> entryKey;
+  final Value<String> value;
+  final Value<int?> expiresAt;
+  final Value<int> updatedAt;
+  final Value<int> rowid;
+  const ExtensionStorageTableCompanion({
+    this.extensionUid = const Value.absent(),
+    this.entryKey = const Value.absent(),
+    this.value = const Value.absent(),
+    this.expiresAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ExtensionStorageTableCompanion.insert({
+    required String extensionUid,
+    required String entryKey,
+    required String value,
+    this.expiresAt = const Value.absent(),
+    required int updatedAt,
+    this.rowid = const Value.absent(),
+  }) : extensionUid = Value(extensionUid),
+       entryKey = Value(entryKey),
+       value = Value(value),
+       updatedAt = Value(updatedAt);
+  static Insertable<ExtensionStorageTableData> custom({
+    Expression<String>? extensionUid,
+    Expression<String>? entryKey,
+    Expression<String>? value,
+    Expression<int>? expiresAt,
+    Expression<int>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (extensionUid != null) 'extension_uid': extensionUid,
+      if (entryKey != null) 'entry_key': entryKey,
+      if (value != null) 'value': value,
+      if (expiresAt != null) 'expires_at': expiresAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ExtensionStorageTableCompanion copyWith({
+    Value<String>? extensionUid,
+    Value<String>? entryKey,
+    Value<String>? value,
+    Value<int?>? expiresAt,
+    Value<int>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return ExtensionStorageTableCompanion(
+      extensionUid: extensionUid ?? this.extensionUid,
+      entryKey: entryKey ?? this.entryKey,
+      value: value ?? this.value,
+      expiresAt: expiresAt ?? this.expiresAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (extensionUid.present) {
+      map['extension_uid'] = Variable<String>(extensionUid.value);
+    }
+    if (entryKey.present) {
+      map['entry_key'] = Variable<String>(entryKey.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (expiresAt.present) {
+      map['expires_at'] = Variable<int>(expiresAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExtensionStorageTableCompanion(')
+          ..write('extensionUid: $extensionUid, ')
+          ..write('entryKey: $entryKey, ')
+          ..write('value: $value, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TrackerLinkTableTable extends TrackerLinkTable
+    with TableInfo<$TrackerLinkTableTable, TrackerLinkTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TrackerLinkTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _concreteUidMeta = const VerificationMeta(
+    'concreteUid',
+  );
+  @override
+  late final GeneratedColumn<String> concreteUid = GeneratedColumn<String>(
+    'concrete_uid',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _trackerIdMeta = const VerificationMeta(
+    'trackerId',
+  );
+  @override
+  late final GeneratedColumn<String> trackerId = GeneratedColumn<String>(
+    'tracker_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _extensionUidMeta = const VerificationMeta(
+    'extensionUid',
+  );
+  @override
+  late final GeneratedColumn<String> extensionUid = GeneratedColumn<String>(
+    'extension_uid',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _mediaTypeMeta = const VerificationMeta(
+    'mediaType',
+  );
+  @override
+  late final GeneratedColumn<String> mediaType = GeneratedColumn<String>(
+    'media_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _remoteIdMeta = const VerificationMeta(
+    'remoteId',
+  );
+  @override
+  late final GeneratedColumn<int> remoteId = GeneratedColumn<int>(
+    'remote_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _remoteTitleMeta = const VerificationMeta(
+    'remoteTitle',
+  );
+  @override
+  late final GeneratedColumn<String> remoteTitle = GeneratedColumn<String>(
+    'remote_title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _progressMeta = const VerificationMeta(
+    'progress',
+  );
+  @override
+  late final GeneratedColumn<int> progress = GeneratedColumn<int>(
+    'progress',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _totalCountMeta = const VerificationMeta(
+    'totalCount',
+  );
+  @override
+  late final GeneratedColumn<int> totalCount = GeneratedColumn<int>(
+    'total_count',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pendingProgressMeta = const VerificationMeta(
+    'pendingProgress',
+  );
+  @override
+  late final GeneratedColumn<int> pendingProgress = GeneratedColumn<int>(
+    'pending_progress',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncedAt = GeneratedColumn<int>(
+    'synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    concreteUid,
+    trackerId,
+    extensionUid,
+    mediaType,
+    remoteId,
+    remoteTitle,
+    status,
+    progress,
+    totalCount,
+    pendingProgress,
+    syncedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tracker_link_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TrackerLinkTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('concrete_uid')) {
+      context.handle(
+        _concreteUidMeta,
+        concreteUid.isAcceptableOrUnknown(
+          data['concrete_uid']!,
+          _concreteUidMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_concreteUidMeta);
+    }
+    if (data.containsKey('tracker_id')) {
+      context.handle(
+        _trackerIdMeta,
+        trackerId.isAcceptableOrUnknown(data['tracker_id']!, _trackerIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_trackerIdMeta);
+    }
+    if (data.containsKey('extension_uid')) {
+      context.handle(
+        _extensionUidMeta,
+        extensionUid.isAcceptableOrUnknown(
+          data['extension_uid']!,
+          _extensionUidMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_extensionUidMeta);
+    }
+    if (data.containsKey('media_type')) {
+      context.handle(
+        _mediaTypeMeta,
+        mediaType.isAcceptableOrUnknown(data['media_type']!, _mediaTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mediaTypeMeta);
+    }
+    if (data.containsKey('remote_id')) {
+      context.handle(
+        _remoteIdMeta,
+        remoteId.isAcceptableOrUnknown(data['remote_id']!, _remoteIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_remoteIdMeta);
+    }
+    if (data.containsKey('remote_title')) {
+      context.handle(
+        _remoteTitleMeta,
+        remoteTitle.isAcceptableOrUnknown(
+          data['remote_title']!,
+          _remoteTitleMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_remoteTitleMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('progress')) {
+      context.handle(
+        _progressMeta,
+        progress.isAcceptableOrUnknown(data['progress']!, _progressMeta),
+      );
+    }
+    if (data.containsKey('total_count')) {
+      context.handle(
+        _totalCountMeta,
+        totalCount.isAcceptableOrUnknown(data['total_count']!, _totalCountMeta),
+      );
+    }
+    if (data.containsKey('pending_progress')) {
+      context.handle(
+        _pendingProgressMeta,
+        pendingProgress.isAcceptableOrUnknown(
+          data['pending_progress']!,
+          _pendingProgressMeta,
+        ),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {concreteUid, trackerId};
+  @override
+  TrackerLinkTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TrackerLinkTableData(
+      concreteUid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}concrete_uid'],
+      )!,
+      trackerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tracker_id'],
+      )!,
+      extensionUid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}extension_uid'],
+      )!,
+      mediaType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}media_type'],
+      )!,
+      remoteId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}remote_id'],
+      )!,
+      remoteTitle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remote_title'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      progress: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}progress'],
+      )!,
+      totalCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_count'],
+      ),
+      pendingProgress: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}pending_progress'],
+      ),
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}synced_at'],
+      ),
+    );
+  }
+
+  @override
+  $TrackerLinkTableTable createAlias(String alias) {
+    return $TrackerLinkTableTable(attachedDatabase, alias);
+  }
+}
+
+class TrackerLinkTableData extends DataClass
+    implements Insertable<TrackerLinkTableData> {
+  final String concreteUid;
+  final String trackerId;
+  final String extensionUid;
+  final String mediaType;
+  final int remoteId;
+  final String remoteTitle;
+  final String status;
+  final int progress;
+  final int? totalCount;
+  final int? pendingProgress;
+  final int? syncedAt;
+  const TrackerLinkTableData({
+    required this.concreteUid,
+    required this.trackerId,
+    required this.extensionUid,
+    required this.mediaType,
+    required this.remoteId,
+    required this.remoteTitle,
+    required this.status,
+    required this.progress,
+    this.totalCount,
+    this.pendingProgress,
+    this.syncedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['concrete_uid'] = Variable<String>(concreteUid);
+    map['tracker_id'] = Variable<String>(trackerId);
+    map['extension_uid'] = Variable<String>(extensionUid);
+    map['media_type'] = Variable<String>(mediaType);
+    map['remote_id'] = Variable<int>(remoteId);
+    map['remote_title'] = Variable<String>(remoteTitle);
+    map['status'] = Variable<String>(status);
+    map['progress'] = Variable<int>(progress);
+    if (!nullToAbsent || totalCount != null) {
+      map['total_count'] = Variable<int>(totalCount);
+    }
+    if (!nullToAbsent || pendingProgress != null) {
+      map['pending_progress'] = Variable<int>(pendingProgress);
+    }
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<int>(syncedAt);
+    }
+    return map;
+  }
+
+  TrackerLinkTableCompanion toCompanion(bool nullToAbsent) {
+    return TrackerLinkTableCompanion(
+      concreteUid: Value(concreteUid),
+      trackerId: Value(trackerId),
+      extensionUid: Value(extensionUid),
+      mediaType: Value(mediaType),
+      remoteId: Value(remoteId),
+      remoteTitle: Value(remoteTitle),
+      status: Value(status),
+      progress: Value(progress),
+      totalCount: totalCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(totalCount),
+      pendingProgress: pendingProgress == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pendingProgress),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
+    );
+  }
+
+  factory TrackerLinkTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TrackerLinkTableData(
+      concreteUid: serializer.fromJson<String>(json['concreteUid']),
+      trackerId: serializer.fromJson<String>(json['trackerId']),
+      extensionUid: serializer.fromJson<String>(json['extensionUid']),
+      mediaType: serializer.fromJson<String>(json['mediaType']),
+      remoteId: serializer.fromJson<int>(json['remoteId']),
+      remoteTitle: serializer.fromJson<String>(json['remoteTitle']),
+      status: serializer.fromJson<String>(json['status']),
+      progress: serializer.fromJson<int>(json['progress']),
+      totalCount: serializer.fromJson<int?>(json['totalCount']),
+      pendingProgress: serializer.fromJson<int?>(json['pendingProgress']),
+      syncedAt: serializer.fromJson<int?>(json['syncedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'concreteUid': serializer.toJson<String>(concreteUid),
+      'trackerId': serializer.toJson<String>(trackerId),
+      'extensionUid': serializer.toJson<String>(extensionUid),
+      'mediaType': serializer.toJson<String>(mediaType),
+      'remoteId': serializer.toJson<int>(remoteId),
+      'remoteTitle': serializer.toJson<String>(remoteTitle),
+      'status': serializer.toJson<String>(status),
+      'progress': serializer.toJson<int>(progress),
+      'totalCount': serializer.toJson<int?>(totalCount),
+      'pendingProgress': serializer.toJson<int?>(pendingProgress),
+      'syncedAt': serializer.toJson<int?>(syncedAt),
+    };
+  }
+
+  TrackerLinkTableData copyWith({
+    String? concreteUid,
+    String? trackerId,
+    String? extensionUid,
+    String? mediaType,
+    int? remoteId,
+    String? remoteTitle,
+    String? status,
+    int? progress,
+    Value<int?> totalCount = const Value.absent(),
+    Value<int?> pendingProgress = const Value.absent(),
+    Value<int?> syncedAt = const Value.absent(),
+  }) => TrackerLinkTableData(
+    concreteUid: concreteUid ?? this.concreteUid,
+    trackerId: trackerId ?? this.trackerId,
+    extensionUid: extensionUid ?? this.extensionUid,
+    mediaType: mediaType ?? this.mediaType,
+    remoteId: remoteId ?? this.remoteId,
+    remoteTitle: remoteTitle ?? this.remoteTitle,
+    status: status ?? this.status,
+    progress: progress ?? this.progress,
+    totalCount: totalCount.present ? totalCount.value : this.totalCount,
+    pendingProgress: pendingProgress.present
+        ? pendingProgress.value
+        : this.pendingProgress,
+    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
+  );
+  TrackerLinkTableData copyWithCompanion(TrackerLinkTableCompanion data) {
+    return TrackerLinkTableData(
+      concreteUid: data.concreteUid.present
+          ? data.concreteUid.value
+          : this.concreteUid,
+      trackerId: data.trackerId.present ? data.trackerId.value : this.trackerId,
+      extensionUid: data.extensionUid.present
+          ? data.extensionUid.value
+          : this.extensionUid,
+      mediaType: data.mediaType.present ? data.mediaType.value : this.mediaType,
+      remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
+      remoteTitle: data.remoteTitle.present
+          ? data.remoteTitle.value
+          : this.remoteTitle,
+      status: data.status.present ? data.status.value : this.status,
+      progress: data.progress.present ? data.progress.value : this.progress,
+      totalCount: data.totalCount.present
+          ? data.totalCount.value
+          : this.totalCount,
+      pendingProgress: data.pendingProgress.present
+          ? data.pendingProgress.value
+          : this.pendingProgress,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrackerLinkTableData(')
+          ..write('concreteUid: $concreteUid, ')
+          ..write('trackerId: $trackerId, ')
+          ..write('extensionUid: $extensionUid, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('remoteId: $remoteId, ')
+          ..write('remoteTitle: $remoteTitle, ')
+          ..write('status: $status, ')
+          ..write('progress: $progress, ')
+          ..write('totalCount: $totalCount, ')
+          ..write('pendingProgress: $pendingProgress, ')
+          ..write('syncedAt: $syncedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    concreteUid,
+    trackerId,
+    extensionUid,
+    mediaType,
+    remoteId,
+    remoteTitle,
+    status,
+    progress,
+    totalCount,
+    pendingProgress,
+    syncedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TrackerLinkTableData &&
+          other.concreteUid == this.concreteUid &&
+          other.trackerId == this.trackerId &&
+          other.extensionUid == this.extensionUid &&
+          other.mediaType == this.mediaType &&
+          other.remoteId == this.remoteId &&
+          other.remoteTitle == this.remoteTitle &&
+          other.status == this.status &&
+          other.progress == this.progress &&
+          other.totalCount == this.totalCount &&
+          other.pendingProgress == this.pendingProgress &&
+          other.syncedAt == this.syncedAt);
+}
+
+class TrackerLinkTableCompanion extends UpdateCompanion<TrackerLinkTableData> {
+  final Value<String> concreteUid;
+  final Value<String> trackerId;
+  final Value<String> extensionUid;
+  final Value<String> mediaType;
+  final Value<int> remoteId;
+  final Value<String> remoteTitle;
+  final Value<String> status;
+  final Value<int> progress;
+  final Value<int?> totalCount;
+  final Value<int?> pendingProgress;
+  final Value<int?> syncedAt;
+  final Value<int> rowid;
+  const TrackerLinkTableCompanion({
+    this.concreteUid = const Value.absent(),
+    this.trackerId = const Value.absent(),
+    this.extensionUid = const Value.absent(),
+    this.mediaType = const Value.absent(),
+    this.remoteId = const Value.absent(),
+    this.remoteTitle = const Value.absent(),
+    this.status = const Value.absent(),
+    this.progress = const Value.absent(),
+    this.totalCount = const Value.absent(),
+    this.pendingProgress = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TrackerLinkTableCompanion.insert({
+    required String concreteUid,
+    required String trackerId,
+    required String extensionUid,
+    required String mediaType,
+    required int remoteId,
+    required String remoteTitle,
+    required String status,
+    this.progress = const Value.absent(),
+    this.totalCount = const Value.absent(),
+    this.pendingProgress = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : concreteUid = Value(concreteUid),
+       trackerId = Value(trackerId),
+       extensionUid = Value(extensionUid),
+       mediaType = Value(mediaType),
+       remoteId = Value(remoteId),
+       remoteTitle = Value(remoteTitle),
+       status = Value(status);
+  static Insertable<TrackerLinkTableData> custom({
+    Expression<String>? concreteUid,
+    Expression<String>? trackerId,
+    Expression<String>? extensionUid,
+    Expression<String>? mediaType,
+    Expression<int>? remoteId,
+    Expression<String>? remoteTitle,
+    Expression<String>? status,
+    Expression<int>? progress,
+    Expression<int>? totalCount,
+    Expression<int>? pendingProgress,
+    Expression<int>? syncedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (concreteUid != null) 'concrete_uid': concreteUid,
+      if (trackerId != null) 'tracker_id': trackerId,
+      if (extensionUid != null) 'extension_uid': extensionUid,
+      if (mediaType != null) 'media_type': mediaType,
+      if (remoteId != null) 'remote_id': remoteId,
+      if (remoteTitle != null) 'remote_title': remoteTitle,
+      if (status != null) 'status': status,
+      if (progress != null) 'progress': progress,
+      if (totalCount != null) 'total_count': totalCount,
+      if (pendingProgress != null) 'pending_progress': pendingProgress,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TrackerLinkTableCompanion copyWith({
+    Value<String>? concreteUid,
+    Value<String>? trackerId,
+    Value<String>? extensionUid,
+    Value<String>? mediaType,
+    Value<int>? remoteId,
+    Value<String>? remoteTitle,
+    Value<String>? status,
+    Value<int>? progress,
+    Value<int?>? totalCount,
+    Value<int?>? pendingProgress,
+    Value<int?>? syncedAt,
+    Value<int>? rowid,
+  }) {
+    return TrackerLinkTableCompanion(
+      concreteUid: concreteUid ?? this.concreteUid,
+      trackerId: trackerId ?? this.trackerId,
+      extensionUid: extensionUid ?? this.extensionUid,
+      mediaType: mediaType ?? this.mediaType,
+      remoteId: remoteId ?? this.remoteId,
+      remoteTitle: remoteTitle ?? this.remoteTitle,
+      status: status ?? this.status,
+      progress: progress ?? this.progress,
+      totalCount: totalCount ?? this.totalCount,
+      pendingProgress: pendingProgress ?? this.pendingProgress,
+      syncedAt: syncedAt ?? this.syncedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (concreteUid.present) {
+      map['concrete_uid'] = Variable<String>(concreteUid.value);
+    }
+    if (trackerId.present) {
+      map['tracker_id'] = Variable<String>(trackerId.value);
+    }
+    if (extensionUid.present) {
+      map['extension_uid'] = Variable<String>(extensionUid.value);
+    }
+    if (mediaType.present) {
+      map['media_type'] = Variable<String>(mediaType.value);
+    }
+    if (remoteId.present) {
+      map['remote_id'] = Variable<int>(remoteId.value);
+    }
+    if (remoteTitle.present) {
+      map['remote_title'] = Variable<String>(remoteTitle.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (progress.present) {
+      map['progress'] = Variable<int>(progress.value);
+    }
+    if (totalCount.present) {
+      map['total_count'] = Variable<int>(totalCount.value);
+    }
+    if (pendingProgress.present) {
+      map['pending_progress'] = Variable<int>(pendingProgress.value);
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<int>(syncedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrackerLinkTableCompanion(')
+          ..write('concreteUid: $concreteUid, ')
+          ..write('trackerId: $trackerId, ')
+          ..write('extensionUid: $extensionUid, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('remoteId: $remoteId, ')
+          ..write('remoteTitle: $remoteTitle, ')
+          ..write('status: $status, ')
+          ..write('progress: $progress, ')
+          ..write('totalCount: $totalCount, ')
+          ..write('pendingProgress: $pendingProgress, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$WakaranaiDatabase extends GeneratedDatabase {
   _$WakaranaiDatabase(QueryExecutor e) : super(e);
   $WakaranaiDatabaseManager get managers => $WakaranaiDatabaseManager(this);
@@ -5679,6 +7823,49 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
   late final $DownloadTableTable downloadTable = $DownloadTableTable(this);
   late final $LibraryUpdateTableTable libraryUpdateTable =
       $LibraryUpdateTableTable(this);
+  late final $PageTranslationTableTable pageTranslationTable =
+      $PageTranslationTableTable(this);
+  late final $ExtensionStorageTableTable extensionStorageTable =
+      $ExtensionStorageTableTable(this);
+  late final $TrackerLinkTableTable trackerLinkTable = $TrackerLinkTableTable(
+    this,
+  );
+  late final Index concreteDataUid = Index(
+    'concrete_data_uid',
+    'CREATE UNIQUE INDEX concrete_data_uid ON concrete_data_table (uid)',
+  );
+  late final Index chapterActivityUid = Index(
+    'chapter_activity_uid',
+    'CREATE UNIQUE INDEX chapter_activity_uid ON chapter_activity_table (uid)',
+  );
+  late final Index animeEpisodeActivityUid = Index(
+    'anime_episode_activity_uid',
+    'CREATE UNIQUE INDEX anime_episode_activity_uid ON anime_episode_activity_table (uid)',
+  );
+  late final Index libraryEntryUid = Index(
+    'library_entry_uid',
+    'CREATE UNIQUE INDEX library_entry_uid ON library_entry_table (uid)',
+  );
+  late final Index downloadUid = Index(
+    'download_uid',
+    'CREATE UNIQUE INDEX download_uid ON download_table (uid)',
+  );
+  late final Index libraryUpdateUid = Index(
+    'library_update_uid',
+    'CREATE UNIQUE INDEX library_update_uid ON library_update_table (uid)',
+  );
+  late final Index pageTranslationUid = Index(
+    'page_translation_uid',
+    'CREATE UNIQUE INDEX page_translation_uid ON page_translation_table (uid)',
+  );
+  late final Index extensionStorageExpiresAt = Index(
+    'extension_storage_expires_at',
+    'CREATE INDEX extension_storage_expires_at ON extension_storage_table (expires_at)',
+  );
+  late final Index trackerLinkConcrete = Index(
+    'tracker_link_concrete',
+    'CREATE INDEX tracker_link_concrete ON tracker_link_table (concrete_uid)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5693,6 +7880,18 @@ abstract class _$WakaranaiDatabase extends GeneratedDatabase {
     libraryEntryTable,
     downloadTable,
     libraryUpdateTable,
+    pageTranslationTable,
+    extensionStorageTable,
+    trackerLinkTable,
+    concreteDataUid,
+    chapterActivityUid,
+    animeEpisodeActivityUid,
+    libraryEntryUid,
+    downloadUid,
+    libraryUpdateUid,
+    pageTranslationUid,
+    extensionStorageExpiresAt,
+    trackerLinkConcrete,
   ];
 }
 
@@ -5959,6 +8158,9 @@ typedef $$ExtensionTableTableCreateCompanionBuilder =
       required String sourceCode,
       required bool searchAvailable,
       Value<String?> protectorConfig,
+      Value<String?> configJson,
+      Value<String?> revision,
+      Value<String?> baseUid,
     });
 typedef $$ExtensionTableTableUpdateCompanionBuilder =
     ExtensionTableCompanion Function({
@@ -5975,6 +8177,9 @@ typedef $$ExtensionTableTableUpdateCompanionBuilder =
       Value<String> sourceCode,
       Value<bool> searchAvailable,
       Value<String?> protectorConfig,
+      Value<String?> configJson,
+      Value<String?> revision,
+      Value<String?> baseUid,
     });
 
 class $$ExtensionTableTableFilterComposer
@@ -6048,6 +8253,21 @@ class $$ExtensionTableTableFilterComposer
 
   ColumnFilters<String> get protectorConfig => $composableBuilder(
     column: $table.protectorConfig,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get configJson => $composableBuilder(
+    column: $table.configJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get baseUid => $composableBuilder(
+    column: $table.baseUid,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -6125,6 +8345,21 @@ class $$ExtensionTableTableOrderingComposer
     column: $table.protectorConfig,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get configJson => $composableBuilder(
+    column: $table.configJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get baseUid => $composableBuilder(
+    column: $table.baseUid,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ExtensionTableTableAnnotationComposer
@@ -6180,6 +8415,17 @@ class $$ExtensionTableTableAnnotationComposer
     column: $table.protectorConfig,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get configJson => $composableBuilder(
+    column: $table.configJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  GeneratedColumn<String> get baseUid =>
+      $composableBuilder(column: $table.baseUid, builder: (column) => column);
 }
 
 class $$ExtensionTableTableTableManager
@@ -6232,6 +8478,9 @@ class $$ExtensionTableTableTableManager
                 Value<String> sourceCode = const Value.absent(),
                 Value<bool> searchAvailable = const Value.absent(),
                 Value<String?> protectorConfig = const Value.absent(),
+                Value<String?> configJson = const Value.absent(),
+                Value<String?> revision = const Value.absent(),
+                Value<String?> baseUid = const Value.absent(),
               }) => ExtensionTableCompanion(
                 id: id,
                 createdAt: createdAt,
@@ -6246,6 +8495,9 @@ class $$ExtensionTableTableTableManager
                 sourceCode: sourceCode,
                 searchAvailable: searchAvailable,
                 protectorConfig: protectorConfig,
+                configJson: configJson,
+                revision: revision,
+                baseUid: baseUid,
               ),
           createCompanionCallback:
               ({
@@ -6262,6 +8514,9 @@ class $$ExtensionTableTableTableManager
                 required String sourceCode,
                 required bool searchAvailable,
                 Value<String?> protectorConfig = const Value.absent(),
+                Value<String?> configJson = const Value.absent(),
+                Value<String?> revision = const Value.absent(),
+                Value<String?> baseUid = const Value.absent(),
               }) => ExtensionTableCompanion.insert(
                 id: id,
                 createdAt: createdAt,
@@ -6276,6 +8531,9 @@ class $$ExtensionTableTableTableManager
                 sourceCode: sourceCode,
                 searchAvailable: searchAvailable,
                 protectorConfig: protectorConfig,
+                configJson: configJson,
+                revision: revision,
+                baseUid: baseUid,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -6914,6 +9172,7 @@ typedef $$AnimeEpisodeActivityTableTableCreateCompanionBuilder =
       required int concreteId,
       Value<int?> watchedTime,
       Value<int?> totalTime,
+      Value<bool> markedWatched,
     });
 typedef $$AnimeEpisodeActivityTableTableUpdateCompanionBuilder =
     AnimeEpisodeActivityTableCompanion Function({
@@ -6927,6 +9186,7 @@ typedef $$AnimeEpisodeActivityTableTableUpdateCompanionBuilder =
       Value<int> concreteId,
       Value<int?> watchedTime,
       Value<int?> totalTime,
+      Value<bool> markedWatched,
     });
 
 class $$AnimeEpisodeActivityTableTableFilterComposer
@@ -6985,6 +9245,11 @@ class $$AnimeEpisodeActivityTableTableFilterComposer
 
   ColumnFilters<int> get totalTime => $composableBuilder(
     column: $table.totalTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get markedWatched => $composableBuilder(
+    column: $table.markedWatched,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -7047,6 +9312,11 @@ class $$AnimeEpisodeActivityTableTableOrderingComposer
     column: $table.totalTime,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get markedWatched => $composableBuilder(
+    column: $table.markedWatched,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AnimeEpisodeActivityTableTableAnnotationComposer
@@ -7091,6 +9361,11 @@ class $$AnimeEpisodeActivityTableTableAnnotationComposer
 
   GeneratedColumn<int> get totalTime =>
       $composableBuilder(column: $table.totalTime, builder: (column) => column);
+
+  GeneratedColumn<bool> get markedWatched => $composableBuilder(
+    column: $table.markedWatched,
+    builder: (column) => column,
+  );
 }
 
 class $$AnimeEpisodeActivityTableTableTableManager
@@ -7149,6 +9424,7 @@ class $$AnimeEpisodeActivityTableTableTableManager
                 Value<int> concreteId = const Value.absent(),
                 Value<int?> watchedTime = const Value.absent(),
                 Value<int?> totalTime = const Value.absent(),
+                Value<bool> markedWatched = const Value.absent(),
               }) => AnimeEpisodeActivityTableCompanion(
                 id: id,
                 createdAt: createdAt,
@@ -7160,6 +9436,7 @@ class $$AnimeEpisodeActivityTableTableTableManager
                 concreteId: concreteId,
                 watchedTime: watchedTime,
                 totalTime: totalTime,
+                markedWatched: markedWatched,
               ),
           createCompanionCallback:
               ({
@@ -7173,6 +9450,7 @@ class $$AnimeEpisodeActivityTableTableTableManager
                 required int concreteId,
                 Value<int?> watchedTime = const Value.absent(),
                 Value<int?> totalTime = const Value.absent(),
+                Value<bool> markedWatched = const Value.absent(),
               }) => AnimeEpisodeActivityTableCompanion.insert(
                 id: id,
                 createdAt: createdAt,
@@ -7184,6 +9462,7 @@ class $$AnimeEpisodeActivityTableTableTableManager
                 concreteId: concreteId,
                 watchedTime: watchedTime,
                 totalTime: totalTime,
+                markedWatched: markedWatched,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -7432,6 +9711,7 @@ typedef $$LibraryEntryTableTableCreateCompanionBuilder =
       Value<DateTime?> lastReadAt,
       Value<bool> trackUpdates,
       Value<bool> notifyUpdates,
+      Value<AutoDownloadOverride> autoDownload,
     });
 typedef $$LibraryEntryTableTableUpdateCompanionBuilder =
     LibraryEntryTableCompanion Function({
@@ -7447,6 +9727,7 @@ typedef $$LibraryEntryTableTableUpdateCompanionBuilder =
       Value<DateTime?> lastReadAt,
       Value<bool> trackUpdates,
       Value<bool> notifyUpdates,
+      Value<AutoDownloadOverride> autoDownload,
     });
 
 class $$LibraryEntryTableTableFilterComposer
@@ -7516,6 +9797,16 @@ class $$LibraryEntryTableTableFilterComposer
   ColumnFilters<bool> get notifyUpdates => $composableBuilder(
     column: $table.notifyUpdates,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<
+    AutoDownloadOverride,
+    AutoDownloadOverride,
+    int
+  >
+  get autoDownload => $composableBuilder(
+    column: $table.autoDownload,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 }
 
@@ -7587,6 +9878,11 @@ class $$LibraryEntryTableTableOrderingComposer
     column: $table.notifyUpdates,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get autoDownload => $composableBuilder(
+    column: $table.autoDownload,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$LibraryEntryTableTableAnnotationComposer
@@ -7643,6 +9939,12 @@ class $$LibraryEntryTableTableAnnotationComposer
     column: $table.notifyUpdates,
     builder: (column) => column,
   );
+
+  GeneratedColumnWithTypeConverter<AutoDownloadOverride, int>
+  get autoDownload => $composableBuilder(
+    column: $table.autoDownload,
+    builder: (column) => column,
+  );
 }
 
 class $$LibraryEntryTableTableTableManager
@@ -7697,6 +9999,7 @@ class $$LibraryEntryTableTableTableManager
                 Value<DateTime?> lastReadAt = const Value.absent(),
                 Value<bool> trackUpdates = const Value.absent(),
                 Value<bool> notifyUpdates = const Value.absent(),
+                Value<AutoDownloadOverride> autoDownload = const Value.absent(),
               }) => LibraryEntryTableCompanion(
                 id: id,
                 createdAt: createdAt,
@@ -7710,6 +10013,7 @@ class $$LibraryEntryTableTableTableManager
                 lastReadAt: lastReadAt,
                 trackUpdates: trackUpdates,
                 notifyUpdates: notifyUpdates,
+                autoDownload: autoDownload,
               ),
           createCompanionCallback:
               ({
@@ -7725,6 +10029,7 @@ class $$LibraryEntryTableTableTableManager
                 Value<DateTime?> lastReadAt = const Value.absent(),
                 Value<bool> trackUpdates = const Value.absent(),
                 Value<bool> notifyUpdates = const Value.absent(),
+                Value<AutoDownloadOverride> autoDownload = const Value.absent(),
               }) => LibraryEntryTableCompanion.insert(
                 id: id,
                 createdAt: createdAt,
@@ -7738,6 +10043,7 @@ class $$LibraryEntryTableTableTableManager
                 lastReadAt: lastReadAt,
                 trackUpdates: trackUpdates,
                 notifyUpdates: notifyUpdates,
+                autoDownload: autoDownload,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -7786,6 +10092,11 @@ typedef $$DownloadTableTableCreateCompanionBuilder =
       required String dirPath,
       Value<String?> headers,
       Value<String?> data,
+      Value<DownloadKind> kind,
+      Value<int> downloadedBytes,
+      Value<int> totalBytes,
+      Value<String?> playback,
+      Value<int> queuePosition,
     });
 typedef $$DownloadTableTableUpdateCompanionBuilder =
     DownloadTableCompanion Function({
@@ -7805,6 +10116,11 @@ typedef $$DownloadTableTableUpdateCompanionBuilder =
       Value<String> dirPath,
       Value<String?> headers,
       Value<String?> data,
+      Value<DownloadKind> kind,
+      Value<int> downloadedBytes,
+      Value<int> totalBytes,
+      Value<String?> playback,
+      Value<int> queuePosition,
     });
 
 class $$DownloadTableTableFilterComposer
@@ -7894,6 +10210,32 @@ class $$DownloadTableTableFilterComposer
 
   ColumnFilters<String> get data => $composableBuilder(
     column: $table.data,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DownloadKind, DownloadKind, int> get kind =>
+      $composableBuilder(
+        column: $table.kind,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<int> get downloadedBytes => $composableBuilder(
+    column: $table.downloadedBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalBytes => $composableBuilder(
+    column: $table.totalBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get playback => $composableBuilder(
+    column: $table.playback,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get queuePosition => $composableBuilder(
+    column: $table.queuePosition,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -7986,6 +10328,31 @@ class $$DownloadTableTableOrderingComposer
     column: $table.data,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get downloadedBytes => $composableBuilder(
+    column: $table.downloadedBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalBytes => $composableBuilder(
+    column: $table.totalBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get playback => $composableBuilder(
+    column: $table.playback,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get queuePosition => $composableBuilder(
+    column: $table.queuePosition,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$DownloadTableTableAnnotationComposer
@@ -8058,6 +10425,27 @@ class $$DownloadTableTableAnnotationComposer
 
   GeneratedColumn<String> get data =>
       $composableBuilder(column: $table.data, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DownloadKind, int> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<int> get downloadedBytes => $composableBuilder(
+    column: $table.downloadedBytes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalBytes => $composableBuilder(
+    column: $table.totalBytes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get playback =>
+      $composableBuilder(column: $table.playback, builder: (column) => column);
+
+  GeneratedColumn<int> get queuePosition => $composableBuilder(
+    column: $table.queuePosition,
+    builder: (column) => column,
+  );
 }
 
 class $$DownloadTableTableTableManager
@@ -8113,6 +10501,11 @@ class $$DownloadTableTableTableManager
                 Value<String> dirPath = const Value.absent(),
                 Value<String?> headers = const Value.absent(),
                 Value<String?> data = const Value.absent(),
+                Value<DownloadKind> kind = const Value.absent(),
+                Value<int> downloadedBytes = const Value.absent(),
+                Value<int> totalBytes = const Value.absent(),
+                Value<String?> playback = const Value.absent(),
+                Value<int> queuePosition = const Value.absent(),
               }) => DownloadTableCompanion(
                 id: id,
                 createdAt: createdAt,
@@ -8130,6 +10523,11 @@ class $$DownloadTableTableTableManager
                 dirPath: dirPath,
                 headers: headers,
                 data: data,
+                kind: kind,
+                downloadedBytes: downloadedBytes,
+                totalBytes: totalBytes,
+                playback: playback,
+                queuePosition: queuePosition,
               ),
           createCompanionCallback:
               ({
@@ -8149,6 +10547,11 @@ class $$DownloadTableTableTableManager
                 required String dirPath,
                 Value<String?> headers = const Value.absent(),
                 Value<String?> data = const Value.absent(),
+                Value<DownloadKind> kind = const Value.absent(),
+                Value<int> downloadedBytes = const Value.absent(),
+                Value<int> totalBytes = const Value.absent(),
+                Value<String?> playback = const Value.absent(),
+                Value<int> queuePosition = const Value.absent(),
               }) => DownloadTableCompanion.insert(
                 id: id,
                 createdAt: createdAt,
@@ -8166,6 +10569,11 @@ class $$DownloadTableTableTableManager
                 dirPath: dirPath,
                 headers: headers,
                 data: data,
+                kind: kind,
+                downloadedBytes: downloadedBytes,
+                totalBytes: totalBytes,
+                playback: playback,
+                queuePosition: queuePosition,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -8545,6 +10953,853 @@ typedef $$LibraryUpdateTableTableProcessedTableManager =
       LibraryUpdateTableData,
       PrefetchHooks Function()
     >;
+typedef $$PageTranslationTableTableCreateCompanionBuilder =
+    PageTranslationTableCompanion Function({
+      Value<int> id,
+      Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      required String uid,
+      required String pagePath,
+      required String engine,
+      required String sourceLanguage,
+      required String targetLanguage,
+      required String resultJson,
+    });
+typedef $$PageTranslationTableTableUpdateCompanionBuilder =
+    PageTranslationTableCompanion Function({
+      Value<int> id,
+      Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<String> uid,
+      Value<String> pagePath,
+      Value<String> engine,
+      Value<String> sourceLanguage,
+      Value<String> targetLanguage,
+      Value<String> resultJson,
+    });
+
+class $$PageTranslationTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $PageTranslationTableTable> {
+  $$PageTranslationTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pagePath => $composableBuilder(
+    column: $table.pagePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get engine => $composableBuilder(
+    column: $table.engine,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceLanguage => $composableBuilder(
+    column: $table.sourceLanguage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get targetLanguage => $composableBuilder(
+    column: $table.targetLanguage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get resultJson => $composableBuilder(
+    column: $table.resultJson,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PageTranslationTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $PageTranslationTableTable> {
+  $$PageTranslationTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pagePath => $composableBuilder(
+    column: $table.pagePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get engine => $composableBuilder(
+    column: $table.engine,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceLanguage => $composableBuilder(
+    column: $table.sourceLanguage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get targetLanguage => $composableBuilder(
+    column: $table.targetLanguage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get resultJson => $composableBuilder(
+    column: $table.resultJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PageTranslationTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $PageTranslationTableTable> {
+  $$PageTranslationTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
+
+  GeneratedColumn<String> get pagePath =>
+      $composableBuilder(column: $table.pagePath, builder: (column) => column);
+
+  GeneratedColumn<String> get engine =>
+      $composableBuilder(column: $table.engine, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceLanguage => $composableBuilder(
+    column: $table.sourceLanguage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get targetLanguage => $composableBuilder(
+    column: $table.targetLanguage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get resultJson => $composableBuilder(
+    column: $table.resultJson,
+    builder: (column) => column,
+  );
+}
+
+class $$PageTranslationTableTableTableManager
+    extends
+        RootTableManager<
+          _$WakaranaiDatabase,
+          $PageTranslationTableTable,
+          PageTranslationTableData,
+          $$PageTranslationTableTableFilterComposer,
+          $$PageTranslationTableTableOrderingComposer,
+          $$PageTranslationTableTableAnnotationComposer,
+          $$PageTranslationTableTableCreateCompanionBuilder,
+          $$PageTranslationTableTableUpdateCompanionBuilder,
+          (
+            PageTranslationTableData,
+            BaseReferences<
+              _$WakaranaiDatabase,
+              $PageTranslationTableTable,
+              PageTranslationTableData
+            >,
+          ),
+          PageTranslationTableData,
+          PrefetchHooks Function()
+        > {
+  $$PageTranslationTableTableTableManager(
+    _$WakaranaiDatabase db,
+    $PageTranslationTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PageTranslationTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PageTranslationTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PageTranslationTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<String> uid = const Value.absent(),
+                Value<String> pagePath = const Value.absent(),
+                Value<String> engine = const Value.absent(),
+                Value<String> sourceLanguage = const Value.absent(),
+                Value<String> targetLanguage = const Value.absent(),
+                Value<String> resultJson = const Value.absent(),
+              }) => PageTranslationTableCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                uid: uid,
+                pagePath: pagePath,
+                engine: engine,
+                sourceLanguage: sourceLanguage,
+                targetLanguage: targetLanguage,
+                resultJson: resultJson,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                required String uid,
+                required String pagePath,
+                required String engine,
+                required String sourceLanguage,
+                required String targetLanguage,
+                required String resultJson,
+              }) => PageTranslationTableCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                uid: uid,
+                pagePath: pagePath,
+                engine: engine,
+                sourceLanguage: sourceLanguage,
+                targetLanguage: targetLanguage,
+                resultJson: resultJson,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PageTranslationTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$WakaranaiDatabase,
+      $PageTranslationTableTable,
+      PageTranslationTableData,
+      $$PageTranslationTableTableFilterComposer,
+      $$PageTranslationTableTableOrderingComposer,
+      $$PageTranslationTableTableAnnotationComposer,
+      $$PageTranslationTableTableCreateCompanionBuilder,
+      $$PageTranslationTableTableUpdateCompanionBuilder,
+      (
+        PageTranslationTableData,
+        BaseReferences<
+          _$WakaranaiDatabase,
+          $PageTranslationTableTable,
+          PageTranslationTableData
+        >,
+      ),
+      PageTranslationTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$ExtensionStorageTableTableCreateCompanionBuilder =
+    ExtensionStorageTableCompanion Function({
+      required String extensionUid,
+      required String entryKey,
+      required String value,
+      Value<int?> expiresAt,
+      required int updatedAt,
+      Value<int> rowid,
+    });
+typedef $$ExtensionStorageTableTableUpdateCompanionBuilder =
+    ExtensionStorageTableCompanion Function({
+      Value<String> extensionUid,
+      Value<String> entryKey,
+      Value<String> value,
+      Value<int?> expiresAt,
+      Value<int> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$ExtensionStorageTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $ExtensionStorageTableTable> {
+  $$ExtensionStorageTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entryKey => $composableBuilder(
+    column: $table.entryKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ExtensionStorageTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $ExtensionStorageTableTable> {
+  $$ExtensionStorageTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entryKey => $composableBuilder(
+    column: $table.entryKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ExtensionStorageTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $ExtensionStorageTableTable> {
+  $$ExtensionStorageTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get entryKey =>
+      $composableBuilder(column: $table.entryKey, builder: (column) => column);
+
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<int> get expiresAt =>
+      $composableBuilder(column: $table.expiresAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$ExtensionStorageTableTableTableManager
+    extends
+        RootTableManager<
+          _$WakaranaiDatabase,
+          $ExtensionStorageTableTable,
+          ExtensionStorageTableData,
+          $$ExtensionStorageTableTableFilterComposer,
+          $$ExtensionStorageTableTableOrderingComposer,
+          $$ExtensionStorageTableTableAnnotationComposer,
+          $$ExtensionStorageTableTableCreateCompanionBuilder,
+          $$ExtensionStorageTableTableUpdateCompanionBuilder,
+          (
+            ExtensionStorageTableData,
+            BaseReferences<
+              _$WakaranaiDatabase,
+              $ExtensionStorageTableTable,
+              ExtensionStorageTableData
+            >,
+          ),
+          ExtensionStorageTableData,
+          PrefetchHooks Function()
+        > {
+  $$ExtensionStorageTableTableTableManager(
+    _$WakaranaiDatabase db,
+    $ExtensionStorageTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExtensionStorageTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ExtensionStorageTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ExtensionStorageTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> extensionUid = const Value.absent(),
+                Value<String> entryKey = const Value.absent(),
+                Value<String> value = const Value.absent(),
+                Value<int?> expiresAt = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExtensionStorageTableCompanion(
+                extensionUid: extensionUid,
+                entryKey: entryKey,
+                value: value,
+                expiresAt: expiresAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String extensionUid,
+                required String entryKey,
+                required String value,
+                Value<int?> expiresAt = const Value.absent(),
+                required int updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => ExtensionStorageTableCompanion.insert(
+                extensionUid: extensionUid,
+                entryKey: entryKey,
+                value: value,
+                expiresAt: expiresAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ExtensionStorageTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$WakaranaiDatabase,
+      $ExtensionStorageTableTable,
+      ExtensionStorageTableData,
+      $$ExtensionStorageTableTableFilterComposer,
+      $$ExtensionStorageTableTableOrderingComposer,
+      $$ExtensionStorageTableTableAnnotationComposer,
+      $$ExtensionStorageTableTableCreateCompanionBuilder,
+      $$ExtensionStorageTableTableUpdateCompanionBuilder,
+      (
+        ExtensionStorageTableData,
+        BaseReferences<
+          _$WakaranaiDatabase,
+          $ExtensionStorageTableTable,
+          ExtensionStorageTableData
+        >,
+      ),
+      ExtensionStorageTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$TrackerLinkTableTableCreateCompanionBuilder =
+    TrackerLinkTableCompanion Function({
+      required String concreteUid,
+      required String trackerId,
+      required String extensionUid,
+      required String mediaType,
+      required int remoteId,
+      required String remoteTitle,
+      required String status,
+      Value<int> progress,
+      Value<int?> totalCount,
+      Value<int?> pendingProgress,
+      Value<int?> syncedAt,
+      Value<int> rowid,
+    });
+typedef $$TrackerLinkTableTableUpdateCompanionBuilder =
+    TrackerLinkTableCompanion Function({
+      Value<String> concreteUid,
+      Value<String> trackerId,
+      Value<String> extensionUid,
+      Value<String> mediaType,
+      Value<int> remoteId,
+      Value<String> remoteTitle,
+      Value<String> status,
+      Value<int> progress,
+      Value<int?> totalCount,
+      Value<int?> pendingProgress,
+      Value<int?> syncedAt,
+      Value<int> rowid,
+    });
+
+class $$TrackerLinkTableTableFilterComposer
+    extends Composer<_$WakaranaiDatabase, $TrackerLinkTableTable> {
+  $$TrackerLinkTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get concreteUid => $composableBuilder(
+    column: $table.concreteUid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get trackerId => $composableBuilder(
+    column: $table.trackerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mediaType => $composableBuilder(
+    column: $table.mediaType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get remoteId => $composableBuilder(
+    column: $table.remoteId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get remoteTitle => $composableBuilder(
+    column: $table.remoteTitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get progress => $composableBuilder(
+    column: $table.progress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalCount => $composableBuilder(
+    column: $table.totalCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pendingProgress => $composableBuilder(
+    column: $table.pendingProgress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TrackerLinkTableTableOrderingComposer
+    extends Composer<_$WakaranaiDatabase, $TrackerLinkTableTable> {
+  $$TrackerLinkTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get concreteUid => $composableBuilder(
+    column: $table.concreteUid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get trackerId => $composableBuilder(
+    column: $table.trackerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mediaType => $composableBuilder(
+    column: $table.mediaType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get remoteId => $composableBuilder(
+    column: $table.remoteId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get remoteTitle => $composableBuilder(
+    column: $table.remoteTitle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get progress => $composableBuilder(
+    column: $table.progress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalCount => $composableBuilder(
+    column: $table.totalCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pendingProgress => $composableBuilder(
+    column: $table.pendingProgress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TrackerLinkTableTableAnnotationComposer
+    extends Composer<_$WakaranaiDatabase, $TrackerLinkTableTable> {
+  $$TrackerLinkTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get concreteUid => $composableBuilder(
+    column: $table.concreteUid,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get trackerId =>
+      $composableBuilder(column: $table.trackerId, builder: (column) => column);
+
+  GeneratedColumn<String> get extensionUid => $composableBuilder(
+    column: $table.extensionUid,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get mediaType =>
+      $composableBuilder(column: $table.mediaType, builder: (column) => column);
+
+  GeneratedColumn<int> get remoteId =>
+      $composableBuilder(column: $table.remoteId, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteTitle => $composableBuilder(
+    column: $table.remoteTitle,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get progress =>
+      $composableBuilder(column: $table.progress, builder: (column) => column);
+
+  GeneratedColumn<int> get totalCount => $composableBuilder(
+    column: $table.totalCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get pendingProgress => $composableBuilder(
+    column: $table.pendingProgress,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+}
+
+class $$TrackerLinkTableTableTableManager
+    extends
+        RootTableManager<
+          _$WakaranaiDatabase,
+          $TrackerLinkTableTable,
+          TrackerLinkTableData,
+          $$TrackerLinkTableTableFilterComposer,
+          $$TrackerLinkTableTableOrderingComposer,
+          $$TrackerLinkTableTableAnnotationComposer,
+          $$TrackerLinkTableTableCreateCompanionBuilder,
+          $$TrackerLinkTableTableUpdateCompanionBuilder,
+          (
+            TrackerLinkTableData,
+            BaseReferences<
+              _$WakaranaiDatabase,
+              $TrackerLinkTableTable,
+              TrackerLinkTableData
+            >,
+          ),
+          TrackerLinkTableData,
+          PrefetchHooks Function()
+        > {
+  $$TrackerLinkTableTableTableManager(
+    _$WakaranaiDatabase db,
+    $TrackerLinkTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TrackerLinkTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TrackerLinkTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TrackerLinkTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> concreteUid = const Value.absent(),
+                Value<String> trackerId = const Value.absent(),
+                Value<String> extensionUid = const Value.absent(),
+                Value<String> mediaType = const Value.absent(),
+                Value<int> remoteId = const Value.absent(),
+                Value<String> remoteTitle = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<int> progress = const Value.absent(),
+                Value<int?> totalCount = const Value.absent(),
+                Value<int?> pendingProgress = const Value.absent(),
+                Value<int?> syncedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TrackerLinkTableCompanion(
+                concreteUid: concreteUid,
+                trackerId: trackerId,
+                extensionUid: extensionUid,
+                mediaType: mediaType,
+                remoteId: remoteId,
+                remoteTitle: remoteTitle,
+                status: status,
+                progress: progress,
+                totalCount: totalCount,
+                pendingProgress: pendingProgress,
+                syncedAt: syncedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String concreteUid,
+                required String trackerId,
+                required String extensionUid,
+                required String mediaType,
+                required int remoteId,
+                required String remoteTitle,
+                required String status,
+                Value<int> progress = const Value.absent(),
+                Value<int?> totalCount = const Value.absent(),
+                Value<int?> pendingProgress = const Value.absent(),
+                Value<int?> syncedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TrackerLinkTableCompanion.insert(
+                concreteUid: concreteUid,
+                trackerId: trackerId,
+                extensionUid: extensionUid,
+                mediaType: mediaType,
+                remoteId: remoteId,
+                remoteTitle: remoteTitle,
+                status: status,
+                progress: progress,
+                totalCount: totalCount,
+                pendingProgress: pendingProgress,
+                syncedAt: syncedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TrackerLinkTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$WakaranaiDatabase,
+      $TrackerLinkTableTable,
+      TrackerLinkTableData,
+      $$TrackerLinkTableTableFilterComposer,
+      $$TrackerLinkTableTableOrderingComposer,
+      $$TrackerLinkTableTableAnnotationComposer,
+      $$TrackerLinkTableTableCreateCompanionBuilder,
+      $$TrackerLinkTableTableUpdateCompanionBuilder,
+      (
+        TrackerLinkTableData,
+        BaseReferences<
+          _$WakaranaiDatabase,
+          $TrackerLinkTableTable,
+          TrackerLinkTableData
+        >,
+      ),
+      TrackerLinkTableData,
+      PrefetchHooks Function()
+    >;
 
 class $WakaranaiDatabaseManager {
   final _$WakaranaiDatabase _db;
@@ -8570,4 +11825,10 @@ class $WakaranaiDatabaseManager {
       $$DownloadTableTableTableManager(_db, _db.downloadTable);
   $$LibraryUpdateTableTableTableManager get libraryUpdateTable =>
       $$LibraryUpdateTableTableTableManager(_db, _db.libraryUpdateTable);
+  $$PageTranslationTableTableTableManager get pageTranslationTable =>
+      $$PageTranslationTableTableTableManager(_db, _db.pageTranslationTable);
+  $$ExtensionStorageTableTableTableManager get extensionStorageTable =>
+      $$ExtensionStorageTableTableTableManager(_db, _db.extensionStorageTable);
+  $$TrackerLinkTableTableTableManager get trackerLinkTable =>
+      $$TrackerLinkTableTableTableManager(_db, _db.trackerLinkTable);
 }

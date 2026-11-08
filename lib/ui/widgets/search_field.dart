@@ -10,6 +10,7 @@ class SearchField extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.onClear,
+    this.autofocus = false,
   });
 
   final TextEditingController controller;
@@ -17,6 +18,7 @@ class SearchField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final VoidCallback? onClear;
+  final bool autofocus;
 
   @override
   State<SearchField> createState() => _SearchFieldState();
@@ -73,6 +75,7 @@ class _SearchFieldState extends State<SearchField> {
             child: TextField(
               controller: widget.controller,
               focusNode: _focusNode,
+              autofocus: widget.autofocus,
               onChanged: widget.onChanged,
               onSubmitted: widget.onSubmitted,
               textInputAction: TextInputAction.search,

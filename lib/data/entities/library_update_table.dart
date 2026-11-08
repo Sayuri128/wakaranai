@@ -3,6 +3,7 @@ import 'package:wakaranai/data/entities/base_table.dart';
 
 enum UpdateMediaType { manga, anime }
 
+@TableIndex(name: 'library_update_uid', columns: <Symbol>{#uid}, unique: true)
 class LibraryUpdateTable extends BaseTable {
   TextColumn get uid => text()();
 

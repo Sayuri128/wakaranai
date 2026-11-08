@@ -1,4 +1,4 @@
-import 'package:drift/src/runtime/query_builder/query_builder.dart';
+import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/repositories/database/base_repository.dart';
@@ -23,6 +23,58 @@ class ChapterActivityRepository extends BaseRepository<ChapterActivityDomain,
       return getAllBy<$ChapterActivityTableTable>(concrete.id,
           where: (tbl) => tbl.concreteId);
     }
+  }
+
+  Future<ChapterActivityDomain?> markCompleted(
+    ChapterActivityDomain activity, {
+    int? completedPages,
+  }) async {
+    final ChapterActivityDomain? existing =
+        await getBy<$ChapterActivityTableTable>(
+      activity.uid,
+      where: (tbl) => tbl.uid,
+    );
+    return createUpdateBy<$ChapterActivityTableTable, String>(
+      _completedActivity(activity, existing, completedPages: completedPages),
+      by: (ChapterActivityDomain domain) => domain.uid,
+      where: (tbl) => tbl.uid,
+    );
+  }
+
+  ChapterActivityDomain _completedActivity(
+    ChapterActivityDomain activity,
+    ChapterActivityDomain? existing, {
+    int? completedPages,
+  }) {
+    if (completedPages != null) {
+      return ChapterActivityDomain(
+        id: existing?.id ?? activity.id,
+        uid: activity.uid,
+        title: activity.title,
+        timestamp: activity.timestamp,
+        data: activity.data,
+        concreteId: activity.concreteId,
+        readPages: completedPages,
+        totalPages: completedPages,
+        createdAt: existing?.createdAt ?? activity.createdAt,
+      );
+    }
+    if (existing == null) {
+      return activity.copyWith(readPages: 0, totalPages: 0);
+    }
+    final int totalPages = existing.totalPages;
+    final int readPages = totalPages > 0 ? totalPages : existing.readPages;
+    return ChapterActivityDomain(
+      id: existing.id,
+      uid: activity.uid,
+      title: activity.title,
+      timestamp: activity.timestamp,
+      data: activity.data,
+      concreteId: activity.concreteId,
+      readPages: readPages,
+      totalPages: totalPages,
+      createdAt: existing.createdAt,
+    );
   }
 
   @override

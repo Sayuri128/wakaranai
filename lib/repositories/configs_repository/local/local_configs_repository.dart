@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:wakaranai/data/models/configs_repo/configs_response/repo_configs_response.dart';
+import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/data/models/remote_script/remote_script.dart';
+import 'package:wakaranai/services/configs_service/remote_config_parser.dart';
 
 class LocalConfigsRepository {
   LocalConfigsRepository(this._dio, {this.baseUrl = ''});
@@ -15,7 +17,18 @@ class LocalConfigsRepository {
       queryParameters: <String, dynamic>{'category': category},
       options: Options(responseType: ResponseType.json),
     );
-    return RepoConfigsResponse.fromJson(response.data!);
+    final Map<String, dynamic> json = response.data!;
+    final dynamic entries = json['configs'];
+    return RepoConfigsResponse(
+      status: (json['status'] as num?)?.toInt() ?? 0,
+      availableCategories: (json['availableCategories'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList() ??
+          <String>[],
+      configs: entries is List
+          ? const RemoteConfigParser().parseAll(entries)
+          : <RemoteConfig>[],
+    );
   }
 
   Future<RemoteScript> getScript(String path) async {

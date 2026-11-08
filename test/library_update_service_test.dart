@@ -1,5 +1,8 @@
+import 'package:capyscript/AST/throw/capyscript_error.dart';
+import 'package:capyscript/api_clients/source_error.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:capyscript/modules/waka_models/models/config_info/protector_config/protector_config.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_gallery_view/filters/gallery_filter.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
@@ -15,6 +18,7 @@ import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
 import 'package:wakaranai/repositories/database/library_update_repository.dart';
+import 'package:wakaranai/services/configs_service/source_needs_attention.dart';
 import 'package:wakaranai/services/library_updates/library_update_service.dart';
 
 const String _extensionUid = 'ext.test';
@@ -63,14 +67,45 @@ ExtensionDomain _extension() {
   );
 }
 
+ExtensionDomain _protectedExtension({
+  required String uid,
+  required String name,
+  String? sessionGroup,
+}) {
+  return ExtensionDomain(
+    id: 0,
+    config: ConfigInfo(
+      name: name,
+      uid: uid,
+      logoUrl: '',
+      nsfw: false,
+      language: 'en',
+      version: 1,
+      filters: const <GalleryFilter>[],
+      type: ConfigInfoType.MANGA,
+      searchAvailable: true,
+      protectorConfig: ProtectorConfig(
+        pingUrl: 'https://example.com',
+        needToLogin: true,
+        inAppBrowserInterceptor: false,
+        sessionGroup: sessionGroup,
+      ),
+    ),
+    sourceCode: 'noop',
+    createdAt: DateTime.now(),
+  );
+}
+
 LibraryEntryDomain _entry({
   bool trackUpdates = true,
   bool notifyUpdates = true,
+  String uid = _titleUid,
+  String extensionUid = _extensionUid,
 }) {
   return LibraryEntryDomain(
     id: 0,
-    uid: _titleUid,
-    extensionUid: _extensionUid,
+    uid: uid,
+    extensionUid: extensionUid,
     title: 'Test Title',
     cover: 'cover.png',
     data: '{}',
@@ -104,7 +139,7 @@ class _Harness {
   }
 }
 
-ConcreteViewFetcher _returns(ConcreteView<dynamic> view) {
+ConcreteViewFetcher _returns(ConcreteView view) {
   return (ExtensionDomain _, LibraryEntryDomain __) async => view;
 }
 
@@ -233,5 +268,335 @@ void main() {
 
     expect(result.failed, 1);
     expect(result.updates, isEmpty);
+  });
+
+  group('sources that need the user', () {
+    const String mangaLibUid = 'ext.mangalib';
+    const String hentaiLibUid = 'ext.hentailib';
+
+    Future<void> addTitles(String extensionUid, int count) async {
+      for (int index = 0; index < count; index++) {
+        await harness.libraryEntryRepository.create(
+          _entry(uid: '$extensionUid-$index', extensionUid: extensionUid),
+        );
+      }
+    }
+
+    test('an expired session is reported once and the rest are skipped',
+        () async {
+      await harness.extensionRepository.create(
+        _protectedExtension(uid: mangaLibUid, name: 'MangaLib'),
+      );
+      await addTitles(mangaLibUid, 3);
+      int calls = 0;
+
+      final LibraryUpdateCheckResult result = await harness.service(
+        (ExtensionDomain _, LibraryEntryDomain __) async {
+          calls++;
+          throw CapyScriptError('HTTP 401');
+        },
+      ).check();
+
+      expect(calls, 1, reason: 'the source must not be hammered');
+      expect(result.failed, 1);
+      expect(result.skipped, 2);
+      expect(result.checked, 0);
+      expect(result.needsAttention, hasLength(1));
+      expect(result.needsAttention.single.sourceName, 'MangaLib');
+      expect(result.needsAttention.single.reason,
+          SourceAttentionReason.sessionExpired);
+    });
+
+    test('sources sharing a session are reported once', () async {
+      await harness.extensionRepository.create(_protectedExtension(
+        uid: mangaLibUid,
+        name: 'MangaLib',
+        sessionGroup: 'lib_social',
+      ));
+      await harness.extensionRepository.create(_protectedExtension(
+        uid: hentaiLibUid,
+        name: 'HentaiLib',
+        sessionGroup: 'lib_social',
+      ));
+      await addTitles(mangaLibUid, 2);
+      await addTitles(hentaiLibUid, 2);
+
+      final LibraryUpdateCheckResult result = await harness.service(
+        (ExtensionDomain extension, LibraryEntryDomain __) async {
+          throw SourceNeedsAttention(
+            config: extension.config,
+            reason: SourceAttentionReason.notSignedIn,
+          );
+        },
+      ).check();
+
+      expect(result.needsAttention, hasLength(1));
+      expect(result.needsAttention.single.sessionKey, 'lib_social');
+      expect(result.checked, 0);
+      expect(result.failed + result.skipped, 4);
+      expect(result.failed, lessThanOrEqualTo(2));
+    });
+
+    test('other sources keep being checked', () async {
+      await harness.extensionRepository.create(
+        _protectedExtension(uid: mangaLibUid, name: 'MangaLib'),
+      );
+      await addTitles(mangaLibUid, 2);
+      await harness.libraryEntryRepository.create(_entry());
+
+      final LibraryUpdateCheckResult result = await harness.service(
+        (ExtensionDomain extension, LibraryEntryDomain __) async {
+          if (extension.config.uid == mangaLibUid) {
+            throw CapyScriptError('HTTP 403');
+          }
+          return _view(<String>['c1']);
+        },
+      ).check();
+
+      expect(result.checked, 1);
+      expect(result.failed, 1);
+      expect(result.skipped, 1);
+      expect(result.needsAttention, hasLength(1));
+    });
+
+    test('an unclear failure on a protected source stays a plain failure',
+        () async {
+      await harness.extensionRepository.create(
+        _protectedExtension(uid: mangaLibUid, name: 'MangaLib'),
+      );
+      await addTitles(mangaLibUid, 2);
+      int calls = 0;
+
+      final LibraryUpdateCheckResult result = await harness.service(
+        (ExtensionDomain _, LibraryEntryDomain __) async {
+          calls++;
+          throw Exception('network down');
+        },
+      ).check();
+
+      expect(calls, 2);
+      expect(result.failed, 2);
+      expect(result.skipped, 0);
+      expect(result.needsAttention, isEmpty);
+    });
+
+    test('an auth-looking failure on an open source is not flagged', () async {
+      await harness.libraryEntryRepository.create(_entry());
+
+      final LibraryUpdateCheckResult result = await harness.service(
+        (ExtensionDomain _, LibraryEntryDomain __) async =>
+            throw CapyScriptError('HTTP 403'),
+      ).check();
+
+      expect(result.failed, 1);
+      expect(result.needsAttention, isEmpty);
+    });
+  });
+
+  group('typed source errors', () {
+    ConcreteViewFetcher throwing(SourceErrorKind kind, {List<int>? calls}) {
+      return (ExtensionDomain _, LibraryEntryDomain __) async {
+        calls?.add(1);
+        throw SourceError(kind, 'from the script');
+      };
+    }
+
+    Future<void> addOpenTitles(int count) async {
+      for (int index = 0; index < count; index++) {
+        await harness.libraryEntryRepository.create(
+          _entry(uid: 'title-$index'),
+        );
+      }
+    }
+
+    test('a source that is down is never treated as a removed title',
+        () async {
+      await harness.libraryEntryRepository.create(_entry());
+      await harness.service(_returns(_view(<String>['c1']))).check();
+
+      final LibraryUpdateCheckResult down = await harness
+          .service(throwing(SourceErrorKind.sourceDown))
+          .check();
+
+      expect(down.removedFromSource, isEmpty);
+      expect(down.failed, 1);
+      expect(down.needsAttention, isEmpty);
+      expect(await harness.libraryUpdateRepository.getAll(), isEmpty);
+
+      final LibraryUpdateCheckResult recovered = await harness
+          .service(_returns(_view(<String>['c1', 'c2'])))
+          .check();
+      expect(recovered.updates.single.uid, 'c2',
+          reason: 'the snapshot must survive the outage');
+    });
+
+    test('a source that is down is not hammered for the rest of the run',
+        () async {
+      await addOpenTitles(3);
+      final List<int> calls = <int>[];
+
+      final LibraryUpdateCheckResult result = await harness
+          .service(throwing(SourceErrorKind.sourceDown, calls: calls))
+          .check();
+
+      expect(calls, hasLength(1));
+      expect(result.failed, 1);
+      expect(result.skipped, 2);
+      expect(result.removedFromSource, isEmpty);
+    });
+
+    test('a rate limited source is skipped for this run', () async {
+      await addOpenTitles(2);
+      final List<int> calls = <int>[];
+
+      final LibraryUpdateCheckResult result = await harness
+          .service(throwing(SourceErrorKind.rateLimited, calls: calls))
+          .check();
+
+      expect(calls, hasLength(1));
+      expect(result.failed, 1);
+      expect(result.skipped, 1);
+      expect(result.removedFromSource, isEmpty);
+      expect(result.needsAttention, isEmpty);
+    });
+
+    test('a title the source no longer has is reported as removed', () async {
+      await harness.libraryEntryRepository.create(_entry());
+      await harness.service(_returns(_view(<String>['c1']))).check();
+
+      final LibraryUpdateCheckResult result = await harness
+          .service(throwing(SourceErrorKind.notFound))
+          .check();
+
+      expect(result.removedFromSource.single.uid, _titleUid);
+      expect(result.failed, 0);
+      expect(result.checked, 0);
+      expect(result.updates, isEmpty);
+
+      final snapshot = await harness.concreteDataRepository.getByUid(_titleUid);
+      expect(snapshot?.concreteJson, contains('c1'),
+          reason: 'the cached details stay readable offline');
+      expect(await harness.libraryEntryRepository.getByUid(_titleUid),
+          isNotNull,
+          reason: 'the title is not removed from the library automatically');
+    });
+
+    test('a removed title does not stop the other titles of its source',
+        () async {
+      await addOpenTitles(2);
+
+      final LibraryUpdateCheckResult result = await harness.service(
+        (ExtensionDomain _, LibraryEntryDomain entry) async {
+          if (entry.uid == 'title-0') {
+            throw const SourceError(SourceErrorKind.notFound);
+          }
+          return _view(<String>['c1']);
+        },
+      ).check();
+
+      expect(result.removedFromSource.single.uid, 'title-0');
+      expect(result.checked, 1);
+    });
+
+    test('a login error on a protected source asks the user to sign in',
+        () async {
+      await harness.extensionRepository.create(
+        _protectedExtension(uid: 'ext.mangalib', name: 'MangaLib'),
+      );
+      for (int index = 0; index < 2; index++) {
+        await harness.libraryEntryRepository.create(
+          _entry(uid: 'lib-$index', extensionUid: 'ext.mangalib'),
+        );
+      }
+      final List<int> calls = <int>[];
+
+      final LibraryUpdateCheckResult result = await harness
+          .service(throwing(SourceErrorKind.loginRequired, calls: calls))
+          .check();
+
+      expect(calls, hasLength(1));
+      expect(result.needsAttention.single.reason,
+          SourceAttentionReason.loginRequired);
+      expect(result.failed, 1);
+      expect(result.skipped, 1);
+      expect(result.removedFromSource, isEmpty);
+    });
+
+    test('a login error on a source without sign in is skipped', () async {
+      await harness.libraryEntryRepository.create(_entry());
+
+      final LibraryUpdateCheckResult result = await harness
+          .service(throwing(SourceErrorKind.loginRequired))
+          .check();
+
+      expect(result.needsAttention, isEmpty);
+      expect(result.skipped, 1);
+      expect(result.failed, 0);
+    });
+
+    test('region blocked and unsupported titles are skipped quietly',
+        () async {
+      for (final SourceErrorKind kind in <SourceErrorKind>[
+        SourceErrorKind.regionBlocked,
+        SourceErrorKind.unsupported,
+      ]) {
+        await harness.libraryEntryRepository.create(_entry(uid: kind.name));
+      }
+
+      final LibraryUpdateCheckResult result = await harness.service(
+        (ExtensionDomain _, LibraryEntryDomain entry) async {
+          throw SourceError(SourceErrorKind.values.byName(entry.uid));
+        },
+      ).check();
+
+      expect(result.skipped, 2);
+      expect(result.failed, 0);
+      expect(result.checked, 0);
+      expect(result.removedFromSource, isEmpty);
+      expect(result.needsAttention, isEmpty);
+    });
+
+    test('a typed error on a protected source is not read as an auth failure',
+        () async {
+      await harness.extensionRepository.create(
+        _protectedExtension(uid: 'ext.mangalib', name: 'MangaLib'),
+      );
+      await harness.libraryEntryRepository.create(
+        _entry(uid: 'lib-0', extensionUid: 'ext.mangalib'),
+      );
+
+      final LibraryUpdateCheckResult result = await harness.service(
+        (ExtensionDomain _, LibraryEntryDomain __) async =>
+            throw const SourceError(SourceErrorKind.sourceDown, 'HTTP 403'),
+      ).check();
+
+      expect(result.needsAttention, isEmpty);
+      expect(result.failed, 1);
+    });
+  });
+
+  test('an unreadable snapshot reports nothing rather than every chapter',
+      () async {
+    await harness.libraryEntryRepository.create(_entry());
+
+    await harness.service(_returns(_view(<String>['c1', 'c2']))).check();
+
+    final snapshot = await harness.concreteDataRepository.getByUid(_titleUid);
+    await harness.concreteDataRepository.update(
+      snapshot!.copyWith(concreteJson: 'not json at all'),
+    );
+
+    final LibraryUpdateCheckResult result = await harness
+        .service(_returns(_view(<String>['c1', 'c2', 'c3'])))
+        .check();
+
+    expect(result.updates, isEmpty);
+    expect(result.checked, 1);
+    expect(await harness.libraryUpdateRepository.getAll(), isEmpty);
+
+    final refreshed =
+        await harness.concreteDataRepository.getByUid(_titleUid);
+    expect(refreshed?.concreteJson, isNot('not json at all'),
+        reason: 'the snapshot must be rewritten so the next run recovers');
   });
 }

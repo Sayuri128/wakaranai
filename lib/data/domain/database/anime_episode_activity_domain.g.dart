@@ -16,6 +16,7 @@ AnimeEpisodeActivityDomain _$AnimeEpisodeActivityDomainFromJson(Map json) =>
       concreteId: (json['concreteId'] as num).toInt(),
       watchedTime: (json['watchedTime'] as num?)?.toInt(),
       totalTime: (json['totalTime'] as num?)?.toInt(),
+      markedWatched: json['markedWatched'] as bool? ?? false,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] == null
           ? null
@@ -35,4 +36,5 @@ Map<String, dynamic> _$AnimeEpisodeActivityDomainToJson(
   'data': instance.data,
   'watchedTime': instance.watchedTime,
   'totalTime': instance.totalTime,
+  'markedWatched': instance.markedWatched,
 };

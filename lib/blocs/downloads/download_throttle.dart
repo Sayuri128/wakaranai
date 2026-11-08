@@ -1,0 +1,120 @@
+import 'dart:io';
+import 'dart:math';
+
+const int kDefaultSegmentConcurrency = 3;
+const int kMinSegmentConcurrency = 1;
+const int kMaxSegmentConcurrency = 8;
+
+typedef DownloadWait = Future<void> Function(Duration duration);
+
+Future<void> waitIfPositive(DownloadWait wait, Duration duration) async {
+  if (duration > Duration.zero) {
+    await wait(duration);
+  }
+}
+
+int resolveSegmentConcurrency(
+  int? configured, {
+  int fallback = kDefaultSegmentConcurrency,
+}) {
+  if (configured == null) {
+    return fallback;
+  }
+  return configured.clamp(kMinSegmentConcurrency, kMaxSegmentConcurrency);
+}
+
+class DownloadThrottle {
+  DownloadThrottle({DateTime Function()? now}) : _now = now ?? DateTime.now;
+
+  static const Duration minimumPageDelay = Duration(milliseconds: 500);
+  static const Duration maximumPageDelay = Duration(seconds: 8);
+  static const Duration maximumRetryWait = Duration(seconds: 60);
+  static const Duration _firstBackoff = Duration(seconds: 2);
+  static const int _chapterDelayFactor = 4;
+
+  final DateTime Function() _now;
+  final Map<String, Duration> _configuredPageDelay = <String, Duration>{};
+  final Map<String, Duration> _configuredChapterDelay = <String, Duration>{};
+  final Map<String, Duration> _configuredEpisodeDelay = <String, Duration>{};
+  final Map<String, int?> _configuredSegmentConcurrency = <String, int?>{};
+  final Map<String, Duration> _learnedPageDelay = <String, Duration>{};
+
+  void configure(
+    String extensionUid, {
+    Duration pageDelay = Duration.zero,
+    Duration chapterDelay = Duration.zero,
+    Duration episodeDelay = Duration.zero,
+    int? segmentConcurrency,
+  }) {
+    _configuredPageDelay[extensionUid] = pageDelay;
+    _configuredChapterDelay[extensionUid] = chapterDelay;
+    _configuredEpisodeDelay[extensionUid] = episodeDelay;
+    _configuredSegmentConcurrency[extensionUid] = segmentConcurrency;
+  }
+
+  int? segmentConcurrency(String extensionUid) {
+    return _configuredSegmentConcurrency[extensionUid];
+  }
+
+  Duration episodeDelay(String extensionUid) {
+    return _longer(
+      _configuredEpisodeDelay[extensionUid] ?? Duration.zero,
+      chapterDelay(extensionUid),
+    );
+  }
+
+  Duration pageDelay(String extensionUid) {
+    return _longer(
+      _configuredPageDelay[extensionUid] ?? Duration.zero,
+      _learnedPageDelay[extensionUid] ?? Duration.zero,
+    );
+  }
+
+  Duration chapterDelay(String extensionUid) {
+    final Duration learned =
+        (_learnedPageDelay[extensionUid] ?? Duration.zero) *
+            _chapterDelayFactor;
+    return _longer(
+      _configuredChapterDelay[extensionUid] ?? Duration.zero,
+      learned,
+    );
+  }
+
+  void rateLimited(String extensionUid) {
+    final Duration current = _learnedPageDelay[extensionUid] ?? Duration.zero;
+    final Duration doubled = _longer(current * 2, minimumPageDelay);
+    _learnedPageDelay[extensionUid] =
+        doubled > maximumPageDelay ? maximumPageDelay : doubled;
+  }
+
+  Duration retryWait(int rateLimitedAttempt, {String? retryAfterHeader}) {
+    final Duration? requested = _parseRetryAfter(retryAfterHeader);
+    if (requested != null) {
+      return requested > maximumRetryWait ? maximumRetryWait : requested;
+    }
+    final int exponent = max(0, rateLimitedAttempt - 1);
+    final Duration backoff = _firstBackoff * pow(2, exponent).toInt();
+    return backoff > maximumRetryWait ? maximumRetryWait : backoff;
+  }
+
+  Duration? _parseRetryAfter(String? header) {
+    final String? value = header?.trim();
+    if (value == null || value.isEmpty) {
+      return null;
+    }
+    final int? seconds = int.tryParse(value);
+    if (seconds != null) {
+      return Duration(seconds: max(0, seconds));
+    }
+    try {
+      final Duration untilDate = HttpDate.parse(value).difference(_now());
+      return untilDate.isNegative ? Duration.zero : untilDate;
+    } on HttpException {
+      return null;
+    } on FormatException {
+      return null;
+    }
+  }
+
+  Duration _longer(Duration a, Duration b) => a > b ? a : b;
+}

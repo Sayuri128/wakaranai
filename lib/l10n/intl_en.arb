@@ -8,13 +8,18 @@
   "save_image_error": "Couldn't save image",
   "@_HOME": {},
   "home_manga_group_title": "Manga",
-  "home_anime_group_title": "Anime",
+  "home_anime_group_title": "Video",
+  "home_novel_group_title": "Novels",
   "home_nsfw_suffix": "NSFW",
   "home_remote_configs_page_appbar_title": "Extensions",
   "home_sources_button": "Sources",
   "home_no_extensions_title": "No extensions",
   "home_no_extensions_message": "This source doesn't have any extensions yet",
   "home_extensions_error_title": "Couldn't load extensions",
+  "api_client_error_title": "Couldn't load this extension",
+  "@api_client_error_title": {},
+  "common_go_back": "Go back",
+  "@common_go_back": {},
   "home_navigation_bar_sources_title": "Explore",
   "home_navigation_bar_activity_history_title": "History",
   "home_navigation_bar_settings_title": "Settings",
@@ -35,6 +40,145 @@
   "library_delete_category": "Delete",
   "library_move_to_category": "Move to category",
   "library_remove": "Remove from library",
+  "library_continue": "Continue",
+  "library_more_actions": "More",
+  "library_download_first_group_hint": "Each title downloads from its first chapter group",
+  "library_download_many_loading": "{count, plural, =1{Looking up chapters for 1 title…} other{Looking up chapters for {count} titles…}}",
+  "@library_download_many_loading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "library_download_many_failed": "{count, plural, =1{1 title couldn't be loaded} other{{count} titles couldn't be loaded}}",
+  "@library_download_many_failed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "library_add": "Add to library",
+  "library_add_to_category": "Add to category",
+  "title_download": "Download",
+  "title_download_title": "Download chapters",
+  "title_download_next": "Next chapter",
+  "title_download_next_count": "Next {count} chapters",
+  "@title_download_next_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_unread": "Unread chapters",
+  "title_download_all": "All chapters",
+  "title_download_loading": "Looking up chapters…",
+  "title_download_queued": "{count, plural, =1{1 chapter queued} other{{count} chapters queued}}",
+  "@title_download_queued": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_nothing": "No new chapters to download",
+  "title_download_groups": "Chapter groups",
+  "title_download_how_many": "Chapters to download",
+  "title_download_untitled_group": "Group {number}",
+  "@title_download_untitled_group": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_chapter_count": "{count, plural, =1{1 chapter} other{{count} chapters}}",
+  "@title_download_chapter_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_no_chapters": "This title has no chapters yet",
+  "title_download_failed": "Couldn't load the chapter list",
+  "title_download_episode_title": "Download episodes",
+  "title_download_episode_next": "Next episode",
+  "title_download_episode_next_count": "Next {count} episodes",
+  "@title_download_episode_next_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_episode_unwatched": "Unwatched episodes",
+  "title_download_episode_all": "All episodes",
+  "title_download_episode_loading": "Looking up episodes…",
+  "title_download_episode_queued": "{count, plural, =1{1 episode queued} other{{count} episodes queued}}",
+  "@title_download_episode_queued": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_episode_nothing": "No new episodes to download",
+  "title_download_episode_groups": "Episode groups",
+  "title_download_episode_how_many": "Episodes to download",
+  "title_download_episode_count": "{count, plural, =1{1 episode} other{{count} episodes}}",
+  "@title_download_episode_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_episode_none": "This title has no episodes yet",
+  "title_download_episode_failed": "Couldn't load the episode list",
+  "title_download_episode_first_group_hint": "Each title downloads from its first episode group",
+  "title_download_episode_many_loading": "{count, plural, =1{Looking up episodes for 1 title…} other{Looking up episodes for {count} titles…}}",
+  "@title_download_episode_many_loading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_episode_mixed_title": "Download chapters and episodes",
+  "title_download_episode_mixed_next": "Next chapter or episode",
+  "title_download_episode_mixed_next_count": "Next {count} chapters or episodes",
+  "@title_download_episode_mixed_next_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_episode_mixed_unread": "Unread chapters and unwatched episodes",
+  "title_download_episode_mixed_all": "All chapters and episodes",
+  "title_download_episode_mixed_hint": "Each title downloads from its first group",
+  "title_download_episode_mixed_loading": "{count, plural, =1{Looking up 1 title…} other{Looking up {count} titles…}}",
+  "@title_download_episode_mixed_loading": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_episode_mixed_queued": "{count, plural, =1{1 download queued} other{{count} downloads queued}}",
+  "@title_download_episode_mixed_queued": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "title_download_episode_mixed_nothing": "Nothing new to download",
+  "library_added_message": "Added to library",
+  "library_removed_message": "Removed from library",
   "library_no_category": "No category",
   "library_source_unavailable_title": "Source unavailable",
   "library_source_unavailable_message": "The extension for this title is no longer installed",
@@ -102,6 +246,30 @@
   "service_view_empty_message": "Pull down to refresh",
   "service_view_search_results_for": "Results for “{query}”",
   "service_view_clear_search": "Clear",
+  "@_SOURCE_ERRORS": {},
+  "source_error_login_required_title": "Sign in to {source}",
+  "@source_error_login_required_title": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "source_error_rate_limited_title": "Too many requests, try again later",
+  "source_error_not_found_title": "Removed from the source",
+  "source_error_region_blocked_title": "Not available in your region",
+  "source_error_source_down_title": "The source is down, try again later",
+  "source_error_unsupported_title": "Not supported by this source",
+  "source_error_sign_in_button": "Sign in",
+  "source_error_retry_button": "Retry",
+  "source_error_remove_from_library_button": "Remove from library",
+  "source_error_open_saved_button": "Open saved details",
+  "source_error_removed_titles_found": "{count, plural, one{1 title was removed from its source} other{{count} titles were removed from their sources}}",
+  "@source_error_removed_titles_found": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@_GALLERY_FEEDS": {},
+  "feeds_row_label": "Feeds",
   "@_GALLERY_FILTERS": {},
   "gallery_filters_button_label": "Filters",
   "gallery_filters_sheet_title": "Filters",
@@ -115,6 +283,31 @@
   "gallery_filters_option_search_hint": "Search",
   "gallery_filters_more_options": "+{count} more — refine your search",
   "gallery_filters_no_matches": "No matches",
+  "filters_active_summary": "{count, plural, =1{1 filter active} other{{count} filters active}}",
+  "filters_none_active": "Showing everything",
+  "filters_clear_section": "Clear",
+  "filters_any_option": "Any",
+  "filters_show_all": "Show all {count}",
+  "filters_show_less": "Show less",
+  "filters_search_hint": "Search {name}",
+  "filters_clear_search": "Clear search",
+  "filters_range_any": "Any",
+  "filters_add_value": "Add",
+  "filters_remove_value": "Remove {value}",
+  "filters_empty_title": "No filters",
+  "filters_empty_message": "This source doesn't offer any filters.",
+  "filters_button_semantics": "{count, plural, =0{Filters} =1{Filters, 1 active} other{Filters, {count} active}}",
+  "gallery_layout_comfortable": "Comfortable grid",
+  "gallery_layout_compact": "Compact grid",
+  "gallery_layout_list": "List",
+  "gallery_layout_button_tooltip": "Layout: {layout}",
+  "gallery_last_opened": "Last opened: {title}",
+  "title_status_released": "Completed",
+  "title_status_ongoing": "Ongoing",
+  "title_status_paused": "Paused",
+  "title_status_announce": "Announced",
+  "title_status_canceled": "Cancelled",
+  "library_new_chapters": "{count} new",
   "@_CHAPTER_VIEWER": {},
   "chapter_viewer_next_chapter_button_title": "Next",
   "chapter_viewer_previous_chapter_button_title": "Previous",
@@ -123,6 +316,18 @@
   "chapter_viewer_right_to_left_read_mode": "Right to left",
   "chapter_viewer_left_to_right_read_mode": "Left to right",
   "chapter_viewer_webtoon": "Webtoon",
+  "concrete_new_badge": "NEW",
+  "chapter_divider_finished": "Finished",
+  "chapter_divider_next": "Next",
+  "chapter_divider_pages": "{count} pages",
+  "chapter_divider_downloaded": "Downloaded",
+  "chapter_divider_loading": "Loading the next chapter…",
+  "chapter_divider_failed": "Couldn't load the chapter",
+  "chapter_divider_end_title": "You're all caught up",
+  "chapter_divider_end_message": "There are no more chapters",
+  "chapter_divider_back": "Back to title",
+  "chapter_divider_previous": "Previous chapter",
+  "chapter_divider_load_previous": "Load previous chapter",
   "@_SETTINGS": {},
   "settings_download_latest_release": "New version {version} available",
   "settings_default_reader_mode_title": "Default reader mode",
@@ -131,6 +336,29 @@
   "settings_content_section_title": "Content",
   "settings_show_nsfw_title": "Show NSFW sources",
   "settings_show_nsfw_subtitle": "Display extensions marked as adult content",
+  "settings_developer_section": "Developer",
+  "concrete_viewer_by_authors": "By {names}",
+  "@concrete_viewer_by_authors": {
+    "placeholders": {
+      "names": {}
+    }
+  },
+  "concrete_viewer_art_by": "Art by {names}",
+  "@concrete_viewer_art_by": {
+    "placeholders": {
+      "names": {}
+    }
+  },
+  "concrete_viewer_open_website": "Open website",
+  "settings_local_extension_server_title": "Local extension server",
+  "settings_local_extension_server_subtitle": "Load extensions from {url}",
+  "@settings_local_extension_server_subtitle": {
+    "placeholders": {
+      "url": {}
+    }
+  },
+  "settings_local_extension_server_missing": "Set LOCAL_REPOSITORY_URL in .env to enable",
+  "local_extension_server_source_name": "Local server",
   "settings_statistics_section_title": "Statistics",
   "settings_reading_statistics_title": "Reading statistics",
   "settings_reading_statistics_subtitle": "View your reading and watching activity",
@@ -156,7 +384,7 @@
   "settings_clear_cookies_cache_dialog_confirmation_message": "This action cannot be canceled later",
   "settings_clear_cookies_cache_dialog_confirmation_ok_label": "Delete",
   "settings_clear_cookies_cache_dialog_confirmation_cancel_label": "Cancel",
-    "settings_clear_activity_history": "Clear activity history",
+  "settings_clear_activity_history": "Clear activity history",
   "settings_clear_activity_history_dialog_confirmation_title": "Are you sure you want to clear your history?",
   "settings_clear_activity_history_dialog_confirmation_message": "This action cannot be canceled later",
   "settings_clear_activity_history_dialog_confirmation_ok_label": "Delete",
@@ -203,14 +431,14 @@
   "@_WEB_BROWSER": {},
   "web_browser_no_login_button": "Done",
   "@_ACTIVITY_HISTORY": {},
-  "activity_history_manga_appbar_title": "Manga",
-  "activity_history_anime_appbar_title": "Anime",
+  "activity_history_manga_appbar_title": "Reading",
+  "activity_history_anime_appbar_title": "Watching",
   "activity_history_error_loading_history": "Error occurred during loading history",
   "activity_history_error_loading_extension": "Error occurred during loading extension",
   "activity_history_deleted_activity": "Deleted activity successfully",
   "activity_history_long_tap_dialog_delete_button": "Delete",
-  "activity_history_empty_manga_list_message": "No history :c\nStart reading manga to see your history here",
-  "activity_history_empty_anime_list_message": "No history :c\nStart watching anime to see your history here",
+  "activity_history_empty_manga_list_message": "No history :c\nStart reading to see your history here",
+  "activity_history_empty_anime_list_message": "No history :c\nStart watching to see your history here",
   "@_ANIME_CONCRETE_VIEWER": {},
   "anime_concrete_viewer_watched_at_title": "Watched at {time}",
   "@_CONCRETE_VIEWER": {},
@@ -229,10 +457,9 @@
   "concrete_selection_clear": "Clear",
   "concrete_selection_download": "Download",
   "concrete_offline_banner": "Offline — showing cached content. Only downloaded chapters can be opened.",
-  "settings_storage_section_title": "Storage",
-  "settings_downloads_title": "Downloads",
-  "settings_downloads_subtitle": "Manage downloaded chapters",
   "downloads_title": "Downloads",
+  "downloads_order_newest": "Newest first",
+  "downloads_order_oldest": "Oldest first",
   "downloads_empty_title": "No downloads",
   "downloads_empty_message": "Chapters you download for offline reading will appear here.",
   "downloads_status_queued": "Queued",
@@ -245,6 +472,7 @@
   "downloads_delete_confirmation_message": "This chapter will be removed from this device.",
   "downloads_confirm_delete": "Delete",
   "downloads_confirm_cancel": "Cancel",
+  "downloads_episode_files_missing": "This episode's downloaded files are missing. Download it again to watch offline.",
   "downloads_pages_progress": "{done}/{total} pages",
   "@downloads_pages_progress": {
     "placeholders": {
@@ -259,6 +487,126 @@
       "total": {}
     }
   },
+  "downloads_episode_segments_progress": "Segment {done}/{total}",
+  "@downloads_episode_segments_progress": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  },
+  "downloads_episode_bytes_progress": "{percent}% · {downloaded} of {total}",
+  "@downloads_episode_bytes_progress": {
+    "placeholders": {
+      "percent": {},
+      "downloaded": {},
+      "total": {}
+    }
+  },
+  "downloads_episode_bytes_downloaded": "{downloaded} downloaded",
+  "@downloads_episode_bytes_downloaded": {
+    "placeholders": {
+      "downloaded": {}
+    }
+  },
+  "downloads_episode_preparing": "Preparing video…",
+  "downloads_episode_done": "Ready to watch offline",
+  "downloads_episode_done_size": "Ready to watch offline · {size}",
+  "@downloads_episode_done_size": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "downloads_episode_size_mb": "{size} MB",
+  "@downloads_episode_size_mb": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "downloads_episode_size_gb": "{size} GB",
+  "@downloads_episode_size_gb": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "downloads_episode_summary": "{done}/{total} episodes downloaded",
+  "@downloads_episode_summary": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  },
+  "downloads_episode_delete_confirmation_message": "This episode will be removed from this device.",
+  "downloads_episode_retry": "Retry download",
+  "downloads_quality_title": "Download quality",
+  "downloads_quality_same_as_player": "Same as player",
+  "downloads_quality_highest": "Highest available",
+  "downloads_quality_1080": "1080p",
+  "downloads_quality_720": "720p",
+  "downloads_quality_480": "480p",
+  "downloads_storage_section_title": "Downloads",
+  "downloads_storage_delete_after_watching_title": "Delete episodes after watching",
+  "downloads_storage_delete_after_watching_subtitle": "Remove a downloaded episode once you finish it in the player",
+  "downloads_storage_used": "Storage used",
+  "downloads_storage_calculating": "Calculating…",
+  "downloads_storage_free_up": "Free up space",
+  "downloads_storage_free_up_reclaimable": "Up to {size} can be freed",
+  "@downloads_storage_free_up_reclaimable": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "downloads_storage_free_up_empty": "Nothing to free up",
+  "downloads_storage_title_size": "{count} downloads · {size}",
+  "@downloads_storage_title_size": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "downloads_storage_watched_size": "{count} watched · {size}",
+  "@downloads_storage_watched_size": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "downloads_storage_summary_with_size": "{summary} · {size}",
+  "@downloads_storage_summary_with_size": {
+    "placeholders": {
+      "summary": {},
+      "size": {}
+    }
+  },
+  "downloads_storage_delete_watched": "Delete watched",
+  "downloads_storage_delete_watched_episodes": "Delete watched episodes",
+  "downloads_storage_delete_title_downloads": "Delete all downloads of this title",
+  "downloads_storage_delete_all_short": "Delete all",
+  "downloads_storage_delete_watched_confirm_title": "Delete watched episodes?",
+  "downloads_storage_delete_watched_confirm_message": "{count} watched episodes of {title} ({size}) will be removed from this device.",
+  "@downloads_storage_delete_watched_confirm_message": {
+    "placeholders": {
+      "count": {},
+      "title": {},
+      "size": {}
+    }
+  },
+  "downloads_storage_delete_title_confirm_title": "Delete these downloads?",
+  "downloads_storage_delete_title_confirm_message": "Every download of {title} ({size}) will be removed from this device.",
+  "@downloads_storage_delete_title_confirm_message": {
+    "placeholders": {
+      "title": {},
+      "size": {}
+    }
+  },
+  "downloads_storage_no_watched": "No watched episodes to delete",
+  "downloads_storage_deleted_watched": "Deleted {count} watched episodes",
+  "@downloads_storage_deleted_watched": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "downloads_storage_playback_fallback": "The downloaded file couldn't be played, so it's streaming instead.",
+  "downloads_storage_redownload": "Re-download",
   "settings_export_data_button": "Export data",
   "settings_import_data_button": "Import data",
   "settings_export_sheet_title": "Export data",
@@ -288,7 +636,9 @@
   "export_section_sources": "Extension sources",
   "export_section_sources_subtitle": "Repositories you added",
   "export_section_settings": "Settings",
-  "export_section_settings_subtitle": "Theme, reader mode and toggles",
+  "export_section_settings_subtitle": "Theme, reader, player, layout and translation preferences",
+  "export_section_translations": "Page translations",
+  "export_section_translations_subtitle": "Translated pages, so they don't need to be translated again",
   "downloads_notification_channel_name": "Downloads",
   "downloads_notification_downloading_title": "Downloading",
   "downloads_notification_complete_title": "Download complete",
@@ -298,6 +648,37 @@
       "count": {}
     }
   },
+  "downloads_runtime_wifi_only_title": "Download over Wi-Fi only",
+  "downloads_runtime_wifi_only_subtitle": "Queued downloads wait until you are on Wi-Fi or ethernet",
+  "downloads_runtime_waiting_for_wifi": "Waiting for Wi-Fi",
+  "downloads_runtime_waiting_for_wifi_message": "Downloads resume automatically once you are back on Wi-Fi",
+  "downloads_runtime_app_must_stay_open": "Android stopped background downloading. Keep the app open until downloads finish.",
+  "downloads_queue_status_paused": "Paused",
+  "downloads_queue_paused_progress": "Paused · {progress}",
+  "@downloads_queue_paused_progress": {
+    "placeholders": {
+      "progress": {}
+    }
+  },
+  "downloads_queue_pause": "Pause",
+  "downloads_queue_resume": "Resume",
+  "downloads_queue_pause_all": "Pause all",
+  "downloads_queue_resume_all": "Resume all",
+  "downloads_queue_pause_title": "Pause downloads of this title",
+  "downloads_queue_resume_title": "Resume downloads of this title",
+  "downloads_queue_move_title_to_top": "Move to the top of the queue",
+  "downloads_queue_title": "Queue",
+  "downloads_queue_button": "Queue ({count})",
+  "@downloads_queue_button": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "downloads_queue_download_next": "Download next",
+  "downloads_queue_remove": "Remove from queue",
+  "downloads_queue_now_downloading": "Downloading now",
+  "downloads_queue_empty": "Nothing is waiting to download",
+  "downloads_queue_reorder_hint": "Drag the handles to change the download order",
   "updates_notification_channel_name": "Library updates",
   "updates_notification_title": "{count} new items",
   "@updates_notification_title": {
@@ -343,6 +724,84 @@
       "count": {}
     }
   },
+  "updates_attention_sign_in": "{source} needs you to sign in",
+  "@updates_attention_sign_in": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "updates_attention_sign_in_again": "{source} needs you to sign in again",
+  "@updates_attention_sign_in_again": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "updates_attention_browser_check": "{source} needs a quick check in the browser",
+  "@updates_attention_browser_check": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "updates_attention_many": "{count} sources need your attention",
+  "@updates_attention_many": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "updates_attention_sheet_title": "Sources need attention",
+  "updates_attention_action_open": "Open",
+  "updates_attention_action_review": "Review",
+  "updates_attention_session_saved": "Session saved for {source}. Pull to refresh to check again",
+  "@updates_attention_session_saved": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "updates_attention_unavailable": "{source} has no browser sign-in",
+  "@updates_attention_unavailable": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "updates_attention_notification_sign_in_title": "Sign in needed: {sources}",
+  "@updates_attention_notification_sign_in_title": {
+    "placeholders": {
+      "sources": {}
+    }
+  },
+  "updates_attention_notification_browser_title": "Browser check needed: {sources}",
+  "@updates_attention_notification_browser_title": {
+    "placeholders": {
+      "sources": {}
+    }
+  },
+  "updates_attention_notification_body": "Update checks are paused for these sources. Pull to refresh your library to fix it.",
+  "extension_clear_session": "Clear saved session",
+  "extension_clear_session_done": "Saved session for {source} cleared",
+  "@extension_clear_session_done": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "compat_requires_newer_app": "Update the app to use this source",
+  "compat_update_needs_newer_app": "Update available — needs a newer app version",
+  "compat_reason_api_version": "This source needs extension API {required}, this app supports up to {supported}.",
+  "@compat_reason_api_version": {
+    "placeholders": {
+      "required": {},
+      "supported": {}
+    }
+  },
+  "compat_reason_min_app_version": "This source needs app version {required} or newer, you have {current}.",
+  "@compat_reason_min_app_version": {
+    "placeholders": {
+      "required": {},
+      "current": {}
+    }
+  },
+  "compat_installed_keeps_working": "Your installed version keeps working until you update the app.",
+  "compat_open_installed": "Open installed version",
+  "compat_download_latest_app": "Download the latest app version",
   "updates_time_now": "Just now",
   "updates_time_minutes": "{count}m ago",
   "@updates_time_minutes": {
@@ -376,5 +835,1285 @@
     "placeholders": {
       "hours": {}
     }
-  }
+  },
+  "@_PAGE_TRANSLATION": {},
+  "settings_page_translation_title": "Page translation",
+  "settings_page_translation_subtitle": "Experimental · recognize and translate text on pages",
+  "page_translation_settings_title": "Page translation",
+  "page_translation_settings_experimental": "Experimental",
+  "page_translation_settings_enable": "Enable page translation",
+  "page_translation_settings_enable_subtitle": "Adds a translate button to the reader. Text is recognized and translated on your device.",
+  "page_translation_settings_languages_section": "Languages",
+  "page_translation_settings_target": "Translate to",
+  "page_translation_settings_packs_section": "Language packs",
+  "page_translation_settings_pack_downloaded": "Downloaded",
+  "page_translation_settings_pack_missing": "Not downloaded · about 30 MB",
+  "page_translation_settings_download_pack": "Download",
+  "page_translation_settings_delete_pack": "Delete",
+  "page_translation_settings_wifi_only": "Download on Wi-Fi only",
+  "page_translation_settings_ocr_title": "Text recognition",
+  "page_translation_settings_ocr_note": "Japanese, Korean and Chinese recognition is provided by Google Play services and downloads automatically the first time it is used.",
+  "page_translation_settings_storage_section": "Storage",
+  "page_translation_settings_clear_cache": "Clear translated pages",
+  "page_translation_settings_clear_cache_subtitle": "{count} pages saved",
+  "@page_translation_settings_clear_cache_subtitle": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "page_translation_settings_clear_cache_confirm_title": "Clear translated pages?",
+  "page_translation_settings_clear_cache_confirm_message": "Pages will be translated again the next time you open them.",
+  "page_translation_settings_clear_cache_confirm_ok": "Clear",
+  "page_translation_models_title": "Download language packs",
+  "page_translation_models_message": "Translating {source} to {target} needs on-device language packs, about 30 MB each. They are downloaded once, and pages are then translated entirely on your device.",
+  "@page_translation_models_message": {
+    "placeholders": {
+      "source": {},
+      "target": {}
+    }
+  },
+  "page_translation_models_wifi_note": "Downloads wait for Wi-Fi. You can change this in Settings → Page translation.",
+  "page_translation_models_download": "Download",
+  "page_translation_models_cancel": "Not now",
+  "page_translation_models_downloading": "Downloading language packs…",
+  "page_translation_models_failed": "Couldn't download language packs",
+  "page_translation_status_translating": "Translating page…",
+  "page_translation_status_failed": "Translation failed · tap to retry",
+  "page_translation_status_preparing": "Preparing translation…",
+  "page_translation_status_outdated": "Older translation · tap to update",
+  "page_translation_retranslate": "Retranslate",
+  "page_translation_edit": "Edit",
+  "page_translation_copy": "Copy",
+  "page_translation_retranslate_failed": "Couldn't retranslate this bubble",
+  "page_translation_region_empty": "No text found in the selected area",
+  "page_translation_peek_hint": "Hold to see the original page",
+  "page_translation_original_edit_hint": "Fix recognition mistakes, then retranslate",
+  "page_translation_settings_remove_outdated": "Remove older translations",
+  "page_translation_settings_remove_outdated_subtitle": "{count} pages from an older version",
+  "@page_translation_settings_remove_outdated_subtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "page_translation_status_model_pending": "Google Play services is downloading text recognition…",
+  "page_translation_original_label": "Original",
+  "page_translation_translation_label": "Translation",
+  "page_translation_copy_original": "Copy original",
+  "page_translation_copy_translation": "Copy translation",
+  "page_translation_show_original": "Show original",
+  "page_translation_show_translation": "Show translation",
+  "page_translation_copied": "Copied",
+  "page_translation_settings_target_subtitle": "Default for titles you translate for the first time. Each title remembers its own languages.",
+  "page_translation_languages_title": "Translation languages",
+  "page_translation_languages_subtitle": "Saved for this title only.",
+  "page_translation_languages_from": "Text on pages",
+  "page_translation_languages_to": "Translate to",
+  "page_translation_languages_start": "Translate",
+  "page_translation_languages_save": "Save",
+  "page_translation_models_downloading_progress": "Downloading language packs {current}/{total}…",
+  "@page_translation_models_downloading_progress": {
+    "placeholders": {
+      "current": {},
+      "total": {}
+    }
+  },
+  "language_packs_title": "Language packs",
+  "language_packs_hint": "Each pack is about 30 MB. You only need the languages you translate from and to.",
+  "language_packs_hint_wifi": "Each pack is about 30 MB. You only need the languages you translate from and to. Downloads wait for Wi-Fi.",
+  "language_packs_downloaded_section": "Downloaded",
+  "language_packs_available_section": "Available",
+  "language_packs_queue_progress": "Downloading {current} of {total}",
+  "@language_packs_queue_progress": {
+    "placeholders": {
+      "current": {},
+      "total": {}
+    }
+  },
+  "language_packs_queued": "Queued · #{position}",
+  "@language_packs_queued": {
+    "placeholders": {
+      "position": {}
+    }
+  },
+  "language_packs_failed": "Download failed",
+  "language_packs_retry": "Retry",
+  "language_packs_cancel": "Cancel",
+  "language_packs_downloaded_count": "{count} downloaded",
+  "@language_packs_downloaded_count": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "page_translation_ai_model_downloading": "Downloading AI model {progress}%",
+  "@page_translation_ai_model_downloading": {
+    "placeholders": {
+      "progress": {}
+    }
+  },
+  "page_translation_status_chapter": "Translating chapter {done}/{total}",
+  "@page_translation_status_chapter": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  },
+  "page_translation_translate_chapter": "Translate whole chapter",
+  "page_translation_ai_model_title": "Download the AI model",
+  "page_translation_ai_model_message": "{model} needs a one-time {size} GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.",
+  "translation_engine_section": "Translation engine",
+  "translation_engine_mlkit": "ML Kit",
+  "translation_engine_mlkit_subtitle": "Fast and light · works on every phone · literal translations",
+  "translation_engine_gemma": "Gemma 4 E2B · on-device AI",
+  "translation_engine_gemma_subtitle": "Natural translations that fix text-recognition mistakes · 2.6 GB · 8 GB RAM",
+  "translation_engine_gemma_e4b": "Gemma 4 E4B · on-device AI",
+  "translation_engine_gemma_e4b_subtitle": "Better translations, about twice as slow · 3.7 GB · 12 GB RAM",
+  "translation_engine_deepl": "DeepL · online",
+  "translation_engine_change": "Change",
+  "page_translation_appearance_section": "Appearance",
+  "page_translation_glossary_title": "Names & terms",
+  "page_translation_glossary_subtitle": "Keep character names and terms consistent in this title. Used by DeepL and Gemma.",
+  "page_translation_glossary_unsupported": "ML Kit can't use names & terms. Switch to DeepL or Gemma in Page translation settings.",
+  "page_translation_glossary_add": "Add name",
+  "page_translation_glossary_save": "Save",
+  "page_translation_glossary_save_retranslate": "Save & retranslate chapter",
+  "page_translation_glossary_empty": "None yet",
+  "page_translation_glossary_count": "{count, plural, =1{1 name} other{{count} names}}",
+  "@page_translation_glossary_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "page_translation_text_size": "Text size",
+  "page_translation_text_size_subtitle": "Largest size translated text may use on screen",
+  "page_translation_text_size_auto": "Auto",
+  "page_translation_text_size_pixels": "Up to {size} px",
+  "@page_translation_text_size_pixels": {
+    "placeholders": {
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "page_translation_font": "Font",
+  "page_translation_font_system": "System",
+  "page_translation_font_comic": "Comic",
+  "page_translation_label_background": "Label background",
+  "page_translation_label_background_subtitle": "For text outside speech bubbles",
+  "page_translation_preview_bubble": "What are you doing here?!",
+  "page_translation_preview_label": "Meanwhile, in Tokyo…",
+  "engine_tag_offline": "Offline",
+  "engine_tag_online": "Online",
+  "engine_tag_fast": "Fast",
+  "engine_tag_literal": "Literal",
+  "engine_tag_natural": "Natural",
+  "engine_tag_best": "Best quality",
+  "engine_tag_size": "{size} GB",
+  "@engine_tag_size": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "translation_engine_deepl_subtitle": "Best quality · sends the recognised text to DeepL · needs a free API key",
+  "translation_engine_gemma_unavailable_platform": "Not available on this device",
+  "translation_engine_gemma_unavailable_android": "Needs Android 11 or newer",
+  "translation_engine_gemma_unavailable_64bit": "Needs a 64-bit phone",
+  "translation_engine_gemma_unavailable_ram": "Needs {need} GB of RAM (this phone has {ram} GB)",
+  "@translation_engine_gemma_unavailable_ram": {
+    "placeholders": {
+      "need": {
+        "type": "int"
+      },
+      "ram": {
+        "type": "int"
+      }
+    }
+  },
+  "translation_ai_model_title": "AI model",
+  "translation_ai_model_installed": "{model} · {size} GB · ready",
+  "translation_ai_model_failed": "Download failed · try again on Wi-Fi",
+  "translation_ai_model_missing": "Not downloaded · {size} GB",
+  "translation_ai_model_delete_title": "Delete the AI model?",
+  "translation_ai_model_delete_message": "This frees {size} GB. You can download it again at any time.",
+  "translation_models_title": "Downloaded models",
+  "translation_models_summary": "{count, plural, =0{No AI models downloaded} =1{1 AI model · {size} GB} other{{count} AI models · {size} GB}}",
+  "@translation_models_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "translation_models_ai_section": "On-device AI",
+  "translation_models_packs_section": "ML Kit",
+  "translation_models_packs_count": "{count, plural, =0{No language packs yet} =1{1 language pack downloaded} other{{count} language packs downloaded}}",
+  "@translation_models_packs_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "translation_models_downloaded": "Downloaded · {size} GB",
+  "@translation_models_downloaded": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "translation_models_unsupported": "Not supported on this phone",
+  "translation_models_pick_first": "Not downloaded · {size} GB · choose it as the engine to download",
+  "@translation_models_pick_first": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deepl_key_title": "DeepL API key",
+  "deepl_key_missing": "Not set",
+  "deepl_key_masked": "Key ••••{ending}",
+  "@deepl_key_masked": {
+    "placeholders": {
+      "ending": {
+        "type": "String"
+      }
+    }
+  },
+  "deepl_usage_used": "used this month",
+  "deepl_usage_left": "{count} left",
+  "@deepl_usage_left": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "deepl_usage_characters": "{used} of {limit} characters",
+  "@deepl_usage_characters": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "deepl_usage_unavailable": "Usage is unavailable right now",
+  "download_speed_megabytes": "{speed} MB/s",
+  "@download_speed_megabytes": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "download_time_left": "{time} left",
+  "@download_time_left": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "duration_hours_minutes": "{hours} h {minutes} min",
+  "@duration_hours_minutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "duration_minutes": "{minutes} min",
+  "@duration_minutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "duration_seconds": "{seconds} s",
+  "@duration_seconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "deepl_key_needed": "Add a DeepL API key in Page translation settings first",
+  "deepl_key_change": "Change",
+  "deepl_key_remove": "Remove",
+  "deepl_key_dialog_message": "Create a free DeepL API account and paste its authentication key here. The free plan includes a monthly character allowance; you can see it here once the key is saved. The key is stored only on this phone.",
+  "deepl_key_hint": "Paste your API key",
+  "deepl_key_get": "Get a free key",
+  "deepl_key_save": "Save",
+  "deepl_key_cancel": "Cancel",
+  "deepl_key_invalid": "DeepL did not accept this key",
+  "deepl_key_network": "Could not reach DeepL. Check your connection.",
+  "translation_engine_info_intro": "Gemma 4 runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. E4B translates noticeably better than E2B but is about twice as slow. Nothing leaves your device.",
+  "translation_engine_info_requirements": "Requirements",
+  "translation_engine_req_android": "Android 11 or newer",
+  "translation_engine_req_64bit": "64-bit (arm64) processor",
+  "translation_engine_info_this_phone": "This phone: {model} · {ram} GB RAM",
+  "@translation_engine_info_this_phone": {
+    "placeholders": {
+      "model": {},
+      "ram": {}
+    }
+  },
+  "translation_engine_info_examples": "Speed by phone (estimated)",
+  "translation_engine_tier_fast": "Fast · about 4–10 s per page",
+  "translation_engine_tier_fast_phones": "Galaxy S24 / S25, Pixel 9 / 10, OnePlus 12 / 13, Xiaomi 14 / 15 and other 2024+ flagships with 12 GB RAM",
+  "translation_engine_tier_ok": "Usable · noticeably slower",
+  "translation_engine_tier_ok_phones": "Galaxy S22 / S23, Pixel 8, Galaxy A55 and other phones with 8 GB RAM",
+  "translation_engine_tier_no": "Not supported",
+  "translation_engine_tier_no_phones": "Phones with less than 8 GB RAM, 32-bit phones and Android 10 or older",
+  "engine_tag_speed_e2b": "≈4–10 s per page",
+  "engine_tag_speed_e4b": "≈20–45 s per page",
+  "translation_engine_req_ram_model": "{ram} GB of RAM or more",
+  "@translation_engine_req_ram_model": {
+    "placeholders": {
+      "ram": {
+        "type": "int"
+      }
+    }
+  },
+  "translation_engine_req_storage_model": "About {size} GB of free storage",
+  "@translation_engine_req_storage_model": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "translation_engine_tier_e4b": "About 20–45 s per page",
+  "translation_engine_tier_e4b_no_phones": "Phones with less than 12 GB RAM",
+  "translation_engine_info_footer": "Speeds are estimates; the fast tier was measured on a Galaxy S24 Ultra. Translating ahead while you read, and translating downloaded chapters in advance, hides most of the wait.",
+  "chapter_translation_queued": "{count} chapters queued for translation",
+  "@chapter_translation_queued": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "chapter_translation_cancel": "Stop translating",
+  "chapter_translation_translate": "Translate chapter",
+  "chapter_translation_translate_all": "Translate all downloaded chapters",
+  "chapter_translation_queued_status": "Waiting to translate",
+  "chapter_translation_preparing": "Preparing translation…",
+  "chapter_translation_progress": "Translating {done}/{total}",
+  "@chapter_translation_progress": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  },
+  "chapter_translation_done": "Translated",
+  "chapter_translation_done_partial": "Translated · {failed} pages failed",
+  "@chapter_translation_done_partial": {
+    "placeholders": {
+      "failed": {}
+    }
+  },
+  "chapter_translation_failed": "Translation failed",
+  "chapter_translation_waiting_download": "Downloading, then translating",
+  "concrete_selection_translate": "Translate",
+  "concrete_continue_start": "Start",
+  "concrete_continue_resume": "Continue",
+  "concrete_related_title": "Related",
+  "configs_filter_all_kinds": "All",
+  "configs_filter_all_languages": "All languages",
+  "configs_filter_language_title": "Language",
+  "configs_filter_all_prices": "Any price",
+  "configs_filter_price_title": "Price",
+  "source_pricing_free": "Free",
+  "source_pricing_partial": "Partly free",
+  "source_pricing_paid": "Paid",
+  "configs_filter_all_types": "Any type",
+  "configs_filter_type_title": "Source type",
+  "source_type_website": "Website",
+  "source_type_self_hosted": "Self-hosted",
+  "source_type_official": "Official",
+  "source_type_local": "On device",
+  "configs_view_options": "View options",
+  "configs_view_layout": "Layout",
+  "configs_layout_cards": "Cards",
+  "configs_layout_compact": "Compact list",
+  "configs_layout_grid": "Grid",
+  "configs_view_sort": "Sort",
+  "configs_sort_listing": "As listed",
+  "configs_sort_name": "Name",
+  "configs_pin": "Pin to top",
+  "configs_unpin": "Unpin",
+  "configs_pinned_group_title": "Pinned",
+  "configs_search_hint": "Search sources",
+  "content_kind_anime": "Anime",
+  "content_kind_movie": "Movies",
+  "content_kind_series": "Series",
+  "content_kind_cartoon": "Cartoons",
+  "content_kind_dorama": "Dramas",
+  "content_kind_documentary": "Documentaries",
+  "content_kind_manga": "Manga",
+  "content_kind_manhwa": "Manhwa",
+  "content_kind_manhua": "Manhua",
+  "content_kind_comic": "Comics",
+  "content_kind_novel": "Novels",
+  "local_source_name": "Local files",
+  "local_source_import": "Import CBZ or ZIP files",
+  "local_source_where": "Where to put files",
+  "local_source_where_message": "Copy folders of images, CBZ or ZIP files into\n{path}\n\nEach folder is a title and each archive or image folder inside it is a chapter. A cover.jpg and ComicInfo.xml are used when present. The folder is reachable over USB from a computer.",
+  "@local_source_where_message": {
+    "placeholders": {
+      "path": {}
+    }
+  },
+  "local_source_imported": "{count, plural, =0{Nothing was imported} =1{Imported 1 file} other{Imported {count} files}}",
+  "@local_source_imported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "local_source_imported_title": "Imported",
+  "local_books_name": "Local books",
+  "local_books_import": "Import EPUB files",
+  "local_books_where": "Where to put books",
+  "local_books_where_message": "Copy EPUB files into\n{path}\n\nEach file is a book, and subfolders are fine. Chapters follow the book's table of contents. The folder is reachable over USB from a computer.",
+  "@local_books_where_message": {
+    "placeholders": {
+      "path": {}
+    }
+  },
+  "local_books_imported": "{count, plural, =0{Nothing was imported} =1{Imported 1 book} other{Imported {count} books}}",
+  "@local_books_imported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "local_books_untitled_chapter": "Part {number}",
+  "@local_books_untitled_chapter": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "settings_trackers_title": "Trackers",
+  "settings_tracker_signed_out": "Not signed in. Tap to sign in",
+  "settings_tracker_signed_in": "Signed in as {name}",
+  "@settings_tracker_signed_in": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "settings_tracker_login_failed": "Could not sign in to {name}",
+  "@settings_tracker_login_failed": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "settings_tracker_logout_title": "Sign out of {name}?",
+  "@settings_tracker_logout_title": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "settings_tracker_logout_message": "Titles linked to this tracker stop syncing and their links are removed.",
+  "settings_tracker_logout": "Sign out",
+  "tracker_chip_untracked": "Track this title",
+  "tracker_sheet_title": "Tracking",
+  "tracker_link_action": "Link",
+  "tracker_unlink_action": "Unlink",
+  "tracker_search_title": "Find on {name}",
+  "@tracker_search_title": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "tracker_search_hint": "Search by title",
+  "tracker_search_empty": "Nothing found. Try another title.",
+  "tracker_search_failed": "Search failed. Check your connection and try again.",
+  "tracker_link_failed": "Could not link the title. Try again.",
+  "tracker_status_planning": "Planning",
+  "tracker_status_reading": "Reading",
+  "tracker_status_watching": "Watching",
+  "tracker_status_completed": "Completed",
+  "tracker_status_paused": "Paused",
+  "tracker_status_dropped": "Dropped",
+  "tracker_status_rereading": "Rereading",
+  "tracker_status_rewatching": "Rewatching",
+  "extension_instance_add": "Add another server",
+  "extension_instance_add_confirm": "Add",
+  "extension_instance_added": "Added {name}",
+  "@extension_instance_added": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "extension_instance_add_failed": "Could not add the server. Check your connection and try again.",
+  "extension_instance_rename": "Rename",
+  "extension_instance_rename_confirm": "Save",
+  "concrete_selection_mark_watched": "Watched",
+  "concrete_selection_mark_unwatched": "Unwatched",
+  "settings_hide_nsfw_titles_title": "Hide titles from NSFW sources",
+  "settings_hide_nsfw_titles_subtitle": "Keep them out of the library, history, updates and downloads",
+  "reader_page_fit_title": "Page fit",
+  "reader_page_fit_screen": "Fit screen",
+  "reader_page_fit_width": "Fit width",
+  "reader_page_fit_height": "Fit height",
+  "reader_background_title": "Background",
+  "reader_background_black": "Black",
+  "reader_background_grey": "Grey",
+  "reader_background_white": "White",
+  "reader_background_theme": "Theme",
+  "reader_crop_borders_title": "Crop borders",
+  "reader_crop_borders_subtitle": "Trim empty white or black margins in page modes",
+  "reader_double_page_title": "Two pages in landscape",
+  "reader_double_page_subtitle": "Show pages side by side when the phone is turned sideways",
+  "reader_volume_keys_title": "Turn pages with volume keys",
+  "reader_volume_keys_invert_title": "Invert volume keys",
+  "settings_incognito_title": "Incognito mode",
+  "settings_incognito_subtitle": "Don't save reading or watching progress, history or statistics",
+  "settings_video_player_external": "External player",
+  "external_player_action": "External player",
+  "external_player_unavailable": "No external video player is installed. Playing in the built-in player instead.",
+  "extension_uninstall": "Uninstall",
+  "extension_uninstall_title": "Uninstall {name}?",
+  "@extension_uninstall_title": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "extension_uninstall_message": "Removes the downloaded script, its settings, stored data and sign-in. Library titles and downloads stay; opening one of them installs the extension again.",
+  "extension_uninstall_done": "{name} was uninstalled",
+  "@extension_uninstall_done": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "page_translation_translate_chapter_hint": "Translate every page in the background",
+  "chapter_translation_cancel_all": "Cancel all",
+  "chapter_translation_pause": "Pause",
+  "chapter_translation_resume": "Resume",
+  "chapter_translation_notification_paused": "Paused",
+  "chapter_translation_notification_remaining": "{count} chapters left",
+  "@chapter_translation_notification_remaining": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "chapter_translation_notification_channel": "Chapter translation",
+  "chapter_translation_notification_done_title": "Translation finished",
+  "chapter_translation_notification_done_body": "{count} chapters translated",
+  "@chapter_translation_notification_done_body": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "chapter_translation_queue_title": "Translation queue",
+  "library_tab_titles": "Titles",
+  "@page_translation_ai_model_message": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@translation_ai_model_installed": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@translation_ai_model_missing": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@translation_ai_model_delete_message": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_auto_backup_title": "Automatic backups",
+  "settings_auto_backup_off": "Off · use Export to save a backup yourself",
+  "settings_auto_backup_never": "Daily to Download/Wakaranai · no backup yet",
+  "settings_auto_backup_last": "Daily to Download/Wakaranai · last {time}",
+  "@settings_auto_backup_last": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_auto_backup_failed": "The last backup failed · tap Back up now to retry",
+  "settings_auto_backup_now": "Back up now",
+  "settings_auto_backup_saved": "Backup saved to Download/Wakaranai",
+  "web_browser_back": "Back",
+  "web_browser_forward": "Forward",
+  "web_browser_reload": "Reload",
+  "web_browser_stop": "Stop loading",
+  "web_browser_more": "More",
+  "web_browser_copy_link": "Copy link",
+  "web_browser_link_copied": "Link copied",
+  "web_browser_open_external": "Open in external browser",
+  "web_browser_open_external_failed": "Couldn't open an external browser",
+  "web_browser_clear_cookies": "Clear cookies for this site",
+  "web_browser_cookies_cleared": "Cookies cleared for {host}",
+  "web_browser_looks_good": "Looks good — continue",
+  "web_browser_error_title": "Couldn't load this page",
+  "web_browser_retry": "Retry",
+  "web_browser_popup_close": "Close window",
+  "browser_check_required_title": "This source needs a quick check in the browser",
+  "browser_check_required_message": "Its protection page didn't clear on its own. Finish the check in the browser, then tap Done to continue.",
+  "browser_check_open_button": "Open browser",
+  "browser_check_reconnecting": "Reconnecting to the source…",
+  "browser_check_dismiss": "Dismiss",
+  "native_player_play": "Play",
+  "native_player_pause": "Pause",
+  "native_player_next_episode": "Next episode",
+  "native_player_quality": "Quality",
+  "native_player_quality_fallback": "Source {index}",
+  "native_player_quality_auto": "Auto",
+  "native_player_speed": "Playback speed",
+  "native_player_speed_normal": "Normal",
+  "native_player_subtitles": "Subtitles",
+  "native_player_subtitles_off": "Off",
+  "native_player_subtitle_fallback": "Subtitle {index}",
+  "native_player_subtitle_failed": "Couldn't load these subtitles",
+  "native_player_open_web_player": "Open in web player",
+  "native_player_lock": "Lock controls",
+  "native_player_unlock": "Unlock controls",
+  "native_player_more": "More options",
+  "native_player_error_title": "Couldn't play this video",
+  "native_player_retry": "Retry",
+  "native_player_seek_backward": "−{seconds}s",
+  "native_player_seek_forward": "+{seconds}s",
+  "native_player_debug_action": "Play URL in native player",
+  "native_player_debug_url_title": "Play a stream URL",
+  "native_player_debug_url_label": "Stream URL",
+  "native_player_debug_url_hint": "https://example.com/video.m3u8",
+  "native_player_debug_play": "Play",
+  "settings_video_player_title": "Video player",
+  "settings_video_player_subtitle": "Play videos in the built-in player when the source provides a direct stream",
+  "settings_video_player_auto": "Auto",
+  "settings_video_player_web_only": "Web player only",
+  "episode_playback_loading_sources": "Loading video…",
+  "episode_playback_fallback_notice": "Couldn't load the video stream, opened the web player instead",
+  "native_player_fit_mode": "Video fit",
+  "native_player_fit_mode_fit": "Fit",
+  "native_player_fit_mode_fill": "Fill",
+  "native_player_fit_mode_stretch": "Stretch",
+  "native_player_skip_opening": "+{seconds}s",
+  "native_player_speed_unsupported": "This playback speed isn't supported",
+  "native_player_auto_next_countdown": "Next episode in {seconds}s",
+  "native_player_auto_next_play_now": "Play now",
+  "native_player_auto_next_cancel": "Cancel",
+  "native_player_cancel_switch": "Cancel",
+  "player_skip_intro": "Skip intro",
+  "player_skip_outro": "Skip outro",
+  "player_skip_recap": "Skip recap",
+  "player_skip_skipped_intro": "Skipped intro",
+  "player_skip_skipped_outro": "Skipped outro",
+  "player_skip_skipped_recap": "Skipped recap",
+  "player_skip_auto_title": "Auto-skip intros and outros",
+  "player_skip_auto_subtitle": "Jump past them when the extension marks where they are",
+  "player_previous_episode": "Previous episode",
+  "player_episodes": "Episodes",
+  "player_dub_player": "Dub / player",
+  "player_playlist": "Playlist",
+  "settings_player_section_title": "Player",
+  "settings_player_hold_speed_title": "Hold to speed up",
+  "settings_player_hold_speed_subtitle": "Long-press the video to play faster while you hold",
+  "settings_player_skip_opening_title": "Skip opening",
+  "settings_player_skip_opening_subtitle": "How far the skip button jumps ahead",
+  "settings_player_skip_opening_value": "{seconds}s",
+  "settings_player_auto_next_title": "Auto-play next episode",
+  "settings_player_auto_next_subtitle": "Count down and start the next episode when one ends",
+  "native_player_pip_enter": "Picture-in-picture",
+  "ext_prefs_sheet_title": "Extension settings",
+  "ext_prefs_reset": "Reset to defaults",
+  "ext_prefs_reset_one": "Reset to default",
+  "ext_prefs_done": "Done",
+  "ext_prefs_mirror_title": "Mirror",
+  "ext_prefs_mirror_summary": "Which site address requests go to. Automatic tries each mirror until one responds.",
+  "ext_prefs_mirror_automatic": "Automatic",
+  "ext_prefs_page_size_title": "Page size",
+  "ext_prefs_page_size_summary": "How many titles each gallery page loads.",
+  "ext_prefs_page_size_option": "{count} per page",
+  "@ext_prefs_page_size_option": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "ext_prefs_page_size_default_option": "{count} per page (default)",
+  "@ext_prefs_page_size_default_option": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "ext_prefs_number_invalid": "Enter a number",
+  "ext_prefs_default_hint": "Default: {value}",
+  "@ext_prefs_default_hint": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "ext_prefs_clear_data": "Clear stored data",
+  "ext_prefs_clear_data_done": "Stored data for {source} cleared",
+  "@ext_prefs_clear_data_done": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "novel_reader_settings_title": "Reading settings",
+  "novel_reader_font_size": "Text size",
+  "novel_reader_line_height": "Line spacing",
+  "novel_reader_margins": "Side margins",
+  "novel_reader_font_family": "Font",
+  "novel_reader_font_ubuntu": "Ubuntu",
+  "novel_reader_font_serif": "Serif",
+  "novel_reader_background_sepia": "Sepia",
+  "novel_reader_justify": "Justify text",
+  "novel_reader_keep_screen_on": "Keep screen on",
+  "novel_reader_previous_chapter": "Previous chapter",
+  "novel_reader_next_chapter": "Next chapter",
+  "novel_reader_next_chapter_named": "Next: {title}",
+  "@novel_reader_next_chapter_named": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "novel_reader_empty_chapter": "This chapter has no text",
+  "novel_progress_percent": "{percent}%",
+  "@novel_progress_percent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "downloads_novel_chapter_done": "Saved for offline reading",
+  "downloads_novel_chapter_downloading": "Saving text…",
+  "settings_language_title": "App language",
+  "settings_language_system": "System",
+  "settings_language_english": "English",
+  "settings_language_ukrainian": "Українська",
+  "home_extensions_error_message": "Configs source error :c",
+  "api_client_no_extension_selected": "No extension was selected",
+  "native_player_no_streams": "No playable streams",
+  "page_language_japanese": "Japanese",
+  "page_language_korean": "Korean",
+  "page_language_chinese": "Chinese",
+  "page_language_english": "English",
+  "page_language_spanish": "Spanish",
+  "page_language_french": "French",
+  "page_language_german": "German",
+  "page_language_italian": "Italian",
+  "page_language_portuguese": "Portuguese",
+  "page_language_indonesian": "Indonesian",
+  "page_language_vietnamese": "Vietnamese",
+  "page_language_russian": "Russian",
+  "page_language_ukrainian": "Ukrainian",
+  "page_language_polish": "Polish",
+  "page_language_turkish": "Turkish",
+  "page_language_thai": "Thai",
+  "page_language_arabic": "Arabic",
+  "global_search_title": "Search sources",
+  "global_search_open_tooltip": "Search all sources",
+  "global_search_hint": "Search titles in your sources",
+  "global_search_scope_summary": "{count, plural, =0{No sources selected} =1{Searching 1 source} other{Searching {count} sources}}",
+  "@global_search_scope_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "global_search_scope_edit": "Edit",
+  "global_search_scope_title": "Sources to search",
+  "global_search_scope_default_hint": "By default: pinned sources and sources you have used",
+  "global_search_scope_custom_hint": "Your own selection",
+  "global_search_scope_reset": "Use default",
+  "global_search_scope_select_all": "Select all",
+  "global_search_scope_select_none": "Clear",
+  "global_search_scope_loading": "Looking for more sources…",
+  "global_search_scope_empty": "No sources with search are available",
+  "global_search_recent_title": "Recent searches",
+  "global_search_recent_clear": "Clear",
+  "global_search_idle_title": "Search across your sources",
+  "global_search_idle_message": "Each source shows its results as soon as it answers.",
+  "global_search_no_scope_title": "No sources to search",
+  "global_search_no_scope_message": "Pick at least one source to search in.",
+  "global_search_no_results_title": "Nothing found",
+  "global_search_no_results_message": "None of the selected sources has \"{query}\".",
+  "@global_search_no_results_message": {
+    "placeholders": {
+      "query": {}
+    }
+  },
+  "global_search_empty_sources": "No results in {sources}",
+  "@global_search_empty_sources": {
+    "placeholders": {
+      "sources": {}
+    }
+  },
+  "global_search_results_count": "{count, plural, =1{1 result} other{{count} results}}",
+  "@global_search_results_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "global_search_rail_failed": "Couldn't search this source",
+  "global_search_rail_timeout": "The source took too long to answer",
+  "global_search_rail_unavailable": "This source couldn't be loaded",
+  "global_search_rail_retry": "Retry",
+  "global_search_rail_sign_in": "Sign-in needed",
+  "global_search_rail_verify": "Verification needed",
+  "global_search_rail_open": "Open",
+  "global_search_try_titles": "Search as",
+  "discover_title": "Discover",
+  "discover_open_tooltip": "Discover on AniList",
+  "discover_attribution": "Data from AniList",
+  "discover_tab_season": "This season",
+  "discover_tab_trending_anime": "Trending anime",
+  "discover_tab_trending_manga": "Trending manga",
+  "discover_tab_novels": "Light novels",
+  "discover_season_winter": "Winter {year}",
+  "@discover_season_winter": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_season_spring": "Spring {year}",
+  "@discover_season_spring": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_season_summer": "Summer {year}",
+  "@discover_season_summer": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_season_fall": "Fall {year}",
+  "@discover_season_fall": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_error_title": "Couldn't load AniList",
+  "discover_error_message": "Check your connection and try again.",
+  "discover_retry": "Retry",
+  "discover_empty_title": "Nothing here yet",
+  "discover_load_more_failed": "Couldn't load more",
+  "discover_find_on_sources": "Find on my sources",
+  "discover_search_as": "Search as",
+  "discover_no_synopsis": "No synopsis yet.",
+  "discover_episodes": "{count, plural, =1{1 episode} other{{count} episodes}}",
+  "@discover_episodes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_chapters": "{count, plural, =1{1 chapter} other{{count} chapters}}",
+  "@discover_chapters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_score": "{score}%",
+  "@discover_score": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "discover_format_tv": "TV",
+  "discover_format_tv_short": "TV short",
+  "discover_format_movie": "Movie",
+  "discover_format_special": "Special",
+  "discover_format_ova": "OVA",
+  "discover_format_ona": "ONA",
+  "discover_format_music": "Music",
+  "discover_format_manga": "Manga",
+  "discover_format_novel": "Light novel",
+  "discover_format_one_shot": "One-shot",
+  "auto_download_title": "Auto-download new chapters",
+  "auto_download_subtitle": "Queue new chapters and episodes found by library update checks. Follows the Wi-Fi only setting",
+  "auto_download_scope_title": "Auto-download for",
+  "auto_download_scope_all": "All library titles",
+  "auto_download_scope_categories": "Selected categories",
+  "auto_download_scope_categories_count": "{count, plural, =0{No categories selected} =1{1 category} other{{count} categories}}",
+  "@auto_download_scope_categories_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "auto_download_categories_title": "Categories to auto-download",
+  "auto_download_categories_empty": "Create a category in the library first",
+  "auto_download_categories_done": "Done",
+  "auto_download_limit_title": "New items per title",
+  "auto_download_limit_subtitle": "The most to download for one title on each check",
+  "auto_download_limit_value": "Up to {count}",
+  "@auto_download_limit_value": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "auto_download_limit_unlimited": "No limit",
+  "auto_download_override_title": "Auto-download",
+  "auto_download_override_default": "Use settings",
+  "auto_download_override_always": "Always",
+  "auto_download_override_never": "Never",
+  "auto_download_override_mixed": "Mixed",
+  "auto_download_override_row": "Auto-download: {mode}",
+  "@auto_download_override_row": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
+  "auto_download_chip_on": "Auto-download on",
+  "auto_download_chip_off": "Auto-download off",
+  "auto_download_notification_line": "{title} · {count} new, {queued} to download",
+  "@auto_download_notification_line": {
+    "placeholders": {
+      "title": {},
+      "count": {},
+      "queued": {}
+    }
+  },
+  "auto_download_notification_pending": "{count, plural, =1{1 download starts when you open the app} other{{count} downloads start when you open the app}}",
+  "@auto_download_notification_pending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "auto_download_check_found": "{count} new items found, {queued} queued for download",
+  "@auto_download_check_found": {
+    "placeholders": {
+      "count": {},
+      "queued": {}
+    }
+  },
+  "migration_action_move": "Move to another source",
+  "migration_action_find_elsewhere": "Find it on another source",
+  "migration_chip": "Move source",
+  "migration_search_title": "Move to another source",
+  "migration_search_from": "Now on {source}",
+  "@migration_search_from": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_search_unknown_source": "a source that is no longer available",
+  "migration_search_hint": "Search on the target sources",
+  "migration_search_idle_title": "Search for the title",
+  "migration_search_idle_message": "Type its name below to look for it on the target sources.",
+  "migration_no_scope_title": "Pick where to look",
+  "migration_no_scope_message": "Choose the sources the title should move to.",
+  "migration_choose_sources": "Choose sources",
+  "migration_targets_summary": "{count, plural, =0{No target sources} =1{1 target source} other{{count} target sources}}",
+  "@migration_targets_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_no_candidates_title": "No matches",
+  "migration_no_candidates_message": "Try another title or add more target sources.",
+  "migration_best_match": "Best match",
+  "migration_exact_match": "Exact match",
+  "migration_selected": "Selected",
+  "migration_pick_hint": "Tap a title to pick it",
+  "migration_continue": "Continue",
+  "migration_use_this": "Use this",
+  "migration_preview_title": "Review the move",
+  "migration_preview_old": "Now",
+  "migration_preview_new": "New",
+  "migration_options_title": "What moves along",
+  "migration_option_remove_old": "Remove the old entry",
+  "migration_option_remove_old_hint": "The new title takes its place in the library",
+  "migration_option_keep_old_hint": "Both titles stay in the library",
+  "migration_option_category": "Category",
+  "migration_option_category_hint": "Put the new title into “{name}”",
+  "@migration_option_category_hint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_option_read_progress": "Reading progress",
+  "migration_option_watch_progress": "Watch progress",
+  "migration_option_chapters_hint": "{count, plural, =0{No chapters match} =1{1 chapter matches} other{{count} chapters match}}",
+  "@migration_option_chapters_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_option_episodes_hint": "{count, plural, =0{No episodes match} =1{1 episode matches} other{{count} episodes match}}",
+  "@migration_option_episodes_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_option_trackers": "Tracker links",
+  "migration_option_trackers_hint": "{count, plural, =1{1 link moves to the new title} other{{count} links move to the new title}}",
+  "@migration_option_trackers_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_downloads_note": "{count, plural, =1{1 download stays with the old title, files are not moved} other{{count} downloads stay with the old title, files are not moved}}",
+  "@migration_downloads_note": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_mapping_title": "Progress",
+  "migration_mapping_empty": "There is no progress to move",
+  "migration_mapping_unmatched_title": "Not found on the new source",
+  "migration_mapping_more": "{count, plural, =1{and 1 more} other{and {count} more}}",
+  "@migration_mapping_more": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_mapping_read": "Read",
+  "migration_mapping_watched": "Watched",
+  "migration_mapping_partial": "{percent}%",
+  "@migration_mapping_partial": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_apply": "Move",
+  "migration_apply_failed": "The title could not be moved. Nothing was changed.",
+  "migration_load_failed_title": "The new title could not be opened",
+  "migration_retry": "Try again",
+  "migration_done": "Moved to {source}",
+  "@migration_done": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_open": "Open",
+  "migration_bulk_title": "{count, plural, =1{Move 1 title} other{Move {count} titles}}",
+  "@migration_bulk_title": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_bulk_running_title": "Moving titles",
+  "migration_bulk_targets": "Target sources",
+  "migration_bulk_auto_pick": "Auto-pick exact matches",
+  "migration_bulk_auto_pick_hint": "A title with one exact match moves without asking",
+  "migration_bulk_downloads_note": "Downloads stay with the old titles, files are not moved",
+  "migration_bulk_start": "Start",
+  "migration_bulk_stop": "Stop",
+  "migration_bulk_done": "Done",
+  "migration_bulk_progress": "{done} of {total}",
+  "@migration_bulk_progress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_bulk_status_waiting": "Waiting",
+  "migration_bulk_status_searching": "Searching…",
+  "migration_bulk_status_pick": "{count, plural, =0{No matches, search yourself} =1{1 match, confirm it} other{{count} matches, pick one}}",
+  "@migration_bulk_status_pick": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "migration_bulk_status_migrating": "Moving to {source}…",
+  "@migration_bulk_status_migrating": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_bulk_status_done": "Moved to {source}",
+  "@migration_bulk_status_done": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_bulk_status_auto": "Exact match on {source}",
+  "@migration_bulk_status_auto": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "migration_bulk_status_skipped": "Skipped",
+  "migration_bulk_status_failed": "Could not be moved",
+  "migration_bulk_choose": "Choose",
+  "migration_bulk_skip": "Skip",
+  "migration_bulk_summary": "{moved} moved, {skipped} skipped, {failed} failed",
+  "@migration_bulk_summary": {
+    "placeholders": {
+      "moved": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "home_audio_group_title": "Audiobooks",
+  "content_kind_audiobook": "Audiobooks",
+  "audio_selection_mark_listened": "Mark as listened",
+  "audio_selection_mark_not_listened": "Mark as not listened",
+  "audio_tracks_section_title": "Tracks",
+  "audio_notification_channel_name": "Audiobook playback",
+  "audio_player_idle_title": "Nothing is playing",
+  "audio_player_idle_message": "Open an audiobook and pick a track to start listening",
+  "audio_player_close": "Close",
+  "audio_player_no_sources": "This track has no playable audio",
+  "audio_player_error": "Couldn't play this track",
+  "audio_player_retry": "Retry",
+  "audio_player_previous_track": "Previous track",
+  "audio_player_next_track": "Next track",
+  "audio_player_rewind": "Back {seconds} s",
+  "@audio_player_rewind": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "audio_player_forward": "Forward {seconds} s",
+  "@audio_player_forward": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "audio_player_play": "Play",
+  "audio_player_pause": "Pause",
+  "audio_player_tracks": "Tracks",
+  "audio_player_more": "More",
+  "audio_player_speed": "Playback speed",
+  "audio_player_chapters": "Chapters",
+  "audio_player_chapter_number": "Chapter {number}",
+  "@audio_player_chapter_number": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "audio_player_source": "Audio quality",
+  "audio_player_source_number": "Source {number}",
+  "@audio_player_source_number": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "audio_player_stop": "Stop playback",
+  "audio_track_finished": "Listened",
+  "audio_sleep_timer": "Sleep timer",
+  "audio_sleep_off": "Turn off the timer",
+  "audio_sleep_minutes": "{minutes} min",
+  "@audio_sleep_minutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "audio_sleep_minutes_short": "{minutes}m",
+  "@audio_sleep_minutes_short": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "audio_sleep_end_of_track": "End of track",
+  "audio_sleep_end_of_track_short": "Track"
 }

@@ -1,13 +1,19 @@
 import 'dart:ui' show DartPluginRegistrant;
 
-import 'package:flutter/widgets.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
-import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/env.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/repositories/database/download_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
 import 'package:wakaranai/repositories/database/library_update_repository.dart';
+import 'package:wakaranai/repositories/shared_pref/source_attention_preferences.dart';
+import 'package:wakaranai/services/app_language/background_strings.dart';
+import 'package:wakaranai/services/configs_service/extension_resolver.dart';
+import 'package:wakaranai/services/configs_service/source_needs_attention.dart';
+import 'package:wakaranai/services/downloads/auto_download/auto_download_queuer.dart';
 import 'package:wakaranai/services/library_updates/library_update_notification_service.dart';
 import 'package:wakaranai/services/library_updates/library_update_service.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
@@ -17,6 +23,8 @@ const String libraryUpdateTaskName = 'wakaranai.library_update';
 const String libraryUpdateTaskUniqueName = 'wakaranai.library_update.periodic';
 
 const String libraryUpdateTaskLocaleKey = 'locale';
+const String libraryUpdateTaskConfigsOrgKey = 'configsOrg';
+const String libraryUpdateTaskConfigsRepoKey = 'configsRepo';
 
 Future<void> registerLibraryUpdateTask({
   required int frequencyHours,
@@ -30,6 +38,8 @@ Future<void> registerLibraryUpdateTask({
     constraints: Constraints(networkType: NetworkType.connected),
     inputData: <String, dynamic>{
       libraryUpdateTaskLocaleKey: localeName,
+      libraryUpdateTaskConfigsOrgKey: Env.configsSourceOrg,
+      libraryUpdateTaskConfigsRepoKey: Env.configsSourceRepo,
     },
   );
 }
@@ -38,39 +48,70 @@ Future<void> cancelLibraryUpdateTask() async {
   await Workmanager().cancelByUniqueName(libraryUpdateTaskUniqueName);
 }
 
-Future<bool> runLibraryUpdateTask(Map<String, dynamic>? inputData) async {
+Future<bool> runLibraryUpdateTask(
+  Map<String, dynamic>? inputData, {
+  WakaranaiDatabase? database,
+}) async {
   DartPluginRegistrant.ensureInitialized();
 
-  final String localeName =
-      inputData?[libraryUpdateTaskLocaleKey] as String? ?? 'en';
+  await loadBackgroundStrings(
+    fallbackLocaleName: inputData?[libraryUpdateTaskLocaleKey] as String?,
+  );
 
-  await S.load(Locale(localeName));
-
-  WakaranaiDatabase? database;
+  WakaranaiDatabase? ownedDatabase;
 
   try {
     final SettingsService settings = SettingsService();
     if (!await settings.getCheckUpdates()) return true;
 
-    database = WakaranaiDatabase();
+    final WakaranaiDatabase taskDatabase =
+        database ?? (ownedDatabase = WakaranaiDatabase());
+
+    try {
+      await ExtensionResolver(
+        extensionRepository: ExtensionRepository(database: taskDatabase),
+        extensionSourceRepository:
+            ExtensionSourceRepository(database: taskDatabase),
+        officialOrg: inputData?[libraryUpdateTaskConfigsOrgKey] as String?,
+        officialRepo: inputData?[libraryUpdateTaskConfigsRepoKey] as String?,
+      ).refreshOutdated();
+    } catch (e) {
+      logger.w('Extension update check failed: $e');
+    }
 
     final LibraryUpdateService service = LibraryUpdateService(
-      libraryEntryRepository: LibraryEntryRepository(database: database),
-      libraryUpdateRepository: LibraryUpdateRepository(database: database),
-      concreteDataRepository: ConcreteDataRepository(database: database),
-      extensionRepository: ExtensionRepository(database: database),
+      libraryEntryRepository: LibraryEntryRepository(database: taskDatabase),
+      libraryUpdateRepository: LibraryUpdateRepository(database: taskDatabase),
+      concreteDataRepository: ConcreteDataRepository(database: taskDatabase),
+      extensionRepository: ExtensionRepository(database: taskDatabase),
+      autoDownloads: await _autoDownloadQueuer(taskDatabase),
     );
 
     final LibraryUpdateCheckResult result = await service.check();
 
-    if (result.notifiable.isNotEmpty &&
-        await settings.getUpdateNotifications(reload: true)) {
-      await LibraryUpdateNotificationService().showUpdates(result.notifiable);
+    final bool notificationsEnabled =
+        await settings.getUpdateNotifications(reload: true);
+    final LibraryUpdateNotificationService notifications =
+        LibraryUpdateNotificationService();
+
+    if (result.notifiable.isNotEmpty && notificationsEnabled) {
+      await notifications.showUpdates(
+        result.notifiable,
+        autoQueuedByEntry: result.autoQueuedByEntry,
+      );
+    }
+
+    if (result.needsAttention.isNotEmpty && notificationsEnabled) {
+      await _notifySourceAttention(result.needsAttention, notifications);
     }
 
     logger.i(
       'Library update check: ${result.updates.length} new, '
-      '${result.checked} checked, ${result.failed} failed',
+      '${result.checked} checked, ${result.failed} failed, '
+      '${result.skipped} skipped, '
+      '${result.removedFromSource.length} removed from their source, '
+      '${result.autoQueued} queued for download, '
+      '${result.needsAttention.length} sources need attention',
     );
 
     return true;
@@ -79,6 +120,35 @@ Future<bool> runLibraryUpdateTask(Map<String, dynamic>? inputData) async {
     logger.e(s);
     return false;
   } finally {
-    await database?.close();
+    await ownedDatabase?.close();
   }
+}
+
+Future<AutoDownloadQueuer?> _autoDownloadQueuer(
+  WakaranaiDatabase database,
+) async {
+  try {
+    return await loadAutoDownloadQueuer(
+      downloadRepository: DownloadRepository(database: database),
+      reload: true,
+    );
+  } catch (e) {
+    logger.w('Could not read the auto-download settings: $e');
+    return null;
+  }
+}
+
+Future<void> _notifySourceAttention(
+  List<SourceNeedsAttention> attentions,
+  LibraryUpdateNotificationService notifications,
+) async {
+  final SourceAttentionPreferences preferences = SourceAttentionPreferences();
+  final DateTime now = DateTime.now();
+  final List<SourceNeedsAttention> due =
+      await preferences.dueForNotification(attentions, now);
+  if (due.isEmpty) {
+    return;
+  }
+  await notifications.showSourceAttention(due);
+  await preferences.markNotified(due, now);
 }

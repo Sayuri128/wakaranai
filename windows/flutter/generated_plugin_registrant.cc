@@ -6,21 +6,21 @@
 
 #include "generated_plugin_registrant.h"
 
-#include <dynamic_color/dynamic_color_plugin_c_api.h>
 #include <file_saver/file_saver_plugin.h>
 #include <flutter_avif_windows/flutter_avif_windows_plugin.h>
+#include <flutter_edge_ai/flutter_edge_ai_plugin.h>
 #include <flutter_inappwebview_windows/flutter_inappwebview_windows_plugin_c_api.h>
 #include <flutter_secure_storage_windows/flutter_secure_storage_windows_plugin.h>
 #include <sqlite3_flutter_libs/sqlite3_flutter_libs_plugin.h>
 #include <url_launcher_windows/url_launcher_windows.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
-  DynamicColorPluginCApiRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("DynamicColorPluginCApi"));
   FileSaverPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("FileSaverPlugin"));
   FlutterAvifWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("FlutterAvifWindowsPlugin"));
+  FlutterEdgeAiPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("FlutterEdgeAiPlugin"));
   FlutterInappwebviewWindowsPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("FlutterInappwebviewWindowsPluginCApi"));
   FlutterSecureStorageWindowsPluginRegisterWithRegistrar(

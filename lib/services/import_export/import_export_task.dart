@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' show DartPluginRegistrant;
 
-import 'package:flutter/widgets.dart';
 import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
+import 'package:wakaranai/services/app_language/background_strings.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/category_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
@@ -25,27 +25,31 @@ const String importTaskPathKey = 'path';
 const String importTaskSectionsKey = 'sections';
 const String importTaskLocaleKey = 'locale';
 
-Future<bool> runImportTask(Map<String, dynamic>? inputData) async {
+Future<bool> runImportTask(
+  Map<String, dynamic>? inputData, {
+  WakaranaiDatabase? database,
+}) async {
   DartPluginRegistrant.ensureInitialized();
 
   final String? path = inputData?[importTaskPathKey] as String?;
   final String sectionsRaw =
       inputData?[importTaskSectionsKey] as String? ?? '';
-  final String localeName = inputData?[importTaskLocaleKey] as String? ?? 'en';
 
   if (path == null) return false;
 
   final Set<ExportSection> sections = decodeExportSections(sectionsRaw);
   if (sections.isEmpty) return false;
 
-  await S.load(Locale(localeName));
+  await loadBackgroundStrings(
+    fallbackLocaleName: inputData?[importTaskLocaleKey] as String?,
+  );
 
   final ImportTaskStore store = ImportTaskStore();
   final ImportExportNotificationService notifications =
       ImportExportNotificationService();
 
   final File file = File(path);
-  WakaranaiDatabase? database;
+  WakaranaiDatabase? ownedDatabase;
 
   try {
     await store.setRunning();
@@ -53,16 +57,20 @@ Future<bool> runImportTask(Map<String, dynamic>? inputData) async {
     final ExportBundle bundle = ExportBundle.fromJson(
         jsonDecode(await file.readAsString()) as Map<String, dynamic>);
 
-    database = WakaranaiDatabase();
+    final WakaranaiDatabase taskDatabase =
+        database ?? (ownedDatabase = WakaranaiDatabase());
 
     final ImportExportService service = ImportExportService(
-      concreteDataRepository: ConcreteDataRepository(database: database),
-      chapterActivityRepository: ChapterActivityRepository(database: database),
+      concreteDataRepository: ConcreteDataRepository(database: taskDatabase),
+      chapterActivityRepository:
+          ChapterActivityRepository(database: taskDatabase),
       animeEpisodeActivityRepository:
-          AnimeEpisodeActivityRepository(database: database),
-      categoryRepository: CategoryRepository(database: database),
-      libraryEntryRepository: LibraryEntryRepository(database: database),
-      extensionSourceRepository: ExtensionSourceRepository(database: database),
+          AnimeEpisodeActivityRepository(database: taskDatabase),
+      categoryRepository: CategoryRepository(database: taskDatabase),
+      libraryEntryRepository: LibraryEntryRepository(database: taskDatabase),
+      extensionSourceRepository:
+          ExtensionSourceRepository(database: taskDatabase),
+      database: taskDatabase,
     );
 
     DateTime lastPublish = DateTime.fromMillisecondsSinceEpoch(0);
@@ -121,7 +129,7 @@ Future<bool> runImportTask(Map<String, dynamic>? inputData) async {
     await notifications.cancelProgress();
     return false;
   } finally {
-    await database?.close();
+    await ownedDatabase?.close();
     try {
       if (await file.exists()) {
         await file.delete();

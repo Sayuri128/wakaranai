@@ -3,7 +3,7 @@ description: Wakaranai is a manga reader app, designed to dynamically parse and 
 
 publish_to: 'none'
 
-version: 0.3.0+8
+version: 1.0.0+10
 
 environment:
   sdk: ">=3.8.0"
@@ -22,6 +22,10 @@ dependencies:
 
   logger: ^2.4.0
   path: ^1.8.3
+  archive: ^3.6.1
+  xml: ^6.5.0
+  html: ^0.15.5
+  flutter_web_auth_2: ^5.1.0
   path_provider: ^2.1.3
   cupertino_icons: ^1.0.8
   flutter_bloc: ^8.1.6
@@ -29,26 +33,23 @@ dependencies:
   json_serializable: ^6.14.0
   dio: ^5.4.0
   json_annotation: ^4.12.0
-  transparent_image: ^2.0.1
   intl: 0.20.2
   intl_utils: ^2.8.7
   photo_view: ^0.15.0
   cached_network_image: ^3.3.1
   flutter_cache_manager: ^3.3.2
-  adaptive_dialog: ^2.1.0
   flutter_svg: ^2.0.10+1
   pull_to_refresh: ^2.0.0
   flutter_dotenv: ^5.1.0
   flutter_launcher_icons: ^0.14.2
   another_xlider: ^3.0.2
   transparent_pointer: ^1.0.1
-  visibility_detector: ^0.4.0+2
   scrollable_positioned_list: ^0.3.8
   shared_preferences: ^2.2.3
   flutter_inappwebview: ^6.1.5
   flutter_secure_storage: ^9.2.2
-  flutter_isolate: ^2.0.4
   url_launcher: ^6.3.0
+  wakelock_plus: ^1.2.8
   drift: ^2.19.1+1
   sqlite3_flutter_libs: ^0.5.24
   collection: ^1.18.0
@@ -58,6 +59,19 @@ dependencies:
   workmanager: 0.9.0
   flutter_avif: ^3.1.0
   flutter_avif_platform_interface: ^3.1.0
+  google_mlkit_text_recognition: ^0.17.1
+  google_mlkit_translation: ^0.15.1
+  flutter_edge_ai: ^2.5.2
+  flutter_edge_ai_litertlm: ^1.17.0
+  background_downloader: ^9.5.9
+  video_player: ^2.14.1
+  screen_brightness: ^2.1.11
+  volume_controller: ^3.7.1
+  flutter_widget_from_html_core: ^0.17.4
+  just_audio: ^0.10.6
+  audio_service: ^0.18.19
+  audio_session: ^0.2.4
+  package_info_plus: ^9.0.1
 
 dependency_overrides:
   intl: 0.20.2
@@ -81,6 +95,8 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   build_runner: ^2.4.11
   drift_dev: ^2.19.1
+  sqlite3: ^2.4.0
+  path_provider_platform_interface: ^2.1.0
 
 flutter:
 
@@ -88,15 +104,22 @@ flutter:
 
   assets:
     - .env
+    - assets/dictionaries/en_words.txt
+    - fonts/Pangolin-OFL.txt
 
   fonts:
-    - family: Ubuntu mono
+    - family: Ubuntu
       fonts:
-        - asset: fonts/Ubuntu-B.ttf
-        - asset: fonts/Ubuntu-C.ttf
-        - asset: fonts/Ubuntu-L.ttf
-        - asset: fonts/Ubuntu-M.ttf
-        - asset: fonts/Ubuntu-R.ttf
         - asset: fonts/Ubuntu-Th.ttf
-        - asset: fonts/UbuntuMono-B.ttf
-        - asset: fonts/UbuntuMono-R.ttf
+          weight: 100
+        - asset: fonts/Ubuntu-L.ttf
+          weight: 300
+        - asset: fonts/Ubuntu-R.ttf
+          weight: 400
+        - asset: fonts/Ubuntu-M.ttf
+          weight: 500
+        - asset: fonts/Ubuntu-B.ttf
+          weight: 700
+    - family: Pangolin
+      fonts:
+        - asset: fonts/Pangolin-Regular.ttf

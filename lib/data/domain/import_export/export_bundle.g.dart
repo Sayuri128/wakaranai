@@ -44,6 +44,12 @@ ExportBundle _$ExportBundleFromJson(Map json) => ExportBundle(
       : ExportSettings.fromJson(
           Map<String, dynamic>.from(json['settings'] as Map),
         ),
+  pageTranslations: (json['pageTranslations'] as List<dynamic>?)
+      ?.map(
+        (e) =>
+            ExportPageTranslation.fromJson(Map<String, dynamic>.from(e as Map)),
+      )
+      .toList(),
 );
 
 Map<String, dynamic> _$ExportBundleToJson(
@@ -64,6 +70,9 @@ Map<String, dynamic> _$ExportBundleToJson(
       ?.map((e) => e.toJson())
       .toList(),
   'settings': instance.settings?.toJson(),
+  'pageTranslations': instance.pageTranslations
+      ?.map((e) => e.toJson())
+      .toList(),
 };
 
 ExportConcrete _$ExportConcreteFromJson(Map json) => ExportConcrete(
@@ -121,6 +130,7 @@ ExportAnimeEpisodeActivity _$ExportAnimeEpisodeActivityFromJson(Map json) =>
       data: json['data'] as String?,
       watchedTime: (json['watchedTime'] as num?)?.toInt(),
       totalTime: (json['totalTime'] as num?)?.toInt(),
+      markedWatched: json['markedWatched'] as bool? ?? false,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
@@ -134,6 +144,7 @@ Map<String, dynamic> _$ExportAnimeEpisodeActivityToJson(
   'data': instance.data,
   'watchedTime': instance.watchedTime,
   'totalTime': instance.totalTime,
+  'markedWatched': instance.markedWatched,
   'createdAt': instance.createdAt.toIso8601String(),
 };
 
@@ -199,6 +210,11 @@ ExportSettings _$ExportSettingsFromJson(Map json) => ExportSettings(
   defaultReaderMode: json['defaultReaderMode'] as String?,
   showNsfw: json['showNsfw'] as bool?,
   collectStatistics: json['collectStatistics'] as bool?,
+  preferences: (json['preferences'] as List<dynamic>?)
+      ?.map(
+        (e) => ExportPreference.fromJson(Map<String, dynamic>.from(e as Map)),
+      )
+      .toList(),
 );
 
 Map<String, dynamic> _$ExportSettingsToJson(ExportSettings instance) =>
@@ -207,4 +223,41 @@ Map<String, dynamic> _$ExportSettingsToJson(ExportSettings instance) =>
       'defaultReaderMode': instance.defaultReaderMode,
       'showNsfw': instance.showNsfw,
       'collectStatistics': instance.collectStatistics,
+      'preferences': instance.preferences?.map((e) => e.toJson()).toList(),
     };
+
+ExportPreference _$ExportPreferenceFromJson(Map json) => ExportPreference(
+  key: json['key'] as String,
+  type: json['type'] as String,
+  value: json['value'],
+);
+
+Map<String, dynamic> _$ExportPreferenceToJson(ExportPreference instance) =>
+    <String, dynamic>{
+      'key': instance.key,
+      'type': instance.type,
+      'value': instance.value,
+    };
+
+ExportPageTranslation _$ExportPageTranslationFromJson(Map json) =>
+    ExportPageTranslation(
+      uid: json['uid'] as String,
+      pagePath: json['pagePath'] as String,
+      engine: json['engine'] as String,
+      sourceLanguage: json['sourceLanguage'] as String,
+      targetLanguage: json['targetLanguage'] as String,
+      resultJson: json['resultJson'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+    );
+
+Map<String, dynamic> _$ExportPageTranslationToJson(
+  ExportPageTranslation instance,
+) => <String, dynamic>{
+  'uid': instance.uid,
+  'pagePath': instance.pagePath,
+  'engine': instance.engine,
+  'sourceLanguage': instance.sourceLanguage,
+  'targetLanguage': instance.targetLanguage,
+  'resultJson': instance.resultJson,
+  'createdAt': instance.createdAt.toIso8601String(),
+};

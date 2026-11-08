@@ -7,12 +7,25 @@ class Routes {
   static const String animeServiceViewer = '/animeServiceViewer';
   static const String mangaConcreteViewer = '/mangaConcreteViewer';
   static const String animeConcreteViewer = '/animeConcreteViewer';
+  static const String novelServiceViewer = '/novelServiceViewer';
+  static const String novelConcreteViewer = '/novelConcreteViewer';
+  static const String novelReader = '/novelReader';
+  static const String audioServiceViewer = '/audioServiceViewer';
+  static const String audioConcreteViewer = '/audioConcreteViewer';
+  static const String audioPlayer = '/audioPlayer';
   static const String chapterViewer = '/chapterViewer';
   static const String webBrowser = '/webBrowser';
   static const String iframeAnimePlayer = '/iframeAnimePlayer';
+  static const String nativeAnimePlayer = '/nativeAnimePlayer';
   static const String libraryConcreteViewer = '/libraryConcreteViewer';
   static const String readingStatistics = '/readingStatistics';
-  static const String downloads = '/downloads';
   static const String downloadReader = '/downloadReader';
   static const String updates = '/updates';
+  static const String pageTranslationSettings = '/pageTranslationSettings';
+  static const String languagePacks = '/languagePacks';
+  static const String translationModels = '/translationModels';
+  static const String globalSearch = '/globalSearch';
+  static const String discover = '/discover';
+  static const String migration = '/migration';
+  static const String migrationPreview = '/migrationPreview';
 }

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
@@ -10,6 +10,9 @@ class OutlinedTextFormField extends StatelessWidget {
     required this.hint,
     this.validator,
     this.onChanged,
+    this.keyboardType,
+    this.autovalidateMode,
+    this.obscureText = false,
   });
 
   final TextEditingController controller;
@@ -17,6 +20,9 @@ class OutlinedTextFormField extends StatelessWidget {
   final String hint;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
+  final TextInputType? keyboardType;
+  final AutovalidateMode? autovalidateMode;
+  final bool obscureText;
 
   OutlineInputBorder _border(Color color, {double width = 1}) {
     return OutlineInputBorder(
@@ -31,6 +37,11 @@ class OutlinedTextFormField extends StatelessWidget {
       controller: controller,
       onChanged: onChanged,
       validator: validator,
+      keyboardType: keyboardType,
+      autovalidateMode: autovalidateMode,
+      obscureText: obscureText,
+      enableSuggestions: !obscureText,
+      autocorrect: !obscureText,
       cursorColor: AppColors.primary,
       style: medium(size: 15),
       decoration: InputDecoration(

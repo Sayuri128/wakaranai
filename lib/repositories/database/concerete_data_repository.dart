@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:drift/drift.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
@@ -9,6 +12,22 @@ class ConcreteDataRepository extends BaseRepository<ConcreteDataDomain,
 
   Future<ConcreteDataDomain?> getByUid(String uid) async {
     return getBy<$ConcreteDataTableTable>(uid, where: (tbl) => tbl.uid);
+  }
+
+  Future<ConcreteDataDomain?> saveConcrete(
+    ConcreteView concreteView, {
+    required Map<String, dynamic> galleryData,
+    required String extensionUid,
+  }) {
+    return createUpdateBy<$ConcreteDataTableTable, String>(
+      concreteView.toConcreteDataDomain(
+        data: galleryData,
+        extensionUid: extensionUid,
+        concreteJson: jsonEncode(concreteView.toJson()),
+      ),
+      by: (tbl) => tbl.uid,
+      where: (tbl) => tbl.uid,
+    );
   }
 
   @override

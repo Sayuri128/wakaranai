@@ -1,0 +1,393 @@
+import 'package:equatable/equatable.dart';
+import 'package:video_player/video_player.dart';
+import 'package:wakaranai/data/domain/playable_video.dart';
+import 'package:wakaranai/repositories/shared_pref/player_preferences.dart';
+
+const String kAutoQualityLabel = 'Auto';
+const String kStreamLabelSeparator = ' · ';
+
+final RegExp _heightPattern = RegExp(r'(\d{3,4})\s*p\b', caseSensitive: false);
+
+class PlayerRendition extends Equatable {
+  const PlayerRendition(this.track);
+
+  final VideoTrack track;
+
+  String get id => track.id;
+
+  int? get height => track.height;
+
+  int? get bitrate => track.bitrate;
+
+  String? get trackLabel {
+    final String? label = track.label?.trim();
+    if (label == null || label.isEmpty) {
+      return null;
+    }
+    return label;
+  }
+
+  String get preferenceLabel {
+    final int? renditionHeight = height;
+    if (renditionHeight != null) {
+      return '${renditionHeight}p';
+    }
+    final String? label = trackLabel;
+    if (label != null) {
+      return label;
+    }
+    final int? renditionBitrate = bitrate;
+    if (renditionBitrate != null) {
+      return formatBitrate(renditionBitrate);
+    }
+    return id;
+  }
+
+  @override
+  List<Object?> get props => <Object?>[id, height, bitrate, track.width, trackLabel];
+}
+
+List<PlayerRendition> distinctRenditions(List<VideoTrack> tracks) {
+  final Map<String, PlayerRendition> byKey = <String, PlayerRendition>{};
+  for (final VideoTrack track in tracks) {
+    byKey.putIfAbsent(_renditionKey(track), () => PlayerRendition(track));
+  }
+  final List<PlayerRendition> renditions = byKey.values.toList();
+  renditions.sort(_compareRenditions);
+  return renditions;
+}
+
+String _renditionKey(VideoTrack track) {
+  if (track.height == null && track.bitrate == null) {
+    return 'track:${track.label ?? track.id}';
+  }
+  return '${track.height}:${track.bitrate}';
+}
+
+int _compareRenditions(PlayerRendition first, PlayerRendition second) {
+  final int byHeight = (second.height ?? 0).compareTo(first.height ?? 0);
+  if (byHeight != 0) {
+    return byHeight;
+  }
+  return (second.bitrate ?? 0).compareTo(first.bitrate ?? 0);
+}
+
+String formatBitrate(int bitsPerSecond) {
+  if (bitsPerSecond >= 1000000) {
+    return '${(bitsPerSecond / 1000000).toStringAsFixed(1)} Mbps';
+  }
+  return '${(bitsPerSecond / 1000).round()} kbps';
+}
+
+String renditionLabel(PlayerRendition rendition, List<PlayerRendition> all) {
+  final String base = rendition.preferenceLabel;
+  final int? bitrate = rendition.bitrate;
+  if (rendition.height == null || bitrate == null) {
+    return base;
+  }
+  final bool sharesHeight = all.any(
+    (PlayerRendition other) =>
+        other.id != rendition.id && other.height == rendition.height,
+  );
+  if (!sharesHeight) {
+    return base;
+  }
+  return '$base · ${formatBitrate(bitrate)}';
+}
+
+bool isAutoQualityLabel(String? label) {
+  return label?.trim().toLowerCase() == kAutoQualityLabel.toLowerCase();
+}
+
+int? qualityHeightOf(String label) {
+  final RegExpMatch? match = _heightPattern.firstMatch(label);
+  if (match == null) {
+    return null;
+  }
+  return int.tryParse(match.group(1)!);
+}
+
+PlayerRendition? matchRendition(
+  List<PlayerRendition> renditions,
+  String wanted,
+) {
+  final String normalized = wanted.trim().toLowerCase();
+  if (normalized.isEmpty) {
+    return null;
+  }
+  for (final PlayerRendition rendition in renditions) {
+    final bool sameLabel =
+        rendition.preferenceLabel.toLowerCase() == normalized ||
+            rendition.trackLabel?.toLowerCase() == normalized;
+    if (sameLabel) {
+      return rendition;
+    }
+  }
+  final int? wantedHeight = qualityHeightOf(normalized);
+  if (wantedHeight == null) {
+    return null;
+  }
+  return _closestLowerRendition(renditions, wantedHeight);
+}
+
+PlayerRendition? preferredRendition({
+  required List<PlayerRendition> renditions,
+  required QualityPreference preference,
+  required String? currentStreamLabel,
+}) {
+  final String? wanted = preference.renditionLabel;
+  if (wanted == null || renditions.length < 2 || isAutoQualityLabel(wanted)) {
+    return null;
+  }
+  final bool legacyStreamPick = preference.fromLegacyLabel &&
+      _sameQualityLabel(wanted, currentStreamLabel);
+  if (legacyStreamPick) {
+    return null;
+  }
+  return matchRendition(renditions, wanted);
+}
+
+bool _sameQualityLabel(String first, String? second) {
+  final String? normalizedSecond = second?.trim().toLowerCase();
+  if (normalizedSecond == null || normalizedSecond.isEmpty) {
+    return false;
+  }
+  return first.trim().toLowerCase() == normalizedSecond;
+}
+
+PlayerRendition? _closestLowerRendition(
+  List<PlayerRendition> renditions,
+  int wantedHeight,
+) {
+  final List<PlayerRendition> withHeight = renditions
+      .where((PlayerRendition rendition) => rendition.height != null)
+      .toList();
+  if (withHeight.isEmpty) {
+    return null;
+  }
+  for (final PlayerRendition rendition in withHeight) {
+    if (rendition.height! <= wantedHeight) {
+      return rendition;
+    }
+  }
+  return withHeight.last;
+}
+
+enum QualityOptionKind { stream, auto, rendition }
+
+class QualityOption extends Equatable {
+  const QualityOption.stream({required this.streamIndex, required this.label})
+      : kind = QualityOptionKind.stream,
+        rendition = null;
+
+  const QualityOption.auto({required this.streamIndex, required this.label})
+      : kind = QualityOptionKind.auto,
+        rendition = null;
+
+  const QualityOption.rendition({
+    required this.streamIndex,
+    required PlayerRendition this.rendition,
+    required this.label,
+  }) : kind = QualityOptionKind.rendition;
+
+  final QualityOptionKind kind;
+  final int streamIndex;
+  final PlayerRendition? rendition;
+  final String label;
+
+  bool isSelected({
+    required int currentStreamIndex,
+    required String? selectedRenditionId,
+  }) {
+    if (streamIndex != currentStreamIndex) {
+      return false;
+    }
+    switch (kind) {
+      case QualityOptionKind.stream:
+        return true;
+      case QualityOptionKind.auto:
+        return selectedRenditionId == null;
+      case QualityOptionKind.rendition:
+        return rendition?.id == selectedRenditionId;
+    }
+  }
+
+  @override
+  List<Object?> get props => <Object?>[kind, streamIndex, rendition, label];
+}
+
+class QualityGroup extends Equatable {
+  const QualityGroup({
+    required this.streamIndex,
+    required this.label,
+    this.options = const <QualityOption>[],
+  });
+
+  final int streamIndex;
+  final String label;
+  final List<QualityOption> options;
+
+  List<QualityOption> get selectableOptions {
+    if (options.isNotEmpty) {
+      return options;
+    }
+    return <QualityOption>[
+      QualityOption.stream(streamIndex: streamIndex, label: label),
+    ];
+  }
+
+  @override
+  List<Object?> get props => <Object?>[streamIndex, label, options];
+}
+
+List<QualityGroup> buildQualityGroups({
+  required List<String> streamLabels,
+  required int currentStreamIndex,
+  required List<PlayerRendition> renditions,
+  required String autoLabel,
+}) {
+  return <QualityGroup>[
+    for (int index = 0; index < streamLabels.length; index++)
+      QualityGroup(
+        streamIndex: index,
+        label: streamLabels[index],
+        options: index == currentStreamIndex
+            ? _renditionOptions(index, renditions, autoLabel)
+            : const <QualityOption>[],
+      ),
+  ];
+}
+
+List<QualityOption> _renditionOptions(
+  int streamIndex,
+  List<PlayerRendition> renditions,
+  String autoLabel,
+) {
+  if (renditions.length < 2) {
+    return const <QualityOption>[];
+  }
+  return <QualityOption>[
+    QualityOption.auto(streamIndex: streamIndex, label: autoLabel),
+    for (final PlayerRendition rendition in renditions)
+      QualityOption.rendition(
+        streamIndex: streamIndex,
+        rendition: rendition,
+        label: renditionLabel(rendition, renditions),
+      ),
+  ];
+}
+
+int selectableQualityCount(List<QualityGroup> groups) {
+  int count = 0;
+  for (final QualityGroup group in groups) {
+    count += group.selectableOptions.length;
+  }
+  return count;
+}
+
+String? currentQualityLabel(
+  List<QualityGroup> groups, {
+  required int currentStreamIndex,
+  required String? selectedRenditionId,
+}) {
+  for (final QualityGroup group in groups) {
+    for (final QualityOption option in group.selectableOptions) {
+      final bool selected = option.isSelected(
+        currentStreamIndex: currentStreamIndex,
+        selectedRenditionId: selectedRenditionId,
+      );
+      if (selected) {
+        return option.rendition?.preferenceLabel ?? option.label;
+      }
+    }
+  }
+  return null;
+}
+
+String? streamBaseLabel(PlayableStream stream) {
+  final List<String> parts = <String>[
+    for (final String? part in <String?>[stream.quality, stream.audioLabel])
+      if (part != null && part.trim().isNotEmpty) part.trim(),
+  ];
+  if (parts.isEmpty) {
+    return null;
+  }
+  return parts.join(kStreamLabelSeparator);
+}
+
+List<String> streamLabelsFor(
+  List<PlayableStream> streams, {
+  required String Function(int index) fallback,
+}) {
+  final List<String> labels = <String>[
+    for (int index = 0; index < streams.length; index++)
+      streamBaseLabel(streams[index]) ?? fallback(index),
+  ];
+  return _disambiguatedLabels(labels);
+}
+
+List<String> _disambiguatedLabels(List<String> labels) {
+  final Map<String, int> totals = <String, int>{};
+  for (final String label in labels) {
+    totals[label] = (totals[label] ?? 0) + 1;
+  }
+  final Map<String, int> seen = <String, int>{};
+  return <String>[
+    for (final String label in labels)
+      _numberedLabel(label, totals[label]!, seen),
+  ];
+}
+
+String _numberedLabel(String label, int total, Map<String, int> seen) {
+  if (total < 2) {
+    return label;
+  }
+  final int occurrence = (seen[label] ?? 0) + 1;
+  seen[label] = occurrence;
+  return '$label ($occurrence)';
+}
+
+QualityPreference rememberedQualityPreference({
+  required QualityPreference previous,
+  required List<PlayableStream> streams,
+  required int streamIndex,
+  required String renditionLabel,
+}) {
+  return QualityPreference(
+    streamLabel: _streamLabelToRemember(previous, streams, streamIndex),
+    renditionLabel: renditionLabel,
+    audioLabel: _audioLabelToRemember(previous, streams, streamIndex),
+  );
+}
+
+String? _streamLabelToRemember(
+  QualityPreference previous,
+  List<PlayableStream> streams,
+  int streamIndex,
+) {
+  final String? previousLabel =
+      previous.fromLegacyLabel ? null : previous.streamLabel;
+  if (streams.length < 2) {
+    return previousLabel;
+  }
+  final String? streamLabel = streams[streamIndex].quality?.trim();
+  if (streamLabel == null || streamLabel.isEmpty) {
+    return previousLabel;
+  }
+  return streamLabel;
+}
+
+String? _audioLabelToRemember(
+  QualityPreference previous,
+  List<PlayableStream> streams,
+  int streamIndex,
+) {
+  if (streams.length < 2) {
+    return previous.audioLabel;
+  }
+  final String? audioLabel = streams[streamIndex].audioLabel?.trim();
+  if (audioLabel == null || audioLabel.isEmpty) {
+    return null;
+  }
+  return audioLabel;
+}

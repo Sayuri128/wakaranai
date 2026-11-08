@@ -1,19 +1,29 @@
-import 'package:bloc/bloc.dart';
-import 'package:capyscript/api_clients/manga_api_client.dart';
+import 'dart:async';
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:wakaranai/utils/image_headers.dart';
+import 'package:wakaranai/services/configs_service/api_client_factory.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
+import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/ui/activity_list_item.dart';
 import 'package:wakaranai/database/wakaranai_database.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/services/local_source/local_books_source.dart';
+import 'package:wakaranai/services/local_source/local_sources.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/activity_history_cubit_mixin.dart';
 import 'package:wakaranai/ui/routes.dart';
+import 'package:wakaranai/ui/services/audio/audio_concrete_viewer.dart';
+import 'package:wakaranai/ui/services/audio/audio_service_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/manga_service_viewer.dart';
+import 'package:wakaranai/ui/services/novel/novel_concrete_viewer.dart';
+import 'package:wakaranai/ui/services/novel/novel_service_viewer.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 
 part 'manga_activity_history_state.dart';
@@ -30,8 +40,10 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
   final ConcreteDataRepository concreteDataRepository;
   final ChapterActivityRepository chapterActivityRepository;
 
-  void init() async {
-    emit(ActivityHistoryLoading());
+  void init({bool silent = false}) async {
+    if (!silent) {
+      emit(ActivityHistoryLoading());
+    }
 
     try {
       final data =
@@ -41,6 +53,8 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
           await fetchConcretes(
               concreteIds: data.map((e) => e.concreteId).toSet(),
               concreteDataRepository: concreteDataRepository);
+      final List<ExtensionDomain> extensions =
+          await extensionRepository.getAll();
 
       emit(
         ActivityHistoryLoaded(
@@ -49,6 +63,10 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
             activities: chapterActivities,
             getConcreteId: (activity) => activity.concreteId,
           ),
+          novelExtensionUids:
+              _extensionUidsOf(extensions, ConfigInfoType.NOVEL),
+          audioExtensionUids:
+              _extensionUidsOf(extensions, ConfigInfoType.AUDIO),
         ),
       );
     } catch (e) {
@@ -58,6 +76,17 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
         ),
       );
     }
+  }
+
+  Set<String> _extensionUidsOf(
+    List<ExtensionDomain> extensions,
+    ConfigInfoType type,
+  ) {
+    return <String>{
+      LocalBooksSource.uid,
+      for (final ExtensionDomain extension in extensions)
+        if (extension.config.type == type) extension.config.uid,
+    };
   }
 
   void onDelete({
@@ -75,6 +104,8 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
       emit(
         ActivityHistoryLoaded(
           mangaActivities: removeActivityListItem(copy, activity.uid),
+          novelExtensionUids: loadedState.novelExtensionUids,
+          audioExtensionUids: loadedState.audioExtensionUids,
         ),
       );
     }
@@ -88,7 +119,9 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
     required ConcreteDataDomain concrete,
     required BaseActivityDomain activity,
   }) async {
-    final extension = await extensionRepository.getByUid(concrete.extensionUid);
+    final ExtensionDomain? extension =
+        LocalSources.extensionFor(concrete.extensionUid) ??
+            await extensionRepository.getByUid(concrete.extensionUid);
     if (extension == null) {
       SnackBars.showErrorSnackBar(
         context: context,
@@ -97,14 +130,25 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
       return;
     }
 
-    final apiClient = MangaApiClient(code: extension.sourceCode);
+    if (extension.config.type == ConfigInfoType.NOVEL) {
+      await _openNovel(context, concrete: concrete, extension: extension);
+      return;
+    }
 
-    final coverHeaders = await apiClient.getImageHeaders(
+    if (extension.config.type == ConfigInfoType.AUDIO) {
+      await _openAudio(context, concrete: concrete, extension: extension);
+      return;
+    }
+
+    final apiClient = ApiClientFactory.instance
+        .manga(config: extension.config, code: extension.sourceCode);
+
+    final coverHeaders = await apiClient.imageHeadersOrEmpty(
       uid: concrete.uid,
       data: concrete.dataJson,
     );
 
-    Navigator.of(context)
+    unawaited(Navigator.of(context)
         .pushNamed(
       Routes.mangaServiceViewer,
       arguments: MangaServiceViewData(
@@ -121,6 +165,78 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
     )
         .then((_) {
       init();
-    });
+    }));
+  }
+
+  Future<void> _openNovel(
+    BuildContext context, {
+    required ConcreteDataDomain concrete,
+    required ExtensionDomain extension,
+  }) async {
+    final apiClient = ApiClientFactory.instance
+        .novel(config: extension.config, code: extension.sourceCode);
+
+    final Map<String, String> coverHeaders = await apiClient.imageHeadersOrEmpty(
+      uid: concrete.uid,
+      data: concrete.dataJson,
+    );
+    if (!context.mounted) {
+      return;
+    }
+
+    unawaited(Navigator.of(context)
+        .pushNamed(
+      Routes.novelServiceViewer,
+      arguments: NovelServiceViewData(
+        remoteConfig: extension,
+        nextViewerData: NovelConcreteViewerData(
+          uid: concrete.uid,
+          galleryData: concrete.dataJson,
+          coverHeaders: coverHeaders,
+          client: apiClient,
+          configInfo: extension.config,
+          galleryCover: concrete.cover,
+        ),
+      ),
+    )
+        .then((_) {
+      init();
+    }));
+  }
+
+  Future<void> _openAudio(
+    BuildContext context, {
+    required ConcreteDataDomain concrete,
+    required ExtensionDomain extension,
+  }) async {
+    final apiClient = ApiClientFactory.instance
+        .audio(config: extension.config, code: extension.sourceCode);
+
+    final Map<String, String> coverHeaders = await apiClient.imageHeadersOrEmpty(
+      uid: concrete.uid,
+      data: concrete.dataJson,
+    );
+    if (!context.mounted) {
+      return;
+    }
+
+    unawaited(Navigator.of(context)
+        .pushNamed(
+      Routes.audioServiceViewer,
+      arguments: AudioServiceViewData(
+        remoteConfig: extension,
+        nextViewerData: AudioConcreteViewerData(
+          uid: concrete.uid,
+          galleryData: concrete.dataJson,
+          coverHeaders: coverHeaders,
+          client: apiClient,
+          configInfo: extension.config,
+          galleryCover: concrete.cover,
+        ),
+      ),
+    )
+        .then((_) {
+      init();
+    }));
   }
 }

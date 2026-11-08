@@ -1,15 +1,20 @@
 import 'dart:convert';
 
 import 'package:capyscript/api_clients/api_client.dart';
+import 'package:capyscript/api_clients/source_error.dart';
 import 'package:capyscript/modules/waka_models/models/common/concrete_view.dart';
 import 'package:capyscript/modules/waka_models/models/common/element_of_elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/elements_group_of_concrete.dart';
 import 'package:capyscript/modules/waka_models/models/common/gallery_view.dart';
 import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_concrete_view.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video/anime_video.dart';
+import 'package:capyscript/modules/waka_models/models/anime/anime_concrete_view/anime_video_group/anime_video_group.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapter/chapter.dart';
+import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/chapters_group/chapters_group.dart';
 import 'package:capyscript/modules/waka_models/models/manga/manga_concrete_view/manga_concrete_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/utils/image_headers.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
@@ -18,52 +23,60 @@ import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
+import 'package:wakaranai/services/audiobooks/audio_progress.dart';
+import 'package:wakaranai/services/novels/novel_progress.dart';
+import 'package:wakaranai/services/trackers/tracker_progress.dart';
+import 'package:wakaranai/utils/config_info_type_kinds.dart';
+import 'package:wakaranai/utils/serial_call_queue.dart';
+import 'package:wakaranai/utils/source_error_description.dart';
 
 part 'concrete_view_state.dart';
 
 enum ConcreteViewOrder { def, defReverse }
 
-class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
+class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView,
     G extends GalleryView> extends Cubit<ConcreteViewState<T, C, G>> {
   ConcreteViewCubit(
     super.state, {
     required this.concreteDataRepository,
     required this.chapterActivityRepository,
     required this.animeEpisodeActivityRepository,
+    this.onTrackerProgress,
   });
 
+  final void Function(String concreteUid, int? progress)? onTrackerProgress;
   final ConcreteDataRepository concreteDataRepository;
   final ChapterActivityRepository chapterActivityRepository;
   final AnimeEpisodeActivityRepository animeEpisodeActivityRepository;
 
   Future<C> _getConcrete(String uid, Map<String, dynamic> data) async {
-    return await (state.apiClient as dynamic) // TODO: avoid dynamic
-        .getConcrete(uid: uid, data: data);
+    final T client = state.apiClient;
+    final ConcreteView concreteView = await runSerializedOn<ConcreteView>(
+      client,
+      () => client.getConcrete(uid: uid, data: data),
+    );
+    return concreteView as C;
   }
 
   Future<void> getConcrete(String uid, Map<String, dynamic> galleryData,
       {bool forceRemote = false}) async {
     try {
-      final ConcreteView<dynamic> concreteView =
-          await _getConcrete(uid, galleryData);
+      final C concreteView = await _getConcrete(uid, galleryData);
 
-      final domain = await concreteDataRepository
-          .createUpdateBy<$ConcreteDataTableTable, String>(
-        concreteView.toConcreteDataDomain(
-          data: galleryData,
-          extensionUid: state.configInfo.uid,
-          concreteJson: jsonEncode((concreteView as dynamic).toJson()),
-        ),
-        by: (tbl) => tbl.uid,
-        where: (tbl) => tbl.uid,
+      final domain = await concreteDataRepository.saveConcrete(
+        concreteView,
+        galleryData: galleryData,
+        extensionUid: state.configInfo.uid,
       );
-      final Map<String, String> imageHeaders =
-          await state.apiClient.getImageHeaders(uid: uid, data: galleryData);
+      final Map<String, String> imageHeaders = await runSerializedOn(
+        state.apiClient,
+        () => state.apiClient.imageHeadersOrEmpty(uid: uid, data: galleryData),
+      );
 
       // Fetch chapter activities to show the user's progress
       final Map<String, ChapterActivityDomain> chapterActivities = {};
 
-      if (state.configInfo.type == ConfigInfoType.MANGA) {
+      if (state.configInfo.type.usesChapterActivities) {
         chapterActivities
             .addAll(await _fetchMangaChapterActivities(concreteView));
       }
@@ -78,7 +91,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       final groupIndex = concreteView.groups.isNotEmpty ? 0 : -1;
       emit(
         ConcreteViewInitialized<T, C, G>(
-          concreteView: concreteView as dynamic,
+          concreteView: concreteView,
           apiClient: state.apiClient,
           configInfo: state.configInfo,
           domain: domain,
@@ -94,17 +107,51 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       logger.e(e);
       logger.e(s);
 
+      if (findSourceError(e)?.kind == SourceErrorKind.notFound) {
+        await _emitRemovedFromSource(uid, e);
+        return;
+      }
+
       final bool loadedOffline = await _tryLoadOffline(uid, galleryData);
       if (loadedOffline) return;
 
       emit(
         ConcreteViewError<T, C, G>(
           message: e.toString(),
+          error: e,
           apiClient: state.apiClient,
           configInfo: state.configInfo,
         ),
       );
     }
+  }
+
+  Future<void> _emitRemovedFromSource(String uid, Object error) async {
+    final bool hasOfflineData = await _hasOfflineData(uid);
+    emit(
+      ConcreteViewError<T, C, G>(
+        message: error.toString(),
+        error: error,
+        hasOfflineData: hasOfflineData,
+        apiClient: state.apiClient,
+        configInfo: state.configInfo,
+      ),
+    );
+  }
+
+  Future<bool> _hasOfflineData(String uid) async {
+    try {
+      final ConcreteDataDomain? cached =
+          await concreteDataRepository.getByUid(uid);
+      return cached?.concreteJson != null;
+    } catch (e) {
+      logger.w('Failed to look up saved details for $uid: $e');
+      return false;
+    }
+  }
+
+  Future<bool> openOffline(String uid, Map<String, dynamic> galleryData) {
+    return _tryLoadOffline(uid, galleryData);
   }
 
   Future<bool> _tryLoadOffline(
@@ -117,7 +164,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       final Map<String, dynamic> json =
           jsonDecode(cached!.concreteJson!) as Map<String, dynamic>;
 
-      final ConcreteView<dynamic> concreteView =
+      final ConcreteView concreteView =
           state.configInfo.type == ConfigInfoType.ANIME
               ? AnimeConcreteView.fromJson(json)
               : MangaConcreteView.fromJson(json);
@@ -125,7 +172,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       final Map<String, ChapterActivityDomain> chapterActivities = {};
       final Map<String, AnimeEpisodeActivityDomain> animeEpisodeActivities = {};
 
-      if (state.configInfo.type == ConfigInfoType.MANGA) {
+      if (state.configInfo.type.usesChapterActivities) {
         chapterActivities
             .addAll(await _fetchMangaChapterActivities(concreteView));
       } else {
@@ -135,7 +182,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
 
       emit(
         ConcreteViewInitialized<T, C, G>(
-          concreteView: concreteView as dynamic,
+          concreteView: concreteView as C,
           apiClient: state.apiClient,
           configInfo: state.configInfo,
           domain: cached,
@@ -157,7 +204,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
   }
 
   Future<Map<String, AnimeEpisodeActivityDomain>> _fetchAnimeEpisodeActivities(
-      ConcreteView<dynamic> concreteView) async {
+      ConcreteView concreteView) async {
     final Map<String, AnimeEpisodeActivityDomain> animeEpisodeActivities = {};
 
     if (state.configInfo.type == ConfigInfoType.ANIME) {
@@ -173,10 +220,10 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
   }
 
   Future<Map<String, ChapterActivityDomain>> _fetchMangaChapterActivities(
-      ConcreteView<dynamic> concreteView) async {
+      ConcreteView concreteView) async {
     final Map<String, ChapterActivityDomain> chapterActivities = {};
 
-    if (state.configInfo.type == ConfigInfoType.MANGA) {
+    if (state.configInfo.type.usesChapterActivities) {
       final data = await chapterActivityRepository
           .getAllActivitiesByConcreteId(concreteView.uid);
 
@@ -193,15 +240,35 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       final ConcreteViewInitialized<T, C, G> state =
           this.state as ConcreteViewInitialized<T, C, G>;
 
-      if (state.configInfo.type == ConfigInfoType.MANGA) {
+      if (state.configInfo.type.usesChapterActivities) {
         _fetchMangaChapterActivities(state.concreteView)
             .then((chapterActivities) {
+          if (isClosed) {
+            return;
+          }
           emit(state.copyWith(chapterActivities: chapterActivities));
+          onTrackerProgress?.call(
+            state.concreteView.uid,
+            finishedChapterProgress(
+              groups: state.concreteView.groups.cast<ChaptersGroup>(),
+              activities: chapterActivities,
+            ),
+          );
         });
       } else if (state.configInfo.type == ConfigInfoType.ANIME) {
         _fetchAnimeEpisodeActivities(state.concreteView)
             .then((animeEpisodeActivities) {
+          if (isClosed) {
+            return;
+          }
           emit(state.copyWith(animeEpisodeActivities: animeEpisodeActivities));
+          onTrackerProgress?.call(
+            state.concreteView.uid,
+            finishedEpisodeProgress(
+              groups: state.concreteView.groups.cast<AnimeVideoGroup>(),
+              activities: animeEpisodeActivities,
+            ),
+          );
         });
       }
     }
@@ -287,7 +354,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
       final List<String> selection = List.of(state.selection);
 
       for (String uid in selection) {
-        if (state.configInfo.type == ConfigInfoType.MANGA) {
+        if (state.configInfo.type.usesChapterActivities) {
           await chapterActivityRepository.deleteBy<$ChapterActivityTableTable>(
             uid,
             where: (tbl) => tbl.uid,
@@ -318,7 +385,7 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
         final groupItem = state.concreteView.groups[state.groupIndex].elements
             .firstWhere((element) => element.uid == uid);
 
-        if (state.configInfo.type == ConfigInfoType.MANGA) {
+        if (state.configInfo.type.usesChapterActivities) {
           final chapter = groupItem as Chapter;
 
           final ChapterActivityDomain activity = ChapterActivityDomain(
@@ -333,38 +400,41 @@ class ConcreteViewCubit<T extends ApiClient, C extends ConcreteView<dynamic>,
             totalPages: 0,
           );
 
-          await chapterActivityRepository
-              .createUpdateBy<$ChapterActivityTableTable, String>(
+          await chapterActivityRepository.markCompleted(
             activity,
-            by: (tbl) => tbl.uid,
-            where: (tbl) => tbl.uid,
+            completedPages: _completedPagesFor(state, uid),
           );
         } else if (state.configInfo.type == ConfigInfoType.ANIME) {
+          final AnimeVideo episode = groupItem as AnimeVideo;
+
           final AnimeEpisodeActivityDomain activity =
               AnimeEpisodeActivityDomain(
             id: 0,
             uid: uid,
             concreteId: state.domain!.id,
-            timestamp: groupItem.timestamp,
-            title: groupItem.title,
-            data: jsonEncode(groupItem.data),
+            timestamp: episode.timestamp,
+            title: episode.title,
+            data: jsonEncode(episode.data),
             createdAt: DateTime.now(),
-            watchedTime: null,
-            totalTime: null,
           );
 
-          await animeEpisodeActivityRepository
-              .createUpdateBy<$AnimeEpisodeActivityTableTable, String>(
-            activity,
-            by: (tbl) => tbl.uid,
-            where: (tbl) => tbl.uid,
-          );
+          await animeEpisodeActivityRepository.markCompleted(activity);
         }
       }
 
       clearSelection();
       updateActivities();
     }
+  }
+
+  int? _completedPagesFor(ConcreteViewInitialized<T, C, G> state, String uid) {
+    if (state.configInfo.type == ConfigInfoType.NOVEL) {
+      return NovelProgress.scale;
+    }
+    if (state.configInfo.type == ConfigInfoType.AUDIO) {
+      return AudioProgress.completedUnits(state.chapterActivities[uid]);
+    }
+    return null;
   }
 
   void changeOrder(ConcreteViewOrder order) {

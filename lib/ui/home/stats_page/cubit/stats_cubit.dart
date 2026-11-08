@@ -1,7 +1,9 @@
+import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
+import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/ui/reading_stats.dart';
 import 'package:wakaranai/repositories/database/anime_episode_activity_repository.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
@@ -58,11 +60,20 @@ class StatsCubit extends Cubit<StatsState> {
     List<ChapterActivityDomain> chapters,
     List<AnimeEpisodeActivityDomain> episodes,
   ) async {
+    final Map<int, String> concreteToExtensionUid =
+        await _concreteExtensionUids(chapters, episodes);
+    final Map<String, ExtensionDomain?> extensions =
+        await _resolveExtensions(concreteToExtensionUid.values.toSet());
+
     int chaptersRead = 0;
     int pagesRead = 0;
     for (final ChapterActivityDomain c in chapters) {
       if (c.isCompleted) chaptersRead++;
-      pagesRead += c.readPages;
+      final ExtensionDomain? extension =
+          extensions[concreteToExtensionUid[c.concreteId]];
+      if (_countsPages(extension?.config.type)) {
+        pagesRead += c.readPages;
+      }
     }
 
     int watchSeconds = 0;
@@ -87,8 +98,12 @@ class StatsCubit extends Cubit<StatsState> {
       addDay(e.updatedAt ?? e.createdAt);
     }
 
-    final Map<String, SourceStat> sources =
-        await _computeSources(chapters, episodes);
+    final Map<String, SourceStat> sources = _computeSources(
+      chapters,
+      episodes,
+      concreteToExtensionUid,
+      extensions,
+    );
 
     final List<SourceStat> topSources = sources.values.toList()
       ..sort((SourceStat a, SourceStat b) => b.total.compareTo(a.total));
@@ -109,7 +124,11 @@ class StatsCubit extends Cubit<StatsState> {
     );
   }
 
-  Future<Map<String, SourceStat>> _computeSources(
+  static bool _countsPages(ConfigInfoType? type) {
+    return type != ConfigInfoType.NOVEL && type != ConfigInfoType.AUDIO;
+  }
+
+  Future<Map<int, String>> _concreteExtensionUids(
     List<ChapterActivityDomain> chapters,
     List<AnimeEpisodeActivityDomain> episodes,
   ) async {
@@ -125,15 +144,28 @@ class StatsCubit extends Cubit<StatsState> {
         concreteToExtensionUid[id] = concrete.extensionUid;
       }
     }
+    return concreteToExtensionUid;
+  }
 
-    final Map<String, String> extensionNames = <String, String>{};
-    Future<String> nameFor(String extensionUid) async {
-      final String? cached = extensionNames[extensionUid];
-      if (cached != null) return cached;
-      final extension = await extensionResolver.resolve(extensionUid);
-      final String name = extension?.config.name ?? extensionUid;
-      extensionNames[extensionUid] = name;
-      return name;
+  Future<Map<String, ExtensionDomain?>> _resolveExtensions(
+    Set<String> extensionUids,
+  ) async {
+    final Map<String, ExtensionDomain?> extensions =
+        <String, ExtensionDomain?>{};
+    for (final String uid in extensionUids) {
+      extensions[uid] = await extensionResolver.resolve(uid);
+    }
+    return extensions;
+  }
+
+  Map<String, SourceStat> _computeSources(
+    List<ChapterActivityDomain> chapters,
+    List<AnimeEpisodeActivityDomain> episodes,
+    Map<int, String> concreteToExtensionUid,
+    Map<String, ExtensionDomain?> extensions,
+  ) {
+    String nameFor(String extensionUid) {
+      return extensions[extensionUid]?.config.name ?? extensionUid;
     }
 
     final Map<String, int> mangaCounts = <String, int>{};
@@ -142,13 +174,13 @@ class StatsCubit extends Cubit<StatsState> {
     for (final ChapterActivityDomain c in chapters) {
       final String? uid = concreteToExtensionUid[c.concreteId];
       if (uid == null) continue;
-      final String name = await nameFor(uid);
+      final String name = nameFor(uid);
       mangaCounts[name] = (mangaCounts[name] ?? 0) + 1;
     }
     for (final AnimeEpisodeActivityDomain e in episodes) {
       final String? uid = concreteToExtensionUid[e.concreteId];
       if (uid == null) continue;
-      final String name = await nameFor(uid);
+      final String name = nameFor(uid);
       animeCounts[name] = (animeCounts[name] ?? 0) + 1;
     }
 

@@ -1,14 +1,20 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
+import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/database/extension_source_type.dart';
+import 'package:wakaranai/data/models/remote_config/remote_config.dart';
 import 'package:wakaranai/env.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
+import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/services/configs_service/configs_service.dart';
+import 'package:wakaranai/services/configs_service/extension_listing_status.dart';
 import 'package:wakaranai/services/configs_service/github_configs_service.dart';
 import 'package:wakaranai/services/configs_service/repo_configs_service.dart';
+import 'package:wakaranai/services/settings_service/settings_service.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/extension_sources_page_result.dart';
 import 'package:wakaranai/utils/github_url_parser.dart';
 
@@ -19,21 +25,33 @@ part 'remote_configs_state.dart';
 class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
   RemoteConfigsCubit({
     required this.extensionSourceRepository,
+    this.extensionRepository,
   }) : super(RemoteConfigsLoading());
 
-  ConfigsService _configsService =
-      GitHubConfigsService(Env.configsSourceOrg, Env.configsSourceRepo);
+  ConfigsService _configsService = _officialService();
 
-  // ConfigsService _configsService =
-  //     RepoConfigsService(url: Env.localRepoUrl);
+  static ConfigsService _officialService() =>
+      GitHubConfigsService(Env.configsSourceOrg, Env.configsSourceRepo);
 
   final DefaultExtensionRepository defaultExtensionRepository =
       DefaultExtensionRepository();
   final ExtensionSourceRepository extensionSourceRepository;
+  final ExtensionRepository? extensionRepository;
 
   ConfigsService get configService => _configsService;
 
-  void init() async {
+  Future<void> init() async {
+    if (kDebugMode &&
+        Env.localRepoUrl.isNotEmpty &&
+        await SettingsService().getUseLocalExtensionServer()) {
+      _configsService = RepoConfigsService(url: Env.localRepoUrl);
+      await getConfigs(sourceName: S.current.local_extension_server_source_name);
+      return;
+    }
+    if (_configsService is RepoConfigsService) {
+      _configsService = _officialService();
+    }
+
     await defaultExtensionRepository.init();
 
     final int? defaultId =
@@ -66,25 +84,61 @@ class RemoteConfigsCubit extends Cubit<RemoteConfigsState> {
     ));
   }
 
+  Future<void> refresh() async {
+    _configsService.invalidate();
+    await init();
+  }
+
   Future<void> getConfigs({required String sourceName}) async {
     emit(RemoteConfigsLoading());
 
-    Future.wait(<Future<List<BaseExtension>>>[
-      _configsService.getMangaConfigs(),
-      _configsService.getAnimeConfigs()
-    ]).then((List<List<BaseExtension>> value) {
+    try {
+      final List<List<BaseExtension>> value =
+          await Future.wait(<Future<List<BaseExtension>>>[
+        _configsService.getMangaConfigs(),
+        _configsService.getAnimeConfigs(),
+        _configsService.getNovelConfigs(),
+        _configsService.getAudioConfigs(),
+      ]);
+      final Map<String, ExtensionListingStatus> listingStatuses =
+          await _listingStatuses(<BaseExtension>[
+        ...value[0],
+        ...value[1],
+        ...value[2],
+        ...value[3],
+      ]);
       emit(
         RemoteConfigsLoaded(
           mangaRemoteConfigs: value[0].cast(),
           animeRemoteConfigs: value[1].cast(),
+          novelRemoteConfigs: value[2].cast(),
+          audioRemoteConfigs: value[3].cast(),
           sourceName: sourceName,
+          listingStatuses: listingStatuses,
         ),
       );
-    }).catchError((err, s) {
+    } catch (err, s) {
       logger.e(err);
       logger.e(s);
-      emit(RemoteConfigsError(message: "Configs source error :c"));
-    });
+      emit(RemoteConfigsError(message: S.current.home_extensions_error_message));
+    }
+  }
+
+  Future<Map<String, ExtensionListingStatus>> _listingStatuses(
+    List<BaseExtension> configs,
+  ) async {
+    final Map<String, ExtensionListingStatus> statuses =
+        <String, ExtensionListingStatus>{};
+    final Iterable<RemoteConfig> incompatible = configs
+        .whereType<RemoteConfig>()
+        .where((RemoteConfig remote) => remote.compatibility.requiresNewerApp);
+    for (final RemoteConfig remote in incompatible) {
+      final ExtensionDomain? installed =
+          await extensionRepository?.getByUid(remote.config.uid);
+      statuses[remote.config.uid] =
+          ExtensionListingStatus.of(remote, installed);
+    }
+    return statuses;
   }
 
   Future<void> changeSource(ExtensionSourcesPageResult source) async {

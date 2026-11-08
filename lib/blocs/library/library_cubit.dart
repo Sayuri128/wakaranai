@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:capyscript/api_clients/anime_api_client.dart';
 import 'package:capyscript/api_clients/api_client.dart';
-import 'package:capyscript/api_clients/manga_api_client.dart';
-import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/utils/image_headers.dart';
+import 'package:wakaranai/services/configs_service/api_client_factory.dart';
 import 'package:wakaranai/data/domain/database/category_domain.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
+import 'package:wakaranai/data/entities/library_entry_table.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/repositories/database/category_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
@@ -38,9 +38,19 @@ class LibraryCubit extends Cubit<LibraryState> {
       <String, Map<String, String>>{};
   final Set<String> _resolvingExtensions = <String>{};
 
+  bool _extensionsRefreshed = false;
+
   void init() {
     _entriesSub?.cancel();
     _categoriesSub?.cancel();
+
+    if (!_extensionsRefreshed) {
+      _extensionsRefreshed = true;
+      unawaited(extensionResolver.refreshOutdated().catchError((Object e) {
+        logger.w('Extension update check failed: $e');
+        return 0;
+      }));
+    }
 
     _entriesSub = libraryEntryRepository.watchAll().listen(
       (List<LibraryEntryDomain> entries) {
@@ -91,11 +101,10 @@ class LibraryCubit extends Cubit<LibraryState> {
         await extensionResolver.resolve(entry.extensionUid);
     if (extension == null) return const <String, String>{};
 
-    final ApiClient client = extension.config.type == ConfigInfoType.MANGA
-        ? MangaApiClient(code: extension.sourceCode)
-        : AnimeApiClient(code: extension.sourceCode);
+    final ApiClient client = ApiClientFactory.instance
+        .create(config: extension.config, code: extension.sourceCode);
 
-    return client.getImageHeaders(uid: entry.uid, data: entry.dataJson);
+    return client.imageHeadersOrEmpty(uid: entry.uid, data: entry.dataJson);
   }
 
   bool isFavorite(String uid) {
@@ -112,6 +121,15 @@ class LibraryCubit extends Cubit<LibraryState> {
     }
   }
 
+  Future<void> addToLibrary(LibraryEntryDomain entry) async {
+    final LibraryEntryDomain? existing =
+        await libraryEntryRepository.getByUid(entry.uid);
+    if (existing != null) {
+      return;
+    }
+    await libraryEntryRepository.create(entry);
+  }
+
   Future<void> removeFromLibrary(String uid) async {
     await libraryEntryRepository.deleteByUid(uid);
     await libraryUpdateRepository.deleteByEntryUid(uid);
@@ -123,6 +141,36 @@ class LibraryCubit extends Cubit<LibraryState> {
 
   Future<void> setNotifyUpdates(LibraryEntryDomain entry, bool value) async {
     await libraryEntryRepository.update(entry.copyWith(notifyUpdates: value));
+  }
+
+  Future<void> setAutoDownloadMany(
+    Iterable<LibraryEntryDomain> entries,
+    AutoDownloadOverride value,
+  ) async {
+    for (final LibraryEntryDomain entry in entries) {
+      if (entry.autoDownload != value) {
+        await libraryEntryRepository
+            .update(entry.copyWith(autoDownload: value));
+      }
+    }
+  }
+
+  Future<void> setTrackUpdatesMany(
+      Iterable<LibraryEntryDomain> entries, bool value) async {
+    for (final LibraryEntryDomain entry in entries) {
+      if (entry.trackUpdates != value) {
+        await setTrackUpdates(entry, value);
+      }
+    }
+  }
+
+  Future<void> setNotifyUpdatesMany(
+      Iterable<LibraryEntryDomain> entries, bool value) async {
+    for (final LibraryEntryDomain entry in entries) {
+      if (entry.notifyUpdates != value) {
+        await setNotifyUpdates(entry, value);
+      }
+    }
   }
 
   Future<void> markRead(String uid) async {

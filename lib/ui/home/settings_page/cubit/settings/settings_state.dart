@@ -20,6 +20,20 @@ class SettingsInitialized extends SettingsState {
 
   final int updateFrequencyHours;
 
+  final bool useLocalExtensionServer;
+
+  final VideoPlayerPreference videoPlayerPreference;
+
+  final double playerHoldSpeed;
+
+  final int playerSkipOpeningSeconds;
+
+  final bool playerAutoPlayNext;
+
+  final bool playerAutoSkipMarkers;
+
+  final bool downloadWifiOnly;
+
   final bool loading;
 
   final ImportExportProgress? progress;
@@ -33,6 +47,13 @@ class SettingsInitialized extends SettingsState {
     required this.checkUpdates,
     required this.updateNotifications,
     required this.updateFrequencyHours,
+    this.useLocalExtensionServer = false,
+    this.videoPlayerPreference = VideoPlayerPreference.auto,
+    this.playerHoldSpeed = kDefaultHoldSpeed,
+    this.playerSkipOpeningSeconds = kDefaultSkipOpeningSeconds,
+    this.playerAutoPlayNext = kDefaultAutoPlayNext,
+    this.playerAutoSkipMarkers = kDefaultAutoSkipMarkers,
+    this.downloadWifiOnly = false,
     this.loading = false,
     this.progress,
     this.outcome,
@@ -45,6 +66,13 @@ class SettingsInitialized extends SettingsState {
     bool? checkUpdates,
     bool? updateNotifications,
     int? updateFrequencyHours,
+    bool? useLocalExtensionServer,
+    VideoPlayerPreference? videoPlayerPreference,
+    double? playerHoldSpeed,
+    int? playerSkipOpeningSeconds,
+    bool? playerAutoPlayNext,
+    bool? playerAutoSkipMarkers,
+    bool? downloadWifiOnly,
     bool? loading,
     ImportExportProgress? progress,
     bool clearProgress = false,
@@ -58,6 +86,17 @@ class SettingsInitialized extends SettingsState {
       checkUpdates: checkUpdates ?? this.checkUpdates,
       updateNotifications: updateNotifications ?? this.updateNotifications,
       updateFrequencyHours: updateFrequencyHours ?? this.updateFrequencyHours,
+      useLocalExtensionServer:
+          useLocalExtensionServer ?? this.useLocalExtensionServer,
+      videoPlayerPreference:
+          videoPlayerPreference ?? this.videoPlayerPreference,
+      playerHoldSpeed: playerHoldSpeed ?? this.playerHoldSpeed,
+      playerSkipOpeningSeconds:
+          playerSkipOpeningSeconds ?? this.playerSkipOpeningSeconds,
+      playerAutoPlayNext: playerAutoPlayNext ?? this.playerAutoPlayNext,
+      playerAutoSkipMarkers:
+          playerAutoSkipMarkers ?? this.playerAutoSkipMarkers,
+      downloadWifiOnly: downloadWifiOnly ?? this.downloadWifiOnly,
       loading: loading ?? this.loading,
       progress: clearProgress ? null : (progress ?? this.progress),
       outcome: clearOutcome ? null : (outcome ?? this.outcome),

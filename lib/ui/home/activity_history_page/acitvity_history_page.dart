@@ -1,15 +1,20 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wakaranai/blocs/nsfw_titles/nsfw_titles_cubit.dart';
+import 'package:wakaranai/ui/widgets/cover_image.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
+import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/data/domain/ui/activity_list_item.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/services/audiobooks/audio_progress.dart';
+import 'package:wakaranai/services/novels/novel_progress.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/widgets/activity_history_long_tap_dialog.dart';
+import 'package:wakaranai/ui/widgets/segmented_tabs.dart';
 import 'package:wakaranai/ui/widgets/shimmer.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
@@ -26,8 +31,8 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
   final PageController _pageController = PageController();
   final _pageBucket = PageStorageBucket();
 
-  final DateFormat _dateFormat = DateFormat('dd MMM yyyy');
-  final DateFormat _dayTimeFormat = DateFormat('HH:mm');
+  DateFormat get _dateFormat => DateFormat('dd MMM yyyy');
+  DateFormat get _dayTimeFormat => DateFormat('HH:mm');
 
   int _currentPage = 0;
 
@@ -79,75 +84,13 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Text(
-            S.current.home_navigation_bar_activity_history_title,
-            style: semibold(size: 24),
-          ),
-          const SizedBox(height: 14),
-          _buildSegmentedTabs(),
+      child: SegmentedTabs(
+        selectedIndex: _currentPage,
+        labels: <String>[
+          S.current.activity_history_manga_appbar_title,
+          S.current.activity_history_anime_appbar_title,
         ],
-      ),
-    );
-  }
-
-  Widget _buildSegmentedTabs() {
-    return Container(
-      height: 44,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.overlay(0.06),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Stack(
-        children: <Widget>[
-          AnimatedAlign(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutCubic,
-            alignment:
-                _currentPage == 0 ? Alignment.centerLeft : Alignment.centerRight,
-            child: FractionallySizedBox(
-              widthFactor: 0.5,
-              heightFactor: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ),
-          Row(
-            children: <Widget>[
-              _buildSegment(
-                  S.current.activity_history_manga_appbar_title, 0),
-              _buildSegment(
-                  S.current.activity_history_anime_appbar_title, 1),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSegment(String label, int index) {
-    final bool selected = _currentPage == index;
-    return Expanded(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => _goToPage(index),
-        child: Center(
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 200),
-            style: semibold(
-              size: 14,
-              color: selected ? AppColors.mainBlack : AppColors.mainGrey,
-            ),
-            child: Text(label),
-          ),
-        ),
+        onSelected: _goToPage,
       ),
     );
   }
@@ -238,6 +181,31 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
     );
   }
 
+  List<ActivityListItem<BaseActivityDomain>>? _withoutHiddenTitles(
+    BuildContext context,
+    List<ActivityListItem<BaseActivityDomain>>? activities,
+  ) {
+    final NsfwTitlesState nsfw = context.watch<NsfwTitlesCubit>().state;
+    if (activities == null || !nsfw.hideTitles) {
+      return activities;
+    }
+    final List<ActivityListItem<BaseActivityDomain>> shown =
+        <ActivityListItem<BaseActivityDomain>>[];
+    for (final ActivityListItem<BaseActivityDomain> day in activities) {
+      final List<DayActivityListItem<BaseActivityDomain>> items = day.listItems
+          .where((DayActivityListItem<BaseActivityDomain> item) =>
+              !nsfw.hides(item.data.extensionUid))
+          .toList();
+      if (items.isNotEmpty) {
+        shown.add(ActivityListItem<BaseActivityDomain>(
+          day: day.day,
+          listItems: items,
+        ));
+      }
+    }
+    return shown;
+  }
+
   List<Widget> _buildContentSlivers({
     required BuildContext context,
     required bool isLoading,
@@ -267,7 +235,9 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
       ];
     }
 
-    if (activities == null || activities.isEmpty) {
+    final List<ActivityListItem<BaseActivityDomain>>? shown =
+        _withoutHiddenTitles(context, activities);
+    if (shown == null || shown.isEmpty) {
       final List<String> parts = emptyMessage.split('\n');
       return <Widget>[
         SliverFillRemaining(
@@ -283,11 +253,11 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
 
     return <Widget>[
       SliverList.builder(
-        itemCount: activities.length,
+        itemCount: shown.length,
         itemBuilder: (BuildContext context, int index) {
           return _buildDay(
             context: context,
-            item: activities[index],
+            item: shown[index],
             onTap: onTap,
             onDelete: onDelete,
           );
@@ -336,6 +306,22 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
     );
   }
 
+  String _progressLabel(
+    BuildContext context,
+    ConcreteDataDomain concrete,
+    ChapterActivityDomain activity,
+  ) {
+    final ActivityHistoryState state =
+        context.read<MangaActivityHistoryCubit>().state;
+    if (state is ActivityHistoryLoaded && state.isNovel(concrete)) {
+      return S.current.novel_progress_percent(NovelProgress.percentOf(activity));
+    }
+    if (state is ActivityHistoryLoaded && state.isAudio(concrete)) {
+      return AudioProgress.progressLabel(activity);
+    }
+    return '${activity.readPages}/${activity.totalPages}';
+  }
+
   Widget _buildListItem({
     required BuildContext context,
     required DayActivityListItem<BaseActivityDomain> listItem,
@@ -348,6 +334,9 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
     final double progress = hasProgress
         ? (activity.readPages / activity.totalPages).clamp(0.0, 1.0)
         : 0;
+    final String progressLabel = hasProgress
+        ? _progressLabel(context, listItem.data, activity)
+        : '';
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -417,7 +406,7 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              "${activity.readPages}/${activity.totalPages}",
+                              progressLabel,
                               style: regular(
                                   size: 11, color: AppColors.mainGrey),
                             ),
@@ -443,14 +432,10 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
         height: 74,
         child: (cover == null || cover.isEmpty)
             ? _buildCoverPlaceholder()
-            : CachedNetworkImage(
-                imageUrl: cover,
-                fit: BoxFit.cover,
-                placeholder: (BuildContext context, String url) =>
-                    _buildCoverPlaceholder(),
-                errorWidget:
-                    (BuildContext context, String url, Object error) =>
-                        _buildCoverPlaceholder(),
+            : CoverImage(
+                url: cover,
+                logicalWidth: 52,
+                placeholder: (BuildContext context) => _buildCoverPlaceholder(),
               ),
       ),
     );

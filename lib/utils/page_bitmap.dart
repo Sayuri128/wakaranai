@@ -1,0 +1,188 @@
+import 'dart:async';
+import 'dart:collection';
+import 'dart:convert';
+import 'dart:ffi';
+import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui' as ui;
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_avif_platform_interface/flutter_avif_platform_interface.dart'
+    as avif_platform;
+import 'package:flutter_avif_platform_interface/models/frame.pb.dart'
+    as avif_models;
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
+bool isLocalPagePath(String path) =>
+    !path.startsWith('http') && !path.startsWith('data:');
+
+Future<void> evictPageSource(String path) async {
+  if (!isLocalPagePath(path)) {
+    await DefaultCacheManager().removeFile(path);
+  }
+}
+
+Future<Uint8List> loadPageBytes(
+    String path, Map<String, String> headers) async {
+  if (path.startsWith('data:')) {
+    return base64Decode(path.split(',').last);
+  }
+  if (isLocalPagePath(path)) {
+    return File(path).readAsBytes();
+  }
+  final File file =
+      await DefaultCacheManager().getSingleFile(path, headers: headers);
+  return file.readAsBytes();
+}
+
+bool isAvif(Uint8List bytes) {
+  if (bytes.length < 12) {
+    return false;
+  }
+  const String ftyp = 'ftyp';
+  for (int i = 0; i < 4; i++) {
+    if (bytes[4 + i] != ftyp.codeUnitAt(i)) {
+      return false;
+    }
+  }
+  return bytes[8] == 0x61 && bytes[9] == 0x76 && bytes[10] == 0x69;
+}
+
+const String _androidAvifLibrary = 'libflutter_avif.so';
+
+class AvifPixels {
+  const AvifPixels(this.pixels, this.width, this.height);
+
+  final Uint8List pixels;
+  final int width;
+  final int height;
+}
+
+final TaskGate _avifDecodes = TaskGate(2);
+final TaskGate _pixelUploads = TaskGate(1);
+
+class TaskGate {
+  TaskGate(this.capacity);
+
+  final int capacity;
+  final Queue<Completer<void>> _waiting = Queue<Completer<void>>();
+  int _running = 0;
+
+  Future<T> run<T>(Future<T> Function() task) async {
+    if (_running >= capacity) {
+      final Completer<void> turn = Completer<void>();
+      _waiting.add(turn);
+      await turn.future;
+    } else {
+      _running++;
+    }
+    try {
+      return await task();
+    } finally {
+      if (_waiting.isEmpty) {
+        _running--;
+      } else {
+        _waiting.removeFirst().complete();
+      }
+    }
+  }
+}
+
+Future<AvifPixels> decodeAvifPixels(Uint8List bytes) {
+  return _avifDecodes.run(() {
+    if (Platform.isAndroid) {
+      return Isolate.run(() => _decodeAvifInBackground(bytes));
+    }
+    return _decodeAvifWith(avif_platform.FlutterAvifPlatform.api, bytes);
+  });
+}
+
+Future<ui.ImmutableBuffer> uploadPixelsBetweenFrames(Uint8List pixels) {
+  return _pixelUploads.run(() async {
+    await SchedulerBinding.instance.endOfFrame;
+    return ui.ImmutableBuffer.fromUint8List(pixels);
+  });
+}
+
+Future<AvifPixels> _decodeAvifInBackground(Uint8List bytes) {
+  final avif_platform.FlutterAvif api = avif_platform.FlutterAvifImpl(
+    DynamicLibrary.open(_androidAvifLibrary),
+  );
+  return _decodeAvifWith(api, bytes);
+}
+
+Future<AvifPixels> _decodeAvifWith(
+    avif_platform.FlutterAvif api, Uint8List bytes) async {
+  final avif_models.Frame frame =
+      await api.decodeSingleFrameImage(avifBytes: bytes);
+  final List<int> data = frame.data;
+  final Uint8List pixels = data is Uint8List ? data : Uint8List.fromList(data);
+  return AvifPixels(pixels, frame.width, frame.height);
+}
+
+/// A decoded page. [image] is whatever the engine produced — Impeller clamps
+/// each axis independently to the GPU max texture size, so for tall webtoon
+/// strips it is shorter than [height] and must be drawn stretched back to
+/// [aspectRatio] rather than at its own dimensions.
+class PageBitmap {
+  const PageBitmap(this.image, this.width, this.height);
+
+  final ui.Image image;
+  final int width;
+  final int height;
+
+  ui.Size get size => ui.Size(width.toDouble(), height.toDouble());
+  int get residentBytes => image.width * image.height * 4;
+  double get aspectRatio => width / height;
+
+  void dispose() => image.dispose();
+}
+
+Future<PageBitmap> loadPageBitmap(
+    String path, Map<String, String> headers) async {
+  final Uint8List bytes = await loadPageBytes(path, headers);
+  if (isAvif(bytes)) {
+    final AvifPixels decoded = await decodeAvifPixels(bytes);
+    final ui.ImmutableBuffer buffer =
+        await uploadPixelsBetweenFrames(decoded.pixels);
+    final ui.Image image =
+        await _rawImageFromBuffer(buffer, decoded.width, decoded.height);
+    return PageBitmap(image, decoded.width, decoded.height);
+  }
+
+  final ui.ImmutableBuffer buffer =
+      await ui.ImmutableBuffer.fromUint8List(bytes);
+  final ui.ImageDescriptor descriptor =
+      await ui.ImageDescriptor.encoded(buffer);
+  buffer.dispose();
+  final int width = descriptor.width;
+  final int height = descriptor.height;
+  final ui.Codec codec = await descriptor.instantiateCodec();
+  final ui.FrameInfo frame = await codec.getNextFrame();
+  descriptor.dispose();
+  codec.dispose();
+  return PageBitmap(frame.image, width, height);
+}
+
+Future<ui.Image> rawImage(Uint8List pixels, int width, int height) async {
+  final ui.ImmutableBuffer buffer =
+      await ui.ImmutableBuffer.fromUint8List(pixels);
+  return _rawImageFromBuffer(buffer, width, height);
+}
+
+Future<ui.Image> _rawImageFromBuffer(
+    ui.ImmutableBuffer buffer, int width, int height) async {
+  final ui.ImageDescriptor descriptor = ui.ImageDescriptor.raw(
+    buffer,
+    width: width,
+    height: height,
+    pixelFormat: ui.PixelFormat.rgba8888,
+  );
+  buffer.dispose();
+  final ui.Codec codec = await descriptor.instantiateCodec();
+  final ui.FrameInfo frame = await codec.getNextFrame();
+  descriptor.dispose();
+  codec.dispose();
+  return frame.image;
+}

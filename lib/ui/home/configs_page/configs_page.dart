@@ -1,25 +1,109 @@
-﻿import 'package:flutter/material.dart';
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/ui/widgets/action_sheet.dart';
+import 'package:wakaranai/ui/home/configs_page/configs_view_options.dart';
+import 'package:wakaranai/services/configs_service/extension_instances.dart';
+import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
+import 'package:wakaranai/services/local_source/local_books_source.dart';
+import 'package:wakaranai/services/local_source/local_source.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
+import 'package:wakaranai/ui/home/configs_page/configs_filter.dart';
+import 'package:wakaranai/ui/home/configs_page/configs_filter_bar.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_group.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_list_skeleton.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_sources/extension_sources_page_result.dart';
 import 'package:wakaranai/ui/home/settings_page/cubit/settings/settings_cubit.dart';
+import 'package:wakaranai/ui/global_search/global_search_arguments.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
-class ConfigPage extends StatelessWidget {
+class ConfigPage extends StatefulWidget {
   const ConfigPage({super.key});
 
   @override
+  State<ConfigPage> createState() => _ConfigPageState();
+}
+
+class _ConfigPageState extends State<ConfigPage> {
+  final ConfigsFilterPreferences _filterPreferences = ConfigsFilterPreferences();
+  ConfigsFilter _filter = const ConfigsFilter();
+  List<ExtensionDomain> _instances = const <ExtensionDomain>[];
+  final ConfigsViewOptionsCubit _viewOptions = ConfigsViewOptionsCubit();
+  final TextEditingController _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_restoreFilter());
+    unawaited(_loadInstances());
+    unawaited(_viewOptions.init());
+  }
+
+  @override
+  void dispose() {
+    unawaited(_viewOptions.close());
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadInstances() async {
+    final List<ExtensionDomain> instances = await ExtensionInstances(
+      repository: context.read<ExtensionRepository>(),
+    ).all();
+    if (mounted) {
+      setState(() => _instances = instances);
+    }
+  }
+
+  void _reloadInstances() {
+    unawaited(_loadInstances());
+  }
+
+  List<BaseExtension> _withInstances(List<BaseExtension> extensions) {
+    if (_instances.isEmpty) {
+      return extensions;
+    }
+    final List<BaseExtension> result = <BaseExtension>[];
+    for (final BaseExtension extension in extensions) {
+      result.add(extension);
+      result.addAll(_instances.where(
+        (ExtensionDomain instance) =>
+            instance.baseUid == extension.config.uid,
+      ));
+    }
+    return result;
+  }
+
+  Future<void> _restoreFilter() async {
+    final ConfigsFilter stored = await _filterPreferences.read();
+    if (mounted) {
+      setState(() => _filter = stored);
+    }
+  }
+
+  void _changeFilter(ConfigsFilter filter) {
+    setState(() => _filter = filter);
+    unawaited(_filterPreferences.write(filter));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      body: _buildRemoteConfigsPage(),
+    return BlocProvider<ConfigsViewOptionsCubit>.value(
+      value: _viewOptions,
+      child: BlocBuilder<ConfigsViewOptionsCubit, ConfigsViewOptions>(
+        builder: (BuildContext context, ConfigsViewOptions options) => Scaffold(
+          backgroundColor: AppColors.backgroundColor,
+          body: _buildRemoteConfigsPage(),
+        ),
+      ),
     );
   }
 
@@ -35,14 +119,7 @@ class ConfigPage extends StatelessWidget {
   Widget _buildRemoteConfigs(BuildContext context, RemoteConfigsState state) {
     return RefreshIndicator(
       color: AppColors.primary,
-      onRefresh: () {
-        return Future.delayed(
-          const Duration(milliseconds: 300),
-          () {
-            context.read<RemoteConfigsCubit>().init();
-          },
-        );
-      },
+      onRefresh: () => context.read<RemoteConfigsCubit>().refresh(),
       child: CustomScrollView(
         slivers: <Widget>[
           _buildAppBar(context, state),
@@ -90,54 +167,83 @@ class ConfigPage extends StatelessWidget {
       floating: true,
       snap: true,
       centerTitle: false,
-      titleSpacing: 16,
+      titleSpacing: 8,
       automaticallyImplyLeading: false,
-      title: Text(
-        state is RemoteConfigsLoaded
-            ? state.sourceName
-            : S.current.home_remote_configs_page_appbar_title,
-        style: semibold(size: 22),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
+      title: _buildSourceSwitcher(context, state),
       actions: <Widget>[
+        IconButton(
+          tooltip: S.current.discover_open_tooltip,
+          icon: Icon(Icons.explore_outlined, color: AppColors.mainWhite),
+          onPressed: () => Navigator.of(context).pushNamed(Routes.discover),
+        ),
+        IconButton(
+          tooltip: S.current.global_search_open_tooltip,
+          icon: Icon(Icons.search_rounded, color: AppColors.mainWhite),
+          onPressed: () => Navigator.of(context).pushNamed(
+            Routes.globalSearch,
+            arguments: const GlobalSearchArguments(),
+          ),
+        ),
         Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: _buildSourcesButton(context),
+          padding: const EdgeInsets.only(right: 4),
+          child: IconButton(
+            tooltip: S.current.configs_view_options,
+            icon: Icon(Icons.tune_rounded, color: AppColors.mainWhite),
+            onPressed: () => _showViewOptions(context),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildSourcesButton(BuildContext context) {
-    return Material(
-      color: AppColors.overlay(0.08),
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () {
-          Navigator.of(context)
-              .pushNamed(Routes.myExtensionSources)
-              .then((Object? value) {
-            if (value is ExtensionSourcesPageResult) {
-              context.read<RemoteConfigsCubit>().changeSource(value);
-            }
-          });
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(Icons.swap_horiz_rounded,
-                  size: 18, color: AppColors.mainWhite),
-              const SizedBox(width: 6),
-              Text(S.current.home_sources_button, style: medium(size: 14)),
-            ],
+  Widget _buildSourceSwitcher(BuildContext context, RemoteConfigsState state) {
+    final String title = state is RemoteConfigsLoaded
+        ? state.sourceName
+        : S.current.home_remote_configs_page_appbar_title;
+    return Semantics(
+      button: true,
+      label: S.current.home_sources_button,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => _openSources(context),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Flexible(
+                  child: Text(
+                    title,
+                    style: semibold(size: 22),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 2),
+                Icon(
+                  Icons.expand_more_rounded,
+                  size: 24,
+                  color: AppColors.mainGrey,
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  void _openSources(BuildContext context) {
+    Navigator.of(context)
+        .pushNamed(Routes.myExtensionSources)
+        .then((Object? value) {
+      if (value is ExtensionSourcesPageResult && context.mounted) {
+        context.read<RemoteConfigsCubit>().changeSource(value);
+      }
+    });
   }
 
   List<Widget> _buildLoaded(BuildContext context, RemoteConfigsLoaded state) {
@@ -145,13 +251,67 @@ class ConfigPage extends StatelessWidget {
     final bool showNsfw =
         settingsState is SettingsInitialized && settingsState.showNsfw;
 
-    final List<BaseExtension> mangaConfigs =
-        _filterNsfw(state.mangaRemoteConfigs, showNsfw);
-    final List<BaseExtension> animeConfigs =
-        _filterNsfw(state.animeRemoteConfigs, showNsfw);
+    final List<BaseExtension> visibleManga = <BaseExtension>[
+      LocalSource.extension(S.current.local_source_name),
+      ..._withInstances(_filterNsfw(state.mangaRemoteConfigs, showNsfw)),
+    ];
+    final List<BaseExtension> visibleVideo =
+        _withInstances(_filterNsfw(state.animeRemoteConfigs, showNsfw));
+    final List<BaseExtension> visibleNovels = <BaseExtension>[
+      LocalBooksSource.extension(S.current.local_books_name),
+      ..._withInstances(_filterNsfw(state.novelRemoteConfigs, showNsfw)),
+    ];
+    final List<BaseExtension> visibleAudio =
+        _withInstances(_filterNsfw(state.audioRemoteConfigs, showNsfw));
+    final List<BaseExtension> visible = <BaseExtension>[
+      ...visibleManga,
+      ...visibleVideo,
+      ...visibleNovels,
+      ...visibleAudio,
+    ];
+    final List<String> kinds = availableContentKinds(visible);
+    final List<String> languages = availableLanguages(visible);
+    final List<String> pricings = availablePricings(visible);
+    final List<String> sourceTypes = availableSourceTypes(visible);
+    final ConfigsFilter filter =
+        _applicableFilter(kinds, languages, pricings, sourceTypes);
+    final ConfigsViewOptions options = _viewOptions.state;
+    final bool searchable =
+        visible.length > kConfigsSearchThreshold || _query.isNotEmpty;
+    bool shown(BaseExtension extension) {
+      return filter.matches(extension) &&
+          matchesConfigsQuery(extension, searchable ? _query : '');
+    }
 
-    if (mangaConfigs.isEmpty && animeConfigs.isEmpty) {
+    final List<BaseExtension> pinnedConfigs =
+        options.pinnedIn(visible.where(shown));
+    final List<BaseExtension> mangaConfigs =
+        options.unpinned(visibleManga.where(shown).toList());
+    final List<BaseExtension> animeConfigs =
+        options.unpinned(visibleVideo.where(shown).toList());
+    final List<BaseExtension> novelConfigs =
+        options.unpinned(visibleNovels.where(shown).toList());
+    final List<BaseExtension> audioConfigs =
+        options.unpinned(visibleAudio.where(shown).toList());
+    final Widget? searchField =
+        searchable ? _buildSearchField(context) : null;
+    final ConfigsFilterBar filterBar = ConfigsFilterBar(
+      kinds: kinds,
+      languages: languages,
+      pricings: pricings,
+      sourceTypes: sourceTypes,
+      filter: filter,
+      onChanged: _changeFilter,
+    );
+
+    if (pinnedConfigs.isEmpty &&
+        mangaConfigs.isEmpty &&
+        animeConfigs.isEmpty &&
+        novelConfigs.isEmpty &&
+        audioConfigs.isEmpty) {
       return <Widget>[
+        if (searchField != null) SliverToBoxAdapter(child: searchField),
+        if (filterBar.isUseful) SliverToBoxAdapter(child: filterBar),
         SliverFillRemaining(
           hasScrollBody: false,
           child: ServiceViewerMessage(
@@ -164,20 +324,162 @@ class ConfigPage extends StatelessWidget {
     }
 
     return <Widget>[
+      if (searchField != null) SliverToBoxAdapter(child: searchField),
+      if (filterBar.isUseful) SliverToBoxAdapter(child: filterBar),
+      if (pinnedConfigs.isNotEmpty)
+        ConfigsGroup(
+          key: const ValueKey<String>('pinned'),
+          title: S.current.configs_pinned_group_title,
+          remoteConfigs: pinnedConfigs,
+          listingStatusOf: state.listingStatusOf,
+          onInstancesChanged: _reloadInstances,
+        ),
       if (mangaConfigs.isNotEmpty)
         ConfigsGroup(
           key: const ValueKey<String>('manga'),
           title: S.current.home_manga_group_title,
           remoteConfigs: mangaConfigs,
+          listingStatusOf: state.listingStatusOf,
+          onInstancesChanged: _reloadInstances,
         ),
       if (animeConfigs.isNotEmpty)
         ConfigsGroup(
           key: const ValueKey<String>('anime'),
           title: S.current.home_anime_group_title,
           remoteConfigs: animeConfigs,
+          listingStatusOf: state.listingStatusOf,
+          onInstancesChanged: _reloadInstances,
+        ),
+      if (novelConfigs.isNotEmpty)
+        ConfigsGroup(
+          key: const ValueKey<String>('novel'),
+          title: S.current.home_novel_group_title,
+          remoteConfigs: novelConfigs,
+          listingStatusOf: state.listingStatusOf,
+          onInstancesChanged: _reloadInstances,
+        ),
+      if (audioConfigs.isNotEmpty)
+        ConfigsGroup(
+          key: const ValueKey<String>('audio'),
+          title: S.current.home_audio_group_title,
+          remoteConfigs: audioConfigs,
+          listingStatusOf: state.listingStatusOf,
+          onInstancesChanged: _reloadInstances,
         ),
       const SliverToBoxAdapter(child: SizedBox(height: 24)),
     ];
+  }
+
+  Widget _buildSearchField(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (String value) => setState(() => _query = value),
+        textInputAction: TextInputAction.search,
+        style: regular(size: 15),
+        cursorColor: AppColors.primary,
+        decoration: InputDecoration(
+          isDense: true,
+          filled: true,
+          fillColor: AppColors.overlay(0.06),
+          hintText: S.current.configs_search_hint,
+          hintStyle: regular(size: 15, color: AppColors.mainGrey),
+          prefixIcon: Icon(Icons.search_rounded, color: AppColors.mainGrey),
+          suffixIcon: _query.isEmpty
+              ? null
+              : IconButton(
+                  icon: Icon(Icons.close_rounded, color: AppColors.mainGrey),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() => _query = '');
+                  },
+                ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showViewOptions(BuildContext context) {
+    unawaited(showActionSheet(
+      context,
+      title: S.current.configs_view_options,
+      child: BlocBuilder<ConfigsViewOptionsCubit, ConfigsViewOptions>(
+        bloc: _viewOptions,
+        builder: (BuildContext sheetContext, ConfigsViewOptions options) =>
+            Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            _sheetLabel(S.current.configs_view_layout),
+            ActionSheetRow(
+              icon: Icons.view_agenda_outlined,
+              label: S.current.configs_layout_cards,
+              selected: options.layout == ConfigsLayout.cards,
+              onTap: () => _viewOptions.setLayout(ConfigsLayout.cards),
+            ),
+            ActionSheetRow(
+              icon: Icons.view_list_rounded,
+              label: S.current.configs_layout_compact,
+              selected: options.layout == ConfigsLayout.compact,
+              onTap: () => _viewOptions.setLayout(ConfigsLayout.compact),
+            ),
+            ActionSheetRow(
+              icon: Icons.grid_view_rounded,
+              label: S.current.configs_layout_grid,
+              selected: options.layout == ConfigsLayout.grid,
+              onTap: () => _viewOptions.setLayout(ConfigsLayout.grid),
+            ),
+            _sheetLabel(S.current.configs_view_sort),
+            ActionSheetRow(
+              icon: Icons.format_list_numbered_rounded,
+              label: S.current.configs_sort_listing,
+              selected: options.sort == ConfigsSort.listing,
+              onTap: () => _viewOptions.setSort(ConfigsSort.listing),
+            ),
+            ActionSheetRow(
+              icon: Icons.sort_by_alpha_rounded,
+              label: S.current.configs_sort_name,
+              selected: options.sort == ConfigsSort.name,
+              onTap: () => _viewOptions.setSort(ConfigsSort.name),
+            ),
+          ],
+        ),
+      ),
+    ));
+  }
+
+  Widget _sheetLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+      child: Text(label, style: medium(size: 13, color: AppColors.mainGrey)),
+    );
+  }
+
+  ConfigsFilter _applicableFilter(
+    List<String> kinds,
+    List<String> languages,
+    List<String> pricings,
+    List<String> sourceTypes,
+  ) {
+    ConfigsFilter filter = _filter;
+    if (filter.kind != null && !kinds.contains(filter.kind)) {
+      filter = filter.withKind(null);
+    }
+    if (filter.language != null && !languages.contains(filter.language)) {
+      filter = filter.withLanguage(null);
+    }
+    if (filter.pricing != null && !pricings.contains(filter.pricing)) {
+      filter = filter.withPricing(null);
+    }
+    if (filter.sourceType != null && !sourceTypes.contains(filter.sourceType)) {
+      filter = filter.withSourceType(null);
+    }
+    return filter;
   }
 
   List<BaseExtension> _filterNsfw(

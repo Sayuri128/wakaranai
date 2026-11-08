@@ -27,11 +27,13 @@ class SelectionActionBar extends StatelessWidget {
     required this.visible,
     required this.countLabel,
     required this.actions,
+    this.secondaryActions = const <SelectionAction>[],
   });
 
   final bool visible;
   final String countLabel;
   final List<SelectionAction> actions;
+  final List<SelectionAction> secondaryActions;
 
   @override
   Widget build(BuildContext context) {
@@ -56,10 +58,20 @@ class SelectionActionBar extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Padding(
-                      padding: const EdgeInsets.only(left: 8, top: 4, bottom: 8),
-                      child: Text(
-                        countLabel,
-                        style: medium(size: 14, color: AppColors.mainWhite),
+                      padding: const EdgeInsets.only(left: 8, bottom: 4),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Text(
+                              countLabel,
+                              style: medium(
+                                size: 14,
+                                color: AppColors.mainWhite,
+                              ),
+                            ),
+                          ),
+                          ...secondaryActions.map(_buildSecondaryAction),
+                        ],
                       ),
                     ),
                     Row(
@@ -74,6 +86,19 @@ class SelectionActionBar extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSecondaryAction(SelectionAction action) {
+    return IconButton(
+      tooltip: action.label,
+      visualDensity: VisualDensity.compact,
+      onPressed: action.onTap,
+      icon: Icon(
+        action.icon,
+        size: 22,
+        color: action.color ?? AppColors.mainGrey,
       ),
     );
   }

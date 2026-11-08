@@ -11,9 +11,12 @@ import 'package:wakaranai/data/entities/chapter_activity_table.dart';
 import 'package:wakaranai/data/entities/concrete_data_table.dart';
 import 'package:wakaranai/data/entities/download_table.dart';
 import 'package:wakaranai/data/entities/extension_source_table.dart';
+import 'package:wakaranai/data/entities/extension_storage_table.dart';
 import 'package:wakaranai/data/entities/extension_table.dart';
 import 'package:wakaranai/data/entities/library_entry_table.dart';
 import 'package:wakaranai/data/entities/library_update_table.dart';
+import 'package:wakaranai/data/entities/page_translation_table.dart';
+import 'package:wakaranai/data/entities/tracker_link_table.dart';
 
 part 'wakaranai_database.g.dart';
 
@@ -27,6 +30,9 @@ part 'wakaranai_database.g.dart';
   LibraryEntryTable,
   DownloadTable,
   LibraryUpdateTable,
+  PageTranslationTable,
+  ExtensionStorageTable,
+  TrackerLinkTable,
 ])
 class WakaranaiDatabase extends _$WakaranaiDatabase {
   WakaranaiDatabase() : super(_openConnection());
@@ -78,8 +84,106 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
             await _addColumnIfMissing(
                 m, extensionSourceTable, extensionSourceTable.ref);
           }
+          if (from < 10) {
+            for (final TableInfo<Table, dynamic> table
+                in _uidUniqueTables) {
+              await _dropDuplicateUids(table.actualTableName);
+            }
+            for (final Index index in _uidUniqueIndexes) {
+              await _createIndexIfMissing(m, index);
+            }
+          }
+          if (from < 11) {
+            await _addColumnIfMissing(
+                m, extensionTable, extensionTable.configJson);
+            await _addColumnIfMissing(m, extensionTable, extensionTable.revision);
+          }
+          if (from < 12) {
+            await _createTableIfMissing(m, pageTranslationTable);
+            await _createIndexIfMissing(m, pageTranslationUid);
+          }
+          if (from < 13) {
+            await _addColumnIfMissing(m, downloadTable, downloadTable.kind);
+            await _addColumnIfMissing(
+                m, downloadTable, downloadTable.downloadedBytes);
+            await _addColumnIfMissing(m, downloadTable, downloadTable.totalBytes);
+            await _addColumnIfMissing(m, downloadTable, downloadTable.playback);
+          }
+          if (from < 14) {
+            await _createTableIfMissing(m, extensionStorageTable);
+            await _createIndexIfMissing(m, extensionStorageExpiresAt);
+          }
+          if (from < 15) {
+            await _addColumnIfMissing(m, animeEpisodeActivityTable,
+                animeEpisodeActivityTable.markedWatched);
+          }
+          if (from < 16) {
+            await _addColumnIfMissing(
+                m, downloadTable, downloadTable.queuePosition);
+            await _backfillDownloadQueuePositions();
+          }
+          if (from < 17) {
+            await _createTableIfMissing(m, trackerLinkTable);
+            await _createIndexIfMissing(m, trackerLinkConcrete);
+          }
+          if (from < 18) {
+            await _addColumnIfMissing(
+                m, extensionTable, extensionTable.baseUid);
+          }
+          if (from < 19) {
+            await _addColumnIfMissing(
+                m, libraryEntryTable, libraryEntryTable.autoDownload);
+          }
         },
       );
+
+  List<TableInfo<Table, dynamic>> get _uidUniqueTables =>
+      <TableInfo<Table, dynamic>>[
+        concreteDataTable,
+        chapterActivityTable,
+        animeEpisodeActivityTable,
+        libraryEntryTable,
+        downloadTable,
+        libraryUpdateTable,
+      ];
+
+  List<Index> get _uidUniqueIndexes => <Index>[
+        concreteDataUid,
+        chapterActivityUid,
+        animeEpisodeActivityUid,
+        libraryEntryUid,
+        downloadUid,
+        libraryUpdateUid,
+      ];
+
+  Future<void> _dropDuplicateUids(String table) async {
+    await customStatement(
+      'DELETE FROM $table WHERE id NOT IN '
+      '(SELECT MIN(id) FROM $table GROUP BY uid);',
+    );
+  }
+
+  Future<void> _backfillDownloadQueuePositions() async {
+    await customStatement(
+      'UPDATE download_table SET queue_position = ('
+      'SELECT COUNT(*) FROM download_table AS earlier '
+      'WHERE earlier.status IN (0, 1) AND earlier.id <= download_table.id'
+      ') WHERE status IN (0, 1);',
+    );
+  }
+
+  Future<void> _createIndexIfMissing(Migrator m, Index index) async {
+    if (await _hasIndex(index.entityName)) return;
+    await m.createIndex(index);
+  }
+
+  Future<bool> _hasIndex(String name) async {
+    final List<QueryRow> rows = await customSelect(
+      "SELECT name FROM sqlite_master WHERE type = 'index' AND name = ?;",
+      variables: <Variable<Object>>[Variable<String>(name)],
+    ).get();
+    return rows.isNotEmpty;
+  }
 
   Future<void> _addColumnIfMissing(
     Migrator m,
@@ -113,7 +217,7 @@ class WakaranaiDatabase extends _$WakaranaiDatabase {
   }
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 19;
 }
 
 LazyDatabase _openConnection() {

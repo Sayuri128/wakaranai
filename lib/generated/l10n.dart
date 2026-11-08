@@ -114,11 +114,21 @@ class S {
     );
   }
 
-  /// `Anime`
+  /// `Video`
   String get home_anime_group_title {
     return Intl.message(
-      'Anime',
+      'Video',
       name: 'home_anime_group_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Novels`
+  String get home_novel_group_title {
+    return Intl.message(
+      'Novels',
+      name: 'home_novel_group_title',
       desc: '',
       args: [],
     );
@@ -177,6 +187,21 @@ class S {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Couldn't load this extension`
+  String get api_client_error_title {
+    return Intl.message(
+      'Couldn\'t load this extension',
+      name: 'api_client_error_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Go back`
+  String get common_go_back {
+    return Intl.message('Go back', name: 'common_go_back', desc: '', args: []);
   }
 
   /// `Explore`
@@ -374,6 +399,499 @@ class S {
     return Intl.message(
       'Remove from library',
       name: 'library_remove',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Continue`
+  String get library_continue {
+    return Intl.message(
+      'Continue',
+      name: 'library_continue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `More`
+  String get library_more_actions {
+    return Intl.message(
+      'More',
+      name: 'library_more_actions',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Each title downloads from its first chapter group`
+  String get library_download_first_group_hint {
+    return Intl.message(
+      'Each title downloads from its first chapter group',
+      name: 'library_download_first_group_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{Looking up chapters for 1 title…} other{Looking up chapters for {count} titles…}}`
+  String library_download_many_loading(int count) {
+    return Intl.plural(
+      count,
+      one: 'Looking up chapters for 1 title…',
+      other: 'Looking up chapters for $count titles…',
+      name: 'library_download_many_loading',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count, plural, =1{1 title couldn't be loaded} other{{count} titles couldn't be loaded}}`
+  String library_download_many_failed(int count) {
+    return Intl.plural(
+      count,
+      one: '1 title couldn\'t be loaded',
+      other: '$count titles couldn\'t be loaded',
+      name: 'library_download_many_failed',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Add to library`
+  String get library_add {
+    return Intl.message(
+      'Add to library',
+      name: 'library_add',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add to category`
+  String get library_add_to_category {
+    return Intl.message(
+      'Add to category',
+      name: 'library_add_to_category',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download`
+  String get title_download {
+    return Intl.message('Download', name: 'title_download', desc: '', args: []);
+  }
+
+  /// `Download chapters`
+  String get title_download_title {
+    return Intl.message(
+      'Download chapters',
+      name: 'title_download_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next chapter`
+  String get title_download_next {
+    return Intl.message(
+      'Next chapter',
+      name: 'title_download_next',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next {count} chapters`
+  String title_download_next_count(int count) {
+    return Intl.message(
+      'Next $count chapters',
+      name: 'title_download_next_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Unread chapters`
+  String get title_download_unread {
+    return Intl.message(
+      'Unread chapters',
+      name: 'title_download_unread',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All chapters`
+  String get title_download_all {
+    return Intl.message(
+      'All chapters',
+      name: 'title_download_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Looking up chapters…`
+  String get title_download_loading {
+    return Intl.message(
+      'Looking up chapters…',
+      name: 'title_download_loading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 chapter queued} other{{count} chapters queued}}`
+  String title_download_queued(int count) {
+    return Intl.plural(
+      count,
+      one: '1 chapter queued',
+      other: '$count chapters queued',
+      name: 'title_download_queued',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `No new chapters to download`
+  String get title_download_nothing {
+    return Intl.message(
+      'No new chapters to download',
+      name: 'title_download_nothing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chapter groups`
+  String get title_download_groups {
+    return Intl.message(
+      'Chapter groups',
+      name: 'title_download_groups',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chapters to download`
+  String get title_download_how_many {
+    return Intl.message(
+      'Chapters to download',
+      name: 'title_download_how_many',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Group {number}`
+  String title_download_untitled_group(int number) {
+    return Intl.message(
+      'Group $number',
+      name: 'title_download_untitled_group',
+      desc: '',
+      args: [number],
+    );
+  }
+
+  /// `{count, plural, =1{1 chapter} other{{count} chapters}}`
+  String title_download_chapter_count(int count) {
+    return Intl.plural(
+      count,
+      one: '1 chapter',
+      other: '$count chapters',
+      name: 'title_download_chapter_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `This title has no chapters yet`
+  String get title_download_no_chapters {
+    return Intl.message(
+      'This title has no chapters yet',
+      name: 'title_download_no_chapters',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load the chapter list`
+  String get title_download_failed {
+    return Intl.message(
+      'Couldn\'t load the chapter list',
+      name: 'title_download_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download episodes`
+  String get title_download_episode_title {
+    return Intl.message(
+      'Download episodes',
+      name: 'title_download_episode_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next episode`
+  String get title_download_episode_next {
+    return Intl.message(
+      'Next episode',
+      name: 'title_download_episode_next',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next {count} episodes`
+  String title_download_episode_next_count(int count) {
+    return Intl.message(
+      'Next $count episodes',
+      name: 'title_download_episode_next_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Unwatched episodes`
+  String get title_download_episode_unwatched {
+    return Intl.message(
+      'Unwatched episodes',
+      name: 'title_download_episode_unwatched',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All episodes`
+  String get title_download_episode_all {
+    return Intl.message(
+      'All episodes',
+      name: 'title_download_episode_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Looking up episodes…`
+  String get title_download_episode_loading {
+    return Intl.message(
+      'Looking up episodes…',
+      name: 'title_download_episode_loading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 episode queued} other{{count} episodes queued}}`
+  String title_download_episode_queued(int count) {
+    return Intl.plural(
+      count,
+      one: '1 episode queued',
+      other: '$count episodes queued',
+      name: 'title_download_episode_queued',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `No new episodes to download`
+  String get title_download_episode_nothing {
+    return Intl.message(
+      'No new episodes to download',
+      name: 'title_download_episode_nothing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Episode groups`
+  String get title_download_episode_groups {
+    return Intl.message(
+      'Episode groups',
+      name: 'title_download_episode_groups',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Episodes to download`
+  String get title_download_episode_how_many {
+    return Intl.message(
+      'Episodes to download',
+      name: 'title_download_episode_how_many',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 episode} other{{count} episodes}}`
+  String title_download_episode_count(int count) {
+    return Intl.plural(
+      count,
+      one: '1 episode',
+      other: '$count episodes',
+      name: 'title_download_episode_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `This title has no episodes yet`
+  String get title_download_episode_none {
+    return Intl.message(
+      'This title has no episodes yet',
+      name: 'title_download_episode_none',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load the episode list`
+  String get title_download_episode_failed {
+    return Intl.message(
+      'Couldn\'t load the episode list',
+      name: 'title_download_episode_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Each title downloads from its first episode group`
+  String get title_download_episode_first_group_hint {
+    return Intl.message(
+      'Each title downloads from its first episode group',
+      name: 'title_download_episode_first_group_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{Looking up episodes for 1 title…} other{Looking up episodes for {count} titles…}}`
+  String title_download_episode_many_loading(int count) {
+    return Intl.plural(
+      count,
+      one: 'Looking up episodes for 1 title…',
+      other: 'Looking up episodes for $count titles…',
+      name: 'title_download_episode_many_loading',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Download chapters and episodes`
+  String get title_download_episode_mixed_title {
+    return Intl.message(
+      'Download chapters and episodes',
+      name: 'title_download_episode_mixed_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next chapter or episode`
+  String get title_download_episode_mixed_next {
+    return Intl.message(
+      'Next chapter or episode',
+      name: 'title_download_episode_mixed_next',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next {count} chapters or episodes`
+  String title_download_episode_mixed_next_count(int count) {
+    return Intl.message(
+      'Next $count chapters or episodes',
+      name: 'title_download_episode_mixed_next_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Unread chapters and unwatched episodes`
+  String get title_download_episode_mixed_unread {
+    return Intl.message(
+      'Unread chapters and unwatched episodes',
+      name: 'title_download_episode_mixed_unread',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All chapters and episodes`
+  String get title_download_episode_mixed_all {
+    return Intl.message(
+      'All chapters and episodes',
+      name: 'title_download_episode_mixed_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Each title downloads from its first group`
+  String get title_download_episode_mixed_hint {
+    return Intl.message(
+      'Each title downloads from its first group',
+      name: 'title_download_episode_mixed_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{Looking up 1 title…} other{Looking up {count} titles…}}`
+  String title_download_episode_mixed_loading(int count) {
+    return Intl.plural(
+      count,
+      one: 'Looking up 1 title…',
+      other: 'Looking up $count titles…',
+      name: 'title_download_episode_mixed_loading',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count, plural, =1{1 download queued} other{{count} downloads queued}}`
+  String title_download_episode_mixed_queued(int count) {
+    return Intl.plural(
+      count,
+      one: '1 download queued',
+      other: '$count downloads queued',
+      name: 'title_download_episode_mixed_queued',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Nothing new to download`
+  String get title_download_episode_mixed_nothing {
+    return Intl.message(
+      'Nothing new to download',
+      name: 'title_download_episode_mixed_nothing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Added to library`
+  String get library_added_message {
+    return Intl.message(
+      'Added to library',
+      name: 'library_added_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Removed from library`
+  String get library_removed_message {
+    return Intl.message(
+      'Removed from library',
+      name: 'library_removed_message',
       desc: '',
       args: [],
     );
@@ -884,6 +1402,123 @@ class S {
     );
   }
 
+  /// `Sign in to {source}`
+  String source_error_login_required_title(Object source) {
+    return Intl.message(
+      'Sign in to $source',
+      name: 'source_error_login_required_title',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Too many requests, try again later`
+  String get source_error_rate_limited_title {
+    return Intl.message(
+      'Too many requests, try again later',
+      name: 'source_error_rate_limited_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Removed from the source`
+  String get source_error_not_found_title {
+    return Intl.message(
+      'Removed from the source',
+      name: 'source_error_not_found_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not available in your region`
+  String get source_error_region_blocked_title {
+    return Intl.message(
+      'Not available in your region',
+      name: 'source_error_region_blocked_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The source is down, try again later`
+  String get source_error_source_down_title {
+    return Intl.message(
+      'The source is down, try again later',
+      name: 'source_error_source_down_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not supported by this source`
+  String get source_error_unsupported_title {
+    return Intl.message(
+      'Not supported by this source',
+      name: 'source_error_unsupported_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign in`
+  String get source_error_sign_in_button {
+    return Intl.message(
+      'Sign in',
+      name: 'source_error_sign_in_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get source_error_retry_button {
+    return Intl.message(
+      'Retry',
+      name: 'source_error_retry_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove from library`
+  String get source_error_remove_from_library_button {
+    return Intl.message(
+      'Remove from library',
+      name: 'source_error_remove_from_library_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open saved details`
+  String get source_error_open_saved_button {
+    return Intl.message(
+      'Open saved details',
+      name: 'source_error_open_saved_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, one{1 title was removed from its source} other{{count} titles were removed from their sources}}`
+  String source_error_removed_titles_found(num count) {
+    return Intl.plural(
+      count,
+      one: '1 title was removed from its source',
+      other: '$count titles were removed from their sources',
+      name: 'source_error_removed_titles_found',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Feeds`
+  String get feeds_row_label {
+    return Intl.message('Feeds', name: 'feeds_row_label', desc: '', args: []);
+  }
+
   /// `Filters`
   String get gallery_filters_button_label {
     return Intl.message(
@@ -1004,6 +1639,246 @@ class S {
     );
   }
 
+  /// `{count, plural, =1{1 filter active} other{{count} filters active}}`
+  String filters_active_summary(num count) {
+    return Intl.plural(
+      count,
+      one: '1 filter active',
+      other: '$count filters active',
+      name: 'filters_active_summary',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Showing everything`
+  String get filters_none_active {
+    return Intl.message(
+      'Showing everything',
+      name: 'filters_none_active',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear`
+  String get filters_clear_section {
+    return Intl.message(
+      'Clear',
+      name: 'filters_clear_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Any`
+  String get filters_any_option {
+    return Intl.message('Any', name: 'filters_any_option', desc: '', args: []);
+  }
+
+  /// `Show all {count}`
+  String filters_show_all(Object count) {
+    return Intl.message(
+      'Show all $count',
+      name: 'filters_show_all',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Show less`
+  String get filters_show_less {
+    return Intl.message(
+      'Show less',
+      name: 'filters_show_less',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search {name}`
+  String filters_search_hint(Object name) {
+    return Intl.message(
+      'Search $name',
+      name: 'filters_search_hint',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Clear search`
+  String get filters_clear_search {
+    return Intl.message(
+      'Clear search',
+      name: 'filters_clear_search',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Any`
+  String get filters_range_any {
+    return Intl.message('Any', name: 'filters_range_any', desc: '', args: []);
+  }
+
+  /// `Add`
+  String get filters_add_value {
+    return Intl.message('Add', name: 'filters_add_value', desc: '', args: []);
+  }
+
+  /// `Remove {value}`
+  String filters_remove_value(Object value) {
+    return Intl.message(
+      'Remove $value',
+      name: 'filters_remove_value',
+      desc: '',
+      args: [value],
+    );
+  }
+
+  /// `No filters`
+  String get filters_empty_title {
+    return Intl.message(
+      'No filters',
+      name: 'filters_empty_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This source doesn't offer any filters.`
+  String get filters_empty_message {
+    return Intl.message(
+      'This source doesn\'t offer any filters.',
+      name: 'filters_empty_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{Filters} =1{Filters, 1 active} other{Filters, {count} active}}`
+  String filters_button_semantics(num count) {
+    return Intl.plural(
+      count,
+      zero: 'Filters',
+      one: 'Filters, 1 active',
+      other: 'Filters, $count active',
+      name: 'filters_button_semantics',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Comfortable grid`
+  String get gallery_layout_comfortable {
+    return Intl.message(
+      'Comfortable grid',
+      name: 'gallery_layout_comfortable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compact grid`
+  String get gallery_layout_compact {
+    return Intl.message(
+      'Compact grid',
+      name: 'gallery_layout_compact',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `List`
+  String get gallery_layout_list {
+    return Intl.message(
+      'List',
+      name: 'gallery_layout_list',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Layout: {layout}`
+  String gallery_layout_button_tooltip(Object layout) {
+    return Intl.message(
+      'Layout: $layout',
+      name: 'gallery_layout_button_tooltip',
+      desc: '',
+      args: [layout],
+    );
+  }
+
+  /// `Last opened: {title}`
+  String gallery_last_opened(Object title) {
+    return Intl.message(
+      'Last opened: $title',
+      name: 'gallery_last_opened',
+      desc: '',
+      args: [title],
+    );
+  }
+
+  /// `Completed`
+  String get title_status_released {
+    return Intl.message(
+      'Completed',
+      name: 'title_status_released',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ongoing`
+  String get title_status_ongoing {
+    return Intl.message(
+      'Ongoing',
+      name: 'title_status_ongoing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paused`
+  String get title_status_paused {
+    return Intl.message(
+      'Paused',
+      name: 'title_status_paused',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Announced`
+  String get title_status_announce {
+    return Intl.message(
+      'Announced',
+      name: 'title_status_announce',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancelled`
+  String get title_status_canceled {
+    return Intl.message(
+      'Cancelled',
+      name: 'title_status_canceled',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} new`
+  String library_new_chapters(Object count) {
+    return Intl.message(
+      '$count new',
+      name: 'library_new_chapters',
+      desc: '',
+      args: [count],
+    );
+  }
+
   /// `Next`
   String get chapter_viewer_next_chapter_button_title {
     return Intl.message(
@@ -1074,6 +1949,121 @@ class S {
     );
   }
 
+  /// `NEW`
+  String get concrete_new_badge {
+    return Intl.message('NEW', name: 'concrete_new_badge', desc: '', args: []);
+  }
+
+  /// `Finished`
+  String get chapter_divider_finished {
+    return Intl.message(
+      'Finished',
+      name: 'chapter_divider_finished',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next`
+  String get chapter_divider_next {
+    return Intl.message(
+      'Next',
+      name: 'chapter_divider_next',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} pages`
+  String chapter_divider_pages(Object count) {
+    return Intl.message(
+      '$count pages',
+      name: 'chapter_divider_pages',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Downloaded`
+  String get chapter_divider_downloaded {
+    return Intl.message(
+      'Downloaded',
+      name: 'chapter_divider_downloaded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Loading the next chapter…`
+  String get chapter_divider_loading {
+    return Intl.message(
+      'Loading the next chapter…',
+      name: 'chapter_divider_loading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load the chapter`
+  String get chapter_divider_failed {
+    return Intl.message(
+      'Couldn\'t load the chapter',
+      name: 'chapter_divider_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You're all caught up`
+  String get chapter_divider_end_title {
+    return Intl.message(
+      'You\'re all caught up',
+      name: 'chapter_divider_end_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `There are no more chapters`
+  String get chapter_divider_end_message {
+    return Intl.message(
+      'There are no more chapters',
+      name: 'chapter_divider_end_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back to title`
+  String get chapter_divider_back {
+    return Intl.message(
+      'Back to title',
+      name: 'chapter_divider_back',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Previous chapter`
+  String get chapter_divider_previous {
+    return Intl.message(
+      'Previous chapter',
+      name: 'chapter_divider_previous',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Load previous chapter`
+  String get chapter_divider_load_previous {
+    return Intl.message(
+      'Load previous chapter',
+      name: 'chapter_divider_load_previous',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `New version {version} available`
   String settings_download_latest_release(Object version) {
     return Intl.message(
@@ -1139,6 +2129,86 @@ class S {
     return Intl.message(
       'Display extensions marked as adult content',
       name: 'settings_show_nsfw_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Developer`
+  String get settings_developer_section {
+    return Intl.message(
+      'Developer',
+      name: 'settings_developer_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `By {names}`
+  String concrete_viewer_by_authors(Object names) {
+    return Intl.message(
+      'By $names',
+      name: 'concrete_viewer_by_authors',
+      desc: '',
+      args: [names],
+    );
+  }
+
+  /// `Art by {names}`
+  String concrete_viewer_art_by(Object names) {
+    return Intl.message(
+      'Art by $names',
+      name: 'concrete_viewer_art_by',
+      desc: '',
+      args: [names],
+    );
+  }
+
+  /// `Open website`
+  String get concrete_viewer_open_website {
+    return Intl.message(
+      'Open website',
+      name: 'concrete_viewer_open_website',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Local extension server`
+  String get settings_local_extension_server_title {
+    return Intl.message(
+      'Local extension server',
+      name: 'settings_local_extension_server_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Load extensions from {url}`
+  String settings_local_extension_server_subtitle(Object url) {
+    return Intl.message(
+      'Load extensions from $url',
+      name: 'settings_local_extension_server_subtitle',
+      desc: '',
+      args: [url],
+    );
+  }
+
+  /// `Set LOCAL_REPOSITORY_URL in .env to enable`
+  String get settings_local_extension_server_missing {
+    return Intl.message(
+      'Set LOCAL_REPOSITORY_URL in .env to enable',
+      name: 'settings_local_extension_server_missing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Local server`
+  String get local_extension_server_source_name {
+    return Intl.message(
+      'Local server',
+      name: 'local_extension_server_source_name',
       desc: '',
       args: [],
     );
@@ -1754,20 +2824,20 @@ class S {
     );
   }
 
-  /// `Manga`
+  /// `Reading`
   String get activity_history_manga_appbar_title {
     return Intl.message(
-      'Manga',
+      'Reading',
       name: 'activity_history_manga_appbar_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `Anime`
+  /// `Watching`
   String get activity_history_anime_appbar_title {
     return Intl.message(
-      'Anime',
+      'Watching',
       name: 'activity_history_anime_appbar_title',
       desc: '',
       args: [],
@@ -1814,20 +2884,20 @@ class S {
     );
   }
 
-  /// `No history :c\nStart reading manga to see your history here`
+  /// `No history :c\nStart reading to see your history here`
   String get activity_history_empty_manga_list_message {
     return Intl.message(
-      'No history :c\nStart reading manga to see your history here',
+      'No history :c\nStart reading to see your history here',
       name: 'activity_history_empty_manga_list_message',
       desc: '',
       args: [],
     );
   }
 
-  /// `No history :c\nStart watching anime to see your history here`
+  /// `No history :c\nStart watching to see your history here`
   String get activity_history_empty_anime_list_message {
     return Intl.message(
-      'No history :c\nStart watching anime to see your history here',
+      'No history :c\nStart watching to see your history here',
       name: 'activity_history_empty_anime_list_message',
       desc: '',
       args: [],
@@ -1984,41 +3054,31 @@ class S {
     );
   }
 
-  /// `Storage`
-  String get settings_storage_section_title {
-    return Intl.message(
-      'Storage',
-      name: 'settings_storage_section_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Downloads`
-  String get settings_downloads_title {
-    return Intl.message(
-      'Downloads',
-      name: 'settings_downloads_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Manage downloaded chapters`
-  String get settings_downloads_subtitle {
-    return Intl.message(
-      'Manage downloaded chapters',
-      name: 'settings_downloads_subtitle',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Downloads`
   String get downloads_title {
     return Intl.message(
       'Downloads',
       name: 'downloads_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Newest first`
+  String get downloads_order_newest {
+    return Intl.message(
+      'Newest first',
+      name: 'downloads_order_newest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Oldest first`
+  String get downloads_order_oldest {
+    return Intl.message(
+      'Oldest first',
+      name: 'downloads_order_oldest',
       desc: '',
       args: [],
     );
@@ -2144,6 +3204,16 @@ class S {
     );
   }
 
+  /// `This episode's downloaded files are missing. Download it again to watch offline.`
+  String get downloads_episode_files_missing {
+    return Intl.message(
+      'This episode\'s downloaded files are missing. Download it again to watch offline.',
+      name: 'downloads_episode_files_missing',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{done}/{total} pages`
   String downloads_pages_progress(Object done, Object total) {
     return Intl.message(
@@ -2161,6 +3231,417 @@ class S {
       name: 'downloads_chapters_summary',
       desc: '',
       args: [done, total],
+    );
+  }
+
+  /// `Segment {done}/{total}`
+  String downloads_episode_segments_progress(Object done, Object total) {
+    return Intl.message(
+      'Segment $done/$total',
+      name: 'downloads_episode_segments_progress',
+      desc: '',
+      args: [done, total],
+    );
+  }
+
+  /// `{percent}% · {downloaded} of {total}`
+  String downloads_episode_bytes_progress(
+    Object percent,
+    Object downloaded,
+    Object total,
+  ) {
+    return Intl.message(
+      '$percent% · $downloaded of $total',
+      name: 'downloads_episode_bytes_progress',
+      desc: '',
+      args: [percent, downloaded, total],
+    );
+  }
+
+  /// `{downloaded} downloaded`
+  String downloads_episode_bytes_downloaded(Object downloaded) {
+    return Intl.message(
+      '$downloaded downloaded',
+      name: 'downloads_episode_bytes_downloaded',
+      desc: '',
+      args: [downloaded],
+    );
+  }
+
+  /// `Preparing video…`
+  String get downloads_episode_preparing {
+    return Intl.message(
+      'Preparing video…',
+      name: 'downloads_episode_preparing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ready to watch offline`
+  String get downloads_episode_done {
+    return Intl.message(
+      'Ready to watch offline',
+      name: 'downloads_episode_done',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ready to watch offline · {size}`
+  String downloads_episode_done_size(Object size) {
+    return Intl.message(
+      'Ready to watch offline · $size',
+      name: 'downloads_episode_done_size',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `{size} MB`
+  String downloads_episode_size_mb(Object size) {
+    return Intl.message(
+      '$size MB',
+      name: 'downloads_episode_size_mb',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `{size} GB`
+  String downloads_episode_size_gb(Object size) {
+    return Intl.message(
+      '$size GB',
+      name: 'downloads_episode_size_gb',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `{done}/{total} episodes downloaded`
+  String downloads_episode_summary(Object done, Object total) {
+    return Intl.message(
+      '$done/$total episodes downloaded',
+      name: 'downloads_episode_summary',
+      desc: '',
+      args: [done, total],
+    );
+  }
+
+  /// `This episode will be removed from this device.`
+  String get downloads_episode_delete_confirmation_message {
+    return Intl.message(
+      'This episode will be removed from this device.',
+      name: 'downloads_episode_delete_confirmation_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry download`
+  String get downloads_episode_retry {
+    return Intl.message(
+      'Retry download',
+      name: 'downloads_episode_retry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download quality`
+  String get downloads_quality_title {
+    return Intl.message(
+      'Download quality',
+      name: 'downloads_quality_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Same as player`
+  String get downloads_quality_same_as_player {
+    return Intl.message(
+      'Same as player',
+      name: 'downloads_quality_same_as_player',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Highest available`
+  String get downloads_quality_highest {
+    return Intl.message(
+      'Highest available',
+      name: 'downloads_quality_highest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `1080p`
+  String get downloads_quality_1080 {
+    return Intl.message(
+      '1080p',
+      name: 'downloads_quality_1080',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `720p`
+  String get downloads_quality_720 {
+    return Intl.message(
+      '720p',
+      name: 'downloads_quality_720',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `480p`
+  String get downloads_quality_480 {
+    return Intl.message(
+      '480p',
+      name: 'downloads_quality_480',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloads`
+  String get downloads_storage_section_title {
+    return Intl.message(
+      'Downloads',
+      name: 'downloads_storage_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete episodes after watching`
+  String get downloads_storage_delete_after_watching_title {
+    return Intl.message(
+      'Delete episodes after watching',
+      name: 'downloads_storage_delete_after_watching_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove a downloaded episode once you finish it in the player`
+  String get downloads_storage_delete_after_watching_subtitle {
+    return Intl.message(
+      'Remove a downloaded episode once you finish it in the player',
+      name: 'downloads_storage_delete_after_watching_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Storage used`
+  String get downloads_storage_used {
+    return Intl.message(
+      'Storage used',
+      name: 'downloads_storage_used',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Calculating…`
+  String get downloads_storage_calculating {
+    return Intl.message(
+      'Calculating…',
+      name: 'downloads_storage_calculating',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Free up space`
+  String get downloads_storage_free_up {
+    return Intl.message(
+      'Free up space',
+      name: 'downloads_storage_free_up',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Up to {size} can be freed`
+  String downloads_storage_free_up_reclaimable(Object size) {
+    return Intl.message(
+      'Up to $size can be freed',
+      name: 'downloads_storage_free_up_reclaimable',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `Nothing to free up`
+  String get downloads_storage_free_up_empty {
+    return Intl.message(
+      'Nothing to free up',
+      name: 'downloads_storage_free_up_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} downloads · {size}`
+  String downloads_storage_title_size(Object count, Object size) {
+    return Intl.message(
+      '$count downloads · $size',
+      name: 'downloads_storage_title_size',
+      desc: '',
+      args: [count, size],
+    );
+  }
+
+  /// `{count} watched · {size}`
+  String downloads_storage_watched_size(Object count, Object size) {
+    return Intl.message(
+      '$count watched · $size',
+      name: 'downloads_storage_watched_size',
+      desc: '',
+      args: [count, size],
+    );
+  }
+
+  /// `{summary} · {size}`
+  String downloads_storage_summary_with_size(Object summary, Object size) {
+    return Intl.message(
+      '$summary · $size',
+      name: 'downloads_storage_summary_with_size',
+      desc: '',
+      args: [summary, size],
+    );
+  }
+
+  /// `Delete watched`
+  String get downloads_storage_delete_watched {
+    return Intl.message(
+      'Delete watched',
+      name: 'downloads_storage_delete_watched',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete watched episodes`
+  String get downloads_storage_delete_watched_episodes {
+    return Intl.message(
+      'Delete watched episodes',
+      name: 'downloads_storage_delete_watched_episodes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete all downloads of this title`
+  String get downloads_storage_delete_title_downloads {
+    return Intl.message(
+      'Delete all downloads of this title',
+      name: 'downloads_storage_delete_title_downloads',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete all`
+  String get downloads_storage_delete_all_short {
+    return Intl.message(
+      'Delete all',
+      name: 'downloads_storage_delete_all_short',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete watched episodes?`
+  String get downloads_storage_delete_watched_confirm_title {
+    return Intl.message(
+      'Delete watched episodes?',
+      name: 'downloads_storage_delete_watched_confirm_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} watched episodes of {title} ({size}) will be removed from this device.`
+  String downloads_storage_delete_watched_confirm_message(
+    Object count,
+    Object title,
+    Object size,
+  ) {
+    return Intl.message(
+      '$count watched episodes of $title ($size) will be removed from this device.',
+      name: 'downloads_storage_delete_watched_confirm_message',
+      desc: '',
+      args: [count, title, size],
+    );
+  }
+
+  /// `Delete these downloads?`
+  String get downloads_storage_delete_title_confirm_title {
+    return Intl.message(
+      'Delete these downloads?',
+      name: 'downloads_storage_delete_title_confirm_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Every download of {title} ({size}) will be removed from this device.`
+  String downloads_storage_delete_title_confirm_message(
+    Object title,
+    Object size,
+  ) {
+    return Intl.message(
+      'Every download of $title ($size) will be removed from this device.',
+      name: 'downloads_storage_delete_title_confirm_message',
+      desc: '',
+      args: [title, size],
+    );
+  }
+
+  /// `No watched episodes to delete`
+  String get downloads_storage_no_watched {
+    return Intl.message(
+      'No watched episodes to delete',
+      name: 'downloads_storage_no_watched',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Deleted {count} watched episodes`
+  String downloads_storage_deleted_watched(Object count) {
+    return Intl.message(
+      'Deleted $count watched episodes',
+      name: 'downloads_storage_deleted_watched',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `The downloaded file couldn't be played, so it's streaming instead.`
+  String get downloads_storage_playback_fallback {
+    return Intl.message(
+      'The downloaded file couldn\'t be played, so it\'s streaming instead.',
+      name: 'downloads_storage_playback_fallback',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Re-download`
+  String get downloads_storage_redownload {
+    return Intl.message(
+      'Re-download',
+      name: 'downloads_storage_redownload',
+      desc: '',
+      args: [],
     );
   }
 
@@ -2404,11 +3885,31 @@ class S {
     );
   }
 
-  /// `Theme, reader mode and toggles`
+  /// `Theme, reader, player, layout and translation preferences`
   String get export_section_settings_subtitle {
     return Intl.message(
-      'Theme, reader mode and toggles',
+      'Theme, reader, player, layout and translation preferences',
       name: 'export_section_settings_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Page translations`
+  String get export_section_translations {
+    return Intl.message(
+      'Page translations',
+      name: 'export_section_translations',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translated pages, so they don't need to be translated again`
+  String get export_section_translations_subtitle {
+    return Intl.message(
+      'Translated pages, so they don\'t need to be translated again',
+      name: 'export_section_translations_subtitle',
       desc: '',
       args: [],
     );
@@ -2451,6 +3952,216 @@ class S {
       name: 'downloads_notification_complete_body',
       desc: '',
       args: [count],
+    );
+  }
+
+  /// `Download over Wi-Fi only`
+  String get downloads_runtime_wifi_only_title {
+    return Intl.message(
+      'Download over Wi-Fi only',
+      name: 'downloads_runtime_wifi_only_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Queued downloads wait until you are on Wi-Fi or ethernet`
+  String get downloads_runtime_wifi_only_subtitle {
+    return Intl.message(
+      'Queued downloads wait until you are on Wi-Fi or ethernet',
+      name: 'downloads_runtime_wifi_only_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiting for Wi-Fi`
+  String get downloads_runtime_waiting_for_wifi {
+    return Intl.message(
+      'Waiting for Wi-Fi',
+      name: 'downloads_runtime_waiting_for_wifi',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloads resume automatically once you are back on Wi-Fi`
+  String get downloads_runtime_waiting_for_wifi_message {
+    return Intl.message(
+      'Downloads resume automatically once you are back on Wi-Fi',
+      name: 'downloads_runtime_waiting_for_wifi_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Android stopped background downloading. Keep the app open until downloads finish.`
+  String get downloads_runtime_app_must_stay_open {
+    return Intl.message(
+      'Android stopped background downloading. Keep the app open until downloads finish.',
+      name: 'downloads_runtime_app_must_stay_open',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paused`
+  String get downloads_queue_status_paused {
+    return Intl.message(
+      'Paused',
+      name: 'downloads_queue_status_paused',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paused · {progress}`
+  String downloads_queue_paused_progress(Object progress) {
+    return Intl.message(
+      'Paused · $progress',
+      name: 'downloads_queue_paused_progress',
+      desc: '',
+      args: [progress],
+    );
+  }
+
+  /// `Pause`
+  String get downloads_queue_pause {
+    return Intl.message(
+      'Pause',
+      name: 'downloads_queue_pause',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resume`
+  String get downloads_queue_resume {
+    return Intl.message(
+      'Resume',
+      name: 'downloads_queue_resume',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pause all`
+  String get downloads_queue_pause_all {
+    return Intl.message(
+      'Pause all',
+      name: 'downloads_queue_pause_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resume all`
+  String get downloads_queue_resume_all {
+    return Intl.message(
+      'Resume all',
+      name: 'downloads_queue_resume_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pause downloads of this title`
+  String get downloads_queue_pause_title {
+    return Intl.message(
+      'Pause downloads of this title',
+      name: 'downloads_queue_pause_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resume downloads of this title`
+  String get downloads_queue_resume_title {
+    return Intl.message(
+      'Resume downloads of this title',
+      name: 'downloads_queue_resume_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Move to the top of the queue`
+  String get downloads_queue_move_title_to_top {
+    return Intl.message(
+      'Move to the top of the queue',
+      name: 'downloads_queue_move_title_to_top',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Queue`
+  String get downloads_queue_title {
+    return Intl.message(
+      'Queue',
+      name: 'downloads_queue_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Queue ({count})`
+  String downloads_queue_button(Object count) {
+    return Intl.message(
+      'Queue ($count)',
+      name: 'downloads_queue_button',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Download next`
+  String get downloads_queue_download_next {
+    return Intl.message(
+      'Download next',
+      name: 'downloads_queue_download_next',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove from queue`
+  String get downloads_queue_remove {
+    return Intl.message(
+      'Remove from queue',
+      name: 'downloads_queue_remove',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading now`
+  String get downloads_queue_now_downloading {
+    return Intl.message(
+      'Downloading now',
+      name: 'downloads_queue_now_downloading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nothing is waiting to download`
+  String get downloads_queue_empty {
+    return Intl.message(
+      'Nothing is waiting to download',
+      name: 'downloads_queue_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Drag the handles to change the download order`
+  String get downloads_queue_reorder_hint {
+    return Intl.message(
+      'Drag the handles to change the download order',
+      name: 'downloads_queue_reorder_hint',
+      desc: '',
+      args: [],
     );
   }
 
@@ -2586,6 +4297,216 @@ class S {
       name: 'updates_check_found',
       desc: '',
       args: [count],
+    );
+  }
+
+  /// `{source} needs you to sign in`
+  String updates_attention_sign_in(Object source) {
+    return Intl.message(
+      '$source needs you to sign in',
+      name: 'updates_attention_sign_in',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `{source} needs you to sign in again`
+  String updates_attention_sign_in_again(Object source) {
+    return Intl.message(
+      '$source needs you to sign in again',
+      name: 'updates_attention_sign_in_again',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `{source} needs a quick check in the browser`
+  String updates_attention_browser_check(Object source) {
+    return Intl.message(
+      '$source needs a quick check in the browser',
+      name: 'updates_attention_browser_check',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `{count} sources need your attention`
+  String updates_attention_many(Object count) {
+    return Intl.message(
+      '$count sources need your attention',
+      name: 'updates_attention_many',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Sources need attention`
+  String get updates_attention_sheet_title {
+    return Intl.message(
+      'Sources need attention',
+      name: 'updates_attention_sheet_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open`
+  String get updates_attention_action_open {
+    return Intl.message(
+      'Open',
+      name: 'updates_attention_action_open',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Review`
+  String get updates_attention_action_review {
+    return Intl.message(
+      'Review',
+      name: 'updates_attention_action_review',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Session saved for {source}. Pull to refresh to check again`
+  String updates_attention_session_saved(Object source) {
+    return Intl.message(
+      'Session saved for $source. Pull to refresh to check again',
+      name: 'updates_attention_session_saved',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `{source} has no browser sign-in`
+  String updates_attention_unavailable(Object source) {
+    return Intl.message(
+      '$source has no browser sign-in',
+      name: 'updates_attention_unavailable',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Sign in needed: {sources}`
+  String updates_attention_notification_sign_in_title(Object sources) {
+    return Intl.message(
+      'Sign in needed: $sources',
+      name: 'updates_attention_notification_sign_in_title',
+      desc: '',
+      args: [sources],
+    );
+  }
+
+  /// `Browser check needed: {sources}`
+  String updates_attention_notification_browser_title(Object sources) {
+    return Intl.message(
+      'Browser check needed: $sources',
+      name: 'updates_attention_notification_browser_title',
+      desc: '',
+      args: [sources],
+    );
+  }
+
+  /// `Update checks are paused for these sources. Pull to refresh your library to fix it.`
+  String get updates_attention_notification_body {
+    return Intl.message(
+      'Update checks are paused for these sources. Pull to refresh your library to fix it.',
+      name: 'updates_attention_notification_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear saved session`
+  String get extension_clear_session {
+    return Intl.message(
+      'Clear saved session',
+      name: 'extension_clear_session',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saved session for {source} cleared`
+  String extension_clear_session_done(Object source) {
+    return Intl.message(
+      'Saved session for $source cleared',
+      name: 'extension_clear_session_done',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Update the app to use this source`
+  String get compat_requires_newer_app {
+    return Intl.message(
+      'Update the app to use this source',
+      name: 'compat_requires_newer_app',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update available — needs a newer app version`
+  String get compat_update_needs_newer_app {
+    return Intl.message(
+      'Update available — needs a newer app version',
+      name: 'compat_update_needs_newer_app',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This source needs extension API {required}, this app supports up to {supported}.`
+  String compat_reason_api_version(Object required, Object supported) {
+    return Intl.message(
+      'This source needs extension API $required, this app supports up to $supported.',
+      name: 'compat_reason_api_version',
+      desc: '',
+      args: [required, supported],
+    );
+  }
+
+  /// `This source needs app version {required} or newer, you have {current}.`
+  String compat_reason_min_app_version(Object required, Object current) {
+    return Intl.message(
+      'This source needs app version $required or newer, you have $current.',
+      name: 'compat_reason_min_app_version',
+      desc: '',
+      args: [required, current],
+    );
+  }
+
+  /// `Your installed version keeps working until you update the app.`
+  String get compat_installed_keeps_working {
+    return Intl.message(
+      'Your installed version keeps working until you update the app.',
+      name: 'compat_installed_keeps_working',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open installed version`
+  String get compat_open_installed {
+    return Intl.message(
+      'Open installed version',
+      name: 'compat_open_installed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download the latest app version`
+  String get compat_download_latest_app {
+    return Intl.message(
+      'Download the latest app version',
+      name: 'compat_download_latest_app',
+      desc: '',
+      args: [],
     );
   }
 
@@ -2728,13 +4649,6341 @@ class S {
       args: [hours],
     );
   }
+
+  /// `Page translation`
+  String get settings_page_translation_title {
+    return Intl.message(
+      'Page translation',
+      name: 'settings_page_translation_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Experimental · recognize and translate text on pages`
+  String get settings_page_translation_subtitle {
+    return Intl.message(
+      'Experimental · recognize and translate text on pages',
+      name: 'settings_page_translation_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Page translation`
+  String get page_translation_settings_title {
+    return Intl.message(
+      'Page translation',
+      name: 'page_translation_settings_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Experimental`
+  String get page_translation_settings_experimental {
+    return Intl.message(
+      'Experimental',
+      name: 'page_translation_settings_experimental',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enable page translation`
+  String get page_translation_settings_enable {
+    return Intl.message(
+      'Enable page translation',
+      name: 'page_translation_settings_enable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Adds a translate button to the reader. Text is recognized and translated on your device.`
+  String get page_translation_settings_enable_subtitle {
+    return Intl.message(
+      'Adds a translate button to the reader. Text is recognized and translated on your device.',
+      name: 'page_translation_settings_enable_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Languages`
+  String get page_translation_settings_languages_section {
+    return Intl.message(
+      'Languages',
+      name: 'page_translation_settings_languages_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translate to`
+  String get page_translation_settings_target {
+    return Intl.message(
+      'Translate to',
+      name: 'page_translation_settings_target',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Language packs`
+  String get page_translation_settings_packs_section {
+    return Intl.message(
+      'Language packs',
+      name: 'page_translation_settings_packs_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloaded`
+  String get page_translation_settings_pack_downloaded {
+    return Intl.message(
+      'Downloaded',
+      name: 'page_translation_settings_pack_downloaded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not downloaded · about 30 MB`
+  String get page_translation_settings_pack_missing {
+    return Intl.message(
+      'Not downloaded · about 30 MB',
+      name: 'page_translation_settings_pack_missing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download`
+  String get page_translation_settings_download_pack {
+    return Intl.message(
+      'Download',
+      name: 'page_translation_settings_download_pack',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get page_translation_settings_delete_pack {
+    return Intl.message(
+      'Delete',
+      name: 'page_translation_settings_delete_pack',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download on Wi-Fi only`
+  String get page_translation_settings_wifi_only {
+    return Intl.message(
+      'Download on Wi-Fi only',
+      name: 'page_translation_settings_wifi_only',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Text recognition`
+  String get page_translation_settings_ocr_title {
+    return Intl.message(
+      'Text recognition',
+      name: 'page_translation_settings_ocr_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Japanese, Korean and Chinese recognition is provided by Google Play services and downloads automatically the first time it is used.`
+  String get page_translation_settings_ocr_note {
+    return Intl.message(
+      'Japanese, Korean and Chinese recognition is provided by Google Play services and downloads automatically the first time it is used.',
+      name: 'page_translation_settings_ocr_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Storage`
+  String get page_translation_settings_storage_section {
+    return Intl.message(
+      'Storage',
+      name: 'page_translation_settings_storage_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear translated pages`
+  String get page_translation_settings_clear_cache {
+    return Intl.message(
+      'Clear translated pages',
+      name: 'page_translation_settings_clear_cache',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} pages saved`
+  String page_translation_settings_clear_cache_subtitle(Object count) {
+    return Intl.message(
+      '$count pages saved',
+      name: 'page_translation_settings_clear_cache_subtitle',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Clear translated pages?`
+  String get page_translation_settings_clear_cache_confirm_title {
+    return Intl.message(
+      'Clear translated pages?',
+      name: 'page_translation_settings_clear_cache_confirm_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pages will be translated again the next time you open them.`
+  String get page_translation_settings_clear_cache_confirm_message {
+    return Intl.message(
+      'Pages will be translated again the next time you open them.',
+      name: 'page_translation_settings_clear_cache_confirm_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear`
+  String get page_translation_settings_clear_cache_confirm_ok {
+    return Intl.message(
+      'Clear',
+      name: 'page_translation_settings_clear_cache_confirm_ok',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download language packs`
+  String get page_translation_models_title {
+    return Intl.message(
+      'Download language packs',
+      name: 'page_translation_models_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translating {source} to {target} needs on-device language packs, about 30 MB each. They are downloaded once, and pages are then translated entirely on your device.`
+  String page_translation_models_message(Object source, Object target) {
+    return Intl.message(
+      'Translating $source to $target needs on-device language packs, about 30 MB each. They are downloaded once, and pages are then translated entirely on your device.',
+      name: 'page_translation_models_message',
+      desc: '',
+      args: [source, target],
+    );
+  }
+
+  /// `Downloads wait for Wi-Fi. You can change this in Settings → Page translation.`
+  String get page_translation_models_wifi_note {
+    return Intl.message(
+      'Downloads wait for Wi-Fi. You can change this in Settings → Page translation.',
+      name: 'page_translation_models_wifi_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download`
+  String get page_translation_models_download {
+    return Intl.message(
+      'Download',
+      name: 'page_translation_models_download',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not now`
+  String get page_translation_models_cancel {
+    return Intl.message(
+      'Not now',
+      name: 'page_translation_models_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading language packs…`
+  String get page_translation_models_downloading {
+    return Intl.message(
+      'Downloading language packs…',
+      name: 'page_translation_models_downloading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't download language packs`
+  String get page_translation_models_failed {
+    return Intl.message(
+      'Couldn\'t download language packs',
+      name: 'page_translation_models_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translating page…`
+  String get page_translation_status_translating {
+    return Intl.message(
+      'Translating page…',
+      name: 'page_translation_status_translating',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translation failed · tap to retry`
+  String get page_translation_status_failed {
+    return Intl.message(
+      'Translation failed · tap to retry',
+      name: 'page_translation_status_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Preparing translation…`
+  String get page_translation_status_preparing {
+    return Intl.message(
+      'Preparing translation…',
+      name: 'page_translation_status_preparing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Older translation · tap to update`
+  String get page_translation_status_outdated {
+    return Intl.message(
+      'Older translation · tap to update',
+      name: 'page_translation_status_outdated',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retranslate`
+  String get page_translation_retranslate {
+    return Intl.message(
+      'Retranslate',
+      name: 'page_translation_retranslate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Edit`
+  String get page_translation_edit {
+    return Intl.message(
+      'Edit',
+      name: 'page_translation_edit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy`
+  String get page_translation_copy {
+    return Intl.message(
+      'Copy',
+      name: 'page_translation_copy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't retranslate this bubble`
+  String get page_translation_retranslate_failed {
+    return Intl.message(
+      'Couldn\'t retranslate this bubble',
+      name: 'page_translation_retranslate_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No text found in the selected area`
+  String get page_translation_region_empty {
+    return Intl.message(
+      'No text found in the selected area',
+      name: 'page_translation_region_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hold to see the original page`
+  String get page_translation_peek_hint {
+    return Intl.message(
+      'Hold to see the original page',
+      name: 'page_translation_peek_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fix recognition mistakes, then retranslate`
+  String get page_translation_original_edit_hint {
+    return Intl.message(
+      'Fix recognition mistakes, then retranslate',
+      name: 'page_translation_original_edit_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove older translations`
+  String get page_translation_settings_remove_outdated {
+    return Intl.message(
+      'Remove older translations',
+      name: 'page_translation_settings_remove_outdated',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} pages from an older version`
+  String page_translation_settings_remove_outdated_subtitle(int count) {
+    return Intl.message(
+      '$count pages from an older version',
+      name: 'page_translation_settings_remove_outdated_subtitle',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Google Play services is downloading text recognition…`
+  String get page_translation_status_model_pending {
+    return Intl.message(
+      'Google Play services is downloading text recognition…',
+      name: 'page_translation_status_model_pending',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Original`
+  String get page_translation_original_label {
+    return Intl.message(
+      'Original',
+      name: 'page_translation_original_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translation`
+  String get page_translation_translation_label {
+    return Intl.message(
+      'Translation',
+      name: 'page_translation_translation_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy original`
+  String get page_translation_copy_original {
+    return Intl.message(
+      'Copy original',
+      name: 'page_translation_copy_original',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy translation`
+  String get page_translation_copy_translation {
+    return Intl.message(
+      'Copy translation',
+      name: 'page_translation_copy_translation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show original`
+  String get page_translation_show_original {
+    return Intl.message(
+      'Show original',
+      name: 'page_translation_show_original',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show translation`
+  String get page_translation_show_translation {
+    return Intl.message(
+      'Show translation',
+      name: 'page_translation_show_translation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copied`
+  String get page_translation_copied {
+    return Intl.message(
+      'Copied',
+      name: 'page_translation_copied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Default for titles you translate for the first time. Each title remembers its own languages.`
+  String get page_translation_settings_target_subtitle {
+    return Intl.message(
+      'Default for titles you translate for the first time. Each title remembers its own languages.',
+      name: 'page_translation_settings_target_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translation languages`
+  String get page_translation_languages_title {
+    return Intl.message(
+      'Translation languages',
+      name: 'page_translation_languages_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saved for this title only.`
+  String get page_translation_languages_subtitle {
+    return Intl.message(
+      'Saved for this title only.',
+      name: 'page_translation_languages_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Text on pages`
+  String get page_translation_languages_from {
+    return Intl.message(
+      'Text on pages',
+      name: 'page_translation_languages_from',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translate to`
+  String get page_translation_languages_to {
+    return Intl.message(
+      'Translate to',
+      name: 'page_translation_languages_to',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translate`
+  String get page_translation_languages_start {
+    return Intl.message(
+      'Translate',
+      name: 'page_translation_languages_start',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save`
+  String get page_translation_languages_save {
+    return Intl.message(
+      'Save',
+      name: 'page_translation_languages_save',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading language packs {current}/{total}…`
+  String page_translation_models_downloading_progress(
+    Object current,
+    Object total,
+  ) {
+    return Intl.message(
+      'Downloading language packs $current/$total…',
+      name: 'page_translation_models_downloading_progress',
+      desc: '',
+      args: [current, total],
+    );
+  }
+
+  /// `Language packs`
+  String get language_packs_title {
+    return Intl.message(
+      'Language packs',
+      name: 'language_packs_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Each pack is about 30 MB. You only need the languages you translate from and to.`
+  String get language_packs_hint {
+    return Intl.message(
+      'Each pack is about 30 MB. You only need the languages you translate from and to.',
+      name: 'language_packs_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Each pack is about 30 MB. You only need the languages you translate from and to. Downloads wait for Wi-Fi.`
+  String get language_packs_hint_wifi {
+    return Intl.message(
+      'Each pack is about 30 MB. You only need the languages you translate from and to. Downloads wait for Wi-Fi.',
+      name: 'language_packs_hint_wifi',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloaded`
+  String get language_packs_downloaded_section {
+    return Intl.message(
+      'Downloaded',
+      name: 'language_packs_downloaded_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Available`
+  String get language_packs_available_section {
+    return Intl.message(
+      'Available',
+      name: 'language_packs_available_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading {current} of {total}`
+  String language_packs_queue_progress(Object current, Object total) {
+    return Intl.message(
+      'Downloading $current of $total',
+      name: 'language_packs_queue_progress',
+      desc: '',
+      args: [current, total],
+    );
+  }
+
+  /// `Queued · #{position}`
+  String language_packs_queued(Object position) {
+    return Intl.message(
+      'Queued · #$position',
+      name: 'language_packs_queued',
+      desc: '',
+      args: [position],
+    );
+  }
+
+  /// `Download failed`
+  String get language_packs_failed {
+    return Intl.message(
+      'Download failed',
+      name: 'language_packs_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get language_packs_retry {
+    return Intl.message(
+      'Retry',
+      name: 'language_packs_retry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get language_packs_cancel {
+    return Intl.message(
+      'Cancel',
+      name: 'language_packs_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} downloaded`
+  String language_packs_downloaded_count(Object count) {
+    return Intl.message(
+      '$count downloaded',
+      name: 'language_packs_downloaded_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Downloading AI model {progress}%`
+  String page_translation_ai_model_downloading(Object progress) {
+    return Intl.message(
+      'Downloading AI model $progress%',
+      name: 'page_translation_ai_model_downloading',
+      desc: '',
+      args: [progress],
+    );
+  }
+
+  /// `Translating chapter {done}/{total}`
+  String page_translation_status_chapter(Object done, Object total) {
+    return Intl.message(
+      'Translating chapter $done/$total',
+      name: 'page_translation_status_chapter',
+      desc: '',
+      args: [done, total],
+    );
+  }
+
+  /// `Translate whole chapter`
+  String get page_translation_translate_chapter {
+    return Intl.message(
+      'Translate whole chapter',
+      name: 'page_translation_translate_chapter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download the AI model`
+  String get page_translation_ai_model_title {
+    return Intl.message(
+      'Download the AI model',
+      name: 'page_translation_ai_model_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{model} needs a one-time {size} GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.`
+  String page_translation_ai_model_message(String model, String size) {
+    return Intl.message(
+      '$model needs a one-time $size GB download. Use Wi-Fi: the model is stored on your phone and translation then runs fully offline.',
+      name: 'page_translation_ai_model_message',
+      desc: '',
+      args: [model, size],
+    );
+  }
+
+  /// `Translation engine`
+  String get translation_engine_section {
+    return Intl.message(
+      'Translation engine',
+      name: 'translation_engine_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ML Kit`
+  String get translation_engine_mlkit {
+    return Intl.message(
+      'ML Kit',
+      name: 'translation_engine_mlkit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fast and light · works on every phone · literal translations`
+  String get translation_engine_mlkit_subtitle {
+    return Intl.message(
+      'Fast and light · works on every phone · literal translations',
+      name: 'translation_engine_mlkit_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gemma 4 E2B · on-device AI`
+  String get translation_engine_gemma {
+    return Intl.message(
+      'Gemma 4 E2B · on-device AI',
+      name: 'translation_engine_gemma',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Natural translations that fix text-recognition mistakes · 2.6 GB · 8 GB RAM`
+  String get translation_engine_gemma_subtitle {
+    return Intl.message(
+      'Natural translations that fix text-recognition mistakes · 2.6 GB · 8 GB RAM',
+      name: 'translation_engine_gemma_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gemma 4 E4B · on-device AI`
+  String get translation_engine_gemma_e4b {
+    return Intl.message(
+      'Gemma 4 E4B · on-device AI',
+      name: 'translation_engine_gemma_e4b',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Better translations, about twice as slow · 3.7 GB · 12 GB RAM`
+  String get translation_engine_gemma_e4b_subtitle {
+    return Intl.message(
+      'Better translations, about twice as slow · 3.7 GB · 12 GB RAM',
+      name: 'translation_engine_gemma_e4b_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DeepL · online`
+  String get translation_engine_deepl {
+    return Intl.message(
+      'DeepL · online',
+      name: 'translation_engine_deepl',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change`
+  String get translation_engine_change {
+    return Intl.message(
+      'Change',
+      name: 'translation_engine_change',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Appearance`
+  String get page_translation_appearance_section {
+    return Intl.message(
+      'Appearance',
+      name: 'page_translation_appearance_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Names & terms`
+  String get page_translation_glossary_title {
+    return Intl.message(
+      'Names & terms',
+      name: 'page_translation_glossary_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep character names and terms consistent in this title. Used by DeepL and Gemma.`
+  String get page_translation_glossary_subtitle {
+    return Intl.message(
+      'Keep character names and terms consistent in this title. Used by DeepL and Gemma.',
+      name: 'page_translation_glossary_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ML Kit can't use names & terms. Switch to DeepL or Gemma in Page translation settings.`
+  String get page_translation_glossary_unsupported {
+    return Intl.message(
+      'ML Kit can\'t use names & terms. Switch to DeepL or Gemma in Page translation settings.',
+      name: 'page_translation_glossary_unsupported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add name`
+  String get page_translation_glossary_add {
+    return Intl.message(
+      'Add name',
+      name: 'page_translation_glossary_add',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save`
+  String get page_translation_glossary_save {
+    return Intl.message(
+      'Save',
+      name: 'page_translation_glossary_save',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save & retranslate chapter`
+  String get page_translation_glossary_save_retranslate {
+    return Intl.message(
+      'Save & retranslate chapter',
+      name: 'page_translation_glossary_save_retranslate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `None yet`
+  String get page_translation_glossary_empty {
+    return Intl.message(
+      'None yet',
+      name: 'page_translation_glossary_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 name} other{{count} names}}`
+  String page_translation_glossary_count(int count) {
+    return Intl.plural(
+      count,
+      one: '1 name',
+      other: '$count names',
+      name: 'page_translation_glossary_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Text size`
+  String get page_translation_text_size {
+    return Intl.message(
+      'Text size',
+      name: 'page_translation_text_size',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Largest size translated text may use on screen`
+  String get page_translation_text_size_subtitle {
+    return Intl.message(
+      'Largest size translated text may use on screen',
+      name: 'page_translation_text_size_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto`
+  String get page_translation_text_size_auto {
+    return Intl.message(
+      'Auto',
+      name: 'page_translation_text_size_auto',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Up to {size} px`
+  String page_translation_text_size_pixels(int size) {
+    return Intl.message(
+      'Up to $size px',
+      name: 'page_translation_text_size_pixels',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `Font`
+  String get page_translation_font {
+    return Intl.message(
+      'Font',
+      name: 'page_translation_font',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `System`
+  String get page_translation_font_system {
+    return Intl.message(
+      'System',
+      name: 'page_translation_font_system',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comic`
+  String get page_translation_font_comic {
+    return Intl.message(
+      'Comic',
+      name: 'page_translation_font_comic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Label background`
+  String get page_translation_label_background {
+    return Intl.message(
+      'Label background',
+      name: 'page_translation_label_background',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `For text outside speech bubbles`
+  String get page_translation_label_background_subtitle {
+    return Intl.message(
+      'For text outside speech bubbles',
+      name: 'page_translation_label_background_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `What are you doing here?!`
+  String get page_translation_preview_bubble {
+    return Intl.message(
+      'What are you doing here?!',
+      name: 'page_translation_preview_bubble',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Meanwhile, in Tokyo…`
+  String get page_translation_preview_label {
+    return Intl.message(
+      'Meanwhile, in Tokyo…',
+      name: 'page_translation_preview_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Offline`
+  String get engine_tag_offline {
+    return Intl.message(
+      'Offline',
+      name: 'engine_tag_offline',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Online`
+  String get engine_tag_online {
+    return Intl.message(
+      'Online',
+      name: 'engine_tag_online',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fast`
+  String get engine_tag_fast {
+    return Intl.message('Fast', name: 'engine_tag_fast', desc: '', args: []);
+  }
+
+  /// `Literal`
+  String get engine_tag_literal {
+    return Intl.message(
+      'Literal',
+      name: 'engine_tag_literal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Natural`
+  String get engine_tag_natural {
+    return Intl.message(
+      'Natural',
+      name: 'engine_tag_natural',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Best quality`
+  String get engine_tag_best {
+    return Intl.message(
+      'Best quality',
+      name: 'engine_tag_best',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{size} GB`
+  String engine_tag_size(String size) {
+    return Intl.message(
+      '$size GB',
+      name: 'engine_tag_size',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `Best quality · sends the recognised text to DeepL · needs a free API key`
+  String get translation_engine_deepl_subtitle {
+    return Intl.message(
+      'Best quality · sends the recognised text to DeepL · needs a free API key',
+      name: 'translation_engine_deepl_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not available on this device`
+  String get translation_engine_gemma_unavailable_platform {
+    return Intl.message(
+      'Not available on this device',
+      name: 'translation_engine_gemma_unavailable_platform',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Needs Android 11 or newer`
+  String get translation_engine_gemma_unavailable_android {
+    return Intl.message(
+      'Needs Android 11 or newer',
+      name: 'translation_engine_gemma_unavailable_android',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Needs a 64-bit phone`
+  String get translation_engine_gemma_unavailable_64bit {
+    return Intl.message(
+      'Needs a 64-bit phone',
+      name: 'translation_engine_gemma_unavailable_64bit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Needs {need} GB of RAM (this phone has {ram} GB)`
+  String translation_engine_gemma_unavailable_ram(int need, int ram) {
+    return Intl.message(
+      'Needs $need GB of RAM (this phone has $ram GB)',
+      name: 'translation_engine_gemma_unavailable_ram',
+      desc: '',
+      args: [need, ram],
+    );
+  }
+
+  /// `AI model`
+  String get translation_ai_model_title {
+    return Intl.message(
+      'AI model',
+      name: 'translation_ai_model_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{model} · {size} GB · ready`
+  String translation_ai_model_installed(String model, String size) {
+    return Intl.message(
+      '$model · $size GB · ready',
+      name: 'translation_ai_model_installed',
+      desc: '',
+      args: [model, size],
+    );
+  }
+
+  /// `Download failed · try again on Wi-Fi`
+  String get translation_ai_model_failed {
+    return Intl.message(
+      'Download failed · try again on Wi-Fi',
+      name: 'translation_ai_model_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not downloaded · {size} GB`
+  String translation_ai_model_missing(String size) {
+    return Intl.message(
+      'Not downloaded · $size GB',
+      name: 'translation_ai_model_missing',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `Delete the AI model?`
+  String get translation_ai_model_delete_title {
+    return Intl.message(
+      'Delete the AI model?',
+      name: 'translation_ai_model_delete_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This frees {size} GB. You can download it again at any time.`
+  String translation_ai_model_delete_message(String size) {
+    return Intl.message(
+      'This frees $size GB. You can download it again at any time.',
+      name: 'translation_ai_model_delete_message',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `Downloaded models`
+  String get translation_models_title {
+    return Intl.message(
+      'Downloaded models',
+      name: 'translation_models_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{No AI models downloaded} =1{1 AI model · {size} GB} other{{count} AI models · {size} GB}}`
+  String translation_models_summary(int count, String size) {
+    return Intl.plural(
+      count,
+      zero: 'No AI models downloaded',
+      one: '1 AI model · $size GB',
+      other: '$count AI models · $size GB',
+      name: 'translation_models_summary',
+      desc: '',
+      args: [count, size],
+    );
+  }
+
+  /// `On-device AI`
+  String get translation_models_ai_section {
+    return Intl.message(
+      'On-device AI',
+      name: 'translation_models_ai_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ML Kit`
+  String get translation_models_packs_section {
+    return Intl.message(
+      'ML Kit',
+      name: 'translation_models_packs_section',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{No language packs yet} =1{1 language pack downloaded} other{{count} language packs downloaded}}`
+  String translation_models_packs_count(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No language packs yet',
+      one: '1 language pack downloaded',
+      other: '$count language packs downloaded',
+      name: 'translation_models_packs_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Downloaded · {size} GB`
+  String translation_models_downloaded(String size) {
+    return Intl.message(
+      'Downloaded · $size GB',
+      name: 'translation_models_downloaded',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `Not supported on this phone`
+  String get translation_models_unsupported {
+    return Intl.message(
+      'Not supported on this phone',
+      name: 'translation_models_unsupported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not downloaded · {size} GB · choose it as the engine to download`
+  String translation_models_pick_first(String size) {
+    return Intl.message(
+      'Not downloaded · $size GB · choose it as the engine to download',
+      name: 'translation_models_pick_first',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `DeepL API key`
+  String get deepl_key_title {
+    return Intl.message(
+      'DeepL API key',
+      name: 'deepl_key_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not set`
+  String get deepl_key_missing {
+    return Intl.message(
+      'Not set',
+      name: 'deepl_key_missing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Key ••••{ending}`
+  String deepl_key_masked(String ending) {
+    return Intl.message(
+      'Key ••••$ending',
+      name: 'deepl_key_masked',
+      desc: '',
+      args: [ending],
+    );
+  }
+
+  /// `used this month`
+  String get deepl_usage_used {
+    return Intl.message(
+      'used this month',
+      name: 'deepl_usage_used',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} left`
+  String deepl_usage_left(String count) {
+    return Intl.message(
+      '$count left',
+      name: 'deepl_usage_left',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{used} of {limit} characters`
+  String deepl_usage_characters(String used, String limit) {
+    return Intl.message(
+      '$used of $limit characters',
+      name: 'deepl_usage_characters',
+      desc: '',
+      args: [used, limit],
+    );
+  }
+
+  /// `Usage is unavailable right now`
+  String get deepl_usage_unavailable {
+    return Intl.message(
+      'Usage is unavailable right now',
+      name: 'deepl_usage_unavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{speed} MB/s`
+  String download_speed_megabytes(String speed) {
+    return Intl.message(
+      '$speed MB/s',
+      name: 'download_speed_megabytes',
+      desc: '',
+      args: [speed],
+    );
+  }
+
+  /// `{time} left`
+  String download_time_left(String time) {
+    return Intl.message(
+      '$time left',
+      name: 'download_time_left',
+      desc: '',
+      args: [time],
+    );
+  }
+
+  /// `{hours} h {minutes} min`
+  String duration_hours_minutes(int hours, int minutes) {
+    return Intl.message(
+      '$hours h $minutes min',
+      name: 'duration_hours_minutes',
+      desc: '',
+      args: [hours, minutes],
+    );
+  }
+
+  /// `{minutes} min`
+  String duration_minutes(int minutes) {
+    return Intl.message(
+      '$minutes min',
+      name: 'duration_minutes',
+      desc: '',
+      args: [minutes],
+    );
+  }
+
+  /// `{seconds} s`
+  String duration_seconds(int seconds) {
+    return Intl.message(
+      '$seconds s',
+      name: 'duration_seconds',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `Add a DeepL API key in Page translation settings first`
+  String get deepl_key_needed {
+    return Intl.message(
+      'Add a DeepL API key in Page translation settings first',
+      name: 'deepl_key_needed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change`
+  String get deepl_key_change {
+    return Intl.message('Change', name: 'deepl_key_change', desc: '', args: []);
+  }
+
+  /// `Remove`
+  String get deepl_key_remove {
+    return Intl.message('Remove', name: 'deepl_key_remove', desc: '', args: []);
+  }
+
+  /// `Create a free DeepL API account and paste its authentication key here. The free plan includes a monthly character allowance; you can see it here once the key is saved. The key is stored only on this phone.`
+  String get deepl_key_dialog_message {
+    return Intl.message(
+      'Create a free DeepL API account and paste its authentication key here. The free plan includes a monthly character allowance; you can see it here once the key is saved. The key is stored only on this phone.',
+      name: 'deepl_key_dialog_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paste your API key`
+  String get deepl_key_hint {
+    return Intl.message(
+      'Paste your API key',
+      name: 'deepl_key_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Get a free key`
+  String get deepl_key_get {
+    return Intl.message(
+      'Get a free key',
+      name: 'deepl_key_get',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save`
+  String get deepl_key_save {
+    return Intl.message('Save', name: 'deepl_key_save', desc: '', args: []);
+  }
+
+  /// `Cancel`
+  String get deepl_key_cancel {
+    return Intl.message('Cancel', name: 'deepl_key_cancel', desc: '', args: []);
+  }
+
+  /// `DeepL did not accept this key`
+  String get deepl_key_invalid {
+    return Intl.message(
+      'DeepL did not accept this key',
+      name: 'deepl_key_invalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not reach DeepL. Check your connection.`
+  String get deepl_key_network {
+    return Intl.message(
+      'Could not reach DeepL. Check your connection.',
+      name: 'deepl_key_network',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gemma 4 runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. E4B translates noticeably better than E2B but is about twice as slow. Nothing leaves your device.`
+  String get translation_engine_info_intro {
+    return Intl.message(
+      'Gemma 4 runs entirely on your phone. It reads the whole page at once, fixes text-recognition mistakes and translates naturally. E4B translates noticeably better than E2B but is about twice as slow. Nothing leaves your device.',
+      name: 'translation_engine_info_intro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Requirements`
+  String get translation_engine_info_requirements {
+    return Intl.message(
+      'Requirements',
+      name: 'translation_engine_info_requirements',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Android 11 or newer`
+  String get translation_engine_req_android {
+    return Intl.message(
+      'Android 11 or newer',
+      name: 'translation_engine_req_android',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `64-bit (arm64) processor`
+  String get translation_engine_req_64bit {
+    return Intl.message(
+      '64-bit (arm64) processor',
+      name: 'translation_engine_req_64bit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This phone: {model} · {ram} GB RAM`
+  String translation_engine_info_this_phone(Object model, Object ram) {
+    return Intl.message(
+      'This phone: $model · $ram GB RAM',
+      name: 'translation_engine_info_this_phone',
+      desc: '',
+      args: [model, ram],
+    );
+  }
+
+  /// `Speed by phone (estimated)`
+  String get translation_engine_info_examples {
+    return Intl.message(
+      'Speed by phone (estimated)',
+      name: 'translation_engine_info_examples',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fast · about 4–10 s per page`
+  String get translation_engine_tier_fast {
+    return Intl.message(
+      'Fast · about 4–10 s per page',
+      name: 'translation_engine_tier_fast',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Galaxy S24 / S25, Pixel 9 / 10, OnePlus 12 / 13, Xiaomi 14 / 15 and other 2024+ flagships with 12 GB RAM`
+  String get translation_engine_tier_fast_phones {
+    return Intl.message(
+      'Galaxy S24 / S25, Pixel 9 / 10, OnePlus 12 / 13, Xiaomi 14 / 15 and other 2024+ flagships with 12 GB RAM',
+      name: 'translation_engine_tier_fast_phones',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Usable · noticeably slower`
+  String get translation_engine_tier_ok {
+    return Intl.message(
+      'Usable · noticeably slower',
+      name: 'translation_engine_tier_ok',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Galaxy S22 / S23, Pixel 8, Galaxy A55 and other phones with 8 GB RAM`
+  String get translation_engine_tier_ok_phones {
+    return Intl.message(
+      'Galaxy S22 / S23, Pixel 8, Galaxy A55 and other phones with 8 GB RAM',
+      name: 'translation_engine_tier_ok_phones',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not supported`
+  String get translation_engine_tier_no {
+    return Intl.message(
+      'Not supported',
+      name: 'translation_engine_tier_no',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Phones with less than 8 GB RAM, 32-bit phones and Android 10 or older`
+  String get translation_engine_tier_no_phones {
+    return Intl.message(
+      'Phones with less than 8 GB RAM, 32-bit phones and Android 10 or older',
+      name: 'translation_engine_tier_no_phones',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `≈4–10 s per page`
+  String get engine_tag_speed_e2b {
+    return Intl.message(
+      '≈4–10 s per page',
+      name: 'engine_tag_speed_e2b',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `≈20–45 s per page`
+  String get engine_tag_speed_e4b {
+    return Intl.message(
+      '≈20–45 s per page',
+      name: 'engine_tag_speed_e4b',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{ram} GB of RAM or more`
+  String translation_engine_req_ram_model(int ram) {
+    return Intl.message(
+      '$ram GB of RAM or more',
+      name: 'translation_engine_req_ram_model',
+      desc: '',
+      args: [ram],
+    );
+  }
+
+  /// `About {size} GB of free storage`
+  String translation_engine_req_storage_model(String size) {
+    return Intl.message(
+      'About $size GB of free storage',
+      name: 'translation_engine_req_storage_model',
+      desc: '',
+      args: [size],
+    );
+  }
+
+  /// `About 20–45 s per page`
+  String get translation_engine_tier_e4b {
+    return Intl.message(
+      'About 20–45 s per page',
+      name: 'translation_engine_tier_e4b',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Phones with less than 12 GB RAM`
+  String get translation_engine_tier_e4b_no_phones {
+    return Intl.message(
+      'Phones with less than 12 GB RAM',
+      name: 'translation_engine_tier_e4b_no_phones',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Speeds are estimates; the fast tier was measured on a Galaxy S24 Ultra. Translating ahead while you read, and translating downloaded chapters in advance, hides most of the wait.`
+  String get translation_engine_info_footer {
+    return Intl.message(
+      'Speeds are estimates; the fast tier was measured on a Galaxy S24 Ultra. Translating ahead while you read, and translating downloaded chapters in advance, hides most of the wait.',
+      name: 'translation_engine_info_footer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} chapters queued for translation`
+  String chapter_translation_queued(Object count) {
+    return Intl.message(
+      '$count chapters queued for translation',
+      name: 'chapter_translation_queued',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Stop translating`
+  String get chapter_translation_cancel {
+    return Intl.message(
+      'Stop translating',
+      name: 'chapter_translation_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translate chapter`
+  String get chapter_translation_translate {
+    return Intl.message(
+      'Translate chapter',
+      name: 'chapter_translation_translate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translate all downloaded chapters`
+  String get chapter_translation_translate_all {
+    return Intl.message(
+      'Translate all downloaded chapters',
+      name: 'chapter_translation_translate_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiting to translate`
+  String get chapter_translation_queued_status {
+    return Intl.message(
+      'Waiting to translate',
+      name: 'chapter_translation_queued_status',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Preparing translation…`
+  String get chapter_translation_preparing {
+    return Intl.message(
+      'Preparing translation…',
+      name: 'chapter_translation_preparing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translating {done}/{total}`
+  String chapter_translation_progress(Object done, Object total) {
+    return Intl.message(
+      'Translating $done/$total',
+      name: 'chapter_translation_progress',
+      desc: '',
+      args: [done, total],
+    );
+  }
+
+  /// `Translated`
+  String get chapter_translation_done {
+    return Intl.message(
+      'Translated',
+      name: 'chapter_translation_done',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translated · {failed} pages failed`
+  String chapter_translation_done_partial(Object failed) {
+    return Intl.message(
+      'Translated · $failed pages failed',
+      name: 'chapter_translation_done_partial',
+      desc: '',
+      args: [failed],
+    );
+  }
+
+  /// `Translation failed`
+  String get chapter_translation_failed {
+    return Intl.message(
+      'Translation failed',
+      name: 'chapter_translation_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading, then translating`
+  String get chapter_translation_waiting_download {
+    return Intl.message(
+      'Downloading, then translating',
+      name: 'chapter_translation_waiting_download',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translate`
+  String get concrete_selection_translate {
+    return Intl.message(
+      'Translate',
+      name: 'concrete_selection_translate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start`
+  String get concrete_continue_start {
+    return Intl.message(
+      'Start',
+      name: 'concrete_continue_start',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Continue`
+  String get concrete_continue_resume {
+    return Intl.message(
+      'Continue',
+      name: 'concrete_continue_resume',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Related`
+  String get concrete_related_title {
+    return Intl.message(
+      'Related',
+      name: 'concrete_related_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All`
+  String get configs_filter_all_kinds {
+    return Intl.message(
+      'All',
+      name: 'configs_filter_all_kinds',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All languages`
+  String get configs_filter_all_languages {
+    return Intl.message(
+      'All languages',
+      name: 'configs_filter_all_languages',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Language`
+  String get configs_filter_language_title {
+    return Intl.message(
+      'Language',
+      name: 'configs_filter_language_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Any price`
+  String get configs_filter_all_prices {
+    return Intl.message(
+      'Any price',
+      name: 'configs_filter_all_prices',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Price`
+  String get configs_filter_price_title {
+    return Intl.message(
+      'Price',
+      name: 'configs_filter_price_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Free`
+  String get source_pricing_free {
+    return Intl.message(
+      'Free',
+      name: 'source_pricing_free',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Partly free`
+  String get source_pricing_partial {
+    return Intl.message(
+      'Partly free',
+      name: 'source_pricing_partial',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paid`
+  String get source_pricing_paid {
+    return Intl.message(
+      'Paid',
+      name: 'source_pricing_paid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Any type`
+  String get configs_filter_all_types {
+    return Intl.message(
+      'Any type',
+      name: 'configs_filter_all_types',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Source type`
+  String get configs_filter_type_title {
+    return Intl.message(
+      'Source type',
+      name: 'configs_filter_type_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Website`
+  String get source_type_website {
+    return Intl.message(
+      'Website',
+      name: 'source_type_website',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Self-hosted`
+  String get source_type_self_hosted {
+    return Intl.message(
+      'Self-hosted',
+      name: 'source_type_self_hosted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Official`
+  String get source_type_official {
+    return Intl.message(
+      'Official',
+      name: 'source_type_official',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On device`
+  String get source_type_local {
+    return Intl.message(
+      'On device',
+      name: 'source_type_local',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View options`
+  String get configs_view_options {
+    return Intl.message(
+      'View options',
+      name: 'configs_view_options',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Layout`
+  String get configs_view_layout {
+    return Intl.message(
+      'Layout',
+      name: 'configs_view_layout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cards`
+  String get configs_layout_cards {
+    return Intl.message(
+      'Cards',
+      name: 'configs_layout_cards',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compact list`
+  String get configs_layout_compact {
+    return Intl.message(
+      'Compact list',
+      name: 'configs_layout_compact',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Grid`
+  String get configs_layout_grid {
+    return Intl.message(
+      'Grid',
+      name: 'configs_layout_grid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sort`
+  String get configs_view_sort {
+    return Intl.message('Sort', name: 'configs_view_sort', desc: '', args: []);
+  }
+
+  /// `As listed`
+  String get configs_sort_listing {
+    return Intl.message(
+      'As listed',
+      name: 'configs_sort_listing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Name`
+  String get configs_sort_name {
+    return Intl.message('Name', name: 'configs_sort_name', desc: '', args: []);
+  }
+
+  /// `Pin to top`
+  String get configs_pin {
+    return Intl.message('Pin to top', name: 'configs_pin', desc: '', args: []);
+  }
+
+  /// `Unpin`
+  String get configs_unpin {
+    return Intl.message('Unpin', name: 'configs_unpin', desc: '', args: []);
+  }
+
+  /// `Pinned`
+  String get configs_pinned_group_title {
+    return Intl.message(
+      'Pinned',
+      name: 'configs_pinned_group_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search sources`
+  String get configs_search_hint {
+    return Intl.message(
+      'Search sources',
+      name: 'configs_search_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Anime`
+  String get content_kind_anime {
+    return Intl.message(
+      'Anime',
+      name: 'content_kind_anime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Movies`
+  String get content_kind_movie {
+    return Intl.message(
+      'Movies',
+      name: 'content_kind_movie',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Series`
+  String get content_kind_series {
+    return Intl.message(
+      'Series',
+      name: 'content_kind_series',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cartoons`
+  String get content_kind_cartoon {
+    return Intl.message(
+      'Cartoons',
+      name: 'content_kind_cartoon',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dramas`
+  String get content_kind_dorama {
+    return Intl.message(
+      'Dramas',
+      name: 'content_kind_dorama',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Documentaries`
+  String get content_kind_documentary {
+    return Intl.message(
+      'Documentaries',
+      name: 'content_kind_documentary',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manga`
+  String get content_kind_manga {
+    return Intl.message(
+      'Manga',
+      name: 'content_kind_manga',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manhwa`
+  String get content_kind_manhwa {
+    return Intl.message(
+      'Manhwa',
+      name: 'content_kind_manhwa',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manhua`
+  String get content_kind_manhua {
+    return Intl.message(
+      'Manhua',
+      name: 'content_kind_manhua',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comics`
+  String get content_kind_comic {
+    return Intl.message(
+      'Comics',
+      name: 'content_kind_comic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Novels`
+  String get content_kind_novel {
+    return Intl.message(
+      'Novels',
+      name: 'content_kind_novel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Local files`
+  String get local_source_name {
+    return Intl.message(
+      'Local files',
+      name: 'local_source_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import CBZ or ZIP files`
+  String get local_source_import {
+    return Intl.message(
+      'Import CBZ or ZIP files',
+      name: 'local_source_import',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Where to put files`
+  String get local_source_where {
+    return Intl.message(
+      'Where to put files',
+      name: 'local_source_where',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy folders of images, CBZ or ZIP files into\n{path}\n\nEach folder is a title and each archive or image folder inside it is a chapter. A cover.jpg and ComicInfo.xml are used when present. The folder is reachable over USB from a computer.`
+  String local_source_where_message(Object path) {
+    return Intl.message(
+      'Copy folders of images, CBZ or ZIP files into\n$path\n\nEach folder is a title and each archive or image folder inside it is a chapter. A cover.jpg and ComicInfo.xml are used when present. The folder is reachable over USB from a computer.',
+      name: 'local_source_where_message',
+      desc: '',
+      args: [path],
+    );
+  }
+
+  /// `{count, plural, =0{Nothing was imported} =1{Imported 1 file} other{Imported {count} files}}`
+  String local_source_imported(int count) {
+    return Intl.plural(
+      count,
+      zero: 'Nothing was imported',
+      one: 'Imported 1 file',
+      other: 'Imported $count files',
+      name: 'local_source_imported',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Imported`
+  String get local_source_imported_title {
+    return Intl.message(
+      'Imported',
+      name: 'local_source_imported_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Local books`
+  String get local_books_name {
+    return Intl.message(
+      'Local books',
+      name: 'local_books_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import EPUB files`
+  String get local_books_import {
+    return Intl.message(
+      'Import EPUB files',
+      name: 'local_books_import',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Where to put books`
+  String get local_books_where {
+    return Intl.message(
+      'Where to put books',
+      name: 'local_books_where',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy EPUB files into\n{path}\n\nEach file is a book, and subfolders are fine. Chapters follow the book's table of contents. The folder is reachable over USB from a computer.`
+  String local_books_where_message(Object path) {
+    return Intl.message(
+      'Copy EPUB files into\n$path\n\nEach file is a book, and subfolders are fine. Chapters follow the book\'s table of contents. The folder is reachable over USB from a computer.',
+      name: 'local_books_where_message',
+      desc: '',
+      args: [path],
+    );
+  }
+
+  /// `{count, plural, =0{Nothing was imported} =1{Imported 1 book} other{Imported {count} books}}`
+  String local_books_imported(int count) {
+    return Intl.plural(
+      count,
+      zero: 'Nothing was imported',
+      one: 'Imported 1 book',
+      other: 'Imported $count books',
+      name: 'local_books_imported',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Part {number}`
+  String local_books_untitled_chapter(int number) {
+    return Intl.message(
+      'Part $number',
+      name: 'local_books_untitled_chapter',
+      desc: '',
+      args: [number],
+    );
+  }
+
+  /// `Trackers`
+  String get settings_trackers_title {
+    return Intl.message(
+      'Trackers',
+      name: 'settings_trackers_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not signed in. Tap to sign in`
+  String get settings_tracker_signed_out {
+    return Intl.message(
+      'Not signed in. Tap to sign in',
+      name: 'settings_tracker_signed_out',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Signed in as {name}`
+  String settings_tracker_signed_in(Object name) {
+    return Intl.message(
+      'Signed in as $name',
+      name: 'settings_tracker_signed_in',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Could not sign in to {name}`
+  String settings_tracker_login_failed(Object name) {
+    return Intl.message(
+      'Could not sign in to $name',
+      name: 'settings_tracker_login_failed',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Sign out of {name}?`
+  String settings_tracker_logout_title(Object name) {
+    return Intl.message(
+      'Sign out of $name?',
+      name: 'settings_tracker_logout_title',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Titles linked to this tracker stop syncing and their links are removed.`
+  String get settings_tracker_logout_message {
+    return Intl.message(
+      'Titles linked to this tracker stop syncing and their links are removed.',
+      name: 'settings_tracker_logout_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign out`
+  String get settings_tracker_logout {
+    return Intl.message(
+      'Sign out',
+      name: 'settings_tracker_logout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Track this title`
+  String get tracker_chip_untracked {
+    return Intl.message(
+      'Track this title',
+      name: 'tracker_chip_untracked',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tracking`
+  String get tracker_sheet_title {
+    return Intl.message(
+      'Tracking',
+      name: 'tracker_sheet_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link`
+  String get tracker_link_action {
+    return Intl.message(
+      'Link',
+      name: 'tracker_link_action',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unlink`
+  String get tracker_unlink_action {
+    return Intl.message(
+      'Unlink',
+      name: 'tracker_unlink_action',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Find on {name}`
+  String tracker_search_title(Object name) {
+    return Intl.message(
+      'Find on $name',
+      name: 'tracker_search_title',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Search by title`
+  String get tracker_search_hint {
+    return Intl.message(
+      'Search by title',
+      name: 'tracker_search_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nothing found. Try another title.`
+  String get tracker_search_empty {
+    return Intl.message(
+      'Nothing found. Try another title.',
+      name: 'tracker_search_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search failed. Check your connection and try again.`
+  String get tracker_search_failed {
+    return Intl.message(
+      'Search failed. Check your connection and try again.',
+      name: 'tracker_search_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not link the title. Try again.`
+  String get tracker_link_failed {
+    return Intl.message(
+      'Could not link the title. Try again.',
+      name: 'tracker_link_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Planning`
+  String get tracker_status_planning {
+    return Intl.message(
+      'Planning',
+      name: 'tracker_status_planning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reading`
+  String get tracker_status_reading {
+    return Intl.message(
+      'Reading',
+      name: 'tracker_status_reading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Watching`
+  String get tracker_status_watching {
+    return Intl.message(
+      'Watching',
+      name: 'tracker_status_watching',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Completed`
+  String get tracker_status_completed {
+    return Intl.message(
+      'Completed',
+      name: 'tracker_status_completed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paused`
+  String get tracker_status_paused {
+    return Intl.message(
+      'Paused',
+      name: 'tracker_status_paused',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dropped`
+  String get tracker_status_dropped {
+    return Intl.message(
+      'Dropped',
+      name: 'tracker_status_dropped',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rereading`
+  String get tracker_status_rereading {
+    return Intl.message(
+      'Rereading',
+      name: 'tracker_status_rereading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rewatching`
+  String get tracker_status_rewatching {
+    return Intl.message(
+      'Rewatching',
+      name: 'tracker_status_rewatching',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add another server`
+  String get extension_instance_add {
+    return Intl.message(
+      'Add another server',
+      name: 'extension_instance_add',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add`
+  String get extension_instance_add_confirm {
+    return Intl.message(
+      'Add',
+      name: 'extension_instance_add_confirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Added {name}`
+  String extension_instance_added(Object name) {
+    return Intl.message(
+      'Added $name',
+      name: 'extension_instance_added',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Could not add the server. Check your connection and try again.`
+  String get extension_instance_add_failed {
+    return Intl.message(
+      'Could not add the server. Check your connection and try again.',
+      name: 'extension_instance_add_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rename`
+  String get extension_instance_rename {
+    return Intl.message(
+      'Rename',
+      name: 'extension_instance_rename',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save`
+  String get extension_instance_rename_confirm {
+    return Intl.message(
+      'Save',
+      name: 'extension_instance_rename_confirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Watched`
+  String get concrete_selection_mark_watched {
+    return Intl.message(
+      'Watched',
+      name: 'concrete_selection_mark_watched',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unwatched`
+  String get concrete_selection_mark_unwatched {
+    return Intl.message(
+      'Unwatched',
+      name: 'concrete_selection_mark_unwatched',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hide titles from NSFW sources`
+  String get settings_hide_nsfw_titles_title {
+    return Intl.message(
+      'Hide titles from NSFW sources',
+      name: 'settings_hide_nsfw_titles_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep them out of the library, history, updates and downloads`
+  String get settings_hide_nsfw_titles_subtitle {
+    return Intl.message(
+      'Keep them out of the library, history, updates and downloads',
+      name: 'settings_hide_nsfw_titles_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Page fit`
+  String get reader_page_fit_title {
+    return Intl.message(
+      'Page fit',
+      name: 'reader_page_fit_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fit screen`
+  String get reader_page_fit_screen {
+    return Intl.message(
+      'Fit screen',
+      name: 'reader_page_fit_screen',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fit width`
+  String get reader_page_fit_width {
+    return Intl.message(
+      'Fit width',
+      name: 'reader_page_fit_width',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fit height`
+  String get reader_page_fit_height {
+    return Intl.message(
+      'Fit height',
+      name: 'reader_page_fit_height',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Background`
+  String get reader_background_title {
+    return Intl.message(
+      'Background',
+      name: 'reader_background_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Black`
+  String get reader_background_black {
+    return Intl.message(
+      'Black',
+      name: 'reader_background_black',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Grey`
+  String get reader_background_grey {
+    return Intl.message(
+      'Grey',
+      name: 'reader_background_grey',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `White`
+  String get reader_background_white {
+    return Intl.message(
+      'White',
+      name: 'reader_background_white',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Theme`
+  String get reader_background_theme {
+    return Intl.message(
+      'Theme',
+      name: 'reader_background_theme',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Crop borders`
+  String get reader_crop_borders_title {
+    return Intl.message(
+      'Crop borders',
+      name: 'reader_crop_borders_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Trim empty white or black margins in page modes`
+  String get reader_crop_borders_subtitle {
+    return Intl.message(
+      'Trim empty white or black margins in page modes',
+      name: 'reader_crop_borders_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Two pages in landscape`
+  String get reader_double_page_title {
+    return Intl.message(
+      'Two pages in landscape',
+      name: 'reader_double_page_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show pages side by side when the phone is turned sideways`
+  String get reader_double_page_subtitle {
+    return Intl.message(
+      'Show pages side by side when the phone is turned sideways',
+      name: 'reader_double_page_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Turn pages with volume keys`
+  String get reader_volume_keys_title {
+    return Intl.message(
+      'Turn pages with volume keys',
+      name: 'reader_volume_keys_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invert volume keys`
+  String get reader_volume_keys_invert_title {
+    return Intl.message(
+      'Invert volume keys',
+      name: 'reader_volume_keys_invert_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Incognito mode`
+  String get settings_incognito_title {
+    return Intl.message(
+      'Incognito mode',
+      name: 'settings_incognito_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Don't save reading or watching progress, history or statistics`
+  String get settings_incognito_subtitle {
+    return Intl.message(
+      'Don\'t save reading or watching progress, history or statistics',
+      name: 'settings_incognito_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `External player`
+  String get settings_video_player_external {
+    return Intl.message(
+      'External player',
+      name: 'settings_video_player_external',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `External player`
+  String get external_player_action {
+    return Intl.message(
+      'External player',
+      name: 'external_player_action',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No external video player is installed. Playing in the built-in player instead.`
+  String get external_player_unavailable {
+    return Intl.message(
+      'No external video player is installed. Playing in the built-in player instead.',
+      name: 'external_player_unavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Uninstall`
+  String get extension_uninstall {
+    return Intl.message(
+      'Uninstall',
+      name: 'extension_uninstall',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Uninstall {name}?`
+  String extension_uninstall_title(Object name) {
+    return Intl.message(
+      'Uninstall $name?',
+      name: 'extension_uninstall_title',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Removes the downloaded script, its settings, stored data and sign-in. Library titles and downloads stay; opening one of them installs the extension again.`
+  String get extension_uninstall_message {
+    return Intl.message(
+      'Removes the downloaded script, its settings, stored data and sign-in. Library titles and downloads stay; opening one of them installs the extension again.',
+      name: 'extension_uninstall_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{name} was uninstalled`
+  String extension_uninstall_done(Object name) {
+    return Intl.message(
+      '$name was uninstalled',
+      name: 'extension_uninstall_done',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Translate every page in the background`
+  String get page_translation_translate_chapter_hint {
+    return Intl.message(
+      'Translate every page in the background',
+      name: 'page_translation_translate_chapter_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel all`
+  String get chapter_translation_cancel_all {
+    return Intl.message(
+      'Cancel all',
+      name: 'chapter_translation_cancel_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pause`
+  String get chapter_translation_pause {
+    return Intl.message(
+      'Pause',
+      name: 'chapter_translation_pause',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resume`
+  String get chapter_translation_resume {
+    return Intl.message(
+      'Resume',
+      name: 'chapter_translation_resume',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paused`
+  String get chapter_translation_notification_paused {
+    return Intl.message(
+      'Paused',
+      name: 'chapter_translation_notification_paused',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} chapters left`
+  String chapter_translation_notification_remaining(Object count) {
+    return Intl.message(
+      '$count chapters left',
+      name: 'chapter_translation_notification_remaining',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Chapter translation`
+  String get chapter_translation_notification_channel {
+    return Intl.message(
+      'Chapter translation',
+      name: 'chapter_translation_notification_channel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translation finished`
+  String get chapter_translation_notification_done_title {
+    return Intl.message(
+      'Translation finished',
+      name: 'chapter_translation_notification_done_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} chapters translated`
+  String chapter_translation_notification_done_body(Object count) {
+    return Intl.message(
+      '$count chapters translated',
+      name: 'chapter_translation_notification_done_body',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Translation queue`
+  String get chapter_translation_queue_title {
+    return Intl.message(
+      'Translation queue',
+      name: 'chapter_translation_queue_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Titles`
+  String get library_tab_titles {
+    return Intl.message(
+      'Titles',
+      name: 'library_tab_titles',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Automatic backups`
+  String get settings_auto_backup_title {
+    return Intl.message(
+      'Automatic backups',
+      name: 'settings_auto_backup_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Off · use Export to save a backup yourself`
+  String get settings_auto_backup_off {
+    return Intl.message(
+      'Off · use Export to save a backup yourself',
+      name: 'settings_auto_backup_off',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Daily to Download/Wakaranai · no backup yet`
+  String get settings_auto_backup_never {
+    return Intl.message(
+      'Daily to Download/Wakaranai · no backup yet',
+      name: 'settings_auto_backup_never',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Daily to Download/Wakaranai · last {time}`
+  String settings_auto_backup_last(String time) {
+    return Intl.message(
+      'Daily to Download/Wakaranai · last $time',
+      name: 'settings_auto_backup_last',
+      desc: '',
+      args: [time],
+    );
+  }
+
+  /// `The last backup failed · tap Back up now to retry`
+  String get settings_auto_backup_failed {
+    return Intl.message(
+      'The last backup failed · tap Back up now to retry',
+      name: 'settings_auto_backup_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back up now`
+  String get settings_auto_backup_now {
+    return Intl.message(
+      'Back up now',
+      name: 'settings_auto_backup_now',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Backup saved to Download/Wakaranai`
+  String get settings_auto_backup_saved {
+    return Intl.message(
+      'Backup saved to Download/Wakaranai',
+      name: 'settings_auto_backup_saved',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back`
+  String get web_browser_back {
+    return Intl.message('Back', name: 'web_browser_back', desc: '', args: []);
+  }
+
+  /// `Forward`
+  String get web_browser_forward {
+    return Intl.message(
+      'Forward',
+      name: 'web_browser_forward',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reload`
+  String get web_browser_reload {
+    return Intl.message(
+      'Reload',
+      name: 'web_browser_reload',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stop loading`
+  String get web_browser_stop {
+    return Intl.message(
+      'Stop loading',
+      name: 'web_browser_stop',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `More`
+  String get web_browser_more {
+    return Intl.message('More', name: 'web_browser_more', desc: '', args: []);
+  }
+
+  /// `Copy link`
+  String get web_browser_copy_link {
+    return Intl.message(
+      'Copy link',
+      name: 'web_browser_copy_link',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link copied`
+  String get web_browser_link_copied {
+    return Intl.message(
+      'Link copied',
+      name: 'web_browser_link_copied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open in external browser`
+  String get web_browser_open_external {
+    return Intl.message(
+      'Open in external browser',
+      name: 'web_browser_open_external',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't open an external browser`
+  String get web_browser_open_external_failed {
+    return Intl.message(
+      'Couldn\'t open an external browser',
+      name: 'web_browser_open_external_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear cookies for this site`
+  String get web_browser_clear_cookies {
+    return Intl.message(
+      'Clear cookies for this site',
+      name: 'web_browser_clear_cookies',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cookies cleared for {host}`
+  String web_browser_cookies_cleared(Object host) {
+    return Intl.message(
+      'Cookies cleared for $host',
+      name: 'web_browser_cookies_cleared',
+      desc: '',
+      args: [host],
+    );
+  }
+
+  /// `Looks good — continue`
+  String get web_browser_looks_good {
+    return Intl.message(
+      'Looks good — continue',
+      name: 'web_browser_looks_good',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load this page`
+  String get web_browser_error_title {
+    return Intl.message(
+      'Couldn\'t load this page',
+      name: 'web_browser_error_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get web_browser_retry {
+    return Intl.message('Retry', name: 'web_browser_retry', desc: '', args: []);
+  }
+
+  /// `Close window`
+  String get web_browser_popup_close {
+    return Intl.message(
+      'Close window',
+      name: 'web_browser_popup_close',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This source needs a quick check in the browser`
+  String get browser_check_required_title {
+    return Intl.message(
+      'This source needs a quick check in the browser',
+      name: 'browser_check_required_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Its protection page didn't clear on its own. Finish the check in the browser, then tap Done to continue.`
+  String get browser_check_required_message {
+    return Intl.message(
+      'Its protection page didn\'t clear on its own. Finish the check in the browser, then tap Done to continue.',
+      name: 'browser_check_required_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open browser`
+  String get browser_check_open_button {
+    return Intl.message(
+      'Open browser',
+      name: 'browser_check_open_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reconnecting to the source…`
+  String get browser_check_reconnecting {
+    return Intl.message(
+      'Reconnecting to the source…',
+      name: 'browser_check_reconnecting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dismiss`
+  String get browser_check_dismiss {
+    return Intl.message(
+      'Dismiss',
+      name: 'browser_check_dismiss',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Play`
+  String get native_player_play {
+    return Intl.message('Play', name: 'native_player_play', desc: '', args: []);
+  }
+
+  /// `Pause`
+  String get native_player_pause {
+    return Intl.message(
+      'Pause',
+      name: 'native_player_pause',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next episode`
+  String get native_player_next_episode {
+    return Intl.message(
+      'Next episode',
+      name: 'native_player_next_episode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Quality`
+  String get native_player_quality {
+    return Intl.message(
+      'Quality',
+      name: 'native_player_quality',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Source {index}`
+  String native_player_quality_fallback(Object index) {
+    return Intl.message(
+      'Source $index',
+      name: 'native_player_quality_fallback',
+      desc: '',
+      args: [index],
+    );
+  }
+
+  /// `Auto`
+  String get native_player_quality_auto {
+    return Intl.message(
+      'Auto',
+      name: 'native_player_quality_auto',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Playback speed`
+  String get native_player_speed {
+    return Intl.message(
+      'Playback speed',
+      name: 'native_player_speed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Normal`
+  String get native_player_speed_normal {
+    return Intl.message(
+      'Normal',
+      name: 'native_player_speed_normal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subtitles`
+  String get native_player_subtitles {
+    return Intl.message(
+      'Subtitles',
+      name: 'native_player_subtitles',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Off`
+  String get native_player_subtitles_off {
+    return Intl.message(
+      'Off',
+      name: 'native_player_subtitles_off',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subtitle {index}`
+  String native_player_subtitle_fallback(Object index) {
+    return Intl.message(
+      'Subtitle $index',
+      name: 'native_player_subtitle_fallback',
+      desc: '',
+      args: [index],
+    );
+  }
+
+  /// `Couldn't load these subtitles`
+  String get native_player_subtitle_failed {
+    return Intl.message(
+      'Couldn\'t load these subtitles',
+      name: 'native_player_subtitle_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open in web player`
+  String get native_player_open_web_player {
+    return Intl.message(
+      'Open in web player',
+      name: 'native_player_open_web_player',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lock controls`
+  String get native_player_lock {
+    return Intl.message(
+      'Lock controls',
+      name: 'native_player_lock',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unlock controls`
+  String get native_player_unlock {
+    return Intl.message(
+      'Unlock controls',
+      name: 'native_player_unlock',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `More options`
+  String get native_player_more {
+    return Intl.message(
+      'More options',
+      name: 'native_player_more',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't play this video`
+  String get native_player_error_title {
+    return Intl.message(
+      'Couldn\'t play this video',
+      name: 'native_player_error_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get native_player_retry {
+    return Intl.message(
+      'Retry',
+      name: 'native_player_retry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `−{seconds}s`
+  String native_player_seek_backward(Object seconds) {
+    return Intl.message(
+      '−${seconds}s',
+      name: 'native_player_seek_backward',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `+{seconds}s`
+  String native_player_seek_forward(Object seconds) {
+    return Intl.message(
+      '+${seconds}s',
+      name: 'native_player_seek_forward',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `Play URL in native player`
+  String get native_player_debug_action {
+    return Intl.message(
+      'Play URL in native player',
+      name: 'native_player_debug_action',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Play a stream URL`
+  String get native_player_debug_url_title {
+    return Intl.message(
+      'Play a stream URL',
+      name: 'native_player_debug_url_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stream URL`
+  String get native_player_debug_url_label {
+    return Intl.message(
+      'Stream URL',
+      name: 'native_player_debug_url_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `https://example.com/video.m3u8`
+  String get native_player_debug_url_hint {
+    return Intl.message(
+      'https://example.com/video.m3u8',
+      name: 'native_player_debug_url_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Play`
+  String get native_player_debug_play {
+    return Intl.message(
+      'Play',
+      name: 'native_player_debug_play',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Video player`
+  String get settings_video_player_title {
+    return Intl.message(
+      'Video player',
+      name: 'settings_video_player_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Play videos in the built-in player when the source provides a direct stream`
+  String get settings_video_player_subtitle {
+    return Intl.message(
+      'Play videos in the built-in player when the source provides a direct stream',
+      name: 'settings_video_player_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto`
+  String get settings_video_player_auto {
+    return Intl.message(
+      'Auto',
+      name: 'settings_video_player_auto',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Web player only`
+  String get settings_video_player_web_only {
+    return Intl.message(
+      'Web player only',
+      name: 'settings_video_player_web_only',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Loading video…`
+  String get episode_playback_loading_sources {
+    return Intl.message(
+      'Loading video…',
+      name: 'episode_playback_loading_sources',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load the video stream, opened the web player instead`
+  String get episode_playback_fallback_notice {
+    return Intl.message(
+      'Couldn\'t load the video stream, opened the web player instead',
+      name: 'episode_playback_fallback_notice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Video fit`
+  String get native_player_fit_mode {
+    return Intl.message(
+      'Video fit',
+      name: 'native_player_fit_mode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fit`
+  String get native_player_fit_mode_fit {
+    return Intl.message(
+      'Fit',
+      name: 'native_player_fit_mode_fit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fill`
+  String get native_player_fit_mode_fill {
+    return Intl.message(
+      'Fill',
+      name: 'native_player_fit_mode_fill',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stretch`
+  String get native_player_fit_mode_stretch {
+    return Intl.message(
+      'Stretch',
+      name: 'native_player_fit_mode_stretch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `+{seconds}s`
+  String native_player_skip_opening(Object seconds) {
+    return Intl.message(
+      '+${seconds}s',
+      name: 'native_player_skip_opening',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `This playback speed isn't supported`
+  String get native_player_speed_unsupported {
+    return Intl.message(
+      'This playback speed isn\'t supported',
+      name: 'native_player_speed_unsupported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next episode in {seconds}s`
+  String native_player_auto_next_countdown(Object seconds) {
+    return Intl.message(
+      'Next episode in ${seconds}s',
+      name: 'native_player_auto_next_countdown',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `Play now`
+  String get native_player_auto_next_play_now {
+    return Intl.message(
+      'Play now',
+      name: 'native_player_auto_next_play_now',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get native_player_auto_next_cancel {
+    return Intl.message(
+      'Cancel',
+      name: 'native_player_auto_next_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get native_player_cancel_switch {
+    return Intl.message(
+      'Cancel',
+      name: 'native_player_cancel_switch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skip intro`
+  String get player_skip_intro {
+    return Intl.message(
+      'Skip intro',
+      name: 'player_skip_intro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skip outro`
+  String get player_skip_outro {
+    return Intl.message(
+      'Skip outro',
+      name: 'player_skip_outro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skip recap`
+  String get player_skip_recap {
+    return Intl.message(
+      'Skip recap',
+      name: 'player_skip_recap',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skipped intro`
+  String get player_skip_skipped_intro {
+    return Intl.message(
+      'Skipped intro',
+      name: 'player_skip_skipped_intro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skipped outro`
+  String get player_skip_skipped_outro {
+    return Intl.message(
+      'Skipped outro',
+      name: 'player_skip_skipped_outro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skipped recap`
+  String get player_skip_skipped_recap {
+    return Intl.message(
+      'Skipped recap',
+      name: 'player_skip_skipped_recap',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto-skip intros and outros`
+  String get player_skip_auto_title {
+    return Intl.message(
+      'Auto-skip intros and outros',
+      name: 'player_skip_auto_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Jump past them when the extension marks where they are`
+  String get player_skip_auto_subtitle {
+    return Intl.message(
+      'Jump past them when the extension marks where they are',
+      name: 'player_skip_auto_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Previous episode`
+  String get player_previous_episode {
+    return Intl.message(
+      'Previous episode',
+      name: 'player_previous_episode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Episodes`
+  String get player_episodes {
+    return Intl.message(
+      'Episodes',
+      name: 'player_episodes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dub / player`
+  String get player_dub_player {
+    return Intl.message(
+      'Dub / player',
+      name: 'player_dub_player',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Playlist`
+  String get player_playlist {
+    return Intl.message(
+      'Playlist',
+      name: 'player_playlist',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Player`
+  String get settings_player_section_title {
+    return Intl.message(
+      'Player',
+      name: 'settings_player_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hold to speed up`
+  String get settings_player_hold_speed_title {
+    return Intl.message(
+      'Hold to speed up',
+      name: 'settings_player_hold_speed_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Long-press the video to play faster while you hold`
+  String get settings_player_hold_speed_subtitle {
+    return Intl.message(
+      'Long-press the video to play faster while you hold',
+      name: 'settings_player_hold_speed_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skip opening`
+  String get settings_player_skip_opening_title {
+    return Intl.message(
+      'Skip opening',
+      name: 'settings_player_skip_opening_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `How far the skip button jumps ahead`
+  String get settings_player_skip_opening_subtitle {
+    return Intl.message(
+      'How far the skip button jumps ahead',
+      name: 'settings_player_skip_opening_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{seconds}s`
+  String settings_player_skip_opening_value(Object seconds) {
+    return Intl.message(
+      '${seconds}s',
+      name: 'settings_player_skip_opening_value',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `Auto-play next episode`
+  String get settings_player_auto_next_title {
+    return Intl.message(
+      'Auto-play next episode',
+      name: 'settings_player_auto_next_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Count down and start the next episode when one ends`
+  String get settings_player_auto_next_subtitle {
+    return Intl.message(
+      'Count down and start the next episode when one ends',
+      name: 'settings_player_auto_next_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Picture-in-picture`
+  String get native_player_pip_enter {
+    return Intl.message(
+      'Picture-in-picture',
+      name: 'native_player_pip_enter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Extension settings`
+  String get ext_prefs_sheet_title {
+    return Intl.message(
+      'Extension settings',
+      name: 'ext_prefs_sheet_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reset to defaults`
+  String get ext_prefs_reset {
+    return Intl.message(
+      'Reset to defaults',
+      name: 'ext_prefs_reset',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reset to default`
+  String get ext_prefs_reset_one {
+    return Intl.message(
+      'Reset to default',
+      name: 'ext_prefs_reset_one',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get ext_prefs_done {
+    return Intl.message('Done', name: 'ext_prefs_done', desc: '', args: []);
+  }
+
+  /// `Mirror`
+  String get ext_prefs_mirror_title {
+    return Intl.message(
+      'Mirror',
+      name: 'ext_prefs_mirror_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Which site address requests go to. Automatic tries each mirror until one responds.`
+  String get ext_prefs_mirror_summary {
+    return Intl.message(
+      'Which site address requests go to. Automatic tries each mirror until one responds.',
+      name: 'ext_prefs_mirror_summary',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Automatic`
+  String get ext_prefs_mirror_automatic {
+    return Intl.message(
+      'Automatic',
+      name: 'ext_prefs_mirror_automatic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Page size`
+  String get ext_prefs_page_size_title {
+    return Intl.message(
+      'Page size',
+      name: 'ext_prefs_page_size_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `How many titles each gallery page loads.`
+  String get ext_prefs_page_size_summary {
+    return Intl.message(
+      'How many titles each gallery page loads.',
+      name: 'ext_prefs_page_size_summary',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} per page`
+  String ext_prefs_page_size_option(Object count) {
+    return Intl.message(
+      '$count per page',
+      name: 'ext_prefs_page_size_option',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count} per page (default)`
+  String ext_prefs_page_size_default_option(Object count) {
+    return Intl.message(
+      '$count per page (default)',
+      name: 'ext_prefs_page_size_default_option',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Enter a number`
+  String get ext_prefs_number_invalid {
+    return Intl.message(
+      'Enter a number',
+      name: 'ext_prefs_number_invalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Default: {value}`
+  String ext_prefs_default_hint(Object value) {
+    return Intl.message(
+      'Default: $value',
+      name: 'ext_prefs_default_hint',
+      desc: '',
+      args: [value],
+    );
+  }
+
+  /// `Clear stored data`
+  String get ext_prefs_clear_data {
+    return Intl.message(
+      'Clear stored data',
+      name: 'ext_prefs_clear_data',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stored data for {source} cleared`
+  String ext_prefs_clear_data_done(Object source) {
+    return Intl.message(
+      'Stored data for $source cleared',
+      name: 'ext_prefs_clear_data_done',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Reading settings`
+  String get novel_reader_settings_title {
+    return Intl.message(
+      'Reading settings',
+      name: 'novel_reader_settings_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Text size`
+  String get novel_reader_font_size {
+    return Intl.message(
+      'Text size',
+      name: 'novel_reader_font_size',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Line spacing`
+  String get novel_reader_line_height {
+    return Intl.message(
+      'Line spacing',
+      name: 'novel_reader_line_height',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Side margins`
+  String get novel_reader_margins {
+    return Intl.message(
+      'Side margins',
+      name: 'novel_reader_margins',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Font`
+  String get novel_reader_font_family {
+    return Intl.message(
+      'Font',
+      name: 'novel_reader_font_family',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ubuntu`
+  String get novel_reader_font_ubuntu {
+    return Intl.message(
+      'Ubuntu',
+      name: 'novel_reader_font_ubuntu',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Serif`
+  String get novel_reader_font_serif {
+    return Intl.message(
+      'Serif',
+      name: 'novel_reader_font_serif',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sepia`
+  String get novel_reader_background_sepia {
+    return Intl.message(
+      'Sepia',
+      name: 'novel_reader_background_sepia',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Justify text`
+  String get novel_reader_justify {
+    return Intl.message(
+      'Justify text',
+      name: 'novel_reader_justify',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep screen on`
+  String get novel_reader_keep_screen_on {
+    return Intl.message(
+      'Keep screen on',
+      name: 'novel_reader_keep_screen_on',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Previous chapter`
+  String get novel_reader_previous_chapter {
+    return Intl.message(
+      'Previous chapter',
+      name: 'novel_reader_previous_chapter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next chapter`
+  String get novel_reader_next_chapter {
+    return Intl.message(
+      'Next chapter',
+      name: 'novel_reader_next_chapter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next: {title}`
+  String novel_reader_next_chapter_named(Object title) {
+    return Intl.message(
+      'Next: $title',
+      name: 'novel_reader_next_chapter_named',
+      desc: '',
+      args: [title],
+    );
+  }
+
+  /// `This chapter has no text`
+  String get novel_reader_empty_chapter {
+    return Intl.message(
+      'This chapter has no text',
+      name: 'novel_reader_empty_chapter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{percent}%`
+  String novel_progress_percent(int percent) {
+    return Intl.message(
+      '$percent%',
+      name: 'novel_progress_percent',
+      desc: '',
+      args: [percent],
+    );
+  }
+
+  /// `Saved for offline reading`
+  String get downloads_novel_chapter_done {
+    return Intl.message(
+      'Saved for offline reading',
+      name: 'downloads_novel_chapter_done',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saving text…`
+  String get downloads_novel_chapter_downloading {
+    return Intl.message(
+      'Saving text…',
+      name: 'downloads_novel_chapter_downloading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `App language`
+  String get settings_language_title {
+    return Intl.message(
+      'App language',
+      name: 'settings_language_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `System`
+  String get settings_language_system {
+    return Intl.message(
+      'System',
+      name: 'settings_language_system',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `English`
+  String get settings_language_english {
+    return Intl.message(
+      'English',
+      name: 'settings_language_english',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Українська`
+  String get settings_language_ukrainian {
+    return Intl.message(
+      'Українська',
+      name: 'settings_language_ukrainian',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Configs source error :c`
+  String get home_extensions_error_message {
+    return Intl.message(
+      'Configs source error :c',
+      name: 'home_extensions_error_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No extension was selected`
+  String get api_client_no_extension_selected {
+    return Intl.message(
+      'No extension was selected',
+      name: 'api_client_no_extension_selected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No playable streams`
+  String get native_player_no_streams {
+    return Intl.message(
+      'No playable streams',
+      name: 'native_player_no_streams',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Japanese`
+  String get page_language_japanese {
+    return Intl.message(
+      'Japanese',
+      name: 'page_language_japanese',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Korean`
+  String get page_language_korean {
+    return Intl.message(
+      'Korean',
+      name: 'page_language_korean',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chinese`
+  String get page_language_chinese {
+    return Intl.message(
+      'Chinese',
+      name: 'page_language_chinese',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `English`
+  String get page_language_english {
+    return Intl.message(
+      'English',
+      name: 'page_language_english',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Spanish`
+  String get page_language_spanish {
+    return Intl.message(
+      'Spanish',
+      name: 'page_language_spanish',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `French`
+  String get page_language_french {
+    return Intl.message(
+      'French',
+      name: 'page_language_french',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `German`
+  String get page_language_german {
+    return Intl.message(
+      'German',
+      name: 'page_language_german',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Italian`
+  String get page_language_italian {
+    return Intl.message(
+      'Italian',
+      name: 'page_language_italian',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Portuguese`
+  String get page_language_portuguese {
+    return Intl.message(
+      'Portuguese',
+      name: 'page_language_portuguese',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Indonesian`
+  String get page_language_indonesian {
+    return Intl.message(
+      'Indonesian',
+      name: 'page_language_indonesian',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Vietnamese`
+  String get page_language_vietnamese {
+    return Intl.message(
+      'Vietnamese',
+      name: 'page_language_vietnamese',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Russian`
+  String get page_language_russian {
+    return Intl.message(
+      'Russian',
+      name: 'page_language_russian',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ukrainian`
+  String get page_language_ukrainian {
+    return Intl.message(
+      'Ukrainian',
+      name: 'page_language_ukrainian',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Polish`
+  String get page_language_polish {
+    return Intl.message(
+      'Polish',
+      name: 'page_language_polish',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Turkish`
+  String get page_language_turkish {
+    return Intl.message(
+      'Turkish',
+      name: 'page_language_turkish',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Thai`
+  String get page_language_thai {
+    return Intl.message('Thai', name: 'page_language_thai', desc: '', args: []);
+  }
+
+  /// `Arabic`
+  String get page_language_arabic {
+    return Intl.message(
+      'Arabic',
+      name: 'page_language_arabic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search sources`
+  String get global_search_title {
+    return Intl.message(
+      'Search sources',
+      name: 'global_search_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search all sources`
+  String get global_search_open_tooltip {
+    return Intl.message(
+      'Search all sources',
+      name: 'global_search_open_tooltip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search titles in your sources`
+  String get global_search_hint {
+    return Intl.message(
+      'Search titles in your sources',
+      name: 'global_search_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{No sources selected} =1{Searching 1 source} other{Searching {count} sources}}`
+  String global_search_scope_summary(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No sources selected',
+      one: 'Searching 1 source',
+      other: 'Searching $count sources',
+      name: 'global_search_scope_summary',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Edit`
+  String get global_search_scope_edit {
+    return Intl.message(
+      'Edit',
+      name: 'global_search_scope_edit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sources to search`
+  String get global_search_scope_title {
+    return Intl.message(
+      'Sources to search',
+      name: 'global_search_scope_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `By default: pinned sources and sources you have used`
+  String get global_search_scope_default_hint {
+    return Intl.message(
+      'By default: pinned sources and sources you have used',
+      name: 'global_search_scope_default_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your own selection`
+  String get global_search_scope_custom_hint {
+    return Intl.message(
+      'Your own selection',
+      name: 'global_search_scope_custom_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use default`
+  String get global_search_scope_reset {
+    return Intl.message(
+      'Use default',
+      name: 'global_search_scope_reset',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select all`
+  String get global_search_scope_select_all {
+    return Intl.message(
+      'Select all',
+      name: 'global_search_scope_select_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear`
+  String get global_search_scope_select_none {
+    return Intl.message(
+      'Clear',
+      name: 'global_search_scope_select_none',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Looking for more sources…`
+  String get global_search_scope_loading {
+    return Intl.message(
+      'Looking for more sources…',
+      name: 'global_search_scope_loading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No sources with search are available`
+  String get global_search_scope_empty {
+    return Intl.message(
+      'No sources with search are available',
+      name: 'global_search_scope_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recent searches`
+  String get global_search_recent_title {
+    return Intl.message(
+      'Recent searches',
+      name: 'global_search_recent_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear`
+  String get global_search_recent_clear {
+    return Intl.message(
+      'Clear',
+      name: 'global_search_recent_clear',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search across your sources`
+  String get global_search_idle_title {
+    return Intl.message(
+      'Search across your sources',
+      name: 'global_search_idle_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Each source shows its results as soon as it answers.`
+  String get global_search_idle_message {
+    return Intl.message(
+      'Each source shows its results as soon as it answers.',
+      name: 'global_search_idle_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No sources to search`
+  String get global_search_no_scope_title {
+    return Intl.message(
+      'No sources to search',
+      name: 'global_search_no_scope_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pick at least one source to search in.`
+  String get global_search_no_scope_message {
+    return Intl.message(
+      'Pick at least one source to search in.',
+      name: 'global_search_no_scope_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nothing found`
+  String get global_search_no_results_title {
+    return Intl.message(
+      'Nothing found',
+      name: 'global_search_no_results_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `None of the selected sources has "{query}".`
+  String global_search_no_results_message(Object query) {
+    return Intl.message(
+      'None of the selected sources has "$query".',
+      name: 'global_search_no_results_message',
+      desc: '',
+      args: [query],
+    );
+  }
+
+  /// `No results in {sources}`
+  String global_search_empty_sources(Object sources) {
+    return Intl.message(
+      'No results in $sources',
+      name: 'global_search_empty_sources',
+      desc: '',
+      args: [sources],
+    );
+  }
+
+  /// `{count, plural, =1{1 result} other{{count} results}}`
+  String global_search_results_count(int count) {
+    return Intl.plural(
+      count,
+      one: '1 result',
+      other: '$count results',
+      name: 'global_search_results_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Couldn't search this source`
+  String get global_search_rail_failed {
+    return Intl.message(
+      'Couldn\'t search this source',
+      name: 'global_search_rail_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The source took too long to answer`
+  String get global_search_rail_timeout {
+    return Intl.message(
+      'The source took too long to answer',
+      name: 'global_search_rail_timeout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This source couldn't be loaded`
+  String get global_search_rail_unavailable {
+    return Intl.message(
+      'This source couldn\'t be loaded',
+      name: 'global_search_rail_unavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get global_search_rail_retry {
+    return Intl.message(
+      'Retry',
+      name: 'global_search_rail_retry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign-in needed`
+  String get global_search_rail_sign_in {
+    return Intl.message(
+      'Sign-in needed',
+      name: 'global_search_rail_sign_in',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verification needed`
+  String get global_search_rail_verify {
+    return Intl.message(
+      'Verification needed',
+      name: 'global_search_rail_verify',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open`
+  String get global_search_rail_open {
+    return Intl.message(
+      'Open',
+      name: 'global_search_rail_open',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search as`
+  String get global_search_try_titles {
+    return Intl.message(
+      'Search as',
+      name: 'global_search_try_titles',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Discover`
+  String get discover_title {
+    return Intl.message('Discover', name: 'discover_title', desc: '', args: []);
+  }
+
+  /// `Discover on AniList`
+  String get discover_open_tooltip {
+    return Intl.message(
+      'Discover on AniList',
+      name: 'discover_open_tooltip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Data from AniList`
+  String get discover_attribution {
+    return Intl.message(
+      'Data from AniList',
+      name: 'discover_attribution',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This season`
+  String get discover_tab_season {
+    return Intl.message(
+      'This season',
+      name: 'discover_tab_season',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Trending anime`
+  String get discover_tab_trending_anime {
+    return Intl.message(
+      'Trending anime',
+      name: 'discover_tab_trending_anime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Trending manga`
+  String get discover_tab_trending_manga {
+    return Intl.message(
+      'Trending manga',
+      name: 'discover_tab_trending_manga',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Light novels`
+  String get discover_tab_novels {
+    return Intl.message(
+      'Light novels',
+      name: 'discover_tab_novels',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Winter {year}`
+  String discover_season_winter(int year) {
+    return Intl.message(
+      'Winter $year',
+      name: 'discover_season_winter',
+      desc: '',
+      args: [year],
+    );
+  }
+
+  /// `Spring {year}`
+  String discover_season_spring(int year) {
+    return Intl.message(
+      'Spring $year',
+      name: 'discover_season_spring',
+      desc: '',
+      args: [year],
+    );
+  }
+
+  /// `Summer {year}`
+  String discover_season_summer(int year) {
+    return Intl.message(
+      'Summer $year',
+      name: 'discover_season_summer',
+      desc: '',
+      args: [year],
+    );
+  }
+
+  /// `Fall {year}`
+  String discover_season_fall(int year) {
+    return Intl.message(
+      'Fall $year',
+      name: 'discover_season_fall',
+      desc: '',
+      args: [year],
+    );
+  }
+
+  /// `Couldn't load AniList`
+  String get discover_error_title {
+    return Intl.message(
+      'Couldn\'t load AniList',
+      name: 'discover_error_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check your connection and try again.`
+  String get discover_error_message {
+    return Intl.message(
+      'Check your connection and try again.',
+      name: 'discover_error_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get discover_retry {
+    return Intl.message('Retry', name: 'discover_retry', desc: '', args: []);
+  }
+
+  /// `Nothing here yet`
+  String get discover_empty_title {
+    return Intl.message(
+      'Nothing here yet',
+      name: 'discover_empty_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load more`
+  String get discover_load_more_failed {
+    return Intl.message(
+      'Couldn\'t load more',
+      name: 'discover_load_more_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Find on my sources`
+  String get discover_find_on_sources {
+    return Intl.message(
+      'Find on my sources',
+      name: 'discover_find_on_sources',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search as`
+  String get discover_search_as {
+    return Intl.message(
+      'Search as',
+      name: 'discover_search_as',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No synopsis yet.`
+  String get discover_no_synopsis {
+    return Intl.message(
+      'No synopsis yet.',
+      name: 'discover_no_synopsis',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 episode} other{{count} episodes}}`
+  String discover_episodes(int count) {
+    return Intl.plural(
+      count,
+      one: '1 episode',
+      other: '$count episodes',
+      name: 'discover_episodes',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count, plural, =1{1 chapter} other{{count} chapters}}`
+  String discover_chapters(int count) {
+    return Intl.plural(
+      count,
+      one: '1 chapter',
+      other: '$count chapters',
+      name: 'discover_chapters',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{score}%`
+  String discover_score(int score) {
+    return Intl.message(
+      '$score%',
+      name: 'discover_score',
+      desc: '',
+      args: [score],
+    );
+  }
+
+  /// `TV`
+  String get discover_format_tv {
+    return Intl.message('TV', name: 'discover_format_tv', desc: '', args: []);
+  }
+
+  /// `TV short`
+  String get discover_format_tv_short {
+    return Intl.message(
+      'TV short',
+      name: 'discover_format_tv_short',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Movie`
+  String get discover_format_movie {
+    return Intl.message(
+      'Movie',
+      name: 'discover_format_movie',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Special`
+  String get discover_format_special {
+    return Intl.message(
+      'Special',
+      name: 'discover_format_special',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `OVA`
+  String get discover_format_ova {
+    return Intl.message('OVA', name: 'discover_format_ova', desc: '', args: []);
+  }
+
+  /// `ONA`
+  String get discover_format_ona {
+    return Intl.message('ONA', name: 'discover_format_ona', desc: '', args: []);
+  }
+
+  /// `Music`
+  String get discover_format_music {
+    return Intl.message(
+      'Music',
+      name: 'discover_format_music',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manga`
+  String get discover_format_manga {
+    return Intl.message(
+      'Manga',
+      name: 'discover_format_manga',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Light novel`
+  String get discover_format_novel {
+    return Intl.message(
+      'Light novel',
+      name: 'discover_format_novel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `One-shot`
+  String get discover_format_one_shot {
+    return Intl.message(
+      'One-shot',
+      name: 'discover_format_one_shot',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto-download new chapters`
+  String get auto_download_title {
+    return Intl.message(
+      'Auto-download new chapters',
+      name: 'auto_download_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Queue new chapters and episodes found by library update checks. Follows the Wi-Fi only setting`
+  String get auto_download_subtitle {
+    return Intl.message(
+      'Queue new chapters and episodes found by library update checks. Follows the Wi-Fi only setting',
+      name: 'auto_download_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto-download for`
+  String get auto_download_scope_title {
+    return Intl.message(
+      'Auto-download for',
+      name: 'auto_download_scope_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All library titles`
+  String get auto_download_scope_all {
+    return Intl.message(
+      'All library titles',
+      name: 'auto_download_scope_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Selected categories`
+  String get auto_download_scope_categories {
+    return Intl.message(
+      'Selected categories',
+      name: 'auto_download_scope_categories',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{No categories selected} =1{1 category} other{{count} categories}}`
+  String auto_download_scope_categories_count(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No categories selected',
+      one: '1 category',
+      other: '$count categories',
+      name: 'auto_download_scope_categories_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Categories to auto-download`
+  String get auto_download_categories_title {
+    return Intl.message(
+      'Categories to auto-download',
+      name: 'auto_download_categories_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create a category in the library first`
+  String get auto_download_categories_empty {
+    return Intl.message(
+      'Create a category in the library first',
+      name: 'auto_download_categories_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get auto_download_categories_done {
+    return Intl.message(
+      'Done',
+      name: 'auto_download_categories_done',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New items per title`
+  String get auto_download_limit_title {
+    return Intl.message(
+      'New items per title',
+      name: 'auto_download_limit_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The most to download for one title on each check`
+  String get auto_download_limit_subtitle {
+    return Intl.message(
+      'The most to download for one title on each check',
+      name: 'auto_download_limit_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Up to {count}`
+  String auto_download_limit_value(Object count) {
+    return Intl.message(
+      'Up to $count',
+      name: 'auto_download_limit_value',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `No limit`
+  String get auto_download_limit_unlimited {
+    return Intl.message(
+      'No limit',
+      name: 'auto_download_limit_unlimited',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto-download`
+  String get auto_download_override_title {
+    return Intl.message(
+      'Auto-download',
+      name: 'auto_download_override_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use settings`
+  String get auto_download_override_default {
+    return Intl.message(
+      'Use settings',
+      name: 'auto_download_override_default',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Always`
+  String get auto_download_override_always {
+    return Intl.message(
+      'Always',
+      name: 'auto_download_override_always',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Never`
+  String get auto_download_override_never {
+    return Intl.message(
+      'Never',
+      name: 'auto_download_override_never',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mixed`
+  String get auto_download_override_mixed {
+    return Intl.message(
+      'Mixed',
+      name: 'auto_download_override_mixed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto-download: {mode}`
+  String auto_download_override_row(Object mode) {
+    return Intl.message(
+      'Auto-download: $mode',
+      name: 'auto_download_override_row',
+      desc: '',
+      args: [mode],
+    );
+  }
+
+  /// `Auto-download on`
+  String get auto_download_chip_on {
+    return Intl.message(
+      'Auto-download on',
+      name: 'auto_download_chip_on',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto-download off`
+  String get auto_download_chip_off {
+    return Intl.message(
+      'Auto-download off',
+      name: 'auto_download_chip_off',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{title} · {count} new, {queued} to download`
+  String auto_download_notification_line(
+    Object title,
+    Object count,
+    Object queued,
+  ) {
+    return Intl.message(
+      '$title · $count new, $queued to download',
+      name: 'auto_download_notification_line',
+      desc: '',
+      args: [title, count, queued],
+    );
+  }
+
+  /// `{count, plural, =1{1 download starts when you open the app} other{{count} downloads start when you open the app}}`
+  String auto_download_notification_pending(int count) {
+    return Intl.plural(
+      count,
+      one: '1 download starts when you open the app',
+      other: '$count downloads start when you open the app',
+      name: 'auto_download_notification_pending',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count} new items found, {queued} queued for download`
+  String auto_download_check_found(Object count, Object queued) {
+    return Intl.message(
+      '$count new items found, $queued queued for download',
+      name: 'auto_download_check_found',
+      desc: '',
+      args: [count, queued],
+    );
+  }
+
+  /// `Move to another source`
+  String get migration_action_move {
+    return Intl.message(
+      'Move to another source',
+      name: 'migration_action_move',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Find it on another source`
+  String get migration_action_find_elsewhere {
+    return Intl.message(
+      'Find it on another source',
+      name: 'migration_action_find_elsewhere',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Move source`
+  String get migration_chip {
+    return Intl.message(
+      'Move source',
+      name: 'migration_chip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Move to another source`
+  String get migration_search_title {
+    return Intl.message(
+      'Move to another source',
+      name: 'migration_search_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Now on {source}`
+  String migration_search_from(String source) {
+    return Intl.message(
+      'Now on $source',
+      name: 'migration_search_from',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `a source that is no longer available`
+  String get migration_search_unknown_source {
+    return Intl.message(
+      'a source that is no longer available',
+      name: 'migration_search_unknown_source',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search on the target sources`
+  String get migration_search_hint {
+    return Intl.message(
+      'Search on the target sources',
+      name: 'migration_search_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search for the title`
+  String get migration_search_idle_title {
+    return Intl.message(
+      'Search for the title',
+      name: 'migration_search_idle_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Type its name below to look for it on the target sources.`
+  String get migration_search_idle_message {
+    return Intl.message(
+      'Type its name below to look for it on the target sources.',
+      name: 'migration_search_idle_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pick where to look`
+  String get migration_no_scope_title {
+    return Intl.message(
+      'Pick where to look',
+      name: 'migration_no_scope_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose the sources the title should move to.`
+  String get migration_no_scope_message {
+    return Intl.message(
+      'Choose the sources the title should move to.',
+      name: 'migration_no_scope_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose sources`
+  String get migration_choose_sources {
+    return Intl.message(
+      'Choose sources',
+      name: 'migration_choose_sources',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{No target sources} =1{1 target source} other{{count} target sources}}`
+  String migration_targets_summary(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No target sources',
+      one: '1 target source',
+      other: '$count target sources',
+      name: 'migration_targets_summary',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `No matches`
+  String get migration_no_candidates_title {
+    return Intl.message(
+      'No matches',
+      name: 'migration_no_candidates_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Try another title or add more target sources.`
+  String get migration_no_candidates_message {
+    return Intl.message(
+      'Try another title or add more target sources.',
+      name: 'migration_no_candidates_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Best match`
+  String get migration_best_match {
+    return Intl.message(
+      'Best match',
+      name: 'migration_best_match',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Exact match`
+  String get migration_exact_match {
+    return Intl.message(
+      'Exact match',
+      name: 'migration_exact_match',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Selected`
+  String get migration_selected {
+    return Intl.message(
+      'Selected',
+      name: 'migration_selected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tap a title to pick it`
+  String get migration_pick_hint {
+    return Intl.message(
+      'Tap a title to pick it',
+      name: 'migration_pick_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Continue`
+  String get migration_continue {
+    return Intl.message(
+      'Continue',
+      name: 'migration_continue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use this`
+  String get migration_use_this {
+    return Intl.message(
+      'Use this',
+      name: 'migration_use_this',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Review the move`
+  String get migration_preview_title {
+    return Intl.message(
+      'Review the move',
+      name: 'migration_preview_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Now`
+  String get migration_preview_old {
+    return Intl.message(
+      'Now',
+      name: 'migration_preview_old',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New`
+  String get migration_preview_new {
+    return Intl.message(
+      'New',
+      name: 'migration_preview_new',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `What moves along`
+  String get migration_options_title {
+    return Intl.message(
+      'What moves along',
+      name: 'migration_options_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove the old entry`
+  String get migration_option_remove_old {
+    return Intl.message(
+      'Remove the old entry',
+      name: 'migration_option_remove_old',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The new title takes its place in the library`
+  String get migration_option_remove_old_hint {
+    return Intl.message(
+      'The new title takes its place in the library',
+      name: 'migration_option_remove_old_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Both titles stay in the library`
+  String get migration_option_keep_old_hint {
+    return Intl.message(
+      'Both titles stay in the library',
+      name: 'migration_option_keep_old_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Category`
+  String get migration_option_category {
+    return Intl.message(
+      'Category',
+      name: 'migration_option_category',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Put the new title into “{name}”`
+  String migration_option_category_hint(String name) {
+    return Intl.message(
+      'Put the new title into “$name”',
+      name: 'migration_option_category_hint',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Reading progress`
+  String get migration_option_read_progress {
+    return Intl.message(
+      'Reading progress',
+      name: 'migration_option_read_progress',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Watch progress`
+  String get migration_option_watch_progress {
+    return Intl.message(
+      'Watch progress',
+      name: 'migration_option_watch_progress',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{No chapters match} =1{1 chapter matches} other{{count} chapters match}}`
+  String migration_option_chapters_hint(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No chapters match',
+      one: '1 chapter matches',
+      other: '$count chapters match',
+      name: 'migration_option_chapters_hint',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count, plural, =0{No episodes match} =1{1 episode matches} other{{count} episodes match}}`
+  String migration_option_episodes_hint(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No episodes match',
+      one: '1 episode matches',
+      other: '$count episodes match',
+      name: 'migration_option_episodes_hint',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Tracker links`
+  String get migration_option_trackers {
+    return Intl.message(
+      'Tracker links',
+      name: 'migration_option_trackers',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{1 link moves to the new title} other{{count} links move to the new title}}`
+  String migration_option_trackers_hint(int count) {
+    return Intl.plural(
+      count,
+      one: '1 link moves to the new title',
+      other: '$count links move to the new title',
+      name: 'migration_option_trackers_hint',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count, plural, =1{1 download stays with the old title, files are not moved} other{{count} downloads stay with the old title, files are not moved}}`
+  String migration_downloads_note(int count) {
+    return Intl.plural(
+      count,
+      one: '1 download stays with the old title, files are not moved',
+      other: '$count downloads stay with the old title, files are not moved',
+      name: 'migration_downloads_note',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Progress`
+  String get migration_mapping_title {
+    return Intl.message(
+      'Progress',
+      name: 'migration_mapping_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `There is no progress to move`
+  String get migration_mapping_empty {
+    return Intl.message(
+      'There is no progress to move',
+      name: 'migration_mapping_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not found on the new source`
+  String get migration_mapping_unmatched_title {
+    return Intl.message(
+      'Not found on the new source',
+      name: 'migration_mapping_unmatched_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{and 1 more} other{and {count} more}}`
+  String migration_mapping_more(int count) {
+    return Intl.plural(
+      count,
+      one: 'and 1 more',
+      other: 'and $count more',
+      name: 'migration_mapping_more',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Read`
+  String get migration_mapping_read {
+    return Intl.message(
+      'Read',
+      name: 'migration_mapping_read',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Watched`
+  String get migration_mapping_watched {
+    return Intl.message(
+      'Watched',
+      name: 'migration_mapping_watched',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{percent}%`
+  String migration_mapping_partial(int percent) {
+    return Intl.message(
+      '$percent%',
+      name: 'migration_mapping_partial',
+      desc: '',
+      args: [percent],
+    );
+  }
+
+  /// `Move`
+  String get migration_apply {
+    return Intl.message('Move', name: 'migration_apply', desc: '', args: []);
+  }
+
+  /// `The title could not be moved. Nothing was changed.`
+  String get migration_apply_failed {
+    return Intl.message(
+      'The title could not be moved. Nothing was changed.',
+      name: 'migration_apply_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The new title could not be opened`
+  String get migration_load_failed_title {
+    return Intl.message(
+      'The new title could not be opened',
+      name: 'migration_load_failed_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Try again`
+  String get migration_retry {
+    return Intl.message(
+      'Try again',
+      name: 'migration_retry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Moved to {source}`
+  String migration_done(String source) {
+    return Intl.message(
+      'Moved to $source',
+      name: 'migration_done',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Open`
+  String get migration_open {
+    return Intl.message('Open', name: 'migration_open', desc: '', args: []);
+  }
+
+  /// `{count, plural, =1{Move 1 title} other{Move {count} titles}}`
+  String migration_bulk_title(int count) {
+    return Intl.plural(
+      count,
+      one: 'Move 1 title',
+      other: 'Move $count titles',
+      name: 'migration_bulk_title',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Moving titles`
+  String get migration_bulk_running_title {
+    return Intl.message(
+      'Moving titles',
+      name: 'migration_bulk_running_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Target sources`
+  String get migration_bulk_targets {
+    return Intl.message(
+      'Target sources',
+      name: 'migration_bulk_targets',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto-pick exact matches`
+  String get migration_bulk_auto_pick {
+    return Intl.message(
+      'Auto-pick exact matches',
+      name: 'migration_bulk_auto_pick',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A title with one exact match moves without asking`
+  String get migration_bulk_auto_pick_hint {
+    return Intl.message(
+      'A title with one exact match moves without asking',
+      name: 'migration_bulk_auto_pick_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloads stay with the old titles, files are not moved`
+  String get migration_bulk_downloads_note {
+    return Intl.message(
+      'Downloads stay with the old titles, files are not moved',
+      name: 'migration_bulk_downloads_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start`
+  String get migration_bulk_start {
+    return Intl.message(
+      'Start',
+      name: 'migration_bulk_start',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stop`
+  String get migration_bulk_stop {
+    return Intl.message(
+      'Stop',
+      name: 'migration_bulk_stop',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get migration_bulk_done {
+    return Intl.message(
+      'Done',
+      name: 'migration_bulk_done',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{done} of {total}`
+  String migration_bulk_progress(int done, int total) {
+    return Intl.message(
+      '$done of $total',
+      name: 'migration_bulk_progress',
+      desc: '',
+      args: [done, total],
+    );
+  }
+
+  /// `Waiting`
+  String get migration_bulk_status_waiting {
+    return Intl.message(
+      'Waiting',
+      name: 'migration_bulk_status_waiting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Searching…`
+  String get migration_bulk_status_searching {
+    return Intl.message(
+      'Searching…',
+      name: 'migration_bulk_status_searching',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =0{No matches, search yourself} =1{1 match, confirm it} other{{count} matches, pick one}}`
+  String migration_bulk_status_pick(int count) {
+    return Intl.plural(
+      count,
+      zero: 'No matches, search yourself',
+      one: '1 match, confirm it',
+      other: '$count matches, pick one',
+      name: 'migration_bulk_status_pick',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Moving to {source}…`
+  String migration_bulk_status_migrating(String source) {
+    return Intl.message(
+      'Moving to $source…',
+      name: 'migration_bulk_status_migrating',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Moved to {source}`
+  String migration_bulk_status_done(String source) {
+    return Intl.message(
+      'Moved to $source',
+      name: 'migration_bulk_status_done',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Exact match on {source}`
+  String migration_bulk_status_auto(String source) {
+    return Intl.message(
+      'Exact match on $source',
+      name: 'migration_bulk_status_auto',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Skipped`
+  String get migration_bulk_status_skipped {
+    return Intl.message(
+      'Skipped',
+      name: 'migration_bulk_status_skipped',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not be moved`
+  String get migration_bulk_status_failed {
+    return Intl.message(
+      'Could not be moved',
+      name: 'migration_bulk_status_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose`
+  String get migration_bulk_choose {
+    return Intl.message(
+      'Choose',
+      name: 'migration_bulk_choose',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skip`
+  String get migration_bulk_skip {
+    return Intl.message(
+      'Skip',
+      name: 'migration_bulk_skip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{moved} moved, {skipped} skipped, {failed} failed`
+  String migration_bulk_summary(int moved, int skipped, int failed) {
+    return Intl.message(
+      '$moved moved, $skipped skipped, $failed failed',
+      name: 'migration_bulk_summary',
+      desc: '',
+      args: [moved, skipped, failed],
+    );
+  }
+
+  /// `Audiobooks`
+  String get home_audio_group_title {
+    return Intl.message(
+      'Audiobooks',
+      name: 'home_audio_group_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Audiobooks`
+  String get content_kind_audiobook {
+    return Intl.message(
+      'Audiobooks',
+      name: 'content_kind_audiobook',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mark as listened`
+  String get audio_selection_mark_listened {
+    return Intl.message(
+      'Mark as listened',
+      name: 'audio_selection_mark_listened',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mark as not listened`
+  String get audio_selection_mark_not_listened {
+    return Intl.message(
+      'Mark as not listened',
+      name: 'audio_selection_mark_not_listened',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tracks`
+  String get audio_tracks_section_title {
+    return Intl.message(
+      'Tracks',
+      name: 'audio_tracks_section_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Audiobook playback`
+  String get audio_notification_channel_name {
+    return Intl.message(
+      'Audiobook playback',
+      name: 'audio_notification_channel_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nothing is playing`
+  String get audio_player_idle_title {
+    return Intl.message(
+      'Nothing is playing',
+      name: 'audio_player_idle_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open an audiobook and pick a track to start listening`
+  String get audio_player_idle_message {
+    return Intl.message(
+      'Open an audiobook and pick a track to start listening',
+      name: 'audio_player_idle_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Close`
+  String get audio_player_close {
+    return Intl.message(
+      'Close',
+      name: 'audio_player_close',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This track has no playable audio`
+  String get audio_player_no_sources {
+    return Intl.message(
+      'This track has no playable audio',
+      name: 'audio_player_no_sources',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't play this track`
+  String get audio_player_error {
+    return Intl.message(
+      'Couldn\'t play this track',
+      name: 'audio_player_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get audio_player_retry {
+    return Intl.message(
+      'Retry',
+      name: 'audio_player_retry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Previous track`
+  String get audio_player_previous_track {
+    return Intl.message(
+      'Previous track',
+      name: 'audio_player_previous_track',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next track`
+  String get audio_player_next_track {
+    return Intl.message(
+      'Next track',
+      name: 'audio_player_next_track',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back {seconds} s`
+  String audio_player_rewind(int seconds) {
+    return Intl.message(
+      'Back $seconds s',
+      name: 'audio_player_rewind',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `Forward {seconds} s`
+  String audio_player_forward(int seconds) {
+    return Intl.message(
+      'Forward $seconds s',
+      name: 'audio_player_forward',
+      desc: '',
+      args: [seconds],
+    );
+  }
+
+  /// `Play`
+  String get audio_player_play {
+    return Intl.message('Play', name: 'audio_player_play', desc: '', args: []);
+  }
+
+  /// `Pause`
+  String get audio_player_pause {
+    return Intl.message(
+      'Pause',
+      name: 'audio_player_pause',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tracks`
+  String get audio_player_tracks {
+    return Intl.message(
+      'Tracks',
+      name: 'audio_player_tracks',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `More`
+  String get audio_player_more {
+    return Intl.message('More', name: 'audio_player_more', desc: '', args: []);
+  }
+
+  /// `Playback speed`
+  String get audio_player_speed {
+    return Intl.message(
+      'Playback speed',
+      name: 'audio_player_speed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chapters`
+  String get audio_player_chapters {
+    return Intl.message(
+      'Chapters',
+      name: 'audio_player_chapters',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chapter {number}`
+  String audio_player_chapter_number(int number) {
+    return Intl.message(
+      'Chapter $number',
+      name: 'audio_player_chapter_number',
+      desc: '',
+      args: [number],
+    );
+  }
+
+  /// `Audio quality`
+  String get audio_player_source {
+    return Intl.message(
+      'Audio quality',
+      name: 'audio_player_source',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Source {number}`
+  String audio_player_source_number(int number) {
+    return Intl.message(
+      'Source $number',
+      name: 'audio_player_source_number',
+      desc: '',
+      args: [number],
+    );
+  }
+
+  /// `Stop playback`
+  String get audio_player_stop {
+    return Intl.message(
+      'Stop playback',
+      name: 'audio_player_stop',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Listened`
+  String get audio_track_finished {
+    return Intl.message(
+      'Listened',
+      name: 'audio_track_finished',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sleep timer`
+  String get audio_sleep_timer {
+    return Intl.message(
+      'Sleep timer',
+      name: 'audio_sleep_timer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Turn off the timer`
+  String get audio_sleep_off {
+    return Intl.message(
+      'Turn off the timer',
+      name: 'audio_sleep_off',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{minutes} min`
+  String audio_sleep_minutes(int minutes) {
+    return Intl.message(
+      '$minutes min',
+      name: 'audio_sleep_minutes',
+      desc: '',
+      args: [minutes],
+    );
+  }
+
+  /// `{minutes}m`
+  String audio_sleep_minutes_short(int minutes) {
+    return Intl.message(
+      '${minutes}m',
+      name: 'audio_sleep_minutes_short',
+      desc: '',
+      args: [minutes],
+    );
+  }
+
+  /// `End of track`
+  String get audio_sleep_end_of_track {
+    return Intl.message(
+      'End of track',
+      name: 'audio_sleep_end_of_track',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Track`
+  String get audio_sleep_end_of_track_short {
+    return Intl.message(
+      'Track',
+      name: 'audio_sleep_end_of_track_short',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
   const AppLocalizationDelegate();
 
   List<Locale> get supportedLocales {
-    return const <Locale>[Locale.fromSubtags(languageCode: 'en')];
+    return const <Locale>[
+      Locale.fromSubtags(languageCode: 'en'),
+      Locale.fromSubtags(languageCode: 'uk'),
+    ];
   }
 
   @override

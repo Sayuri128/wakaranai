@@ -92,7 +92,7 @@ class ConcreteDataDomain extends BaseDomain<ConcreteDataTableCompanion> {
   });
 }
 
-extension ConcreteViewExtension on ConcreteView<dynamic> {
+extension ConcreteViewExtension on ConcreteView {
   ConcreteDataDomain toConcreteDataDomain({
     required Map<String, dynamic> data,
     required String extensionUid,

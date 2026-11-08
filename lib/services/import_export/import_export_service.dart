@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakaranai/data/domain/database/anime_episode_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/category_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
@@ -16,6 +17,7 @@ import 'package:wakaranai/repositories/database/chapter_activity_repository.dart
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/extension_source_repository.dart';
 import 'package:wakaranai/repositories/database/library_entry_repository.dart';
+import 'package:wakaranai/services/import_export/exported_preferences.dart';
 import 'package:wakaranai/services/settings_service/settings_service.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/chapter_viewer/chapter_view_mode.dart';
 import 'package:wakaranai/utils/app_palette.dart';
@@ -61,6 +63,7 @@ class ImportExportService {
     required this.categoryRepository,
     required this.libraryEntryRepository,
     required this.extensionSourceRepository,
+    required this.database,
     SettingsService? settingsService,
   }) : settingsService = settingsService ?? SettingsService();
 
@@ -72,6 +75,7 @@ class ImportExportService {
   final CategoryRepository categoryRepository;
   final LibraryEntryRepository libraryEntryRepository;
   final ExtensionSourceRepository extensionSourceRepository;
+  final WakaranaiDatabase database;
   final SettingsService settingsService;
 
   Future<ExportBundle> buildExport(
@@ -85,6 +89,7 @@ class ImportExportService {
     List<ExportLibraryEntry>? libraryEntries;
     List<ExportExtensionSource>? extensionSources;
     ExportSettings? settings;
+    List<ExportPageTranslation>? pageTranslations;
 
     final int totalSteps = sections.length;
     int step = 0;
@@ -145,6 +150,7 @@ class ImportExportService {
                 data: a.data,
                 watchedTime: a.watchedTime,
                 totalTime: a.totalTime,
+                markedWatched: a.markedWatched,
                 createdAt: a.createdAt,
               ))
           .toList();
@@ -208,7 +214,16 @@ class ImportExportService {
         defaultReaderMode: (await settingsService.getDefaultReaderMode()).name,
         showNsfw: await settingsService.getShowNsfw(),
         collectStatistics: await settingsService.getCollectStatistics(),
+        preferences: ExportedPreferences.collect(
+          await SharedPreferences.getInstance(),
+        ),
       );
+      step++;
+    }
+
+    if (sections.contains(ExportSection.translations)) {
+      report(ExportSection.translations);
+      pageTranslations = await _exportPageTranslations();
       step++;
     }
 
@@ -224,6 +239,7 @@ class ImportExportService {
       libraryEntries: libraryEntries,
       extensionSources: extensionSources,
       settings: settings,
+      pageTranslations: pageTranslations,
     );
   }
 
@@ -245,6 +261,9 @@ class ImportExportService {
     }
     if (sections.contains(ExportSection.settings) && bundle.settings != null) {
       count += 1;
+    }
+    if (sections.contains(ExportSection.translations)) {
+      count += bundle.pageTranslations?.length ?? 0;
     }
     return count;
   }
@@ -362,6 +381,18 @@ class ImportExportService {
       tick(ExportSection.settings);
     }
 
+    if (sections.contains(ExportSection.translations)) {
+      final List<ExportPageTranslation> translations =
+          bundle.pageTranslations ?? <ExportPageTranslation>[];
+      total += translations.length;
+
+      for (final ExportPageTranslation translation in translations) {
+        await _upsertPageTranslation(translation);
+        imported++;
+        tick(ExportSection.translations);
+      }
+    }
+
     return ImportResult(imported: imported, total: total, skipped: skipped);
   }
 
@@ -446,6 +477,7 @@ class ImportExportService {
       data: activity.data,
       watchedTime: activity.watchedTime,
       totalTime: activity.totalTime,
+      markedWatched: activity.markedWatched,
       createdAt: activity.createdAt,
     );
 
@@ -554,6 +586,43 @@ class ImportExportService {
     );
   }
 
+  Future<List<ExportPageTranslation>> _exportPageTranslations() async {
+    final List<PageTranslationTableData> rows =
+        await database.pageTranslationTable.select().get();
+    return rows
+        .map((PageTranslationTableData row) => ExportPageTranslation(
+              uid: row.uid,
+              pagePath: row.pagePath,
+              engine: row.engine,
+              sourceLanguage: row.sourceLanguage,
+              targetLanguage: row.targetLanguage,
+              resultJson: row.resultJson,
+              createdAt: row.createdAt,
+            ))
+        .toList();
+  }
+
+  Future<void> _upsertPageTranslation(ExportPageTranslation translation) async {
+    await database.pageTranslationTable.insert().insert(
+          PageTranslationTableCompanion.insert(
+            uid: translation.uid,
+            pagePath: translation.pagePath,
+            engine: translation.engine,
+            sourceLanguage: translation.sourceLanguage,
+            targetLanguage: translation.targetLanguage,
+            resultJson: translation.resultJson,
+            createdAt: Value<DateTime>(translation.createdAt),
+          ),
+          onConflict: DoUpdate(
+            (_) => PageTranslationTableCompanion(
+              resultJson: Value<String>(translation.resultJson),
+              updatedAt: Value<DateTime>(DateTime.now()),
+            ),
+            target: <Column<Object>>[database.pageTranslationTable.uid],
+          ),
+        );
+  }
+
   Future<void> _applySettings(ExportSettings settings) async {
     final String? themeId = settings.themeId;
     if (themeId != null) {
@@ -578,6 +647,14 @@ class ImportExportService {
     }
     if (settings.collectStatistics != null) {
       await settingsService.setCollectStatistics(settings.collectStatistics!);
+    }
+
+    final List<ExportPreference>? preferences = settings.preferences;
+    if (preferences != null) {
+      await ExportedPreferences.apply(
+        await SharedPreferences.getInstance(),
+        preferences,
+      );
     }
   }
 }

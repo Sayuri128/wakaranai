@@ -21,4 +21,10 @@ class ExtensionTable extends BaseTable {
   BoolColumn get searchAvailable => boolean()();
 
   TextColumn get protectorConfig => text().nullable()();
+
+  TextColumn get configJson => text().nullable()();
+
+  TextColumn get revision => text().nullable()();
+
+  TextColumn get baseUid => text().nullable()();
 }

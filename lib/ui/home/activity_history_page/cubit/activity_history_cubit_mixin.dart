@@ -1,9 +1,7 @@
 import 'package:drift/drift.dart';
-import 'package:wakaranai/data/domain/base_domain.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/data/domain/ui/activity_list_item.dart';
-import 'package:wakaranai/repositories/database/base_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 
 mixin ActivityHistoryCubitMixin<TDomain extends BaseActivityDomain> {

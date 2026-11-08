@@ -13,6 +13,25 @@ class LibraryUpdatesState {
     this.lastResult,
   });
 
+  bool isUnseen(String uid) {
+    for (final LibraryUpdateDomain update in updates) {
+      if (!update.seen && update.uid == uid) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  int unseenForEntry(String libraryEntryUid) {
+    int count = 0;
+    for (final LibraryUpdateDomain update in updates) {
+      if (!update.seen && update.libraryEntryUid == libraryEntryUid) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   LibraryUpdatesState copyWith({
     List<LibraryUpdateDomain>? updates,
     int? unseenCount,

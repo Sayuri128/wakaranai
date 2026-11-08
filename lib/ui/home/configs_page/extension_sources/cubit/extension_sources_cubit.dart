@@ -1,4 +1,4 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:wakaranai/data/domain/database/extension_source_domain.dart';
@@ -38,7 +38,7 @@ class ExtensionSourcesCubit extends Cubit<ExtensionSourcesState> {
 
     final res = await extensionSourceRepository.delete(domain);
 
-    if (res == null) {
+    if (!res) {
       SnackBars.showErrorSnackBar(
           context: context,
           error: S.current.extension_source_page_error_removing_source);
