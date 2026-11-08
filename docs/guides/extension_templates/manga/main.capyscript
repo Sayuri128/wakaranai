@@ -3,12 +3,12 @@ import "io";
 import "json";
 import "date";
 import "html";
-import "manga_models";
 import "converter";
+import "preferences";
+import "errors";
+import "manga_models";
 
-
-
-function getGallery(page, query, filters) {
+function getGallery(page, query, filters, feed, pageSize) {
 
 }
 

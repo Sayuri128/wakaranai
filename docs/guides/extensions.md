@@ -200,6 +200,8 @@ Each episode is a `buildAnimeVideo` with a stable `uid`. Groups usually stand fo
 player (for example one group per dub and player), and the app keeps the same episode `number`
 when the user switches between them.
 
+see [template](./extension_templates/anime)
+
 ### getVideoSources
 
 Optional. Lets the app play an episode in its native player, and download it for offline
@@ -298,13 +300,15 @@ scripts and styles are ignored) or plain text. Strip ads, navigation links and c
 the script: the app shows whatever it receives. Returning a plain string instead of
 `buildNovelChapter(...)` also works and is treated as `html`.
 
+see [template](./extension_templates/novel)
+
 The app keeps the reading position of each chapter, offers previous and next chapter in the reader
 (in the order of the chapter group) and saves chapters for offline reading by calling
 `getChapterText` once and storing the result.
 
 Novel support needs an app release that knows type `2`. Releases without it cannot read the
 config: recent ones leave the extension out of their listing, older ones may fail on it. Set
-`minAppVersion` to the first release with novel support, and keep novel extensions off the branch
+`minAppVersion` to the first release with novel support (1.0.0), and keep novel extensions off the branch
 older releases read until that release has shipped (see [API versions](#api-versions)).
 `contentKinds` defaults to `["novel"]` for novel extensions.
 
@@ -317,6 +321,8 @@ and `passProtector` all work the same way, and it builds its models with the
 `buildConcrete`, `buildChapter`, `buildChapterGroups` and the `status*` constants with the same
 arguments as `manga_models`. Each chapter is a track (a part, section or chapter file of the
 book). It has no `getPages`; `getImageHeaders` is only needed when covers need headers.
+
+see [template](./extension_templates/audio)
 
 Instead of page images, the app asks for the playable audio of a track:
 
@@ -361,7 +367,7 @@ cannot be downloaded yet.
 
 Audio support needs an app release that knows type `3`. Releases without it cannot read the
 config: recent ones leave the extension out of their listing, older ones may fail on it. Set
-`minAppVersion` to the first release with audio support (0.4.0), and keep audio extensions off the
+`minAppVersion` to the first release with audio support (1.0.0), and keep audio extensions off the
 branch older releases read until that release has shipped (see [API versions](#api-versions)).
 `contentKinds` defaults to `["audiobook"]` for audio extensions.
 

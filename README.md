@@ -2,103 +2,142 @@
   <img width="192" src="docs/wakaranai.png" alt="Wakaranai"/>
 </p>
 
-<h1 align="center">Wakaranai — Manga &amp; Anime Reader</h1>
+<h1 align="center">Wakaranai</h1>
 
-Wakaranai is a Flutter manga and anime reader that fetches content by running **extensions** at
-runtime. The app itself contains no site-specific parsing logic — every source is a JSON config plus
-a script written in [Capyscript](https://github.com/Sayuri128/capyscript), loaded from a GitHub
-repository and interpreted on device. Adding a new site means writing an extension, not shipping a
-new build.
+<p align="center">
+  Manga, anime, novels and audiobooks in one Android app, from sources you choose.
+</p>
+
+<p align="center">
+  <a href="https://github.com/Sayuri128/wakaranai/releases/latest"><b>Download the latest APK</b></a>
+</p>
+
+Wakaranai doesn't ship with any site built in. Every source is an **extension**: a JSON config
+and a script in [Capyscript](https://github.com/Sayuri128/capyscript), loaded from a GitHub
+repository and run on the device. When a site changes, its extension gets updated and the app
+picks up the new version on its own, without a new app release.
 
 ## Screenshots
 
 <table>
   <tr>
-    <td align="center"><img width="270" src="docs/screenshots/library.png" alt="Library"/><br/><sub>Library</sub></td>
-    <td align="center"><img width="270" src="docs/screenshots/service-viewer.png" alt="Browse a source"/><br/><sub>Browse a source</sub></td>
-    <td align="center"><img width="270" src="docs/screenshots/concrete-view.png" alt="Title details"/><br/><sub>Title details</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/library.webp" alt="Library"/><br/><sub>Library</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/gallery.webp" alt="Source gallery"/><br/><sub>Source with feeds</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/title.webp" alt="Title page"/><br/><sub>Title page</sub></td>
   </tr>
   <tr>
-    <td align="center"><img width="270" src="docs/screenshots/reader.png" alt="Chapter reader"/><br/><sub>Chapter reader</sub></td>
-    <td align="center"><img width="270" src="docs/screenshots/reader-settings.png" alt="Reading modes"/><br/><sub>Reading modes</sub></td>
-    <td align="center"><img width="270" src="docs/screenshots/chapters.png" alt="Chapters"/><br/><sub>Chapters &amp; progress</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/chapters.webp" alt="Chapters"/><br/><sub>Chapters</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/reader.webp" alt="Reader"/><br/><sub>Reader</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/reader-settings.webp" alt="Reader settings"/><br/><sub>Reading modes</sub></td>
   </tr>
   <tr>
-    <td align="center"><img width="270" src="docs/screenshots/search.png" alt="Search"/><br/><sub>Search</sub></td>
-    <td align="center"><img width="270" src="docs/screenshots/filters.png" alt="Filters"/><br/><sub>Source filters</sub></td>
-    <td align="center"><img width="270" src="docs/screenshots/history.png" alt="History"/><br/><sub>History</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/episodes.webp" alt="Episodes"/><br/><sub>Episodes, dubs and tracker sync</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/downloads.webp" alt="Downloads"/><br/><sub>Downloads</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/updates.webp" alt="Updates"/><br/><sub>New chapters</sub></td>
   </tr>
   <tr>
-    <td align="center"><img width="270" src="docs/screenshots/anime-service.png" alt="Anime source"/><br/><sub>Anime source</sub></td>
-    <td align="center"><img width="270" src="docs/screenshots/anime-episodes.png" alt="Episodes"/><br/><sub>Episodes &amp; dub/sub</sub></td>
-    <td align="center"><img width="270" src="docs/screenshots/themes.png" alt="Themes"/><br/><sub>Nine themes</sub></td>
+    <td align="center" colspan="3"><img width="780" src="docs/screenshots/player.webp" alt="Video player"/><br/><sub>Video player</sub></td>
   </tr>
   <tr>
-    <td align="center"><img width="270" src="docs/screenshots/extensions.png" alt="Extensions"/><br/><sub>Extensions</sub></td>
-    <td align="center"><img width="270" src="docs/screenshots/repositories.png" alt="Repositories"/><br/><sub>Repositories</sub></td>
-    <td align="center"><img width="270" src="docs/screenshots/settings.png" alt="Settings"/><br/><sub>Settings</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/novel.webp" alt="Novel reader"/><br/><sub>Novels</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/audiobook.webp" alt="Audiobook player"/><br/><sub>Audiobooks</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/history.webp" alt="History"/><br/><sub>History</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img width="250" src="docs/screenshots/extensions.webp" alt="Extensions"/><br/><sub>Extensions</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/filters.webp" alt="Filters"/><br/><sub>Source filters</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/extension-settings.webp" alt="Extension settings"/><br/><sub>Extension settings</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img width="250" src="docs/screenshots/themes.webp" alt="Themes"/><br/><sub>Nine themes</sub></td>
+    <td align="center"><img width="250" src="docs/screenshots/library-light.webp" alt="Light theme"/><br/><sub>Sakura theme</sub></td>
+    <td></td>
   </tr>
 </table>
 
 ## Features
 
-- **Library** — bookmark titles, organise them into categories, search and sort your collection.
-- **History** — separate manga and anime timelines, grouped by day, with per-chapter read progress.
-- **Reader** — right-to-left, left-to-right and webtoon modes, optional tap controls, and a page
-  slider. Controls sit at the bottom of the screen so the reader stays usable one-handed.
-- **Downloads** — save chapters for offline reading.
-- **Search &amp; filters** — per-source search plus filters exposed by the extension itself (status,
-  demographic, content rating, and more), so each source offers whatever it actually supports.
-- **Anime** — browse series, pick a dub or sub track and a player, and resume where you stopped.
-- **Library updates** — periodic background checks for new chapters and episodes, with notifications.
-- **Reading statistics** — see what you have been reading.
-- **Nine themes** — Midnight, AMOLED, Ocean, Dracula and Ember (dark); Light, Sky, Sakura and Sepia
+**Reading and watching**
+- Manga reader with right-to-left, left-to-right and webtoon modes, page fit, border cropping,
+  two-page spreads in landscape, tap zones and page turning with the volume keys.
+- On-device page translation: text recognition, translation and typesetting over the page, with
+  per-title languages and a glossary for names.
+- Novel reader with adjustable text size, spacing, margins, font and background.
+- Video player with quality, source and audio track selection, skip intro and outro buttons
+  (or automatic skipping), playback speed and picture-in-picture. External players such as MX
+  Player and VLC work too.
+- Audiobook player that keeps going in the background, with lock-screen controls, a sleep timer
+  and per-track progress.
+
+**Library**
+- Categories, search and sorting, plus a Continue button that opens the next unread chapter or
+  unwatched episode.
+- Background checks for new chapters and episodes, with notifications, an updates feed and
+  optional auto-download.
+- Moving a title to another source keeps its progress.
+- Progress sync with AniList, MyAnimeList and Shikimori.
+- History, reading statistics and an incognito mode.
+
+**Downloads**
+- Chapters and episodes (HLS and MP4) for offline use, with a reorderable queue, pause and resume,
+  a Wi-Fi only option and a download quality setting.
+- Storage overview, free-up-space tools and automatic deletion of watched episodes.
+
+**Sources**
+- Browse, search and filter each source; sources can offer several feeds (Popular, Latest, …) as
+  tabs.
+- Search across every installed source at once, or start from AniList's Discover.
+- Per-extension settings: mirrors, page size and options the extension declares.
+- Filter the source list by language, price and type (website, self-hosted, official).
+- Sources behind Cloudflare-style checks or logins open in an in-app browser and reuse its
+  session.
+- Local files: CBZ/ZIP archives, image folders and EPUB books from the device.
+
+**Everything else**
+- Nine themes: Midnight, AMOLED, Ocean, Dracula and Ember (dark), Light, Sky, Sakura and Sepia
   (light).
-- **Multiple extension repositories** — use the official one, or point the app at any GitHub repo
-  (optionally a specific branch) to develop or host your own extensions.
-- **Challenge handling** — sources behind Cloudflare-style checks are passed through an in-app
-  browser that harvests the required headers and cookies.
+- English and Ukrainian interface.
+- Backup and restore of the library, history, categories, sources and settings, with optional
+  automatic backups.
 
-## Capyscript
+## Extensions
 
-[**Capyscript**](https://github.com/Sayuri128/capyscript) is a small scripting language written for
-Wakaranai to parse websites. It was built as a learning project to experiment with writing an
-interpreter, and it lacks a proper architectural foundation — please be aware of its limitations.
+The official extensions live in
+[wakaranai_configs](https://github.com/Sayuri128/wakaranai_configs). There are about 30 of them:
+manga sites (MangaDex, MangaLib, ReManga, Zenko, Honey Manga and more), video (AniLibria,
+Anitube, UAFlix, YummyAnime and more), novels (RanobeLib, Ficbook), audiobooks (LibriVox), and
+self-hosted servers (Komga, Kavita, Suwayomi, OPDS catalogs, Jellyfin). The full list is in that
+repository's README.
 
-## Create your own extension
+You can add any GitHub repository with the same layout as a source in the Explore tab, and pick
+the branch to read from. To write your own extension, start with the guides:
 
-See the guide for creating extensions [here](docs/guides/extensions.md).
+- [Extensions](docs/guides/extensions.md): config fields, script functions, preferences, feeds,
+  pagination and filters
+- [Capyscript syntax](docs/guides/capyscript_syntax.md)
+- [Capyscript modules](docs/guides/caypscript_modules.md)
 
-By default Wakaranai fetches extension configurations from the
-public [wakaranai_configs](https://github.com/Sayuri128/wakaranai_configs) repository, which also
-serves as a reference for how extensions are structured. You can add your own repository from
-**Explore → Sources**, and point it at a specific branch while you are iterating.
+## Building
 
-## Currently available extensions
+Wakaranai is a Flutter app. Only Android is maintained; the other platform folders exist but are
+untested.
 
-* Manga
-    * [MangaDex](https://mangadex.org/) (English only)
-    * [MangaLib](https://mangalib.me/)
-    * [MangaInUa](https://manga.in.ua/)
-    * [HentaiLib](https://hentailib.me/)
-    * [nhentai](https://nhentai.net/)
-* Anime
-    * [AnitubeInUa](https://anitube.in.ua/)
+```bash
+cp example.env .env      # required; tracker client ids are optional
+flutter pub get
+flutter run
+flutter test
+```
 
-## Roadmap
-
-- [x] **External repository integration** — add your own extension sources from inside the app.
-- [x] **Library page with bookmarks** — organise saved titles into categories.
-- [x] **User interface enhancements** — redesigned library, viewers, reader, history and settings.
-- [ ] **Documentation** — comprehensive documentation for both Wakaranai and Capyscript.
-- [ ] **Scripting language refinement** — address Capyscript's current limitations.
-- [ ] **Bug fixes and optimisation** — continued performance and stability work.
+Debug builds install next to the release build as "Wakaranai Debug", so they never touch your
+real library.
 
 ## Disclaimer
 
-Wakaranai and Capyscript are experimental projects developed for learning purposes. Documentation is
-still limited; if you find the project interesting and would like to contribute or explore further,
-please keep that in mind.
+Wakaranai doesn't host or distribute any content. Extensions load pages from third-party websites
+that are not affiliated with this project. Whether you may access a given site depends on the site
+and on where you live.
 
-If you are interested in implementing Capyscript for a specific website and need assistance, I am
-open to helping whenever time allows.
+## License
+
+[Apache License 2.0](LICENSE)

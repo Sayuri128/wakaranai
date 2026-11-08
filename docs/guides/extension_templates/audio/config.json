@@ -1,0 +1,47 @@
+{
+  "name": "Name",
+  "uid": "Generate a new UUIDv4",
+  "logoUrl": "icon URL",
+  "type": 3,
+  "nsfw": false,
+  "language": "English",
+  "version": 1,
+  "apiVersion": 2,
+  "minAppVersion": "1.0.0",
+  "contentKinds": [
+    "audiobook"
+  ],
+  "searchAvailable": true,
+  "feeds": [
+    {
+      "id": "popular",
+      "title": "Popular"
+    },
+    {
+      "id": "latest",
+      "title": "Latest updates"
+    }
+  ],
+  "pagination": {
+    "pageSizes": [
+      20,
+      50
+    ],
+    "defaultPageSize": 20
+  },
+  "preferences": [
+    {
+      "key": "exampleToggle",
+      "type": "toggle",
+      "title": "Example setting",
+      "summary": "Read it in the script with getPreference(\"exampleToggle\")",
+      "default": false
+    }
+  ],
+  "filters": [],
+  "protectorConfig": {
+    "pingUrl": "Url where the app will open in the web browser",
+    "needToLogin": true,
+    "inAppBrowserInterceptor": true
+  }
+}

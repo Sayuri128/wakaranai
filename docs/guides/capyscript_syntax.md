@@ -5,7 +5,7 @@ Capyscript is a small, dynamically typed, C-like language. A script is a list of
 
 > **Interpreter versions.** Users update the app and extensions independently, so an extension may
 > run on an older interpreter than the one you test with. Features marked **(0.4+)** need
-> capyscript 0.4.0, which ships in app builds newer than 0.3.0. Until you're happy to drop older
+> capyscript 0.4.0, which ships with Wakaranai 1.0.0. Until you're happy to drop older
 > app builds, stick to the unmarked subset. See [Compatibility](#compatibility).
 
 ### Functions
