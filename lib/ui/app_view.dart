@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakaranai/blocs/auto_backup/auto_backup_cubit.dart';
+import 'package:wakaranai/blocs/auto_download/auto_download_settings_cubit.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wakaranai/blocs/auth/authentication_cubit.dart';
 import 'package:wakaranai/blocs/theme/theme_cubit.dart';
@@ -86,6 +89,7 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
     context.read<LibraryCubit>().init();
     context.read<LibraryUpdatesCubit>().init();
     context.read<DownloadManagerCubit>().init();
+    unawaited(context.read<AutoDownloadSettingsCubit>().load());
     context.read<MangaActivityHistoryCubit>().init(silent: true);
     context.read<AnimeActivityHistoryCubit>().init(silent: true);
     context.read<AutoBackupCubit>().backUpIfDue();

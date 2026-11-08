@@ -4,6 +4,7 @@ import 'package:wakaranai/blocs/nsfw_titles/nsfw_titles_cubit.dart';
 import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/repositories/shared_pref/app_language_preferences.dart';
 import 'package:wakaranai/repositories/shared_pref/auto_backup_preferences.dart';
+import 'package:wakaranai/repositories/shared_pref/auto_download_preferences.dart';
 import 'package:wakaranai/repositories/shared_pref/download_storage_preferences.dart';
 import 'package:wakaranai/repositories/shared_pref/downloads_order_preferences.dart';
 import 'package:wakaranai/repositories/shared_pref/gallery_layout_preferences.dart';
@@ -37,6 +38,9 @@ class ExportedPreferences {
     DownloadsOrderPreferences.newestFirstKey,
     DownloadStoragePreferences.qualityKey,
     DownloadStoragePreferences.deleteAfterWatchingKey,
+    AutoDownloadPreferences.enabledKey,
+    AutoDownloadPreferences.scopeKey,
+    AutoDownloadPreferences.maxPerTitleKey,
     AutoBackupPreferences.enabledKey,
     AppLanguagePreferences.languageKey,
   };

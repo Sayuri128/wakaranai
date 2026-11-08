@@ -16,6 +16,7 @@ import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/blocs/chapter_translation/chapter_translation_cubit.dart';
 import 'package:wakaranai/services/import_export/backup_files.dart';
 import 'package:wakaranai/blocs/chapter_translation/translation_notification_service.dart';
+import 'package:wakaranai/blocs/auto_download/auto_download_settings_cubit.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/services/downloads/storage/download_files.dart';
 import 'package:wakaranai/blocs/on_device_model/on_device_model_cubit.dart';
@@ -199,6 +200,11 @@ class _WakaranaiAppState extends State<WakaranaiApp> {
               extensionRepository: RepositoryProvider.of(context),
               downloadRepository: RepositoryProvider.of(context),
             )..init(),
+          ),
+          BlocProvider<AutoDownloadSettingsCubit>(
+            lazy: false,
+            create: (BuildContext context) =>
+                AutoDownloadSettingsCubit()..load(),
           ),
           BlocProvider<DownloadManagerCubit>(
             lazy: false,
