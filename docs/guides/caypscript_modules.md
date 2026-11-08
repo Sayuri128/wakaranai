@@ -400,7 +400,7 @@ to keep the kind.
 The Waka Models module is used to create Waka Models.
 It is used to create the models for the manga and anime views.
 
-anime, manga and novel models are in different modules, and you can't use the manga models in the anime and vice versa.
+anime, manga, novel and audio models are in different modules, and you can't use the manga models in the anime and vice versa.
 
 ---
 
@@ -615,6 +615,55 @@ function getChapterText(uid, data) {
 
 The result exposes `html` and `title` fields. `getChapterText` may also return a plain string,
 which the app treats as `html`.
+
+---
+
+## Audio Models
+
+`audio_models` is the module for audio extensions (`"type": 3`). It offers the same
+`buildGallery`, `buildConcrete`, `buildChapter`, `buildChapterGroups` and status constants
+(`statusAnnounce`, `statusCanceled`, `statusOngoing`, `statusPaused`, `statusReleased`,
+`statusUndefined`) as [`manga_models`](#manga-models), with the same arguments (chapters are the
+tracks of the book), plus `buildAudioSource` and `buildAudioMarker` for `getAudioSources`.
+
+### `buildAudioSource`
+
+```capyscript
+
+import "audio_models";
+
+function getAudioSources(uid, data) {
+    return [
+        buildAudioSource({
+          url: "https://example.org/book/part01.m4b",
+          format: "m4b",
+          quality: "128 kbps",
+          headers: {"Referer": "https://example.org/"},
+          duration: 3725.5,
+          markers: [
+            buildAudioMarker({start: 0, title: "Chapter 1"}),
+            buildAudioMarker({start: 1810, title: "Chapter 2"})
+          ]
+        })
+    ];
+}
+
+```
+
+* `url` - the audio file or HLS playlist; required, surrounding spaces are trimmed.
+* `format` (optional) - `mp3`, `m4a`, `m4b` or `hls` (lowercased).
+* `quality` (optional) - a label for the quality picker.
+* `headers` (optional) - a map of request headers.
+* `duration` (optional) - seconds (number or numeric string); non-positive values are dropped.
+* `markers` (optional) - a list of markers or `{start, title}` maps; invalid entries are dropped
+  and the rest are sorted by `start`.
+
+The result exposes `url`, `format`, `quality`, `headers`, `duration` and `markers` fields.
+
+### `buildAudioMarker`
+
+* `start` - seconds from the beginning of the file; a negative or non-numeric value is an error.
+* `title` (optional) - the marker title; the player numbers untitled markers.
 
 ---
 

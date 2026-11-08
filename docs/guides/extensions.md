@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Extensions are a way to add new sources for manga, anime and light novels to the app. Extensions are written in
+Extensions are a way to add new sources for manga, anime, light novels and audiobooks to the app. Extensions are written in
 Capyscript and are loaded dynamically at runtime.
 This means that you can add new sources/update existing ones without having to update the app
 itself.
@@ -18,7 +18,8 @@ First of all you need to create a new json file called `config.json` with the fo
 * `name`: Name of the source.
 * `logoUrl`: URL to the script's logo.
 * `type`: Type of script: `0` for manga, `1` for anime, `2` for novels (see
-  [Creating novel extension](#creating-novel-extension)).
+  [Creating novel extension](#creating-novel-extension)), `3` for audiobooks (see
+  [Creating audio extension](#creating-audio-extension)).
 * `nsfw`: Indicates whether the script contains NSFW content (true or false).
 * `language`: Source language.
 * `version`: Version number of the script.
@@ -61,7 +62,7 @@ First of all you need to create a new json file called `config.json` with the fo
   [Page size](#page-size).
 * `contentKinds` (optional): What the source carries, used by the Configs tab to filter sources.
   A list of lowercase strings; the app has labels for `anime`, `movie`, `series`, `cartoon`,
-  `dorama`, `documentary`, `manga`, `manhwa`, `manhua`, `comic` and `novel`, and shows any other
+  `dorama`, `documentary`, `manga`, `manhwa`, `manhua`, `comic`, `novel` and `audiobook`, and shows any other
   value as written. For example a Ukrainian site with films and series uses
   `["movie", "series", "cartoon", "anime"]`. Older app releases ignore the field.
 
@@ -297,6 +298,63 @@ config: recent ones leave the extension out of their listing, older ones may fai
 `minAppVersion` to the first release with novel support, and keep novel extensions off the branch
 older releases read until that release has shipped (see [API versions](#api-versions)).
 `contentKinds` defaults to `["novel"]` for novel extensions.
+
+## Creating audio extension
+
+An audiobook extension uses the same `config.json` with `"type": 3`. It lists and describes
+titles exactly like a manga extension: `getGallery`, `getConcrete` and the optional `getRelated`
+and `passProtector` all work the same way, and it builds its models with the
+[`audio_models`](caypscript_modules.md#audio-models) module, which offers `buildGallery`,
+`buildConcrete`, `buildChapter`, `buildChapterGroups` and the `status*` constants with the same
+arguments as `manga_models`. Each chapter is a track (a part, section or chapter file of the
+book). It has no `getPages`; `getImageHeaders` is only needed when covers need headers.
+
+Instead of page images, the app asks for the playable audio of a track:
+
+* `getAudioSources` - Returns a list of sources built with `buildAudioSource`. It receives the
+  `uid` and `data` of the track as passed to `buildChapter`. The first source plays; the others
+  (for example another bitrate) can be picked in the player.
+
+```capyscript
+import "audio_models";
+
+function getAudioSources(uid, data) {
+    return [
+        buildAudioSource({
+            "url": data["url"],
+            "format": "mp3",
+            "quality": "64 kbps",
+            "duration": data["seconds"]
+        })
+    ];
+}
+```
+
+* `url` - a direct link to the audio file or an HLS playlist; https only (the app blocks
+  cleartext traffic). Redirects are followed.
+* `format` (optional) - `mp3`, `m4a`, `m4b` or `hls`. `hls` (or a `.m3u8` url) is played as a
+  stream; anything else as a single file.
+* `quality` (optional) - a label shown in the player's quality picker.
+* `headers` (optional) - headers for the audio requests (`Referer`, cookies, …).
+* `duration` (optional) - the length in seconds, used until the player has read it from the file.
+* `markers` (optional) - chapters inside one long file (an `m4b` book, a part covering several
+  chapters): a list of `buildAudioMarker({"start": seconds, "title": "…"})`. The player shows the
+  current marker under the title and lists them for jumping.
+
+`getAudioSources` may also return plain maps with the same keys, a single source or `null` (no
+sources: the player shows an error). Keep the work light: the app calls it each time a track
+starts, so prefer passing everything the track needs through `data` in `getConcrete`.
+
+The player streams in the background with a media notification and lock-screen controls, keeps
+the position of every track (seconds listened out of the track length), continues with the next
+track of the chapter group when one ends and resumes from the last track touched. Audiobooks
+cannot be downloaded yet.
+
+Audio support needs an app release that knows type `3`. Releases without it cannot read the
+config: recent ones leave the extension out of their listing, older ones may fail on it. Set
+`minAppVersion` to the first release with audio support (0.4.0), and keep audio extensions off the
+branch older releases read until that release has shipped (see [API versions](#api-versions)).
+`contentKinds` defaults to `["audiobook"]` for audio extensions.
 
 ## Filters
 
