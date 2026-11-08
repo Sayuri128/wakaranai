@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wakaranai/blocs/nsfw_titles/nsfw_titles_cubit.dart';
 import 'package:wakaranai/ui/widgets/cover_image.dart';
 import 'package:wakaranai/data/domain/database/base_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
@@ -179,6 +180,31 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
     );
   }
 
+  List<ActivityListItem<BaseActivityDomain>>? _withoutHiddenTitles(
+    BuildContext context,
+    List<ActivityListItem<BaseActivityDomain>>? activities,
+  ) {
+    final NsfwTitlesState nsfw = context.watch<NsfwTitlesCubit>().state;
+    if (activities == null || !nsfw.hideTitles) {
+      return activities;
+    }
+    final List<ActivityListItem<BaseActivityDomain>> shown =
+        <ActivityListItem<BaseActivityDomain>>[];
+    for (final ActivityListItem<BaseActivityDomain> day in activities) {
+      final List<DayActivityListItem<BaseActivityDomain>> items = day.listItems
+          .where((DayActivityListItem<BaseActivityDomain> item) =>
+              !nsfw.hides(item.data.extensionUid))
+          .toList();
+      if (items.isNotEmpty) {
+        shown.add(ActivityListItem<BaseActivityDomain>(
+          day: day.day,
+          listItems: items,
+        ));
+      }
+    }
+    return shown;
+  }
+
   List<Widget> _buildContentSlivers({
     required BuildContext context,
     required bool isLoading,
@@ -208,7 +234,9 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
       ];
     }
 
-    if (activities == null || activities.isEmpty) {
+    final List<ActivityListItem<BaseActivityDomain>>? shown =
+        _withoutHiddenTitles(context, activities);
+    if (shown == null || shown.isEmpty) {
       final List<String> parts = emptyMessage.split('\n');
       return <Widget>[
         SliverFillRemaining(
@@ -224,11 +252,11 @@ class _ActivityHistoryPageState extends State<ActivityHistoryPage>
 
     return <Widget>[
       SliverList.builder(
-        itemCount: activities.length,
+        itemCount: shown.length,
         itemBuilder: (BuildContext context, int index) {
           return _buildDay(
             context: context,
-            item: activities[index],
+            item: shown[index],
             onTap: onTap,
             onDelete: onDelete,
           );

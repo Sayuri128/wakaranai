@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wakaranai/blocs/nsfw_titles/nsfw_titles_cubit.dart';
 import 'package:wakaranai/blocs/chapter_translation/chapter_translation_cubit.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/blocs/downloads/download_notification_service.dart';
@@ -47,7 +48,12 @@ Widget _app(WakaranaiDatabase database, Widget Function() page,
       child: Builder(
         builder: (BuildContext context) => MultiBlocProvider(
           providers: blocs(context),
-          child: page(),
+          child: BlocProvider<NsfwTitlesCubit>(
+            create: (_) => NsfwTitlesCubit(
+              extensionRepository: context.read<ExtensionRepository>(),
+            ),
+            child: page(),
+          ),
         ),
       ),
     ),

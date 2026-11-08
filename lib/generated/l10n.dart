@@ -7009,6 +7009,26 @@ class S {
     );
   }
 
+  /// `Hide titles from NSFW sources`
+  String get settings_hide_nsfw_titles_title {
+    return Intl.message(
+      'Hide titles from NSFW sources',
+      name: 'settings_hide_nsfw_titles_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep them out of the library, history, updates and downloads`
+  String get settings_hide_nsfw_titles_subtitle {
+    return Intl.message(
+      'Keep them out of the library, history, updates and downloads',
+      name: 'settings_hide_nsfw_titles_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Page fit`
   String get reader_page_fit_title {
     return Intl.message(

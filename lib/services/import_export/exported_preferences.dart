@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wakaranai/blocs/nsfw_titles/nsfw_titles_cubit.dart';
 import 'package:wakaranai/data/domain/import_export/export_bundle.dart';
 import 'package:wakaranai/repositories/shared_pref/auto_backup_preferences.dart';
 import 'package:wakaranai/repositories/shared_pref/download_storage_preferences.dart';
@@ -24,6 +25,7 @@ class ExportedPreferences {
     SettingsService.updateFrequencyPrefsKey,
     SettingsService.downloadWifiOnlyPrefsKey,
     GalleryLayoutPreferences.galleryKey,
+    NsfwTitlesCubit.hideTitlesKey,
     GalleryLayoutPreferences.libraryKey,
     DownloadsOrderPreferences.newestFirstKey,
     DownloadStoragePreferences.qualityKey,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/nsfw_titles/nsfw_titles_cubit.dart';
 import 'package:wakaranai/blocs/library/library_cubit.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
@@ -76,6 +77,7 @@ class _LibraryPageState extends State<LibraryPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<NsfwTitlesCubit>();
     return BlocBuilder<LibraryCubit, LibraryState>(
       builder: (BuildContext context, LibraryState state) {
         return PopScope<Object?>(
@@ -153,11 +155,14 @@ class _LibraryPageState extends State<LibraryPage> {
       state.categories.isNotEmpty;
 
   List<LibraryEntryDomain> _visibleEntries(LibraryState state) {
+    final NsfwTitlesState nsfw = context.read<NsfwTitlesCubit>().state;
     final Object key = Object.hash(
       identityHashCode(state.entries),
       state.searchQuery,
       state.sort,
       _selectedCategory,
+      nsfw.hideTitles,
+      identityHashCode(nsfw.nsfwExtensionUids),
     );
 
     final List<LibraryEntryDomain>? cached = _visibleCache;
@@ -172,7 +177,9 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   List<LibraryEntryDomain> _computeVisibleEntries(LibraryState state) {
-    Iterable<LibraryEntryDomain> entries = state.entries;
+    final NsfwTitlesState nsfw = context.read<NsfwTitlesCubit>().state;
+    Iterable<LibraryEntryDomain> entries = state.entries
+        .where((LibraryEntryDomain e) => !nsfw.hides(e.extensionUid));
     if (_selectedCategory == kLibraryUncategorizedId) {
       entries = entries.where((LibraryEntryDomain e) => e.categoryId == null);
     } else if (_selectedCategory != kLibraryAllCategoryId) {

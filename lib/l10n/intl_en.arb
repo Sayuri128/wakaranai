@@ -1300,6 +1300,8 @@
   "extension_instance_rename_confirm": "Save",
   "concrete_selection_mark_watched": "Watched",
   "concrete_selection_mark_unwatched": "Unwatched",
+  "settings_hide_nsfw_titles_title": "Hide titles from NSFW sources",
+  "settings_hide_nsfw_titles_subtitle": "Keep them out of the library, history, updates and downloads",
   "reader_page_fit_title": "Page fit",
   "reader_page_fit_screen": "Fit screen",
   "reader_page_fit_width": "Fit width",

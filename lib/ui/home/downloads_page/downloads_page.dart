@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/nsfw_titles/nsfw_titles_cubit.dart';
 import 'package:wakaranai/blocs/downloads/download_manager_cubit.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
@@ -111,7 +112,11 @@ class _DownloadsPageState extends State<DownloadsPage> {
     DownloadManagerState state,
     DownloadStorageUsage usage,
   ) {
-    if (state.downloads.isEmpty) {
+    final NsfwTitlesState nsfw = context.watch<NsfwTitlesCubit>().state;
+    final List<DownloadDomain> visible = state.downloads
+        .where((DownloadDomain download) => !nsfw.hides(download.extensionUid))
+        .toList(growable: false);
+    if (visible.isEmpty) {
       return ServiceViewerMessage(
         icon: Icons.download_done_rounded,
         title: S.current.downloads_empty_title,
@@ -122,7 +127,7 @@ class _DownloadsPageState extends State<DownloadsPage> {
     final Map<String, List<DownloadDomain>> grouped =
         <String, List<DownloadDomain>>{};
     final Iterable<DownloadDomain> ordered =
-        _newestFirst ? state.downloads.reversed : state.downloads;
+        _newestFirst ? visible.reversed : visible;
     for (final DownloadDomain d in ordered) {
       grouped.putIfAbsent(d.concreteUid, () => <DownloadDomain>[]).add(d);
     }

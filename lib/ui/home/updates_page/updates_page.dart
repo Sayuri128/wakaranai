@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/blocs/nsfw_titles/nsfw_titles_cubit.dart';
 import 'package:wakaranai/ui/widgets/cover_image.dart';
 import 'package:wakaranai/blocs/library_updates/library_updates_cubit.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
@@ -64,7 +65,13 @@ class UpdatesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, LibraryUpdatesState state) {
+  Widget _buildBody(BuildContext context, LibraryUpdatesState fullState) {
+    final NsfwTitlesState nsfw = context.watch<NsfwTitlesCubit>().state;
+    final LibraryUpdatesState state = fullState.copyWith(
+      updates: fullState.updates
+          .where((LibraryUpdateDomain update) => !nsfw.hides(update.extensionUid))
+          .toList(growable: false),
+    );
     if (state.updates.isEmpty) {
       return ServiceViewerMessage(
         icon: Icons.notifications_none_rounded,

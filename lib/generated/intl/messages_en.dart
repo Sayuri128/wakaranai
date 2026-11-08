@@ -1700,6 +1700,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_export_success": MessageLookupByLibrary.simpleMessage(
       "Export complete",
     ),
+    "settings_hide_nsfw_titles_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Keep them out of the library, history, updates and downloads",
+    ),
+    "settings_hide_nsfw_titles_title": MessageLookupByLibrary.simpleMessage(
+      "Hide titles from NSFW sources",
+    ),
     "settings_import_data_button": MessageLookupByLibrary.simpleMessage(
       "Import data",
     ),
