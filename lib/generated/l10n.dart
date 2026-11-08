@@ -6516,6 +6516,106 @@ class S {
     );
   }
 
+  /// `View options`
+  String get configs_view_options {
+    return Intl.message(
+      'View options',
+      name: 'configs_view_options',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Layout`
+  String get configs_view_layout {
+    return Intl.message(
+      'Layout',
+      name: 'configs_view_layout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cards`
+  String get configs_layout_cards {
+    return Intl.message(
+      'Cards',
+      name: 'configs_layout_cards',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compact list`
+  String get configs_layout_compact {
+    return Intl.message(
+      'Compact list',
+      name: 'configs_layout_compact',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Grid`
+  String get configs_layout_grid {
+    return Intl.message(
+      'Grid',
+      name: 'configs_layout_grid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sort`
+  String get configs_view_sort {
+    return Intl.message('Sort', name: 'configs_view_sort', desc: '', args: []);
+  }
+
+  /// `As listed`
+  String get configs_sort_listing {
+    return Intl.message(
+      'As listed',
+      name: 'configs_sort_listing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Name`
+  String get configs_sort_name {
+    return Intl.message('Name', name: 'configs_sort_name', desc: '', args: []);
+  }
+
+  /// `Pin to top`
+  String get configs_pin {
+    return Intl.message('Pin to top', name: 'configs_pin', desc: '', args: []);
+  }
+
+  /// `Unpin`
+  String get configs_unpin {
+    return Intl.message('Unpin', name: 'configs_unpin', desc: '', args: []);
+  }
+
+  /// `Pinned`
+  String get configs_pinned_group_title {
+    return Intl.message(
+      'Pinned',
+      name: 'configs_pinned_group_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search sources`
+  String get configs_search_hint {
+    return Intl.message(
+      'Search sources',
+      name: 'configs_search_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Anime`
   String get content_kind_anime {
     return Intl.message(

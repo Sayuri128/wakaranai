@@ -12,7 +12,11 @@ import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/ui/widgets/confirmation_dialog/confirmation_dialog.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 
-Future<void> showLocalSourceActions(BuildContext context) async {
+Future<void> showLocalSourceActions(
+  BuildContext context, {
+  required bool pinned,
+  required Future<void> Function() onTogglePin,
+}) async {
   await showActionSheet(
     context,
     title: S.current.local_source_name,
@@ -21,6 +25,14 @@ Future<void> showLocalSourceActions(BuildContext context) async {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
+          ActionSheetRow(
+            label: pinned ? S.current.configs_unpin : S.current.configs_pin,
+            icon: pinned ? Icons.push_pin_outlined : Icons.push_pin_rounded,
+            onTap: () {
+              Navigator.of(sheetContext).pop();
+              unawaited(onTogglePin());
+            },
+          ),
           ActionSheetRow(
             label: S.current.local_source_import,
             icon: Icons.file_download_outlined,

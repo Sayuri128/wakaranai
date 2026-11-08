@@ -10,6 +10,8 @@ import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/images.dart';
 import 'package:wakaranai/utils/text_styles.dart';
 
+enum ConfigCardStyle { card, compact, tile }
+
 class ConfigCard extends StatelessWidget {
   const ConfigCard({
     super.key,
@@ -17,12 +19,16 @@ class ConfigCard extends StatelessWidget {
     this.onLongPress,
     required this.configInfo,
     this.listingStatus = ExtensionListingStatus.available,
+    this.style = ConfigCardStyle.card,
+    this.pinned = false,
   });
 
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final ConfigInfo configInfo;
   final ExtensionListingStatus listingStatus;
+  final ConfigCardStyle style;
+  final bool pinned;
 
   static const double _disabledOpacity = 0.5;
 
@@ -33,6 +39,130 @@ class ConfigCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    switch (style) {
+      case ConfigCardStyle.card:
+        return _buildCard(context);
+      case ConfigCardStyle.compact:
+        return _buildCompact(context);
+      case ConfigCardStyle.tile:
+        return _buildTile(context);
+    }
+  }
+
+  Widget _buildCompact(BuildContext context) {
+    final String language = configInfo.language.trim();
+    return InkWell(
+      splashColor: AppColors.mediumLight.withValues(alpha: 0.2),
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          children: <Widget>[
+            Opacity(
+              opacity: _contentOpacity,
+              child: _buildLogo(context, size: 36),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Opacity(
+                opacity: _contentOpacity,
+                child: Text(
+                  configInfo.name.trim(),
+                  style: medium(size: 15),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+            if (configInfo.nsfw) ...<Widget>[
+              _buildChip(S.current.home_nsfw_suffix, color: AppColors.red),
+              const SizedBox(width: 6),
+            ],
+            if (language.isNotEmpty)
+              Text(language, style: regular(size: 12, color: AppColors.mainGrey)),
+            if (pinned) ...<Widget>[
+              const SizedBox(width: 6),
+              Icon(Icons.push_pin_rounded, size: 14, color: AppColors.primary),
+            ],
+            const SizedBox(width: 4),
+            _buildTrailingIcon(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTile(BuildContext context) {
+    return Material(
+      color: AppColors.overlay(0.04),
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        splashColor: AppColors.mediumLight.withValues(alpha: 0.2),
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Opacity(
+            opacity: _contentOpacity,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: <Widget>[
+                    _buildLogo(context, size: 52),
+                    if (pinned)
+                      Positioned(
+                        top: -4,
+                        right: -4,
+                        child: Icon(
+                          Icons.push_pin_rounded,
+                          size: 16,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  configInfo.name.trim(),
+                  style: medium(size: 13),
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _tileCaption(),
+                  style: regular(
+                    size: 11,
+                    color: configInfo.nsfw ? AppColors.red : AppColors.mainGrey,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _tileCaption() {
+    final String language = configInfo.language.trim();
+    if (configInfo.nsfw && language.isNotEmpty) {
+      return '$language · ${S.current.home_nsfw_suffix}';
+    }
+    if (configInfo.nsfw) {
+      return S.current.home_nsfw_suffix;
+    }
+    return language;
+  }
+
+  Widget _buildCard(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Material(
@@ -77,6 +207,12 @@ class ConfigCard extends StatelessWidget {
                           if (configInfo.nsfw)
                             _buildChip(S.current.home_nsfw_suffix,
                                 color: AppColors.red),
+                          if (pinned)
+                            Icon(
+                              Icons.push_pin_rounded,
+                              size: 14,
+                              color: AppColors.primary,
+                            ),
                         ],
                       ),
                       ..._buildStatusMessage(),
@@ -126,13 +262,14 @@ class ConfigCard extends StatelessWidget {
     return Icon(Icons.chevron_right_rounded, color: AppColors.mainGrey);
   }
 
-  Widget _buildLogo(BuildContext context) {
+  Widget _buildLogo(BuildContext context, {double size = 56}) {
+    final double radius = size >= 48 ? 12 : 10;
     if (LocalSource.isLocal(configInfo.uid)) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(radius),
         child: SizedBox(
-          width: 56,
-          height: 56,
+          width: size,
+          height: size,
           child: ColoredBox(
             color: AppColors.primary.withValues(alpha: 0.16),
             child: Icon(Icons.folder_rounded, color: AppColors.primary),
@@ -141,10 +278,10 @@ class ConfigCard extends StatelessWidget {
       );
     }
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(radius),
       child: SizedBox(
-        width: 56,
-        height: 56,
+        width: size,
+        height: size,
         child: configInfo.logoUrl.contains('.svg')
             ? SvgPicture.network(
                 configInfo.logoUrl,
@@ -155,7 +292,7 @@ class ConfigCard extends StatelessWidget {
               )
             : CachedNetworkImage(
                 imageUrl: configInfo.logoUrl,
-                memCacheWidth: decodeWidthFor(context, 56),
+                memCacheWidth: decodeWidthFor(context, size),
                 fit: BoxFit.cover,
                 placeholder: (BuildContext context, String url) =>
                     _buildLogoPlaceholder(),

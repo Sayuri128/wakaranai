@@ -590,6 +590,26 @@ class MessageLookup extends MessageLookupByLibrary {
     "configs_filter_language_title": MessageLookupByLibrary.simpleMessage(
       "Language",
     ),
+    "configs_layout_cards": MessageLookupByLibrary.simpleMessage("Cards"),
+    "configs_layout_compact": MessageLookupByLibrary.simpleMessage(
+      "Compact list",
+    ),
+    "configs_layout_grid": MessageLookupByLibrary.simpleMessage("Grid"),
+    "configs_pin": MessageLookupByLibrary.simpleMessage("Pin to top"),
+    "configs_pinned_group_title": MessageLookupByLibrary.simpleMessage(
+      "Pinned",
+    ),
+    "configs_search_hint": MessageLookupByLibrary.simpleMessage(
+      "Search sources",
+    ),
+    "configs_sort_listing": MessageLookupByLibrary.simpleMessage("As listed"),
+    "configs_sort_name": MessageLookupByLibrary.simpleMessage("Name"),
+    "configs_unpin": MessageLookupByLibrary.simpleMessage("Unpin"),
+    "configs_view_layout": MessageLookupByLibrary.simpleMessage("Layout"),
+    "configs_view_options": MessageLookupByLibrary.simpleMessage(
+      "View options",
+    ),
+    "configs_view_sort": MessageLookupByLibrary.simpleMessage("Sort"),
     "content_kind_anime": MessageLookupByLibrary.simpleMessage("Anime"),
     "content_kind_cartoon": MessageLookupByLibrary.simpleMessage("Cartoons"),
     "content_kind_comic": MessageLookupByLibrary.simpleMessage("Comics"),

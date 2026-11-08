@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wakaranai/ui/home/configs_page/configs_view_options.dart';
 import 'package:wakaranai/ui/widgets/text_input_sheet.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/services/configs_service/extension_instances.dart';
@@ -73,14 +74,7 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
             curve: Curves.easeOutCubic,
             alignment: Alignment.topCenter,
             child: _expanded
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      ...widget.remoteConfigs.map(
-                        (BaseExtension e) => _buildCard(context, e),
-                      ),
-                    ],
-                  )
+                ? _buildEntries(context)
                 : const SizedBox(width: double.infinity),
           ),
         ],
@@ -88,9 +82,89 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
     );
   }
 
-  Widget _buildCard(BuildContext context, BaseExtension extension) {
+  ConfigsViewOptions _viewOptions(BuildContext context) {
+    return context.watch<ConfigsViewOptionsCubit>().state;
+  }
+
+  Widget _buildEntries(BuildContext context) {
+    final ConfigsLayout layout = _viewOptions(context).layout;
+    switch (layout) {
+      case ConfigsLayout.cards:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            for (final BaseExtension extension in widget.remoteConfigs)
+              _buildCard(context, extension, ConfigCardStyle.card),
+          ],
+        );
+      case ConfigsLayout.compact:
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          child: Material(
+            color: AppColors.overlay(0.04),
+            borderRadius: BorderRadius.circular(14),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                for (int index = 0;
+                    index < widget.remoteConfigs.length;
+                    index++) ...<Widget>[
+                  if (index > 0)
+                    Divider(
+                      height: 1,
+                      indent: 64,
+                      color: AppColors.overlay(0.06),
+                    ),
+                  _buildCard(
+                    context,
+                    widget.remoteConfigs[index],
+                    ConfigCardStyle.compact,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      case ConfigsLayout.grid:
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              const double spacing = 10;
+              final int columns = (constraints.maxWidth / 104).floor().clamp(3, 8);
+              final double width =
+                  (constraints.maxWidth - spacing * (columns - 1)) / columns;
+              return Wrap(
+                spacing: spacing,
+                runSpacing: spacing,
+                children: <Widget>[
+                  for (final BaseExtension extension in widget.remoteConfigs)
+                    SizedBox(
+                      width: width,
+                      child: _buildCard(
+                        context,
+                        extension,
+                        ConfigCardStyle.tile,
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+        );
+    }
+  }
+
+  Widget _buildCard(
+    BuildContext context,
+    BaseExtension extension,
+    ConfigCardStyle style,
+  ) {
     final ExtensionListingStatus status = widget.listingStatusOf(extension);
     return ConfigCard(
+      style: style,
+      pinned: _viewOptions(context).isPinned(extension.config.uid),
       configInfo: extension.config,
       listingStatus: status,
       onTap: () => _onCardTap(context, extension, status),
@@ -119,7 +193,16 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
       return () => _showCompatibilityInfo(context, extension, status);
     }
     if (LocalSource.isLocal(extension.config.uid)) {
-      return () => unawaited(showLocalSourceActions(context));
+      return () => unawaited(showLocalSourceActions(
+            context,
+            pinned: context
+                .read<ConfigsViewOptionsCubit>()
+                .state
+                .isPinned(extension.config.uid),
+            onTogglePin: () => context
+                .read<ConfigsViewOptionsCubit>()
+                .togglePin(extension.config.uid),
+          ));
     }
     return () => unawaited(_showExtensionActions(
           context,
@@ -294,13 +377,6 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
     if (!context.mounted) {
       return;
     }
-    if (!showSettings &&
-        !showSession &&
-        !showClearData &&
-        !installed &&
-        !canAddInstance) {
-      return;
-    }
     await showActionSheet(
       context,
       title: config.name.trim(),
@@ -309,6 +385,7 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            _buildPinRow(context, sheetContext, config),
             if (canAddInstance)
               ActionSheetRow(
                 label: S.current.extension_instance_add,
@@ -433,6 +510,24 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
     SnackBars.showSnackBar(
       context: context,
       message: S.current.extension_uninstall_done(name),
+    );
+  }
+
+  Widget _buildPinRow(
+    BuildContext context,
+    BuildContext sheetContext,
+    ConfigInfo config,
+  ) {
+    final ConfigsViewOptionsCubit options =
+        context.read<ConfigsViewOptionsCubit>();
+    final bool pinned = options.state.isPinned(config.uid);
+    return ActionSheetRow(
+      label: pinned ? S.current.configs_unpin : S.current.configs_pin,
+      icon: pinned ? Icons.push_pin_outlined : Icons.push_pin_rounded,
+      onTap: () {
+        Navigator.of(sheetContext).pop();
+        unawaited(options.togglePin(config.uid));
+      },
     );
   }
 

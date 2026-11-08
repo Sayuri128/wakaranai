@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakaranai/ui/widgets/action_sheet.dart';
+import 'package:wakaranai/ui/home/configs_page/configs_view_options.dart';
 import 'package:wakaranai/services/configs_service/extension_instances.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/data/domain/database/extension_domain.dart';
@@ -31,12 +33,23 @@ class _ConfigPageState extends State<ConfigPage> {
   final ConfigsFilterPreferences _filterPreferences = ConfigsFilterPreferences();
   ConfigsFilter _filter = const ConfigsFilter();
   List<ExtensionDomain> _instances = const <ExtensionDomain>[];
+  final ConfigsViewOptionsCubit _viewOptions = ConfigsViewOptionsCubit();
+  final TextEditingController _searchController = TextEditingController();
+  String _query = '';
 
   @override
   void initState() {
     super.initState();
     unawaited(_restoreFilter());
     unawaited(_loadInstances());
+    unawaited(_viewOptions.init());
+  }
+
+  @override
+  void dispose() {
+    unawaited(_viewOptions.close());
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadInstances() async {
@@ -81,9 +94,14 @@ class _ConfigPageState extends State<ConfigPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      body: _buildRemoteConfigsPage(),
+    return BlocProvider<ConfigsViewOptionsCubit>.value(
+      value: _viewOptions,
+      child: BlocBuilder<ConfigsViewOptionsCubit, ConfigsViewOptions>(
+        builder: (BuildContext context, ConfigsViewOptions options) => Scaffold(
+          backgroundColor: AppColors.backgroundColor,
+          body: _buildRemoteConfigsPage(),
+        ),
+      ),
     );
   }
 
@@ -158,6 +176,11 @@ class _ConfigPageState extends State<ConfigPage> {
         overflow: TextOverflow.ellipsis,
       ),
       actions: <Widget>[
+        IconButton(
+          tooltip: S.current.configs_view_options,
+          icon: Icon(Icons.tune_rounded, color: AppColors.mainWhite),
+          onPressed: () => _showViewOptions(context),
+        ),
         Padding(
           padding: const EdgeInsets.only(right: 12),
           child: _buildSourcesButton(context),
@@ -218,15 +241,24 @@ class _ConfigPageState extends State<ConfigPage> {
     final List<String> kinds = availableContentKinds(visible);
     final List<String> languages = availableLanguages(visible);
     final ConfigsFilter filter = _applicableFilter(kinds, languages);
-    final List<BaseExtension> mangaConfigs = visibleManga
-        .where(filter.matches)
-        .toList(growable: false);
-    final List<BaseExtension> animeConfigs = visibleVideo
-        .where(filter.matches)
-        .toList(growable: false);
-    final List<BaseExtension> novelConfigs = visibleNovels
-        .where(filter.matches)
-        .toList(growable: false);
+    final ConfigsViewOptions options = _viewOptions.state;
+    final bool searchable =
+        visible.length > kConfigsSearchThreshold || _query.isNotEmpty;
+    bool shown(BaseExtension extension) {
+      return filter.matches(extension) &&
+          matchesConfigsQuery(extension, searchable ? _query : '');
+    }
+
+    final List<BaseExtension> pinnedConfigs =
+        options.pinnedIn(visible.where(shown));
+    final List<BaseExtension> mangaConfigs =
+        options.unpinned(visibleManga.where(shown).toList());
+    final List<BaseExtension> animeConfigs =
+        options.unpinned(visibleVideo.where(shown).toList());
+    final List<BaseExtension> novelConfigs =
+        options.unpinned(visibleNovels.where(shown).toList());
+    final Widget? searchField =
+        searchable ? _buildSearchField(context) : null;
     final ConfigsFilterBar filterBar = ConfigsFilterBar(
       kinds: kinds,
       languages: languages,
@@ -234,8 +266,12 @@ class _ConfigPageState extends State<ConfigPage> {
       onChanged: _changeFilter,
     );
 
-    if (mangaConfigs.isEmpty && animeConfigs.isEmpty && novelConfigs.isEmpty) {
+    if (pinnedConfigs.isEmpty &&
+        mangaConfigs.isEmpty &&
+        animeConfigs.isEmpty &&
+        novelConfigs.isEmpty) {
       return <Widget>[
+        if (searchField != null) SliverToBoxAdapter(child: searchField),
         if (filterBar.isUseful) SliverToBoxAdapter(child: filterBar),
         SliverFillRemaining(
           hasScrollBody: false,
@@ -249,7 +285,16 @@ class _ConfigPageState extends State<ConfigPage> {
     }
 
     return <Widget>[
+      if (searchField != null) SliverToBoxAdapter(child: searchField),
       if (filterBar.isUseful) SliverToBoxAdapter(child: filterBar),
+      if (pinnedConfigs.isNotEmpty)
+        ConfigsGroup(
+          key: const ValueKey<String>('pinned'),
+          title: S.current.configs_pinned_group_title,
+          remoteConfigs: pinnedConfigs,
+          listingStatusOf: state.listingStatusOf,
+          onInstancesChanged: _reloadInstances,
+        ),
       if (mangaConfigs.isNotEmpty)
         ConfigsGroup(
           key: const ValueKey<String>('manga'),
@@ -276,6 +321,96 @@ class _ConfigPageState extends State<ConfigPage> {
         ),
       const SliverToBoxAdapter(child: SizedBox(height: 24)),
     ];
+  }
+
+  Widget _buildSearchField(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (String value) => setState(() => _query = value),
+        textInputAction: TextInputAction.search,
+        style: regular(size: 15),
+        cursorColor: AppColors.primary,
+        decoration: InputDecoration(
+          isDense: true,
+          filled: true,
+          fillColor: AppColors.overlay(0.06),
+          hintText: S.current.configs_search_hint,
+          hintStyle: regular(size: 15, color: AppColors.mainGrey),
+          prefixIcon: Icon(Icons.search_rounded, color: AppColors.mainGrey),
+          suffixIcon: _query.isEmpty
+              ? null
+              : IconButton(
+                  icon: Icon(Icons.close_rounded, color: AppColors.mainGrey),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() => _query = '');
+                  },
+                ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showViewOptions(BuildContext context) {
+    unawaited(showActionSheet(
+      context,
+      title: S.current.configs_view_options,
+      child: BlocBuilder<ConfigsViewOptionsCubit, ConfigsViewOptions>(
+        bloc: _viewOptions,
+        builder: (BuildContext sheetContext, ConfigsViewOptions options) =>
+            Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            _sheetLabel(S.current.configs_view_layout),
+            ActionSheetRow(
+              icon: Icons.view_agenda_outlined,
+              label: S.current.configs_layout_cards,
+              selected: options.layout == ConfigsLayout.cards,
+              onTap: () => _viewOptions.setLayout(ConfigsLayout.cards),
+            ),
+            ActionSheetRow(
+              icon: Icons.view_list_rounded,
+              label: S.current.configs_layout_compact,
+              selected: options.layout == ConfigsLayout.compact,
+              onTap: () => _viewOptions.setLayout(ConfigsLayout.compact),
+            ),
+            ActionSheetRow(
+              icon: Icons.grid_view_rounded,
+              label: S.current.configs_layout_grid,
+              selected: options.layout == ConfigsLayout.grid,
+              onTap: () => _viewOptions.setLayout(ConfigsLayout.grid),
+            ),
+            _sheetLabel(S.current.configs_view_sort),
+            ActionSheetRow(
+              icon: Icons.format_list_numbered_rounded,
+              label: S.current.configs_sort_listing,
+              selected: options.sort == ConfigsSort.listing,
+              onTap: () => _viewOptions.setSort(ConfigsSort.listing),
+            ),
+            ActionSheetRow(
+              icon: Icons.sort_by_alpha_rounded,
+              label: S.current.configs_sort_name,
+              selected: options.sort == ConfigsSort.name,
+              onTap: () => _viewOptions.setSort(ConfigsSort.name),
+            ),
+          ],
+        ),
+      ),
+    ));
+  }
+
+  Widget _sheetLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+      child: Text(label, style: medium(size: 13, color: AppColors.mainGrey)),
+    );
   }
 
   ConfigsFilter _applicableFilter(
