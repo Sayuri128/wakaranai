@@ -70,6 +70,10 @@ First of all you need to create a new json file called `config.json` with the fo
   `paid` (nothing can be read or watched without paying). The Configs tab shows a "Partly free" or
   "Paid" badge and can filter by it. Unknown values count as `free`; older app releases ignore the
   field.
+* `sourceType` (optional): What kind of source the extension talks to: `website` (the default),
+  `self-hosted` (a server the user runs and points the extension at, such as Komga or Jellyfin) or
+  `official` (the publisher's own service). The Configs tab shows a "Self-hosted" or "Official" badge
+  and can filter by it. Unknown values count as `website`; older app releases ignore the field.
 
 see [template](./extension_templates/manga/config.json)
 
