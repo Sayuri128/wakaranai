@@ -14,6 +14,8 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/services/local_source/local_books_source.dart';
+import 'package:wakaranai/services/local_source/local_sources.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/activity_history_cubit_mixin.dart';
 import 'package:wakaranai/ui/routes.dart';
 import 'package:wakaranai/ui/services/manga/manga_service_viewer/concrete_viewer/manga_concrete_viewer.dart';
@@ -72,6 +74,7 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
   Future<Set<String>> _novelExtensionUids() async {
     final List<ExtensionDomain> extensions = await extensionRepository.getAll();
     return <String>{
+      LocalBooksSource.uid,
       for (final ExtensionDomain extension in extensions)
         if (extension.config.type == ConfigInfoType.NOVEL) extension.config.uid,
     };
@@ -106,7 +109,9 @@ class MangaActivityHistoryCubit extends Cubit<ActivityHistoryState>
     required ConcreteDataDomain concrete,
     required BaseActivityDomain activity,
   }) async {
-    final extension = await extensionRepository.getByUid(concrete.extensionUid);
+    final ExtensionDomain? extension =
+        LocalSources.extensionFor(concrete.extensionUid) ??
+            await extensionRepository.getByUid(concrete.extensionUid);
     if (extension == null) {
       SnackBars.showErrorSnackBar(
         context: context,

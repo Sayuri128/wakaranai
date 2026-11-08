@@ -26,7 +26,9 @@ import 'package:wakaranai/ui/widgets/snackbars.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/anime_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/activity_history_page/cubit/manga_activity_history_cubit.dart';
 import 'package:wakaranai/ui/home/configs_page/config_card.dart';
+import 'package:wakaranai/ui/home/configs_page/local_books_actions.dart';
 import 'package:wakaranai/ui/home/configs_page/local_source_actions.dart';
+import 'package:wakaranai/services/local_source/local_books_source.dart';
 import 'package:wakaranai/services/local_source/local_source.dart';
 import 'package:wakaranai/ui/home/configs_page/extension_compatibility_texts.dart';
 import 'package:wakaranai/ui/services/anime/anime_service_viewer/anime_service_viewer.dart';
@@ -191,6 +193,18 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
   ) {
     if (status == ExtensionListingStatus.updateNeedsNewerApp) {
       return () => _showCompatibilityInfo(context, extension, status);
+    }
+    if (LocalBooksSource.isLocal(extension.config.uid)) {
+      return () => unawaited(showLocalBooksActions(
+            context,
+            pinned: context
+                .read<ConfigsViewOptionsCubit>()
+                .state
+                .isPinned(extension.config.uid),
+            onTogglePin: () => context
+                .read<ConfigsViewOptionsCubit>()
+                .togglePin(extension.config.uid),
+          ));
     }
     if (LocalSource.isLocal(extension.config.uid)) {
       return () => unawaited(showLocalSourceActions(

@@ -9,6 +9,7 @@ import 'package:wakaranai/data/domain/database/category_domain.dart';
 import 'package:wakaranai/data/domain/database/library_entry_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/services/widgets/title_download_sheet.dart';
+import 'package:wakaranai/services/local_source/local_sources.dart';
 import 'package:wakaranai/ui/widgets/action_sheet.dart';
 import 'package:wakaranai/ui/widgets/snackbars.dart';
 
@@ -78,7 +79,8 @@ Future<void> showGalleryTitleActions(
                 _showCategoryPicker(context, library, title, saved);
               },
             ),
-          if (downloadClient != null)
+          if (downloadClient != null &&
+              LocalSources.supportsDownloads(title.extensionUid))
             ActionSheetRow(
               icon: Icons.download_rounded,
               label: S.current.title_download,

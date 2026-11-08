@@ -11,6 +11,7 @@ import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
 import 'package:wakaranai/services/migration/migration_models.dart';
 import 'package:wakaranai/ui/home/library_page/library_category_sheets.dart';
+import 'package:wakaranai/services/local_source/local_sources.dart';
 import 'package:wakaranai/ui/home/library_page/library_download_actions.dart';
 import 'package:wakaranai/ui/migration/migration_bulk_sheet.dart';
 import 'package:wakaranai/ui/migration/migration_launcher.dart';
@@ -36,7 +37,9 @@ Future<void> showLibraryEntryActions(
   }
   final List<LibraryEntryDomain> downloadable = entries
       .where(
-        (LibraryEntryDomain e) => extensionTypes.containsKey(e.extensionUid),
+        (LibraryEntryDomain e) =>
+            extensionTypes.containsKey(e.extensionUid) &&
+            LocalSources.supportsDownloads(e.extensionUid),
       )
       .toList();
   final bool allTracked = entries.every(

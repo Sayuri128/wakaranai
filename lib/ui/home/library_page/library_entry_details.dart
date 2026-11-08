@@ -9,6 +9,7 @@ import 'package:wakaranai/repositories/database/anime_episode_activity_repositor
 import 'package:wakaranai/repositories/database/chapter_activity_repository.dart';
 import 'package:wakaranai/repositories/database/concerete_data_repository.dart';
 import 'package:wakaranai/repositories/database/extension_repository.dart';
+import 'package:wakaranai/services/local_source/local_sources.dart';
 import 'package:wakaranai/ui/common/service_viewer/gallery_items_view.dart';
 
 class LibraryEntryDetails {
@@ -39,10 +40,15 @@ class LibraryEntryDetailsLoader {
   final Map<String, Future<ExtensionDomain?>> _extensions =
       <String, Future<ExtensionDomain?>>{};
 
+  Future<ExtensionDomain?> _extensionFor(String extensionUid) async {
+    return LocalSources.extensionFor(extensionUid) ??
+        await extensionRepository.getByUid(extensionUid);
+  }
+
   Future<LibraryEntryDetails> load(LibraryEntryDomain entry) async {
     final ExtensionDomain? extension = await _extensions.putIfAbsent(
       entry.extensionUid,
-      () => extensionRepository.getByUid(entry.extensionUid),
+      () => _extensionFor(entry.extensionUid),
     );
     final ConcreteDataDomain? concrete = await concreteDataRepository.getByUid(
       entry.uid,

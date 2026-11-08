@@ -10,6 +10,7 @@ import 'package:wakaranai/data/domain/database/extension_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/ui/common/service_viewer/service_viewer_message.dart';
 import 'package:wakaranai/data/domain/database/base_extension.dart';
+import 'package:wakaranai/services/local_source/local_books_source.dart';
 import 'package:wakaranai/services/local_source/local_source.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_filter.dart';
@@ -256,8 +257,10 @@ class _ConfigPageState extends State<ConfigPage> {
     ];
     final List<BaseExtension> visibleVideo =
         _withInstances(_filterNsfw(state.animeRemoteConfigs, showNsfw));
-    final List<BaseExtension> visibleNovels =
-        _withInstances(_filterNsfw(state.novelRemoteConfigs, showNsfw));
+    final List<BaseExtension> visibleNovels = <BaseExtension>[
+      LocalBooksSource.extension(S.current.local_books_name),
+      ..._withInstances(_filterNsfw(state.novelRemoteConfigs, showNsfw)),
+    ];
     final List<BaseExtension> visible = <BaseExtension>[
       ...visibleManga,
       ...visibleVideo,

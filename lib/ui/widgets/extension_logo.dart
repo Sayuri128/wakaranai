@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:wakaranai/services/local_source/local_books_source.dart';
 import 'package:wakaranai/services/local_source/local_source.dart';
 import 'package:wakaranai/utils/app_colors.dart';
 import 'package:wakaranai/utils/images.dart';
@@ -23,7 +24,8 @@ class ExtensionLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (LocalSource.isLocal(configInfo.uid)) {
+    final IconData? builtInIcon = _builtInIcon();
+    if (builtInIcon != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(_radius),
         child: SizedBox(
@@ -32,7 +34,7 @@ class ExtensionLogo extends StatelessWidget {
           child: ColoredBox(
             color: AppColors.primary.withValues(alpha: 0.16),
             child: Icon(
-              Icons.folder_rounded,
+              builtInIcon,
               color: AppColors.primary,
               size: _iconSize,
             ),
@@ -65,6 +67,16 @@ class ExtensionLogo extends StatelessWidget {
               ),
       ),
     );
+  }
+
+  IconData? _builtInIcon() {
+    if (LocalSource.isLocal(configInfo.uid)) {
+      return Icons.folder_rounded;
+    }
+    if (LocalBooksSource.isLocal(configInfo.uid)) {
+      return Icons.menu_book_rounded;
+    }
+    return null;
   }
 
   Widget _buildPlaceholder() {

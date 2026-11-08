@@ -15,6 +15,7 @@ import 'package:wakaranai/data/domain/database/chapter_activity_domain.dart';
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/data/domain/database/download_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
+import 'package:wakaranai/services/local_source/local_sources.dart';
 import 'package:wakaranai/services/novels/novel_progress.dart';
 import 'package:wakaranai/services/trackers/tracker_models.dart';
 import 'package:wakaranai/services/trackers/tracker_progress.dart';
@@ -227,7 +228,7 @@ class NovelConcreteViewer extends ConcreteViewerPage<NovelApiClient,
         selected: state.selection.contains(chapter.uid),
         dim: NovelProgress.isFinished(activity),
         progress: _tileProgress(activity),
-        trailing: _buildDownloadButton(context, chapter, state),
+        trailing: _buildTrailing(context, chapter, state),
         subtitle: _buildChapterSubtitle(chapter, activity),
         onLongPress: () {
           getConcreteViewCubit(context).changeSelection(chapter.uid);
@@ -254,6 +255,17 @@ class NovelConcreteViewer extends ConcreteViewerPage<NovelApiClient,
       return null;
     }
     return NovelProgress.fractionOf(activity);
+  }
+
+  Widget? _buildTrailing(
+    BuildContext context,
+    Chapter chapter,
+    NovelConcreteState state,
+  ) {
+    if (!LocalSources.supportsDownloads(data.configInfo.uid)) {
+      return null;
+    }
+    return _buildDownloadButton(context, chapter, state);
   }
 
   Widget _buildDownloadButton(

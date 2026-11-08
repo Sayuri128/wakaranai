@@ -13,6 +13,7 @@ import 'package:wakaranai/blocs/page_translation_settings/page_translation_setti
 import 'package:wakaranai/data/domain/database/concrete_data_domain.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/services/downloads/episode_title_downloader.dart';
+import 'package:wakaranai/services/local_source/local_sources.dart';
 import 'package:wakaranai/ui/services/continue_reading/continue_button.dart';
 import 'package:wakaranai/ui/services/cubits/concrete_view/concrete_view_cubit.dart';
 import 'package:wakaranai/ui/services/widgets/page_translation/chapter_translation_actions.dart';
@@ -216,12 +217,13 @@ mixin ConcreteViewerMixin<T extends ApiClient, C extends ConcreteView,
                   state.selection.length,
                 ),
             actions: <SelectionAction>[
-              SelectionAction(
-                icon: Icons.download_outlined,
-                label: S.of(context).concrete_selection_download,
-                color: AppColors.primary,
-                onTap: () => _downloadSelected(context, state),
-              ),
+              if (LocalSources.supportsDownloads(state.configInfo.uid))
+                SelectionAction(
+                  icon: Icons.download_outlined,
+                  label: S.of(context).concrete_selection_download,
+                  color: AppColors.primary,
+                  onTap: () => _downloadSelected(context, state),
+                ),
               if (canTranslate)
                 SelectionAction(
                   icon: Icons.translate_rounded,
