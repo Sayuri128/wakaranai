@@ -65,6 +65,11 @@ First of all you need to create a new json file called `config.json` with the fo
   `dorama`, `documentary`, `manga`, `manhwa`, `manhua`, `comic`, `novel` and `audiobook`, and shows any other
   value as written. For example a Ukrainian site with films and series uses
   `["movie", "series", "cartoon", "anime"]`. Older app releases ignore the field.
+* `pricing` (optional): Whether the source's content costs money: `free` (the default),
+  `partial` (some chapters or episodes are paid or early access, or need a subscription) or
+  `paid` (nothing can be read or watched without paying). The Configs tab shows a "Partly free" or
+  "Paid" badge and can filter by it. Unknown values count as `free`; older app releases ignore the
+  field.
 
 see [template](./extension_templates/manga/config.json)
 
