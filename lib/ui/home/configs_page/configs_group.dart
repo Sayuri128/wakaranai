@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wakaranai/services/configs_service/extension_client_lifecycle.dart';
 import 'package:wakaranai/ui/home/configs_page/configs_view_options.dart';
 import 'package:wakaranai/ui/widgets/text_input_sheet.dart';
 import 'package:wakaranai/ui/home/configs_page/bloc/remote_configs/remote_configs_cubit.dart';
@@ -631,6 +632,7 @@ class _ConfigsGroupState extends State<ConfigsGroup> {
   Future<void> _clearStoredData(BuildContext context, ConfigInfo config) async {
     await ExtensionDataCleaner(storageRepository: _storageRepository(context))
         .clearStorage(config.uid);
+    ExtensionClientLifecycle.instance.reset(config.uid);
     if (!context.mounted) {
       return;
     }

@@ -5,6 +5,7 @@ import 'package:capyscript/api_clients/novel_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wakaranai/services/configs_service/api_client_factory.dart';
+import 'package:wakaranai/services/configs_service/extension_client_lifecycle.dart';
 
 ConfigInfo _config(int type) => ConfigInfo.fromJson(<String, dynamic>{
       'name': 'Test',
@@ -46,5 +47,40 @@ void main() {
     expect(client.host.pagination?.pageSizes, <int>[24, 48]);
     expect(client.host.pagination?.defaultPageSize, 48);
     expect(client.interpreter.host, same(client.host));
+  });
+
+  test('resetting an extension reruns onInit on every live client', () async {
+    const String code = '''
+      import "dependencies";
+      function onInit() {
+        provide("generation", isProvided("generation"));
+      }
+      function getConcrete(uid, data) {
+        return inject("generation");
+      }
+    ''';
+    final ApiClientFactory factory = ApiClientFactory();
+    final MangaApiClient first = factory.manga(config: _config(0), code: code);
+    final MangaApiClient second =
+        factory.create(config: _config(0), code: code) as MangaApiClient;
+    await first.interpreter.runFunction('getConcrete',
+        arguments: <String, dynamic>{'uid': '', 'data': <String, dynamic>{}});
+    await second.interpreter.initialize();
+    first.interpreter.dependencies.provide('extra', 1);
+    second.interpreter.dependencies.provide('extra', 1);
+
+    expect(ExtensionClientLifecycle.instance.reset('ext-uid'),
+        greaterThanOrEqualTo(2));
+
+    expect(first.interpreter.dependencies.isProvided('extra'), isFalse);
+    expect(second.interpreter.dependencies.isProvided('extra'), isFalse);
+    expect(
+        await first.interpreter.runFunction('getConcrete',
+            arguments: <String, dynamic>{'uid': '', 'data': <String, dynamic>{}}),
+        isFalse);
+  });
+
+  test('resetting an extension without live clients does nothing', () {
+    expect(ExtensionClientLifecycle.instance.reset('never-created'), 0);
   });
 }

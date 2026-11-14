@@ -6,6 +6,7 @@ import 'package:capyscript/api_clients/manga_api_client.dart';
 import 'package:capyscript/api_clients/novel_api_client.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/config_info.dart';
 import 'package:wakaranai/repositories/database/extension_storage_repository.dart';
+import 'package:wakaranai/services/configs_service/extension_client_lifecycle.dart';
 import 'package:wakaranai/services/extension_preferences/extension_host_services.dart';
 import 'package:wakaranai/services/extension_preferences/extension_preferences_store.dart';
 import 'package:wakaranai/services/local_source/local_books_source.dart';
@@ -58,19 +59,47 @@ class ApiClientFactory {
   final ExtensionHostFactory hostFactory;
 
   ApiClient create({required ConfigInfo config, required String code}) {
+    final ApiClient client = _createUntracked(config: config, code: code);
+    ExtensionClientLifecycle.instance.track(config.uid, client);
+    return client;
+  }
+
+  ApiClient _createUntracked(
+      {required ConfigInfo config, required String code}) {
     switch (config.type) {
       case ConfigInfoType.ANIME:
-        return anime(config: config, code: code);
+        return _anime(config: config, code: code);
       case ConfigInfoType.MANGA:
-        return manga(config: config, code: code);
+        return _manga(config: config, code: code);
       case ConfigInfoType.NOVEL:
-        return novel(config: config, code: code);
+        return _novel(config: config, code: code);
       case ConfigInfoType.AUDIO:
-        return audio(config: config, code: code);
+        return _audio(config: config, code: code);
     }
   }
 
   MangaApiClient manga({required ConfigInfo config, required String code}) {
+    return _tracked(config, _manga(config: config, code: code));
+  }
+
+  AnimeApiClient anime({required ConfigInfo config, required String code}) {
+    return _tracked(config, _anime(config: config, code: code));
+  }
+
+  NovelApiClient novel({required ConfigInfo config, required String code}) {
+    return _tracked(config, _novel(config: config, code: code));
+  }
+
+  AudioApiClient audio({required ConfigInfo config, required String code}) {
+    return _tracked(config, _audio(config: config, code: code));
+  }
+
+  T _tracked<T extends ApiClient>(ConfigInfo config, T client) {
+    ExtensionClientLifecycle.instance.track(config.uid, client);
+    return client;
+  }
+
+  MangaApiClient _manga({required ConfigInfo config, required String code}) {
     if (LocalSource.isLocal(config.uid)) {
       return LocalMangaApiClient(
         library: LocalSource.library,
@@ -80,11 +109,11 @@ class ApiClientFactory {
     return MangaApiClient(code: code, host: hostFactory.hostFor(config));
   }
 
-  AnimeApiClient anime({required ConfigInfo config, required String code}) {
+  AnimeApiClient _anime({required ConfigInfo config, required String code}) {
     return AnimeApiClient(code: code, host: hostFactory.hostFor(config));
   }
 
-  NovelApiClient novel({required ConfigInfo config, required String code}) {
+  NovelApiClient _novel({required ConfigInfo config, required String code}) {
     if (LocalBooksSource.isLocal(config.uid)) {
       return LocalNovelApiClient(
         library: LocalBooksSource.library,
@@ -94,7 +123,7 @@ class ApiClientFactory {
     return NovelApiClient(code: code, host: hostFactory.hostFor(config));
   }
 
-  AudioApiClient audio({required ConfigInfo config, required String code}) {
+  AudioApiClient _audio({required ConfigInfo config, required String code}) {
     return AudioApiClient(code: code, host: hostFactory.hostFor(config));
   }
 }

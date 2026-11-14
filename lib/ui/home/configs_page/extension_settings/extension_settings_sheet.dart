@@ -2,6 +2,7 @@ import 'package:capyscript/modules/waka_models/models/config_info/config_info.da
 import 'package:capyscript/modules/waka_models/models/config_info/gallery_pagination/gallery_pagination.dart';
 import 'package:capyscript/modules/waka_models/models/config_info/preferences/extension_preference.dart';
 import 'package:flutter/material.dart';
+import 'package:wakaranai/services/configs_service/extension_client_lifecycle.dart';
 import 'package:wakaranai/generated/l10n.dart';
 import 'package:wakaranai/main.dart';
 import 'package:wakaranai/services/extension_preferences/extension_preference_values.dart';
@@ -31,6 +32,9 @@ Future<bool> showExtensionSettingsSheet(
       },
     ),
   );
+  if (changed) {
+    ExtensionClientLifecycle.instance.reset(config.uid);
+  }
   return changed;
 }
 
