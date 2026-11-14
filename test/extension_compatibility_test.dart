@@ -147,14 +147,14 @@ void main() {
         'category': 'manga',
         'path': 'manga/source',
         'revision': 'abc',
-        'apiVersion': 3,
+        'apiVersion': capyscriptApiVersion + 1,
         'minAppVersion': '0.5.0',
         'config': _configJson(),
       });
 
-      expect(remote.apiVersion, 3);
+      expect(remote.apiVersion, capyscriptApiVersion + 1);
       expect(remote.minAppVersion, '0.5.0');
-      expect(remote.effectiveApiVersion, 3);
+      expect(remote.effectiveApiVersion, capyscriptApiVersion + 1);
       expect(remote.effectiveMinAppVersion, '0.5.0');
       expect(remote.compatibility.incompatibility,
           ExtensionIncompatibility.apiVersion);
@@ -195,7 +195,7 @@ void main() {
       final RemoteConfig remote = RemoteConfig.fromJson(<String, dynamic>{
         'category': 'manga',
         'path': 'manga/source',
-        'config': _configJson(apiVersion: 3),
+        'config': _configJson(apiVersion: capyscriptApiVersion + 1),
       });
 
       expect(remote.compatibility.requiresNewerApp, isTrue);
