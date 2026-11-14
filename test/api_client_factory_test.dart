@@ -49,35 +49,40 @@ void main() {
     expect(client.interpreter.host, same(client.host));
   });
 
-  test('resetting an extension reruns onInit on every live client', () async {
+  test('resetting an extension rebuilds the Extension instance of every live client',
+      () async {
     const String code = '''
-      import "dependencies";
-      function onInit() {
-        provide("generation", isProvided("generation"));
-      }
-      function getConcrete(uid, data) {
-        return inject("generation");
+      import "converter";
+      class Extension extends MangaSource {
+        visits: int;
+        function constructor() {
+          this.visits = 0;
+        }
+        override function getGallery(page, query, filters) { return []; }
+        override function getConcrete(uid, data) {
+          this.visits = this.visits + 1;
+          return parseString(this.visits);
+        }
+        override function getPages(uid, data) { return null; }
       }
     ''';
     final ApiClientFactory factory = ApiClientFactory();
     final MangaApiClient first = factory.manga(config: _config(0), code: code);
     final MangaApiClient second =
         factory.create(config: _config(0), code: code) as MangaApiClient;
-    await first.interpreter.runFunction('getConcrete',
-        arguments: <String, dynamic>{'uid': '', 'data': <String, dynamic>{}});
-    await second.interpreter.initialize();
-    first.interpreter.dependencies.provide('extra', 1);
-    second.interpreter.dependencies.provide('extra', 1);
+    final Map<String, dynamic> arguments = <String, dynamic>{
+      'uid': '',
+      'data': <String, dynamic>{},
+    };
+    expect(await first.interpreter.runFunction('getConcrete', arguments: arguments), '1');
+    expect(await first.interpreter.runFunction('getConcrete', arguments: arguments), '2');
+    expect(await second.interpreter.runFunction('getConcrete', arguments: arguments), '1');
 
     expect(ExtensionClientLifecycle.instance.reset('ext-uid'),
         greaterThanOrEqualTo(2));
 
-    expect(first.interpreter.dependencies.isProvided('extra'), isFalse);
-    expect(second.interpreter.dependencies.isProvided('extra'), isFalse);
-    expect(
-        await first.interpreter.runFunction('getConcrete',
-            arguments: <String, dynamic>{'uid': '', 'data': <String, dynamic>{}}),
-        isFalse);
+    expect(await first.interpreter.runFunction('getConcrete', arguments: arguments), '1');
+    expect(await second.interpreter.runFunction('getConcrete', arguments: arguments), '1');
   });
 
   test('resetting an extension without live clients does nothing', () {
