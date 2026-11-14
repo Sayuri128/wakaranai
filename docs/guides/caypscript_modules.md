@@ -431,35 +431,24 @@ to keep the kind.
 
 ## Dependencies
 
-**(api 3)** Shares objects between script functions for as long as the app keeps the extension
-client: API clients, class instances, lookup maps. Register them in the optional `onInit()`
-hook (see [Lifecycle](extensions.md#lifecycle)) and fetch them anywhere with `inject`.
+**(api 3)** Shares objects between calls for scripts written as global functions: API clients,
+class instances, lookup maps. An extension written as an
+[`Extension` class](extensions.md#extension-class) keeps such objects in its fields instead.
 
 ```capyscript
 import "dependencies";
 import "graphql";
 
-class Catalog {
-    base: string;
-    function constructor(base: string) {
-        this.base = base;
+function api() {
+    if (isProvided("api") == false) {
+        provide("api", createGraphQLClient({"url": "https://example.com/graphql"}));
     }
-    function titleUrl(slug: string): string {
-        return this.base + "/title/" + slug;
-    }
-}
-
-function onInit() {
-    provide("catalog", new Catalog("https://example.com"));
-    provide("api", createGraphQLClient({"url": "https://example.com/graphql"}));
-    provideLazy("genres", function() {
-        return inject("api").query("{ genres { id name } }")["genres"];
-    });
+    return inject("api");
 }
 
 function getConcrete(uid, data) {
-    catalog = inject("catalog");
-    titleUrl = catalog.titleUrl(uid);
+    client = api();
+    title = client.query("query($id: ID!) { title(id: $id) { name } }", {"id": uid})["title"];
 }
 ```
 
@@ -470,9 +459,9 @@ function getConcrete(uid, data) {
 * `inject(name)` returns the value, or fails naming what is registered.
 * `isProvided(name)` and `forget(name)` check and remove entries.
 
-Values live in memory only: they are gone after an app restart and are rebuilt (by running
-`onInit` again) when the user changes the extension's settings or clears its stored data. Use
-[Storage](#storage) for anything that has to survive restarts.
+Values live in memory only: they are gone after an app restart and are cleared when the user
+changes the extension's settings or clears its stored data. Use [Storage](#storage) for anything
+that has to survive restarts.
 
 A statement can't start with a call result, so assign first:
 `api = inject("api"); api.setHeader("Authorization", token);`.
@@ -525,24 +514,28 @@ in-app browser.
 
 ```capyscript
 import "graphql";
-import "dependencies";
+import "manga_models";
 
-function onInit() {
-    provide("api", createGraphQLClient({
-        "url": "https://example.com/graphql",
-        "headers": {"Referer": "https://example.com/"}
-    }));
-}
+class Extension extends MangaSource {
+    api: any;
 
-function getGallery(page, query, filters) {
-    data = inject("api").query(
-        "query List($page: Int, $search: String) { list(page: $page, search: $search) { id title cover } }",
-        {"page": page, "search": query},
-        "List"
-    );
-    return data["list"].map(function(item) {
-        return buildGallery({"uid": item["id"], "title": item["title"], "cover": item["cover"], "data": {}});
-    });
+    function constructor() {
+        this.api = createGraphQLClient({
+            "url": "https://example.com/graphql",
+            "headers": {"Referer": "https://example.com/"}
+        });
+    }
+
+    function getGallery(page, query, filters) {
+        data = this.api.query(
+            "query List($page: Int, $search: String) { list(page: $page, search: $search) { id title cover } }",
+            {"page": page, "search": query},
+            "List"
+        );
+        return data["list"].map(function(item) {
+            return buildGallery({"uid": item["id"], "title": item["title"], "cover": item["cover"], "data": {}});
+        });
+    }
 }
 ```
 

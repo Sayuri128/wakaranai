@@ -1,0 +1,37 @@
+import "http";
+import "json";
+import "html";
+import "converter";
+import "preferences";
+import "errors";
+import "manga_models";
+
+class Extension extends MangaSource {
+    baseUrl: string;
+
+    function constructor() {
+        this.baseUrl = "https://example.com";
+    }
+
+    function getGallery(page, query, filters, feed, pageSize) {
+        return [];
+    }
+
+    function getConcrete(uid, data) {
+    }
+
+    function getPages(uid, data) {
+    }
+
+    function getImageHeaders(uid, data) {
+        return {"Referer": this.baseUrl + "/"};
+    }
+
+    function passProtector(body, headers, cookies) {
+        useHeaders({"headers": headers});
+    }
+
+    function passWebBrowserInterceptorController(controller) {
+        registerInterceptorController(controller);
+    }
+}

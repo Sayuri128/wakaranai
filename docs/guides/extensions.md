@@ -452,7 +452,7 @@ field out (or set `1`) if you use none of them. Set `"apiVersion": 2` when the c
 `currentMirror()`, or declares a `pageSize` parameter on `getGallery`. The repository validator
 reports any api 2 feature used without it.
 
-Set `"apiVersion": 3` when the script defines `onInit`, imports `dependencies`, `bytes`, `hash`
+Set `"apiVersion": 3` when the script declares an `Extension` class, imports `dependencies`, `bytes`, `hash`
 or `graphql`, calls `httpGetAll`, reads a response's `bodyBytes`, or relies on `windows-1251`/`koi8` pages being
 decoded properly. Api 3 extensions must also set `minAppVersion` to the first app release that
 supports api 3; the validator rejects them without one.
@@ -726,34 +726,93 @@ extension between calls and app restarts, optionally with an expiry: tokens, a r
 a cached genre list. It is private to the extension, is not part of the app's export, and is
 deleted when the extension is removed.
 
-## Lifecycle
+## Extension class
 
-**(api 3)** A script can define `onInit()`. The app keeps one client per open extension (and
-separate ones for background work such as library updates); `onInit` runs once per client,
-before the first function the app calls on it, and is the place to set up shared objects with
-the [`dependencies`](caypscript_modules.md#dependencies) module.
+**(api 3)** Instead of global functions, a script can declare one class named `Extension` that
+extends the base class of its type and implements the same entry points as methods:
+
+| Type | Base class (module) | Required methods |
+|---|---|---|
+| Manga | `MangaSource` (`manga_models`) | `getGallery`, `getConcrete`, `getPages` |
+| Anime | `AnimeSource` (`anime_models`) | `getGallery`, `getConcrete` |
+| Novel | `NovelSource` (`novel_models`) | `getGallery`, `getConcrete`, `getChapterText` |
+| Audio | `AudioSource` (`audio_models`) | `getGallery`, `getConcrete`, `getAudioSources` |
+
+The optional entry points (`getImageHeaders`, `getRelated`, `getVideoSources`, `passProtector`,
+`passWebBrowserInterceptorController`) are methods too; the base classes answer
+`getImageHeaders` with no headers. Methods receive the same arguments as the global functions,
+matched by parameter name, and may declare fewer parameters than the app passes.
 
 ```capyscript
-import "dependencies";
+import "http";
 import "graphql";
 import "preferences";
+import "manga_models";
 
-function onInit() {
-    provide("api", createGraphQLClient({
-        "url": "https://" + getPreference("host") + "/graphql"
-    }));
+class Extension extends MangaSource {
+    api: any;
+
+    function constructor() {
+        this.api = createGraphQLClient({
+            "url": "https://" + getPreference("host") + "/graphql"
+        });
+    }
+
+    function getGallery(page, query, filters, feed, pageSize) {
+        return this.api.query("{ list { id title } }")["list"].map(function(item) {
+            return buildGallery({"uid": item["id"], "title": item["title"], "cover": "", "data": {}});
+        });
+    }
+
+    function getConcrete(uid, data) {
+    }
+
+    function getPages(uid, data) {
+    }
 }
 ```
 
-* If `onInit` fails, the call that triggered it fails with the same error, and the next call runs
-  `onInit` again.
-* When the user changes the extension's settings or clears its stored data, every live client
-  forgets what it provided and runs `onInit` again before its next call, so values built from
-  preferences stay current.
-* `onInit` is not run before `passWebBrowserInterceptorController`, so the in-app browser may not
-  be ready yet. Keep it free of network requests and use `provideLazy` for anything that has to
-  fetch.
-* Scripts without `onInit` behave exactly as before.
+How the app uses it:
+
+* It creates one instance per client (one per open extension, separate ones for background work
+  such as library updates) before the first call and keeps it. The constructor is the place for
+  setup and fields hold state between calls. Keep the constructor free of network requests: it
+  runs before the in-app browser is ready.
+* A missing required method or a wrong base class fails as soon as the extension loads, naming
+  what is missing.
+* If the constructor fails, the call fails with the same error and the next call tries again.
+* When the user changes the extension's settings or clears its stored data, the app drops the
+  instance. The next call creates a new one and first repeats the last
+  `passWebBrowserInterceptorController` and `passProtector` calls on it, so sign-in state set
+  there is restored.
+* Helper functions outside the class still work and can be called from methods. Inside the class,
+  call other methods with `this.name(...)`.
+
+Shared engines can be base classes as well: `shared/madara` declares `class MadaraSource extends
+MangaSource`, so a Madara site is
+
+```capyscript
+import "../../shared/madara";
+
+class Extension extends MadaraSource {
+    function constructor() {
+        super({"baseUrl": "https://example.com"});
+    }
+
+    function titleOf(document) {
+        return super.titleOf(document).replaceAll(" (Official)", "");
+    }
+}
+```
+
+and overrides only the steps that differ. The engine keeps its `madaraGetGallery(settings, ...)`
+functions for api 2 extensions.
+
+A statement can't start with a call result, so assign first:
+`client = this.api; client.setHeader("Authorization", token);` (a field access such as
+`this.api.setHeader(...)` is fine).
+
+see [template](./extension_templates/manga_class/main.capyscript)
 
 ## Splitting an extension across files
 
