@@ -264,6 +264,20 @@ failover.
 
 ---
 
+### Several requests at once
+
+**(api 3)** `httpGetAll(requests, concurrency = 4)` runs GET requests in parallel (at most 8 at a
+time) and returns the responses in the same order. Each request is a url or a map with `url` and
+optional `params`, `paths` and `headers`. The request policy applies to each one, so the rate limit
+still holds. A request that can't connect comes back with `statusCode` 0 and the error as `body`
+instead of failing the whole call. It does not use the in-app browser.
+
+```capyscript
+responses = httpGetAll(ids.map(function(id) {
+    return {"url": "https://example.com/api/title/" + parseString(id)};
+}), 6);
+```
+
 ### Response bytes and charsets
 
 **(api 3)** Every `httpGet`/`httpPost` response also has `bodyBytes`: the raw body as a list of

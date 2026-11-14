@@ -453,7 +453,7 @@ field out (or set `1`) if you use none of them. Set `"apiVersion": 2` when the c
 reports any api 2 feature used without it.
 
 Set `"apiVersion": 3` when the script defines `onInit`, imports `dependencies`, `bytes`, `hash`
-or `graphql`, reads a response's `bodyBytes`, or relies on `windows-1251`/`koi8` pages being
+or `graphql`, calls `httpGetAll`, reads a response's `bodyBytes`, or relies on `windows-1251`/`koi8` pages being
 decoded properly. Api 3 extensions must also set `minAppVersion` to the first app release that
 supports api 3; the validator rejects them without one.
 
