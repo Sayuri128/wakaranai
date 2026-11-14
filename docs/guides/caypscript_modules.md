@@ -264,6 +264,26 @@ failover.
 
 ---
 
+### Response bytes and charsets
+
+**(api 3)** Every `httpGet`/`httpPost` response also has `bodyBytes`: the raw body as a list of
+byte values (null for requests made through the in-app browser). Use it with the
+[Bytes](#bytes) module for binary files:
+
+```capyscript
+import "http";
+import "bytes";
+
+function galleryIds(indexUrl) {
+    response = httpGet({"url": indexUrl});
+    return bytesToInts(response["bodyBytes"], 4);
+}
+```
+
+`body` is decoded with the charset the server declares. From api 3 on, `windows-1251`, `koi8-r`
+and `koi8-u` are decoded properly (older interpreters turned them into latin1), and when the
+server declares no charset and the body is not UTF-8, a `<meta charset>` in the page is honoured.
+
 ## JSON
 
 The JSON module is used to encode and decode JSON strings.
@@ -394,6 +414,140 @@ request.
 Don't write `try { … } finally { … }` without a `catch`: the interpreter swallows the error in that
 form. Use `try { … } catch (e) { …; throw e; } finally { … }`, or rethrow with `throwSourceError`
 to keep the kind.
+
+## Dependencies
+
+**(api 3)** Shares objects between script functions for as long as the app keeps the extension
+client: API clients, class instances, lookup maps. Register them in the optional `onInit()`
+hook (see [Lifecycle](extensions.md#lifecycle)) and fetch them anywhere with `inject`.
+
+```capyscript
+import "dependencies";
+import "graphql";
+
+class Catalog {
+    base: string;
+    function constructor(base: string) {
+        this.base = base;
+    }
+    function titleUrl(slug: string): string {
+        return this.base + "/title/" + slug;
+    }
+}
+
+function onInit() {
+    provide("catalog", new Catalog("https://example.com"));
+    provide("api", createGraphQLClient({"url": "https://example.com/graphql"}));
+    provideLazy("genres", function() {
+        return inject("api").query("{ genres { id name } }")["genres"];
+    });
+}
+
+function getConcrete(uid, data) {
+    catalog = inject("catalog");
+    titleUrl = catalog.titleUrl(uid);
+}
+```
+
+* `provide(name, value)` registers any value and replaces an earlier entry with the same name.
+* `provideLazy(name, factory)` registers a function that builds the value on the first
+  `inject(name)`. The result is cached; concurrent first calls share one build, and a factory
+  that throws is tried again on the next `inject`.
+* `inject(name)` returns the value, or fails naming what is registered.
+* `isProvided(name)` and `forget(name)` check and remove entries.
+
+Values live in memory only: they are gone after an app restart and are rebuilt (by running
+`onInit` again) when the user changes the extension's settings or clears its stored data. Use
+[Storage](#storage) for anything that has to survive restarts.
+
+A statement can't start with a call result, so assign first:
+`api = inject("api"); api.setHeader("Authorization", token);`.
+
+---
+
+## Bytes
+
+**(api 3)** Binary data as lists of byte values (0-255).
+
+| Function | Result |
+|---|---|
+| `base64DecodeBytes(text)` | Bytes of base64 or base64url text (padding optional). |
+| `base64EncodeBytes(bytes)` | Base64 text. |
+| `hexToBytes(text)`, `bytesToHex(bytes)` | Convert between hex strings and bytes. |
+| `stringToBytes(text, encoding = "utf-8")` | Encoded text. |
+| `bytesToString(bytes, encoding = "utf-8")` | Decoded text. |
+| `charCodes(text)`, `fromCharCodes(codes)` | UTF-16 code units, like JavaScript `charCodeAt` / `String.fromCharCode`. |
+| `xorBytes(bytes, key)` | Every byte XOR-ed with the key (bytes or a UTF-8 string), repeating the key. |
+| `bytesToInts(bytes, size = 4, bigEndian = true, signed = false)` | Consecutive `size`-byte integers. |
+| `bitAnd`, `bitOr`, `bitXor`, `shiftLeft`, `shiftRight`, `shiftRightUnsigned`, `bitNot` | Integer bit operations. |
+| `toInt32(value)`, `toUint32(value)` | Wrap to 32 bits, like JavaScript `x \| 0` and `x >>> 0`. |
+
+Encodings: `utf-8`, `latin1`, `ascii`, `windows-1251`, `koi8-r`, `koi8-u` (common aliases such as
+`cp1251` work too).
+
+---
+
+## Hash
+
+**(api 3)** `md5(input)`, `sha1(input)`, `sha256(input)`, `sha512(input)` and
+`hmac(algorithm, key, message)`. Inputs are strings (hashed as UTF-8) or byte lists. The last
+optional argument picks the output: `"hex"` (default), `"base64"` or `"bytes"`.
+
+```capyscript
+import "hash";
+
+function signedPath(path, secret) {
+    return path + "?sig=" + hmac("sha256", secret, path);
+}
+```
+
+---
+
+## GraphQL
+
+**(api 3)** A GraphQL client that sends its requests through the HTTP module, so the extension's
+request policy (rate limit, headers, mirrors) and `useHeaders` apply. It does not go through the
+in-app browser.
+
+```capyscript
+import "graphql";
+import "dependencies";
+
+function onInit() {
+    provide("api", createGraphQLClient({
+        "url": "https://example.com/graphql",
+        "headers": {"Referer": "https://example.com/"}
+    }));
+}
+
+function getGallery(page, query, filters) {
+    data = inject("api").query(
+        "query List($page: Int, $search: String) { list(page: $page, search: $search) { id title cover } }",
+        {"page": page, "search": query},
+        "List"
+    );
+    return data["list"].map(function(item) {
+        return buildGallery({"uid": item["id"], "title": item["title"], "cover": item["cover"], "data": {}});
+    });
+}
+```
+
+`createGraphQLClient(url, headers = {}, method = "POST")` returns a client with:
+
+* `query(query, variables = null, operationName = null)`: the `data` object; fails with the
+  server's messages when the response has `errors`.
+* `request(query, variables, operationName)`: `{statusCode, data, errors, extensions, headers}`
+  without failing on GraphQL errors, for partial results.
+* `persisted(sha256Hash, variables, operationName, query = null)`: an Apollo persisted query.
+  Pass `null` as the hash to compute it from `query`; when the server does not know the hash and
+  `query` is given, the request is repeated once with the query text.
+* `setHeader(name, value)`: sets a header for later requests, or removes it when `value` is null.
+
+`method: "GET"` sends `query`, `variables`, `operationName` and `extensions` as URL parameters.
+HTTP 429 becomes a `rateLimited` source error. `hashGraphQLQuery(query)` returns the sha256 hex
+used by persisted queries.
+
+---
 
 ## Waka Models
 

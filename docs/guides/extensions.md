@@ -49,7 +49,8 @@ First of all you need to create a new json file called `config.json` with the fo
   The app also slows a source down on its own after a 429 and honours `Retry-After`; these values
   are the floor it starts from.
 * `apiVersion` (optional): The extension API the script needs, `1` when left out. Set `2` as soon
-  as you use anything marked *api 2* in these guides. See [API versions](#api-versions).
+  as you use anything marked *api 2* in these guides, `3` for anything marked *api 3*. See
+  [API versions](#api-versions).
 * `minAppVersion` (optional): The oldest app release the extension works with, as `"x.y.z"`. See
   [API versions](#api-versions).
 * `preferences` (api 2, optional): Settings the user can change for this extension. See
@@ -451,6 +452,11 @@ field out (or set `1`) if you use none of them. Set `"apiVersion": 2` when the c
 `currentMirror()`, or declares a `pageSize` parameter on `getGallery`. The repository validator
 reports any api 2 feature used without it.
 
+Set `"apiVersion": 3` when the script defines `onInit`, imports `dependencies`, `bytes`, `hash`
+or `graphql`, reads a response's `bodyBytes`, or relies on `windows-1251`/`koi8` pages being
+decoded properly. Api 3 extensions must also set `minAppVersion` to the first app release that
+supports api 3; the validator rejects them without one.
+
 `minAppVersion` is for everything else that only works from a given release on, such as a new
 model field your extension depends on. It is compared with the running app's version.
 
@@ -719,6 +725,35 @@ The [`storage`](caypscript_modules.md#storage) module (api 2) keeps small JSON v
 extension between calls and app restarts, optionally with an expiry: tokens, a resolved API host,
 a cached genre list. It is private to the extension, is not part of the app's export, and is
 deleted when the extension is removed.
+
+## Lifecycle
+
+**(api 3)** A script can define `onInit()`. The app keeps one client per open extension (and
+separate ones for background work such as library updates); `onInit` runs once per client,
+before the first function the app calls on it, and is the place to set up shared objects with
+the [`dependencies`](caypscript_modules.md#dependencies) module.
+
+```capyscript
+import "dependencies";
+import "graphql";
+import "preferences";
+
+function onInit() {
+    provide("api", createGraphQLClient({
+        "url": "https://" + getPreference("host") + "/graphql"
+    }));
+}
+```
+
+* If `onInit` fails, the call that triggered it fails with the same error, and the next call runs
+  `onInit` again.
+* When the user changes the extension's settings or clears its stored data, every live client
+  forgets what it provided and runs `onInit` again before its next call, so values built from
+  preferences stay current.
+* `onInit` is not run before `passWebBrowserInterceptorController`, so the in-app browser may not
+  be ready yet. Keep it free of network requests and use `provideLazy` for anything that has to
+  fetch.
+* Scripts without `onInit` behave exactly as before.
 
 ## Splitting an extension across files
 
