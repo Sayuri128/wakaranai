@@ -457,6 +457,11 @@ or `graphql`, calls `httpGetAll`, reads a response's `bodyBytes`, or relies on `
 decoded properly. Api 3 extensions must also set `minAppVersion` to the first app release that
 supports api 3; the validator rejects them without one.
 
+Every extension in the official repository is on api 3 with an [Extension class](#extension-class),
+and its validator rejects anything else. Global entry-point functions still run in the app, so
+the function examples in these guides work as written; inside a class they become
+`override function` methods.
+
 `minAppVersion` is for everything else that only works from a given release on, such as a new
 model field your extension depends on. It is compared with the running app's version.
 
@@ -811,28 +816,28 @@ How the app uses the class:
 * Helper functions outside the class still work. Inside the class, call other methods with
   `this.name(...)`.
 
-Shared engines plug in the same way. `shared/madara_source` declares
-`abstract class MadaraSource extends MangaSource`, which forwards the entry points to a
-`MadaraEngine`. A site refines the engine steps it needs and hands the engine to `MadaraSource`:
+Shared engines plug in the same way: an engine is an abstract class between the type's base class
+and the site. The official repository has `MadaraSource` and `MangaThemesiaSource` (WordPress
+themes) and `LibSocialMangaSource` (MangaLib, HentaiLib, SlashLib). A site passes its settings to
+the constructor and overrides only the steps that differ:
 
 ```capyscript
-import "../../shared/madara_source";
+import "../../shared/madara";
 
-class SiteEngine extends MadaraEngine {
+class Extension extends MadaraSource {
+    function constructor() {
+        super({"baseUrl": "https://example.com"});
+    }
+
     override function titleOf(document) {
         return super.titleOf(document).replaceAll(" (Official)", "");
     }
 }
-
-class Extension extends MadaraSource {
-    function constructor() {
-        super(new SiteEngine({"baseUrl": "https://example.com"}));
-    }
-}
 ```
 
-`MadaraEngine` itself lives in `shared/madara` without the new keywords, so the api 2 Madara
-extensions keep using it through `madaraGetGallery(settings, ...)` on older app releases.
+Shared code that is a plain helper library rather than an engine (player resolvers such as Kodik or
+Playerjs, `shared/protobuf`'s `ProtoReader`/`ProtoWriter` for gRPC-web APIs) stays a set of
+functions or small classes that any extension calls.
 
 A statement can't start with a call result, so assign first:
 `client = this.api; client.setHeader("Authorization", token);` (a field access such as
