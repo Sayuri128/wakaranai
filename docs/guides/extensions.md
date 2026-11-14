@@ -452,7 +452,7 @@ field out (or set `1`) if you use none of them. Set `"apiVersion": 2` when the c
 `currentMirror()`, or declares a `pageSize` parameter on `getGallery`. The repository validator
 reports any api 2 feature used without it.
 
-Set `"apiVersion": 3` when the script declares an `Extension` class, imports `dependencies`, `bytes`, `hash`
+Set `"apiVersion": 3` when the script declares an `Extension` class or uses `abstract`/`override`, imports `dependencies`, `bytes`, `hash`
 or `graphql`, calls `httpGetAll`, reads a response's `bodyBytes`, or relies on `windows-1251`/`koi8` pages being
 decoded properly. Api 3 extensions must also set `minAppVersion` to the first app release that
 supports api 3; the validator rejects them without one.
@@ -728,20 +728,35 @@ deleted when the extension is removed.
 
 ## Extension class
 
-**(api 3)** Instead of global functions, a script can declare one class named `Extension` that
-extends the base class of its type and implements the same entry points as methods:
+**(api 3)** Instead of global functions, a script can declare one class named `Extension`. The
+interpreter has built-in base classes for it; no import is needed:
 
-| Type | Base class (module) | Required methods |
-|---|---|---|
-| Manga | `MangaSource` (`manga_models`) | `getGallery`, `getConcrete`, `getPages` |
-| Anime | `AnimeSource` (`anime_models`) | `getGallery`, `getConcrete` |
-| Novel | `NovelSource` (`novel_models`) | `getGallery`, `getConcrete`, `getChapterText` |
-| Audio | `AudioSource` (`audio_models`) | `getGallery`, `getConcrete`, `getAudioSources` |
+```
+ExtensionSource                      (abstract, shared defaults)
+├── MangaSource                      (abstract getGallery, getConcrete, getPages)
+├── AnimeSource                      (abstract getGallery, getConcrete)
+├── NovelSource                      (abstract getGallery, getConcrete, getChapterText)
+└── AudioSource                      (abstract getGallery, getConcrete, getAudioSources)
+    └── Extension                    (your class)
+```
 
-The optional entry points (`getImageHeaders`, `getRelated`, `getVideoSources`, `passProtector`,
-`passWebBrowserInterceptorController`) are methods too; the base classes answer
-`getImageHeaders` with no headers. Methods receive the same arguments as the global functions,
-matched by parameter name, and may declare fewer parameters than the app passes.
+`ExtensionSource` provides defaults every type can use or override:
+
+| Method | Default |
+|---|---|
+| `getImageHeaders(uid, data)` | no headers |
+| `passProtector(body, headers, cookies)` | sends the protector headers with every request |
+| `passWebBrowserInterceptorController(controller)` | registers the in-app browser for `throughWeb` |
+| `checkResponse(response, label)` | returns a 2xx response, otherwise `throwForStatus` |
+| `throwForStatus(statusCode, label)` | 401 `loginRequired`, 404/410 `notFound`, 429 `rateLimited`, 451 `regionBlocked`, 0/403/5xx `sourceDown`, anything else a plain error |
+
+The type's abstract methods must be implemented, and every method that implements or replaces a
+parent method is written `override function`. Both are checked when the script loads: a missing
+implementation, a missing `override` or an `override` with nothing to override (a typo such as
+`getPage`) fails with a message naming the class and method. Optional entry points that the base
+classes don't declare (`getRelated`, `getVideoSources`) are plain methods. Methods receive the
+same arguments as the global functions, matched by parameter name, and may declare fewer
+parameters than the app passes.
 
 ```capyscript
 import "http";
@@ -758,55 +773,66 @@ class Extension extends MangaSource {
         });
     }
 
-    function getGallery(page, query, filters, feed, pageSize) {
+    override function getGallery(page, query, filters, feed, pageSize) {
         return this.api.query("{ list { id title } }")["list"].map(function(item) {
             return buildGallery({"uid": item["id"], "title": item["title"], "cover": "", "data": {}});
         });
     }
 
-    function getConcrete(uid, data) {
+    override function getConcrete(uid, data) {
+        response = this.checkResponse(httpGet("https://example.com/title/" + uid), "title page");
     }
 
-    function getPages(uid, data) {
+    override function getPages(uid, data) {
+    }
+
+    override function getImageHeaders(uid, data) {
+        return {"Referer": "https://example.com/"};
     }
 }
 ```
 
-How the app uses it:
+The language rules behind it apply to every class: `abstract class` can't be created with `new`,
+an `abstract function name(params);` has no body and makes its class abstract, interfaces
+(`interface Named { function name(prefix); }`) are checked across the whole class chain, and a
+class that extends an undeclared class fails to load.
+
+How the app uses the class:
 
 * It creates one instance per client (one per open extension, separate ones for background work
   such as library updates) before the first call and keeps it. The constructor is the place for
   setup and fields hold state between calls. Keep the constructor free of network requests: it
   runs before the in-app browser is ready.
-* A missing required method or a wrong base class fails as soon as the extension loads, naming
-  what is missing.
 * If the constructor fails, the call fails with the same error and the next call tries again.
 * When the user changes the extension's settings or clears its stored data, the app drops the
   instance. The next call creates a new one and first repeats the last
   `passWebBrowserInterceptorController` and `passProtector` calls on it, so sign-in state set
   there is restored.
-* Helper functions outside the class still work and can be called from methods. Inside the class,
-  call other methods with `this.name(...)`.
+* Helper functions outside the class still work. Inside the class, call other methods with
+  `this.name(...)`.
 
-Shared engines can be base classes as well: `shared/madara` declares `class MadaraSource extends
-MangaSource`, so a Madara site is
+Shared engines plug in the same way. `shared/madara_source` declares
+`abstract class MadaraSource extends MangaSource`, which forwards the entry points to a
+`MadaraEngine`. A site refines the engine steps it needs and hands the engine to `MadaraSource`:
 
 ```capyscript
-import "../../shared/madara";
+import "../../shared/madara_source";
+
+class SiteEngine extends MadaraEngine {
+    override function titleOf(document) {
+        return super.titleOf(document).replaceAll(" (Official)", "");
+    }
+}
 
 class Extension extends MadaraSource {
     function constructor() {
-        super({"baseUrl": "https://example.com"});
-    }
-
-    function titleOf(document) {
-        return super.titleOf(document).replaceAll(" (Official)", "");
+        super(new SiteEngine({"baseUrl": "https://example.com"}));
     }
 }
 ```
 
-and overrides only the steps that differ. The engine keeps its `madaraGetGallery(settings, ...)`
-functions for api 2 extensions.
+`MadaraEngine` itself lives in `shared/madara` without the new keywords, so the api 2 Madara
+extensions keep using it through `madaraGetGallery(settings, ...)` on older app releases.
 
 A statement can't start with a call result, so assign first:
 `client = this.api; client.setHeader("Authorization", token);` (a field access such as

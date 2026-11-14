@@ -13,25 +13,18 @@ class Extension extends MangaSource {
         this.baseUrl = "https://example.com";
     }
 
-    function getGallery(page, query, filters, feed, pageSize) {
+    override function getGallery(page, query, filters, feed, pageSize) {
+        response = this.checkResponse(httpGet(this.baseUrl + "/list?page=" + parseString(page)), "gallery");
         return [];
     }
 
-    function getConcrete(uid, data) {
+    override function getConcrete(uid, data) {
     }
 
-    function getPages(uid, data) {
+    override function getPages(uid, data) {
     }
 
-    function getImageHeaders(uid, data) {
+    override function getImageHeaders(uid, data) {
         return {"Referer": this.baseUrl + "/"};
-    }
-
-    function passProtector(body, headers, cookies) {
-        useHeaders({"headers": headers});
-    }
-
-    function passWebBrowserInterceptorController(controller) {
-        registerInterceptorController(controller);
     }
 }
